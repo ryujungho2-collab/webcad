@@ -1,0 +1,14 @@
+{
+  "name": "@agent-webcad/cad-kernel",
+  "version": "0.0.1",
+  "description": "CAD kernel for agent-webcad project",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w"
+  },
+  "keywords": ["cad", "kernel"],
+  "author": "agent-webcad team",
+  "license": "MIT"
+}

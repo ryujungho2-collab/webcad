@@ -1,0 +1,14 @@
+{
+  "name": "@agent-webcad/cad-geometry",
+  "version": "0.0.1",
+  "description": "CAD geometry handling for agent-webcad project",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w"
+  },
+  "keywords": ["cad", "geometry"],
+  "author": "agent-webcad team",
+  "license": "MIT"
+}

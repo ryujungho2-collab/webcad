@@ -1,0 +1,14 @@
+{
+  "name": "@agent-webcad/cad-commands",
+  "version": "0.0.1",
+  "description": "CAD command system for agent-webcad project",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w"
+  },
+  "keywords": ["cad", "commands"],
+  "author": "agent-webcad team",
+  "license": "MIT"
+}

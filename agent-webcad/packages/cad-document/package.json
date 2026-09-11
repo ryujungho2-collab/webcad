@@ -1,0 +1,14 @@
+{
+  "name": "@agent-webcad/cad-document",
+  "version": "0.0.1",
+  "description": "CAD document model for agent-webcad project",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w"
+  },
+  "keywords": ["cad", "document"],
+  "author": "agent-webcad team",
+  "license": "MIT"
+}
