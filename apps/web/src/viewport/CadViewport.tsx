@@ -9,10 +9,21 @@ import {
   shapeToMesh,
 } from "@agent-webcad/cad-kernel";
 
-export function CadViewport() {
+type CadViewportProps = {
+  onSelectObject?: (
+    objectId: string | null
+  ) => void;
+};
+
+export function CadViewport({
+  onSelectObject,
+}: CadViewportProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
 
+
   useEffect(() => {
+    console.log("CadViewport mounted");
+
     const host = hostRef.current;
 
     if (!host) {
@@ -105,6 +116,7 @@ export function CadViewport() {
     }
 
     function handlePointerDown(event: PointerEvent) {
+      console.log("pointerdown");
       if (!meshObject) {
         return;
       }
@@ -129,10 +141,32 @@ export function CadViewport() {
           false
         );
 
-      setSelected(hits.length > 0);
+      if (hits.length === 0) {
+        setSelected(false);
+        onSelectObject?.(null);
+        return;
+      }
+
+      const objectId =
+        hits[0].object.userData.cadObjectId as
+          | string
+          | undefined;
+
+      if (objectId) {
+        console.log(
+          "Selected CAD object:",
+          objectId
+        );
+
+        onSelectObject?.(objectId);
+      }
+
+      setSelected(true);
     }
 
     async function buildCadShape() {
+      console.log("buildCadShape start");
+
       const box = await createBox(
         10,
         10,
@@ -163,6 +197,12 @@ export function CadViewport() {
       if (disposed) {
         return;
       }
+
+      console.log("meshData", {
+        positions: meshData.positions.length,
+        normals: meshData.normals.length,
+        indices: meshData.indices.length,
+      });
 
       const geometry =
         new THREE.BufferGeometry();
@@ -202,7 +242,10 @@ export function CadViewport() {
         material
       );
 
+      meshObject.userData.cadObjectId = "demo-part";
+
       scene.add(meshObject);
+      console.log("mesh added", meshObject);
 
       const box3 = new THREE.Box3().setFromObject(meshObject);
 

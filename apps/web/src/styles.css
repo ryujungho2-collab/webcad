@@ -16,17 +16,55 @@ body {
   color: #f5f7fa;
 }
 
-* {
-  box-sizing: border-box;
-}
-
 .app {
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-rows: 48px 1fr;
+  grid-template-rows: auto 1fr;
+  background: #111318;
+  color: #ffffff;
 }
 
+.workspace {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 280px;
+}
+
+.viewport-shell {
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+}
+
+.cad-viewport {
+  width: 100%;
+  height: 100%;
+}
+
+.properties-panel {
+  padding: 16px;
+  border-left: 1px solid #262a33;
+  background: #171a20;
+  overflow: auto;
+}
+
+.properties-panel h2 {
+  margin-top: 0;
+  font-size: 16px;
+}
+
+.properties-panel > div {
+  margin-bottom: 16px;
+}
+
+.properties-panel strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #9aa4b2;
+  font-size: 12px;
+}
 .toolbar {
   display: flex;
   align-items: center;
