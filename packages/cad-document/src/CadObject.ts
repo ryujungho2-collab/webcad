@@ -3,4 +3,6 @@ export interface CadObject {
   geometryId: string;
   name: string;
   visible: boolean;
+
+  layerId: string;
 }

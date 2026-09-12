@@ -8,7 +8,13 @@
     "build": "tsc",
     "dev": "tsc -w"
   },
-  "keywords": ["cad", "document"],
+  "keywords": [
+    "cad",
+    "document"
+  ],
   "author": "agent-webcad team",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
 }

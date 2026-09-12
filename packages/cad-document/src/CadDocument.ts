@@ -1,5 +1,6 @@
-import { CadObject } from './CadObject';
-import { CadFeature } from './Feature';
+import { CadObject } from "./CadObject";
+import { CadFeature } from "./Feature";
+import { CadLayer } from "./Layer";
 
 export interface CadDocument {
   id: string;
@@ -8,5 +9,8 @@ export interface CadDocument {
   objects: Record<string, CadObject>;
   features: Record<string, CadFeature>;
 
+  layers: Record<string, CadLayer>;
+
   rootObjects: string[];
+  rootLayers: string[];
 }

@@ -12,12 +12,29 @@ export const cadDocument: CadDocument = {
       geometryId: "geometry-demo-part",
       name: "Boolean Cut Part",
       visible: true,
+      layerId: "layer-default",
     },
   },
 
   features: {},
 
+  layers: {
+    "layer-default": {
+      id: "layer-default",
+      name: "Default",
+      visible: true,
+      locked: false,
+      objectIds: [
+        "demo-part",
+      ],
+    },
+  },
+
   rootObjects: [
     "demo-part",
+  ],
+
+  rootLayers: [
+    "layer-default",
   ],
 };

@@ -8,6 +8,9 @@
     "build": "tsc -b && vite build"
   },
   "dependencies": {
+    "@agent-webcad/cad-commands": "workspace:*",
+    "@agent-webcad/cad-document": "workspace:*",
+    "@agent-webcad/cad-history": "workspace:*",
     "@agent-webcad/cad-kernel": "workspace:*",
     "@vitejs/plugin-react": "^5.0.0",
     "react": "^19.1.1",
