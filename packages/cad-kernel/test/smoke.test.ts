@@ -98,6 +98,11 @@ async function runSmokeTest() {
   );
 
   console.log(
+    "Normals:",
+    mesh.normals.length / 3,
+  );
+
+  console.log(
     "Triangles:",
     mesh.indices.length / 3,
   );

@@ -99,29 +99,49 @@ export async function shapeToMesh(shape: any): Promise<{
           triHandle
         );
 
-      const nodeCount =
-        triangulation.NbNodes();
+      const nodeCount = triangulation.NbNodes();
+
+      const reversed = face.Orientation_1() === oc.TopAbs_Orientation.TopAbs_REVERSED;
+
+      const transform = location.IsIdentity()
+        ? null
+        : location.Transformation();
+
+      const hasNormals = triangulation.HasNormals();
 
       for (let i = 1; i <= nodeCount; i++) {
-        const point =
-          triangulation.Node(i);
+        const point = triangulation.Node(i);
 
+        const worldPoint = transform
+          ? point.Transformed(transform)
+          : point;
+
+        
         positions.push(
-          point.X(),
-          point.Y(),
-          point.Z()
+          worldPoint.X(),
+          worldPoint.Y(),
+          worldPoint.Z()
         );
 
-        // Normals will be filled properly after the
-        // basic smoke test is passing.
+        if (hasNormals) {
+          const normal = triangulation.Normal_1(i);
+
+          const worldNormal = transform
+          ? normal.Transformed(transform)
+          : normal;
+
+          const sign = reversed ? -1 : 1;
+
+          normals.push(
+            worldNormal.X() * sign,
+            worldNormal.Y() * sign,
+            worldNormal.Z() * sign
+          );
+        }
       }
 
       const triangleCount =
         triangulation.NbTriangles();
-
-      const reversed =
-        face.Orientation_1() ===
-        oc.TopAbs_Orientation.TopAbs_REVERSED;
 
       for (
         let i = 1;
@@ -157,6 +177,72 @@ export async function shapeToMesh(shape: any): Promise<{
     }
 
     explorer.Next();
+  }
+
+  // Fallback: generate vertex normals when OpenCascade
+  // triangulation does not provide them.
+  if (normals.length !== positions.length && positions.length > 0) {
+    normals.length = 0;
+
+    for (let i = 0; i < positions.length; i++) {
+      normals.push(0);
+    }
+
+    for (let i = 0; i < indices.length; i += 3) {
+      const ia = indices[i] * 3;
+      const ib = indices[i + 1] * 3;
+      const ic = indices[i + 2] * 3;
+
+      const ax = positions[ia];
+      const ay = positions[ia + 1];
+      const az = positions[ia + 2];
+
+      const bx = positions[ib];
+      const by = positions[ib + 1];
+      const bz = positions[ib + 2];
+
+      const cx = positions[ic];
+      const cy = positions[ic + 1];
+      const cz = positions[ic + 2];
+
+      const abx = bx - ax;
+      const aby = by - ay;
+      const abz = bz - az;
+
+      const acx = cx - ax;
+      const acy = cy - ay;
+      const acz = cz - az;
+
+      const nx = aby * acz - abz * acy;
+      const ny = abz * acx - abx * acz;
+      const nz = abx * acy - aby * acx;
+
+      normals[ia] += nx;
+      normals[ia + 1] += ny;
+      normals[ia + 2] += nz;
+
+      normals[ib] += nx;
+      normals[ib + 1] += ny;
+      normals[ib + 2] += nz;
+
+      normals[ic] += nx;
+      normals[ic + 1] += ny;
+      normals[ic + 2] += nz;
+    }
+
+    for (let i = 0; i < normals.length; i += 3) {
+      const nx = normals[i];
+      const ny = normals[i + 1];
+      const nz = normals[i + 2];
+
+      const length = Math.hypot(nx, ny, nz);
+
+      if (length > 0) {
+        normals[i] = nx / length;
+        normals[i + 1] = ny / length;
+        normals[i + 2] = nz / length;
+      }
+    }
   }
 
   if (
