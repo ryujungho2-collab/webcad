@@ -1,4 +1,3 @@
-// Message bus for communication between components
 // MIT License
 // Copyright (c) 2023 Cascade Studio
 //
@@ -20,20 +19,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-export class MessageBus {
-  private subscribers: Array<(message: any) => void> = [];
+import { CadEngine } from '../runtime/CadEngine';
 
-  constructor() {
-    // Initialize message bus
-  }
+/**
+ * Create a box shape
+ */
+export async function createBox(width: number, depth: number, height: number): Promise<any> {
+  const engine = await CadEngine.create();
+  const oc = engine.oc;
+  
+  // Create a box using BRepPrimAPI_MakeBox
+  const boxMaker = new oc.BRepPrimAPI_MakeBox_2(
+    width,
+    depth,
+    height
+  );
+  
+  return boxMaker.Shape();
+}
 
-  publish(message: any) {
-    // Publish message to all subscribers
-    this.subscribers.forEach(subscriber => subscriber(message));
-  }
+/**
+ * Create a cylinder shape
+ */
+export async function createCylinder(radius: number, height: number): Promise<any> {
+  const engine = await CadEngine.create();
+  const oc = engine.oc;
+  
+  // Create a cylinder using BRepPrimAPI_MakeCylinder
+  const cylMaker = new oc.BRepPrimAPI_MakeCylinder_1(
+    radius,
+    height
+  );
+  
+  return cylMaker.Shape();
+}
 
-  subscribe(callback: (message: any) => void) {
-    // Subscribe to messages
-    this.subscribers.push(callback);
-  }
+/**
+ * Create a sphere shape
+ */
+export async function createSphere(radius: number): Promise<any> {
+  const engine = await CadEngine.create();
+  const oc = engine.oc;
+  
+  // Create a sphere using BRepPrimAPI_MakeSphere
+  const sphMaker = new oc.BRepPrimAPI_MakeSphere_1(
+    radius
+  );
+  
+  return sphMaker.Shape();
 }

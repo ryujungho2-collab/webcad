@@ -1,4 +1,3 @@
-// Message bus for communication between components
 // MIT License
 // Copyright (c) 2023 Cascade Studio
 //
@@ -20,20 +19,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-export class MessageBus {
-  private subscribers: Array<(message: any) => void> = [];
+import { CadEngine } from "../runtime/CadEngine";
 
-  constructor() {
-    // Initialize message bus
-  }
+export async function volume(shape: any): Promise<number> {
+  const engine = await CadEngine.create();
+  const oc = engine.oc;
 
-  publish(message: any) {
-    // Publish message to all subscribers
-    this.subscribers.forEach(subscriber => subscriber(message));
-  }
+  const props = new oc.GProp_GProps_1();
 
-  subscribe(callback: (message: any) => void) {
-    // Subscribe to messages
-    this.subscribers.push(callback);
-  }
+  oc.BRepGProp.VolumeProperties_1(
+    shape,
+    props,
+    false,
+    false,
+    false
+  );
+
+  return props.Mass();
+}
+
+export async function surfaceArea(shape: any): Promise<number> {
+  const engine = await CadEngine.create();
+  const oc = engine.oc;
+
+  const props = new oc.GProp_GProps_1();
+
+  oc.BRepGProp.SurfaceProperties_1(
+    shape,
+    props,
+    false,
+    false
+  );
+
+  return props.Mass();
 }

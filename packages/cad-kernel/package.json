@@ -1,14 +1,20 @@
 {
   "name": "@agent-webcad/cad-kernel",
   "version": "0.0.1",
-  "description": "CAD kernel for agent-webcad project",
+  "private": true,
+  "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc -w"
+    "build": "tsc --noEmit"
   },
-  "keywords": ["cad", "kernel"],
-  "author": "agent-webcad team",
-  "license": "MIT"
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.0"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "opencascade.js": "2.0.0-beta.b5ff984"
+  }
 }

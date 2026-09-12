@@ -1,12 +1,22 @@
-// CAD Engine interface and implementation
+import initOpenCascade, {
+  type OpenCascadeInstance
+} from "opencascade.js/dist/node.js";
+
 export class CadEngine {
-  // Implementation will be copied from Cascade Studio's CascadeEngine.js
-  constructor() {
-    // Initialize engine
+  private static instance: CadEngine | null = null;
+
+  public readonly oc: OpenCascadeInstance;
+
+  private constructor(oc: OpenCascadeInstance) {
+    this.oc = oc;
   }
 
-  // Methods to be implemented
-  async executeCommand(command: any) {
-    // Execute command in worker
+  static async create(): Promise<CadEngine> {
+    if (!CadEngine.instance) {
+      const oc = await initOpenCascade();
+      CadEngine.instance = new CadEngine(oc);
+    }
+
+    return CadEngine.instance;
   }
 }
