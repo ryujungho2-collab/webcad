@@ -1,4 +1,8 @@
 import {
+  useState,
+} from "react";
+
+import {
   cadDocument,
 } from "../../state/cadDocument";
 
@@ -7,6 +11,8 @@ import {
 } from "../../state/dispatchCadCommand";
 
 type LayersPanelProps = {
+  query: string;
+
   documentRevision: number;
 
   selectedLayerId: string;
@@ -19,12 +25,15 @@ type LayersPanelProps = {
 };
 
 export function LayersPanel({
+  query,
   documentRevision,
   selectedLayerId,
   onSelectLayer,
   onDocumentChange,
 }: LayersPanelProps) {
   void documentRevision;
+  const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
+  const [draftName, setDraftName] = useState("");
 
   async function createLayer() {
     const id =
@@ -39,9 +48,7 @@ export function LayersPanel({
     onDocumentChange();
   }
 
-  async function renameLayer(
-    layerId: string
-  ) {
+  function startRename(layerId: string) {
     const layer =
       cadDocument.layers[
         layerId
@@ -51,13 +58,16 @@ export function LayersPanel({
       return;
     }
 
-    const name =
-      window.prompt(
-        "Layer name",
-        layer.name
-      );
+    setEditingLayerId(layerId);
+    setDraftName(layer.name);
+  }
 
-    if (!name?.trim()) {
+  async function commitRename(layerId: string) {
+    const layer = cadDocument.layers[layerId];
+    const name = draftName.trim();
+    setEditingLayerId(null);
+
+    if (!layer || !name || name === layer.name) {
       return;
     }
 
@@ -144,7 +154,7 @@ export function LayersPanel({
   return (
     <aside className="layers-panel">
       <div className="layers-header">
-        <h2>Layers</h2>
+        <span>Layer controls</span>
 
         <button
           type="button"
@@ -156,7 +166,10 @@ export function LayersPanel({
         </button>
       </div>
 
-      {cadDocument.rootLayers.map(
+      {cadDocument.rootLayers.filter((layerId) => {
+        const layer = cadDocument.layers[layerId];
+        return layer && (!query || layer.name.toLowerCase().includes(query));
+      }).map(
         (layerId) => {
           const layer =
             cadDocument.layers[
@@ -185,7 +198,7 @@ export function LayersPanel({
                 )
               }
               onDoubleClick={() =>
-                renameLayer(
+                startRename(
                   layer.id
                 )
               }
@@ -207,12 +220,25 @@ export function LayersPanel({
                   : "○"}
               </button>
 
-              <span
-                className="layer-name"
-                title={layer.name}
-              >
-                {layer.name}
-              </span>
+              {editingLayerId === layer.id ? (
+                <input
+                  className="layer-name-input"
+                  value={draftName}
+                  autoFocus
+                  aria-label="Layer name"
+                  onClick={(event) => event.stopPropagation()}
+                  onChange={(event) => setDraftName(event.target.value)}
+                  onBlur={() => void commitRename(layer.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") event.currentTarget.blur();
+                    if (event.key === "Escape") setEditingLayerId(null);
+                  }}
+                />
+              ) : (
+                <span className="layer-name" title={`${layer.name} · Double-click to rename`}>
+                  {layer.name}
+                </span>
+              )}
 
               <span className="layer-count">
                 {
@@ -264,6 +290,10 @@ export function LayersPanel({
           );
         }
       )}
+      {cadDocument.rootLayers.filter((layerId) => {
+        const layer = cadDocument.layers[layerId];
+        return layer && (!query || layer.name.toLowerCase().includes(query));
+      }).length === 0 && <div className="empty-panel">No matching layers</div>}
     </aside>
   );
 }

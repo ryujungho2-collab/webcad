@@ -16,6 +16,7 @@ const CACHE_KEY =
   "agent-webcad-working-document";
 
 export function saveDocumentToCache() {
+  const startedAt = performance.now();
   const data =
     serializeDocument(
       cadDocument
@@ -25,6 +26,12 @@ export function saveDocumentToCache() {
     CACHE_KEY,
     data
   );
+
+  performance.measure("agent-webcad:document-save-cache", {
+    start: startedAt,
+    end: performance.now(),
+    detail: { serializedCharacters: data.length },
+  });
 }
 
 export function loadDocumentFromCache():
@@ -86,16 +93,20 @@ export function saveDocumentAsFile() {
   );
 
   anchor.click();
-  anchor.remove();
 
-  URL.revokeObjectURL(
-    url
+  window.setTimeout(
+    () => {
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    },
+    1_000
   );
 }
 
 export async function openDocumentFile(
   file: File
 ) {
+  const startedAt = performance.now();
   const text =
     await file.text();
 
@@ -107,6 +118,12 @@ export async function openDocumentFile(
   restoreLoadedDocument(
     loaded
   );
+
+  performance.measure("agent-webcad:document-open", {
+    start: startedAt,
+    end: performance.now(),
+    detail: { bytes: file.size },
+  });
 }
 
 export function newDocument() {

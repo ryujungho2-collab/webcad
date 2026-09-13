@@ -6,6 +6,7 @@ import {
 import {
   cadDocument,
 } from "./cadDocument";
+import { getObjectTransform } from "./objectTransform";
 
 export const commandBus =
   new CommandBus();
@@ -21,10 +22,16 @@ commandBus.registerHandler(
       command.id ??
       `layer-${crypto.randomUUID()}`;
 
+    if (cadDocument.layers[id]) {
+      return;
+    }
+
+    const requestedName = command.name?.trim();
+
     cadDocument.layers[id] = {
       id,
       name:
-        command.name ??
+        requestedName ||
         `Layer ${cadDocument.rootLayers.length + 1}`,
       visible: true,
       locked: false,
@@ -55,7 +62,7 @@ commandBus.registerHandler(
     const name =
       command.name.trim();
 
-    if (!name) {
+    if (!name || name === layer.name) {
       return;
     }
 
@@ -74,7 +81,7 @@ commandBus.registerHandler(
     const layer =
       cadDocument.layers[command.layerId];
 
-    if (!layer) {
+    if (!layer || layer.visible === command.visible) {
       return;
     }
 
@@ -95,7 +102,7 @@ commandBus.registerHandler(
     const layer =
       cadDocument.layers[command.layerId];
 
-    if (!layer) {
+    if (!layer || layer.locked === command.locked) {
       return;
     }
 
@@ -126,9 +133,16 @@ commandBus.registerHandler(
         command.layerId
       ];
 
+    const sourceLayer = object
+      ? cadDocument.layers[object.layerId]
+      : undefined;
+
     if (
       !object ||
-      !targetLayer
+      !targetLayer ||
+      object.layerId === targetLayer.id ||
+      sourceLayer?.locked ||
+      targetLayer.locked
     ) {
       return;
     }
@@ -176,7 +190,7 @@ commandBus.registerHandler(
         command.objectId
       ];
 
-    if (!object) {
+    if (!object || object.visible === command.visible) {
       return;
     }
 
@@ -185,6 +199,151 @@ commandBus.registerHandler(
 
     cadDocument.revision += 1;
   }
+);
+
+commandBus.registerHandler(
+  "isolate-object",
+  async (command: CadCommand) => {
+    if (command.type !== "isolate-object" || !cadDocument.objects[command.objectId]) return;
+    let changed = false;
+    for (const object of Object.values(cadDocument.objects)) {
+      const visible = object.id === command.objectId;
+      if (object.visible !== visible) {
+        object.visible = visible;
+        changed = true;
+      }
+    }
+    if (changed) cadDocument.revision += 1;
+  },
+);
+
+commandBus.registerHandler(
+  "show-all-objects",
+  async (command: CadCommand) => {
+    if (command.type !== "show-all-objects") return;
+    let changed = false;
+    for (const object of Object.values(cadDocument.objects)) {
+      if (!object.visible) {
+        object.visible = true;
+        changed = true;
+      }
+    }
+    if (changed) cadDocument.revision += 1;
+  },
+);
+
+commandBus.registerHandler(
+  "rename-object",
+  async (command: CadCommand) => {
+    if (command.type !== "rename-object") {
+      return;
+    }
+
+    const object = cadDocument.objects[command.objectId];
+    const name = command.name.trim();
+    const layer = object ? cadDocument.layers[object.layerId] : undefined;
+
+    if (!object || !name || object.name === name || layer?.locked) {
+      return;
+    }
+
+    object.name = name;
+    cadDocument.revision += 1;
+  }
+);
+
+commandBus.registerHandler(
+  "update-box",
+  async (command: CadCommand) => {
+    if (command.type !== "update-box") {
+      return;
+    }
+
+    const feature = Object.values(cadDocument.features).find(
+      (entry) => entry.output === command.objectId
+    );
+    const object = cadDocument.objects[command.objectId];
+    const layer = object ? cadDocument.layers[object.layerId] : undefined;
+
+    const values = [command.width, command.depth, command.height];
+    const currentValues = feature
+      ? [feature.params.width, feature.params.depth, feature.params.height].map(Number)
+      : [];
+
+    if (
+      !feature ||
+      feature.type !== "primitive" ||
+      !object ||
+      layer?.locked ||
+      values.some((value) => !Number.isFinite(value)) ||
+      command.width <= 0 ||
+      command.depth <= 0 ||
+      command.height <= 0 ||
+      values.every((value, index) => value === currentValues[index])
+    ) {
+      return;
+    }
+
+    feature.params = {
+      ...feature.params,
+      width: command.width,
+      depth: command.depth,
+      height: command.height,
+    };
+
+    cadDocument.revision += 1;
+  }
+);
+
+function findFeatureForObject(objectId: string) {
+  return Object.values(cadDocument.features).find(
+    (feature) => feature.output === objectId,
+  );
+}
+
+function getEditableObject(objectId: string) {
+  const object = cadDocument.objects[objectId];
+  const layer = object ? cadDocument.layers[object.layerId] : undefined;
+  return object && !layer?.locked ? object : undefined;
+}
+
+commandBus.registerHandler(
+  "move-object",
+  async (command: CadCommand) => {
+    if (command.type !== "move-object") return;
+    const object = getEditableObject(command.objectId);
+    if (!object) return;
+    const current = getObjectTransform(object, findFeatureForObject(object.id));
+    if (command.translation.every((value, index) => value === current.translation[index])) return;
+    object.transform = { ...current, translation: [...command.translation] };
+    cadDocument.revision += 1;
+  },
+);
+
+commandBus.registerHandler(
+  "rotate-object",
+  async (command: CadCommand) => {
+    if (command.type !== "rotate-object") return;
+    const object = getEditableObject(command.objectId);
+    if (!object) return;
+    const current = getObjectTransform(object, findFeatureForObject(object.id));
+    if (command.rotation.every((value, index) => value === current.rotation[index])) return;
+    object.transform = { ...current, rotation: [...command.rotation] };
+    cadDocument.revision += 1;
+  },
+);
+
+commandBus.registerHandler(
+  "scale-object",
+  async (command: CadCommand) => {
+    if (command.type !== "scale-object") return;
+    const object = getEditableObject(command.objectId);
+    if (!object) return;
+    const current = getObjectTransform(object, findFeatureForObject(object.id));
+    if (command.scale.every((value, index) => value === current.scale[index])) return;
+    object.transform = { ...current, scale: [...command.scale] };
+    cadDocument.revision += 1;
+  },
 );
 
 commandBus.registerHandler(
@@ -280,18 +439,38 @@ commandBus.registerHandler(
       command.layerId ??
       "layer-default";
 
+    const layer = cadDocument.layers[layerId];
+    const dimensions = [command.width, command.depth, command.height];
+    const featureId = `feature-${id}`;
+
+    if (
+      cadDocument.objects[id] ||
+      cadDocument.features[featureId] ||
+      !layer ||
+      layer.locked ||
+      dimensions.some((value) => !Number.isFinite(value) || value <= 0) ||
+      command.position?.some((value) => !Number.isFinite(value))
+    ) {
+      return;
+    }
+
     cadDocument.objects[id] = {
       id,
       geometryId: `geometry-${id}`,
       name: "Box",
       visible: true,
       layerId,
+      transform: {
+        translation: [...(command.position ?? [0, 0, 0])],
+        rotation: [0, 0, 0],
+        scale: [1, 1, 1],
+      },
     };
 
     cadDocument.features[
-      `feature-${id}`
+      featureId
     ] = {
-      id: `feature-${id}`,
+      id: featureId,
       type: "primitive",
       inputs: [],
       output: id,
@@ -299,13 +478,11 @@ commandBus.registerHandler(
         width: command.width,
         depth: command.depth,
         height: command.height,
-        position:
-          command.position ?? [0, 0, 0],
       },
     };
 
     cadDocument.rootObjects.push(id);
-    cadDocument.layers[layerId].objectIds.push(id);
+    layer.objectIds.push(id);
     cadDocument.revision += 1;
 
     return id;
@@ -332,6 +509,10 @@ commandBus.registerHandler(
       cadDocument.layers[
         object.layerId
       ];
+
+    if (layer?.locked) {
+      return;
+    }
 
     if (layer) {
       layer.objectIds =
@@ -390,6 +571,12 @@ commandBus.registerHandler(
       return;
     }
 
+    const sourceLayer = cadDocument.layers[source.layerId];
+
+    if (!sourceLayer || sourceLayer.locked) {
+      return;
+    }
+
     const sourceFeature =
       Object.values(
         cadDocument.features
@@ -409,26 +596,8 @@ commandBus.registerHandler(
     const featureId =
       `feature-${id}`;
 
-    const params =
-      structuredClone(
-        sourceFeature.params
-      );
-
-    const position =
-      (
-        params.position ??
-        [0, 0, 0]
-      ) as [
-        number,
-        number,
-        number,
-      ];
-
-    params.position = [
-      position[0] + 10,
-      position[1],
-      position[2],
-    ];
+    const params = structuredClone(sourceFeature.params);
+    const sourceTransform = getObjectTransform(source, sourceFeature);
 
     cadDocument.objects[id] = {
       id,
@@ -440,6 +609,14 @@ commandBus.registerHandler(
         source.visible,
       layerId:
         source.layerId,
+      transform: {
+        ...sourceTransform,
+        translation: [
+          sourceTransform.translation[0] + 10,
+          sourceTransform.translation[1],
+          sourceTransform.translation[2],
+        ],
+      },
     };
 
     cadDocument.features[
@@ -457,16 +634,9 @@ commandBus.registerHandler(
       id
     );
 
-    const layer =
-      cadDocument.layers[
-        source.layerId
-      ];
-
-    if (layer) {
-      layer.objectIds.push(
-        id
-      );
-    }
+    sourceLayer.objectIds.push(
+      id
+    );
 
     cadDocument.revision += 1;
 

@@ -70,6 +70,7 @@ export class CadEngine {
 
   static async create(): Promise<CadEngine> {
     if (!CadEngine.instance) {
+      const startedAt = globalThis.performance?.now();
       const oc =
         typeof window !== "undefined"
           ? await loadBrowserOpenCascade()
@@ -77,6 +78,13 @@ export class CadEngine {
 
       CadEngine.instance =
         new CadEngine(oc);
+
+      if (startedAt !== undefined) {
+        globalThis.performance?.measure("agent-webcad:opencascade-init", {
+          start: startedAt,
+          end: globalThis.performance.now(),
+        });
+      }
     }
 
     return CadEngine.instance;

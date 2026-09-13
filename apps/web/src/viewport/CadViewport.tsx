@@ -1,33 +1,115 @@
 ﻿import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { TransformControls } from "three/examples/jsm/controls/TransformControls.js";
 
 import { cadDocument } from "../state/cadDocument";
-
-import {
-  createBox,
-  createCylinder,
-  translate,
-  cut,
-  shapeToMesh,
-} from "@agent-webcad/cad-kernel";
+import { getObjectTransform } from "../state/objectTransform";
+import { buildBoxMesh, buildDemoPartMesh, subscribeKernelStatus, type KernelStatus } from "./kernelGeometryService";
 
 type CadViewportProps = {
   documentRevision: number;
-
   selectedObjectId: string | null;
-
-  onSelectObject?: (
-    objectId: string | null
-  ) => void;
+  projectionMode: "perspective" | "orthographic";
+  gridVisible: boolean;
+  viewAction: ViewportAction | null;
+  transformMode: TransformMode | null;
+  onKernelStatus?: (status: KernelStatus) => void;
+  onTransformCommit?: (objectId: string, mode: TransformMode, transform: ObjectTransformValue) => void;
+  onSelectObject?: (objectId: string | null) => void;
 };
+
+export type ViewportActionType =
+  | "fit-all"
+  | "fit-selection"
+  | "top"
+  | "front"
+  | "right"
+  | "isometric";
+
+export type ViewportAction = { id: number; type: ViewportActionType };
+export type TransformMode = "translate" | "rotate" | "scale";
+export type ObjectTransformValue = {
+  translation: [number, number, number];
+  rotation: [number, number, number];
+  scale: [number, number, number];
+};
+
+type ViewCamera = THREE.PerspectiveCamera | THREE.OrthographicCamera;
+type AdaptiveGrid = THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
 
 const DEFAULT_COLOR = 0x4f8cff;
 const SELECTED_COLOR = 0xffc107;
 
+function createAdaptiveGrid(): AdaptiveGrid {
+  const material = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    uniforms: {
+      minorStep: { value: 1 },
+      majorStep: { value: 10 },
+      fadeDistance: { value: 100 },
+    },
+    vertexShader: `
+      varying vec3 worldPosition;
+      void main() {
+        vec4 world = modelMatrix * vec4(position, 1.0);
+        worldPosition = world.xyz;
+        gl_Position = projectionMatrix * viewMatrix * world;
+      }
+    `,
+    fragmentShader: `
+      varying vec3 worldPosition;
+      uniform float minorStep;
+      uniform float majorStep;
+      uniform float fadeDistance;
+
+      float gridLine(float stepSize) {
+        vec2 coordinate = worldPosition.xy / stepSize;
+        vec2 width = max(fwidth(coordinate), vec2(0.0001));
+        vec2 grid = abs(fract(coordinate - 0.5) - 0.5) / width;
+        return 1.0 - min(min(grid.x, grid.y), 1.0);
+      }
+
+      void main() {
+        float minor = gridLine(minorStep);
+        float major = gridLine(majorStep);
+        float distanceFromCamera = length(worldPosition.xy - cameraPosition.xy);
+        float fade = 1.0 - smoothstep(fadeDistance * 0.35, fadeDistance, distanceFromCamera);
+
+        vec3 color = mix(vec3(0.16, 0.18, 0.22), vec3(0.28, 0.32, 0.38), major);
+        float axisWidth = max(fwidth(worldPosition.x), fwidth(worldPosition.y));
+        float xAxis = 1.0 - smoothstep(0.0, axisWidth * 1.5, abs(worldPosition.y));
+        float yAxis = 1.0 - smoothstep(0.0, axisWidth * 1.5, abs(worldPosition.x));
+        color = mix(color, vec3(0.48, 0.18, 0.20), xAxis * 0.7);
+        color = mix(color, vec3(0.18, 0.42, 0.25), yAxis * 0.7);
+
+        float alpha = max(minor * 0.28, major * 0.62) * fade;
+        alpha = max(alpha, max(xAxis, yAxis) * 0.65 * fade);
+        if (alpha < 0.01) discard;
+        gl_FragColor = vec4(color, alpha);
+      }
+    `,
+  });
+
+  const grid = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+  grid.name = "Adaptive CAD Grid";
+  grid.position.z = -0.002;
+  grid.renderOrder = -1;
+  grid.frustumCulled = false;
+  return grid;
+}
+
 export function CadViewport({
   documentRevision,
   selectedObjectId,
+  projectionMode,
+  gridVisible,
+  viewAction,
+  transformMode,
+  onKernelStatus,
+  onTransformCommit,
   onSelectObject,
 }: CadViewportProps) {
   const hostRef =
@@ -40,10 +122,10 @@ export function CadViewport({
       null
     );
 
-  const cameraRef =
-    useRef<THREE.PerspectiveCamera | null>(
-      null
-    );
+  const cameraRef = useRef<ViewCamera | null>(null);
+  const perspectiveCameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const orthographicCameraRef = useRef<THREE.OrthographicCamera | null>(null);
+  const gridRef = useRef<AdaptiveGrid | null>(null);
 
   const rendererRef =
     useRef<THREE.WebGLRenderer | null>(
@@ -54,6 +136,8 @@ export function CadViewport({
     useRef<OrbitControls | null>(
       null
     );
+  const transformControlsRef = useRef<TransformControls | null>(null);
+  const firstGeometryReadyRef = useRef(false);
 
   const meshesRef =
     useRef<Map<string, THREE.Mesh>>(
@@ -67,11 +151,18 @@ export function CadViewport({
 
   const onSelectObjectRef =
     useRef(onSelectObject);
+  const onTransformCommitRef = useRef(onTransformCommit);
 
   useEffect(() => {
     onSelectObjectRef.current =
       onSelectObject;
   }, [onSelectObject]);
+
+  useEffect(() => {
+    onTransformCommitRef.current = onTransformCommit;
+  }, [onTransformCommit]);
+
+  useEffect(() => subscribeKernelStatus((status) => onKernelStatus?.(status)), [onKernelStatus]);
 
   /*
    * React selection is authoritative.
@@ -194,6 +285,91 @@ export function CadViewport({
     return mesh;
   }
 
+  function fitMeshes(objectIds?: Set<string>) {
+    const camera = cameraRef.current;
+    const controls = controlsRef.current;
+    if (!camera || !controls) return;
+
+    const bounds = new THREE.Box3();
+    let found = false;
+    for (const [objectId, mesh] of meshesRef.current) {
+      if (!mesh.visible || (objectIds && !objectIds.has(objectId))) continue;
+      mesh.updateWorldMatrix(false, false);
+      bounds.expandByObject(mesh);
+      found = true;
+    }
+    if (!found || bounds.isEmpty()) return;
+
+    const center = bounds.getCenter(new THREE.Vector3());
+    const size = bounds.getSize(new THREE.Vector3());
+    const radius = Math.max(size.length() / 2, 0.05);
+    const direction = camera.position.clone().sub(controls.target);
+    if (direction.lengthSq() < 0.0001) direction.set(1, -1, 1);
+    direction.normalize();
+    const aspect = Math.max(0.1, hostRef.current?.clientWidth ?? 1) /
+      Math.max(1, hostRef.current?.clientHeight ?? 1);
+
+    if (camera instanceof THREE.PerspectiveCamera) {
+      const verticalFov = THREE.MathUtils.degToRad(camera.fov);
+      const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * aspect);
+      const limitingHalfFov = Math.max(THREE.MathUtils.degToRad(5), Math.min(verticalFov, horizontalFov) / 2);
+      const distance = radius / Math.sin(limitingHalfFov) * 1.25;
+      camera.position.copy(center).addScaledVector(direction, distance);
+      camera.near = Math.max(distance / 1000, 0.01);
+      camera.far = Math.max(distance * 100, 1000);
+    } else {
+      const halfHeight = radius * 1.25;
+      camera.left = -halfHeight * aspect;
+      camera.right = halfHeight * aspect;
+      camera.top = halfHeight;
+      camera.bottom = -halfHeight;
+      const distance = Math.max(radius * 3, 20);
+      camera.position.copy(center).addScaledVector(direction, distance);
+      camera.near = 0.01;
+      camera.far = Math.max(distance * 100, 1000);
+      camera.zoom = 1;
+    }
+    camera.updateProjectionMatrix();
+    controls.target.copy(center);
+    controls.update();
+  }
+
+  function setStandardView(type: "top" | "front" | "right" | "isometric") {
+    const camera = cameraRef.current;
+    const controls = controlsRef.current;
+    if (!camera || !controls) return;
+    const distance = Math.max(camera.position.distanceTo(controls.target), 1);
+    const direction = {
+      top: new THREE.Vector3(0, 0, 1),
+      front: new THREE.Vector3(0, -1, 0),
+      right: new THREE.Vector3(1, 0, 0),
+      isometric: new THREE.Vector3(1, -1, 1).normalize(),
+    }[type];
+    camera.up.set(0, 0, 1);
+    if (type === "top") camera.up.set(0, 1, 0);
+    camera.position.copy(controls.target).addScaledVector(direction, distance);
+    camera.lookAt(controls.target);
+    controls.update();
+  }
+
+  function syncTransformControl() {
+    const controls = transformControlsRef.current;
+    const object = selectedObjectId ? cadDocument.objects[selectedObjectId] : undefined;
+    const layer = object ? cadDocument.layers[object.layerId] : undefined;
+    const mesh = selectedObjectId ? meshesRef.current.get(selectedObjectId) : undefined;
+
+    if (!controls || !transformMode || !mesh || !object || layer?.locked || !mesh.visible) {
+      controls?.detach();
+      if (controls) controls.getHelper().visible = false;
+      return;
+    }
+
+    controls.setMode(transformMode);
+    controls.setSpace(transformMode === "translate" ? "world" : "local");
+    controls.attach(mesh);
+    controls.getHelper().visible = true;
+  }
+
   /*
    * Three.js viewport setup.
    * Runs only once.
@@ -223,6 +399,7 @@ export function CadViewport({
         1000
       );
 
+    camera.up.set(0, 0, 1);
     camera.position.set(
       24,
       24,
@@ -234,6 +411,11 @@ export function CadViewport({
       0,
       0
     );
+
+    const orthographicCamera = new THREE.OrthographicCamera(-20, 20, 20, -20, 0.1, 1000);
+    orthographicCamera.up.copy(camera.up);
+    orthographicCamera.position.copy(camera.position);
+    orthographicCamera.lookAt(0, 0, 0);
 
     const renderer =
       new THREE.WebGLRenderer({
@@ -271,6 +453,37 @@ export function CadViewport({
     controls.zoomToCursor =
       true;
 
+    const transformControls = new TransformControls(camera, renderer.domElement);
+    transformControls.setTranslationSnap(0.1);
+    transformControls.setRotationSnap(THREE.MathUtils.degToRad(1));
+    transformControls.setScaleSnap(0.01);
+    const transformHelper = transformControls.getHelper();
+    transformHelper.visible = false;
+    scene.add(transformHelper);
+    let transformDragActive = false;
+    transformControls.addEventListener("mouseDown", () => {
+      transformDragActive = true;
+    });
+    transformControls.addEventListener("dragging-changed", (event) => {
+      controls.enabled = !event.value;
+    });
+    transformControls.addEventListener("mouseUp", () => {
+      if (!transformDragActive) return;
+      transformDragActive = false;
+      const mesh = transformControls.object as THREE.Mesh | undefined;
+      const objectId = mesh?.userData.cadObjectId as string | undefined;
+      if (!mesh || !objectId) return;
+      onTransformCommitRef.current?.(objectId, transformControls.getMode() as TransformMode, {
+        translation: mesh.position.toArray() as [number, number, number],
+        rotation: [
+          THREE.MathUtils.radToDeg(mesh.rotation.x),
+          THREE.MathUtils.radToDeg(mesh.rotation.y),
+          THREE.MathUtils.radToDeg(mesh.rotation.z),
+        ],
+        scale: mesh.scale.toArray() as [number, number, number],
+      });
+    });
+
     const ambientLight =
       new THREE.AmbientLight(
         0xffffff,
@@ -297,14 +510,8 @@ export function CadViewport({
       directionalLight
     );
 
-    const grid =
-      new THREE.GridHelper(
-        50,
-        50,
-        0x444444,
-        0x222222
-      );
-
+    const grid = createAdaptiveGrid();
+    grid.visible = gridVisible;
     scene.add(
       grid
     );
@@ -313,13 +520,22 @@ export function CadViewport({
       scene;
 
     cameraRef.current =
-      camera;
+      projectionMode === "perspective" ? camera : orthographicCamera;
+
+    perspectiveCameraRef.current = camera;
+    orthographicCameraRef.current = orthographicCamera;
+    gridRef.current = grid;
+
+    if (projectionMode === "orthographic") {
+      controls.object = orthographicCamera;
+    }
 
     rendererRef.current =
       renderer;
 
     controlsRef.current =
       controls;
+    transformControlsRef.current = transformControls;
 
     const raycaster =
       new THREE.Raycaster();
@@ -493,11 +709,13 @@ export function CadViewport({
         return;
       }
 
-      camera.aspect =
-        width / height;
-
-      camera
-        .updateProjectionMatrix();
+      const aspect = width / height;
+      camera.aspect = aspect;
+      camera.updateProjectionMatrix();
+      const orthoHeight = orthographicCamera.top - orthographicCamera.bottom;
+      orthographicCamera.left = -orthoHeight * aspect / 2;
+      orthographicCamera.right = orthoHeight * aspect / 2;
+      orthographicCamera.updateProjectionMatrix();
 
       renderer.setSize(
         width,
@@ -535,9 +753,22 @@ export function CadViewport({
 
       controls.update();
 
+      const activeCamera = cameraRef.current ?? camera;
+      const viewScale = activeCamera instanceof THREE.OrthographicCamera
+        ? (activeCamera.top - activeCamera.bottom) / activeCamera.zoom
+        : activeCamera.position.distanceTo(controls.target);
+      const minorStep = Math.max(0.01, 10 ** Math.floor(Math.log10(Math.max(viewScale, 0.01) / 10)));
+      const fadeDistance = Math.max(viewScale * 4, minorStep * 40);
+      grid.position.x = Math.round(controls.target.x / minorStep) * minorStep;
+      grid.position.y = Math.round(controls.target.y / minorStep) * minorStep;
+      grid.scale.setScalar(fadeDistance);
+      grid.material.uniforms.minorStep.value = minorStep;
+      grid.material.uniforms.majorStep.value = minorStep * 10;
+      grid.material.uniforms.fadeDistance.value = fadeDistance;
+
       renderer.render(
         scene,
-        camera
+        activeCamera
       );
 
       frameId =
@@ -570,6 +801,9 @@ export function CadViewport({
         );
 
       controls.dispose();
+      transformControls.detach();
+      transformControls.dispose();
+      scene.remove(transformHelper);
 
       for (
         const mesh
@@ -586,6 +820,9 @@ export function CadViewport({
 
       meshesRef.current.clear();
 
+      grid.geometry.dispose();
+      grid.material.dispose();
+
       renderer.dispose();
 
       renderer.domElement.remove();
@@ -596,13 +833,84 @@ export function CadViewport({
       cameraRef.current =
         null;
 
+      perspectiveCameraRef.current = null;
+      orthographicCameraRef.current = null;
+      gridRef.current = null;
+
       rendererRef.current =
         null;
 
       controlsRef.current =
         null;
+      transformControlsRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (grid) grid.visible = gridVisible;
+  }, [gridVisible]);
+
+  useEffect(() => {
+    const current = cameraRef.current;
+    const perspective = perspectiveCameraRef.current;
+    const orthographic = orthographicCameraRef.current;
+    const controls = controlsRef.current;
+    const host = hostRef.current;
+    if (!current || !perspective || !orthographic || !controls || !host) return;
+
+    const next: ViewCamera = projectionMode === "perspective" ? perspective : orthographic;
+    if (current === next) return;
+
+    const aspect = Math.max(host.clientWidth, 1) / Math.max(host.clientHeight, 1);
+    const direction = current.position.clone().sub(controls.target).normalize();
+    if (next === orthographic && current === perspective) {
+      const distance = perspective.position.distanceTo(controls.target);
+      const halfHeight = Math.max(distance * Math.tan(THREE.MathUtils.degToRad(perspective.fov) / 2), 0.1);
+      orthographic.left = -halfHeight * aspect;
+      orthographic.right = halfHeight * aspect;
+      orthographic.top = halfHeight;
+      orthographic.bottom = -halfHeight;
+      orthographic.zoom = 1;
+      orthographic.position.copy(perspective.position);
+    } else if (next === perspective && current === orthographic) {
+      const visibleHeight = (orthographic.top - orthographic.bottom) / orthographic.zoom;
+      const distance = visibleHeight / (2 * Math.tan(THREE.MathUtils.degToRad(perspective.fov) / 2));
+      perspective.position.copy(controls.target).addScaledVector(direction, distance);
+      perspective.aspect = aspect;
+    }
+    next.up.copy(current.up);
+    next.quaternion.copy(current.quaternion);
+    next.near = current.near;
+    next.far = current.far;
+    next.updateProjectionMatrix();
+    controls.object = next;
+    if (transformControlsRef.current) transformControlsRef.current.camera = next;
+    cameraRef.current = next;
+    controls.update();
+  }, [projectionMode]);
+
+  useEffect(() => {
+    if (!viewAction) return;
+    switch (viewAction.type) {
+      case "fit-all":
+        fitMeshes();
+        break;
+      case "fit-selection":
+        if (selectedObjectIdRef.current) fitMeshes(new Set([selectedObjectIdRef.current]));
+        break;
+      case "top":
+      case "front":
+      case "right":
+      case "isometric":
+        setStandardView(viewAction.type);
+        break;
+    }
+  }, [viewAction]);
+
+  useEffect(() => {
+    syncTransformControl();
+  }, [selectedObjectId, transformMode, documentRevision]);
 
   /*
    * Synchronize CadDocument
@@ -613,6 +921,11 @@ export function CadViewport({
       false;
 
     async function syncDocument() {
+      const syncStartedAt = performance.now();
+      let remeshedCount = 0;
+      let removedCount = 0;
+      let transformUpdateCount = 0;
+      let visibilityUpdateCount = 0;
       const scene =
         sceneRef.current;
 
@@ -630,9 +943,19 @@ export function CadViewport({
         return;
       }
 
+      const objectIds = new Set(
+        cadDocument.rootObjects
+      );
+
+      const featuresByOutput = new Map(
+        Object.values(cadDocument.features).map(
+          (feature) => [feature.output, feature]
+        )
+      );
+
       /*
-       * Remove all generated document
-       * meshes. Keep static demo-part.
+       * Remove meshes that are no longer
+       * represented by the document.
        */
       for (
         const [
@@ -643,10 +966,17 @@ export function CadViewport({
           meshesRef.current.entries()
         )
       ) {
-        if (
-          objectId ===
-          "demo-part"
-        ) {
+        const object = cadDocument.objects[objectId];
+        const feature = featuresByOutput.get(objectId);
+        const renderable =
+          objectIds.has(objectId) &&
+          Boolean(object) &&
+          (
+            objectId === "demo-part" ||
+            feature?.type === "primitive"
+          );
+
+        if (renderable) {
           continue;
         }
 
@@ -661,47 +991,19 @@ export function CadViewport({
         meshesRef.current.delete(
           objectId
         );
+        removedCount += 1;
       }
 
       /*
        * Build demo part only once.
        */
       if (
+        cadDocument.objects["demo-part"] &&
         !meshesRef.current.has(
           "demo-part"
         )
       ) {
-        const box =
-          await createBox(
-            10,
-            10,
-            10
-          );
-
-        const cylinder =
-          await createCylinder(
-            3,
-            14
-          );
-
-        const movedCylinder =
-          await translate(
-            cylinder,
-            5,
-            5,
-            -2
-          );
-
-        const result =
-          await cut(
-            box,
-            movedCylinder
-          );
-
-        const meshData =
-          await shapeToMesh(
-            result
-          );
+        const meshData = await buildDemoPartMesh();
 
         if (cancelled) {
           return;
@@ -713,6 +1015,9 @@ export function CadViewport({
             meshData
           );
 
+        demoMesh.userData.featureSignature =
+          "seeded-brep-v1";
+
         meshesRef.current.set(
           "demo-part",
           demoMesh
@@ -721,76 +1026,16 @@ export function CadViewport({
         scene.add(
           demoMesh
         );
+        remeshedCount += 1;
 
-        /*
-         * Initial camera fit only.
-         */
-        const bounds =
-          new THREE.Box3()
-            .setFromObject(
-              demoMesh
-            );
+        if (!firstGeometryReadyRef.current) {
+          firstGeometryReadyRef.current = true;
+          performance.mark("agent-webcad:first-geometry-ready", {
+            detail: { objectId: "demo-part" },
+          });
+        }
 
-        const center =
-          bounds.getCenter(
-            new THREE.Vector3()
-          );
-
-        const size =
-          bounds.getSize(
-            new THREE.Vector3()
-          );
-
-        const maxDimension =
-          Math.max(
-            size.x,
-            size.y,
-            size.z
-          );
-
-        const fov =
-          THREE.MathUtils.degToRad(
-            camera.fov
-          );
-
-        let distance =
-          maxDimension /
-          (
-            2 *
-            Math.tan(
-              fov / 2
-            )
-          );
-
-        distance *=
-          1.5;
-
-        camera.position.set(
-          center.x +
-            distance,
-          center.y +
-            distance,
-          center.z +
-            distance
-        );
-
-        camera.near =
-          Math.max(
-            distance / 100,
-            0.01
-          );
-
-        camera.far =
-          distance * 100;
-
-        camera
-          .updateProjectionMatrix();
-
-        controls.target.copy(
-          center
-        );
-
-        controls.update();
+        fitMeshes();
       }
 
       /*
@@ -818,12 +1063,8 @@ export function CadViewport({
         }
 
         const feature =
-          Object.values(
-            cadDocument.features
-          ).find(
-            (entry) =>
-              entry.output ===
-              objectId
+          featuresByOutput.get(
+            objectId
           );
 
         if (
@@ -832,6 +1073,38 @@ export function CadViewport({
             "primitive"
         ) {
           continue;
+        }
+
+        const featureSignature =
+          JSON.stringify(
+            feature.params
+          );
+
+        const existingMesh =
+          meshesRef.current.get(
+            objectId
+          );
+
+        const layer = cadDocument.layers[cadObject.layerId];
+        const effectivelyVisible = cadObject.visible && (layer?.visible ?? true);
+
+        // Hidden objects that have never been displayed do not need kernel or
+        // GPU work yet. Showing them later naturally schedules their first mesh.
+        if (!existingMesh && !effectivelyVisible) {
+          continue;
+        }
+
+        if (
+          existingMesh?.userData.featureSignature ===
+          featureSignature
+        ) {
+          continue;
+        }
+
+        if (existingMesh) {
+          scene.remove(existingMesh);
+          disposeMesh(existingMesh);
+          meshesRef.current.delete(objectId);
         }
 
         const width =
@@ -849,42 +1122,7 @@ export function CadViewport({
             feature.params.height
           );
 
-        const position =
-          (
-            feature.params
-              .position ??
-            [0, 0, 0]
-          ) as [
-            number,
-            number,
-            number,
-          ];
-
-        let shape =
-          await createBox(
-            width,
-            depth,
-            height
-          );
-
-        if (
-          position[0] !== 0 ||
-          position[1] !== 0 ||
-          position[2] !== 0
-        ) {
-          shape =
-            await translate(
-              shape,
-              position[0],
-              position[1],
-              position[2]
-            );
-        }
-
-        const meshData =
-          await shapeToMesh(
-            shape
-          );
+        const meshData = await buildBoxMesh(width, depth, height);
 
         if (cancelled) {
           return;
@@ -896,6 +1134,9 @@ export function CadViewport({
             meshData
           );
 
+        mesh.userData.featureSignature =
+          featureSignature;
+
         meshesRef.current.set(
           objectId,
           mesh
@@ -904,11 +1145,17 @@ export function CadViewport({
         scene.add(
           mesh
         );
+        remeshedCount += 1;
+
+        if (!firstGeometryReadyRef.current) {
+          firstGeometryReadyRef.current = true;
+          performance.mark("agent-webcad:first-geometry-ready", {
+            detail: { objectId },
+          });
+        }
       }
 
-      /*
-       * Visibility first.
-       */
+      /* Document placement and visibility are authoritative. */
       for (
         const [
           objectId,
@@ -925,17 +1172,37 @@ export function CadViewport({
           continue;
         }
 
+        const transform = getObjectTransform(cadObject, featuresByOutput.get(objectId));
+        const transformSignature = JSON.stringify(transform);
+        if (mesh.userData.transformSignature !== transformSignature) {
+          mesh.position.fromArray(transform.translation);
+          mesh.rotation.set(
+            THREE.MathUtils.degToRad(transform.rotation[0]),
+            THREE.MathUtils.degToRad(transform.rotation[1]),
+            THREE.MathUtils.degToRad(transform.rotation[2]),
+            "XYZ",
+          );
+          mesh.scale.fromArray(transform.scale);
+          mesh.updateMatrixWorld();
+          mesh.userData.transformSignature = transformSignature;
+          transformUpdateCount += 1;
+        }
+
         const layer =
           cadDocument.layers[
             cadObject.layerId
           ];
 
-        mesh.visible =
+        const visible =
           cadObject.visible &&
           (
             layer?.visible ??
             true
           );
+        if (mesh.visible !== visible) {
+          mesh.visible = visible;
+          visibilityUpdateCount += 1;
+        }
       }
 
       /*
@@ -976,6 +1243,30 @@ export function CadViewport({
        * Selection color LAST.
        */
       applySelectionColor();
+      syncTransformControl();
+      performance.measure("agent-webcad:viewport-sync", {
+        start: syncStartedAt,
+        end: performance.now(),
+        detail: {
+          documentRevision,
+          documentObjects: cadDocument.rootObjects.length,
+          sceneMeshes: meshesRef.current.size,
+          remeshedCount,
+          removedCount,
+          transformUpdateCount,
+          visibilityUpdateCount,
+        },
+      });
+      if (import.meta.env.DEV && (remeshedCount > 0 || transformUpdateCount > 0 || visibilityUpdateCount > 0)) {
+        console.info("[agent-webcad:perf]", JSON.stringify({
+          viewportSyncMs: Number((performance.now() - syncStartedAt).toFixed(1)),
+          documentObjects: cadDocument.rootObjects.length,
+          sceneMeshes: meshesRef.current.size,
+          remeshedCount,
+          transformUpdateCount,
+          visibilityUpdateCount,
+        }));
+      }
     }
 
     syncDocument().catch(

@@ -54,6 +54,40 @@ export type CadCommand =
       visible: boolean;
     }
   | {
+      type: "isolate-object";
+      objectId: string;
+    }
+  | {
+      type: "show-all-objects";
+    }
+  | {
+      type: "rename-object";
+      objectId: string;
+      name: string;
+    }
+  | {
+      type: "update-box";
+      objectId: string;
+      width: number;
+      depth: number;
+      height: number;
+    }
+  | {
+      type: "move-object";
+      objectId: string;
+      translation: [number, number, number];
+    }
+  | {
+      type: "rotate-object";
+      objectId: string;
+      rotation: [number, number, number];
+    }
+  | {
+      type: "scale-object";
+      objectId: string;
+      scale: [number, number, number];
+    }
+  | {
       type: "delete-object";
       objectId: string;
     }

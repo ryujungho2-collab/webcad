@@ -4,6 +4,7 @@ export type {
 
 export type {
   CadObject,
+  CadObjectTransform,
 } from "./CadObject";
 
 export type {

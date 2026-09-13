@@ -2,6 +2,7 @@
   "name": "@agent-webcad/cad-commands",
   "version": "0.0.1",
   "description": "CAD command system for agent-webcad project",
+  "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
