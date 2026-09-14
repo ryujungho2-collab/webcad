@@ -307,6 +307,87 @@ function getEditableObject(objectId: string) {
   return object && !layer?.locked ? object : undefined;
 }
 
+function primitiveKind(feature: { params: Record<string, unknown> }) {
+  return typeof feature.params.kind === "string" ? feature.params.kind : "box";
+}
+
+function isValidPrimitiveParams(kind: string, params: Record<string, number>) {
+  const valid = (key: string) => Number.isFinite(params[key]) && params[key] > 0;
+  if (kind === "box") return valid("width") && valid("depth") && valid("height");
+  if (kind === "cylinder") return valid("radius") && valid("height");
+  if (kind === "sphere") return valid("radius");
+  if (kind === "cone") return valid("radius1") && valid("radius2") && valid("height");
+  if (kind === "torus") return valid("majorRadius") && valid("minorRadius") && params.majorRadius > params.minorRadius;
+  return false;
+}
+
+commandBus.registerHandler(
+  "create-drawing",
+  async (command: CadCommand) => {
+    if (command.type !== "create-drawing") return;
+    const layerId = command.layerId ?? "layer-default";
+    const layer = cadDocument.layers[layerId];
+    if (!layer || layer.locked) return;
+    const id = command.id ?? `${command.drawing}-${crypto.randomUUID()}`;
+    const featureId = `feature-${id}`;
+    if (cadDocument.objects[id] || cadDocument.features[featureId]) return;
+    cadDocument.objects[id] = {
+      id,
+      geometryId: `geometry-${id}`,
+      name: command.drawing[0].toUpperCase() + command.drawing.slice(1),
+      visible: true,
+      layerId,
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.features[featureId] = {
+      id: featureId,
+      type: "drawing",
+      inputs: [],
+      output: id,
+      params: { kind: command.drawing, ...structuredClone(command.params) },
+    };
+    cadDocument.rootObjects.push(id);
+    layer.objectIds.push(id);
+    cadDocument.revision += 1;
+    return id;
+  },
+);
+
+commandBus.registerHandler(
+  "create-primitive",
+  async (command: CadCommand) => {
+    if (command.type !== "create-primitive" || !isValidPrimitiveParams(command.primitive, command.params)) return;
+    const id = command.id ?? `${command.primitive}-${crypto.randomUUID()}`;
+    const featureId = `feature-${id}`;
+    const layerId = command.layerId ?? "layer-default";
+    const layer = cadDocument.layers[layerId];
+    if (cadDocument.objects[id] || cadDocument.features[featureId] || !layer || layer.locked) return;
+    cadDocument.objects[id] = {
+      id, geometryId: `geometry-${id}`, name: command.primitive[0].toUpperCase() + command.primitive.slice(1), visible: true, layerId,
+      transform: { translation: [...(command.position ?? [0, 0, 0])], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.features[featureId] = { id: featureId, type: "primitive", inputs: [], output: id, params: { kind: command.primitive, ...command.params } };
+    cadDocument.rootObjects.push(id); layer.objectIds.push(id); cadDocument.revision += 1;
+    return id;
+  },
+);
+
+commandBus.registerHandler(
+  "update-primitive",
+  async (command: CadCommand) => {
+    if (command.type !== "update-primitive") return;
+    const object = getEditableObject(command.objectId);
+    const feature = findFeatureForObject(command.objectId);
+    if (!object || !feature || feature.type !== "primitive") return;
+    const kind = primitiveKind(feature);
+    if (!isValidPrimitiveParams(kind, command.params)) return;
+    const current = Object.fromEntries(Object.entries(feature.params).filter(([key]) => key !== "kind"));
+    if (JSON.stringify(current) === JSON.stringify(command.params)) return;
+    feature.params = { kind, ...command.params };
+    cadDocument.revision += 1;
+  },
+);
+
 commandBus.registerHandler(
   "move-object",
   async (command: CadCommand) => {
@@ -642,4 +723,37 @@ commandBus.registerHandler(
 
     return id;
   }
+);
+
+commandBus.registerHandler(
+  "boolean-operation",
+  async (command: CadCommand) => {
+    if (command.type !== "boolean-operation") return;
+    const target = cadDocument.objects[command.target];
+    const tool = cadDocument.objects[command.tool];
+    const targetFeature = findFeatureForObject(command.target);
+    const toolFeature = findFeatureForObject(command.tool);
+    const targetLayer = target ? cadDocument.layers[target.layerId] : undefined;
+    const toolLayer = tool ? cadDocument.layers[tool.layerId] : undefined;
+    if (!target || !tool || !targetFeature || !toolFeature || targetFeature.type !== "primitive" || toolFeature.type !== "primitive" || targetLayer?.locked || toolLayer?.locked) return;
+    const id = `boolean-${crypto.randomUUID()}`;
+    const featureId = `feature-${id}`;
+    const operands = [target, tool].map((object, index) => ({
+      params: structuredClone((index === 0 ? targetFeature : toolFeature).params),
+      transform: structuredClone(getObjectTransform(object, index === 0 ? targetFeature : toolFeature)),
+    }));
+    for (const object of [target, tool]) {
+      const layer = cadDocument.layers[object.layerId];
+      if (layer) layer.objectIds = layer.objectIds.filter((objectId) => objectId !== object.id);
+      cadDocument.rootObjects = cadDocument.rootObjects.filter((objectId) => objectId !== object.id);
+      for (const [existingFeatureId, feature] of Object.entries(cadDocument.features)) {
+        if (feature.output === object.id) delete cadDocument.features[existingFeatureId];
+      }
+      delete cadDocument.objects[object.id];
+    }
+    cadDocument.objects[id] = { id, geometryId: `geometry-${id}`, name: `${command.operation[0].toUpperCase()}${command.operation.slice(1)}`, visible: true, layerId: target.layerId, transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] } };
+    cadDocument.features[featureId] = { id: featureId, type: "boolean", inputs: [target.id, tool.id], output: id, params: { operation: command.operation, operands } };
+    cadDocument.rootObjects.push(id); targetLayer?.objectIds.push(id); cadDocument.revision += 1;
+    return id;
+  },
 );

@@ -4,6 +4,10 @@ type HistoryPanelProps = { query: string };
 
 const labels: Record<string, string> = {
   "create-box": "Create box",
+  "create-drawing": "Create drawing entity",
+  "create-primitive": "Create primitive",
+  "update-primitive": "Edit primitive parameters",
+  "boolean-operation": "Boolean operation",
   "create-layer": "Create layer",
   "delete-layer": "Delete layer",
   "rename-layer": "Rename layer",

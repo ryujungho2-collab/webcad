@@ -1,0 +1,24 @@
+:root {
+  color-scheme: dark;
+  --bg-0: #10161b;
+  --bg-1: #191f25;
+  --bg-2: #202830;
+  --bg-3: #2b353e;
+  --line: #36414a;
+  --line-soft: #2a333c;
+  --text: #dce4e9;
+  --muted: #9aa9b5;
+  --accent: #64d6c5;
+  --accent-soft: #203e40;
+  --danger: #ee9696;
+  --axis-x: #ef9292;
+  --axis-y: #9acb91;
+  --axis-z: #8dbaf0;
+  --font-ui: "Segoe UI", "Malgun Gothic", system-ui, sans-serif;
+  --font-numeric: "Cascadia Mono", Consolas, monospace;
+  --control-height: 26px;
+  --row-height: 29px;
+  --radius: 3px;
+  --panel-explorer: clamp(220px, 17vw, 280px);
+  --panel-inspector: clamp(260px, 20vw, 310px);
+}

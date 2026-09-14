@@ -68,3 +68,15 @@ export async function createSphere(radius: number): Promise<any> {
   
   return sphMaker.Shape();
 }
+
+export async function createCone(radius1: number, radius2: number, height: number): Promise<any> {
+  const oc = (await CadEngine.create()).oc;
+  const maker = new oc.BRepPrimAPI_MakeCone_1(radius1, radius2, height);
+  return maker.Shape();
+}
+
+export async function createTorus(majorRadius: number, minorRadius: number): Promise<any> {
+  const oc = (await CadEngine.create()).oc;
+  const maker = new oc.BRepPrimAPI_MakeTorus_1(majorRadius, minorRadius);
+  return maker.Shape();
+}

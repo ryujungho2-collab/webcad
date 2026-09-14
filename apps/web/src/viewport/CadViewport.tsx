@@ -1,11 +1,15 @@
 ﻿import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { TransformControls } from "three/examples/jsm/controls/TransformControls.js";
 
 import { cadDocument } from "../state/cadDocument";
 import { getObjectTransform } from "../state/objectTransform";
-import { buildBoxMesh, buildDemoPartMesh, subscribeKernelStatus, type KernelStatus } from "./kernelGeometryService";
+import { parseAngle, parseLength } from "../precision/units";
+import { querySnap, type SnapEntity, type SnapResult } from "../precision/snapEngine";
+import { intersectRayWithWorkPlane, planeToWorld, WORK_PLANES, worldToPlane, type Vec3, type WorkPlaneId } from "../precision/workPlane";
+import { easeWorkspaceTransition, workspaceTransitionDuration, type WorkspaceMode } from "./workspaceTransition";
+import { buildBooleanMesh, buildDemoPartMesh, buildPrimitiveMesh, subscribeKernelStatus, type KernelStatus } from "./kernelGeometryService";
 
 type CadViewportProps = {
   documentRevision: number;
@@ -14,9 +18,16 @@ type CadViewportProps = {
   gridVisible: boolean;
   viewAction: ViewportAction | null;
   transformMode: TransformMode | null;
+  drawingTool?: DrawingTool | null;
+  activeWorkPlane?: WorkPlaneId;
+  snapEnabled?: boolean;
+  orthoEnabled?: boolean;
+  workspaceMode?: WorkspaceMode;
   onKernelStatus?: (status: KernelStatus) => void;
   onTransformCommit?: (objectId: string, mode: TransformMode, transform: ObjectTransformValue) => void;
   onSelectObject?: (objectId: string | null) => void;
+  onDrawingCommit?: (drawing: DrawingTool, params: Record<string, unknown>) => void;
+  onDrawingCancel?: () => void;
 };
 
 export type ViewportActionType =
@@ -29,6 +40,7 @@ export type ViewportActionType =
 
 export type ViewportAction = { id: number; type: ViewportActionType };
 export type TransformMode = "translate" | "rotate" | "scale";
+export type DrawingTool = "line" | "polyline" | "rectangle" | "circle" | "arc";
 export type ObjectTransformValue = {
   translation: [number, number, number];
   rotation: [number, number, number];
@@ -37,9 +49,43 @@ export type ObjectTransformValue = {
 
 type ViewCamera = THREE.PerspectiveCamera | THREE.OrthographicCamera;
 type AdaptiveGrid = THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
+type RenderObject = THREE.Mesh<THREE.BufferGeometry, THREE.Material> | THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial> | THREE.LineLoop<THREE.BufferGeometry, THREE.LineBasicMaterial>;
 
 const DEFAULT_COLOR = 0x4f8cff;
 const SELECTED_COLOR = 0xffc107;
+
+function drawingPoints(params: Record<string, unknown>, planeId: WorkPlaneId): Vec3[] {
+  const kind = String(params.kind ?? "");
+  if ((kind === "line" || kind === "polyline" || kind === "rectangle") && Array.isArray(params.points)) {
+    const points = params.points as Vec3[];
+    return kind === "rectangle" ? [...points, points[0]] : points;
+  }
+  if ((kind === "circle" || kind === "arc") && Array.isArray(params.center)) {
+    const center = params.center as Vec3;
+    const radius = Number(params.radius);
+    const start = kind === "arc" ? Number(params.startAngle) : 0;
+    const end = kind === "arc" ? Number(params.endAngle) : Math.PI * 2;
+    const c = worldToPlane(center, WORK_PLANES[planeId]);
+    const count = kind === "circle" ? 64 : Math.max(12, Math.ceil(Math.abs(end - start) / (Math.PI / 32)));
+    return Array.from({ length: count + 1 }, (_, index) => {
+      const angle = start + (end - start) * index / count;
+      return planeToWorld([c[0] + Math.cos(angle) * radius, c[1] + Math.sin(angle) * radius], WORK_PLANES[planeId]);
+    });
+  }
+  return [];
+}
+
+function createDrawingObject(objectId: string, params: Record<string, unknown>): RenderObject {
+  const planeId = (params.workPlane === "XZ" || params.workPlane === "YZ" ? params.workPlane : "XY") as WorkPlaneId;
+  const points = drawingPoints(params, planeId);
+  const geometry = new THREE.BufferGeometry().setFromPoints(points.map((point) => new THREE.Vector3(...point)));
+  const material = new THREE.LineBasicMaterial({ color: DEFAULT_COLOR, linewidth: 1 });
+  const renderObject = params.kind === "rectangle" || params.kind === "circle"
+    ? new THREE.LineLoop(geometry, material)
+    : new THREE.Line(geometry, material);
+  renderObject.userData.cadObjectId = objectId;
+  return renderObject;
+}
 
 function createAdaptiveGrid(): AdaptiveGrid {
   const material = new THREE.ShaderMaterial({
@@ -108,10 +154,18 @@ export function CadViewport({
   gridVisible,
   viewAction,
   transformMode,
+  drawingTool = null,
+  activeWorkPlane = "XY",
+  snapEnabled = true,
+  orthoEnabled = false,
+  workspaceMode = "3d",
   onKernelStatus,
   onTransformCommit,
   onSelectObject,
+  onDrawingCommit,
+  onDrawingCancel,
 }: CadViewportProps) {
+  const [toolReadout, setToolReadout] = useState("");
   const hostRef =
     useRef<HTMLDivElement | null>(
       null
@@ -140,7 +194,7 @@ export function CadViewport({
   const firstGeometryReadyRef = useRef(false);
 
   const meshesRef =
-    useRef<Map<string, THREE.Mesh>>(
+    useRef<Map<string, RenderObject>>(
       new Map()
     );
 
@@ -152,6 +206,7 @@ export function CadViewport({
   const onSelectObjectRef =
     useRef(onSelectObject);
   const onTransformCommitRef = useRef(onTransformCommit);
+  const drawingToolRef = useRef(drawingTool);
 
   useEffect(() => {
     onSelectObjectRef.current =
@@ -161,6 +216,8 @@ export function CadViewport({
   useEffect(() => {
     onTransformCommitRef.current = onTransformCommit;
   }, [onTransformCommit]);
+
+  useEffect(() => { drawingToolRef.current = drawingTool; }, [drawingTool]);
 
   useEffect(() => subscribeKernelStatus((status) => onKernelStatus?.(status)), [onKernelStatus]);
 
@@ -175,7 +232,7 @@ export function CadViewport({
   }, [selectedObjectId]);
 
   function disposeMesh(
-    mesh: THREE.Mesh
+    mesh: RenderObject
   ) {
     mesh.geometry.dispose();
 
@@ -207,11 +264,9 @@ export function CadViewport({
       ]
       of meshesRef.current
     ) {
-      const material =
-        mesh.material as
-          THREE.MeshStandardMaterial;
+      const material = mesh.material as THREE.Material & { color?: THREE.Color };
 
-      material.color.set(
+      material.color?.set(
         objectId === activeId
           ? SELECTED_COLOR
           : DEFAULT_COLOR
@@ -540,6 +595,8 @@ export function CadViewport({
     const raycaster =
       new THREE.Raycaster();
 
+    raycaster.params.Line.threshold = 0.35;
+
     const pointer =
       new THREE.Vector2();
 
@@ -554,6 +611,8 @@ export function CadViewport({
       if (event.button !== 0) {
         return;
       }
+
+      if (drawingToolRef.current) return;
 
       const currentCamera =
         cameraRef.current;
@@ -891,6 +950,40 @@ export function CadViewport({
   }, [projectionMode]);
 
   useEffect(() => {
+    const camera = cameraRef.current;
+    const controls = controlsRef.current;
+    if (!camera || !controls) return;
+    const distance = Math.max(camera.position.distanceTo(controls.target), 1);
+    const direction = workspaceMode === "2d"
+      ? new THREE.Vector3(0, 0, 1)
+      : new THREE.Vector3(1, -1, 1).normalize();
+    const targetPosition = controls.target.clone().addScaledVector(direction, distance);
+    const targetUp = workspaceMode === "2d" ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(0, 0, 1);
+    const targetQuaternion = new THREE.Quaternion();
+    const targetCamera = camera.clone() as ViewCamera;
+    targetCamera.position.copy(targetPosition);
+    targetCamera.up.copy(targetUp);
+    targetCamera.lookAt(controls.target);
+    targetQuaternion.copy(targetCamera.quaternion);
+    const startPosition = camera.position.clone();
+    const startQuaternion = camera.quaternion.clone();
+    const duration = workspaceTransitionDuration();
+    let frame = 0;
+    const startedAt = performance.now();
+    const animate = (now: number) => {
+      const progress = duration === 0 ? 1 : Math.min(1, (now - startedAt) / duration);
+      const eased = easeWorkspaceTransition(progress);
+      camera.position.lerpVectors(startPosition, targetPosition, eased);
+      camera.quaternion.copy(startQuaternion).slerp(targetQuaternion, eased);
+      camera.updateProjectionMatrix();
+      controls.update();
+      if (progress < 1) frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, [workspaceMode]);
+
+  useEffect(() => {
     if (!viewAction) return;
     switch (viewAction.type) {
       case "fit-all":
@@ -973,7 +1066,7 @@ export function CadViewport({
           Boolean(object) &&
           (
             objectId === "demo-part" ||
-            feature?.type === "primitive"
+            feature?.type === "primitive" || feature?.type === "boolean" || feature?.type === "drawing"
           );
 
         if (renderable) {
@@ -1069,8 +1162,7 @@ export function CadViewport({
 
         if (
           !feature ||
-          feature.type !==
-            "primitive"
+          (feature.type !== "primitive" && feature.type !== "boolean" && feature.type !== "drawing")
         ) {
           continue;
         }
@@ -1107,32 +1199,13 @@ export function CadViewport({
           meshesRef.current.delete(objectId);
         }
 
-        const width =
-          Number(
-            feature.params.width
-          );
+        const mesh = feature.type === "drawing"
+          ? createDrawingObject(objectId, feature.params)
+          : createThreeMesh(objectId, feature.type === "boolean"
+            ? await buildBooleanMesh(feature.params)
+            : await buildPrimitiveMesh(feature.params));
 
-        const depth =
-          Number(
-            feature.params.depth
-          );
-
-        const height =
-          Number(
-            feature.params.height
-          );
-
-        const meshData = await buildBoxMesh(width, depth, height);
-
-        if (cancelled) {
-          return;
-        }
-
-        const mesh =
-          createThreeMesh(
-            objectId,
-            meshData
-          );
+        if (cancelled) return;
 
         mesh.userData.featureSignature =
           featureSignature;
@@ -1279,10 +1352,268 @@ export function CadViewport({
     };
   }, [documentRevision]);
 
+  /*
+   * Precision drawing is transient until commit. The preview and snap glyph
+   * live in Three.js, while the completed entity enters CadDocument through a
+   * single create-drawing command supplied by App.
+   */
+  useEffect(() => {
+    const scene = sceneRef.current;
+    const renderer = rendererRef.current;
+    const controls = controlsRef.current;
+    if (!scene || !renderer || !controls) return;
+    if (!drawingTool) { setToolReadout(""); return; }
+    const activeRenderer = renderer;
+    const activeTool = drawingTool;
+
+    const plane = WORK_PLANES[activeWorkPlane];
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    const acquired: Vec3[] = [];
+    let hoverPoint: Vec3 | null = null;
+    let numericBuffer = "";
+    controls.enabled = false;
+
+    const previewMaterial = new THREE.LineDashedMaterial({ color: 0x62d4bf, dashSize: 0.65, gapSize: 0.35, depthTest: false });
+    const preview = new THREE.Line(new THREE.BufferGeometry(), previewMaterial);
+    preview.renderOrder = 20;
+    scene.add(preview);
+    const markerMaterial = new THREE.LineBasicMaterial({ color: 0x76ead1, depthTest: false });
+    const marker = new THREE.LineSegments(new THREE.BufferGeometry(), markerMaterial);
+    marker.renderOrder = 21;
+    marker.visible = false;
+    scene.add(marker);
+
+    function setPointer(event: PointerEvent) {
+      const rect = activeRenderer.domElement.getBoundingClientRect();
+      pointer.set((event.clientX - rect.left) / rect.width * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+    }
+
+    function project(point: Vec3): [number, number] {
+      const camera = cameraRef.current;
+      if (!camera) return [0, 0];
+      const projected = new THREE.Vector3(...point).project(camera);
+      const rect = activeRenderer.domElement.getBoundingClientRect();
+      return [(projected.x + 1) * rect.width / 2, (1 - projected.y) * rect.height / 2];
+    }
+
+    function worldPoint(event: PointerEvent): Vec3 | null {
+      const camera = cameraRef.current;
+      if (!camera) return null;
+      setPointer(event);
+      raycaster.setFromCamera(pointer, camera);
+      return intersectRayWithWorkPlane(
+        raycaster.ray.origin.toArray() as Vec3,
+        raycaster.ray.direction.toArray() as Vec3,
+        plane,
+      );
+    }
+
+    function entityTransform(objectId: string) {
+      const object = cadDocument.objects[objectId];
+      const feature = Object.values(cadDocument.features).find((entry) => entry.output === objectId);
+      const transform = object ? getObjectTransform(object, feature) : null;
+      if (!transform) return new THREE.Matrix4();
+      return new THREE.Matrix4().compose(
+        new THREE.Vector3(...transform.translation),
+        new THREE.Quaternion().setFromEuler(new THREE.Euler(...transform.rotation.map(THREE.MathUtils.degToRad) as [number, number, number])),
+        new THREE.Vector3(...transform.scale),
+      );
+    }
+
+    function snapEntities(): SnapEntity[] {
+      const result: SnapEntity[] = [];
+      for (const feature of Object.values(cadDocument.features)) {
+        if (feature.type !== "drawing") continue;
+        const object = cadDocument.objects[feature.output];
+        const layer = object ? cadDocument.layers[object.layerId] : undefined;
+        if (!object || !object.visible || layer?.visible === false) continue;
+        const kind = feature.params.kind;
+        if (!(["line", "polyline", "rectangle", "circle", "arc"] as unknown[]).includes(kind)) continue;
+        const matrix = entityTransform(object.id);
+        const transformPoint = (point: Vec3) => new THREE.Vector3(...point).applyMatrix4(matrix).toArray() as Vec3;
+        const transform = getObjectTransform(object, feature);
+        result.push({
+          objectId: object.id,
+          kind: kind as SnapEntity["kind"],
+          points: Array.isArray(feature.params.points) ? (feature.params.points as Vec3[]).map(transformPoint) : undefined,
+          center: Array.isArray(feature.params.center) ? transformPoint(feature.params.center as Vec3) : undefined,
+          radius: typeof feature.params.radius === "number" ? feature.params.radius * Math.max(transform.scale[0], transform.scale[1]) : undefined,
+          startAngle: typeof feature.params.startAngle === "number" ? feature.params.startAngle : undefined,
+          endAngle: typeof feature.params.endAngle === "number" ? feature.params.endAngle : undefined,
+        });
+      }
+      return result;
+    }
+
+    function constrain(point: Vec3) {
+      if (!orthoEnabled || acquired.length === 0) return point;
+      const start = worldToPlane(acquired[acquired.length - 1], plane);
+      const next = worldToPlane(point, plane);
+      return Math.abs(next[0] - start[0]) >= Math.abs(next[1] - start[1])
+        ? planeToWorld([next[0], start[1]], plane)
+        : planeToWorld([start[0], next[1]], plane);
+    }
+
+    function markerShape(result: SnapResult, point: Vec3) {
+      const camera = cameraRef.current;
+      const host = hostRef.current;
+      const viewSize = camera instanceof THREE.OrthographicCamera
+        ? (camera.top - camera.bottom) / camera.zoom
+        : camera ? camera.position.distanceTo(new THREE.Vector3(...point)) : 20;
+      const size = viewSize / Math.max(host?.clientHeight ?? 600, 1) * 9;
+      const x = new THREE.Vector3(...plane.xAxis).multiplyScalar(size);
+      const y = new THREE.Vector3(...plane.yAxis).multiplyScalar(size);
+      const p = new THREE.Vector3(...point);
+      const vertices: THREE.Vector3[] = [];
+      const segment = (a: THREE.Vector3, b: THREE.Vector3) => vertices.push(p.clone().add(a), p.clone().add(b));
+      if (result.type === "endpoint" || result.type === "grid") {
+        segment(x.clone().add(y), x.clone().sub(y)); segment(x.clone().sub(y), x.clone().negate().sub(y));
+        segment(x.clone().negate().sub(y), x.clone().negate().add(y)); segment(x.clone().negate().add(y), x.clone().add(y));
+      } else if (result.type === "midpoint") {
+        segment(y, x.clone().negate().sub(y)); segment(x.clone().negate().sub(y), x.clone().sub(y)); segment(x.clone().sub(y), y);
+      } else if (result.type === "center") {
+        for (let index = 0; index < 12; index += 1) {
+          const a = index / 12 * Math.PI * 2, b = (index + 1) / 12 * Math.PI * 2;
+          segment(x.clone().multiplyScalar(Math.cos(a)).add(y.clone().multiplyScalar(Math.sin(a))), x.clone().multiplyScalar(Math.cos(b)).add(y.clone().multiplyScalar(Math.sin(b))));
+        }
+      } else {
+        segment(x.clone().add(y), x.clone().negate().sub(y)); segment(x.clone().sub(y), x.clone().negate().add(y));
+      }
+      marker.geometry.dispose();
+      marker.geometry = new THREE.BufferGeometry().setFromPoints(vertices);
+      marker.visible = true;
+    }
+
+    function previewPoints(point: Vec3) {
+      if (activeTool === "line" || activeTool === "polyline") return [...acquired, point];
+      if (activeTool === "rectangle" && acquired[0]) {
+        const a = worldToPlane(acquired[0], plane), b = worldToPlane(point, plane);
+        return [acquired[0], planeToWorld([b[0], a[1]], plane), point, planeToWorld([a[0], b[1]], plane), acquired[0]];
+      }
+      if (activeTool === "circle" && acquired[0]) {
+        const a = worldToPlane(acquired[0], plane), b = worldToPlane(point, plane);
+        return drawingPoints({ kind: "circle", center: acquired[0], radius: Math.hypot(b[0] - a[0], b[1] - a[1]) }, activeWorkPlane);
+      }
+      if (activeTool === "arc" && acquired[0]) {
+        const c = worldToPlane(acquired[0], plane);
+        const startPoint = acquired[1] ?? point;
+        const s = worldToPlane(startPoint, plane), e = worldToPlane(point, plane);
+        return drawingPoints({ kind: "arc", center: acquired[0], radius: Math.hypot(s[0] - c[0], s[1] - c[1]), startAngle: Math.atan2(s[1] - c[1], s[0] - c[0]), endAngle: Math.atan2(e[1] - c[1], e[0] - c[0]) }, activeWorkPlane);
+      }
+      return [];
+    }
+
+    function updatePreview(point: Vec3) {
+      const points = previewPoints(point);
+      preview.geometry.dispose();
+      preview.geometry = new THREE.BufferGeometry().setFromPoints(points.map((entry) => new THREE.Vector3(...entry)));
+      preview.computeLineDistances();
+    }
+
+    function acquirePoint(raw: Vec3) {
+      const startedAt = performance.now();
+      const snapped = snapEnabled ? querySnap({ point: raw, entities: snapEntities(), plane, gridStep: 1, tolerancePx: 12, project }) : null;
+      performance.measure("agent-webcad:snap-query", { start: startedAt, end: performance.now(), detail: { entityCount: cadDocument.rootObjects.length, result: snapped?.type ?? "disabled" } });
+      const point = constrain(snapped && Number.isFinite(snapped.screenDistance) ? snapped.point : raw);
+      if (snapped && Number.isFinite(snapped.screenDistance)) markerShape(snapped, point); else marker.visible = false;
+      return { point, snap: snapped && Number.isFinite(snapped.screenDistance) ? snapped : null };
+    }
+
+    function commit(params: Record<string, unknown>) {
+      onDrawingCommit?.(activeTool, { ...params, workPlane: activeWorkPlane });
+    }
+
+    function handlePointerMove(event: PointerEvent) {
+      const raw = worldPoint(event);
+      if (!raw) return;
+      const acquiredPoint = acquirePoint(raw);
+      hoverPoint = acquiredPoint.point;
+      updatePreview(hoverPoint);
+      setToolReadout(`${activeTool.toUpperCase()} · ${acquiredPoint.snap?.type ?? (orthoEnabled ? "ortho" : "free")} · ${numericBuffer || worldToPlane(hoverPoint, plane).map((value) => value.toFixed(2)).join(", ")} mm`);
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      const raw = worldPoint(event);
+      if (!raw) return;
+      const point = acquirePoint(raw).point;
+      if (activeTool === "line") {
+        if (!acquired.length) acquired.push(point); else commit({ points: [acquired[0], point] });
+      } else if (activeTool === "rectangle") {
+        if (!acquired.length) acquired.push(point); else {
+          const a = worldToPlane(acquired[0], plane), b = worldToPlane(point, plane);
+          commit({ points: [acquired[0], planeToWorld([b[0], a[1]], plane), point, planeToWorld([a[0], b[1]], plane)] });
+        }
+      } else if (activeTool === "circle") {
+        if (!acquired.length) acquired.push(point); else {
+          const a = worldToPlane(acquired[0], plane), b = worldToPlane(point, plane);
+          commit({ center: acquired[0], radius: Math.hypot(b[0] - a[0], b[1] - a[1]) });
+        }
+      } else if (activeTool === "arc") {
+        acquired.push(point);
+        if (acquired.length === 3) {
+          const c = worldToPlane(acquired[0], plane), s = worldToPlane(acquired[1], plane), e = worldToPlane(acquired[2], plane);
+          commit({ center: acquired[0], radius: Math.hypot(s[0] - c[0], s[1] - c[1]), startAngle: Math.atan2(s[1] - c[1], s[0] - c[0]), endAngle: Math.atan2(e[1] - c[1], e[0] - c[0]) });
+        }
+      } else {
+        if (event.detail >= 2 && acquired.length >= 1) commit({ points: [...acquired, point] });
+        else acquired.push(point);
+      }
+      numericBuffer = "";
+      updatePreview(point);
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") { event.preventDefault(); onDrawingCancel?.(); return; }
+      if (event.key === "Backspace") { event.preventDefault(); numericBuffer = numericBuffer.slice(0, -1); return; }
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (activeTool === "polyline" && !numericBuffer && acquired.length >= 2) { commit({ points: acquired }); return; }
+        if (!numericBuffer || acquired.length === 0 || !hoverPoint) return;
+        const [distanceText, angleText] = numericBuffer.split("<");
+        const distance = parseLength(distanceText);
+        if (!distance || distance <= 0) return;
+        const start = acquired[acquired.length - 1];
+        const start2 = worldToPlane(start, plane), hover2 = worldToPlane(hoverPoint, plane);
+        const parsedAngle = angleText ? parseAngle(angleText) : null;
+        const angle = angleText ? (parsedAngle === null ? undefined : THREE.MathUtils.degToRad(parsedAngle)) : Math.atan2(hover2[1] - start2[1], hover2[0] - start2[0]);
+        if (angle === undefined) return;
+        const exact = planeToWorld([start2[0] + Math.cos(angle) * distance, start2[1] + Math.sin(angle) * distance], plane);
+        if (activeTool === "line") commit({ points: [start, exact] });
+        else if (activeTool === "polyline") { acquired.push(exact); hoverPoint = exact; }
+        else if (activeTool === "circle") commit({ center: acquired[0], radius: distance });
+        numericBuffer = "";
+        updatePreview(exact);
+        return;
+      }
+      if (/^[0-9a-zA-Z.°<,+\- ]$/.test(event.key)) {
+        event.preventDefault();
+        numericBuffer += event.key;
+        setToolReadout(`${activeTool.toUpperCase()} · exact input ${numericBuffer}`);
+      }
+    }
+
+    activeRenderer.domElement.addEventListener("pointermove", handlePointerMove);
+    activeRenderer.domElement.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => {
+      activeRenderer.domElement.removeEventListener("pointermove", handlePointerMove);
+      activeRenderer.domElement.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("keydown", handleKeyDown, true);
+      scene.remove(preview, marker);
+      preview.geometry.dispose(); previewMaterial.dispose();
+      marker.geometry.dispose(); markerMaterial.dispose();
+      controls.enabled = true;
+      setToolReadout("");
+    };
+  }, [drawingTool, activeWorkPlane, snapEnabled, orthoEnabled, onDrawingCommit, onDrawingCancel]);
+
   return (
-    <div
-      ref={hostRef}
-      className="cad-viewport"
-    />
+    <>
+      <div ref={hostRef} className="cad-viewport" />
+      {toolReadout && <div className="cad-tool-readout" role="status">{toolReadout}</div>}
+    </>
   );
 }

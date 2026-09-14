@@ -3,6 +3,10 @@ import { useEffect, useState } from "react";
 import { cadDocument } from "../state/cadDocument";
 import { dispatchCadCommand } from "../state/dispatchCadCommand";
 import { getObjectTransform } from "../state/objectTransform";
+import { NumericField } from "../ui/NumericField";
+import { validateBooleanOperation } from "../viewport/kernelGeometryService";
+import { measureDrawing } from "../precision/measurements";
+import { formatLength } from "../precision/units";
 
 type PropertiesPanelProps = {
   documentRevision: number;
@@ -14,13 +18,10 @@ type PropertiesPanelProps = {
   onHide: () => void;
   onIsolate: () => void;
   onShowAll: () => void;
+  onBooleanCreated: (objectId: string) => void;
 };
 
-type BoxDraft = {
-  width: string;
-  depth: string;
-  height: string;
-};
+type PrimitiveDraft = Record<string, string>;
 
 type TransformDraft = {
   x: string;
@@ -34,7 +35,13 @@ type TransformDraft = {
   sz: string;
 };
 
-const emptyBoxDraft: BoxDraft = { width: "", depth: "", height: "" };
+const primitiveFields: Record<string, { key: string; label: string }[]> = {
+  box: [{ key: "width", label: "Width" }, { key: "depth", label: "Depth" }, { key: "height", label: "Height" }],
+  cylinder: [{ key: "radius", label: "Radius" }, { key: "height", label: "Height" }],
+  sphere: [{ key: "radius", label: "Radius" }],
+  cone: [{ key: "radius1", label: "Base radius" }, { key: "radius2", label: "Top radius" }, { key: "height", label: "Height" }],
+  torus: [{ key: "majorRadius", label: "Major radius" }, { key: "minorRadius", label: "Tube radius" }],
+};
 const emptyTransformDraft: TransformDraft = {
   x: "", y: "", z: "", rx: "", ry: "", rz: "", sx: "", sy: "", sz: "",
 };
@@ -49,16 +56,23 @@ export function PropertiesPanel({
   onHide,
   onIsolate,
   onShowAll,
+  onBooleanCreated,
 }: PropertiesPanelProps) {
   const object = selectedObjectId ? cadDocument.objects[selectedObjectId] : null;
   const feature = object
     ? Object.values(cadDocument.features).find((entry) => entry.output === object.id)
     : undefined;
-  const isEditableBox = feature?.type === "primitive";
+  const isPrimitive = feature?.type === "primitive";
+  const isDrawing = feature?.type === "drawing";
+  const drawingMeasurements = isDrawing ? measureDrawing(feature.params) : {};
+  const primitiveKind = isPrimitive && typeof feature.params.kind === "string" ? feature.params.kind : "box";
+  const fields = primitiveFields[primitiveKind] ?? primitiveFields.box;
   const objectLayer = object ? cadDocument.layers[object.layerId] : undefined;
   const isLocked = objectLayer?.locked ?? false;
   const [name, setName] = useState("");
-  const [boxDraft, setBoxDraft] = useState<BoxDraft>(emptyBoxDraft);
+  const [primitiveDraft, setPrimitiveDraft] = useState<PrimitiveDraft>({});
+  const [booleanToolId, setBooleanToolId] = useState("");
+  const [booleanError, setBooleanError] = useState("");
   const [transformDraft, setTransformDraft] = useState<TransformDraft>(emptyTransformDraft);
 
   useEffect(() => {
@@ -80,14 +94,11 @@ export function PropertiesPanel({
       setTransformDraft(emptyTransformDraft);
     }
     if (!feature || feature.type !== "primitive") {
-      setBoxDraft(emptyBoxDraft);
+      setPrimitiveDraft({});
       return;
     }
-    setBoxDraft({
-      width: String(feature.params.width ?? ""),
-      depth: String(feature.params.depth ?? ""),
-      height: String(feature.params.height ?? ""),
-    });
+    setPrimitiveDraft(Object.fromEntries(Object.entries(feature.params).filter(([key]) => key !== "kind").map(([key, value]) => [key, String(value)])));
+    setBooleanToolId("");
   }, [selectedObjectId, documentRevision]);
 
   async function commitName() {
@@ -101,21 +112,35 @@ export function PropertiesPanel({
     onDocumentChange();
   }
 
-  async function commitBox() {
-    if (!object || !isEditableBox || isLocked) return;
-    const values = [boxDraft.width, boxDraft.depth, boxDraft.height].map(Number);
-    const current = [feature.params.width, feature.params.depth, feature.params.height].map(Number);
-    if (values.some((value) => !Number.isFinite(value) || value <= 0)) {
-      setBoxDraft({ width: String(current[0]), depth: String(current[1]), height: String(current[2]) });
+  async function commitPrimitive() {
+    if (!object || !isPrimitive || isLocked) return;
+    const params = Object.fromEntries(fields.map(({ key }) => [key, Number(primitiveDraft[key])]));
+    if (Object.values(params).some((value) => !Number.isFinite(value) || value <= 0) || (primitiveKind === "torus" && params.majorRadius <= params.minorRadius)) {
+      setPrimitiveDraft(Object.fromEntries(Object.entries(feature.params).filter(([key]) => key !== "kind").map(([key, value]) => [key, String(value)])));
       return;
     }
-    if (values.every((value, index) => value === current[index])) return;
-    await dispatchCadCommand({
-      type: "update-box",
-      objectId: object.id,
-      width: values[0], depth: values[1], height: values[2],
-    });
+    await dispatchCadCommand({ type: "update-primitive", objectId: object.id, params });
     onDocumentChange();
+  }
+
+  async function runBoolean(operation: "union" | "cut" | "intersect") {
+    if (!object || !feature || !isPrimitive || isLocked || !booleanToolId) return;
+    const tool = cadDocument.objects[booleanToolId];
+    const toolFeature = tool && Object.values(cadDocument.features).find((entry) => entry.output === tool.id);
+    if (!tool || !toolFeature || toolFeature.type !== "primitive") return;
+    const params = { operation, operands: [
+      { params: structuredClone(feature.params), transform: structuredClone(getObjectTransform(object, feature)) },
+      { params: structuredClone(toolFeature.params), transform: structuredClone(getObjectTransform(tool, toolFeature)) },
+    ] };
+    try {
+      setBooleanError("");
+      await validateBooleanOperation(params);
+    } catch {
+      setBooleanError("The selected solids do not produce a valid boolean result.");
+      return;
+    }
+    const id = await dispatchCadCommand({ type: "boolean-operation", operation, target: object.id, tool: booleanToolId });
+    if (typeof id === "string") { onBooleanCreated(id); onDocumentChange(); }
   }
 
   async function commitTransform(kind: "move" | "rotate" | "scale") {
@@ -181,14 +206,14 @@ export function PropertiesPanel({
 
   return (
     <div className="properties-content">
-      <div className="inspector-header"><span>Properties</span><small>{isLocked ? "Locked layer" : isEditableBox ? "Box" : "BRep body"}</small></div>
+      <div className="inspector-header"><span>Properties</span><small>{isLocked ? "Locked layer" : isPrimitive ? primitiveKind : isDrawing ? String(feature.params.kind) : feature?.type === "boolean" ? "Boolean result" : "BRep body"}</small></div>
 
       {isLocked && <div className="inspector-notice">Unlock <strong>{objectLayer?.name}</strong> in Layers to edit this object.</div>}
 
       <section className="property-section">
         <h3>Identity</h3>
         <label className="property-row"><span>Name</span><input disabled={isLocked} value={name} onChange={(event) => setName(event.target.value)} onBlur={() => void commitName()} onKeyDown={(event) => event.key === "Enter" && event.currentTarget.blur()} /></label>
-        <div className="property-row"><span>Type</span><strong>{isEditableBox ? "Primitive / Box" : "BRep body"}</strong></div>
+        <div className="property-row"><span>Type</span><strong>{isPrimitive ? `Primitive / ${primitiveKind[0].toUpperCase()}${primitiveKind.slice(1)}` : isDrawing ? `Drawing / ${String(feature.params.kind)}` : feature?.type === "boolean" ? "Feature / Boolean" : "BRep body"}</strong></div>
         <div className="property-row" title={object.id}><span>ID</span><code>{object.id}</code></div>
       </section>
 
@@ -201,40 +226,63 @@ export function PropertiesPanel({
         <label className="property-row"><span>Visible</span><input className="property-toggle" type="checkbox" checked={object.visible} onChange={() => void toggleVisibility()} /></label>
       </section>
 
-      {isEditableBox && (
+      {isPrimitive && (
         <>
           <section className="property-section">
             <h3>Dimensions <small>mm</small></h3>
-            {(["width", "depth", "height"] as const).map((key) => (
-              <label className="property-row" key={key}><span>{key[0].toUpperCase() + key.slice(1)}</span><input disabled={isLocked} type="number" min="0.001" step="0.1" value={boxDraft[key]} onChange={(event) => setBoxDraft((draft) => ({ ...draft, [key]: event.target.value }))} onBlur={() => void commitBox()} onKeyDown={(event) => event.key === "Enter" && event.currentTarget.blur()} /></label>
+            {fields.map(({ key, label }) => (
+              <NumericField key={key} label={label} context="Dimensions" unit="mm" disabled={isLocked} min="0.001" step="0.1" value={primitiveDraft[key] ?? ""} onChange={(value) => setPrimitiveDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitPrimitive()} />
             ))}
           </section>
         </>
       )}
 
+      {isDrawing && (
+        <section className="property-section">
+          <h3>Geometry <small>{String(feature.params.workPlane ?? "XY")} plane</small></h3>
+          {drawingMeasurements.distance !== undefined && <div className="property-row"><span>{feature.params.kind === "arc" ? "Arc length" : "Length"}</span><strong>{formatLength(drawingMeasurements.distance, "mm", 2)}</strong></div>}
+          {drawingMeasurements.angle !== undefined && <div className="property-row"><span>Angle</span><strong>{(drawingMeasurements.angle * 180 / Math.PI).toFixed(2)} °</strong></div>}
+          {drawingMeasurements.radius !== undefined && <div className="property-row"><span>Radius</span><strong>{formatLength(drawingMeasurements.radius, "mm", 2)}</strong></div>}
+          {drawingMeasurements.diameter !== undefined && <div className="property-row"><span>Diameter</span><strong>{formatLength(drawingMeasurements.diameter, "mm", 2)}</strong></div>}
+          {drawingMeasurements.area !== undefined && <div className="property-row"><span>Area</span><strong>{drawingMeasurements.area.toFixed(2)} mm²</strong></div>}
+        </section>
+      )}
+
+      {isPrimitive && (
+        <section className="property-section">
+          <h3>Boolean <small>Consumes target + tool</small></h3>
+          <label className="property-row"><span>Tool</span><select disabled={isLocked} value={booleanToolId} onChange={(event) => setBooleanToolId(event.target.value)}><option value="">Choose primitive…</option>{cadDocument.rootObjects.filter((id) => id !== object.id).map((id) => {
+            const candidate = cadDocument.objects[id]; const candidateFeature = candidate && Object.values(cadDocument.features).find((entry) => entry.output === id); const candidateLayer = candidate && cadDocument.layers[candidate.layerId];
+            return candidate && candidateFeature?.type === "primitive" && !candidateLayer?.locked ? <option key={id} value={id}>{candidate.name}</option> : null;
+          })}</select></label>
+          <div className="property-actions property-boolean-actions"><button type="button" disabled={isLocked || !booleanToolId} onClick={() => void runBoolean("union")}>Union</button><button type="button" disabled={isLocked || !booleanToolId} onClick={() => void runBoolean("cut")}>Cut</button><button type="button" disabled={isLocked || !booleanToolId} onClick={() => void runBoolean("intersect")}>Intersect</button></div>
+          {booleanError && <p className="boolean-error" role="status">{booleanError}</p>}
+        </section>
+      )}
+
       <section className="property-section">
-        <h3>Move <small>mm</small></h3>
+        <h3>Position <small>World · mm</small></h3>
         {(["x", "y", "z"] as const).map((key) => (
-          <label className="property-row" key={key}><span>{key.toUpperCase()}</span><input disabled={isLocked} type="number" step="0.1" value={transformDraft[key]} onChange={(event) => setTransformDraft((draft) => ({ ...draft, [key]: event.target.value }))} onBlur={() => void commitTransform("move")} onKeyDown={(event) => event.key === "Enter" && event.currentTarget.blur()} /></label>
+          <NumericField key={key} label={key.toUpperCase()} context="Position" unit="mm" disabled={isLocked} step="0.1" value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("move")} />
         ))}
       </section>
 
       <section className="property-section">
         <h3>Rotate <small>deg</small></h3>
         {(["rx", "ry", "rz"] as const).map((key) => (
-          <label className="property-row" key={key}><span>{key.slice(1).toUpperCase()}</span><input disabled={isLocked} type="number" step="1" value={transformDraft[key]} onChange={(event) => setTransformDraft((draft) => ({ ...draft, [key]: event.target.value }))} onBlur={() => void commitTransform("rotate")} onKeyDown={(event) => event.key === "Enter" && event.currentTarget.blur()} /></label>
+          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Rotation" unit="°" disabled={isLocked} step="1" value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("rotate")} />
         ))}
       </section>
 
       <section className="property-section">
         <h3>Scale <small>factor</small></h3>
         {(["sx", "sy", "sz"] as const).map((key) => (
-          <label className="property-row" key={key}><span>{key.slice(1).toUpperCase()}</span><input disabled={isLocked} type="number" min="0.001" step="0.1" value={transformDraft[key]} onChange={(event) => setTransformDraft((draft) => ({ ...draft, [key]: event.target.value }))} onBlur={() => void commitTransform("scale")} onKeyDown={(event) => event.key === "Enter" && event.currentTarget.blur()} /></label>
+          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Scale" unit="×" disabled={isLocked} min="0.001" step="0.1" value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("scale")} />
         ))}
       </section>
 
       <div className="property-actions">
-        <button type="button" disabled={!isEditableBox || isLocked} onClick={onDuplicate}>Duplicate</button>
+        <button type="button" disabled={!feature || isLocked} onClick={onDuplicate}>Duplicate</button>
         <button type="button" disabled={isLocked} className="danger-button" onClick={onDelete}>Delete</button>
       </div>
       <div className="property-actions property-visibility-actions">

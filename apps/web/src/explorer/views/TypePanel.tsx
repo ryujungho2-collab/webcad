@@ -16,7 +16,7 @@ export function TypePanel({ query, selectedObjectId, onSelectObject }: TypePanel
     const object = cadDocument.objects[objectId];
     if (!object || (query && !object.name.toLowerCase().includes(query) && !object.id.toLowerCase().includes(query))) continue;
     const feature = featuresByOutput.get(objectId);
-    const type = feature?.type === "primitive" ? "Primitives" : "Imported / BRep";
+    const type = feature?.type === "primitive" ? "Primitives" : feature?.type === "drawing" ? "Drawing entities" : feature?.type === "boolean" ? "Boolean features" : "Imported / BRep";
     groups.set(type, [...(groups.get(type) ?? []), objectId]);
   }
 

@@ -1,4 +1,7 @@
-import type { TransformMode, ViewportActionType } from "../viewport/CadViewport";
+import type { DrawingTool, TransformMode, ViewportActionType } from "../viewport/CadViewport";
+import type { WorkPlaneId } from "../precision/workPlane";
+import type { WorkspaceMode } from "../viewport/workspaceTransition";
+import { ToolIcon } from "../ui/ToolIcon";
 
 type RibbonProps = {
   canUndo: boolean;
@@ -11,6 +14,11 @@ type RibbonProps = {
   projectionMode: "perspective" | "orthographic";
   gridVisible: boolean;
   transformMode: TransformMode | null;
+  drawingTool: DrawingTool | null;
+  activeWorkPlane: WorkPlaneId;
+  snapEnabled: boolean;
+  orthoEnabled: boolean;
+  workspaceMode: WorkspaceMode;
   activeLayerName: string;
   onNew: () => void;
   onOpen: () => void;
@@ -18,6 +26,12 @@ type RibbonProps = {
   onUndo: () => void;
   onRedo: () => void;
   onCreateBox: () => void;
+  onCreatePrimitive: (primitive: "cylinder" | "sphere" | "cone" | "torus") => void;
+  onDrawingTool: (tool: DrawingTool) => void;
+  onCycleWorkPlane: () => void;
+  onToggleSnap: () => void;
+  onToggleOrtho: () => void;
+  onWorkspaceMode: (mode: WorkspaceMode) => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onHide: () => void;
@@ -46,9 +60,10 @@ function RibbonButton({ icon, label, title, disabled, danger, active, onClick }:
       className={`ribbon-command${danger ? " ribbon-command-danger" : ""}${active ? " ribbon-command-active" : ""}`}
       title={title ?? label}
       disabled={disabled}
+      aria-pressed={active}
       onClick={onClick}
     >
-      <span className="ribbon-command-icon" aria-hidden="true">{icon}</span>
+      <span className="ribbon-command-icon" aria-hidden="true"><ToolIcon name={label} fallback={icon} /></span>
       <span>{label}</span>
     </button>
   );
@@ -65,6 +80,11 @@ export function Ribbon({
   projectionMode,
   gridVisible,
   transformMode,
+  drawingTool,
+  activeWorkPlane,
+  snapEnabled,
+  orthoEnabled,
+  workspaceMode,
   activeLayerName,
   onNew,
   onOpen,
@@ -72,6 +92,12 @@ export function Ribbon({
   onUndo,
   onRedo,
   onCreateBox,
+  onCreatePrimitive,
+  onDrawingTool,
+  onCycleWorkPlane,
+  onToggleSnap,
+  onToggleOrtho,
+  onWorkspaceMode,
   onDuplicate,
   onDelete,
   onHide,
@@ -84,23 +110,13 @@ export function Ribbon({
 }: RibbonProps) {
   return (
     <div className="ribbon">
-      <div className="ribbon-tabs" role="tablist" aria-label="CAD tools">
-        <button type="button" className="ribbon-tab ribbon-tab-active" role="tab" aria-selected="true">
-          Home
-        </button>
-        {["Sketch", "Solid", "Surface", "Inspect"].map((label) => (
-          <button
-            key={label}
-            type="button"
-            className="ribbon-tab"
-            role="tab"
-            aria-selected="false"
-            title={`${label} workspace is not available yet`}
-            disabled
-          >
-            {label}
-          </button>
-        ))}
+      <div className="ribbon-tabs" aria-label="Model workspace">
+        <span className="workspace-label">{workspaceMode === "2d" ? "DRAFT" : "MODEL"}</span>
+        <span className="workspace-description">{workspaceMode === "2d" ? "2D drafting · " : "Solid modeling · "}millimeters</span>
+        <div className="workspace-switch" role="group" aria-label="Dimensional workspace">
+          <button type="button" className={workspaceMode === "2d" ? "workspace-switch-active" : ""} aria-pressed={workspaceMode === "2d"} onClick={() => onWorkspaceMode("2d")}>2D</button>
+          <button type="button" className={workspaceMode === "3d" ? "workspace-switch-active" : ""} aria-pressed={workspaceMode === "3d"} onClick={() => onWorkspaceMode("3d")}>3D</button>
+        </div>
       </div>
 
       <div className="ribbon-body">
@@ -124,8 +140,32 @@ export function Ribbon({
         <div className="ribbon-group">
           <div className="ribbon-commands">
             <RibbonButton icon="◇" label="Box" title={canCreateBox ? "Create box on active layer" : "Unlock the active layer to create geometry"} disabled={!canCreateBox} onClick={onCreateBox} />
+            <RibbonButton icon="○" label="Cylinder" title="Create cylinder on active layer" disabled={!canCreateBox} onClick={() => onCreatePrimitive("cylinder")} />
+            <RibbonButton icon="●" label="Sphere" title="Create sphere on active layer" disabled={!canCreateBox} onClick={() => onCreatePrimitive("sphere")} />
+            <RibbonButton icon="△" label="Cone" title="Create cone on active layer" disabled={!canCreateBox} onClick={() => onCreatePrimitive("cone")} />
+            <RibbonButton icon="⊘" label="Torus" title="Create torus on active layer" disabled={!canCreateBox} onClick={() => onCreatePrimitive("torus")} />
           </div>
           <span className="ribbon-group-label">Create</span>
+        </div>
+
+        <div className="ribbon-group">
+          <div className="ribbon-commands">
+            <RibbonButton icon="╱" label="Line" active={drawingTool === "line"} disabled={!canCreateBox} onClick={() => onDrawingTool("line")} />
+            <RibbonButton icon="⌁" label="Polyline" active={drawingTool === "polyline"} disabled={!canCreateBox} onClick={() => onDrawingTool("polyline")} />
+            <RibbonButton icon="▭" label="Rectangle" active={drawingTool === "rectangle"} disabled={!canCreateBox} onClick={() => onDrawingTool("rectangle")} />
+            <RibbonButton icon="○" label="Circle" active={drawingTool === "circle"} disabled={!canCreateBox} onClick={() => onDrawingTool("circle")} />
+            <RibbonButton icon="⌒" label="Arc" active={drawingTool === "arc"} disabled={!canCreateBox} onClick={() => onDrawingTool("arc")} />
+          </div>
+          <span className="ribbon-group-label">Draw</span>
+        </div>
+
+        <div className="ribbon-group">
+          <div className="ribbon-commands">
+            <RibbonButton icon="⊙" label="Snap" title="Object snap (F3)" active={snapEnabled} onClick={onToggleSnap} />
+            <RibbonButton icon="└" label="Ortho" title="Orthogonal constraint (F8)" active={orthoEnabled} onClick={onToggleOrtho} />
+            <RibbonButton icon="▱" label={activeWorkPlane} title="Cycle active work plane" onClick={onCycleWorkPlane} />
+          </div>
+          <span className="ribbon-group-label">Precision</span>
         </div>
 
         <div className="ribbon-group">
@@ -154,7 +194,7 @@ export function Ribbon({
             <RibbonButton icon="R" label="Right" onClick={() => onViewAction("right")} />
             <RibbonButton icon="◇" label="Iso" title="Isometric view" onClick={() => onViewAction("isometric")} />
             <RibbonButton icon={projectionMode === "perspective" ? "P" : "O"} label={projectionMode === "perspective" ? "Perspective" : "Orthographic"} title="Toggle perspective / orthographic projection" onClick={onToggleProjection} />
-            <RibbonButton icon="#" label="Grid" title={`${gridVisible ? "Hide" : "Show"} adaptive infinite grid`} onClick={onToggleGrid} />
+            <RibbonButton icon="#" label="Grid" active={gridVisible} title={`${gridVisible ? "Hide" : "Show"} adaptive infinite grid`} onClick={onToggleGrid} />
           </div>
           <span className="ribbon-group-label">View</span>
         </div>

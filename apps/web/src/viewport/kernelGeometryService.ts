@@ -57,7 +57,7 @@ async function loadKernel() {
   return kernelPromise;
 }
 
-async function runKernelTask<T>(name: string, task: (kernel: CadKernelModule) => Promise<T>) {
+async function runKernelTask<T>(name: string, task: (kernel: CadKernelModule) => Promise<T>, options: { fatal?: boolean } = {}) {
   activeTasks += 1;
   setKernelStatus(kernelPromise ? "working" : "loading");
   const startedAt = performance.now();
@@ -78,11 +78,11 @@ async function runKernelTask<T>(name: string, task: (kernel: CadKernelModule) =>
     }
     return result;
   } catch (error) {
-    setKernelStatus("error");
+    if (options.fatal !== false) setKernelStatus("error");
     throw error;
   } finally {
     activeTasks -= 1;
-    if (kernelStatus !== "error" && activeTasks === 0) setKernelStatus("ready");
+    if ((kernelStatus !== "error" || options.fatal === false) && activeTasks === 0) setKernelStatus("ready");
   }
 }
 
@@ -127,6 +127,60 @@ export function buildBoxMesh(width: number, depth: number, height: number) {
       shape?.delete?.();
     }
   }));
+}
+
+type PrimitiveParams = Record<string, unknown>;
+type SerializedOperand = { params: PrimitiveParams; transform?: { translation?: number[]; rotation?: number[]; scale?: number[] } };
+
+async function createPrimitiveShape(kernel: CadKernelModule, params: PrimitiveParams) {
+  const kind = String(params.kind ?? "box");
+  if (kind === "box") return kernel.createBox(Number(params.width), Number(params.depth), Number(params.height));
+  if (kind === "cylinder") return kernel.createCylinder(Number(params.radius), Number(params.height));
+  if (kind === "sphere") return kernel.createSphere(Number(params.radius));
+  if (kind === "cone") return kernel.createCone(Number(params.radius1), Number(params.radius2), Number(params.height));
+  if (kind === "torus") return kernel.createTorus(Number(params.majorRadius), Number(params.minorRadius));
+  throw new Error(`Unsupported primitive kind: ${kind}`);
+}
+
+async function placeShape(kernel: CadKernelModule, shape: any, operand: SerializedOperand) {
+  const translation = operand.transform?.translation ?? [0, 0, 0];
+  let placed = shape;
+  if (translation.some((value) => value !== 0)) placed = await kernel.translate(placed, translation[0] ?? 0, translation[1] ?? 0, translation[2] ?? 0);
+  const rotation = operand.transform?.rotation ?? [0, 0, 0];
+  for (const [axis, degrees] of [[[1, 0, 0], rotation[0]], [[0, 1, 0], rotation[1]], [[0, 0, 1], rotation[2]]] as const) {
+    if (degrees) placed = await kernel.rotate(placed, [...axis] as [number, number, number], degrees * Math.PI / 180);
+  }
+  return placed;
+}
+
+export function buildPrimitiveMesh(params: PrimitiveParams) {
+  const key = `primitive:${JSON.stringify(params)}`;
+  return getCachedMesh(key, () => runKernelTask(key, async (kernel) => {
+    const shape = await createPrimitiveShape(kernel, params);
+    try { return await kernel.shapeToMesh(shape); } finally { shape?.delete?.(); }
+  }));
+}
+
+export function buildBooleanMesh(params: PrimitiveParams, preflight = false) {
+  const key = `boolean:${JSON.stringify(params)}`;
+  return getCachedMesh(key, () => runKernelTask(key, async (kernel) => {
+    const operands = params.operands as SerializedOperand[];
+    if (!Array.isArray(operands) || operands.length !== 2) throw new Error("Invalid boolean operands.");
+    const sourceA = await createPrimitiveShape(kernel, operands[0].params);
+    const sourceB = await createPrimitiveShape(kernel, operands[1].params);
+    let a: any = sourceA; let b: any = sourceB; let result: any;
+    try {
+      a = await placeShape(kernel, a, operands[0]);
+      b = await placeShape(kernel, b, operands[1]);
+      result = params.operation === "union" ? await kernel.fuse(a, b) : params.operation === "intersect" ? await kernel.intersect(a, b) : await kernel.cut(a, b);
+      return await kernel.shapeToMesh(result);
+    } finally { result?.delete?.(); if (a !== sourceA) a?.delete?.(); if (b !== sourceB) b?.delete?.(); sourceA?.delete?.(); sourceB?.delete?.(); }
+  }, { fatal: !preflight }));
+}
+
+/** Runs the exact cached operation before a boolean command mutates the document. */
+export async function validateBooleanOperation(params: PrimitiveParams) {
+  await buildBooleanMesh(params, true);
 }
 
 export function buildDemoPartMesh() {

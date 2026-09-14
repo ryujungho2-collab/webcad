@@ -1,5 +1,6 @@
 import { cadDocument } from "../state/cadDocument";
 import type { KernelStatus } from "../viewport/kernelGeometryService";
+import type { WorkPlaneId } from "../precision/workPlane";
 
 type StatusBarProps = {
   selectedObjectId: string | null;
@@ -8,6 +9,9 @@ type StatusBarProps = {
   isModified: boolean;
   gridVisible: boolean;
   kernelStatus: KernelStatus;
+  snapEnabled: boolean;
+  orthoEnabled: boolean;
+  activeWorkPlane: WorkPlaneId;
 };
 
 const kernelLabels: Record<KernelStatus, string> = {
@@ -18,7 +22,7 @@ const kernelLabels: Record<KernelStatus, string> = {
   error: "Kernel error",
 };
 
-export function StatusBar({ selectedObjectId, selectedLayerId, canUndo, isModified, gridVisible, kernelStatus }: StatusBarProps) {
+export function StatusBar({ selectedObjectId, selectedLayerId, canUndo, isModified, gridVisible, kernelStatus, snapEnabled, orthoEnabled, activeWorkPlane }: StatusBarProps) {
   const selectedObject = selectedObjectId ? cadDocument.objects[selectedObjectId] : null;
   const activeLayer = cadDocument.layers[selectedLayerId];
 
@@ -26,8 +30,10 @@ export function StatusBar({ selectedObjectId, selectedLayerId, canUndo, isModifi
     <footer className="status-bar">
       <span className="status-ready"><i />Ready</span>
       <span title="Document coordinate units">mm</span>
-        <span>Grid <strong>{gridVisible ? "ON" : "OFF"}</strong></span>
-      <span>Snap <strong>OFF</strong></span>
+      <span>Plane <strong>{activeWorkPlane}</strong></span>
+      <span>Grid <strong>{gridVisible ? "ON" : "OFF"}</strong></span>
+      <span>Snap <strong>{snapEnabled ? "ON" : "OFF"}</strong></span>
+      <span>Ortho <strong>{orthoEnabled ? "ON" : "OFF"}</strong></span>
       <span className="status-spacer" />
       <span>{cadDocument.rootObjects.length} object{cadDocument.rootObjects.length === 1 ? "" : "s"}</span>
       <span title="Active layer">Layer: <strong>{activeLayer?.name ?? "—"}{activeLayer?.locked ? " · Locked" : ""}</strong></span>

@@ -16,12 +16,37 @@ function isVector3(value: unknown): value is [number, number, number] {
   return Array.isArray(value) && value.length === 3 && value.every(isFiniteNumber);
 }
 
+function isVector3Array(value: unknown, minimum: number) {
+  return Array.isArray(value) && value.length >= minimum && value.every(isVector3);
+}
+
+function isDrawingParams(kind: unknown, params: unknown) {
+  if (!isRecord(params) || typeof kind !== "string") return false;
+  if (kind === "line") return Array.isArray(params.points) && isVector3Array(params.points, 2) && params.points.length === 2;
+  if (kind === "polyline") return isVector3Array(params.points, 2);
+  if (kind === "rectangle") return Array.isArray(params.points) && isVector3Array(params.points, 4) && params.points.length === 4;
+  if (kind === "circle") return isVector3(params.center) && isFiniteNumber(params.radius) && params.radius > 0;
+  if (kind === "arc") return isVector3(params.center) && isFiniteNumber(params.radius) && params.radius > 0 && isFiniteNumber(params.startAngle) && isFiniteNumber(params.endAngle) && params.startAngle !== params.endAngle;
+  return false;
+}
+
 export function validateCommand(command: unknown): command is CadCommand {
   if (!isRecord(command) || !isString(command.type)) {
     return false;
   }
 
   switch (command.type) {
+    case "create-drawing":
+      return ["line", "polyline", "rectangle", "circle", "arc"].includes(String(command.drawing)) &&
+        isDrawingParams(command.drawing, command.params) &&
+        (command.id === undefined || isString(command.id)) &&
+        (command.layerId === undefined || isString(command.layerId));
+    case "create-primitive":
+      return isString(command.primitive) && ["box", "cylinder", "sphere", "cone", "torus"].includes(command.primitive as string) &&
+        isRecord(command.params) && Object.values(command.params).every((value) => isFiniteNumber(value) && value > 0) &&
+        (command.id === undefined || isString(command.id)) &&
+        (command.layerId === undefined || isString(command.layerId)) &&
+        (command.position === undefined || isVector3(command.position));
     case "create-box":
       return (
         isFiniteNumber(command.width) && command.width > 0 &&
@@ -33,6 +58,8 @@ export function validateCommand(command: unknown): command is CadCommand {
       );
     case "boolean-cut":
       return isString(command.target) && isString(command.tool);
+    case "boolean-operation":
+      return isString(command.operation) && ["union", "cut", "intersect"].includes(command.operation) && isString(command.target) && isString(command.tool) && command.target !== command.tool;
     case "fillet":
       return (
         isString(command.target) &&
@@ -71,6 +98,8 @@ export function validateCommand(command: unknown): command is CadCommand {
         isFiniteNumber(command.depth) && command.depth > 0 &&
         isFiniteNumber(command.height) && command.height > 0
       );
+    case "update-primitive":
+      return isString(command.objectId) && isRecord(command.params) && Object.values(command.params).every((value) => isFiniteNumber(value) && value > 0);
     case "move-object":
       return isString(command.objectId) && isVector3(command.translation);
     case "rotate-object":

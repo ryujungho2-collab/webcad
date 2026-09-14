@@ -165,6 +165,12 @@ button.tree-root:hover { background: #1d232b; }
 .panel-toggle-right { right: 0; border-right: 0; border-radius: 4px 0 0 4px; }
 .cad-viewport { position: absolute; inset: 0; width: 100%; height: 100%; }
 .cad-viewport canvas { display: block; width: 100% !important; height: 100% !important; }
+.cad-tool-readout { position: absolute; z-index: 3; left: 50%; bottom: 42px; transform: translateX(-50%); padding: 5px 8px; border: 1px solid #40515d; border-radius: 3px; background: #111820ee; color: #9ee8da; font: 10px/1.2 var(--font-ui, sans-serif); letter-spacing: .02em; pointer-events: none; }
+.workspace-switch { display: inline-flex; margin-left: 12px; border: 1px solid #34414b; border-radius: 3px; overflow: hidden; vertical-align: middle; }
+.workspace-switch button { border: 0; border-right: 1px solid #34414b; padding: 3px 8px; background: #151b21; color: #82909c; font: 10px var(--font-ui, sans-serif); cursor: pointer; }
+.workspace-switch button:last-child { border-right: 0; }
+.workspace-switch button:hover { color: #d5e0e5; background: #202b32; }
+.workspace-switch .workspace-switch-active { background: #1d5e5b; color: #baf4e8; box-shadow: inset 0 -2px #65d7c2; }
 .viewport-loading { position: absolute; inset: 0; display: grid; place-items: center; background: #0f1217; color: #77828f; font-size: 10px; letter-spacing: .04em; }
 .viewport-label { position: absolute; z-index: 2; top: 10px; left: 11px; display: flex; gap: 9px; align-items: center; padding: 5px 7px; border: 1px solid #323a45cc; border-radius: 3px; background: #11161dcc; color: #8d97a4; font-size: 9px; pointer-events: none; backdrop-filter: blur(4px); }
 .viewport-label strong { color: #d5dbe3; font-size: 10px; font-weight: 550; }

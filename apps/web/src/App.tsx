@@ -6,7 +6,9 @@ import { cadDocument } from "./state/cadDocument";
 import { dispatchCadCommand } from "./state/dispatchCadCommand";
 import { newDocument, openDocumentFile, saveDocumentAsFile, saveDocumentToCache } from "./state/documentFile";
 import { cadHistory, redoDocument, undoDocument } from "./state/history";
-import type { ObjectTransformValue, TransformMode, ViewportAction, ViewportActionType } from "./viewport/CadViewport";
+import type { DrawingTool, ObjectTransformValue, TransformMode, ViewportAction, ViewportActionType } from "./viewport/CadViewport";
+import type { WorkPlaneId } from "./precision/workPlane";
+import type { WorkspaceMode } from "./viewport/workspaceTransition";
 import type { KernelStatus } from "./viewport/kernelGeometryService";
 import "./styles.css";
 
@@ -30,6 +32,11 @@ export function App() {
   const [gridVisible, setGridVisible] = useState(true);
   const [viewAction, setViewAction] = useState<ViewportAction | null>(null);
   const [transformMode, setTransformMode] = useState<TransformMode | null>(null);
+  const [drawingTool, setDrawingTool] = useState<DrawingTool | null>(null);
+  const [activeWorkPlane, setActiveWorkPlane] = useState<WorkPlaneId>("XY");
+  const [snapEnabled, setSnapEnabled] = useState(true);
+  const [orthoEnabled, setOrthoEnabled] = useState(false);
+  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>("3d");
   const [kernelStatus, setKernelStatus] = useState<KernelStatus>("deferred");
   const viewActionId = useRef(0);
   const currentFingerprint = useMemo(documentFingerprint, [documentRevision]);
@@ -133,6 +140,40 @@ export function App() {
     syncRevision();
   }
 
+  async function handleCreatePrimitive(primitive: "cylinder" | "sphere" | "cone" | "torus") {
+    const count = cadDocument.rootObjects.length;
+    const params: Record<string, number> = primitive === "cylinder" ? { radius: 4, height: 8 }
+      : primitive === "sphere" ? { radius: 5 }
+      : primitive === "cone" ? { radius1: 5, radius2: 2, height: 8 }
+      : { majorRadius: 5, minorRadius: 1.5 };
+    const newId = await dispatchCadCommand({ type: "create-primitive", primitive, params, layerId: selectedLayerId, position: [14 + count * 12, 0, 0] });
+    if (typeof newId === "string") setSelectedObjectId(newId);
+    syncRevision();
+  }
+
+  function activateDrawingTool(tool: DrawingTool) {
+    setTransformMode(null);
+    setDrawingTool((current) => current === tool ? null : tool);
+    if (activeWorkPlane === "XY") {
+      setProjectionMode("orthographic");
+      issueViewAction("top");
+    }
+  }
+
+  function changeWorkspace(mode: WorkspaceMode) {
+    setWorkspaceMode(mode);
+    setProjectionMode(mode === "2d" ? "orthographic" : "perspective");
+    setDrawingTool(null);
+    setTransformMode(null);
+  }
+
+  async function handleDrawingCommit(drawing: DrawingTool, params: Record<string, unknown>) {
+    const newId = await dispatchCadCommand({ type: "create-drawing", drawing, params, layerId: selectedLayerId });
+    if (typeof newId === "string") setSelectedObjectId(newId);
+    setDrawingTool(null);
+    syncRevision();
+  }
+
   async function handleDeleteObject() {
     if (!selectedObjectId) return;
     await dispatchCadCommand({ type: "delete-object", objectId: selectedObjectId });
@@ -174,7 +215,9 @@ export function App() {
         void handleDeleteObject();
         return;
       }
-      if (event.key === "Escape") { setTransformMode(null); return; }
+      if (event.key === "Escape") { setTransformMode(null); setDrawingTool(null); return; }
+      if (event.key === "F3") { event.preventDefault(); setSnapEnabled((value) => !value); return; }
+      if (event.key === "F8") { event.preventDefault(); setOrthoEnabled((value) => !value); return; }
       if (selectedObjectId && !selectedLayerLocked) {
         if (event.key.toLowerCase() === "g") { setTransformMode("translate"); return; }
         if (event.key.toLowerCase() === "r") { setTransformMode("rotate"); return; }
@@ -204,6 +247,7 @@ export function App() {
       onHide={() => void handleHideObject()}
       onIsolate={() => void handleIsolateObject()}
       onShowAll={() => void handleShowAllObjects()}
+      onBooleanCreated={setSelectedObjectId}
     />
   );
 
@@ -225,12 +269,23 @@ export function App() {
       projectionMode={projectionMode}
       gridVisible={gridVisible}
       transformMode={transformMode}
+      drawingTool={drawingTool}
+      activeWorkPlane={activeWorkPlane}
+      snapEnabled={snapEnabled}
+      orthoEnabled={orthoEnabled}
+      workspaceMode={workspaceMode}
       kernelStatus={kernelStatus}
       onChangeActivity={setActiveActivity}
       onSelectLayer={setSelectedLayerId}
       onSelectObject={setSelectedObjectId}
       onDocumentChange={syncRevision}
       onCreateBox={() => void handleCreateBox()}
+      onCreatePrimitive={(primitive) => void handleCreatePrimitive(primitive)}
+      onDrawingTool={activateDrawingTool}
+      onCycleWorkPlane={() => setActiveWorkPlane((plane) => plane === "XY" ? "XZ" : plane === "XZ" ? "YZ" : "XY")}
+      onToggleSnap={() => setSnapEnabled((value) => !value)}
+      onToggleOrtho={() => setOrthoEnabled((value) => !value)}
+      onWorkspaceMode={changeWorkspace}
       onDuplicate={() => void handleDuplicateObject()}
       onDelete={() => void handleDeleteObject()}
       onHide={() => void handleHideObject()}
@@ -256,9 +311,16 @@ export function App() {
           gridVisible={gridVisible}
           viewAction={viewAction}
           transformMode={transformMode}
+          drawingTool={drawingTool}
+          activeWorkPlane={activeWorkPlane}
+          snapEnabled={snapEnabled}
+          orthoEnabled={orthoEnabled}
+          workspaceMode={workspaceMode}
           onKernelStatus={setKernelStatus}
           onTransformCommit={(objectId, mode, transform) => void commitViewportTransform(objectId, mode, transform)}
           onSelectObject={setSelectedObjectId}
+          onDrawingCommit={(drawing, params) => void handleDrawingCommit(drawing, params)}
+          onDrawingCancel={() => setDrawingTool(null)}
         />
       </Suspense>
     </AppShell>

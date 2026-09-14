@@ -2,6 +2,7 @@ export interface CadFeature {
   id: string;
   type:
     | "primitive"
+    | "drawing"
     | "transform"
     | "boolean"
     | "fillet";

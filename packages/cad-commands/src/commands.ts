@@ -1,5 +1,20 @@
 export type CadCommand =
   | {
+      type: "create-drawing";
+      id?: string;
+      drawing: "line" | "polyline" | "rectangle" | "circle" | "arc";
+      params: Record<string, unknown>;
+      layerId?: string;
+    }
+  | {
+      type: "create-primitive";
+      id?: string;
+      primitive: "box" | "cylinder" | "sphere" | "cone" | "torus";
+      params: Record<string, number>;
+      position?: [number, number, number];
+      layerId?: string;
+    }
+  | {
       type: "create-box";
       id?: string;
       width: number;
@@ -10,6 +25,12 @@ export type CadCommand =
     }
   | {
       type: "boolean-cut";
+      target: string;
+      tool: string;
+    }
+  | {
+      type: "boolean-operation";
+      operation: "union" | "cut" | "intersect";
       target: string;
       tool: string;
     }
@@ -71,6 +92,11 @@ export type CadCommand =
       width: number;
       depth: number;
       height: number;
+    }
+  | {
+      type: "update-primitive";
+      objectId: string;
+      params: Record<string, number>;
     }
   | {
       type: "move-object";

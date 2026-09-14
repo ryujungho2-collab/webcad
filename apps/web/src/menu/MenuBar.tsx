@@ -9,6 +9,10 @@ type MenuBarProps = {
   onSaveAs: () => void;
   onUndo: () => void;
   onRedo: () => void;
+  onToggleExplorer: () => void;
+  onToggleProperties: () => void;
+  explorerVisible: boolean;
+  propertiesVisible: boolean;
 };
 
 function closeMenu(event: MouseEvent<HTMLButtonElement>) {
@@ -40,7 +44,13 @@ export function MenuBar(props: MenuBarProps) {
             <button type="button" disabled={!props.canRedo} onClick={(event) => { closeMenu(event); props.onRedo(); }}><span>Redo</span><kbd>Ctrl Y</kbd></button>
           </div>
         </details>
-        <span className="menu-static" title="Orbit: left drag · Pan: right drag · Zoom: wheel">View</span>
+        <details className="app-menu">
+          <summary>View</summary>
+          <div className="menu-popover">
+            <button type="button" onClick={(event) => { closeMenu(event); props.onToggleExplorer(); }}>{props.explorerVisible ? "Hide" : "Show"} Explorer</button>
+            <button type="button" onClick={(event) => { closeMenu(event); props.onToggleProperties(); }}>{props.propertiesVisible ? "Hide" : "Show"} Properties</button>
+          </div>
+        </details>
       </nav>
 
       <div className="document-title" title={props.documentName}>

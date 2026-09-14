@@ -4,7 +4,9 @@ import { ExplorerPanel } from "../explorer/ExplorerPanel";
 import { MenuBar } from "../menu/MenuBar";
 import { Ribbon } from "../ribbon/Ribbon";
 import { StatusBar } from "../status/StatusBar";
-import type { TransformMode, ViewportActionType } from "../viewport/CadViewport";
+import type { DrawingTool, TransformMode, ViewportActionType } from "../viewport/CadViewport";
+import type { WorkPlaneId } from "../precision/workPlane";
+import type { WorkspaceMode } from "../viewport/workspaceTransition";
 import type { KernelStatus } from "../viewport/kernelGeometryService";
 
 type AppShellProps = {
@@ -24,12 +26,23 @@ type AppShellProps = {
   projectionMode: "perspective" | "orthographic";
   gridVisible: boolean;
   transformMode: TransformMode | null;
+  drawingTool: DrawingTool | null;
+  activeWorkPlane: WorkPlaneId;
+  snapEnabled: boolean;
+  orthoEnabled: boolean;
+  workspaceMode: WorkspaceMode;
   kernelStatus: KernelStatus;
   onChangeActivity: (activity: ActivityId) => void;
   onSelectLayer: (layerId: string) => void;
   onSelectObject: (objectId: string) => void;
   onDocumentChange: () => void;
   onCreateBox: () => void;
+  onCreatePrimitive: (primitive: "cylinder" | "sphere" | "cone" | "torus") => void;
+  onDrawingTool: (tool: DrawingTool) => void;
+  onCycleWorkPlane: () => void;
+  onToggleSnap: () => void;
+  onToggleOrtho: () => void;
+  onWorkspaceMode: (mode: WorkspaceMode) => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onHide: () => void;
@@ -54,11 +67,7 @@ export function AppShell(props: AppShellProps) {
   const [propertiesCollapsed, setPropertiesCollapsed] = useState(false);
 
   function changeActivity(activity: ActivityId) {
-    if (activity === props.activeActivity) {
-      setExplorerCollapsed((collapsed) => !collapsed);
-      return;
-    }
-    setExplorerCollapsed(false);
+    setExplorerCollapsed((collapsed) => !collapsed);
     props.onChangeActivity(activity);
   }
 
@@ -75,6 +84,10 @@ export function AppShell(props: AppShellProps) {
         onSaveAs={props.onSaveAs}
         onUndo={props.onUndo}
         onRedo={props.onRedo}
+        explorerVisible={!explorerCollapsed}
+        propertiesVisible={!propertiesCollapsed}
+        onToggleExplorer={() => setExplorerCollapsed((value) => !value)}
+        onToggleProperties={() => setPropertiesCollapsed((value) => !value)}
       />
 
       <Ribbon
@@ -88,6 +101,11 @@ export function AppShell(props: AppShellProps) {
         projectionMode={props.projectionMode}
         gridVisible={props.gridVisible}
         transformMode={props.transformMode}
+        drawingTool={props.drawingTool}
+        activeWorkPlane={props.activeWorkPlane}
+        snapEnabled={props.snapEnabled}
+        orthoEnabled={props.orthoEnabled}
+        workspaceMode={props.workspaceMode}
         activeLayerName={props.activeLayerName}
         onNew={props.onNew}
         onOpen={props.onOpen}
@@ -95,6 +113,12 @@ export function AppShell(props: AppShellProps) {
         onUndo={props.onUndo}
         onRedo={props.onRedo}
         onCreateBox={props.onCreateBox}
+        onCreatePrimitive={props.onCreatePrimitive}
+        onDrawingTool={props.onDrawingTool}
+        onCycleWorkPlane={props.onCycleWorkPlane}
+        onToggleSnap={props.onToggleSnap}
+        onToggleOrtho={props.onToggleOrtho}
+        onWorkspaceMode={props.onWorkspaceMode}
         onDuplicate={props.onDuplicate}
         onDelete={props.onDelete}
         onHide={props.onHide}
@@ -139,6 +163,9 @@ export function AppShell(props: AppShellProps) {
         isModified={props.isModified}
         gridVisible={props.gridVisible}
         kernelStatus={props.kernelStatus}
+        snapEnabled={props.snapEnabled}
+        orthoEnabled={props.orthoEnabled}
+        activeWorkPlane={props.activeWorkPlane}
       />
     </main>
   );
