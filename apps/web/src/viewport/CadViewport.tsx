@@ -221,6 +221,7 @@ export function CadViewport({
       null
     );
   const transformControlsRef = useRef<TransformControls | null>(null);
+  const groupProxyRef = useRef<THREE.Object3D | null>(null);
   const firstGeometryReadyRef = useRef(false);
   const activeWorkPlaneRef = useRef(WORK_PLANES[activeWorkPlane]);
   const cameraWorkspaceRef = useRef({ mode: workspaceMode, plane: activeWorkPlane });
@@ -452,7 +453,30 @@ export function CadViewport({
 
     controls.setMode(transformMode);
     controls.setSpace(transformMode === "translate" ? "world" : "local");
-    controls.attach(mesh);
+    if (selectedObjectIdsRef.current.length > 1) {
+      // Group transforms are atomic: do not expose a gizmo when any member
+      // is hidden or belongs to a locked/hidden layer.
+      const groupEditable = selectedObjectIdsRef.current.every((id) => {
+        const candidateObject = cadDocument.objects[id];
+        const candidateLayer = candidateObject ? cadDocument.layers[candidateObject.layerId] : undefined;
+        const candidateMesh = meshesRef.current.get(id);
+        return Boolean(candidateObject?.visible && candidateLayer?.visible && !candidateLayer.locked && candidateMesh?.visible);
+      });
+      if (!groupEditable) {
+        controls.detach();
+        controls.getHelper().visible = false;
+        return;
+      }
+      const proxy = groupProxyRef.current ?? new THREE.Object3D();
+      const bounds = new THREE.Box3();
+      selectedObjectIdsRef.current.forEach((id) => { const candidate = meshesRef.current.get(id); if (candidate?.visible) bounds.expandByObject(candidate); });
+      if (!bounds.isEmpty()) proxy.position.copy(bounds.getCenter(new THREE.Vector3()));
+      proxy.rotation.set(0, 0, 0); proxy.scale.set(1, 1, 1);
+      proxy.userData.cadObjectId = selectedObjectId;
+      groupProxyRef.current = proxy;
+      sceneRef.current?.add(proxy);
+      controls.attach(proxy);
+    } else controls.attach(mesh);
     controls.getHelper().visible = true;
   }
 
@@ -633,6 +657,8 @@ export function CadViewport({
 
     const pointer =
       new THREE.Vector2();
+    let overlapKey = "";
+    let overlapIndex = 0;
 
     function handlePointerDown(
       event: PointerEvent
@@ -755,7 +781,13 @@ export function CadViewport({
         return;
       }
 
-      const objectId =
+      const candidates = hits
+        .map((hit) => hit.object.userData.cadObjectId as string | undefined)
+        .filter((id, index, all): id is string => Boolean(id) && all.indexOf(id) === index);
+      const key = `${Math.round(event.clientX / 4)}:${Math.round(event.clientY / 4)}`;
+      if (key === overlapKey && !event.shiftKey && !event.ctrlKey && !event.metaKey) overlapIndex = (overlapIndex + 1) % Math.max(1, candidates.length);
+      else { overlapKey = key; overlapIndex = 0; }
+      const objectId = candidates[overlapIndex] ??
         hits[0].object
           .userData
           .cadObjectId as

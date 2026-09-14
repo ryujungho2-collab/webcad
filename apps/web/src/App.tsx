@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import * as THREE from "three";
 import { AppShell } from "./app/AppShell";
 import type { ActivityId } from "./activity/ActivityBar";
 import { PropertiesPanel } from "./properties/PropertiesPanel";
@@ -59,6 +60,12 @@ export function App() {
     : false;
   const isModified = currentFingerprint !== savedFingerprint;
 
+  // Keep the authoritative selection set free of objects that became hidden,
+  // locked, or were removed by a command (including undo/redo).
+  useEffect(() => {
+    setSelection((current) => validSelection(current));
+  }, [documentRevision]);
+
   function syncRevision() {
     setDocumentRevision(cadDocument.revision);
   }
@@ -81,7 +88,33 @@ export function App() {
   }
 
   async function commitViewportTransform(objectId: string, mode: TransformMode, transform: ObjectTransformValue) {
-    if (mode === "translate") await dispatchCadCommand({ type: "move-object", objectId, translation: transform.translation });
+    if (selectedObjectIds.length > 1 && (mode === "translate" || mode === "rotate" || mode === "scale")) {
+      const bounds = selectionBounds(selection); if (!bounds) return;
+      const pivot = [(bounds.min[0] + bounds.max[0]) / 2, (bounds.min[1] + bounds.max[1]) / 2, (bounds.min[2] + bounds.max[2]) / 2] as [number, number, number];
+      const editable = selectedObjectIds.every((id) => {
+        const object = cadDocument.objects[id];
+        const layer = object ? cadDocument.layers[object.layerId] : undefined;
+        return Boolean(object?.visible && layer?.visible && !layer.locked);
+      });
+      if (!editable) return;
+      // The transform proxy is positioned at the combined bounds center, so
+      // translate deltas must be measured from that pivot (not the primary
+      // object's origin).
+      const delta: [number, number, number] = [transform.translation[0] - pivot[0], transform.translation[1] - pivot[1], transform.translation[2] - pivot[2]];
+      const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(...transform.rotation.map((v) => v * Math.PI / 180) as [number, number, number]));
+      const commands: Exclude<import("@agent-webcad/cad-commands").CadCommand, { type: "batch" }>[] = [];
+      selectedObjectIds.forEach((id) => {
+        const object = cadDocument.objects[id]; const f = object && Object.values(cadDocument.features).find((entry) => entry.output === id); const current = object ? getObjectTransform(object, f).translation : [0, 0, 0] as [number, number, number];
+        const p = new THREE.Vector3(...current).sub(new THREE.Vector3(...pivot)); if (mode === "rotate") p.applyQuaternion(q); if (mode === "scale") p.multiply(new THREE.Vector3(...transform.scale)); p.add(new THREE.Vector3(...pivot));
+        const position = mode === "translate" ? [current[0] + delta[0], current[1] + delta[1], current[2] + delta[2]] : [p.x, p.y, p.z];
+        commands.push({ type: "move-object", objectId: id, translation: position as [number, number, number] });
+        const currentTransform = getObjectTransform(object!, f);
+        if (mode === "rotate") commands.push({ type: "rotate-object", objectId: id, rotation: [currentTransform.rotation[0] + transform.rotation[0], currentTransform.rotation[1] + transform.rotation[1], currentTransform.rotation[2] + transform.rotation[2]] });
+        if (mode === "scale") commands.push({ type: "scale-object", objectId: id, scale: [currentTransform.scale[0] * transform.scale[0], currentTransform.scale[1] * transform.scale[1], currentTransform.scale[2] * transform.scale[2]] });
+      });
+      await dispatchCadCommand({ type: "batch", commands });
+    }
+    else if (mode === "translate") await dispatchCadCommand({ type: "move-object", objectId, translation: transform.translation });
     if (mode === "rotate") await dispatchCadCommand({ type: "rotate-object", objectId, rotation: transform.rotation });
     if (mode === "scale") await dispatchCadCommand({ type: "scale-object", objectId, scale: transform.scale });
     syncRevision();
@@ -231,9 +264,10 @@ export function App() {
   }
 
   async function handleHideObject() {
-    if (!selectedObjectId) return;
-    await dispatchCadCommand({ type: "set-object-visible", objectId: selectedObjectId, visible: false });
-    selectObject(null);
+    const ids = selectedObjectIds.length ? selectedObjectIds : selectedObjectId ? [selectedObjectId] : [];
+    if (!ids.length) return;
+    await dispatchCadCommand({ type: "batch", commands: ids.map((objectId) => ({ type: "set-object-visible" as const, objectId, visible: false })) });
+    setSelection({ ids: [], primaryId: null });
     syncRevision();
   }
 
@@ -271,6 +305,7 @@ export function App() {
       if (key === "z") { event.preventDefault(); event.shiftKey ? handleRedo() : handleUndo(); }
       else if (key === "y") { event.preventDefault(); handleRedo(); }
       else if (key === "s") { event.preventDefault(); event.shiftKey ? handleSaveAs() : handleSave(); }
+      else if (key === "d") { event.preventDefault(); void handleDuplicateObject(); }
       else if (key === "o") { event.preventDefault(); handleOpen(); }
       else if (key === "n") { event.preventDefault(); handleNewDocument(); }
     }

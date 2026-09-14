@@ -229,6 +229,9 @@ export function Ribbon({
             <RibbonButton icon="⇤" label="Align L" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("left")} />
             <RibbonButton icon="↔" label="Center X" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("center-x")} />
             <RibbonButton icon="⇥" label="Align R" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("right")} />
+            <RibbonButton icon="⇑" label="Align T" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("top")} />
+            <RibbonButton icon="⇕" label="Center Y" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("center-y")} />
+            <RibbonButton icon="⇓" label="Align B" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("bottom")} />
             <RibbonButton icon="⇅" label="Dist H" disabled={!hasSelection || !onDistribute} onClick={() => onDistribute?.("horizontal")} />
           </div>
           <span className="ribbon-group-label">Arrange</span>

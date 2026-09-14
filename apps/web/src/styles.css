@@ -214,6 +214,7 @@ button.tree-root:hover { background: #1d232b; }
 /* Status */
 .status-bar { min-width: 0; display: flex; align-items: center; gap: 14px; padding: 0 8px; border-top: 1px solid var(--line); background: #14181e; color: #858e9a; font-size: 9px; white-space: nowrap; overflow: hidden; user-select: none; }
 .status-bar strong { color: #b5bcc5; font-weight: 600; }.status-ready { display: flex; align-items: center; gap: 5px; color: #b5bcc5; }.status-ready i { width: 5px; height: 5px; border-radius: 50%; background: #55b77a; }.status-spacer { flex: 1; }.status-selection { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }.status-kernel { margin-right: -8px; padding: 0 9px; align-self: stretch; display: flex; align-items: center; background: #1e4f72; color: #d9efff; }
+.mixed-value { color: #d8b36a; font-style: italic; }
 .status-kernel-deferred { background: #29313a; color: #aeb7c1; }
 .status-kernel-loading, .status-kernel-working { background: #5b471b; color: #ffe3a0; }
 .status-kernel-error { background: #642f34; color: #ffd0d3; }

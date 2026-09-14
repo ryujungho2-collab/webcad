@@ -27,8 +27,9 @@ export function selectionBounds(state: SelectionState) {
     const feature = Object.values(cadDocument.features).find((entry) => entry.output === id);
     const t = getObjectTransform(object, feature).translation;
     const p = feature?.params as Record<string, unknown> | undefined;
-    if (feature?.type === "drawing" && Array.isArray(p?.points)) { points.push(...(p.points as [number, number, number][]).map((v) => [v[0] + t[0], v[1] + t[1], v[2] + t[2]] as [number, number, number])); continue; }
-    const w = Number(p?.width ?? p?.radius ?? p?.majorRadius ?? 1), h = Number(p?.depth ?? p?.radius ?? p?.minorRadius ?? 1), d = Number(p?.height ?? p?.radius ?? 1);
+    const scale = getObjectTransform(object, feature).scale;
+    if (feature?.type === "drawing" && Array.isArray(p?.points)) { points.push(...(p.points as [number, number, number][]).map((v) => [v[0] * scale[0] + t[0], v[1] * scale[1] + t[1], v[2] * scale[2] + t[2]] as [number, number, number])); continue; }
+    const w = Number(p?.width ?? p?.radius ?? p?.majorRadius ?? 1) * scale[0], h = Number(p?.depth ?? p?.radius ?? p?.minorRadius ?? 1) * scale[1], d = Number(p?.height ?? p?.radius ?? 1) * scale[2];
     points.push([t[0] - w / 2, t[1] - h / 2, t[2] - d / 2], [t[0] + w / 2, t[1] + h / 2, t[2] + d / 2]);
   }
   if (!points.length) return null;

@@ -1,5 +1,6 @@
 ﻿
 import { useEffect, useState } from "react";
+import * as THREE from "three";
 import { cadDocument } from "../state/cadDocument";
 import { dispatchCadCommand } from "../state/dispatchCadCommand";
 import { getObjectTransform } from "../state/objectTransform";
@@ -7,6 +8,7 @@ import { NumericField } from "../ui/NumericField";
 import { validateBooleanOperation } from "../viewport/kernelGeometryService";
 import { measureDrawing } from "../precision/measurements";
 import { formatLength } from "../precision/units";
+import { selectionBounds } from "../state/selection";
 
 type PropertiesPanelProps = {
   documentRevision: number;
@@ -67,6 +69,8 @@ export function PropertiesPanel({
     return getObjectTransform(entry, f);
   });
   const mixed = (values: number[]) => values.length > 1 && values.some((value) => Math.abs(value - values[0]) > 1e-9);
+  const mixedLayer = selectedObjects.length > 1 && selectedObjects.some((entry) => entry.layerId !== selectedObjects[0].layerId);
+  const mixedVisible = selectedObjects.length > 1 && selectedObjects.some((entry) => entry.visible !== selectedObjects[0].visible);
   const feature = object
     ? Object.values(cadDocument.features).find((entry) => entry.output === object.id)
     : undefined;
@@ -154,39 +158,59 @@ export function PropertiesPanel({
   async function commitTransform(kind: "move" | "rotate" | "scale") {
     if (!object || isLocked) return;
     const current = getObjectTransform(object, feature);
+    const allEditable = selectedObjects.every((entry) => {
+      const layer = cadDocument.layers[entry.layerId];
+      return Boolean(entry.visible && layer?.visible && !layer.locked);
+    });
+    if (!allEditable) return;
+    const group = selectedObjects.length > 1;
     if (kind === "scale") {
       const keys = ["sx", "sy", "sz"] as const;
-      const scale = keys.map((key) => Number(transformDraft[key])) as [number, number, number];
-      if (scale.some((value) => !Number.isFinite(value) || value <= 0)) {
-        setTransformDraft((draft) => ({ ...draft, sx: String(current.scale[0]), sy: String(current.scale[1]), sz: String(current.scale[2]) }));
-        return;
+      const scale = keys.map((key, index) => { const value = Number(transformDraft[key]); return Number.isFinite(value) ? value : current.scale[index]; }) as [number, number, number];
+      if (scale.some((value) => value <= 0)) return;
+      if (!group) await dispatchCadCommand({ type: "scale-object", objectId: object.id, scale });
+      else {
+        const factor: [number, number, number] = [scale[0] / current.scale[0], scale[1] / current.scale[1], scale[2] / current.scale[2]];
+        const bounds = selectionBounds({ ids: selectedObjects.map((entry) => entry.id), primaryId: object.id });
+        if (!bounds || factor.some((v) => !Number.isFinite(v) || v <= 0)) return;
+        const pivot = new THREE.Vector3((bounds.min[0] + bounds.max[0]) / 2, (bounds.min[1] + bounds.max[1]) / 2, (bounds.min[2] + bounds.max[2]) / 2);
+        const commands = selectedObjects.flatMap((entry) => {
+          const f = Object.values(cadDocument.features).find((candidate) => candidate.output === entry.id);
+          const t = getObjectTransform(entry, f); const p = new THREE.Vector3(...t.translation).sub(pivot).multiply(new THREE.Vector3(...factor)).add(pivot);
+          return [{ type: "move-object" as const, objectId: entry.id, translation: p.toArray() as [number, number, number] }, { type: "scale-object" as const, objectId: entry.id, scale: [t.scale[0] * factor[0], t.scale[1] * factor[1], t.scale[2] * factor[2]] as [number, number, number] }];
+        });
+        await dispatchCadCommand({ type: "batch", commands });
       }
-      await dispatchCadCommand({ type: "batch", commands: selectedObjects.map((entry) => ({ type: "scale-object", objectId: entry.id, scale })) });
     } else {
       const keys = kind === "move" ? ["x", "y", "z"] as const : ["rx", "ry", "rz"] as const;
-      const values = keys.map((key) => Number(transformDraft[key])) as [number, number, number];
-      if (values.some((value) => !Number.isFinite(value))) {
-        const fallback = kind === "move" ? current.translation : current.rotation;
-        setTransformDraft((draft) => ({
-          ...draft,
-          [keys[0]]: String(fallback[0]), [keys[1]]: String(fallback[1]), [keys[2]]: String(fallback[2]),
-        }));
-        return;
+      const fallback = kind === "move" ? current.translation : current.rotation;
+      const values = keys.map((key, index) => { const value = Number(transformDraft[key]); return Number.isFinite(value) ? value : fallback[index]; }) as [number, number, number];
+      if (!group) await dispatchCadCommand({ type: kind === "move" ? "move-object" : "rotate-object", objectId: object.id, [kind === "move" ? "translation" : "rotation"]: values } as never);
+      else {
+        const bounds = selectionBounds({ ids: selectedObjects.map((entry) => entry.id), primaryId: object.id }); if (!bounds) return;
+        const pivot = new THREE.Vector3((bounds.min[0] + bounds.max[0]) / 2, (bounds.min[1] + bounds.max[1]) / 2, (bounds.min[2] + bounds.max[2]) / 2);
+        const delta = kind === "move" ? values.map((v, i) => v - current.translation[i]) as [number, number, number] : values.map((v, i) => v - current.rotation[i]) as [number, number, number];
+        const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(...delta.map((v) => v * Math.PI / 180) as [number, number, number]));
+        const commands = selectedObjects.flatMap((entry) => {
+          const f = Object.values(cadDocument.features).find((candidate) => candidate.output === entry.id); const t = getObjectTransform(entry, f);
+          const p = new THREE.Vector3(...t.translation); if (kind === "move") p.add(new THREE.Vector3(...delta)); else p.sub(pivot).applyQuaternion(q).add(pivot);
+          return [{ type: "move-object" as const, objectId: entry.id, translation: p.toArray() as [number, number, number] }, ...(kind === "rotate" ? [{ type: "rotate-object" as const, objectId: entry.id, rotation: [t.rotation[0] + delta[0], t.rotation[1] + delta[1], t.rotation[2] + delta[2]] as [number, number, number] }] : [])];
+        });
+        await dispatchCadCommand({ type: "batch", commands });
       }
-      await dispatchCadCommand({ type: "batch", commands: selectedObjects.map((entry) => kind === "move" ? { type: "move-object", objectId: entry.id, translation: values } : { type: "rotate-object", objectId: entry.id, rotation: values }) });
     }
     onDocumentChange();
   }
 
   async function changeLayer(layerId: string) {
-    if (!object || isLocked || layerId === object.layerId) return;
-    await dispatchCadCommand({ type: "move-object-to-layer", objectId: object.id, layerId });
+    if (!object || isLocked) return;
+    await dispatchCadCommand({ type: "batch", commands: selectedObjects.map((entry) => ({ type: "move-object-to-layer", objectId: entry.id, layerId })) });
     onDocumentChange();
   }
 
   async function toggleVisibility() {
     if (!object) return;
-    await dispatchCadCommand({ type: "set-object-visible", objectId: object.id, visible: !object.visible });
+    await dispatchCadCommand({ type: "batch", commands: selectedObjects.map((entry) => ({ type: "set-object-visible", objectId: entry.id, visible: !object.visible })) });
     onDocumentChange();
   }
 
@@ -225,11 +249,11 @@ export function PropertiesPanel({
 
       <section className="property-section">
         <h3>General</h3>
-        <label className="property-row"><span>Layer</span><select disabled={isLocked} value={object.layerId} onChange={(event) => void changeLayer(event.target.value)}>{cadDocument.rootLayers.map((layerId) => {
+        <label className="property-row"><span>Layer</span><select disabled={isLocked} value={mixedLayer ? "__mixed__" : object.layerId} onChange={(event) => void changeLayer(event.target.value)}><option value="__mixed__" disabled>Mixed</option>{cadDocument.rootLayers.map((layerId) => {
           const layer = cadDocument.layers[layerId];
           return layer && <option key={layer.id} value={layer.id} disabled={layer.locked && layer.id !== object.layerId}>{layer.name}{layer.locked ? " (locked)" : ""}</option>;
         })}</select></label>
-        <label className="property-row"><span>Visible</span><input className="property-toggle" type="checkbox" checked={object.visible} onChange={() => void toggleVisibility()} /></label>
+        <label className="property-row"><span>Visible</span>{mixedVisible ? <strong className="mixed-value">Mixed</strong> : <input className="property-toggle" type="checkbox" checked={object.visible} onChange={() => void toggleVisibility()} />}</label>
       </section>
 
       {isPrimitive && (
@@ -276,14 +300,14 @@ export function PropertiesPanel({
       <section className="property-section">
         <h3>Rotate <small>deg</small></h3>
         {(["rx", "ry", "rz"] as const).map((key) => (
-          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Rotation" unit="°" disabled={isLocked} step="1" value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("rotate")} />
+          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Rotation" unit="°" disabled={isLocked} step="1" value={mixed(selectedTransforms.map((t) => t.rotation[["rx","ry","rz"].indexOf(key)])) ? "Mixed" : transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("rotate")} />
         ))}
       </section>
 
       <section className="property-section">
         <h3>Scale <small>factor</small></h3>
         {(["sx", "sy", "sz"] as const).map((key) => (
-          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Scale" unit="×" disabled={isLocked} min="0.001" step="0.1" value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("scale")} />
+          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Scale" unit="×" disabled={isLocked} min="0.001" step="0.1" value={mixed(selectedTransforms.map((t) => t.scale[["sx","sy","sz"].indexOf(key)])) ? "Mixed" : transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("scale")} />
         ))}
       </section>
 

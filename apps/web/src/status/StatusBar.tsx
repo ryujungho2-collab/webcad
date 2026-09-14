@@ -28,6 +28,11 @@ const kernelLabels: Record<KernelStatus, string> = {
 export function StatusBar({ selectedObjectId, selectedObjectIds = selectedObjectId ? [selectedObjectId] : [], selectedLayerId, canUndo, isModified, gridVisible, kernelStatus, snapEnabled, orthoEnabled, activeWorkPlane, distanceMeasurement }: StatusBarProps) {
   const selectedObject = selectedObjectId ? cadDocument.objects[selectedObjectId] : null;
   const activeLayer = cadDocument.layers[selectedLayerId];
+  const blockedSelectionCount = selectedObjectIds.filter((id) => {
+    const object = cadDocument.objects[id];
+    const layer = object ? cadDocument.layers[object.layerId] : undefined;
+    return Boolean(object && (!object.visible || layer?.visible === false || layer?.locked));
+  }).length;
 
   return (
     <footer className="status-bar">
@@ -41,7 +46,7 @@ export function StatusBar({ selectedObjectId, selectedObjectIds = selectedObject
       {distanceMeasurement && <span title="Last two-point measurement">Distance: <strong>{distanceMeasurement.distance.toFixed(2)} mm</strong> · {distanceMeasurement.angle.toFixed(1)}°</span>}
       <span>{cadDocument.rootObjects.length} object{cadDocument.rootObjects.length === 1 ? "" : "s"}</span>
       <span title="Active layer">Layer: <strong>{activeLayer?.name ?? "—"}{activeLayer?.locked ? " · Locked" : ""}</strong></span>
-      <span className="status-selection" title={selectedObject?.id}>{selectedObjectIds.length > 1 ? `${selectedObjectIds.length} objects selected` : selectedObject ? `Selected: ${selectedObject.name}` : "Nothing selected"}</span>
+      <span className="status-selection" title={selectedObject?.id}>{selectedObjectIds.length > 1 ? `${selectedObjectIds.length} objects selected · Primary: ${selectedObject?.name ?? "—"}${blockedSelectionCount ? ` · ${blockedSelectionCount} locked/hidden` : ""}` : selectedObject ? `Selected: ${selectedObject.name}` : "Nothing selected"}</span>
       <span title={canUndo ? "Undo history is available" : "No undo history"}>{isModified ? "Modified" : "Saved"}</span>
       <span className={`status-kernel status-kernel-${kernelStatus}`}>{kernelLabels[kernelStatus]}</span>
     </footer>
