@@ -7,6 +7,7 @@ import { cadDocument } from "../state/cadDocument";
 import { getObjectTransform } from "../state/objectTransform";
 import { parseAngle, parseLength } from "../precision/units";
 import { querySnap, type SnapEntity, type SnapResult } from "../precision/snapEngine";
+import { measurePoints } from "../precision/measurements";
 import { intersectRayWithWorkPlane, planeToWorld, WORK_PLANES, worldToPlane, type Vec3, type WorkPlaneId } from "../precision/workPlane";
 import { easeWorkspaceTransition, workspaceTransitionDuration, type WorkspaceMode } from "./workspaceTransition";
 import { buildBooleanMesh, buildDemoPartMesh, buildPrimitiveMesh, subscribeKernelStatus, type KernelStatus } from "./kernelGeometryService";
@@ -14,20 +15,23 @@ import { buildBooleanMesh, buildDemoPartMesh, buildPrimitiveMesh, subscribeKerne
 type CadViewportProps = {
   documentRevision: number;
   selectedObjectId: string | null;
+  selectedObjectIds?: string[];
   projectionMode: "perspective" | "orthographic";
   gridVisible: boolean;
   viewAction: ViewportAction | null;
   transformMode: TransformMode | null;
   drawingTool?: DrawingTool | null;
+  measurementTool?: MeasurementTool | null;
   activeWorkPlane?: WorkPlaneId;
   snapEnabled?: boolean;
   orthoEnabled?: boolean;
   workspaceMode?: WorkspaceMode;
   onKernelStatus?: (status: KernelStatus) => void;
   onTransformCommit?: (objectId: string, mode: TransformMode, transform: ObjectTransformValue) => void;
-  onSelectObject?: (objectId: string | null) => void;
+  onSelectObject?: (objectId: string | null, additive?: boolean) => void;
   onDrawingCommit?: (drawing: DrawingTool, params: Record<string, unknown>) => void;
   onDrawingCancel?: () => void;
+  onDistanceMeasure?: (measurement: PointMeasurement) => void;
 };
 
 export type ViewportActionType =
@@ -41,6 +45,8 @@ export type ViewportActionType =
 export type ViewportAction = { id: number; type: ViewportActionType };
 export type TransformMode = "translate" | "rotate" | "scale";
 export type DrawingTool = "line" | "polyline" | "rectangle" | "circle" | "arc";
+export type MeasurementTool = "distance";
+export type PointMeasurement = { distance: number; angle: number };
 export type ObjectTransformValue = {
   translation: [number, number, number];
   rotation: [number, number, number];
@@ -171,11 +177,13 @@ function createAdaptiveGrid(): AdaptiveGrid {
 export function CadViewport({
   documentRevision,
   selectedObjectId,
+  selectedObjectIds = selectedObjectId ? [selectedObjectId] : [],
   projectionMode,
   gridVisible,
   viewAction,
   transformMode,
   drawingTool = null,
+  measurementTool = null,
   activeWorkPlane = "XY",
   snapEnabled = true,
   orthoEnabled = false,
@@ -185,6 +193,7 @@ export function CadViewport({
   onSelectObject,
   onDrawingCommit,
   onDrawingCancel,
+  onDistanceMeasure,
 }: CadViewportProps) {
   const [toolReadout, setToolReadout] = useState("");
   const hostRef =
@@ -256,6 +265,8 @@ export function CadViewport({
 
     applySelectionColor();
   }, [selectedObjectId]);
+  const selectedObjectIdsRef = useRef<string[]>(selectedObjectIds);
+  useEffect(() => { selectedObjectIdsRef.current = selectedObjectIds; applySelectionColor(); }, [selectedObjectIds]);
 
   function disposeMesh(
     mesh: RenderObject
@@ -293,24 +304,20 @@ export function CadViewport({
       const material = mesh.material as THREE.Material & { color?: THREE.Color };
 
       material.color?.set(
-        objectId === activeId
+        selectedObjectIdsRef.current.includes(objectId)
           ? SELECTED_COLOR
           : DEFAULT_COLOR
       );
     }
   }
 
-  function updateSelection(
-    objectId: string | null
-  ) {
+  function updateSelection(objectId: string | null, additive = false) {
     selectedObjectIdRef.current =
       objectId;
 
     applySelectionColor();
 
-    onSelectObjectRef.current?.(
-      objectId
-    );
+    onSelectObjectRef.current?.(objectId, additive);
   }
 
   function createThreeMesh(
@@ -763,9 +770,7 @@ export function CadViewport({
         return;
       }
 
-      updateSelection(
-        objectId
-      );
+        updateSelection(objectId, event.shiftKey || event.ctrlKey || event.metaKey);
     }
 
     renderer.domElement
@@ -1421,6 +1426,35 @@ export function CadViewport({
     };
   }, [documentRevision]);
 
+  useEffect(() => {
+    const scene = sceneRef.current, renderer = rendererRef.current, controls = controlsRef.current;
+    if (!scene || !renderer || !controls || !measurementTool) { if (!measurementTool) setToolReadout(""); return; }
+    const plane = WORK_PLANES[activeWorkPlane], raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
+    let first: Vec3 | null = null, hover: Vec3 | null = null;
+    controls.enabled = false;
+    const line = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 0x62d4bf, depthTest: false }));
+    line.renderOrder = 20; scene.add(line);
+    const worldPoint = (event: PointerEvent): Vec3 | null => {
+      const camera = cameraRef.current; if (!camera) return null;
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.set((event.clientX - rect.left) / rect.width * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+      raycaster.setFromCamera(pointer, camera);
+      return intersectRayWithWorkPlane(raycaster.ray.origin.toArray() as Vec3, raycaster.ray.direction.toArray() as Vec3, plane);
+    };
+    const project = (point: Vec3): [number, number] => { const p = new THREE.Vector3(...point).project(cameraRef.current!); const r = renderer.domElement.getBoundingClientRect(); return [(p.x + 1) * r.width / 2, (1 - p.y) * r.height / 2]; };
+    const entities: SnapEntity[] = Object.values(cadDocument.features).filter((f) => f.type === "drawing").map((f) => {
+      const params = f.params as Record<string, unknown>;
+      return { objectId: f.output, kind: params.kind as SnapEntity["kind"], points: params.points as Vec3[] | undefined, center: params.center as Vec3 | undefined, radius: params.radius as number | undefined, startAngle: params.startAngle as number | undefined, endAngle: params.endAngle as number | undefined };
+    });
+    const snapPoint = (raw: Vec3) => snapEnabled ? querySnap({ point: raw, referencePoint: first ?? undefined, entities, plane, gridStep: 1, tolerancePx: 12, project })?.point ?? raw : raw;
+    const update = (p: Vec3) => { hover = snapPoint(p); const points = first ? [first, hover] : [hover]; line.geometry.dispose(); line.geometry = new THREE.BufferGeometry().setFromPoints(points.map((v) => new THREE.Vector3(...v))); setToolReadout(first ? `DISTANCE · ${measurePoints(first, hover, activeWorkPlane).distance.toFixed(2)} mm` : "DISTANCE · pick first point"); };
+    const onMove = (e: PointerEvent) => { const p = worldPoint(e); if (p) update(p); };
+    const onDown = (e: PointerEvent) => { if (e.button !== 0) return; const p = worldPoint(e); if (!p) return; const exact = snapPoint(p); if (!first) { first = exact; update(exact); } else { onDistanceMeasure?.(measurePoints(first, exact, activeWorkPlane)); first = null; hover = null; setToolReadout("DISTANCE · measured"); } };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); first = null; setToolReadout("DISTANCE · cancelled"); } };
+    renderer.domElement.addEventListener("pointermove", onMove); renderer.domElement.addEventListener("pointerdown", onDown); window.addEventListener("keydown", onKey, true);
+    return () => { renderer.domElement.removeEventListener("pointermove", onMove); renderer.domElement.removeEventListener("pointerdown", onDown); window.removeEventListener("keydown", onKey, true); scene.remove(line); line.geometry.dispose(); (line.material as THREE.Material).dispose(); controls.enabled = true; };
+  }, [measurementTool, activeWorkPlane, snapEnabled, onDistanceMeasure]);
+
   /*
    * Precision drawing is transient until commit. The preview and snap glyph
    * live in Three.js, while the completed entity enters CadDocument through a
@@ -1584,7 +1618,7 @@ export function CadViewport({
 
     function acquirePoint(raw: Vec3) {
       const startedAt = performance.now();
-      const snapped = snapEnabled ? querySnap({ point: raw, entities: snapEntities(), plane, gridStep: 1, tolerancePx: 12, project }) : null;
+      const snapped = snapEnabled ? querySnap({ point: raw, referencePoint: acquired.at(-1), entities: snapEntities(), plane, gridStep: 1, tolerancePx: 12, project }) : null;
       performance.measure("agent-webcad:snap-query", { start: startedAt, end: performance.now(), detail: { entityCount: cadDocument.rootObjects.length, result: snapped?.type ?? "disabled" } });
       if (performance.getEntriesByName("agent-webcad:snap-query").length > 200) performance.clearMeasures("agent-webcad:snap-query");
       const point = constrain(snapped && Number.isFinite(snapped.screenDistance) ? snapped.point : raw);
@@ -1602,7 +1636,17 @@ export function CadViewport({
       const acquiredPoint = acquirePoint(raw);
       hoverPoint = acquiredPoint.point;
       updatePreview(hoverPoint);
-      setToolReadout(`${activeTool.toUpperCase()} · ${acquiredPoint.snap?.type ?? (orthoEnabled ? "ortho" : "free")} · ${numericBuffer || worldToPlane(hoverPoint, plane).map((value) => value.toFixed(2)).join(", ")} mm`);
+      const snapLabel = acquiredPoint.snap ? acquiredPoint.snap.type[0].toUpperCase() + acquiredPoint.snap.type.slice(1) : (orthoEnabled ? "Ortho" : "Free");
+      const previous = acquired.at(-1);
+      let inference = "";
+      if (previous) {
+        const a = worldToPlane(previous, plane), b = worldToPlane(hoverPoint, plane);
+        const dx = b[0] - a[0], dy = b[1] - a[1];
+        if (Math.abs(dy) < 1e-5) inference = " · Horizontal";
+        else if (Math.abs(dx) < 1e-5) inference = " · Vertical";
+        else inference = ` · ${Math.hypot(dx, dy).toFixed(2)} mm · ${(Math.atan2(dy, dx) * 180 / Math.PI).toFixed(1)}°`;
+      }
+      setToolReadout(`${activeTool.toUpperCase()} · ${snapLabel}${inference} · ${numericBuffer || worldToPlane(hoverPoint, plane).map((value) => value.toFixed(2)).join(", ")} mm`);
     }
 
     function handlePointerDown(event: PointerEvent) {
@@ -1611,6 +1655,7 @@ export function CadViewport({
       const raw = worldPoint(event);
       if (!raw) return;
       const point = acquirePoint(raw).point;
+      hoverPoint = point;
       if (activeTool === "line") {
         if (!acquired.length) acquired.push(point); else commit({ points: [acquired[0], point] });
       } else if (activeTool === "rectangle") {
@@ -1642,11 +1687,71 @@ export function CadViewport({
       if (event.key === "Backspace") { event.preventDefault(); numericBuffer = numericBuffer.slice(0, -1); return; }
       if (event.key === "Enter") {
         event.preventDefault();
-        if (activeTool === "polyline" && !numericBuffer && acquired.length >= 2) { commit({ points: acquired }); return; }
-        if (!numericBuffer || acquired.length === 0 || !hoverPoint) return;
+        if (activeTool === "polyline" && !numericBuffer && acquired.length >= 2) {
+          const first = acquired[0], last = acquired[acquired.length - 1];
+          const closed = first.every((value, index) => Math.abs(value - last[index]) < 1e-7);
+          commit({ points: acquired, closed });
+          return;
+        }
+        if (!numericBuffer || acquired.length === 0) return;
+        if (activeTool === "rectangle" && acquired.length === 1) {
+          const start = worldToPlane(acquired[0], plane);
+          const commaParts = numericBuffer.trim().split(/[,x]/i).map((part) => part.trim()).filter(Boolean);
+          let opposite: [number, number];
+          if (commaParts.length === 2) {
+            const width = parseLength(commaParts[0]), height = parseLength(commaParts[1]);
+            if (width === null || height === null || Math.abs(width) < 1e-9 || Math.abs(height) < 1e-9) return;
+            opposite = [start[0] + width, start[1] + height];
+          } else {
+            const [distanceText, angleText] = numericBuffer.split("<");
+            const distance = parseLength(distanceText);
+            if (distance === null || distance <= 0) return;
+            const angle = angleText ? parseAngle(angleText) : hoverPoint ? Math.atan2(worldToPlane(hoverPoint, plane)[1] - start[1], worldToPlane(hoverPoint, plane)[0] - start[0]) * 180 / Math.PI : null;
+            if (angle === null) return;
+            const diagonalAngle = THREE.MathUtils.degToRad(angle);
+            opposite = [start[0] + Math.cos(diagonalAngle) * distance, start[1] + Math.sin(diagonalAngle) * distance];
+          }
+          if (Math.abs(opposite[0] - start[0]) < 1e-9 || Math.abs(opposite[1] - start[1]) < 1e-9) return;
+          const exact = planeToWorld(opposite, plane);
+          commit({ points: [acquired[0], planeToWorld([opposite[0], start[1]], plane), exact, planeToWorld([start[0], opposite[1]], plane)] });
+          numericBuffer = "";
+          updatePreview(exact);
+          return;
+        }
+        if (activeTool === "arc") {
+          if (acquired.length === 1) {
+            const radiusText = numericBuffer.split("<")[0];
+            const radius = parseLength(radiusText);
+            if (radius === null || radius <= 0 || !hoverPoint) return;
+            const center = worldToPlane(acquired[0], plane), hover = worldToPlane(hoverPoint, plane);
+            const angle = Math.atan2(hover[1] - center[1], hover[0] - center[0]);
+            const startPoint = planeToWorld([center[0] + Math.cos(angle) * radius, center[1] + Math.sin(angle) * radius], plane);
+            acquired.push(startPoint);
+            hoverPoint = startPoint;
+            numericBuffer = "";
+            updatePreview(startPoint);
+            return;
+          }
+          if (acquired.length === 2) {
+            const parts = numericBuffer.split("<");
+            const sweep = parseAngle(parts.length > 1 ? parts[1] : parts[0]);
+            if (sweep === null || Math.abs(sweep) < 1e-9) return;
+            const center = worldToPlane(acquired[0], plane), startPoint = worldToPlane(acquired[1], plane);
+            const radius = parts.length > 1 ? parseLength(parts[0]) ?? Math.hypot(startPoint[0] - center[0], startPoint[1] - center[1]) : Math.hypot(startPoint[0] - center[0], startPoint[1] - center[1]);
+            if (radius <= 0) return;
+            const startAngle = Math.atan2(startPoint[1] - center[1], startPoint[0] - center[0]);
+            const endAngle = startAngle + THREE.MathUtils.degToRad(sweep);
+            const endPoint = planeToWorld([center[0] + Math.cos(endAngle) * radius, center[1] + Math.sin(endAngle) * radius], plane);
+            commit({ center: acquired[0], radius, startAngle, endAngle });
+            numericBuffer = "";
+            updatePreview(endPoint);
+            return;
+          }
+        }
+        if (!hoverPoint) return;
         const [distanceText, angleText] = numericBuffer.split("<");
         const distance = parseLength(distanceText);
-        if (!distance || distance <= 0) return;
+        if (distance === null || distance <= 0) return;
         const start = acquired[acquired.length - 1];
         const start2 = worldToPlane(start, plane), hover2 = worldToPlane(hoverPoint, plane);
         const parsedAngle = angleText ? parseAngle(angleText) : null;

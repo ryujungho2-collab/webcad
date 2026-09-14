@@ -1,4 +1,4 @@
-import type { DrawingTool, TransformMode, ViewportActionType } from "../viewport/CadViewport";
+import type { DrawingTool, MeasurementTool, TransformMode, ViewportActionType, PointMeasurement } from "../viewport/CadViewport";
 import type { WorkPlaneId } from "../precision/workPlane";
 import type { WorkspaceMode } from "../viewport/workspaceTransition";
 import { ToolIcon } from "../ui/ToolIcon";
@@ -15,6 +15,8 @@ type RibbonProps = {
   gridVisible: boolean;
   transformMode: TransformMode | null;
   drawingTool: DrawingTool | null;
+  measurementTool: MeasurementTool | null;
+  distanceMeasurement: PointMeasurement | null;
   activeWorkPlane: WorkPlaneId;
   snapEnabled: boolean;
   orthoEnabled: boolean;
@@ -28,6 +30,7 @@ type RibbonProps = {
   onCreateBox: () => void;
   onCreatePrimitive: (primitive: "cylinder" | "sphere" | "cone" | "torus") => void;
   onDrawingTool: (tool: DrawingTool) => void;
+  onMeasurementTool: () => void;
   onCycleWorkPlane: () => void;
   onToggleSnap: () => void;
   onToggleOrtho: () => void;
@@ -41,6 +44,8 @@ type RibbonProps = {
   onViewAction: (action: ViewportActionType) => void;
   onToggleProjection: () => void;
   onToggleGrid: () => void;
+  onAlign?: (mode: "left" | "center-x" | "right" | "top" | "center-y" | "bottom") => void;
+  onDistribute?: (axis: "horizontal" | "vertical") => void;
 };
 
 type RibbonButtonProps = {
@@ -81,6 +86,7 @@ export function Ribbon({
   gridVisible,
   transformMode,
   drawingTool,
+  measurementTool,
   activeWorkPlane,
   snapEnabled,
   orthoEnabled,
@@ -94,6 +100,7 @@ export function Ribbon({
   onCreateBox,
   onCreatePrimitive,
   onDrawingTool,
+  onMeasurementTool,
   onCycleWorkPlane,
   onToggleSnap,
   onToggleOrtho,
@@ -107,6 +114,8 @@ export function Ribbon({
   onViewAction,
   onToggleProjection,
   onToggleGrid,
+  onAlign,
+  onDistribute,
 }: RibbonProps) {
   return (
     <div className="ribbon">
@@ -170,6 +179,13 @@ export function Ribbon({
 
         <div className="ribbon-group">
           <div className="ribbon-commands">
+            <RibbonButton icon="↔" label="Distance" title="Measure distance between two points" active={measurementTool === "distance"} onClick={onMeasurementTool} />
+          </div>
+          <span className="ribbon-group-label">Measure</span>
+        </div>
+
+        <div className="ribbon-group">
+          <div className="ribbon-commands">
             <RibbonButton icon="⧉" label="Duplicate" disabled={!canDuplicate} onClick={onDuplicate} />
             <RibbonButton icon="⌫" label="Delete" title={hasSelection && !canDelete ? "Unlock the object's layer to delete it" : "Delete selection (Delete)"} disabled={!canDelete} danger onClick={onDelete} />
           </div>
@@ -206,6 +222,16 @@ export function Ribbon({
             <RibbonButton icon="◉" label="Show All" title="Show all document objects" onClick={onShowAll} />
           </div>
           <span className="ribbon-group-label">Visibility</span>
+        </div>
+
+        <div className="ribbon-group">
+          <div className="ribbon-commands">
+            <RibbonButton icon="⇤" label="Align L" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("left")} />
+            <RibbonButton icon="↔" label="Center X" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("center-x")} />
+            <RibbonButton icon="⇥" label="Align R" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("right")} />
+            <RibbonButton icon="⇅" label="Dist H" disabled={!hasSelection || !onDistribute} onClick={() => onDistribute?.("horizontal")} />
+          </div>
+          <span className="ribbon-group-label">Arrange</span>
         </div>
 
         <div className="ribbon-context" title="New objects are created on this layer">

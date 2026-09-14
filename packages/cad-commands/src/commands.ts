@@ -1,4 +1,5 @@
 export type CadCommand =
+  | { type: "batch"; commands: Exclude<CadCommand, { type: "batch" }>[] }
   | {
       type: "create-drawing";
       id?: string;

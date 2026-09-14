@@ -37,6 +37,8 @@ export function validateCommand(command: unknown): command is CadCommand {
   }
 
   switch (command.type) {
+    case "batch":
+      return Array.isArray(command.commands) && command.commands.length > 0 && command.commands.every((entry) => validateCommand(entry));
     case "create-drawing":
       return ["line", "polyline", "rectangle", "circle", "arc"].includes(String(command.drawing)) &&
         isDrawingParams(command.drawing, command.params) &&

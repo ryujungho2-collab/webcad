@@ -11,6 +11,7 @@ import { formatLength } from "../precision/units";
 type PropertiesPanelProps = {
   documentRevision: number;
   selectedObjectId: string | null;
+  selectedObjectIds?: string[];
   selectedLayerId: string;
   onDocumentChange: () => void;
   onDuplicate: () => void;
@@ -49,6 +50,7 @@ const emptyTransformDraft: TransformDraft = {
 export function PropertiesPanel({
   documentRevision,
   selectedObjectId,
+  selectedObjectIds = selectedObjectId ? [selectedObjectId] : [],
   selectedLayerId,
   onDocumentChange,
   onDuplicate,
@@ -59,6 +61,12 @@ export function PropertiesPanel({
   onBooleanCreated,
 }: PropertiesPanelProps) {
   const object = selectedObjectId ? cadDocument.objects[selectedObjectId] : null;
+  const selectedObjects = selectedObjectIds.map((id) => cadDocument.objects[id]).filter(Boolean);
+  const selectedTransforms = selectedObjects.map((entry) => {
+    const f = Object.values(cadDocument.features).find((candidate) => candidate.output === entry.id);
+    return getObjectTransform(entry, f);
+  });
+  const mixed = (values: number[]) => values.length > 1 && values.some((value) => Math.abs(value - values[0]) > 1e-9);
   const feature = object
     ? Object.values(cadDocument.features).find((entry) => entry.output === object.id)
     : undefined;
@@ -153,7 +161,7 @@ export function PropertiesPanel({
         setTransformDraft((draft) => ({ ...draft, sx: String(current.scale[0]), sy: String(current.scale[1]), sz: String(current.scale[2]) }));
         return;
       }
-      await dispatchCadCommand({ type: "scale-object", objectId: object.id, scale });
+      await dispatchCadCommand({ type: "batch", commands: selectedObjects.map((entry) => ({ type: "scale-object", objectId: entry.id, scale })) });
     } else {
       const keys = kind === "move" ? ["x", "y", "z"] as const : ["rx", "ry", "rz"] as const;
       const values = keys.map((key) => Number(transformDraft[key])) as [number, number, number];
@@ -165,9 +173,7 @@ export function PropertiesPanel({
         }));
         return;
       }
-      await dispatchCadCommand(kind === "move"
-        ? { type: "move-object", objectId: object.id, translation: values }
-        : { type: "rotate-object", objectId: object.id, rotation: values });
+      await dispatchCadCommand({ type: "batch", commands: selectedObjects.map((entry) => kind === "move" ? { type: "move-object", objectId: entry.id, translation: values } : { type: "rotate-object", objectId: entry.id, rotation: values }) });
     }
     onDocumentChange();
   }
@@ -206,7 +212,7 @@ export function PropertiesPanel({
 
   return (
     <div className="properties-content">
-      <div className="inspector-header"><span>Properties</span><small>{isLocked ? "Locked layer" : isPrimitive ? primitiveKind : isDrawing ? String(feature.params.kind) : feature?.type === "boolean" ? "Boolean result" : "BRep body"}</small></div>
+      <div className="inspector-header"><span>Properties</span><small>{selectedObjects.length > 1 ? `${selectedObjects.length} selected` : isLocked ? "Locked layer" : isPrimitive ? primitiveKind : isDrawing ? String(feature.params.kind) : feature?.type === "boolean" ? "Boolean result" : "BRep body"}</small></div>
 
       {isLocked && <div className="inspector-notice">Unlock <strong>{objectLayer?.name}</strong> in Layers to edit this object.</div>}
 
@@ -240,7 +246,7 @@ export function PropertiesPanel({
       {isDrawing && (
         <section className="property-section">
           <h3>Geometry <small>{String(feature.params.workPlane ?? "XY")} plane</small></h3>
-          {drawingMeasurements.distance !== undefined && <div className="property-row"><span>{feature.params.kind === "arc" ? "Arc length" : feature.params.kind === "rectangle" ? "Perimeter" : "Length"}</span><strong>{formatLength(drawingMeasurements.distance, "mm", 2)}</strong></div>}
+          {drawingMeasurements.distance !== undefined && <div className="property-row"><span>{feature.params.kind === "arc" ? "Arc length" : feature.params.kind === "rectangle" || drawingMeasurements.area !== undefined && feature.params.kind === "polyline" ? "Perimeter" : "Length"}</span><strong>{formatLength(drawingMeasurements.distance, "mm", 2)}</strong></div>}
           {drawingMeasurements.angle !== undefined && <div className="property-row"><span>Angle</span><strong>{(drawingMeasurements.angle * 180 / Math.PI).toFixed(2)} °</strong></div>}
           {drawingMeasurements.radius !== undefined && <div className="property-row"><span>Radius</span><strong>{formatLength(drawingMeasurements.radius, "mm", 2)}</strong></div>}
           {drawingMeasurements.diameter !== undefined && <div className="property-row"><span>Diameter</span><strong>{formatLength(drawingMeasurements.diameter, "mm", 2)}</strong></div>}
@@ -263,7 +269,7 @@ export function PropertiesPanel({
       <section className="property-section">
         <h3>Position <small>World · mm</small></h3>
         {(["x", "y", "z"] as const).map((key) => (
-          <NumericField key={key} label={key.toUpperCase()} context="Position" unit="mm" disabled={isLocked} step="0.1" value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("move")} />
+          <NumericField key={key} label={key.toUpperCase()} context="Position" unit="mm" disabled={isLocked} step="0.1" value={mixed(selectedTransforms.map((t) => t.translation[["x","y","z"].indexOf(key)])) ? "Mixed" : transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("move")} />
         ))}
       </section>
 

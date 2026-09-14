@@ -12,8 +12,9 @@ type ExplorerPanelProps = {
   documentRevision: number;
   selectedLayerId: string;
   selectedObjectId: string | null;
+  selectedObjectIds: string[];
   onSelectLayer: (layerId: string) => void;
-  onSelectObject: (objectId: string) => void;
+  onSelectObject: (objectId: string, additive?: boolean) => void;
   onDocumentChange: () => void;
 };
 
@@ -60,7 +61,7 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
 
       <div className="explorer-content">
         {props.activeActivity === "model" && (
-          <ModelPanel query={normalizedQuery} selectedObjectId={props.selectedObjectId} onSelectObject={props.onSelectObject} onDocumentChange={props.onDocumentChange} />
+          <ModelPanel query={normalizedQuery} selectedObjectId={props.selectedObjectId} selectedObjectIds={props.selectedObjectIds} onSelectObject={props.onSelectObject} onDocumentChange={props.onDocumentChange} />
         )}
         {props.activeActivity === "layers" && (
           <LayersPanel
@@ -72,7 +73,7 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
           />
         )}
         {props.activeActivity === "type" && (
-          <TypePanel query={normalizedQuery} selectedObjectId={props.selectedObjectId} onSelectObject={props.onSelectObject} />
+          <TypePanel query={normalizedQuery} selectedObjectId={props.selectedObjectId} selectedObjectIds={props.selectedObjectIds} onSelectObject={props.onSelectObject} />
         )}
         {props.activeActivity === "history" && <HistoryPanel query={normalizedQuery} />}
       </div>

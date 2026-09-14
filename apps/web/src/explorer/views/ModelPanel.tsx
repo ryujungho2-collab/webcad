@@ -5,11 +5,12 @@ import { dispatchCadCommand } from "../../state/dispatchCadCommand";
 type ModelPanelProps = {
   query: string;
   selectedObjectId: string | null;
-  onSelectObject: (objectId: string) => void;
+  selectedObjectIds: string[];
+  onSelectObject: (objectId: string, additive?: boolean) => void;
   onDocumentChange: () => void;
 };
 
-export function ModelPanel({ query, selectedObjectId, onSelectObject, onDocumentChange }: ModelPanelProps) {
+export function ModelPanel({ query, selectedObjectId, selectedObjectIds, onSelectObject, onDocumentChange }: ModelPanelProps) {
   const [expanded, setExpanded] = useState(true);
 
   useEffect(() => {
@@ -34,8 +35,8 @@ export function ModelPanel({ query, selectedObjectId, onSelectObject, onDocument
           key={object.id}
           role="button"
           tabIndex={0}
-          className={object.id === selectedObjectId ? "tree-row tree-row-selected" : "tree-row"}
-          onClick={() => onSelectObject(object.id)}
+          className={selectedObjectIds.includes(object.id) ? "tree-row tree-row-selected" : "tree-row"}
+          onClick={(event) => onSelectObject(object.id, event.shiftKey || event.ctrlKey || event.metaKey)}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") onSelectObject(object.id);
           }}

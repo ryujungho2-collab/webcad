@@ -3,10 +3,11 @@ import { cadDocument } from "../../state/cadDocument";
 type TypePanelProps = {
   query: string;
   selectedObjectId: string | null;
-  onSelectObject: (objectId: string) => void;
+  selectedObjectIds: string[];
+  onSelectObject: (objectId: string, additive?: boolean) => void;
 };
 
-export function TypePanel({ query, selectedObjectId, onSelectObject }: TypePanelProps) {
+export function TypePanel({ query, selectedObjectId, selectedObjectIds, onSelectObject }: TypePanelProps) {
   const groups = new Map<string, typeof cadDocument.rootObjects>();
   const featuresByOutput = new Map(
     Object.values(cadDocument.features).map((feature) => [feature.output, feature])
@@ -28,7 +29,7 @@ export function TypePanel({ query, selectedObjectId, onSelectObject }: TypePanel
           {objectIds.map((objectId) => {
             const object = cadDocument.objects[objectId];
             return object && (
-              <button key={objectId} type="button" className={objectId === selectedObjectId ? "tree-row tree-row-selected" : "tree-row"} onClick={() => onSelectObject(objectId)}>
+              <button key={objectId} type="button" className={selectedObjectIds.includes(objectId) ? "tree-row tree-row-selected" : "tree-row"} onClick={(event) => onSelectObject(objectId, event.shiftKey || event.ctrlKey || event.metaKey)}>
                 <span className="tree-branch" /><span className="tree-object-icon">◇</span><span className="tree-label">{object.name}</span>
               </button>
             );

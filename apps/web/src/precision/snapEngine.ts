@@ -1,11 +1,11 @@
 import { planeToWorld, worldToPlane, type Vec3, type WorkPlane } from "./workPlane";
 
-export type SnapType = "intersection" | "endpoint" | "midpoint" | "center" | "nearest" | "grid";
+export type SnapType = "intersection" | "endpoint" | "midpoint" | "center" | "perpendicular" | "tangent" | "nearest" | "grid";
 export type SnapResult = { type: SnapType; point: Vec3; objectId?: string; topologyReference?: string; screenDistance: number; metadata?: Record<string, unknown> };
 export type SnapEntity = { objectId: string; kind: "line" | "polyline" | "rectangle" | "circle" | "arc"; points?: Vec3[]; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number };
-export type SnapQuery = { point: Vec3; entities: SnapEntity[]; plane: WorkPlane; gridStep: number; tolerancePx: number; project: (point: Vec3) => [number, number]; enabled?: Partial<Record<SnapType, boolean>> };
+export type SnapQuery = { point: Vec3; referencePoint?: Vec3; entities: SnapEntity[]; plane: WorkPlane; gridStep: number; tolerancePx: number; project: (point: Vec3) => [number, number]; enabled?: Partial<Record<SnapType, boolean>> };
 
-const priorities: Record<SnapType, number> = { intersection: 0, endpoint: 1, midpoint: 2, center: 3, nearest: 4, grid: 5 };
+const priorities: Record<SnapType, number> = { intersection: 0, endpoint: 1, midpoint: 2, center: 3, perpendicular: 4, tangent: 5, nearest: 6, grid: 7 };
 const sq = (value: number) => value * value;
 const dist2 = (a: [number, number], b: [number, number]) => sq(a[0] - b[0]) + sq(a[1] - b[1]);
 
@@ -71,6 +71,28 @@ function circleCircleIntersections(aCenter: [number, number], aRadius: number, b
   return [first, [base[0] - offset[0], base[1] - offset[1]] as [number, number]];
 }
 
+function perpendicularPoint(reference: [number, number], a: [number, number], b: [number, number]) {
+  const dx = b[0] - a[0], dy = b[1] - a[1];
+  const length2 = dx * dx + dy * dy;
+  if (length2 < 1e-12) return null;
+  const t = ((reference[0] - a[0]) * dx + (reference[1] - a[1]) * dy) / length2;
+  if (t < 0 || t > 1) return null;
+  return [a[0] + dx * t, a[1] + dy * t] as [number, number];
+}
+
+function circleTangents(reference: [number, number], center: [number, number], radius: number) {
+  const dx = reference[0] - center[0], dy = reference[1] - center[1];
+  const distance2 = dx * dx + dy * dy;
+  if (distance2 <= radius * radius + 1e-9) return [];
+  const scale = radius * radius / distance2;
+  const offset = radius * Math.sqrt(Math.max(0, distance2 - radius * radius)) / distance2;
+  const base: [number, number] = [center[0] + dx * scale, center[1] + dy * scale];
+  return [
+    [base[0] - dy * offset, base[1] + dx * offset],
+    [base[0] + dy * offset, base[1] - dx * offset],
+  ] as [number, number][];
+}
+
 function segmentIntersection(a0: [number, number], a1: [number, number], b0: [number, number], b1: [number, number]) {
   const d = (a1[0] - a0[0]) * (b1[1] - b0[1]) - (a1[1] - a0[1]) * (b1[0] - b0[0]);
   if (Math.abs(d) < 1e-9) return null;
@@ -110,6 +132,11 @@ export function querySnap(query: SnapQuery): SnapResult {
       const dx = pb[0] - pa[0], dy = pb[1] - pa[1], length2 = dx * dx + dy * dy;
       const t = length2 ? Math.max(0, Math.min(1, ((p[0] - pa[0]) * dx + (p[1] - pa[1]) * dy) / length2)) : 0;
       add("nearest", planeToWorld([pa[0] + dx * t, pa[1] + dy * t], query.plane), entity.objectId, reference);
+      if (query.referencePoint) {
+        const referencePlane = worldToPlane(query.referencePoint, query.plane);
+        const perpendicular = perpendicularPoint(referencePlane, pa, pb);
+        if (perpendicular) add("perpendicular", planeToWorld(perpendicular, query.plane), entity.objectId, `${reference}:perpendicular`);
+      }
     }
     if (entity.center && entity.radius) {
       add("center", entity.center, entity.objectId, "center");
@@ -120,6 +147,13 @@ export function querySnap(query: SnapQuery): SnapResult {
         add("nearest", radial, entity.objectId, "curve");
       } else {
         for (const [endpoint, reference] of curveEndpoints(entity, query.plane)) add("nearest", endpoint, entity.objectId, reference);
+      }
+      if (query.referencePoint) {
+        const referencePlane = worldToPlane(query.referencePoint, query.plane);
+        const tangentPoints = circleTangents(referencePlane, c, entity.radius);
+        for (const tangent of tangentPoints) {
+          if (pointOnCurve(entity, tangent, query.plane)) add("tangent", planeToWorld(tangent, query.plane), entity.objectId, "curve:tangent");
+        }
       }
     }
   }

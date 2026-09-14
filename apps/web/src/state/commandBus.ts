@@ -11,6 +11,13 @@ import { getObjectTransform } from "./objectTransform";
 export const commandBus =
   new CommandBus();
 
+commandBus.registerHandler("batch", async (command: CadCommand) => {
+  if (command.type !== "batch") return;
+  const results = [];
+  for (const entry of command.commands) results.push(await commandBus.dispatch(entry));
+  return results;
+});
+
 commandBus.registerHandler(
   "create-layer",
   async (command: CadCommand) => {

@@ -4,7 +4,7 @@ import { ExplorerPanel } from "../explorer/ExplorerPanel";
 import { MenuBar } from "../menu/MenuBar";
 import { Ribbon } from "../ribbon/Ribbon";
 import { StatusBar } from "../status/StatusBar";
-import type { DrawingTool, TransformMode, ViewportActionType } from "../viewport/CadViewport";
+import type { DrawingTool, MeasurementTool, PointMeasurement, TransformMode, ViewportActionType } from "../viewport/CadViewport";
 import type { WorkPlaneId } from "../precision/workPlane";
 import type { WorkspaceMode } from "../viewport/workspaceTransition";
 import type { KernelStatus } from "../viewport/kernelGeometryService";
@@ -16,6 +16,7 @@ type AppShellProps = {
   selectedLayerId: string;
   activeLayerName: string;
   selectedObjectId: string | null;
+  selectedObjectIds: string[];
   canUndo: boolean;
   canRedo: boolean;
   canCreateBox: boolean;
@@ -27,6 +28,8 @@ type AppShellProps = {
   gridVisible: boolean;
   transformMode: TransformMode | null;
   drawingTool: DrawingTool | null;
+  measurementTool: MeasurementTool | null;
+  distanceMeasurement: PointMeasurement | null;
   activeWorkPlane: WorkPlaneId;
   snapEnabled: boolean;
   orthoEnabled: boolean;
@@ -34,11 +37,12 @@ type AppShellProps = {
   kernelStatus: KernelStatus;
   onChangeActivity: (activity: ActivityId) => void;
   onSelectLayer: (layerId: string) => void;
-  onSelectObject: (objectId: string) => void;
+  onSelectObject: (objectId: string, additive?: boolean) => void;
   onDocumentChange: () => void;
   onCreateBox: () => void;
   onCreatePrimitive: (primitive: "cylinder" | "sphere" | "cone" | "torus") => void;
   onDrawingTool: (tool: DrawingTool) => void;
+  onMeasurementTool: () => void;
   onCycleWorkPlane: () => void;
   onToggleSnap: () => void;
   onToggleOrtho: () => void;
@@ -52,6 +56,8 @@ type AppShellProps = {
   onViewAction: (action: ViewportActionType) => void;
   onToggleProjection: () => void;
   onToggleGrid: () => void;
+  onAlign?: (mode: "left" | "center-x" | "right" | "top" | "center-y" | "bottom") => void;
+  onDistribute?: (axis: "horizontal" | "vertical") => void;
   onUndo: () => void;
   onRedo: () => void;
   onNew: () => void;
@@ -102,6 +108,8 @@ export function AppShell(props: AppShellProps) {
         gridVisible={props.gridVisible}
         transformMode={props.transformMode}
         drawingTool={props.drawingTool}
+        measurementTool={props.measurementTool}
+        distanceMeasurement={props.distanceMeasurement}
         activeWorkPlane={props.activeWorkPlane}
         snapEnabled={props.snapEnabled}
         orthoEnabled={props.orthoEnabled}
@@ -115,6 +123,7 @@ export function AppShell(props: AppShellProps) {
         onCreateBox={props.onCreateBox}
         onCreatePrimitive={props.onCreatePrimitive}
         onDrawingTool={props.onDrawingTool}
+        onMeasurementTool={props.onMeasurementTool}
         onCycleWorkPlane={props.onCycleWorkPlane}
         onToggleSnap={props.onToggleSnap}
         onToggleOrtho={props.onToggleOrtho}
@@ -128,6 +137,8 @@ export function AppShell(props: AppShellProps) {
         onViewAction={props.onViewAction}
         onToggleProjection={props.onToggleProjection}
         onToggleGrid={props.onToggleGrid}
+        onAlign={props.onAlign}
+        onDistribute={props.onDistribute}
       />
 
       <div className={`workbench${explorerCollapsed ? " explorer-collapsed" : ""}${propertiesCollapsed ? " properties-collapsed" : ""}`}>
@@ -137,6 +148,7 @@ export function AppShell(props: AppShellProps) {
           documentRevision={props.documentRevision}
           selectedLayerId={props.selectedLayerId}
           selectedObjectId={props.selectedObjectId}
+          selectedObjectIds={props.selectedObjectIds}
           onSelectLayer={props.onSelectLayer}
           onSelectObject={props.onSelectObject}
           onDocumentChange={props.onDocumentChange}
@@ -158,6 +170,7 @@ export function AppShell(props: AppShellProps) {
 
       <StatusBar
         selectedObjectId={props.selectedObjectId}
+        selectedObjectIds={props.selectedObjectIds}
         selectedLayerId={props.selectedLayerId}
         canUndo={props.canUndo}
         isModified={props.isModified}
@@ -166,6 +179,7 @@ export function AppShell(props: AppShellProps) {
         snapEnabled={props.snapEnabled}
         orthoEnabled={props.orthoEnabled}
         activeWorkPlane={props.activeWorkPlane}
+        distanceMeasurement={props.distanceMeasurement}
       />
     </main>
   );
