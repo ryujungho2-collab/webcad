@@ -22,6 +22,7 @@ function isVector3Array(value: unknown, minimum: number) {
 
 function isDrawingParams(kind: unknown, params: unknown) {
   if (!isRecord(params) || typeof kind !== "string") return false;
+  if (params.workPlane !== undefined && !["XY", "XZ", "YZ"].includes(String(params.workPlane))) return false;
   if (kind === "line") return Array.isArray(params.points) && isVector3Array(params.points, 2) && params.points.length === 2;
   if (kind === "polyline") return isVector3Array(params.points, 2);
   if (kind === "rectangle") return Array.isArray(params.points) && isVector3Array(params.points, 4) && params.points.length === 4;

@@ -39,6 +39,7 @@ export function App() {
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>("3d");
   const [kernelStatus, setKernelStatus] = useState<KernelStatus>("deferred");
   const viewActionId = useRef(0);
+  const openFileInput = useRef<HTMLInputElement>(null);
   const currentFingerprint = useMemo(documentFingerprint, [documentRevision]);
 
   const selectedObject = selectedObjectId ? cadDocument.objects[selectedObjectId] : null;
@@ -104,23 +105,20 @@ export function App() {
   }
 
   function handleOpen() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json,.webcad.json";
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
-      try {
-        await openDocumentFile(file);
-        resetWorkspaceSelection();
-        setSavedFingerprint(documentFingerprint());
-        syncRevision();
-      } catch (error) {
-        console.error("Failed to open CAD document:", error);
-        window.alert("Could not open this CAD file.");
-      }
-    };
-    input.click();
+    openFileInput.current?.click();
+  }
+
+  async function handleOpenFile(file: File | undefined) {
+    if (!file) return;
+    try {
+      await openDocumentFile(file);
+      resetWorkspaceSelection();
+      setSavedFingerprint(documentFingerprint());
+      syncRevision();
+    } catch (error) {
+      console.error("Failed to open CAD document:", error);
+      window.alert("Could not open this CAD file.");
+    }
   }
 
   async function handleCreateBox() {
@@ -252,7 +250,21 @@ export function App() {
   );
 
   return (
-    <AppShell
+    <>
+      <input
+        ref={openFileInput}
+        type="file"
+        accept=".json,.webcad.json"
+        aria-hidden="true"
+        tabIndex={-1}
+        style={{ display: "none" }}
+        onChange={(event) => {
+          const file = event.currentTarget.files?.[0];
+          event.currentTarget.value = "";
+          void handleOpenFile(file);
+        }}
+      />
+      <AppShell
       activeActivity={activeActivity}
       documentId={cadDocument.id}
       documentRevision={documentRevision}
@@ -323,6 +335,7 @@ export function App() {
           onDrawingCancel={() => setDrawingTool(null)}
         />
       </Suspense>
-    </AppShell>
+      </AppShell>
+    </>
   );
 }

@@ -75,15 +75,25 @@ function drawingPoints(params: Record<string, unknown>, planeId: WorkPlaneId): V
   return [];
 }
 
+function drawingOrigin(params: Record<string, unknown>, planeId: WorkPlaneId): Vec3 {
+  const points = drawingPoints(params, planeId);
+  if (!points.length) return [0, 0, 0];
+  const bounds = new THREE.Box3().setFromPoints(points.map((point) => new THREE.Vector3(...point)));
+  return bounds.getCenter(new THREE.Vector3()).toArray() as Vec3;
+}
+
 function createDrawingObject(objectId: string, params: Record<string, unknown>): RenderObject {
   const planeId = (params.workPlane === "XZ" || params.workPlane === "YZ" ? params.workPlane : "XY") as WorkPlaneId;
   const points = drawingPoints(params, planeId);
-  const geometry = new THREE.BufferGeometry().setFromPoints(points.map((point) => new THREE.Vector3(...point)));
+  const origin = drawingOrigin(params, planeId);
+  const pivot = new THREE.Vector3(...origin);
+  const geometry = new THREE.BufferGeometry().setFromPoints(points.map((point) => new THREE.Vector3(...point).sub(pivot)));
   const material = new THREE.LineBasicMaterial({ color: DEFAULT_COLOR, linewidth: 1 });
   const renderObject = params.kind === "rectangle" || params.kind === "circle"
     ? new THREE.LineLoop(geometry, material)
     : new THREE.Line(geometry, material);
   renderObject.userData.cadObjectId = objectId;
+  renderObject.userData.drawingOrigin = origin;
   return renderObject;
 }
 
@@ -96,6 +106,9 @@ function createAdaptiveGrid(): AdaptiveGrid {
       minorStep: { value: 1 },
       majorStep: { value: 10 },
       fadeDistance: { value: 100 },
+      gridOrigin: { value: new THREE.Vector3() },
+      planeXAxis: { value: new THREE.Vector3(1, 0, 0) },
+      planeYAxis: { value: new THREE.Vector3(0, 1, 0) },
     },
     vertexShader: `
       varying vec3 worldPosition;
@@ -110,24 +123,32 @@ function createAdaptiveGrid(): AdaptiveGrid {
       uniform float minorStep;
       uniform float majorStep;
       uniform float fadeDistance;
+      uniform vec3 gridOrigin;
+      uniform vec3 planeXAxis;
+      uniform vec3 planeYAxis;
 
       float gridLine(float stepSize) {
-        vec2 coordinate = worldPosition.xy / stepSize;
+        vec3 fromOrigin = worldPosition - gridOrigin;
+        vec2 coordinate = vec2(dot(fromOrigin, planeXAxis), dot(fromOrigin, planeYAxis)) / stepSize;
         vec2 width = max(fwidth(coordinate), vec2(0.0001));
         vec2 grid = abs(fract(coordinate - 0.5) - 0.5) / width;
         return 1.0 - min(min(grid.x, grid.y), 1.0);
       }
 
       void main() {
+        vec3 fromOrigin = worldPosition - gridOrigin;
+        vec2 gridPosition = vec2(dot(fromOrigin, planeXAxis), dot(fromOrigin, planeYAxis));
+        vec3 cameraFromOrigin = cameraPosition - gridOrigin;
+        vec2 cameraGridPosition = vec2(dot(cameraFromOrigin, planeXAxis), dot(cameraFromOrigin, planeYAxis));
         float minor = gridLine(minorStep);
         float major = gridLine(majorStep);
-        float distanceFromCamera = length(worldPosition.xy - cameraPosition.xy);
+        float distanceFromCamera = length(gridPosition - cameraGridPosition);
         float fade = 1.0 - smoothstep(fadeDistance * 0.35, fadeDistance, distanceFromCamera);
 
         vec3 color = mix(vec3(0.16, 0.18, 0.22), vec3(0.28, 0.32, 0.38), major);
-        float axisWidth = max(fwidth(worldPosition.x), fwidth(worldPosition.y));
-        float xAxis = 1.0 - smoothstep(0.0, axisWidth * 1.5, abs(worldPosition.y));
-        float yAxis = 1.0 - smoothstep(0.0, axisWidth * 1.5, abs(worldPosition.x));
+        float axisWidth = max(fwidth(gridPosition.x), fwidth(gridPosition.y));
+        float xAxis = 1.0 - smoothstep(0.0, axisWidth * 1.5, abs(gridPosition.y));
+        float yAxis = 1.0 - smoothstep(0.0, axisWidth * 1.5, abs(gridPosition.x));
         color = mix(color, vec3(0.48, 0.18, 0.20), xAxis * 0.7);
         color = mix(color, vec3(0.18, 0.42, 0.25), yAxis * 0.7);
 
@@ -192,6 +213,9 @@ export function CadViewport({
     );
   const transformControlsRef = useRef<TransformControls | null>(null);
   const firstGeometryReadyRef = useRef(false);
+  const activeWorkPlaneRef = useRef(WORK_PLANES[activeWorkPlane]);
+  const cameraWorkspaceRef = useRef({ mode: workspaceMode, plane: activeWorkPlane });
+  const saved3dViewRef = useRef<{ direction: THREE.Vector3; distance: number } | null>(null);
 
   const meshesRef =
     useRef<Map<string, RenderObject>>(
@@ -218,6 +242,8 @@ export function CadViewport({
   }, [onTransformCommit]);
 
   useEffect(() => { drawingToolRef.current = drawingTool; }, [drawingTool]);
+
+  useEffect(() => { activeWorkPlaneRef.current = WORK_PLANES[activeWorkPlane]; }, [activeWorkPlane]);
 
   useEffect(() => subscribeKernelStatus((status) => onKernelStatus?.(status)), [onKernelStatus]);
 
@@ -401,9 +427,7 @@ export function CadViewport({
       isometric: new THREE.Vector3(1, -1, 1).normalize(),
     }[type];
     camera.up.set(0, 0, 1);
-    if (type === "top") camera.up.set(0, 1, 0);
     camera.position.copy(controls.target).addScaledVector(direction, distance);
-    camera.lookAt(controls.target);
     controls.update();
   }
 
@@ -525,17 +549,20 @@ export function CadViewport({
     transformControls.addEventListener("mouseUp", () => {
       if (!transformDragActive) return;
       transformDragActive = false;
-      const mesh = transformControls.object as THREE.Mesh | undefined;
-      const objectId = mesh?.userData.cadObjectId as string | undefined;
-      if (!mesh || !objectId) return;
+      const renderObject = transformControls.object as RenderObject | undefined;
+      const objectId = renderObject?.userData.cadObjectId as string | undefined;
+      if (!renderObject || !objectId) return;
+      const drawingPivot = Array.isArray(renderObject.userData.drawingOrigin)
+        ? new THREE.Vector3(...renderObject.userData.drawingOrigin as Vec3)
+        : new THREE.Vector3();
       onTransformCommitRef.current?.(objectId, transformControls.getMode() as TransformMode, {
-        translation: mesh.position.toArray() as [number, number, number],
+        translation: renderObject.position.clone().sub(drawingPivot).toArray() as [number, number, number],
         rotation: [
-          THREE.MathUtils.radToDeg(mesh.rotation.x),
-          THREE.MathUtils.radToDeg(mesh.rotation.y),
-          THREE.MathUtils.radToDeg(mesh.rotation.z),
+          THREE.MathUtils.radToDeg(renderObject.rotation.x),
+          THREE.MathUtils.radToDeg(renderObject.rotation.y),
+          THREE.MathUtils.radToDeg(renderObject.rotation.z),
         ],
-        scale: mesh.scale.toArray() as [number, number, number],
+        scale: renderObject.scale.toArray() as [number, number, number],
       });
     });
 
@@ -818,12 +845,25 @@ export function CadViewport({
         : activeCamera.position.distanceTo(controls.target);
       const minorStep = Math.max(0.01, 10 ** Math.floor(Math.log10(Math.max(viewScale, 0.01) / 10)));
       const fadeDistance = Math.max(viewScale * 4, minorStep * 40);
-      grid.position.x = Math.round(controls.target.x / minorStep) * minorStep;
-      grid.position.y = Math.round(controls.target.y / minorStep) * minorStep;
+      const workPlane = activeWorkPlaneRef.current;
+      const targetInPlane = worldToPlane(controls.target.toArray() as Vec3, workPlane);
+      const gridCenter = planeToWorld([
+        Math.round(targetInPlane[0] / minorStep) * minorStep,
+        Math.round(targetInPlane[1] / minorStep) * minorStep,
+      ], workPlane);
+      grid.position.fromArray(gridCenter).addScaledVector(new THREE.Vector3(...workPlane.normal), -0.002);
+      grid.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(
+        new THREE.Vector3(...workPlane.xAxis),
+        new THREE.Vector3(...workPlane.yAxis),
+        new THREE.Vector3(...workPlane.normal),
+      ));
       grid.scale.setScalar(fadeDistance);
       grid.material.uniforms.minorStep.value = minorStep;
       grid.material.uniforms.majorStep.value = minorStep * 10;
       grid.material.uniforms.fadeDistance.value = fadeDistance;
+      grid.material.uniforms.gridOrigin.value.fromArray(workPlane.origin);
+      grid.material.uniforms.planeXAxis.value.fromArray(workPlane.xAxis);
+      grid.material.uniforms.planeYAxis.value.fromArray(workPlane.yAxis);
 
       renderer.render(
         scene,
@@ -953,35 +993,61 @@ export function CadViewport({
     const camera = cameraRef.current;
     const controls = controlsRef.current;
     if (!camera || !controls) return;
-    const distance = Math.max(camera.position.distanceTo(controls.target), 1);
+    const previous = cameraWorkspaceRef.current;
+    const workspaceChanged = previous.mode !== workspaceMode;
+    const planeChanged = previous.plane !== activeWorkPlane;
+    cameraWorkspaceRef.current = { mode: workspaceMode, plane: activeWorkPlane };
+    controls.enableRotate = workspaceMode === "3d";
+    if (!workspaceChanged && !(workspaceMode === "2d" && planeChanged)) return;
+
+    const currentDirection = camera.position.clone().sub(controls.target);
+    const currentDistance = Math.max(currentDirection.length(), 1);
+    currentDirection.normalize();
+    if (workspaceMode === "2d" && workspaceChanged) {
+      saved3dViewRef.current = { direction: currentDirection.clone(), distance: currentDistance };
+    }
+
+    const plane = WORK_PLANES[activeWorkPlane];
     const direction = workspaceMode === "2d"
-      ? new THREE.Vector3(0, 0, 1)
-      : new THREE.Vector3(1, -1, 1).normalize();
+      ? new THREE.Vector3(...plane.normal)
+      : saved3dViewRef.current?.direction.clone() ?? new THREE.Vector3(1, -1, 1).normalize();
+    const distance = workspaceMode === "3d" ? saved3dViewRef.current?.distance ?? currentDistance : currentDistance;
     const targetPosition = controls.target.clone().addScaledVector(direction, distance);
-    const targetUp = workspaceMode === "2d" ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(0, 0, 1);
-    const targetQuaternion = new THREE.Quaternion();
-    const targetCamera = camera.clone() as ViewCamera;
-    targetCamera.position.copy(targetPosition);
-    targetCamera.up.copy(targetUp);
-    targetCamera.lookAt(controls.target);
-    targetQuaternion.copy(targetCamera.quaternion);
+    const targetUp = workspaceMode === "2d" ? new THREE.Vector3(...plane.yAxis) : new THREE.Vector3(0, 0, 1);
     const startPosition = camera.position.clone();
-    const startQuaternion = camera.quaternion.clone();
+    const startUp = camera.up.clone();
     const duration = workspaceTransitionDuration();
+    const dampingWasEnabled = controls.enableDamping;
+    controls.enableDamping = false;
+    let completed = false;
     let frame = 0;
     const startedAt = performance.now();
     const animate = (now: number) => {
       const progress = duration === 0 ? 1 : Math.min(1, (now - startedAt) / duration);
       const eased = easeWorkspaceTransition(progress);
       camera.position.lerpVectors(startPosition, targetPosition, eased);
-      camera.quaternion.copy(startQuaternion).slerp(targetQuaternion, eased);
+      camera.up.lerpVectors(startUp, targetUp, eased).normalize();
+      camera.lookAt(controls.target);
       camera.updateProjectionMatrix();
       controls.update();
-      if (progress < 1) frame = requestAnimationFrame(animate);
+      if (progress < 1) {
+        frame = requestAnimationFrame(animate);
+      } else {
+        completed = true;
+        camera.position.copy(targetPosition);
+        camera.up.copy(targetUp);
+        camera.lookAt(controls.target);
+        controls.enableDamping = dampingWasEnabled;
+        controls.enableRotate = workspaceMode === "3d";
+        controls.update();
+      }
     };
     frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
-  }, [workspaceMode]);
+    return () => {
+      cancelAnimationFrame(frame);
+      if (!completed) controls.enableDamping = dampingWasEnabled;
+    };
+  }, [workspaceMode, activeWorkPlane]);
 
   useEffect(() => {
     if (!viewAction) return;
@@ -1248,7 +1314,10 @@ export function CadViewport({
         const transform = getObjectTransform(cadObject, featuresByOutput.get(objectId));
         const transformSignature = JSON.stringify(transform);
         if (mesh.userData.transformSignature !== transformSignature) {
-          mesh.position.fromArray(transform.translation);
+          const drawingPivot = Array.isArray(mesh.userData.drawingOrigin)
+            ? new THREE.Vector3(...mesh.userData.drawingOrigin as Vec3)
+            : new THREE.Vector3();
+          mesh.position.fromArray(transform.translation).add(drawingPivot);
           mesh.rotation.set(
             THREE.MathUtils.degToRad(transform.rotation[0]),
             THREE.MathUtils.degToRad(transform.rotation[1]),
@@ -1414,11 +1483,13 @@ export function CadViewport({
       const feature = Object.values(cadDocument.features).find((entry) => entry.output === objectId);
       const transform = object ? getObjectTransform(object, feature) : null;
       if (!transform) return new THREE.Matrix4();
+      const planeId = feature?.params.workPlane === "XZ" || feature?.params.workPlane === "YZ" ? feature.params.workPlane : "XY";
+      const pivot = feature?.type === "drawing" ? new THREE.Vector3(...drawingOrigin(feature.params, planeId)) : new THREE.Vector3();
       return new THREE.Matrix4().compose(
-        new THREE.Vector3(...transform.translation),
+        pivot.clone().add(new THREE.Vector3(...transform.translation)),
         new THREE.Quaternion().setFromEuler(new THREE.Euler(...transform.rotation.map(THREE.MathUtils.degToRad) as [number, number, number])),
         new THREE.Vector3(...transform.scale),
-      );
+      ).multiply(new THREE.Matrix4().makeTranslation(-pivot.x, -pivot.y, -pivot.z));
     }
 
     function snapEntities(): SnapEntity[] {
@@ -1515,6 +1586,7 @@ export function CadViewport({
       const startedAt = performance.now();
       const snapped = snapEnabled ? querySnap({ point: raw, entities: snapEntities(), plane, gridStep: 1, tolerancePx: 12, project }) : null;
       performance.measure("agent-webcad:snap-query", { start: startedAt, end: performance.now(), detail: { entityCount: cadDocument.rootObjects.length, result: snapped?.type ?? "disabled" } });
+      if (performance.getEntriesByName("agent-webcad:snap-query").length > 200) performance.clearMeasures("agent-webcad:snap-query");
       const point = constrain(snapped && Number.isFinite(snapped.screenDistance) ? snapped.point : raw);
       if (snapped && Number.isFinite(snapped.screenDistance)) markerShape(snapped, point); else marker.visible = false;
       return { point, snap: snapped && Number.isFinite(snapped.screenDistance) ? snapped : null };

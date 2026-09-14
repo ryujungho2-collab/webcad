@@ -19,6 +19,10 @@ export function measureDrawing(params: Record<string, unknown>): DrawingMeasurem
       const a = worldToPlane(points[index - 1], plane), b = worldToPlane(points[index], plane);
       distance += Math.hypot(b[0] - a[0], b[1] - a[1]);
     }
+    if (kind === "rectangle" && points.length === 4) {
+      const a = worldToPlane(points[points.length - 1], plane), b = worldToPlane(points[0], plane);
+      distance += Math.hypot(b[0] - a[0], b[1] - a[1]);
+    }
     const result: DrawingMeasurements = { distance };
     if (points.length >= 2) {
       const a = worldToPlane(points[0], plane), b = worldToPlane(points[1], plane);
