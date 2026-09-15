@@ -74,5 +74,43 @@ export function deserializeDocument(
     );
   }
 
+  migrateDrawingTopology(document);
   return document;
+}
+
+/**
+ * Add stable topology references to drawings saved before topology metadata
+ * existed. IDs are derived from the feature id and semantic role/index, so an
+ * old file can be opened, edited, saved and reopened without changing refs.
+ */
+function migrateDrawingTopology(document: CadDocument) {
+  for (const feature of Object.values(document.features)) {
+    if (feature.type !== "drawing") continue;
+    const params = feature.params as Record<string, unknown>;
+    const existing = params.topology as { version?: number } | undefined;
+    if (existing?.version === 1) continue;
+    const kind = String(params.kind ?? "drawing");
+    const controls: { id: string; role: string; index?: number }[] = [];
+    const segments: { id: string; startControlId: string; endControlId: string }[] = [];
+    const curves: { id: string; kind: string }[] = [];
+    const control = (role: string, index?: number) => {
+      const suffix = index === undefined ? role : `${role}-${index}`;
+      const entry = { id: `${feature.id}:control:${suffix}`, role, ...(index === undefined ? {} : { index }) };
+      controls.push(entry);
+      return entry.id;
+    };
+    if (Array.isArray(params.points)) {
+      (params.points as unknown[]).forEach((_, index) => control("vertex", index));
+      const closed = kind === "rectangle" || params.closed === true;
+      for (let index = 0; index < controls.length - 1; index += 1) {
+        segments.push({ id: `${feature.id}:segment:${index}`, startControlId: controls[index].id, endControlId: controls[index + 1].id });
+      }
+      if (closed && controls.length > 2) segments.push({ id: `${feature.id}:segment:${controls.length - 1}`, startControlId: controls.at(-1)!.id, endControlId: controls[0].id });
+    } else if (kind === "circle") {
+      control("center"); control("radius"); curves.push({ id: `${feature.id}:curve:circle`, kind: "circle" });
+    } else if (kind === "arc") {
+      control("center"); control("start"); control("end"); curves.push({ id: `${feature.id}:curve:arc`, kind: "arc" });
+    }
+    params.topology = { version: 1, controls, segments, curves };
+  }
 }

@@ -11,11 +11,42 @@ import { getObjectTransform } from "./objectTransform";
 export const commandBus =
   new CommandBus();
 
+function restoreDocumentSnapshot(snapshot: typeof cadDocument) {
+  cadDocument.id = snapshot.id;
+  cadDocument.objects = structuredClone(snapshot.objects);
+  cadDocument.features = structuredClone(snapshot.features);
+  cadDocument.layers = structuredClone(snapshot.layers);
+  cadDocument.rootObjects = [...snapshot.rootObjects];
+  cadDocument.rootLayers = [...snapshot.rootLayers];
+  cadDocument.revision = snapshot.revision;
+}
+
 commandBus.registerHandler("batch", async (command: CadCommand) => {
   if (command.type !== "batch") return;
-  const results = [];
-  for (const entry of command.commands) results.push(await commandBus.dispatch(entry));
-  return results;
+  // Batches are the transaction boundary. Nested batches are rejected so a
+  // child cannot create an independent commit/history boundary.
+  if (command.commands.some((entry) => (entry as CadCommand).type === "batch")) {
+    return { accepted: false, reason: "Nested batches are not supported." };
+  }
+  const snapshot = structuredClone(cadDocument);
+  const results: unknown[] = [];
+  try {
+    for (const entry of command.commands) {
+      const beforeRevision = cadDocument.revision;
+      const result = await commandBus.dispatch(entry);
+      // Handlers signal a rejected/no-op command by leaving revision intact.
+      // A batch containing one such child must not leak earlier mutations.
+      if (cadDocument.revision === beforeRevision) {
+        restoreDocumentSnapshot(snapshot);
+        return { accepted: false, reason: `Command rejected: ${entry.type}` };
+      }
+      results.push(result);
+    }
+  } catch (error) {
+    restoreDocumentSnapshot(snapshot);
+    return { accepted: false, reason: error instanceof Error ? error.message : "Batch rejected." };
+  }
+  return { accepted: true, results };
 });
 
 commandBus.registerHandler(
@@ -196,8 +227,9 @@ commandBus.registerHandler(
       cadDocument.objects[
         command.objectId
       ];
+    const layer = object ? cadDocument.layers[object.layerId] : undefined;
 
-    if (!object || object.visible === command.visible) {
+    if (!object || layer?.locked || object.visible === command.visible) {
       return;
     }
 
@@ -212,6 +244,12 @@ commandBus.registerHandler(
   "isolate-object",
   async (command: CadCommand) => {
     if (command.type !== "isolate-object" || !cadDocument.objects[command.objectId]) return;
+    const target = cadDocument.objects[command.objectId];
+    const targetLayer = cadDocument.layers[target.layerId];
+    if (targetLayer?.locked || Object.values(cadDocument.objects).some((object) => {
+      const layer = cadDocument.layers[object.layerId];
+      return object.visible !== (object.id === command.objectId) && layer?.locked;
+    })) return;
     let changed = false;
     for (const object of Object.values(cadDocument.objects)) {
       const visible = object.id === command.objectId;
@@ -228,6 +266,10 @@ commandBus.registerHandler(
   "show-all-objects",
   async (command: CadCommand) => {
     if (command.type !== "show-all-objects") return;
+    if (Object.values(cadDocument.objects).some((object) => {
+      const layer = cadDocument.layers[object.layerId];
+      return !object.visible && layer?.locked;
+    })) return;
     let changed = false;
     for (const object of Object.values(cadDocument.objects)) {
       if (!object.visible) {
@@ -328,6 +370,38 @@ function isValidPrimitiveParams(kind: string, params: Record<string, number>) {
   return false;
 }
 
+type DrawingTopologyControl = { id: string; role: "vertex" | "center" | "radius" | "start" | "end"; index?: number };
+type DrawingTopologySegment = { id: string; startControlId: string; endControlId: string };
+type DrawingTopologyCurve = { id: string; kind: "circle" | "arc" };
+
+function createDrawingTopology(kind: string, params: Record<string, unknown>) {
+  const controls: DrawingTopologyControl[] = [];
+  const segments: DrawingTopologySegment[] = [];
+  const curves: DrawingTopologyCurve[] = [];
+  if ((kind === "line" || kind === "polyline" || kind === "rectangle") && Array.isArray(params.points)) {
+    (params.points as unknown[]).forEach((_, index) => controls.push({ id: `control-${crypto.randomUUID()}`, role: "vertex", index }));
+    for (let index = 0; index < controls.length - 1; index += 1) {
+      segments.push({ id: `segment-${crypto.randomUUID()}`, startControlId: controls[index].id, endControlId: controls[index + 1].id });
+    }
+    if ((kind === "rectangle" || params.closed === true) && controls.length > 2) {
+      segments.push({ id: `segment-${crypto.randomUUID()}`, startControlId: controls.at(-1)!.id, endControlId: controls[0].id });
+    }
+  } else if (kind === "circle") {
+    controls.push({ id: `control-${crypto.randomUUID()}`, role: "center" }, { id: `control-${crypto.randomUUID()}`, role: "radius" });
+    curves.push({ id: `curve-${crypto.randomUUID()}`, kind: "circle" });
+  } else if (kind === "arc") {
+    controls.push({ id: `control-${crypto.randomUUID()}`, role: "center" }, { id: `control-${crypto.randomUUID()}`, role: "start" }, { id: `control-${crypto.randomUUID()}`, role: "end" });
+    curves.push({ id: `curve-${crypto.randomUUID()}`, kind: "arc" });
+  }
+  return { version: 1, controls, segments, curves };
+}
+
+function drawingPlanePoint(point: [number, number, number], plane: unknown): [number, number] {
+  if (plane === "XZ") return [point[0], point[2]];
+  if (plane === "YZ") return [point[1], point[2]];
+  return [point[0], point[1]];
+}
+
 commandBus.registerHandler(
   "create-drawing",
   async (command: CadCommand) => {
@@ -351,12 +425,65 @@ commandBus.registerHandler(
       type: "drawing",
       inputs: [],
       output: id,
-      params: { kind: command.drawing, ...structuredClone(command.params) },
+      params: { kind: command.drawing, ...structuredClone(command.params), topology: createDrawingTopology(command.drawing, command.params) },
     };
     cadDocument.rootObjects.push(id);
     layer.objectIds.push(id);
     cadDocument.revision += 1;
     return id;
+  },
+);
+
+commandBus.registerHandler(
+  "edit-drawing-control",
+  async (command: CadCommand) => {
+    if (command.type !== "edit-drawing-control") return;
+    const object = getEditableObject(command.objectId);
+    const feature = findFeatureForObject(command.objectId);
+    if (!object || !object.visible || !feature || feature.type !== "drawing") return;
+    const params = feature.params as Record<string, unknown>;
+    const kind = String(params.kind ?? "");
+    const topology = params.topology as { version?: number; controls?: DrawingTopologyControl[] } | undefined;
+    const control = topology?.controls?.find((entry) => entry.id === command.controlId);
+    if (!control) return;
+    const point = [...command.point] as [number, number, number];
+    if (control.role === "vertex" && typeof control.index === "number" && Array.isArray(params.points)) {
+      const points = structuredClone(params.points) as [number, number, number][];
+      if (!points[control.index]) return;
+      if (kind === "rectangle" && points.length === 4) {
+        const movedIndex = control.index;
+        const previousIndex = (movedIndex + 3) % 4;
+        const nextIndex = (movedIndex + 1) % 4;
+        const old = drawingPlanePoint(points[movedIndex], params.workPlane);
+        const moved = drawingPlanePoint(point, params.workPlane);
+        const updateAdjacent = (index: number) => {
+          const adjacent = drawingPlanePoint(points[index], params.workPlane);
+          const sharesFirstAxis = Math.abs(adjacent[0] - old[0]) <= Math.abs(adjacent[1] - old[1]);
+          const planePoint: [number, number] = sharesFirstAxis ? [moved[0], adjacent[1]] : [adjacent[0], moved[1]];
+          const result = [...points[index]] as [number, number, number];
+          if (params.workPlane === "XZ") { result[0] = planePoint[0]; result[2] = planePoint[1]; }
+          else if (params.workPlane === "YZ") { result[1] = planePoint[0]; result[2] = planePoint[1]; }
+          else { result[0] = planePoint[0]; result[1] = planePoint[1]; }
+          points[index] = result;
+        };
+        updateAdjacent(previousIndex);
+        updateAdjacent(nextIndex);
+      }
+      points[control.index] = point;
+      params.points = points;
+    } else if (control.role === "center") {
+      params.center = point;
+    } else if ((control.role === "radius" || control.role === "start" || control.role === "end") && Array.isArray(params.center)) {
+      const center2 = drawingPlanePoint(params.center as [number, number, number], params.workPlane);
+      const point2 = drawingPlanePoint(point, params.workPlane);
+      const dx = point2[0] - center2[0], dy = point2[1] - center2[1];
+      const radius = Math.hypot(dx, dy);
+      if (!(radius > 1e-9)) return;
+      params.radius = radius;
+      if (kind === "arc" && control.role === "start") params.startAngle = Math.atan2(dy, dx);
+      if (kind === "arc" && control.role === "end") params.endAngle = Math.atan2(dy, dx);
+    } else return;
+    cadDocument.revision += 1;
   },
 );
 
@@ -460,7 +587,9 @@ commandBus.registerHandler(
 
     if (
       !layer ||
-      !defaultLayer
+      !defaultLayer ||
+      layer.locked ||
+      defaultLayer.locked
     ) {
       return;
     }

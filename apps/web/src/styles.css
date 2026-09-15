@@ -204,6 +204,8 @@ button.tree-root:hover { background: #1d232b; }
 .property-row input:disabled, .property-row select:disabled { border-color: #2b313a; background: #171b21; color: #69727e; cursor: not-allowed; }
 .property-row input[type="number"] { text-align: right; font-variant-numeric: tabular-nums; }
 .property-toggle { justify-self: end; accent-color: var(--accent); }
+.property-toggle-mixed { accent-color: #d8b36a; }
+.numeric-input-mixed { color: #d8b36a; font-style: italic; }
 .property-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px 9px 0; }
 .property-actions button { height: 27px; border: 1px solid #3b444f; border-radius: 3px; background: var(--bg-2); color: #bdc4cd; font-size: 10px; cursor: pointer; }
 .property-visibility-actions { grid-template-columns: repeat(3, 1fr); padding-top: 6px; }

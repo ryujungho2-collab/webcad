@@ -23,6 +23,7 @@ type AppShellProps = {
   canDuplicate: boolean;
   canDelete: boolean;
   canTransform: boolean;
+  canArrange: boolean;
   isModified: boolean;
   projectionMode: "perspective" | "orthographic";
   gridVisible: boolean;
@@ -34,6 +35,7 @@ type AppShellProps = {
   snapEnabled: boolean;
   orthoEnabled: boolean;
   workspaceMode: WorkspaceMode;
+  directSelectMode: boolean;
   kernelStatus: KernelStatus;
   onChangeActivity: (activity: ActivityId) => void;
   onSelectLayer: (layerId: string) => void;
@@ -47,6 +49,7 @@ type AppShellProps = {
   onToggleSnap: () => void;
   onToggleOrtho: () => void;
   onWorkspaceMode: (mode: WorkspaceMode) => void;
+  onDirectSelectMode: (enabled: boolean) => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onHide: () => void;
@@ -104,6 +107,7 @@ export function AppShell(props: AppShellProps) {
         canDuplicate={props.canDuplicate}
         canDelete={props.canDelete}
         canTransform={props.canTransform}
+        canArrange={props.canArrange}
         projectionMode={props.projectionMode}
         gridVisible={props.gridVisible}
         transformMode={props.transformMode}
@@ -114,6 +118,7 @@ export function AppShell(props: AppShellProps) {
         snapEnabled={props.snapEnabled}
         orthoEnabled={props.orthoEnabled}
         workspaceMode={props.workspaceMode}
+        directSelectMode={props.directSelectMode}
         activeLayerName={props.activeLayerName}
         onNew={props.onNew}
         onOpen={props.onOpen}
@@ -128,6 +133,7 @@ export function AppShell(props: AppShellProps) {
         onToggleSnap={props.onToggleSnap}
         onToggleOrtho={props.onToggleOrtho}
         onWorkspaceMode={props.onWorkspaceMode}
+        onDirectSelectMode={props.onDirectSelectMode}
         onDuplicate={props.onDuplicate}
         onDelete={props.onDelete}
         onHide={props.onHide}

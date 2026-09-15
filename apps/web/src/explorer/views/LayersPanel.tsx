@@ -274,7 +274,8 @@ export function LayersPanel({
                 <button
                   type="button"
                   className="layer-delete-button"
-                  title="Delete layer"
+                  disabled={layer.locked || cadDocument.layers["layer-default"]?.locked}
+                  title={layer.locked || cadDocument.layers["layer-default"]?.locked ? "Unlock source and Default layers to delete" : "Delete layer"}
                   onClick={(event) => {
                     event.stopPropagation();
 

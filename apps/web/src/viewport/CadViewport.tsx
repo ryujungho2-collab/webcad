@@ -11,6 +11,7 @@ import { measurePoints } from "../precision/measurements";
 import { intersectRayWithWorkPlane, planeToWorld, WORK_PLANES, worldToPlane, type Vec3, type WorkPlaneId } from "../precision/workPlane";
 import { easeWorkspaceTransition, workspaceTransitionDuration, type WorkspaceMode } from "./workspaceTransition";
 import { buildBooleanMesh, buildDemoPartMesh, buildPrimitiveMesh, subscribeKernelStatus, type KernelStatus } from "./kernelGeometryService";
+import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 
 type CadViewportProps = {
   documentRevision: number;
@@ -26,12 +27,14 @@ type CadViewportProps = {
   snapEnabled?: boolean;
   orthoEnabled?: boolean;
   workspaceMode?: WorkspaceMode;
+  directSelectMode?: boolean;
   onKernelStatus?: (status: KernelStatus) => void;
   onTransformCommit?: (objectId: string, mode: TransformMode, transform: ObjectTransformValue) => void;
   onSelectObject?: (objectId: string | null, additive?: boolean) => void;
   onDrawingCommit?: (drawing: DrawingTool, params: Record<string, unknown>) => void;
   onDrawingCancel?: () => void;
   onDistanceMeasure?: (measurement: PointMeasurement) => void;
+  onDirectEditCommit?: (objectId: string, controlId: string, point: Vec3) => void;
 };
 
 export type ViewportActionType =
@@ -188,12 +191,14 @@ export function CadViewport({
   snapEnabled = true,
   orthoEnabled = false,
   workspaceMode = "3d",
+  directSelectMode = false,
   onKernelStatus,
   onTransformCommit,
   onSelectObject,
   onDrawingCommit,
   onDrawingCancel,
   onDistanceMeasure,
+  onDirectEditCommit,
 }: CadViewportProps) {
   const [toolReadout, setToolReadout] = useState("");
   const hostRef =
@@ -222,6 +227,7 @@ export function CadViewport({
     );
   const transformControlsRef = useRef<TransformControls | null>(null);
   const groupProxyRef = useRef<THREE.Object3D | null>(null);
+  const directMarkerRef = useRef<THREE.Mesh | null>(null);
   const firstGeometryReadyRef = useRef(false);
   const activeWorkPlaneRef = useRef(WORK_PLANES[activeWorkPlane]);
   const cameraWorkspaceRef = useRef({ mode: workspaceMode, plane: activeWorkPlane });
@@ -240,6 +246,10 @@ export function CadViewport({
   const onSelectObjectRef =
     useRef(onSelectObject);
   const onTransformCommitRef = useRef(onTransformCommit);
+  const onDirectEditCommitRef = useRef(onDirectEditCommit);
+  const directSelectModeRef = useRef(directSelectMode);
+  const snapEnabledRef = useRef(snapEnabled);
+  const orthoEnabledRef = useRef(orthoEnabled);
   const drawingToolRef = useRef(drawingTool);
 
   useEffect(() => {
@@ -250,6 +260,10 @@ export function CadViewport({
   useEffect(() => {
     onTransformCommitRef.current = onTransformCommit;
   }, [onTransformCommit]);
+  useEffect(() => { onDirectEditCommitRef.current = onDirectEditCommit; }, [onDirectEditCommit]);
+  useEffect(() => { directSelectModeRef.current = directSelectMode; }, [directSelectMode]);
+  useEffect(() => { snapEnabledRef.current = snapEnabled; }, [snapEnabled]);
+  useEffect(() => { orthoEnabledRef.current = orthoEnabled; }, [orthoEnabled]);
 
   useEffect(() => { drawingToolRef.current = drawingTool; }, [drawingTool]);
 
@@ -659,6 +673,159 @@ export function CadViewport({
       new THREE.Vector2();
     let overlapKey = "";
     let overlapIndex = 0;
+    type DirectCandidate = { objectId: string; controlId: string; modelPoint: Vec3; worldPoint: THREE.Vector3 };
+    let directDrag: { candidate: DirectCandidate; startWorld: THREE.Vector3; pointerId: number; committed: boolean } | null = null;
+    const directMarker = new THREE.Mesh(
+      new THREE.SphereGeometry(0.18, 12, 8),
+      new THREE.MeshBasicMaterial({ color: 0x76ead1, depthTest: false }),
+    );
+    directMarker.renderOrder = 30;
+    directMarker.visible = false;
+    scene.add(directMarker);
+    directMarkerRef.current = directMarker;
+
+    function modelControlPoint(params: Record<string, unknown>, role: string, index?: number): Vec3 | null {
+      if (role === "vertex" && typeof index === "number" && Array.isArray(params.points)) return (params.points as Vec3[])[index] ?? null;
+      if (!Array.isArray(params.center)) return null;
+      const center = params.center as Vec3;
+      if (role === "center") return center;
+      const planeId = (params.workPlane === "XZ" || params.workPlane === "YZ" ? params.workPlane : "XY") as WorkPlaneId;
+      const plane = WORK_PLANES[planeId];
+      const center2 = worldToPlane(center, plane);
+      const radius = Number(params.radius);
+      if (!(radius > 0)) return null;
+      const angle = role === "start" ? Number(params.startAngle) : role === "end" ? Number(params.endAngle) : 0;
+      return planeToWorld([center2[0] + Math.cos(angle) * radius, center2[1] + Math.sin(angle) * radius], plane);
+    }
+
+    function directCandidates(): DirectCandidate[] {
+      const candidates: DirectCandidate[] = [];
+      for (const feature of Object.values(cadDocument.features)) {
+        if (feature.type !== "drawing") continue;
+        const object = cadDocument.objects[feature.output];
+        const layer = object ? cadDocument.layers[object.layerId] : undefined;
+        const mesh = meshesRef.current.get(feature.output);
+        const topology = feature.params.topology as { controls?: { id: string; role: string; index?: number }[] } | undefined;
+        if (!object?.visible || layer?.visible === false || layer?.locked || !mesh?.visible || !topology?.controls) continue;
+        for (const control of topology.controls) {
+          const modelPoint = modelControlPoint(feature.params, control.role, control.index);
+          if (!modelPoint) continue;
+          const worldPoint = new THREE.Vector3(...modelPoint).sub(Array.isArray(mesh.userData.drawingOrigin) ? new THREE.Vector3(...mesh.userData.drawingOrigin as Vec3) : new THREE.Vector3()).applyMatrix4(mesh.matrixWorld);
+          candidates.push({ objectId: object.id, controlId: control.id, modelPoint, worldPoint });
+        }
+      }
+      return candidates;
+    }
+
+    function pointerPixels(event: PointerEvent) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      return new THREE.Vector2(event.clientX - rect.left, event.clientY - rect.top);
+    }
+
+    function projectPixels(point: THREE.Vector3) {
+      const projected = point.clone().project(cameraRef.current!);
+      const rect = renderer.domElement.getBoundingClientRect();
+      return new THREE.Vector2((projected.x + 1) * rect.width / 2, (1 - projected.y) * rect.height / 2);
+    }
+
+    function nearestDirectCandidate(event: PointerEvent, excludeControlId?: string) {
+      const cursor = pointerPixels(event);
+      let nearest: DirectCandidate | null = null, distance = 12;
+      for (const candidate of directCandidates()) {
+        if (candidate.controlId === excludeControlId) continue;
+        const d = projectPixels(candidate.worldPoint).distanceTo(cursor);
+        if (d <= distance) { distance = d; nearest = candidate; }
+      }
+      return nearest;
+    }
+
+    function directSnapEntities(): SnapEntity[] {
+      const result: SnapEntity[] = [];
+      for (const feature of Object.values(cadDocument.features)) {
+        if (feature.type !== "drawing") continue;
+        const object = cadDocument.objects[feature.output];
+        const layer = object ? cadDocument.layers[object.layerId] : undefined;
+        const mesh = meshesRef.current.get(feature.output);
+        const kind = feature.params.kind;
+        if (!object?.visible || layer?.visible === false || !mesh?.visible || !(["line", "polyline", "rectangle", "circle", "arc"] as unknown[]).includes(kind)) continue;
+        const world = getWorldDrawingGeometry(object, feature);
+        if (!world) continue;
+        result.push({
+          objectId: object.id,
+          kind: kind as SnapEntity["kind"],
+          points: world.points,
+          center: world.center,
+          radius: world.radius,
+          startAngle: world.startAngle,
+          endAngle: world.endAngle,
+        });
+      }
+      return result;
+    }
+
+    function directWorldPoint(event: PointerEvent) {
+      const currentCamera = cameraRef.current; if (!currentCamera) return null;
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.set((event.clientX - rect.left) / rect.width * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+      raycaster.setFromCamera(pointer, currentCamera);
+      return intersectRayWithWorkPlane(raycaster.ray.origin.toArray() as Vec3, raycaster.ray.direction.toArray() as Vec3, activeWorkPlaneRef.current);
+    }
+
+    function handleDirectMove(event: PointerEvent) {
+      if (!directSelectModeRef.current) { directMarker.visible = false; return; }
+      if (!directDrag) {
+        const hover = nearestDirectCandidate(event);
+        directMarker.visible = Boolean(hover);
+        if (hover) directMarker.position.copy(hover.worldPoint);
+        return;
+      }
+      const raw = directWorldPoint(event); if (!raw) return;
+      let world = new THREE.Vector3(...raw);
+      if (orthoEnabledRef.current) {
+        const a = worldToPlane(directDrag.startWorld.toArray() as Vec3, activeWorkPlaneRef.current);
+        const b = worldToPlane(world.toArray() as Vec3, activeWorkPlaneRef.current);
+        if (Math.abs(b[0] - a[0]) >= Math.abs(b[1] - a[1])) b[1] = a[1]; else b[0] = a[0];
+        world = new THREE.Vector3(...planeToWorld(b, activeWorkPlaneRef.current));
+      }
+      if (snapEnabledRef.current) {
+        const snapped = querySnap({
+          point: world.toArray() as Vec3,
+          referencePoint: directDrag.startWorld.toArray() as Vec3,
+          entities: directSnapEntities(),
+          plane: activeWorkPlaneRef.current,
+          gridStep: 1,
+          tolerancePx: 12,
+          project: (point) => projectPixels(new THREE.Vector3(...point)).toArray() as [number, number],
+        });
+        if (Number.isFinite(snapped.screenDistance)) world.set(...snapped.point);
+      }
+      directMarker.position.copy(world); directMarker.visible = true;
+    }
+
+    function handleDirectUp(event: PointerEvent) {
+      if (!directDrag) return;
+      if (event.pointerId !== directDrag.pointerId || directDrag.committed) return;
+      directDrag.committed = true;
+      handleDirectMove(event);
+      const mesh = meshesRef.current.get(directDrag.candidate.objectId);
+      if (mesh) {
+        const origin = Array.isArray(mesh.userData.drawingOrigin) ? new THREE.Vector3(...mesh.userData.drawingOrigin as Vec3) : new THREE.Vector3();
+        const modelPoint = mesh.worldToLocal(directMarker.position.clone()).add(origin).toArray() as Vec3;
+        onDirectEditCommitRef.current?.(directDrag.candidate.objectId, directDrag.candidate.controlId, modelPoint);
+      }
+      try { renderer.domElement.releasePointerCapture(event.pointerId); } catch { /* capture may already be released */ }
+      directDrag = null;
+      controls.enabled = true;
+    }
+
+    function handleDirectKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Escape" || !directDrag) return;
+      event.preventDefault();
+      try { if (directDrag) renderer.domElement.releasePointerCapture(directDrag.pointerId); } catch { /* capture may already be released */ }
+      directDrag = null;
+      directMarker.visible = false;
+      controls.enabled = true;
+    }
 
     function handlePointerDown(
       event: PointerEvent
@@ -673,6 +840,22 @@ export function CadViewport({
       }
 
       if (drawingToolRef.current) return;
+      // TransformControls owns pointer interaction while an axis/plane handle
+      // is hot. Treating that pointer-down as an empty viewport click clears
+      // the group selection before the drag can commit.
+      if (transformControlsRef.current?.axis) return;
+
+      if (directSelectModeRef.current) {
+        const candidate = nearestDirectCandidate(event);
+        if (!candidate) { updateSelection(null); directMarker.visible = false; return; }
+        updateSelection(candidate.objectId, event.shiftKey || event.ctrlKey || event.metaKey);
+        directDrag = { candidate, startWorld: candidate.worldPoint.clone(), pointerId: event.pointerId, committed: false };
+        directMarker.position.copy(candidate.worldPoint);
+        directMarker.visible = true;
+        controls.enabled = false;
+        renderer.domElement.setPointerCapture(event.pointerId);
+        return;
+      }
 
       const currentCamera =
         cameraRef.current;
@@ -810,6 +993,9 @@ export function CadViewport({
         "pointerdown",
         handlePointerDown
       );
+    renderer.domElement.addEventListener("pointermove", handleDirectMove);
+    renderer.domElement.addEventListener("pointerup", handleDirectUp);
+    window.addEventListener("keydown", handleDirectKeyDown, true);
 
     function resize() {
       const currentHost =
@@ -935,6 +1121,13 @@ export function CadViewport({
           "pointerdown",
           handlePointerDown
         );
+      renderer.domElement.removeEventListener("pointermove", handleDirectMove);
+      renderer.domElement.removeEventListener("pointerup", handleDirectUp);
+      window.removeEventListener("keydown", handleDirectKeyDown, true);
+      scene.remove(directMarker);
+      if (directMarkerRef.current === directMarker) directMarkerRef.current = null;
+      directMarker.geometry.dispose();
+      (directMarker.material as THREE.Material).dispose();
 
       controls.dispose();
       transformControls.detach();
@@ -1093,7 +1286,7 @@ export function CadViewport({
         fitMeshes();
         break;
       case "fit-selection":
-        if (selectedObjectIdRef.current) fitMeshes(new Set([selectedObjectIdRef.current]));
+        if (selectedObjectIdsRef.current.length) fitMeshes(new Set(selectedObjectIdsRef.current));
         break;
       case "top":
       case "front":
@@ -1106,7 +1299,7 @@ export function CadViewport({
 
   useEffect(() => {
     syncTransformControl();
-  }, [selectedObjectId, transformMode, documentRevision]);
+  }, [selectedObjectId, selectedObjectIds, transformMode, documentRevision]);
 
   /*
    * Synchronize CadDocument
@@ -1115,6 +1308,11 @@ export function CadViewport({
   useEffect(() => {
     let cancelled =
       false;
+
+    // Direct-edit markers are transient viewport feedback. A document change
+    // can hide, lock, delete, undo, or replace their source topology, so never
+    // carry the old marker across a document synchronization boundary.
+    if (directMarkerRef.current) directMarkerRef.current.visible = false;
 
     async function syncDocument() {
       const syncStartedAt = performance.now();
@@ -1474,9 +1672,11 @@ export function CadViewport({
       return intersectRayWithWorkPlane(raycaster.ray.origin.toArray() as Vec3, raycaster.ray.direction.toArray() as Vec3, plane);
     };
     const project = (point: Vec3): [number, number] => { const p = new THREE.Vector3(...point).project(cameraRef.current!); const r = renderer.domElement.getBoundingClientRect(); return [(p.x + 1) * r.width / 2, (1 - p.y) * r.height / 2]; };
-    const entities: SnapEntity[] = Object.values(cadDocument.features).filter((f) => f.type === "drawing").map((f) => {
-      const params = f.params as Record<string, unknown>;
-      return { objectId: f.output, kind: params.kind as SnapEntity["kind"], points: params.points as Vec3[] | undefined, center: params.center as Vec3 | undefined, radius: params.radius as number | undefined, startAngle: params.startAngle as number | undefined, endAngle: params.endAngle as number | undefined };
+    const entities: SnapEntity[] = Object.values(cadDocument.features).flatMap((f) => {
+      if (f.type !== "drawing") return [];
+      const object = cadDocument.objects[f.output];
+      const world = object ? getWorldDrawingGeometry(object, f) : null;
+      return world ? [{ objectId: world.objectId, kind: world.kind, points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle }] : [];
     });
     const snapPoint = (raw: Vec3) => snapEnabled ? querySnap({ point: raw, referencePoint: first ?? undefined, entities, plane, gridStep: 1, tolerancePx: 12, project })?.point ?? raw : raw;
     const update = (p: Vec3) => { hover = snapPoint(p); const points = first ? [first, hover] : [hover]; line.geometry.dispose(); line.geometry = new THREE.BufferGeometry().setFromPoints(points.map((v) => new THREE.Vector3(...v))); setToolReadout(first ? `DISTANCE · ${measurePoints(first, hover, activeWorkPlane).distance.toFixed(2)} mm` : "DISTANCE · pick first point"); };
@@ -1567,17 +1767,16 @@ export function CadViewport({
         if (!object || !object.visible || layer?.visible === false) continue;
         const kind = feature.params.kind;
         if (!(["line", "polyline", "rectangle", "circle", "arc"] as unknown[]).includes(kind)) continue;
-        const matrix = entityTransform(object.id);
-        const transformPoint = (point: Vec3) => new THREE.Vector3(...point).applyMatrix4(matrix).toArray() as Vec3;
-        const transform = getObjectTransform(object, feature);
+        const world = getWorldDrawingGeometry(object, feature);
+        if (!world) continue;
         result.push({
           objectId: object.id,
           kind: kind as SnapEntity["kind"],
-          points: Array.isArray(feature.params.points) ? (feature.params.points as Vec3[]).map(transformPoint) : undefined,
-          center: Array.isArray(feature.params.center) ? transformPoint(feature.params.center as Vec3) : undefined,
-          radius: typeof feature.params.radius === "number" ? feature.params.radius * Math.max(transform.scale[0], transform.scale[1]) : undefined,
-          startAngle: typeof feature.params.startAngle === "number" ? feature.params.startAngle : undefined,
-          endAngle: typeof feature.params.endAngle === "number" ? feature.params.endAngle : undefined,
+          points: world.points,
+          center: world.center,
+          radius: world.radius,
+          startAngle: world.startAngle,
+          endAngle: world.endAngle,
         });
       }
       return result;

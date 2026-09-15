@@ -11,6 +11,7 @@ type RibbonProps = {
   canDuplicate: boolean;
   canDelete: boolean;
   canTransform: boolean;
+  canArrange: boolean;
   projectionMode: "perspective" | "orthographic";
   gridVisible: boolean;
   transformMode: TransformMode | null;
@@ -21,6 +22,7 @@ type RibbonProps = {
   snapEnabled: boolean;
   orthoEnabled: boolean;
   workspaceMode: WorkspaceMode;
+  directSelectMode: boolean;
   activeLayerName: string;
   onNew: () => void;
   onOpen: () => void;
@@ -35,6 +37,7 @@ type RibbonProps = {
   onToggleSnap: () => void;
   onToggleOrtho: () => void;
   onWorkspaceMode: (mode: WorkspaceMode) => void;
+  onDirectSelectMode: (enabled: boolean) => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onHide: () => void;
@@ -82,6 +85,7 @@ export function Ribbon({
   canDuplicate,
   canDelete,
   canTransform,
+  canArrange,
   projectionMode,
   gridVisible,
   transformMode,
@@ -91,6 +95,7 @@ export function Ribbon({
   snapEnabled,
   orthoEnabled,
   workspaceMode,
+  directSelectMode,
   activeLayerName,
   onNew,
   onOpen,
@@ -105,6 +110,7 @@ export function Ribbon({
   onToggleSnap,
   onToggleOrtho,
   onWorkspaceMode,
+  onDirectSelectMode,
   onDuplicate,
   onDelete,
   onHide,
@@ -129,6 +135,13 @@ export function Ribbon({
       </div>
 
       <div className="ribbon-body">
+        <div className="ribbon-group">
+          <div className="ribbon-commands">
+            <RibbonButton icon="◇" label="Object" title="Select whole CAD objects" active={!directSelectMode} onClick={() => onDirectSelectMode(false)} />
+            <RibbonButton icon="•" label="Direct" title="Edit drawing control points" active={directSelectMode} onClick={() => onDirectSelectMode(true)} />
+          </div>
+          <span className="ribbon-group-label">Select</span>
+        </div>
         <div className="ribbon-group">
           <div className="ribbon-commands">
             <RibbonButton icon="＋" label="New" title="New document (Ctrl+N)" onClick={onNew} />
@@ -186,7 +199,7 @@ export function Ribbon({
 
         <div className="ribbon-group">
           <div className="ribbon-commands">
-            <RibbonButton icon="⧉" label="Duplicate" disabled={!canDuplicate} onClick={onDuplicate} />
+            <RibbonButton icon="⧉" label="Duplicate" title="Duplicate selection (Ctrl+D); copies offset 10 mm in X" disabled={!canDuplicate} onClick={onDuplicate} />
             <RibbonButton icon="⌫" label="Delete" title={hasSelection && !canDelete ? "Unlock the object's layer to delete it" : "Delete selection (Delete)"} disabled={!canDelete} danger onClick={onDelete} />
           </div>
           <span className="ribbon-group-label">Modify</span>
@@ -226,13 +239,14 @@ export function Ribbon({
 
         <div className="ribbon-group">
           <div className="ribbon-commands">
-            <RibbonButton icon="⇤" label="Align L" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("left")} />
-            <RibbonButton icon="↔" label="Center X" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("center-x")} />
-            <RibbonButton icon="⇥" label="Align R" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("right")} />
-            <RibbonButton icon="⇑" label="Align T" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("top")} />
-            <RibbonButton icon="⇕" label="Center Y" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("center-y")} />
-            <RibbonButton icon="⇓" label="Align B" disabled={!hasSelection || !onAlign} onClick={() => onAlign?.("bottom")} />
-            <RibbonButton icon="⇅" label="Dist H" disabled={!hasSelection || !onDistribute} onClick={() => onDistribute?.("horizontal")} />
+            <RibbonButton icon="⇤" label="Align L" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("left")} />
+            <RibbonButton icon="↔" label="Center X" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("center-x")} />
+            <RibbonButton icon="⇥" label="Align R" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("right")} />
+            <RibbonButton icon="⇑" label="Align T" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("top")} />
+            <RibbonButton icon="⇕" label="Center Y" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("center-y")} />
+            <RibbonButton icon="⇓" label="Align B" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("bottom")} />
+            <RibbonButton icon="⇅" label="Dist H" disabled={!canArrange || !onDistribute} onClick={() => onDistribute?.("horizontal")} />
+            <RibbonButton icon="⇳" label="Dist V" disabled={!canArrange || !onDistribute} onClick={() => onDistribute?.("vertical")} />
           </div>
           <span className="ribbon-group-label">Arrange</span>
         </div>

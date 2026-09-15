@@ -42,6 +42,7 @@ export function App() {
   const [snapEnabled, setSnapEnabled] = useState(true);
   const [orthoEnabled, setOrthoEnabled] = useState(false);
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>("3d");
+  const [directSelectMode, setDirectSelectMode] = useState(false);
   const [kernelStatus, setKernelStatus] = useState<KernelStatus>("deferred");
   const viewActionId = useRef(0);
   const openFileInput = useRef<HTMLInputElement>(null);
@@ -113,10 +114,20 @@ export function App() {
         if (mode === "scale") commands.push({ type: "scale-object", objectId: id, scale: [currentTransform.scale[0] * transform.scale[0], currentTransform.scale[1] * transform.scale[1], currentTransform.scale[2] * transform.scale[2]] });
       });
       await dispatchCadCommand({ type: "batch", commands });
+      // The batch already contains every member's transform. Falling through
+      // would apply rotate/scale a second time to the primary object.
+      syncRevision();
+      return;
     }
     else if (mode === "translate") await dispatchCadCommand({ type: "move-object", objectId, translation: transform.translation });
     if (mode === "rotate") await dispatchCadCommand({ type: "rotate-object", objectId, rotation: transform.rotation });
     if (mode === "scale") await dispatchCadCommand({ type: "scale-object", objectId, scale: transform.scale });
+    syncRevision();
+  }
+
+  async function commitDirectEdit(objectId: string, controlId: string, point: [number, number, number]) {
+    await dispatchCadCommand({ type: "edit-drawing-control", objectId, controlId, point });
+    setSelection({ ids: [objectId], primaryId: objectId, subObjects: [{ objectId, kind: "drawing-control", topologyId: controlId }] });
     syncRevision();
   }
 
@@ -135,10 +146,11 @@ export function App() {
     const bounds = selectionBounds(selection); if (!bounds) return;
     const commands = selectedObjectIds.map((id) => {
       const object = cadDocument.objects[id]; const feature = Object.values(cadDocument.features).find((entry) => entry.output === id); if (!object) return null;
-      const t = getObjectTransform(object, feature) as { translation: [number, number, number] }; const p = feature?.params as Record<string, unknown> | undefined;
-      const w = Number(p?.width ?? p?.radius ?? 1), h = Number(p?.depth ?? p?.radius ?? 1);
-      const x = mode === "left" ? bounds.min[0] + w / 2 : mode === "right" ? bounds.max[0] - w / 2 : mode === "center-x" ? (bounds.min[0] + bounds.max[0]) / 2 : t.translation[0];
-      const y = mode === "bottom" ? bounds.min[1] + h / 2 : mode === "top" ? bounds.max[1] - h / 2 : mode === "center-y" ? (bounds.min[1] + bounds.max[1]) / 2 : t.translation[1];
+      const t = getObjectTransform(object, feature) as { translation: [number, number, number] };
+      const objectBounds = selectionBounds({ ids: [id], primaryId: id });
+      if (!objectBounds) return null;
+      const x = mode === "left" ? bounds.min[0] - objectBounds.min[0] + t.translation[0] : mode === "right" ? bounds.max[0] - objectBounds.max[0] + t.translation[0] : mode === "center-x" ? (bounds.min[0] + bounds.max[0] - objectBounds.min[0] - objectBounds.max[0]) / 2 + t.translation[0] : t.translation[0];
+      const y = mode === "bottom" ? bounds.min[1] - objectBounds.min[1] + t.translation[1] : mode === "top" ? bounds.max[1] - objectBounds.max[1] + t.translation[1] : mode === "center-y" ? (bounds.min[1] + bounds.max[1] - objectBounds.min[1] - objectBounds.max[1]) / 2 + t.translation[1] : t.translation[1];
       return { type: "move-object" as const, objectId: id, translation: [x, y, t.translation[2]] as [number, number, number] };
     }).filter((entry): entry is Exclude<typeof entry, null> => Boolean(entry));
     await dispatchCadCommand({ type: "batch", commands }); syncRevision();
@@ -257,7 +269,9 @@ export function App() {
       if (typeof newId === "string") selectObject(newId);
     } else {
       const result = await dispatchCadCommand({ type: "batch", commands: ids.map((objectId) => ({ type: "duplicate-object", objectId })) });
-      const created = Array.isArray(result) ? result.filter((id): id is string => typeof id === "string") : [];
+      const batchResult = result as { accepted?: unknown; results?: unknown[] } | null;
+      const batchResults = batchResult?.accepted === true && Array.isArray(batchResult.results) ? batchResult.results : [];
+      const created = batchResults.filter((id): id is string => typeof id === "string");
       if (created.length) setSelection({ ids: created, primaryId: created.at(-1) ?? null });
     }
     syncRevision();
@@ -291,7 +305,7 @@ export function App() {
         void handleDeleteObject();
         return;
       }
-      if (event.key === "Escape") { setTransformMode(null); setDrawingTool(null); setMeasurementTool(null); selectObject(null); return; }
+      if (event.key === "Escape") { setTransformMode(null); setDrawingTool(null); setMeasurementTool(null); setDirectSelectMode(false); selectObject(null); return; }
       if (event.key === "F3") { event.preventDefault(); setSnapEnabled((value) => !value); return; }
       if (event.key === "F8") { event.preventDefault(); setOrthoEnabled((value) => !value); return; }
       if (selectedObjectId && !selectedLayerLocked) {
@@ -311,7 +325,7 @@ export function App() {
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedObjectId, selectedFeature, selectedLayerLocked]);
+  }, [selectedObjectId, selectedObjectIds, selectedFeature, selectedLayerLocked]);
 
   const properties = (
     <PropertiesPanel
@@ -358,6 +372,7 @@ export function App() {
       canDuplicate={Boolean(selectedFeature) && !selectedLayerLocked}
       canDelete={Boolean(selectedObject) && !selectedLayerLocked}
       canTransform={Boolean(selectedObject) && !selectedLayerLocked}
+      canArrange={selectedObjectIds.length >= 2}
       isModified={isModified}
       projectionMode={projectionMode}
       gridVisible={gridVisible}
@@ -369,6 +384,7 @@ export function App() {
       snapEnabled={snapEnabled}
       orthoEnabled={orthoEnabled}
       workspaceMode={workspaceMode}
+      directSelectMode={directSelectMode}
       kernelStatus={kernelStatus}
       onChangeActivity={setActiveActivity}
       onSelectLayer={setSelectedLayerId}
@@ -382,6 +398,7 @@ export function App() {
       onToggleSnap={() => setSnapEnabled((value) => !value)}
       onToggleOrtho={() => setOrthoEnabled((value) => !value)}
       onWorkspaceMode={changeWorkspace}
+      onDirectSelectMode={(enabled) => { setDirectSelectMode(enabled); setDrawingTool(null); setMeasurementTool(null); setTransformMode(null); }}
       onDuplicate={() => void handleDuplicateObject()}
       onDelete={() => void handleDeleteObject()}
       onHide={() => void handleHideObject()}
@@ -416,12 +433,14 @@ export function App() {
           snapEnabled={snapEnabled}
           orthoEnabled={orthoEnabled}
           workspaceMode={workspaceMode}
+          directSelectMode={directSelectMode}
           onKernelStatus={setKernelStatus}
           onTransformCommit={(objectId, mode, transform) => void commitViewportTransform(objectId, mode, transform)}
           onSelectObject={(id, additive) => selectObject(id, additive)}
           onDrawingCommit={(drawing, params) => void handleDrawingCommit(drawing, params)}
           onDrawingCancel={() => setDrawingTool(null)}
           onDistanceMeasure={(measurement) => { setDistanceMeasurement(measurement); setMeasurementTool(null); }}
+          onDirectEditCommit={(objectId, controlId, point) => void commitDirectEdit(objectId, controlId, point)}
         />
       </Suspense>
       </AppShell>

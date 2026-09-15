@@ -8,6 +8,12 @@ export type CadCommand =
       layerId?: string;
     }
   | {
+      type: "edit-drawing-control";
+      objectId: string;
+      controlId: string;
+      point: [number, number, number];
+    }
+  | {
       type: "create-primitive";
       id?: string;
       primitive: "box" | "cylinder" | "sphere" | "cone" | "torus";

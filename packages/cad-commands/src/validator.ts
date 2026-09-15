@@ -38,12 +38,14 @@ export function validateCommand(command: unknown): command is CadCommand {
 
   switch (command.type) {
     case "batch":
-      return Array.isArray(command.commands) && command.commands.length > 0 && command.commands.every((entry) => validateCommand(entry));
+      return Array.isArray(command.commands) && command.commands.length > 0 && command.commands.every((entry) => validateCommand(entry) && entry.type !== "batch");
     case "create-drawing":
       return ["line", "polyline", "rectangle", "circle", "arc"].includes(String(command.drawing)) &&
         isDrawingParams(command.drawing, command.params) &&
         (command.id === undefined || isString(command.id)) &&
         (command.layerId === undefined || isString(command.layerId));
+    case "edit-drawing-control":
+      return isString(command.objectId) && isString(command.controlId) && isVector3(command.point);
     case "create-primitive":
       return isString(command.primitive) && ["box", "cylinder", "sphere", "cone", "torus"].includes(command.primitive as string) &&
         isRecord(command.params) && Object.values(command.params).every((value) => isFiniteNumber(value) && value > 0) &&

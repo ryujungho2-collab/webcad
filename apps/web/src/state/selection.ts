@@ -1,13 +1,22 @@
 import { cadDocument } from "./cadDocument";
 import { getObjectTransform } from "./objectTransform";
+import * as THREE from "three";
+import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 
-export type SelectionState = { ids: string[]; primaryId: string | null };
+export type TopologySelectionKind = "object" | "drawing-control" | "drawing-segment" | "drawing-curve" | "brep-edge" | "brep-face";
+export type TopologySelectionRef = {
+  objectId: string;
+  kind: TopologySelectionKind;
+  /** Stable document-owned identifier, never a Three.js vertex/index. */
+  topologyId: string;
+};
+export type SelectionState = { ids: string[]; primaryId: string | null; subObjects?: TopologySelectionRef[] };
 
 export function reduceSelection(state: SelectionState, objectId: string | null, additive = false): SelectionState {
-  if (!objectId) return { ids: [], primaryId: null };
-  if (!additive) return { ids: [objectId], primaryId: objectId };
+  if (!objectId) return { ids: [], primaryId: null, subObjects: [] };
+  if (!additive) return { ids: [objectId], primaryId: objectId, subObjects: [] };
   const ids = state.ids.includes(objectId) ? state.ids.filter((id) => id !== objectId) : [...state.ids, objectId];
-  return { ids, primaryId: ids.includes(objectId) ? objectId : (ids.at(-1) ?? null) };
+  return { ids, primaryId: ids.includes(objectId) ? objectId : (ids.at(-1) ?? null), subObjects: state.subObjects?.filter((entry) => ids.includes(entry.objectId)) ?? [] };
 }
 
 export function validSelection(state: SelectionState): SelectionState {
@@ -16,25 +25,40 @@ export function validSelection(state: SelectionState): SelectionState {
     const layer = object ? cadDocument.layers[object.layerId] : undefined;
     return Boolean(object?.visible && layer?.visible && !layer.locked);
   });
-  return { ids, primaryId: state.primaryId && ids.includes(state.primaryId) ? state.primaryId : (ids.at(-1) ?? null) };
+  return { ids, primaryId: state.primaryId && ids.includes(state.primaryId) ? state.primaryId : (ids.at(-1) ?? null), subObjects: state.subObjects?.filter((entry) => ids.includes(entry.objectId)) ?? [] };
 }
 
 export function selectionBounds(state: SelectionState) {
-  const points: [number, number, number][] = [];
+  const worldPoints: THREE.Vector3[] = [];
   for (const id of state.ids) {
     const object = cadDocument.objects[id];
     if (!object) continue;
     const feature = Object.values(cadDocument.features).find((entry) => entry.output === id);
-    const t = getObjectTransform(object, feature).translation;
+    const transform = getObjectTransform(object, feature);
     const p = feature?.params as Record<string, unknown> | undefined;
-    const scale = getObjectTransform(object, feature).scale;
-    if (feature?.type === "drawing" && Array.isArray(p?.points)) { points.push(...(p.points as [number, number, number][]).map((v) => [v[0] * scale[0] + t[0], v[1] * scale[1] + t[1], v[2] * scale[2] + t[2]] as [number, number, number])); continue; }
-    const w = Number(p?.width ?? p?.radius ?? p?.majorRadius ?? 1) * scale[0], h = Number(p?.depth ?? p?.radius ?? p?.minorRadius ?? 1) * scale[1], d = Number(p?.height ?? p?.radius ?? 1) * scale[2];
-    points.push([t[0] - w / 2, t[1] - h / 2, t[2] - d / 2], [t[0] + w / 2, t[1] + h / 2, t[2] + d / 2]);
+    const localPoints: THREE.Vector3[] = [];
+    if (feature?.type === "drawing") {
+      const world = getWorldDrawingGeometry(object, feature);
+      if (world?.points) worldPoints.push(...world.points.map((point) => new THREE.Vector3(...point)));
+      continue;
+    } else {
+      const kind = String(p?.kind ?? (p?.width !== undefined ? "box" : ""));
+      const radius = Number(p?.radius ?? 0), height = Number(p?.height ?? 0), major = Number(p?.majorRadius ?? 0), minor = Number(p?.minorRadius ?? 0);
+      let min = new THREE.Vector3(-0.5, -0.5, -0.5), max = new THREE.Vector3(0.5, 0.5, 0.5);
+      if (kind === "box") { min.set(0, 0, 0); max.set(Number(p?.width), Number(p?.depth), Number(p?.height)); }
+      else if (kind === "cylinder") { min.set(-radius, -radius, 0); max.set(radius, radius, height); }
+      else if (kind === "sphere") { min.setScalar(-radius); max.setScalar(radius); }
+      else if (kind === "cone") { const r = Math.max(Number(p?.radius1), Number(p?.radius2)); min.set(-r, -r, 0); max.set(r, r, height); }
+      else if (kind === "torus") { const r = major + minor; min.set(-r, -r, -minor); max.set(r, r, minor); }
+      for (const x of [min.x, max.x]) for (const y of [min.y, max.y]) for (const z of [min.z, max.z]) localPoints.push(new THREE.Vector3(x, y, z));
+    }
+    if (!localPoints.length) continue;
+    const rotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(...transform.rotation.map(THREE.MathUtils.degToRad) as [number, number, number]));
+    const origin = new THREE.Vector3();
+    const matrix = new THREE.Matrix4().compose(origin.clone().add(new THREE.Vector3(...transform.translation)), rotation, new THREE.Vector3(...transform.scale)).multiply(new THREE.Matrix4().makeTranslation(-origin.x, -origin.y, -origin.z));
+    worldPoints.push(...localPoints.map((point) => point.applyMatrix4(matrix)));
   }
-  if (!points.length) return null;
-  return {
-    min: points.reduce((a, b) => [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.min(a[2], b[2])] as [number, number, number]),
-    max: points.reduce((a, b) => [Math.max(a[0], b[0]), Math.max(a[1], b[1]), Math.max(a[2], b[2])] as [number, number, number]),
-  };
+  if (!worldPoints.length) return null;
+  const bounds = new THREE.Box3().setFromPoints(worldPoints);
+  return { min: bounds.min.toArray() as [number, number, number], max: bounds.max.toArray() as [number, number, number] };
 }
