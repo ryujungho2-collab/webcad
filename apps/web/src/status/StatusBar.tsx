@@ -31,7 +31,8 @@ export function StatusBar({ selectedObjectId, selectedObjectIds = selectedObject
   const blockedSelectionCount = selectedObjectIds.filter((id) => {
     const object = cadDocument.objects[id];
     const layer = object ? cadDocument.layers[object.layerId] : undefined;
-    return Boolean(object && (!object.visible || layer?.visible === false || layer?.locked));
+    const feature = Object.values(cadDocument.features).find((entry) => entry.output === id);
+    return Boolean(object && (!feature || !object.visible || layer?.visible === false || layer?.locked));
   }).length;
 
   return (

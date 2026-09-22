@@ -8,7 +8,7 @@ type NumericFieldProps = {
   min?: string;
   step: string;
   onChange: (value: string) => void;
-  onCommit: () => void;
+  onCommit?: () => void;
 };
 
 /** Presentation only: preserve the exact draft; never round model values. */

@@ -14,6 +14,24 @@ export type CadCommand =
       point: [number, number, number];
     }
   | {
+      type: "edit-drawing-segment";
+      objectId: string;
+      segmentId: string;
+      delta: [number, number, number];
+    }
+  | {
+      type: "offset-drawing";
+      objectId: string;
+      distance: number;
+      side?: "left" | "right";
+    }
+  | {
+      type: "trim-drawing" | "extend-drawing";
+      targetId: string;
+      cutterId: string;
+      pickPoint: [number, number, number];
+    }
+  | {
       type: "create-primitive";
       id?: string;
       primitive: "box" | "cylinder" | "sphere" | "cone" | "torus";

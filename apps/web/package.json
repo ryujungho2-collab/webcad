@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build"
+    "build": "tsc -b && vite build",
+    "test": "tsx --test tests/**/*.test.ts"
   },
   "dependencies": {
     "@agent-webcad/cad-commands": "workspace:*",
@@ -22,6 +23,7 @@
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@types/three": "^0.180.0",
+    "tsx": "^4.23.13",
     "typescript": "^5.9.3"
   }
 }

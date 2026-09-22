@@ -7,11 +7,13 @@ type RibbonProps = {
   canUndo: boolean;
   canRedo: boolean;
   hasSelection: boolean;
+  isolationActive?: boolean;
   canCreateBox: boolean;
   canDuplicate: boolean;
   canDelete: boolean;
   canTransform: boolean;
   canArrange: boolean;
+  canDistribute: boolean;
   projectionMode: "perspective" | "orthographic";
   gridVisible: boolean;
   transformMode: TransformMode | null;
@@ -49,6 +51,9 @@ type RibbonProps = {
   onToggleGrid: () => void;
   onAlign?: (mode: "left" | "center-x" | "right" | "top" | "center-y" | "bottom") => void;
   onDistribute?: (axis: "horizontal" | "vertical") => void;
+  canTrim?: boolean;
+  lineEditTool?: "trim" | "extend" | null;
+  onLineEditTool?: (mode: "trim" | "extend") => void;
 };
 
 type RibbonButtonProps = {
@@ -81,11 +86,13 @@ export function Ribbon({
   canUndo,
   canRedo,
   hasSelection,
+  isolationActive,
   canCreateBox,
   canDuplicate,
   canDelete,
   canTransform,
   canArrange,
+  canDistribute,
   projectionMode,
   gridVisible,
   transformMode,
@@ -122,6 +129,9 @@ export function Ribbon({
   onToggleGrid,
   onAlign,
   onDistribute,
+  canTrim = false,
+  lineEditTool = null,
+  onLineEditTool,
 }: RibbonProps) {
   return (
     <div className="ribbon">
@@ -201,6 +211,8 @@ export function Ribbon({
           <div className="ribbon-commands">
             <RibbonButton icon="⧉" label="Duplicate" title="Duplicate selection (Ctrl+D); copies offset 10 mm in X" disabled={!canDuplicate} onClick={onDuplicate} />
             <RibbonButton icon="⌫" label="Delete" title={hasSelection && !canDelete ? "Unlock the object's layer to delete it" : "Delete selection (Delete)"} disabled={!canDelete} danger onClick={onDelete} />
+            <RibbonButton icon="✂" label="Trim" title="Use selected drawing as boundary; click the portion of a line to remove" disabled={!canTrim} active={lineEditTool === "trim"} onClick={() => onLineEditTool?.("trim")} />
+            <RibbonButton icon="↦" label="Extend" title="Use selected drawing as boundary; click a line near the endpoint to extend" disabled={!canTrim} active={lineEditTool === "extend"} onClick={() => onLineEditTool?.("extend")} />
           </div>
           <span className="ribbon-group-label">Modify</span>
         </div>
@@ -231,7 +243,7 @@ export function Ribbon({
         <div className="ribbon-group">
           <div className="ribbon-commands">
             <RibbonButton icon="◌" label="Hide" title="Hide selected object" disabled={!hasSelection} onClick={onHide} />
-            <RibbonButton icon="◎" label="Isolate" title="Show only the selected object" disabled={!hasSelection} onClick={onIsolate} />
+            <RibbonButton icon="◎" label={isolationActive ? "Exit Isolation" : "Isolate"} title={isolationActive ? "Restore previous visibility" : "Show only the selected objects"} disabled={!hasSelection && !isolationActive} onClick={onIsolate} />
             <RibbonButton icon="◉" label="Show All" title="Show all document objects" onClick={onShowAll} />
           </div>
           <span className="ribbon-group-label">Visibility</span>
@@ -245,8 +257,8 @@ export function Ribbon({
             <RibbonButton icon="⇑" label="Align T" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("top")} />
             <RibbonButton icon="⇕" label="Center Y" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("center-y")} />
             <RibbonButton icon="⇓" label="Align B" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("bottom")} />
-            <RibbonButton icon="⇅" label="Dist H" disabled={!canArrange || !onDistribute} onClick={() => onDistribute?.("horizontal")} />
-            <RibbonButton icon="⇳" label="Dist V" disabled={!canArrange || !onDistribute} onClick={() => onDistribute?.("vertical")} />
+            <RibbonButton icon="⇅" label="Dist H" disabled={!canDistribute || !onDistribute} onClick={() => onDistribute?.("horizontal")} />
+            <RibbonButton icon="⇳" label="Dist V" disabled={!canDistribute || !onDistribute} onClick={() => onDistribute?.("vertical")} />
           </div>
           <span className="ribbon-group-label">Arrange</span>
         </div>

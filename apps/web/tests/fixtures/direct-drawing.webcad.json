@@ -1,0 +1,25 @@
+{
+  "format": "agent-webcad",
+  "version": 1,
+  "document": {
+    "id": "direct-drawing-qa",
+    "revision": 0,
+    "objects": {
+      "polyline": { "id": "polyline", "geometryId": "geometry-polyline", "name": "Polyline", "visible": true, "layerId": "layer-default", "transform": { "translation": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1] } },
+      "rectangle": { "id": "rectangle", "geometryId": "geometry-rectangle", "name": "Rectangle", "visible": true, "layerId": "layer-default", "transform": { "translation": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1] } },
+      "circle": { "id": "circle", "geometryId": "geometry-circle", "name": "Circle", "visible": true, "layerId": "layer-default", "transform": { "translation": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1] } },
+      "arc": { "id": "arc", "geometryId": "geometry-arc", "name": "Arc", "visible": true, "layerId": "layer-default", "transform": { "translation": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1] } }
+    },
+    "features": {
+      "feature-polyline": { "id": "feature-polyline", "type": "drawing", "inputs": [], "output": "polyline", "params": { "kind": "polyline", "workPlane": "XY", "points": [[-80, -50, 0], [-40, -20, 0], [0, -50, 0]] } },
+      "feature-rectangle": { "id": "feature-rectangle", "type": "drawing", "inputs": [], "output": "rectangle", "params": { "kind": "rectangle", "workPlane": "XY", "points": [[20, -50, 0], [60, -50, 0], [60, -10, 0], [20, -10, 0]] } },
+      "feature-circle": { "id": "feature-circle", "type": "drawing", "inputs": [], "output": "circle", "params": { "kind": "circle", "workPlane": "XY", "center": [-40, 40, 0], "radius": 20 } },
+      "feature-arc": { "id": "feature-arc", "type": "drawing", "inputs": [], "output": "arc", "params": { "kind": "arc", "workPlane": "XY", "center": [40, 40, 0], "radius": 20, "startAngle": 0, "endAngle": 3.141592653589793 } }
+    },
+    "layers": {
+      "layer-default": { "id": "layer-default", "name": "Default", "visible": true, "locked": false, "objectIds": ["polyline", "rectangle", "circle", "arc"] }
+    },
+    "rootObjects": ["polyline", "rectangle", "circle", "arc"],
+    "rootLayers": ["layer-default"]
+  }
+}

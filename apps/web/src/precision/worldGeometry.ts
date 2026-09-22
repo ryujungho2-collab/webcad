@@ -13,7 +13,23 @@ export type WorldDrawingGeometry = {
   startAngle?: number;
   endAngle?: number;
   uniformScale: boolean;
+  planeAligned: boolean;
 };
+
+export function drawingPlaneScale(
+  scale: [number, number, number],
+  plane: WorkPlaneId,
+) {
+  const [first, second] = plane === "XZ" ? [0, 2] : plane === "YZ" ? [1, 2] : [0, 1];
+  const firstScale = scale[first];
+  const secondScale = scale[second];
+  const magnitude = Math.abs(firstScale);
+  return {
+    uniform: magnitude > 1e-9 && Math.abs(magnitude - Math.abs(secondScale)) < 1e-9,
+    magnitude,
+    orientation: Math.sign(firstScale * secondScale) || 1,
+  };
+}
 
 function sampleDrawing(feature: CadFeature, plane: WorkPlaneId): { points?: Vec3[]; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number } {
   const params = feature.params as Record<string, unknown>;
@@ -47,6 +63,20 @@ export function getWorldDrawingGeometry(object: CadObject, feature: CadFeature):
   const matrix = new THREE.Matrix4().compose(origin.clone().add(new THREE.Vector3(...transform.translation)), rotation, new THREE.Vector3(...transform.scale)).multiply(new THREE.Matrix4().makeTranslation(-origin.x, -origin.y, -origin.z));
   const points = localPoints.map((point) => new THREE.Vector3(...point).applyMatrix4(matrix).toArray() as Vec3);
   const center = local.center ? new THREE.Vector3(...local.center).applyMatrix4(matrix).toArray() as Vec3 : undefined;
-  const uniformScale = Math.abs(Math.abs(transform.scale[0]) - Math.abs(transform.scale[1])) < 1e-9 && Math.abs(Math.abs(transform.scale[1]) - Math.abs(transform.scale[2])) < 1e-9;
-  return { objectId: object.id, kind, workPlane: plane, points, center, radius: local.radius !== undefined && uniformScale ? local.radius * Math.abs(transform.scale[0]) : undefined, startAngle: local.startAngle, endAngle: local.endAngle, uniformScale };
+  const planeScale = drawingPlaneScale(transform.scale, plane);
+  const sourceNormal = new THREE.Vector3(...WORK_PLANES[plane].normal).normalize();
+  const transformedNormal = sourceNormal.clone().applyQuaternion(rotation).normalize();
+  const planeAligned = Math.abs(Math.abs(transformedNormal.dot(sourceNormal)) - 1) < 1e-9;
+  return {
+    objectId: object.id,
+    kind,
+    workPlane: plane,
+    points,
+    center,
+    radius: local.radius !== undefined && planeScale.uniform ? local.radius * planeScale.magnitude : undefined,
+    startAngle: local.startAngle,
+    endAngle: local.endAngle,
+    uniformScale: planeScale.uniform,
+    planeAligned,
+  };
 }

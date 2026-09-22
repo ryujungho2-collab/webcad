@@ -1,20 +1,22 @@
 ﻿
 import { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
 import { cadDocument } from "../state/cadDocument";
 import { dispatchCadCommand } from "../state/dispatchCadCommand";
 import { getObjectTransform } from "../state/objectTransform";
+import { planBulkTransformEdit } from "../state/selectionCommands";
 import { NumericField } from "../ui/NumericField";
 import { validateBooleanOperation } from "../viewport/kernelGeometryService";
 import { measureDrawing } from "../precision/measurements";
 import { formatLength } from "../precision/units";
-import { selectionBounds } from "../state/selection";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
+import type { TopologySelectionRef } from "../state/selection";
 
 type PropertiesPanelProps = {
   documentRevision: number;
   selectedObjectId: string | null;
   selectedObjectIds?: string[];
+  isolationActive?: boolean;
+  selectedSubObjects?: TopologySelectionRef[];
   selectedLayerId: string;
   onDocumentChange: () => void;
   onDuplicate: () => void;
@@ -23,6 +25,13 @@ type PropertiesPanelProps = {
   onIsolate: () => void;
   onShowAll: () => void;
   onBooleanCreated: (objectId: string) => void;
+  offsetDistance?: string;
+  onOffsetDistanceChange?: (value: string) => void;
+  offsetSide?: "left" | "right";
+  onOffsetSideChange?: (value: "left" | "right") => void;
+  offsetActive?: boolean;
+  onOffsetStart?: () => void;
+  onOffsetCancel?: () => void;
 };
 
 type PrimitiveDraft = Record<string, string>;
@@ -49,11 +58,16 @@ const primitiveFields: Record<string, { key: string; label: string }[]> = {
 const emptyTransformDraft: TransformDraft = {
   x: "", y: "", z: "", rx: "", ry: "", rz: "", sx: "", sy: "", sz: "",
 };
+const transformEpsilon = 1e-9;
+const changedVector = (next: [number, number, number], current: [number, number, number]) =>
+  next.some((value, index) => Math.abs(value - current[index]) > transformEpsilon);
 
 export function PropertiesPanel({
   documentRevision,
   selectedObjectId,
   selectedObjectIds = selectedObjectId ? [selectedObjectId] : [],
+  isolationActive = false,
+  selectedSubObjects = [],
   selectedLayerId,
   onDocumentChange,
   onDuplicate,
@@ -62,6 +76,13 @@ export function PropertiesPanel({
   onIsolate,
   onShowAll,
   onBooleanCreated,
+  offsetDistance: offsetDistanceProp,
+  onOffsetDistanceChange,
+  offsetSide = "left",
+  onOffsetSideChange,
+  offsetActive = false,
+  onOffsetStart,
+  onOffsetCancel,
 }: PropertiesPanelProps) {
   const object = selectedObjectId ? cadDocument.objects[selectedObjectId] : null;
   const selectedObjects = selectedObjectIds.map((id) => cadDocument.objects[id]).filter(Boolean);
@@ -93,6 +114,9 @@ export function PropertiesPanel({
   const [booleanToolId, setBooleanToolId] = useState("");
   const [booleanError, setBooleanError] = useState("");
   const [transformDraft, setTransformDraft] = useState<TransformDraft>(emptyTransformDraft);
+  const [offsetDistanceLocal, setOffsetDistanceLocal] = useState("10");
+  const offsetDistance = offsetDistanceProp ?? offsetDistanceLocal;
+  const setOffsetDistance = (value: string) => { setOffsetDistanceLocal(value); onOffsetDistanceChange?.(value); };
   const visibilityInputRef = useRef<HTMLInputElement>(null);
   const allVisible = selectedObjects.length > 0 && selectedObjects.every((entry) => entry.visible);
 
@@ -104,16 +128,27 @@ export function PropertiesPanel({
     setName(object?.name ?? "");
     if (object) {
       const transform = getObjectTransform(object, feature);
+      const transformValues = {
+        x: mixed(selectedTransforms.map((t) => t.translation[0])),
+        y: mixed(selectedTransforms.map((t) => t.translation[1])),
+        z: mixed(selectedTransforms.map((t) => t.translation[2])),
+        rx: mixed(selectedTransforms.map((t) => t.rotation[0])),
+        ry: mixed(selectedTransforms.map((t) => t.rotation[1])),
+        rz: mixed(selectedTransforms.map((t) => t.rotation[2])),
+        sx: mixed(selectedTransforms.map((t) => t.scale[0])),
+        sy: mixed(selectedTransforms.map((t) => t.scale[1])),
+        sz: mixed(selectedTransforms.map((t) => t.scale[2])),
+      };
       setTransformDraft({
-        x: String(transform.translation[0]),
-        y: String(transform.translation[1]),
-        z: String(transform.translation[2]),
-        rx: String(transform.rotation[0]),
-        ry: String(transform.rotation[1]),
-        rz: String(transform.rotation[2]),
-        sx: String(transform.scale[0]),
-        sy: String(transform.scale[1]),
-        sz: String(transform.scale[2]),
+        x: transformValues.x ? "Mixed" : String(transform.translation[0]),
+        y: transformValues.y ? "Mixed" : String(transform.translation[1]),
+        z: transformValues.z ? "Mixed" : String(transform.translation[2]),
+        rx: transformValues.rx ? "Mixed" : String(transform.rotation[0]),
+        ry: transformValues.ry ? "Mixed" : String(transform.rotation[1]),
+        rz: transformValues.rz ? "Mixed" : String(transform.rotation[2]),
+        sx: transformValues.sx ? "Mixed" : String(transform.scale[0]),
+        sy: transformValues.sy ? "Mixed" : String(transform.scale[1]),
+        sz: transformValues.sz ? "Mixed" : String(transform.scale[2]),
       });
     } else {
       setTransformDraft(emptyTransformDraft);
@@ -124,7 +159,7 @@ export function PropertiesPanel({
     }
     setPrimitiveDraft(Object.fromEntries(Object.entries(feature.params).filter(([key]) => key !== "kind").map(([key, value]) => [key, String(value)])));
     setBooleanToolId("");
-  }, [selectedObjectId, documentRevision]);
+  }, [selectedObjectId, selectedObjectIds.join("\0"), documentRevision]);
 
   async function commitName() {
     if (!object || isLocked) return;
@@ -177,44 +212,41 @@ export function PropertiesPanel({
     });
     if (!allEditable) return;
     const group = selectedObjects.length > 1;
+    if (group) {
+      const keys = kind === "move"
+        ? ["x", "y", "z"] as const
+        : kind === "rotate"
+          ? ["rx", "ry", "rz"] as const
+          : ["sx", "sy", "sz"] as const;
+      const values = keys.map((key) => {
+        const draft = transformDraft[key];
+        if (draft === "Mixed" || draft.trim() === "") return null;
+        const value = Number(draft);
+        return Number.isFinite(value) ? value : Number.NaN;
+      }) as [number | null, number | null, number | null];
+      const commands = planBulkTransformEdit(
+        cadDocument,
+        selectedObjects.map((entry) => entry.id),
+        kind === "move" ? "translate" : kind,
+        values,
+      );
+      if (!commands) return;
+      if (commands.length) await dispatchCadCommand({ type: "batch", commands });
+      onDocumentChange();
+      return;
+    }
     if (kind === "scale") {
       const keys = ["sx", "sy", "sz"] as const;
       const scale = keys.map((key, index) => { const value = Number(transformDraft[key]); return Number.isFinite(value) ? value : current.scale[index]; }) as [number, number, number];
       if (scale.some((value) => value <= 0)) return;
-      if (!group) await dispatchCadCommand({ type: "scale-object", objectId: object.id, scale });
-      else {
-        const factor: [number, number, number] = [scale[0] / current.scale[0], scale[1] / current.scale[1], scale[2] / current.scale[2]];
-        const bounds = selectionBounds({ ids: selectedObjects.map((entry) => entry.id), primaryId: object.id });
-        if (!bounds || factor.some((v) => !Number.isFinite(v) || v <= 0)) return;
-        const pivot = new THREE.Vector3((bounds.min[0] + bounds.max[0]) / 2, (bounds.min[1] + bounds.max[1]) / 2, (bounds.min[2] + bounds.max[2]) / 2);
-        const commands = selectedObjects.flatMap((entry) => {
-          const f = Object.values(cadDocument.features).find((candidate) => candidate.output === entry.id);
-          const t = getObjectTransform(entry, f); const p = new THREE.Vector3(...t.translation).sub(pivot).multiply(new THREE.Vector3(...factor)).add(pivot);
-          return [{ type: "move-object" as const, objectId: entry.id, translation: p.toArray() as [number, number, number] }, { type: "scale-object" as const, objectId: entry.id, scale: [t.scale[0] * factor[0], t.scale[1] * factor[1], t.scale[2] * factor[2]] as [number, number, number] }];
-        });
-        await dispatchCadCommand({ type: "batch", commands });
-      }
+      await dispatchCadCommand({ type: "scale-object", objectId: object.id, scale });
     } else {
       const keys = kind === "move" ? ["x", "y", "z"] as const : ["rx", "ry", "rz"] as const;
       const fallback = kind === "move" ? current.translation : current.rotation;
       const values = keys.map((key, index) => { const value = Number(transformDraft[key]); return Number.isFinite(value) ? value : fallback[index]; }) as [number, number, number];
-      // A mixed field is a presentation state. Blurring it without entering a
-      // replacement value must not silently overwrite the group with the
-      // primary object's value.
-      if (keys.some((key) => transformDraft[key] === "Mixed")) return;
-      if (!group) await dispatchCadCommand({ type: kind === "move" ? "move-object" : "rotate-object", objectId: object.id, [kind === "move" ? "translation" : "rotation"]: values } as never);
-      else {
-        const bounds = selectionBounds({ ids: selectedObjects.map((entry) => entry.id), primaryId: object.id }); if (!bounds) return;
-        const pivot = new THREE.Vector3((bounds.min[0] + bounds.max[0]) / 2, (bounds.min[1] + bounds.max[1]) / 2, (bounds.min[2] + bounds.max[2]) / 2);
-        const delta = kind === "move" ? values.map((v, i) => v - current.translation[i]) as [number, number, number] : values.map((v, i) => v - current.rotation[i]) as [number, number, number];
-        const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(...delta.map((v) => v * Math.PI / 180) as [number, number, number]));
-        const commands = selectedObjects.flatMap((entry) => {
-          const f = Object.values(cadDocument.features).find((candidate) => candidate.output === entry.id); const t = getObjectTransform(entry, f);
-          const p = new THREE.Vector3(...t.translation); if (kind === "move") p.add(new THREE.Vector3(...delta)); else p.sub(pivot).applyQuaternion(q).add(pivot);
-          return [{ type: "move-object" as const, objectId: entry.id, translation: p.toArray() as [number, number, number] }, ...(kind === "rotate" ? [{ type: "rotate-object" as const, objectId: entry.id, rotation: [t.rotation[0] + delta[0], t.rotation[1] + delta[1], t.rotation[2] + delta[2]] as [number, number, number] }] : [])];
-        });
-        await dispatchCadCommand({ type: "batch", commands });
-      }
+      // Mixed fields retain each member's current value. This lets a user edit
+      // one axis (for example X) without overwriting unrelated mixed axes.
+      await dispatchCadCommand({ type: kind === "move" ? "move-object" : "rotate-object", objectId: object.id, [kind === "move" ? "translation" : "rotation"]: values } as never);
     }
     onDocumentChange();
   }
@@ -224,7 +256,8 @@ export function PropertiesPanel({
       const layer = cadDocument.layers[entry.layerId];
       return !entry.visible || !layer?.visible || Boolean(layer.locked);
     })) return;
-    await dispatchCadCommand({ type: "batch", commands: selectedObjects.map((entry) => ({ type: "move-object-to-layer", objectId: entry.id, layerId })) });
+    const commands = selectedObjects.filter((entry) => entry.layerId !== layerId).map((entry) => ({ type: "move-object-to-layer" as const, objectId: entry.id, layerId }));
+    if (commands.length) await dispatchCadCommand({ type: "batch", commands });
     onDocumentChange();
   }
 
@@ -233,7 +266,20 @@ export function PropertiesPanel({
       const layer = cadDocument.layers[entry.layerId];
       return Boolean(layer?.locked);
     })) return;
-    await dispatchCadCommand({ type: "batch", commands: selectedObjects.map((entry) => ({ type: "set-object-visible", objectId: entry.id, visible })) });
+    const commands = selectedObjects.filter((entry) => entry.visible !== visible).map((entry) => ({ type: "set-object-visible" as const, objectId: entry.id, visible }));
+    if (commands.length) await dispatchCadCommand({ type: "batch", commands });
+    onDocumentChange();
+  }
+
+  async function commitOffset() {
+    if (!object || !isDrawing || isLocked || selectedObjects.length !== 1) return;
+    const distance = Number(offsetDistance);
+    if (!Number.isFinite(distance) || distance <= 1e-9) return;
+    const id = await dispatchCadCommand({ type: "offset-drawing", objectId: object.id, distance, side: offsetSide });
+    if (typeof id === "string") {
+      onOffsetCancel?.();
+      onBooleanCreated(id);
+    }
     onDocumentChange();
   }
 
@@ -265,10 +311,22 @@ export function PropertiesPanel({
 
       <section className="property-section">
         <h3>Identity</h3>
-        <label className="property-row"><span>Name</span><input disabled={isLocked} value={name} onChange={(event) => setName(event.target.value)} onBlur={() => void commitName()} onKeyDown={(event) => event.key === "Enter" && event.currentTarget.blur()} /></label>
-        <div className="property-row"><span>Type</span><strong>{isPrimitive ? `Primitive / ${primitiveKind[0].toUpperCase()}${primitiveKind.slice(1)}` : isDrawing ? `Drawing / ${String(feature.params.kind)}` : feature?.type === "boolean" ? "Feature / Boolean" : "BRep body"}</strong></div>
-        <div className="property-row" title={object.id}><span>ID</span><code>{object.id}</code></div>
+        {selectedObjects.length === 1 ? <>
+          <label className="property-row"><span>Name</span><input disabled={isLocked} value={name} onChange={(event) => setName(event.target.value)} onBlur={() => void commitName()} onKeyDown={(event) => event.key === "Enter" && event.currentTarget.blur()} /></label>
+          <div className="property-row"><span>Type</span><strong>{isPrimitive ? `Primitive / ${primitiveKind[0].toUpperCase()}${primitiveKind.slice(1)}` : isDrawing ? `Drawing / ${String(feature.params.kind)}` : feature?.type === "boolean" ? "Feature / Boolean" : "BRep body"}</strong></div>
+          <div className="property-row" title={object.id}><span>ID</span><code>{object.id}</code></div>
+        </> : <>
+          <div className="property-row"><span>Selection</span><strong>{selectedObjects.length} objects</strong></div>
+          <div className="property-row"><span>Primary</span><strong>{object.name}</strong></div>
+        </>}
       </section>
+
+      {selectedSubObjects.length > 0 && (
+        <section className="property-section">
+          <h3>Direct selection <small>{selectedSubObjects.length}</small></h3>
+          {selectedSubObjects.map((entry) => <div className="property-row" key={`${entry.objectId}:${entry.kind}:${entry.topologyId}`}><span>{entry.kind === "drawing-control" ? "Vertex" : entry.kind === "drawing-segment" ? "Segment" : entry.kind === "drawing-curve" ? "Curve" : entry.kind}</span><code>{entry.topologyId}</code></div>)}
+        </section>
+      )}
 
       <section className="property-section">
         <h3>General</h3>
@@ -279,7 +337,7 @@ export function PropertiesPanel({
         <label className="property-row"><span>Visible</span><input ref={visibilityInputRef} className={mixedVisible ? "property-toggle property-toggle-mixed" : "property-toggle"} type="checkbox" checked={allVisible} onChange={(event) => void setVisibility(event.target.checked)} /></label>
       </section>
 
-      {isPrimitive && (
+      {isPrimitive && selectedObjects.length === 1 && (
         <>
           <section className="property-section">
             <h3>Dimensions <small>mm</small></h3>
@@ -290,7 +348,7 @@ export function PropertiesPanel({
         </>
       )}
 
-      {isDrawing && (
+      {isDrawing && selectedObjects.length === 1 && (
         <section className="property-section">
           <h3>Geometry <small>{String(feature.params.workPlane ?? "XY")} plane</small></h3>
           {drawingMeasurements.distance !== undefined && <div className="property-row"><span>{feature.params.kind === "arc" ? "Arc length" : feature.params.kind === "rectangle" || drawingMeasurements.area !== undefined && feature.params.kind === "polyline" ? "Perimeter" : "Length"}</span><strong>{formatLength(drawingMeasurements.distance, "mm", 2)}</strong></div>}
@@ -301,7 +359,18 @@ export function PropertiesPanel({
         </section>
       )}
 
-      {isPrimitive && (
+      {isDrawing && selectedObjects.length === 1 && ["line", "polyline", "rectangle", "circle", "arc"].includes(String(feature.params.kind)) && (
+        <section className="property-section">
+          <h3>Offset <small>mm</small></h3>
+          <NumericField label="Distance" context="Offset" unit="mm" disabled={isLocked || selectedObjects.length !== 1} step="0.1" value={offsetDistance} onChange={setOffsetDistance} />
+          <label className="property-row"><span>Side</span><select value={offsetSide} disabled={isLocked || selectedObjects.length !== 1} onChange={(event) => onOffsetSideChange?.(event.currentTarget.value as "left" | "right")}><option value="left">{feature.params.kind === "circle" || feature.params.kind === "arc" ? "Outside" : "Left of path"}</option><option value="right">{feature.params.kind === "circle" || feature.params.kind === "arc" ? "Inside" : "Right of path"}</option></select></label>
+          <div className="property-actions"><button type="button" disabled={isLocked || selectedObjects.length !== 1} onClick={() => offsetActive ? onOffsetCancel?.() : onOffsetStart?.()}>{offsetActive ? "Cancel offset" : "Preview offset"}</button><button type="button" disabled={isLocked || selectedObjects.length !== 1 || !offsetActive} onClick={() => void commitOffset()}>Commit</button></div>
+          <p className="property-hint">Move the pointer across the profile to choose side, then Commit.</p>
+        </section>
+      )}
+
+
+      {isPrimitive && selectedObjects.length === 1 && (
         <section className="property-section">
           <h3>Boolean <small>Consumes target + tool</small></h3>
           <label className="property-row"><span>Tool</span><select disabled={isLocked} value={booleanToolId} onChange={(event) => setBooleanToolId(event.target.value)}><option value="">Choose primitive…</option>{cadDocument.rootObjects.filter((id) => id !== object.id).map((id) => {
@@ -316,21 +385,21 @@ export function PropertiesPanel({
       <section className="property-section">
         <h3>Position <small>World · mm</small></h3>
         {(["x", "y", "z"] as const).map((key) => (
-          <NumericField key={key} label={key.toUpperCase()} context="Position" unit="mm" disabled={isLocked} step="0.1" mixed={mixed(selectedTransforms.map((t) => t.translation[["x","y","z"].indexOf(key)]))} value={mixed(selectedTransforms.map((t) => t.translation[["x","y","z"].indexOf(key)])) ? "Mixed" : transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("move")} />
+          <NumericField key={key} label={key.toUpperCase()} context="Position" unit="mm" disabled={isLocked} step="0.1" mixed={mixed(selectedTransforms.map((t) => t.translation[["x","y","z"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("move")} />
         ))}
       </section>
 
       <section className="property-section">
         <h3>Rotate <small>deg</small></h3>
         {(["rx", "ry", "rz"] as const).map((key) => (
-          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Rotation" unit="°" disabled={isLocked} step="1" mixed={mixed(selectedTransforms.map((t) => t.rotation[["rx","ry","rz"].indexOf(key)]))} value={mixed(selectedTransforms.map((t) => t.rotation[["rx","ry","rz"].indexOf(key)])) ? "Mixed" : transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("rotate")} />
+          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Rotation" unit="°" disabled={isLocked} step="1" mixed={mixed(selectedTransforms.map((t) => t.rotation[["rx","ry","rz"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("rotate")} />
         ))}
       </section>
 
       <section className="property-section">
         <h3>Scale <small>factor</small></h3>
         {(["sx", "sy", "sz"] as const).map((key) => (
-          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Scale" unit="×" disabled={isLocked} min="0.001" step="0.1" mixed={mixed(selectedTransforms.map((t) => t.scale[["sx","sy","sz"].indexOf(key)]))} value={mixed(selectedTransforms.map((t) => t.scale[["sx","sy","sz"].indexOf(key)])) ? "Mixed" : transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("scale")} />
+          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Scale" unit="×" min="0.001" disabled={isLocked} step="0.1" mixed={mixed(selectedTransforms.map((t) => t.scale[["sx","sy","sz"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("scale")} />
         ))}
       </section>
 
@@ -340,7 +409,7 @@ export function PropertiesPanel({
       </div>
       <div className="property-actions property-visibility-actions">
         <button type="button" onClick={onHide}>Hide</button>
-        <button type="button" onClick={onIsolate}>Isolate</button>
+        <button type="button" onClick={onIsolate}>{isolationActive ? "Exit Isolation" : "Isolate"}</button>
         <button type="button" onClick={onShowAll}>Show all</button>
       </div>
     </div>

@@ -166,6 +166,11 @@ button.tree-root:hover { background: #1d232b; }
 .cad-viewport { position: absolute; inset: 0; width: 100%; height: 100%; }
 .cad-viewport canvas { display: block; width: 100% !important; height: 100% !important; }
 .cad-tool-readout { position: absolute; z-index: 3; left: 50%; bottom: 42px; transform: translateX(-50%); padding: 5px 8px; border: 1px solid #40515d; border-radius: 3px; background: #111820ee; color: #9ee8da; font: 10px/1.2 var(--font-ui, sans-serif); letter-spacing: .02em; pointer-events: none; }
+.cad-selection-box { position: absolute; z-index: 4; pointer-events: none; border: 1px solid #5b9dff; background: #4f8cff22; }
+.cad-selection-box-crossing { border-color: #65d6ad; border-style: dashed; background: #43c59e20; }
+.cad-context-menu { position: absolute; z-index: 8; min-width: 132px; padding: 4px; border: 1px solid #354552; border-radius: 3px; background: #151b22; box-shadow: 0 5px 16px #0008; }
+.cad-context-menu button { display: block; width: 100%; padding: 5px 8px; border: 0; background: transparent; color: #c9d5df; text-align: left; font: 11px/1.2 var(--font-ui, sans-serif); cursor: pointer; }
+.cad-context-menu button:hover { background: #2b3d4b; color: #fff; }
 .workspace-switch { display: inline-flex; margin-left: 12px; border: 1px solid #34414b; border-radius: 3px; overflow: hidden; vertical-align: middle; }
 .workspace-switch button { border: 0; border-right: 1px solid #34414b; padding: 3px 8px; background: #151b21; color: #82909c; font: 10px var(--font-ui, sans-serif); cursor: pointer; }
 .workspace-switch button:last-child { border-right: 0; }

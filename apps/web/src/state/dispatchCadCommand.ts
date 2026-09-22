@@ -41,7 +41,7 @@ export async function dispatchCadCommand(
     end: performance.now(),
     detail: { changed: cadDocument.revision !== revisionBefore },
   });
-  if (import.meta.env.DEV) {
+  if ((import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV) {
     console.info("[agent-webcad:perf]", JSON.stringify({
       command: command.type,
       changed: cadDocument.revision !== revisionBefore,

@@ -1,0 +1,21 @@
+{
+  "format": "agent-webcad",
+  "version": 1,
+  "document": {
+    "id": "extend-line-qa",
+    "revision": 0,
+    "objects": {
+      "boundary": { "id": "boundary", "geometryId": "geometry-boundary", "name": "Boundary", "visible": true, "layerId": "layer-default", "transform": { "translation": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1] } },
+      "extend-target": { "id": "extend-target", "geometryId": "geometry-extend-target", "name": "Extend Target", "visible": true, "layerId": "layer-default", "transform": { "translation": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1] } }
+    },
+    "features": {
+      "feature-boundary": { "id": "feature-boundary", "type": "drawing", "inputs": [], "output": "boundary", "params": { "kind": "line", "workPlane": "XY", "points": [[30, -60, 0], [30, 60, 0]] } },
+      "feature-extend-target": { "id": "feature-extend-target", "type": "drawing", "inputs": [], "output": "extend-target", "params": { "kind": "line", "workPlane": "XY", "points": [[-80, 0, 0], [0, 0, 0]] } }
+    },
+    "layers": {
+      "layer-default": { "id": "layer-default", "name": "Default", "visible": true, "locked": false, "objectIds": ["boundary", "extend-target"] }
+    },
+    "rootObjects": ["boundary", "extend-target"],
+    "rootLayers": ["layer-default"]
+  }
+}

@@ -46,6 +46,14 @@ export function validateCommand(command: unknown): command is CadCommand {
         (command.layerId === undefined || isString(command.layerId));
     case "edit-drawing-control":
       return isString(command.objectId) && isString(command.controlId) && isVector3(command.point);
+    case "edit-drawing-segment":
+      return isString(command.objectId) && isString(command.segmentId) && isVector3(command.delta);
+    case "offset-drawing":
+      return isString(command.objectId) && isFiniteNumber(command.distance) && command.distance > 1e-9 &&
+        (command.side === undefined || command.side === "left" || command.side === "right");
+    case "trim-drawing":
+    case "extend-drawing":
+      return isString(command.targetId) && isString(command.cutterId) && command.targetId !== command.cutterId && isVector3(command.pickPoint);
     case "create-primitive":
       return isString(command.primitive) && ["box", "cylinder", "sphere", "cone", "torus"].includes(command.primitive as string) &&
         isRecord(command.params) && Object.values(command.params).every((value) => isFiniteNumber(value) && value > 0) &&

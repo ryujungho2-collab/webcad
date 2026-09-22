@@ -17,6 +17,7 @@ type AppShellProps = {
   activeLayerName: string;
   selectedObjectId: string | null;
   selectedObjectIds: string[];
+  isolationActive?: boolean;
   canUndo: boolean;
   canRedo: boolean;
   canCreateBox: boolean;
@@ -24,6 +25,9 @@ type AppShellProps = {
   canDelete: boolean;
   canTransform: boolean;
   canArrange: boolean;
+  canDistribute: boolean;
+  canTrim?: boolean;
+  lineEditTool?: "trim" | "extend" | null;
   isModified: boolean;
   projectionMode: "perspective" | "orthographic";
   gridVisible: boolean;
@@ -61,6 +65,7 @@ type AppShellProps = {
   onToggleGrid: () => void;
   onAlign?: (mode: "left" | "center-x" | "right" | "top" | "center-y" | "bottom") => void;
   onDistribute?: (axis: "horizontal" | "vertical") => void;
+  onLineEditTool?: (mode: "trim" | "extend") => void;
   onUndo: () => void;
   onRedo: () => void;
   onNew: () => void;
@@ -76,7 +81,10 @@ export function AppShell(props: AppShellProps) {
   const [propertiesCollapsed, setPropertiesCollapsed] = useState(false);
 
   function changeActivity(activity: ActivityId) {
-    setExplorerCollapsed((collapsed) => !collapsed);
+    // A different activity is a navigation request and must reveal its panel.
+    // Clicking the already-active activity is the compact CAD/VS Code-style
+    // shortcut for toggling the Explorer without hunting for the edge button.
+    setExplorerCollapsed((collapsed) => activity === props.activeActivity ? !collapsed : false);
     props.onChangeActivity(activity);
   }
 
@@ -103,11 +111,15 @@ export function AppShell(props: AppShellProps) {
         canUndo={props.canUndo}
         canRedo={props.canRedo}
         hasSelection={Boolean(props.selectedObjectId)}
+        isolationActive={props.isolationActive}
         canCreateBox={props.canCreateBox}
         canDuplicate={props.canDuplicate}
         canDelete={props.canDelete}
         canTransform={props.canTransform}
         canArrange={props.canArrange}
+        canDistribute={props.canDistribute}
+        canTrim={props.canTrim}
+        lineEditTool={props.lineEditTool}
         projectionMode={props.projectionMode}
         gridVisible={props.gridVisible}
         transformMode={props.transformMode}
@@ -145,6 +157,7 @@ export function AppShell(props: AppShellProps) {
         onToggleGrid={props.onToggleGrid}
         onAlign={props.onAlign}
         onDistribute={props.onDistribute}
+        onLineEditTool={props.onLineEditTool}
       />
 
       <div className={`workbench${explorerCollapsed ? " explorer-collapsed" : ""}${propertiesCollapsed ? " properties-collapsed" : ""}`}>
@@ -168,7 +181,7 @@ export function AppShell(props: AppShellProps) {
           <div className="view-triad" aria-label="World axes">
             <span className="axis-z">Z</span><span className="axis-y">Y</span><span className="axis-x">X</span><i />
           </div>
-          <div className="navigation-hint"><span>Orbit</span> LMB <b>·</b> <span>Pan</span> RMB <b>·</b> <span>Zoom</span> wheel <b>·</b> <span>G / R / S</span> transform <b>·</b> <span>Esc</span> cancel</div>
+          <div className="navigation-hint"><span>Select</span> LMB <b>·</b> <span>Orbit</span> MMB <b>·</b> <span>Pan</span> Shift+MMB <b>·</b> <span>Zoom</span> wheel <b>·</b> <span>G / R / S</span> transform <b>·</b> <span>Esc</span> cancel</div>
         </section>
 
         <aside className="workbench-properties">{props.properties}</aside>
