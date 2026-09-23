@@ -1,11 +1,16 @@
 node_modules/
 dist/
 coverage/
+
+# Logs / build-debug output
 *.log
-.DS_Store
-*.tsbuildinfo
 *-errors.txt
-*.backup.css
-*.tsbuildinfo
+
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Temporary / backup files
+*.backup.css
+
+# OS metadata
+.DS_Store
