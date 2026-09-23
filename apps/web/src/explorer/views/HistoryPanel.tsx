@@ -3,6 +3,7 @@ import { cadHistory } from "../../state/history";
 type HistoryPanelProps = { query: string };
 
 const labels: Record<string, string> = {
+  "batch": "Batch operation",
   "create-box": "Create box",
   "create-drawing": "Create drawing entity",
   "create-primitive": "Create primitive",

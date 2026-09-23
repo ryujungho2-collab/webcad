@@ -1,3 +1,4 @@
+import type { CadDocument } from "@agent-webcad/cad-document";
 import { cadDocument } from "./cadDocument";
 
 export type TopologySelectionKind = "object" | "drawing-control" | "drawing-segment" | "drawing-curve" | "brep-edge" | "brep-face";
@@ -14,6 +15,26 @@ export function reduceSelection(state: SelectionState, objectId: string | null, 
   if (!additive) return { ids: [objectId], primaryId: objectId, subObjects: [] };
   const ids = state.ids.includes(objectId) ? state.ids.filter((id) => id !== objectId) : [...state.ids, objectId];
   return { ids, primaryId: ids.includes(objectId) ? objectId : (ids.at(-1) ?? null), subObjects: state.subObjects?.filter((entry) => ids.includes(entry.objectId)) ?? [] };
+}
+
+/**
+ * Every id Ctrl/Cmd+A may claim. Visible objects on visible, unlocked layers
+ * only; scoped to the active sketch's geometry while sketch editing so the
+ * shortcut never yanks the user out of sketch mode. Never dispatches a
+ * command and never mutates the document.
+ */
+export function selectAllIds(document: CadDocument, activeSketchId?: string | null): string[] {
+  const isSelectable = (id: string) => {
+    const object = document.objects[id];
+    const layer = object ? document.layers[object.layerId] : undefined;
+    return Boolean(object?.visible && layer?.visible && !layer.locked);
+  };
+  if (activeSketchId) {
+    const sketch = document.sketches?.[activeSketchId];
+    if (!sketch) return [];
+    return sketch.geometry.map((entry) => entry.id).filter(isSelectable);
+  }
+  return document.rootObjects.filter(isSelectable);
 }
 
 export function validSelection(state: SelectionState): SelectionState {

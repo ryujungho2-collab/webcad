@@ -7,7 +7,7 @@ import { StatusBar } from "../status/StatusBar";
 import type { DrawingTool, MeasurementTool, PointMeasurement, TransformMode, ViewportActionType } from "../viewport/CadViewport";
 import type { WorkPlaneId } from "../precision/workPlane";
 import type { WorkspaceMode } from "../viewport/workspaceTransition";
-import type { KernelStatus } from "../viewport/kernelGeometryService";
+import type { KernelStatus } from "../cad/kernelGeometryService";
 
 type AppShellProps = {
   activeActivity: ActivityId;
@@ -47,7 +47,7 @@ type AppShellProps = {
   kernelStatus: KernelStatus;
   onChangeActivity: (activity: ActivityId) => void;
   onSelectLayer: (layerId: string) => void;
-  onSelectObject: (objectId: string, additive?: boolean) => void;
+  onSelectObject: (objectId: string | null, additive?: boolean) => void;
   onDocumentChange: () => void;
   onCreateBox: () => void;
   onCreatePrimitive: (primitive: "cylinder" | "sphere" | "cone" | "torus") => void;

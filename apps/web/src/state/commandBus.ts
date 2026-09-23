@@ -11,7 +11,7 @@ import { registerDrawingCommandHandlers } from "./registerDrawingCommandHandlers
 import { registerSketchCommandHandlers } from "./registerSketchCommandHandlers";
 import { createDrawingTopology } from "../precision/drawingTopology";
 import { extractSketchLoops } from "../precision/sketchProfiles";
-import { validateExtrudeOperation } from "../viewport/kernelGeometryService";
+import { validateBooleanOperation, validateExtrudeOperation } from "../cad/kernelGeometryService";
 
 export const commandBus =
   new CommandBus();
@@ -844,6 +844,13 @@ commandBus.registerHandler(
       params: structuredClone((index === 0 ? targetFeature : toolFeature).params),
       transform: structuredClone(getObjectTransform(object, index === 0 ? targetFeature : toolFeature)),
     }));
+    try {
+      await validateBooleanOperation({ operation: command.operation, operands });
+    } catch {
+      // Kernel validation is authoritative at the command boundary. UI
+      // preflight remains an optional responsiveness optimization only.
+      return;
+    }
     for (const object of [target, tool]) {
       const layer = cadDocument.layers[object.layerId];
       if (layer) layer.objectIds = layer.objectIds.filter((objectId) => objectId !== object.id);

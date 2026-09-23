@@ -5,7 +5,7 @@ import { dispatchCadCommand } from "../state/dispatchCadCommand";
 import { getObjectTransform } from "../state/objectTransform";
 import { planBulkTransformEdit } from "../state/selectionCommands";
 import { NumericField } from "../ui/NumericField";
-import { validateBooleanOperation } from "../viewport/kernelGeometryService";
+import { validateBooleanOperation } from "../cad/kernelGeometryService";
 import { measureDrawing } from "../precision/measurements";
 import { formatLength } from "../precision/units";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
@@ -114,9 +114,33 @@ export function PropertiesPanel({
     })()
     : {};
   const primitiveKind = isPrimitive && typeof feature.params.kind === "string" ? feature.params.kind : "box";
-  const fields = primitiveFields[primitiveKind] ?? primitiveFields.box;
+  const selectedPrimitiveKinds = selectedObjects.map((entry) => {
+    const candidate = Object.values(cadDocument.features).find((item) => item.output === entry.id);
+    return candidate?.type === "primitive" && typeof candidate.params.kind === "string" ? candidate.params.kind : null;
+  });
+  const multiPrimitiveKind = selectedObjects.length > 1 && selectedPrimitiveKinds.every((kind) => kind !== null && kind === selectedPrimitiveKinds[0])
+    ? (selectedPrimitiveKinds[0] as string)
+    : null;
+  const effectivePrimitiveKind = multiPrimitiveKind ?? primitiveKind;
+  const fields = primitiveFields[effectivePrimitiveKind] ?? primitiveFields.box;
+  const primitiveFieldMixed = (key: string) => {
+    if (!multiPrimitiveKind) return false;
+    const values = selectedObjects.map((entry) => {
+      const candidate = Object.values(cadDocument.features).find((item) => item.output === entry.id);
+      return candidate?.type === "primitive" ? Number(candidate.params[key]) : Number.NaN;
+    });
+    return values.length > 1 && values.some((value) => value !== values[0]);
+  };
   const objectLayer = object ? cadDocument.layers[object.layerId] : undefined;
   const isLocked = objectLayer?.locked ?? false;
+  const allSelectedEditable = selectedObjects.length > 0 && selectedObjects.every((entry) => {
+    const layer = cadDocument.layers[entry.layerId];
+    return Boolean(entry.visible && layer?.visible && !layer.locked);
+  });
+  // Single selection keeps the exact legacy behavior (primary layer lock).
+  // Multi-selection edits are all-or-nothing batches, so disable them unless
+  // every member is editable.
+  const bulkEditDisabled = selectedObjects.length > 1 ? !allSelectedEditable : isLocked;
   const [name, setName] = useState("");
   const [primitiveDraft, setPrimitiveDraft] = useState<PrimitiveDraft>({});
   const [extrudeDistance, setExtrudeDistance] = useState("10");
@@ -163,6 +187,19 @@ export function PropertiesPanel({
     } else {
       setTransformDraft(emptyTransformDraft);
     }
+    if (multiPrimitiveKind) {
+      const next: PrimitiveDraft = {};
+      for (const { key } of fields) {
+        const values = selectedObjects.map((entry) => {
+          const candidate = Object.values(cadDocument.features).find((item) => item.output === entry.id);
+          return candidate?.type === "primitive" ? candidate.params[key] : undefined;
+        });
+        next[key] = values.every((value) => String(value) === String(values[0])) ? String(values[0] ?? "") : "Mixed";
+      }
+      setPrimitiveDraft(next);
+      setBooleanToolId("");
+      return;
+    }
     if (!feature || feature.type !== "primitive") {
       setPrimitiveDraft({});
       return;
@@ -187,6 +224,37 @@ export function PropertiesPanel({
   }
 
   async function commitPrimitive() {
+    if (multiPrimitiveKind) {
+      const allEditable = selectedObjects.every((entry) => {
+        const layer = cadDocument.layers[entry.layerId];
+        return Boolean(entry.visible && layer?.visible && !layer.locked);
+      });
+      if (!allEditable) return;
+      const edited: Record<string, number> = {};
+      for (const { key } of fields) {
+        const draft = primitiveDraft[key];
+        if (draft === undefined || draft === "Mixed" || draft.trim() === "") continue;
+        const value = Number(draft);
+        if (!Number.isFinite(value) || value <= 0) return;
+        edited[key] = value;
+      }
+      if (Object.keys(edited).length === 0) return;
+      const commands: Array<{ type: "update-primitive"; objectId: string; params: Record<string, number> }> = [];
+      for (const entry of selectedObjects) {
+        const candidate = Object.values(cadDocument.features).find((item) => item.output === entry.id);
+        if (!candidate || candidate.type !== "primitive") return;
+        const current = Object.fromEntries(Object.entries(candidate.params).filter(([key]) => key !== "kind")) as Record<string, number>;
+        const params: Record<string, number> = { ...current, ...edited };
+        const numeric = Object.fromEntries(fields.map(({ key }) => [key, Number(params[key])]));
+        if (Object.values(numeric).some((value) => !Number.isFinite(value) || (value as number) <= 0)) return;
+        if (multiPrimitiveKind === "torus" && numeric.majorRadius <= numeric.minorRadius) return;
+        if (JSON.stringify(current) === JSON.stringify(params)) continue;
+        commands.push({ type: "update-primitive", objectId: entry.id, params });
+      }
+      if (commands.length) await dispatchCadCommand(commands.length === 1 ? commands[0] : { type: "batch", label: `Edit ${commands.length} primitives`, commands });
+      onDocumentChange();
+      return;
+    }
     if (!object || !isPrimitive || isLocked) return;
     const params = Object.fromEntries(fields.map(({ key }) => [key, Number(primitiveDraft[key])]));
     if (Object.values(params).some((value) => !Number.isFinite(value) || value <= 0) || (primitiveKind === "torus" && params.majorRadius <= params.minorRadius)) {
@@ -242,7 +310,11 @@ export function PropertiesPanel({
       values,
     );
     if (!commands) return;
-    if (commands.length) await dispatchCadCommand(selectedObjects.length > 1 ? { type: "batch", commands } : commands[0]);
+    if (commands.length) await dispatchCadCommand(selectedObjects.length > 1 ? {
+      type: "batch",
+      label: `${kind === "move" ? "Move" : kind === "rotate" ? "Rotate" : "Scale"} selection`,
+      commands,
+    } : commands[0]);
     onDocumentChange();
   }
 
@@ -252,7 +324,7 @@ export function PropertiesPanel({
       return !entry.visible || !layer?.visible || Boolean(layer.locked);
     })) return;
     const commands = selectedObjects.filter((entry) => entry.layerId !== layerId).map((entry) => ({ type: "move-object-to-layer" as const, objectId: entry.id, layerId }));
-    if (commands.length) await dispatchCadCommand({ type: "batch", commands });
+    if (commands.length) await dispatchCadCommand({ type: "batch", label: `Move ${commands.length} objects to layer`, commands });
     onDocumentChange();
   }
 
@@ -262,7 +334,7 @@ export function PropertiesPanel({
       return Boolean(layer?.locked);
     })) return;
     const commands = selectedObjects.filter((entry) => entry.visible !== visible).map((entry) => ({ type: "set-object-visible" as const, objectId: entry.id, visible }));
-    if (commands.length) await dispatchCadCommand({ type: "batch", commands });
+    if (commands.length) await dispatchCadCommand({ type: "batch", label: `${visible ? "Show" : "Hide"} ${commands.length} objects`, commands });
     onDocumentChange();
   }
 
@@ -360,20 +432,21 @@ export function PropertiesPanel({
 
       <section className="property-section">
         <h3>General</h3>
-        <label className="property-row"><span>Layer</span><select disabled={isLocked} value={mixedLayer ? "__mixed__" : object.layerId} onChange={(event) => void changeLayer(event.target.value)}><option value="__mixed__" disabled>Mixed</option>{cadDocument.rootLayers.map((layerId) => {
+        <label className="property-row"><span>Layer</span><select disabled={bulkEditDisabled} value={mixedLayer ? "__mixed__" : object.layerId} onChange={(event) => void changeLayer(event.target.value)}><option value="__mixed__" disabled>Mixed</option>{cadDocument.rootLayers.map((layerId) => {
           const layer = cadDocument.layers[layerId];
           return layer && <option key={layer.id} value={layer.id} disabled={layer.locked && layer.id !== object.layerId}>{layer.name}{layer.locked ? " (locked)" : ""}</option>;
         })}</select></label>
-        <label className="property-row"><span>Visible</span><input ref={visibilityInputRef} className={mixedVisible ? "property-toggle property-toggle-mixed" : "property-toggle"} type="checkbox" checked={allVisible} onChange={(event) => void setVisibility(event.target.checked)} /></label>
+        <label className="property-row"><span>Visible</span><input ref={visibilityInputRef} className={mixedVisible ? "property-toggle property-toggle-mixed" : "property-toggle"} type="checkbox" disabled={bulkEditDisabled} checked={allVisible} onChange={(event) => void setVisibility(event.target.checked)} /></label>
       </section>
 
-      {isPrimitive && selectedObjects.length === 1 && (
+      {((isPrimitive && selectedObjects.length === 1) || multiPrimitiveKind) && (
         <>
           <section className="property-section">
-            <h3>Dimensions <small>mm</small></h3>
+            <h3>Dimensions <small>mm{multiPrimitiveKind ? ` · ${selectedObjects.length} × ${multiPrimitiveKind}` : ""}</small></h3>
             {fields.map(({ key, label }) => (
-              <NumericField key={key} label={label} context="Dimensions" unit="mm" disabled={isLocked} min="0.001" step="0.1" value={primitiveDraft[key] ?? ""} onChange={(value) => setPrimitiveDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitPrimitive()} />
+              <NumericField key={key} label={label} context="Dimensions" unit="mm" disabled={bulkEditDisabled} min="0.001" step="0.1" mixed={primitiveFieldMixed(key)} value={primitiveDraft[key] ?? ""} onChange={(value) => setPrimitiveDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitPrimitive()} />
             ))}
+            {multiPrimitiveKind && <p className="property-hint">Mixed fields keep each object&apos;s value. Type a value to apply it to all {selectedObjects.length} objects.</p>}
           </section>
         </>
       )}
@@ -427,27 +500,27 @@ export function PropertiesPanel({
       <section className="property-section">
         <h3>Position <small>World · mm</small></h3>
         {(["x", "y", "z"] as const).map((key) => (
-          <NumericField key={key} label={key.toUpperCase()} context="Position" unit="mm" disabled={isLocked} step="0.1" mixed={mixed(selectedPositions.map((position) => position[["x","y","z"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("move")} />
+          <NumericField key={key} label={key.toUpperCase()} context="Position" unit="mm" disabled={bulkEditDisabled} step="0.1" mixed={mixed(selectedPositions.map((position) => position[["x","y","z"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("move")} />
         ))}
       </section>
 
       <section className="property-section">
         <h3>Rotate <small>deg</small></h3>
         {(["rx", "ry", "rz"] as const).map((key) => (
-          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Rotation" unit="°" disabled={isLocked} step="1" mixed={mixed(selectedTransforms.map((t) => t.rotation[["rx","ry","rz"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("rotate")} />
+          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Rotation" unit="°" disabled={bulkEditDisabled} step="1" mixed={mixed(selectedTransforms.map((t) => t.rotation[["rx","ry","rz"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("rotate")} />
         ))}
       </section>
 
       <section className="property-section">
         <h3>Scale <small>factor</small></h3>
         {(["sx", "sy", "sz"] as const).map((key) => (
-          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Scale" unit="×" min="0.001" disabled={isLocked} step="0.1" mixed={mixed(selectedTransforms.map((t) => t.scale[["sx","sy","sz"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("scale")} />
+          <NumericField key={key} label={key.slice(1).toUpperCase()} context="Scale" unit="×" min="0.001" disabled={bulkEditDisabled} step="0.1" mixed={mixed(selectedTransforms.map((t) => t.scale[["sx","sy","sz"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("scale")} />
         ))}
       </section>
 
       <div className="property-actions">
-        <button type="button" disabled={!feature || isLocked} onClick={onDuplicate}>Duplicate</button>
-        <button type="button" disabled={isLocked} className="danger-button" onClick={onDelete}>Delete</button>
+        <button type="button" disabled={!feature || bulkEditDisabled} onClick={onDuplicate}>Duplicate</button>
+        <button type="button" disabled={bulkEditDisabled} className="danger-button" onClick={onDelete}>Delete</button>
       </div>
       <div className="property-actions property-visibility-actions">
         <button type="button" onClick={onHide}>Hide</button>

@@ -69,6 +69,13 @@ export function planBulkTransformEdit(
   return commands;
 }
 
+/**
+ * Arrangement convention: Align Left/Center-X/Right and Distribute Horizontal
+ * operate along the active work plane's x-axis; Align Top/Center-Y/Bottom and
+ * Distribute Vertical operate along its y-axis. Each axis maps to its dominant
+ * world axis, so XY arranges in X/Y, XZ in X/Z, and YZ in Y/Z. All deltas are
+ * applied as world-space translations through move-object commands.
+ */
 function workPlaneDimensions(workPlane: WorkPlaneId): [number, number] {
   const plane = WORK_PLANES[workPlane];
   const dominantAxis = (axis: [number, number, number]) => {

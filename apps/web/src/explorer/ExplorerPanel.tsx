@@ -14,7 +14,7 @@ type ExplorerPanelProps = {
   selectedObjectId: string | null;
   selectedObjectIds: string[];
   onSelectLayer: (layerId: string) => void;
-  onSelectObject: (objectId: string, additive?: boolean) => void;
+  onSelectObject: (objectId: string | null, additive?: boolean) => void;
   onDocumentChange: () => void;
   activeSketchId?: string | null;
   onEditSketch?: (id: string) => void;
@@ -61,7 +61,14 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
         )}
       </label>
 
-      <div className="explorer-content">
+      <div
+        className="explorer-content"
+        onClick={(event) => {
+          // Empty padding clears, mirroring empty-space click in the viewport.
+          // Row and control clicks target inner elements and are unaffected.
+          if (event.target === event.currentTarget) props.onSelectObject(null);
+        }}
+      >
         {props.activeActivity === "model" && (
           <ModelPanel query={normalizedQuery} selectedObjectId={props.selectedObjectId} selectedObjectIds={props.selectedObjectIds} onSelectObject={props.onSelectObject} onDocumentChange={props.onDocumentChange} activeSketchId={props.activeSketchId} onEditSketch={props.onEditSketch} />
         )}

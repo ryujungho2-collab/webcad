@@ -28,6 +28,12 @@ export type DrawingTopology = {
  * Builds document-owned topology references for drawing entities.
  * A stable prefix is used for persisted/generated geometry; otherwise UUIDs
  * keep references unique while the new entity is being created.
+ *
+ * Version 1 references encode the control/segment role and creation index.
+ * They remain stable for coordinate-only edits, but any operation that
+ * rebuilds or reorders geometry must explicitly preserve or remap IDs. This
+ * limitation is isolated here so a future topology migration does not leak
+ * index-derived identity assumptions into picking or command code.
  */
 export function createDrawingTopology(
   kind: string,

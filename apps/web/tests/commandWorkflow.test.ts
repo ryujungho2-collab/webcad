@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, test } from "node:test";
 import type { CadDocument } from "@agent-webcad/cad-document";
+import { validateCommand, type CadCommand } from "@agent-webcad/cad-commands";
 import { deserializeDocument, serializeDocument } from "../../../packages/cad-document/src/serialization";
 import { createDrawingTopology } from "../src/precision/drawingTopology";
 import { cadDocument } from "../src/state/cadDocument";
 import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
 import { cadHistory, redoDocument, undoDocument } from "../src/state/history";
-import { buildExtrudeMesh } from "../src/viewport/kernelGeometryService";
+import { buildExtrudeMesh } from "../src/cad/kernelGeometryService";
 
 const original = structuredClone(cadDocument);
 
@@ -93,6 +94,65 @@ describe("command/history precision workflows", () => {
     assert.deepEqual(cadDocument.objects.box.transform?.translation, [0, 0, 0]);
     assert.equal(redoDocument(), true);
     assert.deepEqual(cadDocument.objects.box.transform?.translation, [10, 0, 0]);
+  });
+
+  test("uses a semantic batch label without changing transaction behavior", async () => {
+    await dispatchCadCommand({
+      type: "batch",
+      label: "Move selection",
+      commands: [
+        { type: "move-object", objectId: "box", translation: [4, 5, 6] },
+        { type: "rotate-object", objectId: "box", rotation: [0, 0, 30] },
+      ],
+    });
+    assert.deepEqual(cadHistory.getPastLabels(), ["Move selection"]);
+    assert.equal(undoDocument(), true);
+    assert.deepEqual(cadDocument.objects.box.transform?.translation, [0, 0, 0]);
+    assert.equal(redoDocument(), true);
+    assert.deepEqual(cadDocument.objects.box.transform?.translation, [4, 5, 6]);
+  });
+
+  test("rejects batches with non-text labels before dispatch", async () => {
+    const bad = {
+      type: "batch",
+      label: 42,
+      commands: [{ type: "move-object", objectId: "box", translation: [1, 0, 0] }],
+    };
+    assert.equal(validateCommand(bad), false);
+    await assert.rejects(dispatchCadCommand(bad as unknown as CadCommand), /Invalid CAD command payload/);
+    assert.deepEqual(cadHistory.getPastLabels(), []);
+    assert.deepEqual(cadDocument.objects.box.transform?.translation, [0, 0, 0]);
+  });
+
+  test("rejects a kernel-invalid boolean before mutating document or history", async () => {
+    cadDocument.objects.tool = {
+      ...structuredClone(cadDocument.objects.box),
+      id: "tool",
+      geometryId: "geometry-tool",
+      name: "Invalid tool",
+    };
+    cadDocument.features["feature-tool"] = {
+      ...structuredClone(cadDocument.features["feature-box"]),
+      id: "feature-tool",
+      output: "tool",
+      params: { kind: "unsupported-test-primitive" },
+    };
+    cadDocument.layers["layer-default"].objectIds.push("tool");
+    cadDocument.rootObjects.push("tool");
+    const revision = cadDocument.revision;
+
+    const result = await dispatchCadCommand({
+      type: "boolean-operation",
+      operation: "union",
+      target: "box",
+      tool: "tool",
+    });
+
+    assert.equal(result, undefined);
+    assert.equal(cadDocument.revision, revision);
+    assert.ok(cadDocument.objects.box);
+    assert.ok(cadDocument.objects.tool);
+    assert.deepEqual(cadHistory.getPastLabels(), []);
   });
 
   test("rolls back every child and creates no history for a rejected batch", async () => {

@@ -1,5 +1,5 @@
 import { cadDocument } from "../state/cadDocument";
-import type { KernelStatus } from "../viewport/kernelGeometryService";
+import type { KernelStatus } from "../cad/kernelGeometryService";
 import type { WorkPlaneId } from "../precision/workPlane";
 import type { PointMeasurement } from "../viewport/CadViewport";
 

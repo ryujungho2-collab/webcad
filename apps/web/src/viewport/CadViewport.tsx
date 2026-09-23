@@ -11,7 +11,7 @@ import { querySnap, type SnapEntity, type SnapResult } from "../precision/snapEn
 import { measurePoints } from "../precision/measurements";
 import { intersectRayWithWorkPlane, planeToWorld, WORK_PLANES, worldToPlane, type Vec3, type WorkPlaneId } from "../precision/workPlane";
 import { easeWorkspaceTransition, workspaceTransitionDuration, type WorkspaceMode } from "./workspaceTransition";
-import { buildBooleanMesh, buildDemoPartMesh, buildExtrudeMesh, buildPrimitiveMesh, subscribeKernelStatus, type KernelStatus } from "./kernelGeometryService";
+import { buildBooleanMesh, buildDemoPartMesh, buildExtrudeMesh, buildPrimitiveMesh, subscribeKernelStatus, type KernelStatus } from "../cad/kernelGeometryService";
 import { drawingPlaneScale, getWorldDrawingGeometry } from "../precision/worldGeometry";
 import type { TopologySelectionRef } from "../state/selection";
 import { offsetDrawingParams } from "../precision/drawingOperations";
@@ -24,6 +24,13 @@ import {
 } from "./directSelection";
 import { matchesSelectionWindow, type ScreenPoint } from "./selectionWindow";
 import { middleMouseNavigation } from "../input/shortcutRouter";
+import {
+  cycleSelectionCandidate,
+  hasSelectionToggleModifier,
+  pointerBucketKey,
+  selectionPointerOwner,
+  uniqueSelectionCandidates,
+} from "./selectionRouting";
 
 type CadViewportProps = {
   documentRevision: number;
@@ -269,6 +276,27 @@ export function CadViewport({
   useEffect(() => { onContextMenuActionRef.current = onContextMenuAction; }, [onContextMenuAction]);
 
   useEffect(() => {
+    if (!contextMenu) return;
+    const dismissOnPointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (event.button === 0 && target instanceof Element && target.closest(".cad-context-menu")) return;
+      setContextMenu(null);
+    };
+    const dismissOnWheel = () => setContextMenu(null);
+    const dismissOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setContextMenu(null);
+    };
+    window.addEventListener("pointerdown", dismissOnPointerDown, true);
+    window.addEventListener("wheel", dismissOnWheel, true);
+    window.addEventListener("keydown", dismissOnEscape, true);
+    return () => {
+      window.removeEventListener("pointerdown", dismissOnPointerDown, true);
+      window.removeEventListener("wheel", dismissOnWheel, true);
+      window.removeEventListener("keydown", dismissOnEscape, true);
+    };
+  }, [contextMenu]);
+
+  useEffect(() => {
     onTransformCommitRef.current = onTransformCommit;
   }, [onTransformCommit]);
   useEffect(() => { onDirectEditCommitRef.current = onDirectEditCommit; }, [onDirectEditCommit]);
@@ -411,8 +439,7 @@ export function CadViewport({
   }
 
   function updateSelection(objectId: string | null, additive = false) {
-    applySelectionColor();
-
+    // React SelectionState is authoritative; highlight re-renders from props.
     onSelectObjectRef.current?.(objectId, additive);
   }
 
@@ -1087,19 +1114,16 @@ export function CadViewport({
     function handlePointerDown(
       event: PointerEvent
     ) {
-      /*
-       * Left click selects.
-       * Right / middle click does
-       * not change selection.
-       */
-      if (event.button !== 0) {
-        return;
-      }
-
-      if (drawingToolRef.current) return;
-      if (directSelectModeRef.current) {
-        const additive = event.shiftKey || event.ctrlKey || event.metaKey;
-        const key = `${Math.round(event.clientX / 4)}:${Math.round(event.clientY / 4)}`;
+      const owner = selectionPointerOwner({
+        button: event.button,
+        drawingActive: Boolean(drawingToolRef.current),
+        directSelectActive: directSelectModeRef.current,
+        transformHandleActive: Boolean(transformControlsRef.current?.axis),
+      });
+      if (owner === "navigation" || owner === "drawing") return;
+      if (owner === "direct-select") {
+        const additive = hasSelectionToggleModifier(event);
+        const key = pointerBucketKey(event.clientX, event.clientY);
         let candidate = nearestDirectCandidate(event);
         if (!additive && key === directOverlapKey && directOverlapSelection) {
           candidate = nearestDirectCandidate(event, directOverlapSelection) ?? candidate;
@@ -1144,7 +1168,7 @@ export function CadViewport({
 
       // TransformControls owns pointer interaction while an axis/plane handle
       // is hot, but only after direct topology hit-testing has had priority.
-      if (transformControlsRef.current?.axis) return;
+      if (owner === "transform") return;
 
       const currentCamera =
         cameraRef.current;
@@ -1247,19 +1271,23 @@ export function CadViewport({
       // direction is determined on pointer-up: left-to-right is a strict
       // window, right-to-left is an intersecting/crossing selection.
       if (hits.length === 0) {
-        selectionStart = { x: event.clientX - rect.left, y: event.clientY - rect.top, additive: event.shiftKey || event.ctrlKey || event.metaKey, pointerId: event.pointerId };
+        selectionStart = { x: event.clientX - rect.left, y: event.clientY - rect.top, additive: hasSelectionToggleModifier(event), pointerId: event.pointerId };
         selectionDragging = false;
         currentRenderer.domElement.setPointerCapture(event.pointerId);
         return;
       }
 
-      const candidates = hits
-        .map((hit) => hit.object.userData.cadObjectId as string | undefined)
-        .filter((id, index, all): id is string => Boolean(id) && all.indexOf(id) === index);
-      const key = `${Math.round(event.clientX / 4)}:${Math.round(event.clientY / 4)}`;
-      if (key === overlapKey && !event.shiftKey && !event.ctrlKey && !event.metaKey) overlapIndex = (overlapIndex + 1) % Math.max(1, candidates.length);
-      else { overlapKey = key; overlapIndex = 0; }
-      const objectId = candidates[overlapIndex] ??
+      const candidates = uniqueSelectionCandidates(hits.map((hit) => hit.object.userData.cadObjectId as string | undefined));
+      const cycled = cycleSelectionCandidate({
+        candidates,
+        pointerKey: pointerBucketKey(event.clientX, event.clientY),
+        previousKey: overlapKey,
+        previousIndex: overlapIndex,
+        toggleModifier: hasSelectionToggleModifier(event),
+      });
+      overlapKey = cycled.nextKey;
+      overlapIndex = cycled.nextIndex;
+      const objectId = cycled.objectId ??
         hits[0].object
           .userData
           .cadObjectId as
@@ -1274,7 +1302,7 @@ export function CadViewport({
         return;
       }
 
-        updateSelection(objectId, event.shiftKey || event.ctrlKey || event.metaKey);
+        updateSelection(objectId, hasSelectionToggleModifier(event));
     }
 
     function handleSelectionMove(event: PointerEvent) {

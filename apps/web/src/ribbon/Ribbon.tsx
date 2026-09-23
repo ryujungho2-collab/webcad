@@ -265,19 +265,21 @@ export function Ribbon({
           <span className="ribbon-group-label">Visibility</span>
         </div>
 
-        <div className="ribbon-group">
-          <div className="ribbon-commands">
-            <RibbonButton icon="⇤" label="Align L" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("left")} />
-            <RibbonButton icon="↔" label="Center X" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("center-x")} />
-            <RibbonButton icon="⇥" label="Align R" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("right")} />
-            <RibbonButton icon="⇑" label="Align T" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("top")} />
-            <RibbonButton icon="⇕" label="Center Y" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("center-y")} />
-            <RibbonButton icon="⇓" label="Align B" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("bottom")} />
-            <RibbonButton icon="⇅" label="Dist H" disabled={!canDistribute || !onDistribute} onClick={() => onDistribute?.("horizontal")} />
-            <RibbonButton icon="⇳" label="Dist V" disabled={!canDistribute || !onDistribute} onClick={() => onDistribute?.("vertical")} />
+        {(canArrange || canDistribute) && (
+          <div className="ribbon-group">
+            <div className="ribbon-commands">
+              <RibbonButton icon="⇤" label="Align L" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("left")} />
+              <RibbonButton icon="↔" label="Center X" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("center-x")} />
+              <RibbonButton icon="⇥" label="Align R" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("right")} />
+              <RibbonButton icon="⇑" label="Align T" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("top")} />
+              <RibbonButton icon="⇕" label="Center Y" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("center-y")} />
+              <RibbonButton icon="⇓" label="Align B" disabled={!canArrange || !onAlign} onClick={() => onAlign?.("bottom")} />
+              <RibbonButton icon="⇅" label="Dist H" disabled={!canDistribute || !onDistribute} onClick={() => onDistribute?.("horizontal")} />
+              <RibbonButton icon="⇳" label="Dist V" disabled={!canDistribute || !onDistribute} onClick={() => onDistribute?.("vertical")} />
+            </div>
+            <span className="ribbon-group-label">Arrange</span>
           </div>
-          <span className="ribbon-group-label">Arrange</span>
-        </div>
+        )}
 
         <div className="ribbon-context" title="New objects are created on this layer">
           <span>Active layer</span>

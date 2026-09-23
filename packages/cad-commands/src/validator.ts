@@ -74,7 +74,8 @@ export function validateCommand(command: unknown): command is CadCommand {
     case "move-sketch-point": return isString(command.sketchId) && isSketchPointRef(command.point) && isVector2(command.position);
     case "move-sketch-segment": return isString(command.sketchId) && isString(command.geometryId) && isString(command.segmentId) && isVector2(command.delta);
     case "batch":
-      return Array.isArray(command.commands) && command.commands.length > 0 && command.commands.every((entry) => validateCommand(entry) && entry.type !== "batch");
+      return (command.label === undefined || (isString(command.label) && command.label.trim().length > 0)) &&
+        Array.isArray(command.commands) && command.commands.length > 0 && command.commands.every((entry) => validateCommand(entry) && entry.type !== "batch");
     case "create-drawing":
       return ["line", "polyline", "rectangle", "circle", "arc"].includes(String(command.drawing)) &&
         isDrawingParams(command.drawing, command.params) &&

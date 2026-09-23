@@ -1,7 +1,12 @@
 import type { SketchConstraint, SketchGeometry, SketchPointRef, SketchWorkPlane } from "@agent-webcad/cad-document";
 
 export type CadCommand =
-  | { type: "batch"; commands: Exclude<CadCommand, { type: "batch" }>[] }
+  | {
+      type: "batch";
+      /** Human-readable intent used by History without changing transaction semantics. */
+      label?: string;
+      commands: Exclude<CadCommand, { type: "batch" }>[];
+    }
   | { type: "create-sketch"; id: string; workPlane: SketchWorkPlane; layerId?: string }
   | { type: "add-sketch-geometry"; sketchId: string; geometry: SketchGeometry }
   | { type: "remove-sketch-geometry"; sketchId: string; geometryId: string }

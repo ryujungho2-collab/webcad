@@ -7,7 +7,7 @@ import { cadDocument } from "./state/cadDocument";
 import { dispatchCadCommand } from "./state/dispatchCadCommand";
 import { loadDocumentFromCache, newDocument, openDocumentFile, saveDocumentAsFile, saveDocumentToCache } from "./state/documentFile";
 import { cadHistory, redoDocument, undoDocument } from "./state/history";
-import { reduceSelection, validSelection, type SelectionState, type TopologySelectionRef } from "./state/selection";
+import { reduceSelection, selectAllIds, validSelection, type SelectionState, type TopologySelectionRef } from "./state/selection";
 import { getObjectTransform } from "./state/objectTransform";
 import { repeatDuplicateOffset, type DuplicateSeries } from "./state/duplicateWorkflow";
 import { planAlignment, planDistribution, planGroupTransform } from "./state/selectionCommands";
@@ -17,7 +17,7 @@ import { isTextEditingTarget, numericShortcutCharacter, routeCadShortcut } from 
 import type { DrawingTool, MeasurementTool, ObjectTransformValue, PointMeasurement, TransformMode, ViewportAction, ViewportActionType } from "./viewport/CadViewport";
 import type { WorkPlaneId } from "./precision/workPlane";
 import type { WorkspaceMode } from "./viewport/workspaceTransition";
-import type { KernelStatus } from "./viewport/kernelGeometryService";
+import type { KernelStatus } from "./cad/kernelGeometryService";
 import { extractSketchLoops } from "./precision/sketchProfiles";
 import { drawingToSketchGeometry } from "./precision/sketchAdapter";
 import { WORK_PLANES, worldToPlane } from "./precision/workPlane";
@@ -235,7 +235,11 @@ export function App() {
       }
     }
     if (commands.length) {
-      await dispatchCadCommand(commands.length === 1 ? commands[0] : { type: "batch", commands });
+      await dispatchCadCommand(commands.length === 1 ? commands[0] : {
+        type: "batch",
+        label: `${session.mode === "translate" ? "Move" : session.mode === "rotate" ? "Rotate" : "Scale"} selection`,
+        commands,
+      });
       syncRevision();
     }
     clearPrecisionTransform();
@@ -263,7 +267,11 @@ export function App() {
     if (selectedObjectIds.length > 1 && (mode === "translate" || mode === "rotate" || mode === "scale")) {
       const commands = planGroupTransform(cadDocument, selectedObjectIds, mode, transform);
       if (!commands) return;
-      if (commands.length) await dispatchCadCommand({ type: "batch", commands });
+      if (commands.length) await dispatchCadCommand({
+        type: "batch",
+        label: `${mode === "translate" ? "Move" : mode === "rotate" ? "Rotate" : "Scale"} selection`,
+        commands,
+      });
       // The batch already contains every member's transform. Falling through
       // would apply rotate/scale a second time to the primary object.
       syncRevision();
@@ -359,14 +367,18 @@ export function App() {
   async function arrangeSelection(mode: "left" | "center-x" | "right" | "top" | "center-y" | "bottom") {
     const commands = planAlignment(cadDocument, selectedObjectIds, mode, activeWorkPlane);
     if (!commands) return;
-    if (commands.length) await dispatchCadCommand({ type: "batch", commands });
+    if (commands.length) await dispatchCadCommand({
+      type: "batch",
+      label: ({ left: "Align left", "center-x": "Align horizontal center", right: "Align right", top: "Align top", "center-y": "Align vertical center", bottom: "Align bottom" } as const)[mode],
+      commands,
+    });
     syncRevision();
   }
 
   async function distributeSelection(axis: "horizontal" | "vertical") {
     const commands = planDistribution(cadDocument, selectedObjectIds, axis, activeWorkPlane);
     if (!commands) return;
-    if (commands.length) await dispatchCadCommand({ type: "batch", commands });
+    if (commands.length) await dispatchCadCommand({ type: "batch", label: `Distribute ${axis === "horizontal" ? "horizontally" : "vertically"}`, commands });
     syncRevision();
   }
 
@@ -527,10 +539,10 @@ export function App() {
     if (!ids.length) return;
     if (activeSketch && ids.every((id) => activeSketch.geometry.some((entry) => entry.id === id))) {
       const commands = ids.map((geometryId) => ({ type: "remove-sketch-geometry" as const, sketchId: activeSketch.id, geometryId }));
-      const result = await dispatchCadCommand(commands.length === 1 ? commands[0] : { type: "batch", commands }) as { accepted?: boolean; reason?: string } | undefined;
+      const result = await dispatchCadCommand(commands.length === 1 ? commands[0] : { type: "batch", label: `Delete ${ids.length} sketch entities`, commands }) as { accepted?: boolean; reason?: string } | undefined;
       if (result?.accepted === false) { setShortcutReadout(result.reason ?? "Sketch deletion rejected"); return; }
     } else {
-      const result = await dispatchCadCommand({ type: "batch", commands: ids.map((objectId) => ({ type: "delete-object", objectId })) }) as { accepted?: boolean } | undefined;
+      const result = await dispatchCadCommand({ type: "batch", label: `Delete ${ids.length} objects`, commands: ids.map((objectId) => ({ type: "delete-object", objectId })) }) as { accepted?: boolean } | undefined;
       if (result?.accepted === false) return;
     }
     setSelection({ ids: [], primaryId: null });
@@ -539,14 +551,16 @@ export function App() {
 
   async function handleDuplicateObject() {
     const ids = selectedObjectIds.length ? selectedObjectIds : selectedObjectId ? [selectedObjectId] : [];
-    if (!ids.length || !selectedFeature) return;
+    // Mirror the canDuplicate gate: every member must be editable and no
+    // sketch-owned geometry may leak into a standalone duplicate batch.
+    if (!ids.length || !selectionEditable || selectedSketchOwned || activeSketch) return;
     const offset = repeatDuplicateOffset(cadDocument, lastDuplicate.current, ids) ?? [10, 0, 0];
     let created: string[] = [];
     if (ids.length === 1) {
       const newId = await dispatchCadCommand({ type: "duplicate-object", objectId: ids[0], offset });
       if (typeof newId === "string") created = [newId];
     } else {
-      const result = await dispatchCadCommand({ type: "batch", commands: ids.map((objectId) => ({ type: "duplicate-object", objectId, offset })) });
+      const result = await dispatchCadCommand({ type: "batch", label: `Duplicate ${ids.length} objects`, commands: ids.map((objectId) => ({ type: "duplicate-object", objectId, offset })) });
       const batchResult = result as { accepted?: unknown; results?: unknown[] } | null;
       const batchResults = batchResult?.accepted === true && Array.isArray(batchResult.results) ? batchResult.results : [];
       created = batchResults.filter((id): id is string => typeof id === "string");
@@ -589,7 +603,7 @@ export function App() {
   async function handleHideObject() {
     const ids = selectedObjectIds.length ? selectedObjectIds : selectedObjectId ? [selectedObjectId] : [];
     if (!ids.length) return;
-    await dispatchCadCommand({ type: "batch", commands: ids.map((objectId) => ({ type: "set-object-visible" as const, objectId, visible: false })) });
+    await dispatchCadCommand({ type: "batch", label: `Hide ${ids.length} objects`, commands: ids.map((objectId) => ({ type: "set-object-visible" as const, objectId, visible: false })) });
     setSelection({ ids: [], primaryId: null });
     syncRevision();
   }
@@ -707,7 +721,7 @@ export function App() {
       const modifier = event.ctrlKey || event.metaKey;
       if (!modifier) return;
       const key = event.key.toLowerCase();
-      if (key === "a") { event.preventDefault(); selectObjects(cadDocument.rootObjects.filter((id) => { const object = cadDocument.objects[id]; const layer = object ? cadDocument.layers[object.layerId] : undefined; return Boolean(object?.visible && layer?.visible && !layer.locked); })); }
+      if (key === "a") { event.preventDefault(); selectObjects(selectAllIds(cadDocument, activeSketchId)); }
       else if (key === "z") { event.preventDefault(); event.shiftKey ? handleRedo() : handleUndo(); }
       else if (key === "y") { event.preventDefault(); handleRedo(); }
       else if (key === "s") { event.preventDefault(); event.shiftKey ? handleSaveAs() : handleSave(); }

@@ -104,6 +104,14 @@ describe("selection command planning", () => {
     ]);
   });
 
+  test("arrange no-ops plan zero commands so callers dispatch nothing", () => {
+    const aligned = documentWithBoxes([0, 0]);
+    assert.deepEqual(planAlignment(aligned, ["box-0", "box-1"], "left", "XY"), []);
+    assert.deepEqual(planAlignment(aligned, ["box-0", "box-1"], "center-x", "XY"), []);
+    const spaced = documentWithBoxes([0, 20, 40]);
+    assert.deepEqual(planDistribution(spaced, ["box-0", "box-1", "box-2"], "horizontal", "XY"), []);
+  });
+
   test("rejects the whole operation when one selected layer is locked", () => {
     const document = documentWithBoxes([0, 20]);
     document.layers["layer-default"].locked = true;

@@ -33,7 +33,10 @@ export async function dispatchCadCommand(
   if (cadDocument.revision !== revisionBefore) {
     // `documentBefore` is already detached from the live document. Transferring
     // it avoids cloning every history snapshot twice.
-    cadHistory.pushSnapshot(command.type, documentBefore);
+    const historyLabel = command.type === "batch" && command.label
+      ? command.label.trim()
+      : command.type;
+    cadHistory.pushSnapshot(historyLabel, documentBefore);
   }
 
   performance.measure(`agent-webcad:command:${command.type}`, {
