@@ -756,6 +756,7 @@ commandBus.registerHandler(
 
     const params = structuredClone(sourceFeature.params);
     const sourceTransform = getObjectTransform(source, sourceFeature);
+    const offset = command.offset ?? [10, 0, 0];
 
     // A duplicate is a new topological entity. Reusing the source IDs makes
     // overlapping Direct Select candidates indistinguishable and would let a
@@ -778,9 +779,9 @@ commandBus.registerHandler(
       transform: {
         ...sourceTransform,
         translation: [
-          sourceTransform.translation[0] + 10,
-          sourceTransform.translation[1],
-          sourceTransform.translation[2],
+          sourceTransform.translation[0] + offset[0],
+          sourceTransform.translation[1] + offset[1],
+          sourceTransform.translation[2] + offset[2],
         ],
       },
     };

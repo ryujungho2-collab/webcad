@@ -108,7 +108,8 @@ function orientLoop(edges: LoopEdge[], plane: WorkPlaneId) {
 }
 
 function makeLoop(edges: LoopEdge[], plane: WorkPlaneId): SketchLoopResult {
-  if (edges.length < 2 || edges.some((edge) => samePoint(edge.start, edge.end))) return { ok: false, reason: "Profile contains a zero-length edge." };
+  if (edges.some((edge) => samePoint(edge.start, edge.end))) return { ok: false, reason: "Profile contains a zero-length edge." };
+  if (edges.length < 2) return { ok: false, reason: "Selected geometry does not form a closed loop." };
   const ordered: LoopEdge[] = [];
   const remaining = edges.slice().sort((a, b) => `${a.objectId}/${a.topologyReference}`.localeCompare(`${b.objectId}/${b.topologyReference}`));
   ordered.push(remaining.shift()!);

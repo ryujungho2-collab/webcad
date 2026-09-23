@@ -134,8 +134,9 @@ export function validateCommand(command: unknown): command is CadCommand {
     case "scale-object":
       return isString(command.objectId) && isVector3(command.scale) && command.scale.every((value) => value > 0);
     case "delete-object":
-    case "duplicate-object":
       return isString(command.objectId);
+    case "duplicate-object":
+      return isString(command.objectId) && (command.offset === undefined || isVector3(command.offset));
     default:
       return false;
   }

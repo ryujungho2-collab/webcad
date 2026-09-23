@@ -468,14 +468,22 @@ export function CadViewport({
     const controls = controlsRef.current;
     if (!camera || !controls) return;
     const distance = Math.max(camera.position.distanceTo(controls.target), 1);
-    const direction = {
-      top: new THREE.Vector3(0, 0, 1),
-      front: new THREE.Vector3(0, -1, 0),
-      right: new THREE.Vector3(1, 0, 0),
-      isometric: new THREE.Vector3(1, -1, 1).normalize(),
-    }[type];
-    camera.up.set(0, 0, 1);
+    const plane = WORK_PLANES[activeWorkPlane];
+    // Standard view commands are global 3D views. In the 2D workspace the
+    // active work plane is authoritative, so keep the camera normal to that
+    // plane regardless of which view command was invoked.
+    const direction = workspaceMode === "2d"
+      ? new THREE.Vector3(...plane.normal)
+      : {
+        top: new THREE.Vector3(0, 0, 1),
+        front: new THREE.Vector3(0, -1, 0),
+        right: new THREE.Vector3(1, 0, 0),
+        isometric: new THREE.Vector3(1, -1, 1).normalize(),
+      }[type];
+    camera.up.copy(workspaceMode === "2d" ? new THREE.Vector3(...plane.yAxis) : new THREE.Vector3(0, 0, 1));
     camera.position.copy(controls.target).addScaledVector(direction, distance);
+    camera.lookAt(controls.target);
+    camera.updateProjectionMatrix();
     controls.update();
   }
 
@@ -1517,7 +1525,11 @@ export function CadViewport({
     const host = hostRef.current;
     if (!current || !perspective || !orthographic || !controls || !host) return;
 
-    const next: ViewCamera = projectionMode === "perspective" ? perspective : orthographic;
+    // 2D is always orthographic. Keeping this invariant at the viewport
+    // boundary also covers a transient render where the parent projection
+    // state and workspace state update in different React commits.
+    const effectiveProjection = workspaceMode === "2d" ? "orthographic" : projectionMode;
+    const next: ViewCamera = effectiveProjection === "perspective" ? perspective : orthographic;
     if (current === next) return;
 
     const aspect = Math.max(host.clientWidth, 1) / Math.max(host.clientHeight, 1);
@@ -1546,7 +1558,7 @@ export function CadViewport({
     if (transformControlsRef.current) transformControlsRef.current.camera = next;
     cameraRef.current = next;
     controls.update();
-  }, [projectionMode]);
+  }, [projectionMode, workspaceMode]);
 
   useEffect(() => {
     const camera = cameraRef.current;
@@ -1577,7 +1589,11 @@ export function CadViewport({
     const startUp = camera.up.clone();
     const duration = workspaceTransitionDuration();
     const dampingWasEnabled = controls.enableDamping;
+    const controlsWasEnabled = controls.enabled;
     controls.enableDamping = false;
+    // Orbit/pan input must not race the transition animation. Restore the
+    // exact prior enabled state on completion or cancellation.
+    controls.enabled = false;
     let completed = false;
     let frame = 0;
     const startedAt = performance.now();
@@ -1597,6 +1613,7 @@ export function CadViewport({
         camera.up.copy(targetUp);
         camera.lookAt(controls.target);
         controls.enableDamping = dampingWasEnabled;
+        controls.enabled = controlsWasEnabled;
         controls.enableRotate = workspaceMode === "3d";
         controls.update();
       }
@@ -1604,7 +1621,10 @@ export function CadViewport({
     frame = requestAnimationFrame(animate);
     return () => {
       cancelAnimationFrame(frame);
-      if (!completed) controls.enableDamping = dampingWasEnabled;
+      if (!completed) {
+        controls.enableDamping = dampingWasEnabled;
+        controls.enabled = controlsWasEnabled;
+      }
     };
   }, [workspaceMode, activeWorkPlane]);
 

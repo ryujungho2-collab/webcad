@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { CadDocument } from "@agent-webcad/cad-document";
+import * as THREE from "three";
 import { planAlignment, planBulkTransformEdit, planDistribution, planGroupTransform } from "../src/state/selectionCommands";
+import { repeatDuplicateOffset } from "../src/state/duplicateWorkflow";
 
 function documentWithBoxes(positions: number[]): CadDocument {
   const objects = Object.fromEntries(positions.map((x, index) => {
@@ -31,6 +33,15 @@ function documentWithBoxes(positions: number[]): CadDocument {
 }
 
 describe("selection command planning", () => {
+  test("repeats edited spacing only for the complete copied set", () => {
+    const document = documentWithBoxes([0, 20, 1200, 1220]);
+    const series = { sourceIds: ["box-0", "box-1"], copyIds: ["box-2", "box-3"] };
+    assert.deepEqual(repeatDuplicateOffset(document, series, ["box-2", "box-3"]), [1200, 0, 0]);
+    assert.deepEqual(repeatDuplicateOffset(document, series, ["box-3", "box-2"]), [1200, 0, 0]);
+    assert.equal(repeatDuplicateOffset(document, series, ["box-2"]), null);
+    document.objects["box-3"].transform!.translation[0] = 1230;
+    assert.equal(repeatDuplicateOffset(document, series, ["box-2", "box-3"]), null);
+  });
   test("plans group movement as a shared world delta", () => {
     const document = documentWithBoxes([0, 20]);
     const commands = planGroupTransform(document, ["box-0", "box-1"], "translate", {
@@ -47,6 +58,22 @@ describe("selection command planning", () => {
     ]);
   });
 
+  test("composes world group rotation with each member's existing orientation", () => {
+    const document = documentWithBoxes([0, 20]);
+    document.objects["box-0"].transform!.rotation = [45, 0, 0];
+    const commands = planGroupTransform(document, ["box-0", "box-1"], "rotate", {
+      translation: [15, 5, 5], rotation: [0, 0, 90], scale: [1, 1, 1],
+    });
+    const firstRotation = commands?.find((command) => command.type === "rotate-object" && command.objectId === "box-0");
+    assert.ok(firstRotation && firstRotation.type === "rotate-object");
+    const actual = new THREE.Quaternion().setFromEuler(new THREE.Euler(
+      ...firstRotation.rotation.map(THREE.MathUtils.degToRad) as [number, number, number],
+    ));
+    const expected = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 2)
+      .multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 4));
+    assert.ok(actual.angleTo(expected) < 1e-7);
+  });
+
   test("rotates positions and object rotations around the group pivot", () => {
     const document = documentWithBoxes([0, 20]);
     const commands = planGroupTransform(document, ["box-0", "box-1"], "rotate", {
@@ -56,7 +83,9 @@ describe("selection command planning", () => {
     });
     const normalized = commands?.map((command) => command.type === "move-object"
       ? { ...command, translation: command.translation.map((value) => Math.round(value * 1e9) / 1e9) }
-      : command);
+      : command.type === "rotate-object"
+        ? { ...command, rotation: command.rotation.map((value) => Math.round(value * 1e9) / 1e9) }
+        : command);
     assert.deepEqual(normalized, [
       { type: "move-object", objectId: "box-0", translation: [20, -10, 0] },
       { type: "rotate-object", objectId: "box-0", rotation: [0, 0, 90] },

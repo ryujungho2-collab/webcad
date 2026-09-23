@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, test } from "node:test";
 import type { CadDocument } from "@agent-webcad/cad-document";
+import { deserializeDocument, serializeDocument } from "../../../packages/cad-document/src/serialization";
 import { createDrawingTopology } from "../src/precision/drawingTopology";
 import { cadDocument } from "../src/state/cadDocument";
 import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
 import { cadHistory, redoDocument, undoDocument } from "../src/state/history";
+import { buildExtrudeMesh } from "../src/viewport/kernelGeometryService";
 
 const original = structuredClone(cadDocument);
 
@@ -63,6 +65,20 @@ afterEach(() => {
 });
 
 describe("command/history precision workflows", () => {
+  test("duplicates with explicit spacing as one batch and restores it on undo/redo", async () => {
+    const result = await dispatchCadCommand({ type: "batch", commands: [
+      { type: "duplicate-object", objectId: "box", offset: [1200, 0, 0] },
+      { type: "duplicate-object", objectId: "box", offset: [0, 2400, 0] },
+    ] }) as { accepted: boolean; results: string[] };
+    assert.equal(result.accepted, true);
+    assert.deepEqual(result.results.map((id) => cadDocument.objects[id].transform?.translation), [[1200, 0, 0], [0, 2400, 0]]);
+    assert.deepEqual(cadHistory.getPastLabels(), ["batch"]);
+    assert.equal(undoDocument(), true);
+    assert.equal(result.results.every((id) => !cadDocument.objects[id]), true);
+    assert.equal(redoDocument(), true);
+    assert.deepEqual(result.results.map((id) => cadDocument.objects[id].transform?.translation), [[1200, 0, 0], [0, 2400, 0]]);
+  });
+
   test("commits a successful batch as one history transaction", async () => {
     await dispatchCadCommand({
       type: "batch",
@@ -304,6 +320,11 @@ describe("command/history precision workflows", () => {
     assert.equal(cadDocument.objects["extrude-test"], undefined);
     assert.equal(redoDocument(), true);
     assert.equal(cadDocument.features["feature-extrude-test"].params.distance, 12);
+    const reopened = deserializeDocument(serializeDocument(cadDocument));
+    assert.deepEqual(reopened.features["feature-extrude-test"], cadDocument.features["feature-extrude-test"]);
+    assert.ok(reopened.objects["extrude-test"]);
+    const reopenedMesh = await buildExtrudeMesh(reopened.features["feature-extrude-test"].params);
+    assert.ok(reopenedMesh.positions.length > 0 && reopenedMesh.indices.length > 0);
   });
 
   test("rejects an open extrusion profile without document or history mutation", async () => {

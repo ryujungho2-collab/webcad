@@ -38,7 +38,10 @@ export function ModelPanel({ query, selectedObjectId, selectedObjectIds, onSelec
           className={selectedObjectIds.includes(object.id) ? "tree-row tree-row-selected" : "tree-row"}
           onClick={(event) => onSelectObject(object.id, event.shiftKey || event.ctrlKey || event.metaKey)}
           onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") onSelectObject(object.id);
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onSelectObject(object.id, event.shiftKey || event.ctrlKey || event.metaKey);
+            }
           }}
           title={`${object.name} · ${cadDocument.layers[object.layerId]?.name ?? "Unknown layer"}`}
         >

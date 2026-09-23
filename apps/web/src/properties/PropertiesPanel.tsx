@@ -405,7 +405,7 @@ export function PropertiesPanel({
         </section>
       )}
 
-      {(isExtrude || selectedObjects.every((entry) => Object.values(cadDocument.features).some((candidate) => candidate.output === entry.id && candidate.type === "drawing"))) && (
+      {((selectedObjects.length === 1 && isExtrude) || (selectedObjects.length > 0 && selectedObjects.every((entry) => Object.values(cadDocument.features).some((candidate) => candidate.output === entry.id && candidate.type === "drawing")))) && (
         <section className="property-section">
           <h3>Extrude <small>mm</small></h3>
           <NumericField label="Distance" context="Extrude" unit="mm" disabled={isLocked || (!isExtrude && !profileResult.ok)} step="0.1" value={extrudeDistance} onChange={setExtrudeDistance} onCommit={() => isExtrude && void commitExtrude()} />

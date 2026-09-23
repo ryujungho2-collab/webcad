@@ -89,6 +89,7 @@ describe("sketch loop extraction", () => {
 
     const openDocument = baseDocument();
     addDrawing(openDocument, "a", "line", { points: [[0, 0, 0], [10, 0, 0]] });
+    assert.deepEqual(extractSketchLoops(openDocument, ["a"]), { ok: false, reason: "Selected geometry does not form a closed loop." });
     addDrawing(openDocument, "b", "line", { points: [[10, 0, 0], [10, 5, 0]] });
     assert.equal(extractSketchLoops(openDocument, ["a", "b"]).ok, false);
 

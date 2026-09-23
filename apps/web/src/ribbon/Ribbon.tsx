@@ -220,7 +220,7 @@ export function Ribbon({
 
         <div className="ribbon-group">
           <div className="ribbon-commands">
-            <RibbonButton icon="⧉" label="Duplicate" title="Duplicate selection (Ctrl+D); copies offset 10 mm in X" disabled={!canDuplicate} onClick={onDuplicate} />
+            <RibbonButton icon="⧉" label="Duplicate" title="Duplicate (Ctrl+D); move the copy precisely, then repeat its spacing" disabled={!canDuplicate} onClick={onDuplicate} />
             <RibbonButton icon="⌫" label="Delete" title={hasSelection && !canDelete ? "Unlock the object's layer to delete it" : "Delete selection (Delete)"} disabled={!canDelete} danger onClick={onDelete} />
             <RibbonButton icon="✂" label="Trim" title="Use selected drawing as boundary; click the portion of a line to remove" disabled={!canTrim} active={lineEditTool === "trim"} onClick={() => onLineEditTool?.("trim")} />
             <RibbonButton icon="↦" label="Extend" title="Use selected drawing as boundary; click a line near the endpoint to extend" disabled={!canTrim} active={lineEditTool === "extend"} onClick={() => onLineEditTool?.("extend")} />

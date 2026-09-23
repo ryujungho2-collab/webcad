@@ -1,4 +1,4 @@
-import type { CadDocument } from "@agent-webcad/cad-document";
+import type { CadDocument, CadFeature } from "@agent-webcad/cad-document";
 import * as THREE from "three";
 import { getObjectTransform } from "../state/objectTransform";
 import { getWorldDrawingGeometry } from "./worldGeometry";
@@ -7,6 +7,14 @@ export type WorldBounds = {
   min: [number, number, number];
   max: [number, number, number];
 };
+
+function finiteWorldBounds(bounds: THREE.Box3): WorldBounds | null {
+  const min = bounds.min.toArray();
+  const max = bounds.max.toArray();
+  return [...min, ...max].every(Number.isFinite) && min.every((value, index) => value <= max[index])
+    ? { min, max }
+    : null;
+}
 
 function primitiveLocalBounds(params: Record<string, unknown>): THREE.Box3 {
   const kind = String(params.kind ?? (params.width !== undefined ? "box" : ""));
@@ -37,16 +45,16 @@ function primitiveLocalBounds(params: Record<string, unknown>): THREE.Box3 {
   return new THREE.Box3(min, max);
 }
 
-export function getObjectWorldBounds(document: CadDocument, objectId: string): WorldBounds | null {
+export function getObjectWorldBounds(document: CadDocument, objectId: string, featureByOutput?: ReadonlyMap<string, CadFeature>): WorldBounds | null {
   const object = document.objects[objectId];
   if (!object) return null;
-  const feature = Object.values(document.features).find((entry) => entry.output === objectId);
+  const feature = featureByOutput ? featureByOutput.get(objectId) : Object.values(document.features).find((entry) => entry.output === objectId);
   if (!feature) return null;
   if (feature.type === "drawing") {
     const world = getWorldDrawingGeometry(object, feature);
     if (!world?.points?.length) return null;
     const bounds = new THREE.Box3().setFromPoints(world.points.map((point) => new THREE.Vector3(...point)));
-    return { min: bounds.min.toArray(), max: bounds.max.toArray() };
+    return finiteWorldBounds(bounds);
   }
 
   if (feature.type === "extrude") {
@@ -85,7 +93,7 @@ export function getObjectWorldBounds(document: CadDocument, objectId: string): W
     const corners: THREE.Vector3[] = [];
     for (const x of [local.min.x, local.max.x]) for (const y of [local.min.y, local.max.y]) for (const z of [local.min.z, local.max.z]) corners.push(new THREE.Vector3(x, y, z).applyMatrix4(matrix));
     const bounds = new THREE.Box3().setFromPoints(corners);
-    return { min: bounds.min.toArray(), max: bounds.max.toArray() };
+    return finiteWorldBounds(bounds);
   }
 
   const localBounds = primitiveLocalBounds(feature.params);
@@ -107,20 +115,24 @@ export function getObjectWorldBounds(document: CadDocument, objectId: string): W
     }
   }
   const bounds = new THREE.Box3().setFromPoints(points);
-  return { min: bounds.min.toArray(), max: bounds.max.toArray() };
+  return finiteWorldBounds(bounds);
 }
 
 export function getSelectionWorldBounds(document: CadDocument, objectIds: readonly string[]): WorldBounds | null {
   const bounds = new THREE.Box3();
   let hasBounds = false;
+  const featureByOutput = new Map(Object.values(document.features).map((feature) => [feature.output, feature]));
   for (const objectId of objectIds) {
-    const objectBounds = getObjectWorldBounds(document, objectId);
+    const object = document.objects[objectId];
+    const layer = object ? document.layers[object.layerId] : undefined;
+    if (!object?.visible || !layer?.visible || layer.locked) continue;
+    const objectBounds = getObjectWorldBounds(document, objectId, featureByOutput);
     if (!objectBounds) continue;
     bounds.expandByPoint(new THREE.Vector3(...objectBounds.min));
     bounds.expandByPoint(new THREE.Vector3(...objectBounds.max));
     hasBounds = true;
   }
-  return hasBounds ? { min: bounds.min.toArray(), max: bounds.max.toArray() } : null;
+  return hasBounds ? finiteWorldBounds(bounds) : null;
 }
 
 export function boundsCenter(bounds: WorldBounds): [number, number, number] {

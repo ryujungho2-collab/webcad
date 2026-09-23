@@ -143,4 +143,23 @@ describe("world bounds", () => {
     };
     assert.deepEqual(getObjectWorldBounds(document, "solid"), { min: [2, 3, -1], max: [12, 9, 4] });
   });
+
+  test("ignores hidden, stale, and invalid members in selection bounds", () => {
+    const document: CadDocument = {
+      id: "selection-bounds", revision: 0,
+      objects: { near: object("near"), far: object("far", [100, 0, 0]), invalid: object("invalid") },
+      features: {
+        near: { id: "near-feature", type: "primitive", inputs: [], output: "near", params: { kind: "box", width: 2, depth: 3, height: 4 } },
+        far: { id: "far-feature", type: "primitive", inputs: [], output: "far", params: { kind: "box", width: 2, depth: 3, height: 4 } },
+        invalid: { id: "invalid-feature", type: "primitive", inputs: [], output: "invalid", params: { kind: "box", width: Number.NaN, depth: 3, height: 4 } },
+      },
+      layers: { "layer-default": { id: "layer-default", name: "Default", visible: true, locked: false, objectIds: ["near", "far", "invalid"] } },
+      rootObjects: ["near", "far", "invalid"], rootLayers: ["layer-default"],
+    };
+    document.objects.far.visible = false;
+    assert.equal(getObjectWorldBounds(document, "invalid"), null);
+    assert.deepEqual(getSelectionWorldBounds(document, ["stale", "far", "invalid", "near"]), { min: [0, 0, 0], max: [2, 3, 4] });
+    document.layers["layer-default"].locked = true;
+    assert.equal(getSelectionWorldBounds(document, ["near"]), null);
+  });
 });

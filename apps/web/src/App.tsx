@@ -8,6 +8,7 @@ import { loadDocumentFromCache, newDocument, openDocumentFile, saveDocumentAsFil
 import { cadHistory, redoDocument, undoDocument } from "./state/history";
 import { reduceSelection, validSelection, type SelectionState, type TopologySelectionRef } from "./state/selection";
 import { getObjectTransform } from "./state/objectTransform";
+import { repeatDuplicateOffset, type DuplicateSeries } from "./state/duplicateWorkflow";
 import { planAlignment, planDistribution, planGroupTransform } from "./state/selectionCommands";
 import type { DrawingTool, MeasurementTool, ObjectTransformValue, PointMeasurement, TransformMode, ViewportAction, ViewportActionType } from "./viewport/CadViewport";
 import type { WorkPlaneId } from "./precision/workPlane";
@@ -57,6 +58,7 @@ export function App() {
   const [directSelectMode, setDirectSelectMode] = useState(false);
   const [kernelStatus, setKernelStatus] = useState<KernelStatus>("deferred");
   const viewActionId = useRef(0);
+  const lastDuplicate = useRef<DuplicateSeries | null>(null);
   const openFileInput = useRef<HTMLInputElement>(null);
   const currentFingerprint = useMemo(documentFingerprint, [documentRevision]);
 
@@ -87,7 +89,18 @@ export function App() {
   // locked, or were removed by a command (including undo/redo).
   useEffect(() => {
     setSelection((current) => validSelection(current));
+    setSelectedLayerId((current) => cadDocument.layers[current] ? current : (cadDocument.rootLayers[0] ?? "layer-default"));
   }, [documentRevision]);
+
+  // 2D drafting always uses an orthographic camera. Keep the React state in
+  // sync as well as the viewport's defensive camera invariant so stale view
+  // actions or interrupted transitions cannot leave a misleading projection
+  // label behind.
+  useEffect(() => {
+    if (workspaceMode === "2d" && projectionMode !== "orthographic") {
+      setProjectionMode("orthographic");
+    }
+  }, [workspaceMode, projectionMode]);
 
   function syncRevision() {
     setDocumentRevision(cadDocument.revision);
@@ -140,6 +153,7 @@ export function App() {
   }
 
   function resetWorkspaceSelection() {
+    lastDuplicate.current = null;
     setSelection({ ids: [], primaryId: null });
     setIsolatedObjectIds(null);
     setSelectedLayerId(cadDocument.rootLayers[0] ?? "layer-default");
@@ -203,6 +217,7 @@ export function App() {
 
   function handleSaveAs() {
     saveDocumentAsFile();
+    saveDocumentToCache();
     setSavedFingerprint(currentFingerprint);
   }
 
@@ -306,15 +321,20 @@ export function App() {
   async function handleDuplicateObject() {
     const ids = selectedObjectIds.length ? selectedObjectIds : selectedObjectId ? [selectedObjectId] : [];
     if (!ids.length || !selectedFeature) return;
+    const offset = repeatDuplicateOffset(cadDocument, lastDuplicate.current, ids) ?? [10, 0, 0];
+    let created: string[] = [];
     if (ids.length === 1) {
-      const newId = await dispatchCadCommand({ type: "duplicate-object", objectId: ids[0] });
-      if (typeof newId === "string") selectObject(newId);
+      const newId = await dispatchCadCommand({ type: "duplicate-object", objectId: ids[0], offset });
+      if (typeof newId === "string") created = [newId];
     } else {
-      const result = await dispatchCadCommand({ type: "batch", commands: ids.map((objectId) => ({ type: "duplicate-object", objectId })) });
+      const result = await dispatchCadCommand({ type: "batch", commands: ids.map((objectId) => ({ type: "duplicate-object", objectId, offset })) });
       const batchResult = result as { accepted?: unknown; results?: unknown[] } | null;
       const batchResults = batchResult?.accepted === true && Array.isArray(batchResult.results) ? batchResult.results : [];
-      const created = batchResults.filter((id): id is string => typeof id === "string");
-      if (created.length) setSelection({ ids: created, primaryId: created.at(-1) ?? null });
+      created = batchResults.filter((id): id is string => typeof id === "string");
+    }
+    if (created.length === ids.length) {
+      lastDuplicate.current = { sourceIds: [...ids], copyIds: created };
+      setSelection({ ids: created, primaryId: created.at(-1) ?? null });
     }
     syncRevision();
   }
@@ -519,7 +539,13 @@ export function App() {
       onShowAll={() => void handleShowAllObjects()}
       onTransformMode={(mode) => setTransformMode((current) => current === mode ? null : mode)}
       onViewAction={issueViewAction}
-      onToggleProjection={() => setProjectionMode((mode) => mode === "perspective" ? "orthographic" : "perspective")}
+      onToggleProjection={() => {
+        // A 2D workspace is always orthographic; projection toggles are a
+        // 3D view concern and must not detach the camera from the work plane.
+        if (workspaceMode !== "2d") {
+          setProjectionMode((mode) => mode === "perspective" ? "orthographic" : "perspective");
+        }
+      }}
       onToggleGrid={() => setGridVisible((visible) => !visible)}
       onAlign={(mode) => void arrangeSelection(mode)}
       onDistribute={(axis) => void distributeSelection(axis)}
@@ -575,7 +601,7 @@ export function App() {
           onContextMenuAction={(action) => {
             if (action === "fit-selection" || action === "fit-all" || action === "top" || action === "front" || action === "right" || action === "isometric") issueViewAction(action);
             else if (action === "toggle-grid") setGridVisible((value) => !value);
-            else if (action === "toggle-projection") setProjectionMode((value) => value === "perspective" ? "orthographic" : "perspective");
+            else if (action === "toggle-projection" && workspaceMode !== "2d") setProjectionMode((value) => value === "perspective" ? "orthographic" : "perspective");
             else if (action === "duplicate") void handleDuplicateObject();
             else if (action === "hide") void handleHideObject();
             else if (action === "isolate") void handleIsolateObject();

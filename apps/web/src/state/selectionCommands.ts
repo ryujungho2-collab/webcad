@@ -109,7 +109,16 @@ export function planGroupTransform(
       commands.push({ type: "move-object", objectId: id, translation: position });
     }
     if (mode === "rotate") {
-      const rotation = current.rotation.map((value, index) => value + transform.rotation[index]) as [number, number, number];
+      // World-space group rotation composes before each member's existing
+      // orientation. Adding Euler components gives the wrong result whenever
+      // that member is already rotated about another axis.
+      const currentQuaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(
+        ...current.rotation.map(THREE.MathUtils.degToRad) as [number, number, number],
+      ));
+      const composed = new THREE.Euler().setFromQuaternion(rotationDelta.clone().multiply(currentQuaternion));
+      const rotation = [composed.x, composed.y, composed.z].map((value) =>
+        Math.abs(value) < EPSILON ? 0 : THREE.MathUtils.radToDeg(value)
+      ) as [number, number, number];
       if (changedVector(rotation, current.rotation)) commands.push({ type: "rotate-object", objectId: id, rotation });
     }
     if (mode === "scale") {

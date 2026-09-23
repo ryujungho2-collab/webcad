@@ -6,3 +6,4 @@ coverage/
 *.tsbuildinfo
 *-errors.txt
 *.backup.css
+*.tsbuildinfo

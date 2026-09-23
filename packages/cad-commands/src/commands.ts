@@ -168,4 +168,6 @@ export type CadCommand =
   | {
       type: "duplicate-object";
       objectId: string;
+      /** World-space displacement of the new copy. Defaults to 10 mm in X. */
+      offset?: [number, number, number];
     };
