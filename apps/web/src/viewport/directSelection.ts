@@ -3,6 +3,7 @@ import * as THREE from "three";
 import type { DrawingTopology } from "../precision/drawingTopology";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 import { planeToWorld, WORK_PLANES, worldToPlane, type Vec3, type WorkPlaneId } from "../precision/workPlane";
+import { profileSegments, sampleProfileSegment } from "../precision/profileGeometry";
 
 export type DirectSelectionCandidate = {
   objectId: string;
@@ -85,6 +86,26 @@ export function buildDirectSelectionCandidates(
       const start = worldByControl.get(segment.startControlId);
       const end = worldByControl.get(segment.endControlId);
       if (!start || !end) continue;
+      const profileSegment = typeof segment.index === "number"
+        ? profileSegments(String(feature.params.kind), feature.params)[segment.index]
+        : undefined;
+      if (segment.kind === "arc" && profileSegment?.kind === "arc") {
+        const origin = Array.isArray(mesh.userData.drawingOrigin)
+          ? new THREE.Vector3(...mesh.userData.drawingOrigin as Vec3)
+          : new THREE.Vector3();
+        const samples = sampleProfileSegment(profileSegment, feature.params)
+          .map((point) => new THREE.Vector3(...point).sub(origin).applyMatrix4(mesh.matrixWorld));
+        candidates.push({
+          objectId: object.id,
+          kind: "curve",
+          topologyId: segment.id,
+          startControlId: segment.startControlId,
+          endControlId: segment.endControlId,
+          worldPoint: samples[Math.floor(samples.length / 2)].clone(),
+          samples,
+        });
+        continue;
+      }
       candidates.push({
         objectId: object.id,
         kind: "segment",
@@ -97,7 +118,7 @@ export function buildDirectSelectionCandidates(
     }
     const world = getWorldDrawingGeometry(object, feature);
     if (world?.points?.length) {
-      for (const curve of topology.curves ?? []) {
+      for (const curve of topology.curves?.filter((entry) => !topology.segments.some((segment) => segment.id === entry.id)) ?? []) {
         const samples = world.points.map((point) => new THREE.Vector3(...point));
         candidates.push({
           objectId: object.id,

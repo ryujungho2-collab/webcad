@@ -26,6 +26,7 @@ type AppShellProps = {
   canTransform: boolean;
   canArrange: boolean;
   canDistribute: boolean;
+  canExtrude: boolean;
   canTrim?: boolean;
   lineEditTool?: "trim" | "extend" | null;
   isModified: boolean;
@@ -47,6 +48,7 @@ type AppShellProps = {
   onDocumentChange: () => void;
   onCreateBox: () => void;
   onCreatePrimitive: (primitive: "cylinder" | "sphere" | "cone" | "torus") => void;
+  onExtrude: () => void;
   onDrawingTool: (tool: DrawingTool) => void;
   onMeasurementTool: () => void;
   onCycleWorkPlane: () => void;
@@ -118,6 +120,7 @@ export function AppShell(props: AppShellProps) {
         canTransform={props.canTransform}
         canArrange={props.canArrange}
         canDistribute={props.canDistribute}
+        canExtrude={props.canExtrude}
         canTrim={props.canTrim}
         lineEditTool={props.lineEditTool}
         projectionMode={props.projectionMode}
@@ -139,6 +142,7 @@ export function AppShell(props: AppShellProps) {
         onRedo={props.onRedo}
         onCreateBox={props.onCreateBox}
         onCreatePrimitive={props.onCreatePrimitive}
+        onExtrude={props.onExtrude}
         onDrawingTool={props.onDrawingTool}
         onMeasurementTool={props.onMeasurementTool}
         onCycleWorkPlane={props.onCycleWorkPlane}

@@ -9,6 +9,8 @@ import {
 import { getObjectTransform } from "./objectTransform";
 import { registerDrawingCommandHandlers } from "./registerDrawingCommandHandlers";
 import { createDrawingTopology } from "../precision/drawingTopology";
+import { extractSketchLoops } from "../precision/sketchProfiles";
+import { validateExtrudeOperation } from "../viewport/kernelGeometryService";
 
 export const commandBus =
   new CommandBus();
@@ -392,6 +394,58 @@ commandBus.registerHandler(
     return id;
   },
 );
+
+commandBus.registerHandler("create-extrude", async (command: CadCommand) => {
+  if (command.type !== "create-extrude") return;
+  const loopResult = extractSketchLoops(cadDocument, command.profileObjectIds);
+  if (!loopResult.ok || loopResult.loops.length !== 1) return;
+  const profile = loopResult.loops[0];
+  const layerId = command.layerId ?? cadDocument.objects[command.profileObjectIds[0]]?.layerId ?? "layer-default";
+  const layer = cadDocument.layers[layerId];
+  const id = command.id ?? `extrude-${crypto.randomUUID()}`;
+  const featureId = `feature-${id}`;
+  if (!layer || layer.locked || cadDocument.objects[id] || cadDocument.features[featureId]) return;
+  const params = { kind: "extrude", distance: command.distance, profile: structuredClone(profile) };
+  try {
+    await validateExtrudeOperation(params);
+  } catch {
+    return;
+  }
+  cadDocument.objects[id] = {
+    id,
+    geometryId: `geometry-${id}`,
+    name: "Extrude",
+    visible: true,
+    layerId,
+    transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+  };
+  cadDocument.features[featureId] = {
+    id: featureId,
+    type: "extrude",
+    inputs: [...profile.sourceObjectIds],
+    output: id,
+    params,
+  };
+  cadDocument.rootObjects.push(id);
+  layer.objectIds.push(id);
+  cadDocument.revision += 1;
+  return id;
+});
+
+commandBus.registerHandler("update-extrude", async (command: CadCommand) => {
+  if (command.type !== "update-extrude") return;
+  const object = getEditableObject(command.objectId);
+  const feature = findFeatureForObject(command.objectId);
+  if (!object || !feature || feature.type !== "extrude" || Number(feature.params.distance) === command.distance) return;
+  const params = { ...structuredClone(feature.params), distance: command.distance };
+  try {
+    await validateExtrudeOperation(params);
+  } catch {
+    return;
+  }
+  feature.params = params;
+  cadDocument.revision += 1;
+});
 
 commandBus.registerHandler(
   "update-primitive",

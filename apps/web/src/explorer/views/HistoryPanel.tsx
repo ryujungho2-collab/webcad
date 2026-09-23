@@ -6,6 +6,8 @@ const labels: Record<string, string> = {
   "create-box": "Create box",
   "create-drawing": "Create drawing entity",
   "create-primitive": "Create primitive",
+  "create-extrude": "Extrude profile",
+  "update-extrude": "Edit extrusion",
   "update-primitive": "Edit primitive parameters",
   "boolean-operation": "Boolean operation",
   "create-layer": "Create layer",

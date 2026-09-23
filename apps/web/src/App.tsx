@@ -4,7 +4,7 @@ import type { ActivityId } from "./activity/ActivityBar";
 import { PropertiesPanel } from "./properties/PropertiesPanel";
 import { cadDocument } from "./state/cadDocument";
 import { dispatchCadCommand } from "./state/dispatchCadCommand";
-import { newDocument, openDocumentFile, saveDocumentAsFile, saveDocumentToCache } from "./state/documentFile";
+import { loadDocumentFromCache, newDocument, openDocumentFile, saveDocumentAsFile, saveDocumentToCache } from "./state/documentFile";
 import { cadHistory, redoDocument, undoDocument } from "./state/history";
 import { reduceSelection, validSelection, type SelectionState, type TopologySelectionRef } from "./state/selection";
 import { getObjectTransform } from "./state/objectTransform";
@@ -13,6 +13,7 @@ import type { DrawingTool, MeasurementTool, ObjectTransformValue, PointMeasureme
 import type { WorkPlaneId } from "./precision/workPlane";
 import type { WorkspaceMode } from "./viewport/workspaceTransition";
 import type { KernelStatus } from "./viewport/kernelGeometryService";
+import { extractSketchLoops } from "./precision/sketchProfiles";
 import "./styles.css";
 
 const CadViewport = lazy(async () => {
@@ -33,7 +34,10 @@ export function App() {
   // so exiting isolation restores the exact pre-isolation state without a
   // history entry.
   const [isolatedObjectIds, setIsolatedObjectIds] = useState<string[] | null>(null);
-  const [documentRevision, setDocumentRevision] = useState(cadDocument.revision);
+  const [documentRevision, setDocumentRevision] = useState(() => {
+    loadDocumentFromCache();
+    return cadDocument.revision;
+  });
   const [savedFingerprint, setSavedFingerprint] = useState(documentFingerprint);
   const [projectionMode, setProjectionMode] = useState<"perspective" | "orthographic">("perspective");
   const [gridVisible, setGridVisible] = useState(true);
@@ -73,6 +77,10 @@ export function App() {
     const feature = Object.values(cadDocument.features).find((entry) => entry.output === id);
     return Boolean(candidate?.visible && layer?.visible && !layer.locked && feature);
   });
+  const extrudeProfile = useMemo(
+    () => extractSketchLoops(cadDocument, selectedObjectIds),
+    [documentRevision, selectedObjectIds.join("\0")],
+  );
   const isModified = currentFingerprint !== savedFingerprint;
 
   // Keep the authoritative selection set free of objects that became hidden,
@@ -243,6 +251,21 @@ export function App() {
     syncRevision();
   }
 
+  async function handleExtrude(distance = 10) {
+    if (!extrudeProfile.ok) return;
+    const newId = await dispatchCadCommand({
+      type: "create-extrude",
+      profileObjectIds: selectedObjectIds,
+      distance,
+      layerId: selectedLayerId,
+    });
+    if (typeof newId === "string") {
+      setWorkspaceMode("3d");
+      selectObject(newId);
+    }
+    syncRevision();
+  }
+
   function activateDrawingTool(tool: DrawingTool) {
     setLineEditTool(null);
     setTransformMode(null);
@@ -367,6 +390,12 @@ export function App() {
         selectObject(null);
         return;
       }
+      if (event.key === "F2" && !drawingTool && !measurementTool && !lineEditTool) {
+        event.preventDefault();
+        setTransformMode(null);
+        setDirectSelectMode((enabled) => !enabled);
+        return;
+      }
       if (drawingTool || measurementTool || directSelectMode || lineEditTool) return;
       if (event.key === "F3") { event.preventDefault(); setSnapEnabled((value) => !value); return; }
       if (event.key === "F8") { event.preventDefault(); setOrthoEnabled((value) => !value); return; }
@@ -453,6 +482,7 @@ export function App() {
       canTransform={Boolean(selectedObject) && selectionEditable}
       canArrange={selectedObjectIds.length >= 2 && selectionEditable}
       canDistribute={selectedObjectIds.length >= 3 && selectionEditable}
+      canExtrude={extrudeProfile.ok && selectionEditable}
       canTrim={selectedObjectIds.length === 1 && selectedFeature?.type === "drawing" && selectionEditable}
       lineEditTool={lineEditTool}
       isModified={isModified}
@@ -474,6 +504,7 @@ export function App() {
       onDocumentChange={syncRevision}
       onCreateBox={() => void handleCreateBox()}
       onCreatePrimitive={(primitive) => void handleCreatePrimitive(primitive)}
+      onExtrude={() => void handleExtrude()}
       onDrawingTool={activateDrawingTool}
       onMeasurementTool={() => { setDrawingTool(null); setTransformMode(null); setDistanceMeasurement(null); setMeasurementTool((current) => current === "distance" ? null : "distance"); }}
       onCycleWorkPlane={() => setActiveWorkPlane((plane) => plane === "XY" ? "XZ" : plane === "XZ" ? "YZ" : "XY")}

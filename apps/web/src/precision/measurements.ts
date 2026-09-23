@@ -9,6 +9,7 @@ export type DrawingMeasurements = {
 };
 
 export type PointMeasurement = { distance: number; angle: number };
+type MeasurableProfileSegment = { kind: "line" | "arc"; start: Vec3; end: Vec3; radius?: number; startAngle?: number; endAngle?: number };
 
 export function measurePoints(a: Vec3, b: Vec3, planeId: WorkPlaneId = "XY"): PointMeasurement {
   const plane = WORK_PLANES[planeId];
@@ -25,17 +26,22 @@ export function measureDrawing(params: Record<string, unknown>): DrawingMeasurem
   const plane = WORK_PLANES[planeId];
   if ((kind === "line" || kind === "polyline" || kind === "rectangle") && Array.isArray(params.points)) {
     const points = params.points as Vec3[];
+    const exactSegments = Array.isArray(params.profileSegments) ? params.profileSegments as MeasurableProfileSegment[] : null;
     let distance = 0;
-    for (let index = 1; index < points.length; index += 1) {
+    if (exactSegments?.length) {
+      distance = exactSegments.reduce((sum, segment) => segment.kind === "arc" && segment.radius !== undefined && segment.startAngle !== undefined && segment.endAngle !== undefined
+        ? sum + Math.abs(segment.endAngle - segment.startAngle) * segment.radius
+        : sum + measurePoints(segment.start, segment.end, planeId).distance, 0);
+    } else for (let index = 1; index < points.length; index += 1) {
       const a = worldToPlane(points[index - 1], plane), b = worldToPlane(points[index], plane);
       distance += Math.hypot(b[0] - a[0], b[1] - a[1]);
     }
-    if (kind === "rectangle" && points.length === 4) {
+    if (!exactSegments?.length && kind === "rectangle" && points.length === 4) {
       const a = worldToPlane(points[points.length - 1], plane), b = worldToPlane(points[0], plane);
       distance += Math.hypot(b[0] - a[0], b[1] - a[1]);
     }
     const closed = kind === "rectangle" || params.closed === true || (kind === "polyline" && points.length >= 3 && points[0].every((value, index) => Math.abs(value - points[points.length - 1][index]) < 1e-7));
-    if (closed && kind === "polyline" && points.length > 1 && !points[0].every((value, index) => Math.abs(value - points[points.length - 1][index]) < 1e-7)) {
+    if (!exactSegments?.length && closed && kind === "polyline" && points.length > 1 && !points[0].every((value, index) => Math.abs(value - points[points.length - 1][index]) < 1e-7)) {
       const a = worldToPlane(points[points.length - 1], plane), b = worldToPlane(points[0], plane);
       distance += Math.hypot(b[0] - a[0], b[1] - a[1]);
     }
@@ -45,11 +51,17 @@ export function measureDrawing(params: Record<string, unknown>): DrawingMeasurem
       result.angle = Math.atan2(b[1] - a[1], b[0] - a[0]);
     }
     if (closed && (kind === "rectangle" || kind === "polyline") && points.length >= 3) {
-      const projected = points.map((point) => worldToPlane(point, plane));
-      result.area = Math.abs(projected.reduce((sum, point, index) => {
+      const projected = (exactSegments?.length ? exactSegments.map((segment) => segment.start) : points).map((point) => worldToPlane(point, plane));
+      let signed = projected.reduce((sum, point, index) => {
         const next = projected[(index + 1) % projected.length];
         return sum + point[0] * next[1] - next[0] * point[1];
-      }, 0)) / 2;
+      }, 0) / 2;
+      if (exactSegments?.length) signed += exactSegments.reduce((sum, segment) => {
+        if (segment.kind !== "arc" || segment.radius === undefined || segment.startAngle === undefined || segment.endAngle === undefined) return sum;
+        const sweep = segment.endAngle - segment.startAngle;
+        return sum + segment.radius * segment.radius * (sweep - Math.sin(sweep)) / 2;
+      }, 0);
+      result.area = Math.abs(signed);
     }
     return result;
   }

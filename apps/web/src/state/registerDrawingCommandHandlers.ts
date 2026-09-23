@@ -1,7 +1,9 @@
 import type { CadDocument } from "@agent-webcad/cad-document";
 import { CommandBus, type CadCommand } from "@agent-webcad/cad-commands";
 import {
+  closeDrawingProfileParams,
   editDrawingControlParams,
+  editDrawingCornerParams,
   editDrawingSegmentParams,
   offsetDrawingParams,
 } from "../precision/drawingOperations";
@@ -74,6 +76,28 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
     const feature = featureForObject(command.objectId);
     if (!object?.visible || !feature || feature.type !== "drawing") return;
     const params = editDrawingSegmentParams(feature.params, command.segmentId, command.delta);
+    if (!params) return;
+    feature.params = params;
+    document.revision += 1;
+  });
+
+  commandBus.registerHandler("edit-drawing-corner", async (command: CadCommand) => {
+    if (command.type !== "edit-drawing-corner") return;
+    const object = editableObject(command.objectId);
+    const feature = featureForObject(command.objectId);
+    if (!object?.visible || !feature || feature.type !== "drawing") return;
+    const params = editDrawingCornerParams(feature.params, command.controlId, command.treatment, command.distance);
+    if (!params) return;
+    feature.params = params;
+    document.revision += 1;
+  });
+
+  commandBus.registerHandler("close-drawing-profile", async (command: CadCommand) => {
+    if (command.type !== "close-drawing-profile") return;
+    const object = editableObject(command.objectId);
+    const feature = featureForObject(command.objectId);
+    if (!object?.visible || !feature || feature.type !== "drawing") return;
+    const params = closeDrawingProfileParams(feature.params);
     if (!params) return;
     feature.params = params;
     document.revision += 1;

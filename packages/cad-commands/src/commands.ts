@@ -20,6 +20,29 @@ export type CadCommand =
       delta: [number, number, number];
     }
   | {
+      type: "edit-drawing-corner";
+      objectId: string;
+      controlId: string;
+      treatment: "fillet" | "chamfer";
+      distance: number;
+    }
+  | {
+      type: "close-drawing-profile";
+      objectId: string;
+    }
+  | {
+      type: "create-extrude";
+      profileObjectIds: string[];
+      distance: number;
+      layerId?: string;
+      id?: string;
+    }
+  | {
+      type: "update-extrude";
+      objectId: string;
+      distance: number;
+    }
+  | {
       type: "offset-drawing";
       objectId: string;
       distance: number;

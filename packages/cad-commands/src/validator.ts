@@ -23,6 +23,7 @@ function isVector3Array(value: unknown, minimum: number) {
 function isDrawingParams(kind: unknown, params: unknown) {
   if (!isRecord(params) || typeof kind !== "string") return false;
   if (params.workPlane !== undefined && !["XY", "XZ", "YZ"].includes(String(params.workPlane))) return false;
+  if (params.bulges !== undefined && (!Array.isArray(params.bulges) || !params.bulges.every(isFiniteNumber))) return false;
   if (kind === "line") return Array.isArray(params.points) && isVector3Array(params.points, 2) && params.points.length === 2;
   if (kind === "polyline") return isVector3Array(params.points, 2);
   if (kind === "rectangle") return Array.isArray(params.points) && isVector3Array(params.points, 4) && params.points.length === 4;
@@ -48,6 +49,19 @@ export function validateCommand(command: unknown): command is CadCommand {
       return isString(command.objectId) && isString(command.controlId) && isVector3(command.point);
     case "edit-drawing-segment":
       return isString(command.objectId) && isString(command.segmentId) && isVector3(command.delta);
+    case "edit-drawing-corner":
+      return isString(command.objectId) && isString(command.controlId) &&
+        (command.treatment === "fillet" || command.treatment === "chamfer") &&
+        isFiniteNumber(command.distance) && command.distance > 1e-9;
+    case "close-drawing-profile":
+      return isString(command.objectId);
+    case "create-extrude":
+      return Array.isArray(command.profileObjectIds) && command.profileObjectIds.length > 0 &&
+        new Set(command.profileObjectIds).size === command.profileObjectIds.length &&
+        command.profileObjectIds.every(isString) && isFiniteNumber(command.distance) && Math.abs(command.distance) > 1e-9 &&
+        (command.layerId === undefined || isString(command.layerId)) && (command.id === undefined || isString(command.id));
+    case "update-extrude":
+      return isString(command.objectId) && isFiniteNumber(command.distance) && Math.abs(command.distance) > 1e-9;
     case "offset-drawing":
       return isString(command.objectId) && isFiniteNumber(command.distance) && command.distance > 1e-9 &&
         (command.side === undefined || command.side === "left" || command.side === "right");

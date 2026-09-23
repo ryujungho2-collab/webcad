@@ -14,6 +14,7 @@ type RibbonProps = {
   canTransform: boolean;
   canArrange: boolean;
   canDistribute: boolean;
+  canExtrude: boolean;
   projectionMode: "perspective" | "orthographic";
   gridVisible: boolean;
   transformMode: TransformMode | null;
@@ -33,6 +34,7 @@ type RibbonProps = {
   onRedo: () => void;
   onCreateBox: () => void;
   onCreatePrimitive: (primitive: "cylinder" | "sphere" | "cone" | "torus") => void;
+  onExtrude: () => void;
   onDrawingTool: (tool: DrawingTool) => void;
   onMeasurementTool: () => void;
   onCycleWorkPlane: () => void;
@@ -93,6 +95,7 @@ export function Ribbon({
   canTransform,
   canArrange,
   canDistribute,
+  canExtrude,
   projectionMode,
   gridVisible,
   transformMode,
@@ -111,6 +114,7 @@ export function Ribbon({
   onRedo,
   onCreateBox,
   onCreatePrimitive,
+  onExtrude,
   onDrawingTool,
   onMeasurementTool,
   onCycleWorkPlane,
@@ -148,7 +152,7 @@ export function Ribbon({
         <div className="ribbon-group">
           <div className="ribbon-commands">
             <RibbonButton icon="◇" label="Object" title="Select whole CAD objects" active={!directSelectMode} onClick={() => onDirectSelectMode(false)} />
-            <RibbonButton icon="•" label="Direct" title="Edit drawing control points" active={directSelectMode} onClick={() => onDirectSelectMode(true)} />
+            <RibbonButton icon="•" label="Direct" title="Edit drawing control points (F2)" active={directSelectMode} onClick={() => onDirectSelectMode(true)} />
           </div>
           <span className="ribbon-group-label">Select</span>
         </div>
@@ -178,6 +182,13 @@ export function Ribbon({
             <RibbonButton icon="⊘" label="Torus" title="Create torus on active layer" disabled={!canCreateBox} onClick={() => onCreatePrimitive("torus")} />
           </div>
           <span className="ribbon-group-label">Create</span>
+        </div>
+
+        <div className="ribbon-group">
+          <div className="ribbon-commands">
+            <RibbonButton icon="▰" label="Extrude" title={canExtrude ? "Extrude selected closed profile 10 mm" : "Select one closed profile or one connected closed chain"} disabled={!canExtrude} onClick={onExtrude} />
+          </div>
+          <span className="ribbon-group-label">Solid</span>
         </div>
 
         <div className="ribbon-group">

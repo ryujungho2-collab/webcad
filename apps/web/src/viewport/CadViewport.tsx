@@ -11,7 +11,7 @@ import { querySnap, type SnapEntity, type SnapResult } from "../precision/snapEn
 import { measurePoints } from "../precision/measurements";
 import { intersectRayWithWorkPlane, planeToWorld, WORK_PLANES, worldToPlane, type Vec3, type WorkPlaneId } from "../precision/workPlane";
 import { easeWorkspaceTransition, workspaceTransitionDuration, type WorkspaceMode } from "./workspaceTransition";
-import { buildBooleanMesh, buildDemoPartMesh, buildPrimitiveMesh, subscribeKernelStatus, type KernelStatus } from "./kernelGeometryService";
+import { buildBooleanMesh, buildDemoPartMesh, buildExtrudeMesh, buildPrimitiveMesh, subscribeKernelStatus, type KernelStatus } from "./kernelGeometryService";
 import { drawingPlaneScale, getWorldDrawingGeometry } from "../precision/worldGeometry";
 import type { TopologySelectionRef } from "../state/selection";
 import { offsetDrawingParams } from "../precision/drawingOperations";
@@ -873,6 +873,7 @@ export function CadViewport({
           radius: world.radius,
           startAngle: world.startAngle,
           endAngle: world.endAngle,
+          profileSegments: world.profileSegments,
         });
       }
       return result;
@@ -1695,7 +1696,7 @@ export function CadViewport({
           Boolean(object) &&
           (
             objectId === "demo-part" ||
-            feature?.type === "primitive" || feature?.type === "boolean" || feature?.type === "drawing"
+            feature?.type === "primitive" || feature?.type === "boolean" || feature?.type === "drawing" || feature?.type === "extrude"
           );
 
         if (renderable) {
@@ -1791,7 +1792,7 @@ export function CadViewport({
 
         if (
           !feature ||
-          (feature.type !== "primitive" && feature.type !== "boolean" && feature.type !== "drawing")
+          (feature.type !== "primitive" && feature.type !== "boolean" && feature.type !== "drawing" && feature.type !== "extrude")
         ) {
           continue;
         }
@@ -1833,7 +1834,9 @@ export function CadViewport({
           ? createDrawingRenderObject(objectId, feature.params)
           : createThreeMesh(objectId, feature.type === "boolean"
             ? await buildBooleanMesh(feature.params)
-            : await buildPrimitiveMesh(feature.params));
+            : feature.type === "extrude"
+              ? await buildExtrudeMesh(feature.params)
+              : await buildPrimitiveMesh(feature.params));
 
         if (cancelled) return;
 
@@ -1972,7 +1975,7 @@ export function CadViewport({
       if (f.type !== "drawing") return [];
       const object = cadDocument.objects[f.output];
       const world = object ? getWorldDrawingGeometry(object, f) : null;
-      return world ? [{ objectId: world.objectId, kind: world.kind, points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle }] : [];
+      return world ? [{ objectId: world.objectId, kind: world.kind, points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle, profileSegments: world.profileSegments }] : [];
     });
     const snapPoint = (raw: Vec3) => snapEnabled ? querySnap({ point: raw, referencePoint: first ?? undefined, entities, plane, gridStep: 1, tolerancePx: 12, project })?.point ?? raw : raw;
     const update = (p: Vec3) => { hover = snapPoint(p); const points = first ? [first, hover] : [hover]; line.geometry.dispose(); line.geometry = new THREE.BufferGeometry().setFromPoints(points.map((v) => new THREE.Vector3(...v))); setToolReadout(first ? `DISTANCE · ${measurePoints(first, hover, activeWorkPlane).distance.toFixed(2)} mm` : "DISTANCE · pick first point"); };
@@ -2073,6 +2076,7 @@ export function CadViewport({
           radius: world.radius,
           startAngle: world.startAngle,
           endAngle: world.endAngle,
+          profileSegments: world.profileSegments,
         });
       }
       return result;
@@ -2202,8 +2206,14 @@ export function CadViewport({
           commit({ center: acquired[0], radius: Math.hypot(s[0] - c[0], s[1] - c[1]), startAngle: Math.atan2(s[1] - c[1], s[0] - c[0]), endAngle: Math.atan2(e[1] - c[1], e[0] - c[0]) });
         }
       } else {
-        if (event.detail >= 2 && acquired.length >= 1) commit({ points: [...acquired, point] });
-        else acquired.push(point);
+        if (event.detail >= 2 && acquired.length >= 1) {
+          // Double-clicking the first point closes a polyline. Do not persist
+          // the closing point twice: profileSegments adds the closing edge
+          // from the final point back to the first point for closed paths.
+          const closesAtStart = activeTool === "polyline" && acquired[0].every((value, index) => Math.abs(value - point[index]) < 1e-7);
+          const points = closesAtStart ? [...acquired] : [...acquired, point];
+          commit({ points, closed: closesAtStart });
+        } else acquired.push(point);
       }
       numericBuffer = "";
       updatePreview(point);
@@ -2217,7 +2227,9 @@ export function CadViewport({
         if (activeTool === "polyline" && !numericBuffer && acquired.length >= 2) {
           const first = acquired[0], last = acquired[acquired.length - 1];
           const closed = first.every((value, index) => Math.abs(value - last[index]) < 1e-7);
-          commit({ points: acquired, closed });
+          const points = closed ? acquired.slice(0, -1) : acquired;
+          while (closed && points.length > 2 && first.every((value, index) => Math.abs(value - points[points.length - 1][index]) < 1e-7)) points.pop();
+          commit({ points, closed });
           return;
         }
         if (!numericBuffer || acquired.length === 0) return;

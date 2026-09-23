@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { planeToWorld, WORK_PLANES, worldToPlane, type Vec3, type WorkPlaneId } from "../precision/workPlane";
+import { sampleProfile } from "../precision/profileGeometry";
 
 export type DrawingRenderObject =
   | THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>
@@ -8,8 +9,7 @@ export type DrawingRenderObject =
 export function drawingRenderPoints(params: Record<string, unknown>, planeId: WorkPlaneId): Vec3[] {
   const kind = String(params.kind ?? "");
   if ((kind === "line" || kind === "polyline" || kind === "rectangle") && Array.isArray(params.points)) {
-    const points = params.points as Vec3[];
-    return kind === "rectangle" ? [...points, points[0]] : points;
+    return sampleProfile(kind, params);
   }
   if ((kind === "circle" || kind === "arc") && Array.isArray(params.center)) {
     const center = params.center as Vec3;
@@ -51,7 +51,7 @@ export function createDrawingRenderObject(
     points.map((point) => new THREE.Vector3(...point).sub(pivot)),
   );
   const material = new THREE.LineBasicMaterial({ color, linewidth: 1 });
-  const renderObject = params.kind === "rectangle" || params.kind === "circle"
+  const renderObject = params.kind === "rectangle" || params.kind === "circle" || params.closed === true
     ? new THREE.LineLoop(geometry, material)
     : new THREE.Line(geometry, material);
   renderObject.userData.cadObjectId = objectId;

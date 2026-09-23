@@ -32,17 +32,6 @@ function segmentHit(a: Point2, b: Point2, c: Point2, d: Point2) {
   return { parallel: false, hit: u >= -EPS && u <= 1 + EPS ? t : null };
 }
 
-function arcContains(point: Point2, center: Point2, sampled: Vec3[], plane: typeof WORK_PLANES.XY, originalSweep: number) {
-  if (sampled.length < 3 || !(Math.abs(originalSweep) > EPS) || Math.abs(originalSweep) > Math.PI * 2 + EPS) return false;
-  const first = worldToPlane(sampled[0], plane), next = worldToPlane(sampled[1], plane);
-  const start = Math.atan2(first[1] - center[1], first[0] - center[0]);
-  const direction = Math.sign(cross2(sub2(first, center), sub2(next, center)));
-  if (!direction) return false;
-  const angle = Math.atan2(point[1] - center[1], point[0] - center[0]);
-  const turn = (value: number) => ((value % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-  return turn(direction * (angle - start)) <= Math.abs(originalSweep) + EPS;
-}
-
 /** CAD-space line edit query shared by transient preview and command commit. */
 export function resolveLineEdit(
   mode: LineEditMode,
@@ -67,28 +56,41 @@ export function resolveLineEdit(
   const lengthSquared = direction[0] ** 2 + direction[1] ** 2;
   if (lengthSquared <= EPS * EPS) return null;
   const hitTs: number[] = [];
-  if (cutterWorld.kind === "line" || cutterWorld.kind === "polyline" || cutterWorld.kind === "rectangle") {
-    const points = cutterWorld.points ?? [];
-    const count = points.length - 1 + (cutterWorld.kind === "rectangle" || cutterFeature.params.closed === true ? 1 : 0);
-    for (let index = 0; index < count; index += 1) {
-      const c = worldToPlane(points[index], plane), d = worldToPlane(points[(index + 1) % points.length], plane);
-      const hit = segmentHit(a, b, c, d);
-      if (hit.parallel) return null; // Coincident boundaries are ambiguous.
-      if (hit.hit !== null && !hitTs.some((t) => Math.abs(t - hit.hit!) < EPS)) hitTs.push(hit.hit);
-    }
-  } else if (cutterWorld.kind === "circle" || cutterWorld.kind === "arc") {
-    if (!cutterWorld.center || !cutterWorld.radius || !cutterWorld.uniformScale) return null;
-    const center = worldToPlane(cutterWorld.center, plane), f = sub2(a, center);
+  const addCircleHits = (center3: Vec3, radius: number, startAngle?: number, endAngle?: number) => {
+    const center = worldToPlane(center3, plane), f = sub2(a, center);
     const qb = 2 * (f[0] * direction[0] + f[1] * direction[1]);
-    const qc = f[0] ** 2 + f[1] ** 2 - cutterWorld.radius ** 2;
+    const qc = f[0] ** 2 + f[1] ** 2 - radius ** 2;
     const discriminant = qb ** 2 - 4 * lengthSquared * qc;
-    if (discriminant <= lengthSquared * 1e-9) return null; // Tangency has no removable interval.
+    if (discriminant <= lengthSquared * 1e-9) return;
     for (const sign of [-1, 1]) {
       const t = (-qb + sign * Math.sqrt(discriminant)) / (2 * lengthSquared);
       const point: Point2 = [a[0] + direction[0] * t, a[1] + direction[1] * t];
-      if (cutterWorld.kind === "arc" && !arcContains(point, center, cutterWorld.points ?? [], plane, Number(cutterFeature.params.endAngle) - Number(cutterFeature.params.startAngle))) continue;
+      if (startAngle !== undefined && endAngle !== undefined) {
+        const angle = Math.atan2(point[1] - center[1], point[0] - center[0]);
+        const tau = Math.PI * 2;
+        const normalize = (value: number) => ((value % tau) + tau) % tau;
+        const sweep = endAngle - startAngle;
+        const progress = normalize(Math.sign(sweep) * (angle - startAngle));
+        if (progress > Math.abs(sweep) + EPS) continue;
+      }
       if (!hitTs.some((candidate) => Math.abs(candidate - t) < EPS)) hitTs.push(t);
     }
+  };
+  if (cutterWorld.kind === "line" || cutterWorld.kind === "polyline" || cutterWorld.kind === "rectangle") {
+    const exactSegments = cutterWorld.profileSegments ?? [];
+    for (const segment of exactSegments) {
+      if (segment.kind === "arc" && segment.center && segment.radius && segment.startAngle !== undefined && segment.endAngle !== undefined) {
+        addCircleHits(segment.center, segment.radius, segment.startAngle, segment.endAngle);
+      } else {
+        const c = worldToPlane(segment.start, plane), d = worldToPlane(segment.end, plane);
+        const hit = segmentHit(a, b, c, d);
+        if (hit.parallel) return null; // Coincident boundaries are ambiguous.
+        if (hit.hit !== null && !hitTs.some((t) => Math.abs(t - hit.hit!) < EPS)) hitTs.push(hit.hit);
+      }
+    }
+  } else if (cutterWorld.kind === "circle" || cutterWorld.kind === "arc") {
+    if (!cutterWorld.center || !cutterWorld.radius || !cutterWorld.uniformScale) return null;
+    addCircleHits(cutterWorld.center, cutterWorld.radius, cutterWorld.kind === "arc" ? cutterWorld.startAngle : undefined, cutterWorld.kind === "arc" ? cutterWorld.endAngle : undefined);
   } else return null;
   const pick = worldToPlane(pickPoint, plane);
   const pickT = ((pick[0] - a[0]) * direction[0] + (pick[1] - a[1]) * direction[1]) / lengthSquared;

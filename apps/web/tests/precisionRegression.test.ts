@@ -4,6 +4,11 @@ import type { CadDocument, CadFeature, CadObject } from "@agent-webcad/cad-docum
 import { resolveLineEdit } from "../src/precision/lineEditing";
 import { getObjectWorldBounds, getSelectionWorldBounds } from "../src/precision/worldBounds";
 import { getWorldDrawingGeometry } from "../src/precision/worldGeometry";
+import { editDrawingCornerParams } from "../src/precision/drawingOperations";
+import { createDrawingTopology } from "../src/precision/drawingTopology";
+import { querySnap } from "../src/precision/snapEngine";
+import { WORK_PLANES } from "../src/precision/workPlane";
+import { measureDrawing } from "../src/precision/measurements";
 
 function object(id: string, translation: [number, number, number] = [0, 0, 0]): CadObject {
   return {
@@ -38,6 +43,30 @@ describe("world drawing geometry", () => {
     const world = getWorldDrawingGeometry(circleObject, drawing("circle", "circle", { center: [0, 0, 0], radius: 5 }));
     assert.equal(world?.uniformScale, false);
     assert.equal(world?.radius, undefined);
+  });
+
+  test("keeps fillet arcs exact and OSNAP-addressable in world geometry", () => {
+    const points: [number, number, number][] = [[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]];
+    const topology = createDrawingTopology("rectangle", { points }, "profile");
+    const filleted = editDrawingCornerParams({ kind: "rectangle", workPlane: "XY", points, topology }, "profile:vertex:1", "fillet", 2);
+    assert.ok(filleted);
+    const profileObject = object("profile");
+    const world = getWorldDrawingGeometry(profileObject, drawing("profile", "polyline", filleted!));
+    const arc = world?.profileSegments?.find((segment) => segment.kind === "arc");
+    assert.ok(arc?.center && arc.radius);
+    const snap = querySnap({
+      point: arc.center,
+      entities: [{ objectId: "profile", kind: "polyline", points: world?.points, profileSegments: world?.profileSegments }],
+      plane: WORK_PLANES.XY,
+      gridStep: 1,
+      tolerancePx: 0.1,
+      project: (point) => [point[0], point[1]],
+    });
+    assert.equal(snap.type, "center");
+    assert.equal(snap.topologyReference, `${arc.topologyReference}:center`);
+    const measurement = measureDrawing({ kind: "polyline", workPlane: "XY", points: world?.points, profileSegments: world?.profileSegments, closed: true });
+    assert.ok(Math.abs(measurement.area! - (96 + Math.PI)) < 1e-9);
+    assert.ok(Math.abs(measurement.distance! - (36 + Math.PI)) < 1e-9);
   });
 });
 
@@ -89,5 +118,29 @@ describe("world bounds", () => {
       min: boxBounds.min,
       max: [25, 10, 1],
     });
+  });
+
+  test("computes extrusion bounds from the exact profile and signed sweep", () => {
+    const document: CadDocument = {
+      id: "extrude-bounds",
+      revision: 0,
+      objects: {
+        solid: { id: "solid", geometryId: "geometry-solid", name: "Solid", visible: true, layerId: "layer-default", transform: { translation: [2, 3, 4], rotation: [0, 0, 0], scale: [1, 1, 1] } },
+      },
+      features: {
+        feature: { id: "feature", type: "extrude", inputs: ["profile"], output: "solid", params: {
+          kind: "extrude", distance: -5, profile: { id: "loop", normal: [0, 0, 1], segments: [
+            { kind: "line", topologyReference: "a", start: [0, 0, 0], end: [10, 0, 0] },
+            { kind: "line", topologyReference: "b", start: [10, 0, 0], end: [10, 6, 0] },
+            { kind: "line", topologyReference: "c", start: [10, 6, 0], end: [0, 6, 0] },
+            { kind: "line", topologyReference: "d", start: [0, 6, 0], end: [0, 0, 0] },
+          ] },
+        } },
+      },
+      layers: { "layer-default": { id: "layer-default", name: "Default", visible: true, locked: false, objectIds: ["solid"] } },
+      rootObjects: ["solid"],
+      rootLayers: ["layer-default"],
+    };
+    assert.deepEqual(getObjectWorldBounds(document, "solid"), { min: [2, 3, -1], max: [12, 9, 4] });
   });
 });

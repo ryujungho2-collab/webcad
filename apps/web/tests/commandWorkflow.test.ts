@@ -192,6 +192,52 @@ describe("command/history precision workflows", () => {
     assert.equal(cadDocument.rootObjects.length, 3);
   });
 
+  test("corner treatment and profile closure are deterministic single history operations", async () => {
+    const profilePoints: [number, number, number][] = [[0, 0, 0], [10, 0, 0], [10, 10, 0]];
+    const topology = createDrawingTopology("polyline", { points: profilePoints }, "profile");
+    cadDocument.objects.profile = {
+      id: "profile", geometryId: "geometry-profile", name: "Profile", visible: true, layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.features["feature-profile"] = {
+      id: "feature-profile", type: "drawing", inputs: [], output: "profile",
+      params: { kind: "polyline", workPlane: "XY", points: profilePoints, topology },
+    };
+    cadDocument.layers["layer-default"].objectIds.push("profile");
+    cadDocument.rootObjects.push("profile");
+
+    await dispatchCadCommand({ type: "edit-drawing-corner", objectId: "profile", controlId: "profile:vertex:1", treatment: "fillet", distance: 2 });
+    assert.deepEqual(cadHistory.getPastLabels(), ["edit-drawing-corner"]);
+    assert.equal(cadDocument.features["feature-profile"].params.kind, "polyline");
+    assert.equal((cadDocument.features["feature-profile"].params.points as unknown[]).length, 4);
+    assert.equal(undoDocument(), true);
+    assert.equal((cadDocument.features["feature-profile"].params.points as unknown[]).length, 3);
+    assert.equal(redoDocument(), true);
+    assert.equal((cadDocument.features["feature-profile"].params.points as unknown[]).length, 4);
+
+    cadHistory.clear();
+    await dispatchCadCommand({ type: "close-drawing-profile", objectId: "profile" });
+    assert.deepEqual(cadHistory.getPastLabels(), ["close-drawing-profile"]);
+    assert.equal(cadDocument.features["feature-profile"].params.closed, true);
+    assert.equal(undoDocument(), true);
+    assert.equal(cadDocument.features["feature-profile"].params.closed, false);
+  });
+
+  test("rejected corner treatment creates no history entry", async () => {
+    const profilePoints: [number, number, number][] = [[0, 0, 0], [10, 0, 0], [10, 10, 0]];
+    const topology = createDrawingTopology("polyline", { points: profilePoints }, "profile");
+    cadDocument.objects.profile = {
+      id: "profile", geometryId: "geometry-profile", name: "Profile", visible: true, layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.features["feature-profile"] = { id: "feature-profile", type: "drawing", inputs: [], output: "profile", params: { kind: "polyline", workPlane: "XY", points: profilePoints, topology } };
+    cadDocument.layers["layer-default"].objectIds.push("profile");
+    cadDocument.rootObjects.push("profile");
+    await dispatchCadCommand({ type: "edit-drawing-corner", objectId: "profile", controlId: "profile:vertex:1", treatment: "fillet", distance: 50 });
+    assert.deepEqual(cadHistory.getPastLabels(), []);
+    assert.deepEqual(cadDocument.features["feature-profile"].params.points, profilePoints);
+  });
+
   test("duplicates drawing topology as a distinct undoable entity", async () => {
     const topology = createDrawingTopology("line", { points: [[0, 0, 0], [10, 0, 0]] }, "line");
     cadDocument.objects.line = {
@@ -224,5 +270,58 @@ describe("command/history precision workflows", () => {
     assert.equal(cadDocument.objects[String(duplicateId)], undefined);
     assert.equal(redoDocument(), true);
     assert.ok(cadDocument.objects[String(duplicateId)]);
+  });
+
+  test("creates and edits a kernel-backed extrusion as one history entry per operation", async () => {
+    const profilePoints: [number, number, number][] = [[0, 0, 0], [10, 0, 0], [10, 6, 0], [0, 6, 0]];
+    cadDocument.objects.profile = {
+      id: "profile", geometryId: "geometry-profile", name: "Profile", visible: true, layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.features["feature-profile"] = {
+      id: "feature-profile", type: "drawing", inputs: [], output: "profile",
+      params: { kind: "rectangle", workPlane: "XY", points: profilePoints, topology: createDrawingTopology("rectangle", { points: profilePoints }, "profile") },
+    };
+    cadDocument.layers["layer-default"].objectIds.push("profile");
+    cadDocument.rootObjects.push("profile");
+
+    const id = await dispatchCadCommand({ type: "create-extrude", id: "extrude-test", profileObjectIds: ["profile"], distance: 12 });
+    assert.equal(id, "extrude-test");
+    assert.deepEqual(cadHistory.getPastLabels(), ["create-extrude"]);
+    const feature = cadDocument.features["feature-extrude-test"];
+    assert.equal(feature.type, "extrude");
+    assert.deepEqual(feature.inputs, ["profile"]);
+    assert.equal(feature.params.distance, 12);
+    const sourceRefs = (feature.params.profile as { sourceTopologyIds: string[] }).sourceTopologyIds;
+    assert.equal(sourceRefs.every((entry) => entry.startsWith("profile/")), true);
+
+    await dispatchCadCommand({ type: "update-extrude", objectId: "extrude-test", distance: 20 });
+    assert.deepEqual(cadHistory.getPastLabels(), ["create-extrude", "update-extrude"]);
+    assert.equal(cadDocument.features["feature-extrude-test"].params.distance, 20);
+    assert.equal(undoDocument(), true);
+    assert.equal(cadDocument.features["feature-extrude-test"].params.distance, 12);
+    assert.equal(undoDocument(), true);
+    assert.equal(cadDocument.objects["extrude-test"], undefined);
+    assert.equal(redoDocument(), true);
+    assert.equal(cadDocument.features["feature-extrude-test"].params.distance, 12);
+  });
+
+  test("rejects an open extrusion profile without document or history mutation", async () => {
+    const linePoints: [number, number, number][] = [[0, 0, 0], [10, 0, 0]];
+    cadDocument.objects.profile = {
+      id: "profile", geometryId: "geometry-profile", name: "Open profile", visible: true, layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.features["feature-profile"] = {
+      id: "feature-profile", type: "drawing", inputs: [], output: "profile",
+      params: { kind: "line", workPlane: "XY", points: linePoints, topology: createDrawingTopology("line", { points: linePoints }, "profile") },
+    };
+    cadDocument.layers["layer-default"].objectIds.push("profile");
+    cadDocument.rootObjects.push("profile");
+    const beforeRevision = cadDocument.revision;
+    const result = await dispatchCadCommand({ type: "create-extrude", profileObjectIds: ["profile"], distance: 10 });
+    assert.equal(result, undefined);
+    assert.equal(cadDocument.revision, beforeRevision);
+    assert.deepEqual(cadHistory.getPastLabels(), []);
   });
 });

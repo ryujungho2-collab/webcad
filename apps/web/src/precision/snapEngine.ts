@@ -2,7 +2,8 @@ import { planeToWorld, worldToPlane, type Vec3, type WorkPlane } from "./workPla
 
 export type SnapType = "intersection" | "endpoint" | "midpoint" | "center" | "perpendicular" | "tangent" | "nearest" | "grid";
 export type SnapResult = { type: SnapType; point: Vec3; objectId?: string; topologyReference?: string; screenDistance: number; metadata?: Record<string, unknown> };
-export type SnapEntity = { objectId: string; kind: "line" | "polyline" | "rectangle" | "circle" | "arc"; points?: Vec3[]; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number };
+export type SnapProfileSegment = { topologyReference: string; kind: "line" | "arc"; start: Vec3; end: Vec3; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number };
+export type SnapEntity = { objectId: string; kind: "line" | "polyline" | "rectangle" | "circle" | "arc"; points?: Vec3[]; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number; profileSegments?: SnapProfileSegment[] };
 export type SnapQuery = { point: Vec3; referencePoint?: Vec3; entities: SnapEntity[]; plane: WorkPlane; gridStep: number; tolerancePx: number; project: (point: Vec3) => [number, number]; enabled?: Partial<Record<SnapType, boolean>> };
 
 const priorities: Record<SnapType, number> = { intersection: 0, endpoint: 1, midpoint: 2, center: 3, perpendicular: 4, tangent: 5, nearest: 6, grid: 7 };
@@ -10,6 +11,9 @@ const sq = (value: number) => value * value;
 const dist2 = (a: [number, number], b: [number, number]) => sq(a[0] - b[0]) + sq(a[1] - b[1]);
 
 function segments(entity: SnapEntity): [Vec3, Vec3, string][] {
+  if (entity.profileSegments) return entity.profileSegments
+    .filter((segment) => segment.kind === "line")
+    .map((segment) => [segment.start, segment.end, segment.topologyReference]);
   const points = entity.points ?? [];
   const result: [Vec3, Vec3, string][] = [];
   for (let index = 0; index < points.length - 1; index += 1) result.push([points[index], points[index + 1], `segment:${index}`]);
@@ -17,11 +21,26 @@ function segments(entity: SnapEntity): [Vec3, Vec3, string][] {
   return result;
 }
 
+type SnapCurve = { center: Vec3; radius: number; startAngle?: number; endAngle?: number; reference: string };
+
+function curves(entity: SnapEntity): SnapCurve[] {
+  const result: SnapCurve[] = [];
+  for (const segment of entity.profileSegments ?? []) {
+    if (segment.kind === "arc" && segment.center && segment.radius !== undefined && segment.startAngle !== undefined && segment.endAngle !== undefined) {
+      result.push({ center: segment.center, radius: segment.radius, startAngle: segment.startAngle, endAngle: segment.endAngle, reference: segment.topologyReference });
+    }
+  }
+  if (entity.center && entity.radius) result.push({ center: entity.center, radius: entity.radius, startAngle: entity.startAngle, endAngle: entity.endAngle, reference: "curve" });
+  return result;
+}
+
 function curveEndpoints(entity: SnapEntity, plane: WorkPlane): [Vec3, string][] {
-  if (entity.kind !== "arc" || !entity.center || !entity.radius || entity.startAngle === undefined || entity.endAngle === undefined) return [];
-  const center = worldToPlane(entity.center, plane);
-  const pointAt = (angle: number): Vec3 => planeToWorld([center[0] + Math.cos(angle) * entity.radius!, center[1] + Math.sin(angle) * entity.radius!], plane);
-  return [[pointAt(entity.startAngle), "curve:start"], [pointAt(entity.endAngle), "curve:end"]];
+  return curves(entity).flatMap((curve) => {
+    if (curve.startAngle === undefined || curve.endAngle === undefined) return [];
+    const center = worldToPlane(curve.center, plane);
+    const pointAt = (angle: number): Vec3 => planeToWorld([center[0] + Math.cos(angle) * curve.radius, center[1] + Math.sin(angle) * curve.radius], plane);
+    return [[pointAt(curve.startAngle), `${curve.reference}:start`], [pointAt(curve.endAngle), `${curve.reference}:end`]] as [Vec3, string][];
+  });
 }
 
 function angleOnSweep(angle: number, start: number, end: number) {
@@ -34,13 +53,12 @@ function angleOnSweep(angle: number, start: number, end: number) {
   return angle >= end;
 }
 
-function pointOnCurve(entity: SnapEntity, point: [number, number], plane: WorkPlane) {
-  if (!entity.center || !entity.radius) return false;
-  const center = worldToPlane(entity.center, plane);
-  const radiusError = Math.abs(Math.hypot(point[0] - center[0], point[1] - center[1]) - entity.radius);
+function pointOnCurve(curve: SnapCurve, point: [number, number], plane: WorkPlane) {
+  const center = worldToPlane(curve.center, plane);
+  const radiusError = Math.abs(Math.hypot(point[0] - center[0], point[1] - center[1]) - curve.radius);
   if (radiusError > 1e-7) return false;
-  if (entity.kind !== "arc" || entity.startAngle === undefined || entity.endAngle === undefined) return true;
-  return angleOnSweep(Math.atan2(point[1] - center[1], point[0] - center[0]), entity.startAngle, entity.endAngle);
+  if (curve.startAngle === undefined || curve.endAngle === undefined) return true;
+  return angleOnSweep(Math.atan2(point[1] - center[1], point[0] - center[0]), curve.startAngle, curve.endAngle);
 }
 
 function segmentCircleIntersections(a: [number, number], b: [number, number], center: [number, number], radius: number) {
@@ -138,21 +156,21 @@ export function querySnap(query: SnapQuery): SnapResult {
         if (perpendicular) add("perpendicular", planeToWorld(perpendicular, query.plane), entity.objectId, `${reference}:perpendicular`);
       }
     }
-    if (entity.center && entity.radius) {
-      add("center", entity.center, entity.objectId, "center");
-      const p = worldToPlane(query.point, query.plane), c = worldToPlane(entity.center, query.plane);
+    for (const curve of curves(entity)) {
+      add("center", curve.center, entity.objectId, `${curve.reference}:center`);
+      const p = worldToPlane(query.point, query.plane), c = worldToPlane(curve.center, query.plane);
       const angle = Math.atan2(p[1] - c[1], p[0] - c[0]);
-      const radial = planeToWorld([c[0] + Math.cos(angle) * entity.radius, c[1] + Math.sin(angle) * entity.radius], query.plane);
-      if (entity.kind !== "arc" || entity.startAngle === undefined || entity.endAngle === undefined || angleOnSweep(angle, entity.startAngle, entity.endAngle)) {
-        add("nearest", radial, entity.objectId, "curve");
+      const radial = planeToWorld([c[0] + Math.cos(angle) * curve.radius, c[1] + Math.sin(angle) * curve.radius], query.plane);
+      if (curve.startAngle === undefined || curve.endAngle === undefined || angleOnSweep(angle, curve.startAngle, curve.endAngle)) {
+        add("nearest", radial, entity.objectId, curve.reference);
       } else {
-        for (const [endpoint, reference] of curveEndpoints(entity, query.plane)) add("nearest", endpoint, entity.objectId, reference);
+        for (const [endpoint, reference] of curveEndpoints(entity, query.plane).filter(([, reference]) => reference.startsWith(curve.reference))) add("nearest", endpoint, entity.objectId, reference);
       }
       if (query.referencePoint) {
         const referencePlane = worldToPlane(query.referencePoint, query.plane);
-        const tangentPoints = circleTangents(referencePlane, c, entity.radius);
+        const tangentPoints = circleTangents(referencePlane, c, curve.radius);
         for (const tangent of tangentPoints) {
-          if (pointOnCurve(entity, tangent, query.plane)) add("tangent", planeToWorld(tangent, query.plane), entity.objectId, "curve:tangent");
+          if (pointOnCurve(curve, tangent, query.plane)) add("tangent", planeToWorld(tangent, query.plane), entity.objectId, `${curve.reference}:tangent`);
         }
       }
     }
@@ -164,18 +182,19 @@ export function querySnap(query: SnapQuery): SnapResult {
       const hit = segmentIntersection(worldToPlane(all[i].segment[0], query.plane), worldToPlane(all[i].segment[1], query.plane), worldToPlane(all[j].segment[0], query.plane), worldToPlane(all[j].segment[1], query.plane));
       if (hit) add("intersection", planeToWorld(hit, query.plane), all[i].entity.objectId, `${all[i].segment[2]}|${all[j].segment[2]}`, { otherObjectId: all[j].entity.objectId });
     }
-    const curves = nearby.filter((entity) => entity.center && entity.radius && (entity.kind === "circle" || entity.kind === "arc"));
-    for (const lineEntity of nearby) for (const segment of segments(lineEntity)) for (const curve of curves) {
-      if (lineEntity.objectId === curve.objectId) continue;
-      const a = worldToPlane(segment[0], query.plane), b = worldToPlane(segment[1], query.plane), center = worldToPlane(curve.center!, query.plane);
-      for (const hit of segmentCircleIntersections(a, b, center, curve.radius!)) {
-        if (pointOnCurve(curve, hit, query.plane)) add("intersection", planeToWorld(hit, query.plane), lineEntity.objectId, `${segment[2]}|curve`, { otherObjectId: curve.objectId });
+    const curveEntries = nearby.flatMap((entity) => curves(entity).map((curve) => ({ entity, curve })));
+    for (const lineEntity of nearby) for (const segment of segments(lineEntity)) for (const entry of curveEntries) {
+      if (lineEntity.objectId === entry.entity.objectId) continue;
+      const a = worldToPlane(segment[0], query.plane), b = worldToPlane(segment[1], query.plane), center = worldToPlane(entry.curve.center, query.plane);
+      for (const hit of segmentCircleIntersections(a, b, center, entry.curve.radius)) {
+        if (pointOnCurve(entry.curve, hit, query.plane)) add("intersection", planeToWorld(hit, query.plane), lineEntity.objectId, `${segment[2]}|${entry.curve.reference}`, { otherObjectId: entry.entity.objectId });
       }
     }
-    for (let i = 0; i < curves.length; i += 1) for (let j = i + 1; j < curves.length; j += 1) {
-      const aCenter = worldToPlane(curves[i].center!, query.plane), bCenter = worldToPlane(curves[j].center!, query.plane);
-      for (const hit of circleCircleIntersections(aCenter, curves[i].radius!, bCenter, curves[j].radius!)) {
-        if (pointOnCurve(curves[i], hit, query.plane) && pointOnCurve(curves[j], hit, query.plane)) add("intersection", planeToWorld(hit, query.plane), curves[i].objectId, "curve|curve", { otherObjectId: curves[j].objectId });
+    for (let i = 0; i < curveEntries.length; i += 1) for (let j = i + 1; j < curveEntries.length; j += 1) {
+      if (curveEntries[i].entity.objectId === curveEntries[j].entity.objectId) continue;
+      const aCenter = worldToPlane(curveEntries[i].curve.center, query.plane), bCenter = worldToPlane(curveEntries[j].curve.center, query.plane);
+      for (const hit of circleCircleIntersections(aCenter, curveEntries[i].curve.radius, bCenter, curveEntries[j].curve.radius)) {
+        if (pointOnCurve(curveEntries[i].curve, hit, query.plane) && pointOnCurve(curveEntries[j].curve, hit, query.plane)) add("intersection", planeToWorld(hit, query.plane), curveEntries[i].entity.objectId, `${curveEntries[i].curve.reference}|${curveEntries[j].curve.reference}`, { otherObjectId: curveEntries[j].entity.objectId });
       }
     }
   }

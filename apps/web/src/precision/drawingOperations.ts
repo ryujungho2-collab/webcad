@@ -2,7 +2,9 @@ import type { Vec3, WorkPlaneId } from "./workPlane";
 import type {
   DrawingTopology,
   DrawingTopologyControl,
+  DrawingTopologySegment,
 } from "./drawingTopology";
+import { profileBulges, profileIsClosed, profileSegmentCount } from "./profileGeometry";
 
 type Vec2 = [number, number];
 const EPSILON = 1e-9;
@@ -29,6 +31,180 @@ function sameParams(a: Record<string, unknown>, b: Record<string, unknown>) {
 
 function topologyOf(params: Record<string, unknown>): DrawingTopology | undefined {
   return params.topology as DrawingTopology | undefined;
+}
+
+function cross2(a: Vec2, b: Vec2) {
+  return a[0] * b[1] - a[1] * b[0];
+}
+
+function subtract2(a: Vec2, b: Vec2): Vec2 {
+  return [a[0] - b[0], a[1] - b[1]];
+}
+
+function signedArea(points: Vec2[]) {
+  return points.reduce((area, point, index) => {
+    const next = points[(index + 1) % points.length];
+    return area + point[0] * next[1] - next[0] * point[1];
+  }, 0) / 2;
+}
+
+function segmentsIntersect(a: Vec2, b: Vec2, c: Vec2, d: Vec2) {
+  const ab = subtract2(b, a);
+  const ac = subtract2(c, a);
+  const ad = subtract2(d, a);
+  const cd = subtract2(d, c);
+  const ca = subtract2(a, c);
+  const cb = subtract2(b, c);
+  const firstC = cross2(ab, ac);
+  const firstD = cross2(ab, ad);
+  const secondA = cross2(cd, ca);
+  const secondB = cross2(cd, cb);
+  if (firstC * firstD < -1e-12 && secondA * secondB < -1e-12) return true;
+  const onSegment = (p: Vec2, q: Vec2, r: Vec2) => Math.abs(cross2(subtract2(q, p), subtract2(r, p))) <= 1e-9 &&
+    r[0] >= Math.min(p[0], q[0]) - 1e-9 && r[0] <= Math.max(p[0], q[0]) + 1e-9 &&
+    r[1] >= Math.min(p[1], q[1]) - 1e-9 && r[1] <= Math.max(p[1], q[1]) + 1e-9;
+  return onSegment(a, b, c) || onSegment(a, b, d) || onSegment(c, d, a) || onSegment(c, d, b);
+}
+
+function profileSelfIntersects(points: Vec2[], closed: boolean) {
+  const count = points.length - 1 + (closed ? 1 : 0);
+  for (let first = 0; first < count; first += 1) {
+    const a = points[first];
+    const b = points[(first + 1) % points.length];
+    for (let second = first + 1; second < count; second += 1) {
+      if (second === first + 1 || (closed && first === 0 && second === count - 1)) continue;
+      const c = points[second];
+      const d = points[(second + 1) % points.length];
+      if (segmentsIntersect(a, b, c, d)) return true;
+    }
+  }
+  return false;
+}
+
+/** Closes an open polyline without duplicating its first control point. */
+export function closeDrawingProfileParams(source: Record<string, unknown>): Record<string, unknown> | null {
+  if (source.kind !== "polyline" || source.closed === true || !Array.isArray(source.points) || source.points.length < 3) return null;
+  const plane = workPlaneId(source.workPlane);
+  const points = source.points as Vec3[];
+  const projected = points.map((point) => drawingPointToPlane(point, plane));
+  if (projected.some((point, index) => Math.hypot(point[0] - projected[(index + 1) % projected.length][0], point[1] - projected[(index + 1) % projected.length][1]) <= EPSILON) ||
+      Math.abs(signedArea(projected)) <= EPSILON || profileSelfIntersects(projected, true)) return null;
+  const topology = topologyOf(source);
+  if (!topology || topology.controls.length !== points.length) return null;
+  const controls = topology.controls.map((control, index) => ({ ...control, index }));
+  const closing: DrawingTopologySegment = {
+    id: `segment-${crypto.randomUUID()}`,
+    startControlId: controls.at(-1)!.id,
+    endControlId: controls[0].id,
+    index: points.length - 1,
+    kind: "line",
+  };
+  return {
+    ...structuredClone(source),
+    closed: true,
+    bulges: [...profileBulges("polyline", source), 0],
+    topology: { ...structuredClone(topology), controls, segments: [...topology.segments.map((segment, index) => ({ ...segment, index })), closing] },
+  };
+}
+
+/**
+ * Replaces one straight polyline/rectangle corner with an exact circular
+ * fillet (bulge) or a straight chamfer. Unaffected topology ids are retained.
+ */
+export function editDrawingCornerParams(
+  source: Record<string, unknown>,
+  controlId: string,
+  treatment: "fillet" | "chamfer",
+  distance: number,
+): Record<string, unknown> | null {
+  const kind = String(source.kind ?? "");
+  if (!(kind === "polyline" || kind === "rectangle") || !Number.isFinite(distance) || distance <= EPSILON || !Array.isArray(source.points)) return null;
+  const points = source.points as Vec3[];
+  const topology = topologyOf(source);
+  const control = topology?.controls.find((entry) => entry.id === controlId);
+  if (!topology || control?.role !== "vertex" || control.index === undefined || points.length < 3) return null;
+  const closed = profileIsClosed(kind, source);
+  const index = control.index;
+  if (!closed && (index === 0 || index === points.length - 1)) return null;
+  const previousIndex = (index + points.length - 1) % points.length;
+  const nextIndex = (index + 1) % points.length;
+  const bulges = profileBulges(kind, source);
+  const previousSegmentIndex = (index + profileSegmentCount(kind, source) - 1) % profileSegmentCount(kind, source);
+  if (Math.abs(bulges[previousSegmentIndex] ?? 0) > EPSILON || Math.abs(bulges[index] ?? 0) > EPSILON) return null;
+
+  const plane = workPlaneId(source.workPlane);
+  const a = drawingPointToPlane(points[previousIndex], plane);
+  const b = drawingPointToPlane(points[index], plane);
+  const c = drawingPointToPlane(points[nextIndex], plane);
+  const ba = subtract2(a, b);
+  const bc = subtract2(c, b);
+  const incoming = subtract2(b, a);
+  const outgoing = subtract2(c, b);
+  const previousLength = Math.hypot(...ba);
+  const nextLength = Math.hypot(...bc);
+  if (previousLength <= EPSILON || nextLength <= EPSILON) return null;
+  const uPrevious: Vec2 = [ba[0] / previousLength, ba[1] / previousLength];
+  const uNext: Vec2 = [bc[0] / nextLength, bc[1] / nextLength];
+  const angle = Math.acos(Math.max(-1, Math.min(1, uPrevious[0] * uNext[0] + uPrevious[1] * uNext[1])));
+  if (angle <= 1e-6 || Math.PI - angle <= 1e-6) return null;
+  const setback = treatment === "fillet" ? distance / Math.tan(angle / 2) : distance;
+  if (!(setback > EPSILON) || setback >= previousLength - EPSILON || setback >= nextLength - EPSILON) return null;
+  const first2: Vec2 = [b[0] + uPrevious[0] * setback, b[1] + uPrevious[1] * setback];
+  const second2: Vec2 = [b[0] + uNext[0] * setback, b[1] + uNext[1] * setback];
+  const elevation = plane === "XZ" ? points[index][1] : plane === "YZ" ? points[index][0] : points[index][2];
+  const first = drawingPointFromPlane(first2, elevation, plane);
+  const second = drawingPointFromPlane(second2, elevation, plane);
+  const sweep = Math.sign(cross2(incoming, outgoing)) * (Math.PI - angle);
+  const cornerBulge = treatment === "fillet" ? Math.tan(sweep / 4) : 0;
+  if (treatment === "fillet" && Math.abs(cornerBulge) <= EPSILON) return null;
+
+  const nextPoints = points.flatMap((point, pointIndex) => pointIndex === index ? [first, second] : [[...point] as Vec3]);
+  const nextControls = [...topology.controls]
+    .sort((left, right) => Number(left.index ?? 0) - Number(right.index ?? 0))
+    .flatMap((entry) => entry.id === controlId
+      ? [{ ...entry, index }, { id: `vertex-${crypto.randomUUID()}`, role: "vertex" as const, index: index + 1 }]
+      : [{ ...entry, index: Number(entry.index) > index ? Number(entry.index) + 1 : entry.index }]);
+  const newControlId = nextControls[index + 1].id;
+  const oldSegments = topology.segments;
+  const incomingSegment = oldSegments.find((segment) => segment.endControlId === controlId);
+  const outgoingSegment = oldSegments.find((segment) => segment.startControlId === controlId);
+  if (!incomingSegment || !outgoingSegment) return null;
+  const cornerSegmentId = `segment-${crypto.randomUUID()}`;
+  const edgeCount = nextPoints.length - 1 + (closed ? 1 : 0);
+  const nextSegments: DrawingTopologySegment[] = [];
+  for (let edge = 0; edge < edgeCount; edge += 1) {
+    const start = nextControls[edge];
+    const end = nextControls[(edge + 1) % nextControls.length];
+    let existing = oldSegments.find((segment) => segment.startControlId === start.id && segment.endControlId === end.id);
+    if (end.id === controlId) existing = incomingSegment;
+    if (start.id === newControlId) existing = outgoingSegment;
+    nextSegments.push({
+      id: start.id === controlId && end.id === newControlId ? cornerSegmentId : existing?.id ?? `segment-${crypto.randomUUID()}`,
+      startControlId: start.id,
+      endControlId: end.id,
+      index: edge,
+      kind: start.id === controlId && end.id === newControlId && treatment === "fillet" ? "arc" : "line",
+    });
+  }
+  const nextBulges = nextSegments.map((segment) => segment.id === cornerSegmentId ? cornerBulge : 0);
+  const projected = nextPoints.map((point) => drawingPointToPlane(point, plane));
+  if (closed && (Math.abs(signedArea(projected)) <= EPSILON || profileSelfIntersects(projected, true))) return null;
+  return {
+    ...structuredClone(source),
+    kind: "polyline",
+    points: nextPoints,
+    closed,
+    bulges: nextBulges,
+    topology: {
+      version: 1,
+      controls: nextControls,
+      segments: nextSegments,
+      curves: [
+        ...topology.curves.filter((curve) => !oldSegments.some((segment) => segment.id === curve.id)),
+        ...(treatment === "fillet" ? [{ id: cornerSegmentId, kind: "arc" as const }] : []),
+      ],
+    },
+  };
 }
 
 /** Returns a replacement parameter object, or null for invalid/no-op edits. */
@@ -189,6 +365,7 @@ export function offsetDrawingParams(
   if (!Number.isFinite(distance) || Math.abs(distance) <= EPSILON) return null;
   const plane = workPlaneId(source.workPlane);
   if ((kind === "line" || kind === "polyline" || kind === "rectangle") && Array.isArray(source.points)) {
+    if (profileBulges(kind, source).some((bulge) => Math.abs(bulge) > EPSILON)) return null;
     const points = source.points as Vec3[];
     const planePoints = points.map((point) => drawingPointToPlane(point, plane));
     const closed = kind === "rectangle" || source.closed === true;
@@ -231,10 +408,6 @@ export function offsetDrawingParams(
     if (!closed) result.push(validSegments.at(-1)![1]);
 
     if (closed) {
-      const signedArea = (polygon: Vec2[]) => polygon.reduce((area, point, index) => {
-        const next = polygon[(index + 1) % polygon.length];
-        return area + point[0] * next[1] - next[0] * point[1];
-      }, 0) / 2;
       const originalArea = signedArea(planePoints);
       const offsetArea = signedArea(result);
       const reversedEdge = result.some((point, index) => {

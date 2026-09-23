@@ -49,6 +49,45 @@ export function getObjectWorldBounds(document: CadDocument, objectId: string): W
     return { min: bounds.min.toArray(), max: bounds.max.toArray() };
   }
 
+  if (feature.type === "extrude") {
+    const profile = feature.params.profile as { normal?: [number, number, number]; segments?: Array<{ kind: string; start?: [number, number, number]; mid?: [number, number, number]; end?: [number, number, number]; center?: [number, number, number]; radius?: number; xAxis?: [number, number, number] }> } | undefined;
+    const normal = profile?.normal;
+    const extrusion = Number(feature.params.distance);
+    if (!profile?.segments?.length || !normal || !Number.isFinite(extrusion)) return null;
+    const points: THREE.Vector3[] = [];
+    const push = (point: [number, number, number]) => {
+      const base = new THREE.Vector3(...point);
+      points.push(base, base.clone().addScaledVector(new THREE.Vector3(...normal), extrusion));
+    };
+    for (const segment of profile.segments) {
+      if (segment.kind === "circle" && segment.center && segment.radius && segment.xAxis) {
+        const n = new THREE.Vector3(...normal).normalize();
+        const x = new THREE.Vector3(...segment.xAxis).normalize();
+        const y = new THREE.Vector3().crossVectors(n, x).normalize();
+        for (let index = 0; index < 32; index += 1) {
+          const angle = Math.PI * 2 * index / 32;
+          push(new THREE.Vector3(...segment.center).addScaledVector(x, Math.cos(angle) * segment.radius).addScaledVector(y, Math.sin(angle) * segment.radius).toArray());
+        }
+      } else {
+        if (segment.start) push(segment.start);
+        if (segment.mid) push(segment.mid);
+        if (segment.end) push(segment.end);
+      }
+    }
+    if (!points.length) return null;
+    const local = new THREE.Box3().setFromPoints(points);
+    const transform = getObjectTransform(object, feature);
+    const matrix = new THREE.Matrix4().compose(
+      new THREE.Vector3(...transform.translation),
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(...transform.rotation.map(THREE.MathUtils.degToRad) as [number, number, number])),
+      new THREE.Vector3(...transform.scale),
+    );
+    const corners: THREE.Vector3[] = [];
+    for (const x of [local.min.x, local.max.x]) for (const y of [local.min.y, local.max.y]) for (const z of [local.min.z, local.max.z]) corners.push(new THREE.Vector3(x, y, z).applyMatrix4(matrix));
+    const bounds = new THREE.Box3().setFromPoints(corners);
+    return { min: bounds.min.toArray(), max: bounds.max.toArray() };
+  }
+
   const localBounds = primitiveLocalBounds(feature.params);
   const transform = getObjectTransform(object, feature);
   const rotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(

@@ -10,6 +10,7 @@ import { measureDrawing } from "../precision/measurements";
 import { formatLength } from "../precision/units";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 import type { TopologySelectionRef } from "../state/selection";
+import { extractSketchLoops } from "../precision/sketchProfiles";
 
 type PropertiesPanelProps = {
   documentRevision: number;
@@ -98,11 +99,14 @@ export function PropertiesPanel({
     : undefined;
   const isPrimitive = feature?.type === "primitive";
   const isDrawing = feature?.type === "drawing";
+  const isExtrude = feature?.type === "extrude";
+  const profileResult = extractSketchLoops(cadDocument, selectedObjectIds);
+  const hasEmbeddedArcs = isDrawing && Array.isArray(feature.params.bulges) && feature.params.bulges.some((value) => Math.abs(Number(value)) > 1e-9);
   const drawingMeasurements = isDrawing && object && feature
     ? (() => {
       const world = getWorldDrawingGeometry(object, feature);
       if (!world) return {};
-      return measureDrawing({ kind: world.kind, workPlane: world.workPlane, points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle });
+      return measureDrawing({ kind: world.kind, workPlane: world.workPlane, points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle, closed: world.closed, profileSegments: world.profileSegments });
     })()
     : {};
   const primitiveKind = isPrimitive && typeof feature.params.kind === "string" ? feature.params.kind : "box";
@@ -111,10 +115,12 @@ export function PropertiesPanel({
   const isLocked = objectLayer?.locked ?? false;
   const [name, setName] = useState("");
   const [primitiveDraft, setPrimitiveDraft] = useState<PrimitiveDraft>({});
+  const [extrudeDistance, setExtrudeDistance] = useState("10");
   const [booleanToolId, setBooleanToolId] = useState("");
   const [booleanError, setBooleanError] = useState("");
   const [transformDraft, setTransformDraft] = useState<TransformDraft>(emptyTransformDraft);
   const [offsetDistanceLocal, setOffsetDistanceLocal] = useState("10");
+  const [cornerDistance, setCornerDistance] = useState("5");
   const offsetDistance = offsetDistanceProp ?? offsetDistanceLocal;
   const setOffsetDistance = (value: string) => { setOffsetDistanceLocal(value); onOffsetDistanceChange?.(value); };
   const visibilityInputRef = useRef<HTMLInputElement>(null);
@@ -160,6 +166,10 @@ export function PropertiesPanel({
     setPrimitiveDraft(Object.fromEntries(Object.entries(feature.params).filter(([key]) => key !== "kind").map(([key, value]) => [key, String(value)])));
     setBooleanToolId("");
   }, [selectedObjectId, selectedObjectIds.join("\0"), documentRevision]);
+
+  useEffect(() => {
+    setExtrudeDistance(isExtrude ? String(feature.params.distance) : "10");
+  }, [selectedObjectId, documentRevision, isExtrude]);
 
   async function commitName() {
     if (!object || isLocked) return;
@@ -272,7 +282,7 @@ export function PropertiesPanel({
   }
 
   async function commitOffset() {
-    if (!object || !isDrawing || isLocked || selectedObjects.length !== 1) return;
+    if (!object || !isDrawing || isLocked || hasEmbeddedArcs || selectedObjects.length !== 1) return;
     const distance = Number(offsetDistance);
     if (!Number.isFinite(distance) || distance <= 1e-9) return;
     const id = await dispatchCadCommand({ type: "offset-drawing", objectId: object.id, distance, side: offsetSide });
@@ -280,6 +290,36 @@ export function PropertiesPanel({
       onOffsetCancel?.();
       onBooleanCreated(id);
     }
+    onDocumentChange();
+  }
+
+  async function commitCornerTreatment(treatment: "fillet" | "chamfer") {
+    if (!object || !feature || feature.type !== "drawing" || isLocked || selectedObjects.length !== 1 || selectedSubObjects.length !== 1) return;
+    const selected = selectedSubObjects[0];
+    if (selected.objectId !== object.id || selected.kind !== "drawing-control") return;
+    const distance = Number(cornerDistance);
+    if (!Number.isFinite(distance) || distance <= 1e-9) return;
+    await dispatchCadCommand({ type: "edit-drawing-corner", objectId: object.id, controlId: selected.topologyId, treatment, distance });
+    onDocumentChange();
+  }
+
+  async function closeProfile() {
+    if (!object || !feature || feature.type !== "drawing" || isLocked || selectedObjects.length !== 1) return;
+    await dispatchCadCommand({ type: "close-drawing-profile", objectId: object.id });
+    onDocumentChange();
+  }
+
+  async function commitExtrude() {
+    const distance = Number(extrudeDistance);
+    if (!Number.isFinite(distance) || Math.abs(distance) <= 1e-9) return;
+    if (isExtrude && object) {
+      await dispatchCadCommand({ type: "update-extrude", objectId: object.id, distance });
+      onDocumentChange();
+      return;
+    }
+    if (!profileResult.ok) return;
+    const id = await dispatchCadCommand({ type: "create-extrude", profileObjectIds: selectedObjectIds, distance, layerId: selectedLayerId });
+    if (typeof id === "string") onBooleanCreated(id);
     onDocumentChange();
   }
 
@@ -305,7 +345,7 @@ export function PropertiesPanel({
 
   return (
     <div className="properties-content">
-      <div className="inspector-header"><span>Properties</span><small>{selectedObjects.length > 1 ? `${selectedObjects.length} selected` : isLocked ? "Locked layer" : isPrimitive ? primitiveKind : isDrawing ? String(feature.params.kind) : feature?.type === "boolean" ? "Boolean result" : "BRep body"}</small></div>
+      <div className="inspector-header"><span>Properties</span><small>{selectedObjects.length > 1 ? `${selectedObjects.length} selected` : isLocked ? "Locked layer" : isPrimitive ? primitiveKind : isDrawing ? String(feature.params.kind) : isExtrude ? "Extrude" : feature?.type === "boolean" ? "Boolean result" : "BRep body"}</small></div>
 
       {isLocked && <div className="inspector-notice">Unlock <strong>{objectLayer?.name}</strong> in Layers to edit this object.</div>}
 
@@ -313,7 +353,7 @@ export function PropertiesPanel({
         <h3>Identity</h3>
         {selectedObjects.length === 1 ? <>
           <label className="property-row"><span>Name</span><input disabled={isLocked} value={name} onChange={(event) => setName(event.target.value)} onBlur={() => void commitName()} onKeyDown={(event) => event.key === "Enter" && event.currentTarget.blur()} /></label>
-          <div className="property-row"><span>Type</span><strong>{isPrimitive ? `Primitive / ${primitiveKind[0].toUpperCase()}${primitiveKind.slice(1)}` : isDrawing ? `Drawing / ${String(feature.params.kind)}` : feature?.type === "boolean" ? "Feature / Boolean" : "BRep body"}</strong></div>
+          <div className="property-row"><span>Type</span><strong>{isPrimitive ? `Primitive / ${primitiveKind[0].toUpperCase()}${primitiveKind.slice(1)}` : isDrawing ? `Drawing / ${String(feature.params.kind)}` : isExtrude ? "Feature / Extrude" : feature?.type === "boolean" ? "Feature / Boolean" : "BRep body"}</strong></div>
           <div className="property-row" title={object.id}><span>ID</span><code>{object.id}</code></div>
         </> : <>
           <div className="property-row"><span>Selection</span><strong>{selectedObjects.length} objects</strong></div>
@@ -325,6 +365,11 @@ export function PropertiesPanel({
         <section className="property-section">
           <h3>Direct selection <small>{selectedSubObjects.length}</small></h3>
           {selectedSubObjects.map((entry) => <div className="property-row" key={`${entry.objectId}:${entry.kind}:${entry.topologyId}`}><span>{entry.kind === "drawing-control" ? "Vertex" : entry.kind === "drawing-segment" ? "Segment" : entry.kind === "drawing-curve" ? "Curve" : entry.kind}</span><code>{entry.topologyId}</code></div>)}
+          {isDrawing && selectedObjects.length === 1 && selectedSubObjects.length === 1 && selectedSubObjects[0].kind === "drawing-control" && ["polyline", "rectangle"].includes(String(feature.params.kind)) && <>
+            <NumericField label="Corner" context="Corner treatment" unit="mm" disabled={isLocked} min="0.001" step="0.1" value={cornerDistance} onChange={setCornerDistance} />
+            <div className="property-actions"><button type="button" disabled={isLocked} onClick={() => void commitCornerTreatment("fillet")}>Fillet</button><button type="button" disabled={isLocked} onClick={() => void commitCornerTreatment("chamfer")}>Chamfer</button></div>
+            <p className="property-hint">Applies an exact radius or equal-distance setback to the selected straight corner.</p>
+          </>}
         </section>
       )}
 
@@ -356,16 +401,28 @@ export function PropertiesPanel({
           {drawingMeasurements.radius !== undefined && <div className="property-row"><span>Radius</span><strong>{formatLength(drawingMeasurements.radius, "mm", 2)}</strong></div>}
           {drawingMeasurements.diameter !== undefined && <div className="property-row"><span>Diameter</span><strong>{formatLength(drawingMeasurements.diameter, "mm", 2)}</strong></div>}
           {drawingMeasurements.area !== undefined && <div className="property-row"><span>Area</span><strong>{drawingMeasurements.area.toFixed(2)} mm²</strong></div>}
+          {feature.params.kind === "polyline" && feature.params.closed !== true && <div className="property-actions"><button type="button" disabled={isLocked} onClick={() => void closeProfile()}>Close profile</button></div>}
+        </section>
+      )}
+
+      {(isExtrude || selectedObjects.every((entry) => Object.values(cadDocument.features).some((candidate) => candidate.output === entry.id && candidate.type === "drawing"))) && (
+        <section className="property-section">
+          <h3>Extrude <small>mm</small></h3>
+          <NumericField label="Distance" context="Extrude" unit="mm" disabled={isLocked || (!isExtrude && !profileResult.ok)} step="0.1" value={extrudeDistance} onChange={setExtrudeDistance} onCommit={() => isExtrude && void commitExtrude()} />
+          {!isExtrude && <div className="property-row"><span>Profile</span><strong>{profileResult.ok ? "Closed · Ready" : "Invalid"}</strong></div>}
+          {!isExtrude && !profileResult.ok && <p className="property-hint">{profileResult.reason}</p>}
+          {isExtrude && <div className="property-row"><span>Sources</span><strong>{feature.inputs.length}</strong></div>}
+          <div className="property-actions"><button type="button" disabled={isLocked || (!isExtrude && !profileResult.ok)} onClick={() => void commitExtrude()}>{isExtrude ? "Update extrusion" : "Create solid"}</button></div>
         </section>
       )}
 
       {isDrawing && selectedObjects.length === 1 && ["line", "polyline", "rectangle", "circle", "arc"].includes(String(feature.params.kind)) && (
         <section className="property-section">
           <h3>Offset <small>mm</small></h3>
-          <NumericField label="Distance" context="Offset" unit="mm" disabled={isLocked || selectedObjects.length !== 1} step="0.1" value={offsetDistance} onChange={setOffsetDistance} />
-          <label className="property-row"><span>Side</span><select value={offsetSide} disabled={isLocked || selectedObjects.length !== 1} onChange={(event) => onOffsetSideChange?.(event.currentTarget.value as "left" | "right")}><option value="left">{feature.params.kind === "circle" || feature.params.kind === "arc" ? "Outside" : "Left of path"}</option><option value="right">{feature.params.kind === "circle" || feature.params.kind === "arc" ? "Inside" : "Right of path"}</option></select></label>
-          <div className="property-actions"><button type="button" disabled={isLocked || selectedObjects.length !== 1} onClick={() => offsetActive ? onOffsetCancel?.() : onOffsetStart?.()}>{offsetActive ? "Cancel offset" : "Preview offset"}</button><button type="button" disabled={isLocked || selectedObjects.length !== 1 || !offsetActive} onClick={() => void commitOffset()}>Commit</button></div>
-          <p className="property-hint">Move the pointer across the profile to choose side, then Commit.</p>
+          <NumericField label="Distance" context="Offset" unit="mm" disabled={isLocked || hasEmbeddedArcs || selectedObjects.length !== 1} step="0.1" value={offsetDistance} onChange={setOffsetDistance} />
+          <label className="property-row"><span>Side</span><select value={offsetSide} disabled={isLocked || hasEmbeddedArcs || selectedObjects.length !== 1} onChange={(event) => onOffsetSideChange?.(event.currentTarget.value as "left" | "right")}><option value="left">{feature.params.kind === "circle" || feature.params.kind === "arc" ? "Outside" : "Left of path"}</option><option value="right">{feature.params.kind === "circle" || feature.params.kind === "arc" ? "Inside" : "Right of path"}</option></select></label>
+          <div className="property-actions"><button type="button" disabled={isLocked || hasEmbeddedArcs || selectedObjects.length !== 1} onClick={() => offsetActive ? onOffsetCancel?.() : onOffsetStart?.()}>{offsetActive ? "Cancel offset" : "Preview offset"}</button><button type="button" disabled={isLocked || hasEmbeddedArcs || selectedObjects.length !== 1 || !offsetActive} onClick={() => void commitOffset()}>Commit</button></div>
+          <p className="property-hint">{hasEmbeddedArcs ? "Offset of profiles containing fillet arcs is not yet supported." : "Move the pointer across the profile to choose side, then Commit."}</p>
         </section>
       )}
 

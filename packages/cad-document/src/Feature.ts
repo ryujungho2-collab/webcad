@@ -3,6 +3,7 @@ export interface CadFeature {
   type:
     | "primitive"
     | "drawing"
+    | "extrude"
     | "transform"
     | "boolean"
     | "fillet";

@@ -25,6 +25,10 @@ function setKernelStatus(status: KernelStatus) {
 
 function yieldForInitialPaint() {
   return new Promise<void>((resolve) => {
+    if (typeof window === "undefined") {
+      resolve();
+      return;
+    }
     const requestIdle = (window as Window & { requestIdleCallback?: typeof window.requestIdleCallback }).requestIdleCallback;
     if (requestIdle) {
       requestIdle(() => resolve(), { timeout: 200 });
@@ -68,7 +72,7 @@ async function runKernelTask<T>(name: string, task: (kernel: CadKernelModule) =>
       start: startedAt,
       end: performance.now(),
     });
-    if (import.meta.env.DEV) {
+    if ((import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV) {
       const ocInit = performance.getEntriesByName("agent-webcad:opencascade-init").at(-1);
       console.info("[agent-webcad:perf]", JSON.stringify({
         task: name,
@@ -90,7 +94,7 @@ function getCachedMesh(key: string, factory: () => Promise<MeshData>) {
   const cached = primitiveMeshCache.get(key);
   if (cached) {
     performance.mark("agent-webcad:mesh-cache-hit", { detail: { key } });
-    if (import.meta.env.DEV) {
+    if ((import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV) {
       console.info("[agent-webcad:perf]", JSON.stringify({ meshCacheHit: key }));
     }
     return cached;
@@ -176,6 +180,24 @@ export function buildBooleanMesh(params: PrimitiveParams, preflight = false) {
       return await kernel.shapeToMesh(result);
     } finally { result?.delete?.(); if (a !== sourceA) a?.delete?.(); if (b !== sourceB) b?.delete?.(); sourceA?.delete?.(); sourceB?.delete?.(); }
   }, { fatal: !preflight }));
+}
+
+export function buildExtrudeMesh(params: PrimitiveParams, preflight = false) {
+  const key = `extrude:${JSON.stringify(params)}`;
+  return getCachedMesh(key, () => runKernelTask(key, async ({ extrudeProfile, shapeToMesh }) => {
+    const profile = params.profile as Parameters<typeof extrudeProfile>[0];
+    const distance = Number(params.distance);
+    const shape = await extrudeProfile(profile, distance);
+    try {
+      return await shapeToMesh(shape);
+    } finally {
+      shape?.delete?.();
+    }
+  }, { fatal: !preflight }));
+}
+
+export async function validateExtrudeOperation(params: PrimitiveParams) {
+  await buildExtrudeMesh(params, true);
 }
 
 /** Runs the exact cached operation before a boolean command mutates the document. */

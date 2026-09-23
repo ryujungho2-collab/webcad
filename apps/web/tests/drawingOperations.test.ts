@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import {
+  closeDrawingProfileParams,
   editDrawingControlParams,
+  editDrawingCornerParams,
   editDrawingSegmentParams,
   offsetDrawingParams,
 } from "../src/precision/drawingOperations";
 import { createDrawingTopology } from "../src/precision/drawingTopology";
+import { profileSegments, sampleProfile } from "../src/precision/profileGeometry";
 
 const points = (...values: [number, number, number][]) => values;
 
@@ -25,11 +28,56 @@ describe("drawing topology", () => {
       id: "rectangle-a:segment:3",
       startControlId: "rectangle-a:vertex:3",
       endControlId: "rectangle-a:vertex:0",
+      index: 3,
+      kind: "line",
     });
 
     const arc = createDrawingTopology("arc", { center: [0, 0, 0], radius: 5 }, "arc-a");
     assert.deepEqual(arc.controls.map((control) => control.role), ["center", "start", "end"]);
     assert.equal(arc.curves[0].id, "arc-a:curve:0");
+  });
+});
+
+describe("closed profiles and corner treatment", () => {
+  test("closes a valid polyline while preserving existing topology references", () => {
+    const source = {
+      kind: "polyline",
+      workPlane: "XY",
+      points: points([0, 0, 0], [10, 0, 0], [10, 10, 0]),
+      topology: createDrawingTopology("polyline", { points: points([0, 0, 0], [10, 0, 0], [10, 10, 0]) }, "profile"),
+    };
+    const closed = closeDrawingProfileParams(source);
+    assert.equal(closed?.closed, true);
+    assert.equal((closed?.topology as ReturnType<typeof createDrawingTopology>).segments.length, 3);
+    assert.deepEqual((closed?.topology as ReturnType<typeof createDrawingTopology>).controls.map((entry) => entry.id), source.topology.controls.map((entry) => entry.id));
+    assert.equal(closeDrawingProfileParams({ ...source, points: points([0, 0, 0], [10, 0, 0], [20, 0, 0]) }), null);
+  });
+
+  test("creates an exact circular fillet and keeps unaffected topology ids", () => {
+    const rectanglePoints = points([0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]);
+    const topology = createDrawingTopology("rectangle", { points: rectanglePoints }, "rectangle-a");
+    const result = editDrawingCornerParams({ kind: "rectangle", workPlane: "XY", points: rectanglePoints, topology }, "rectangle-a:vertex:1", "fillet", 2);
+    assert.equal(result?.kind, "polyline");
+    assert.equal(result?.closed, true);
+    assert.equal((result?.points as unknown[]).length, 5);
+    const tangentPoints = (result?.points as [number, number, number][]).slice(1, 3);
+    assert.deepEqual(tangentPoints[0], [8, 0, 0]);
+    assert.ok(Math.abs(tangentPoints[1][0] - 10) < 1e-9 && Math.abs(tangentPoints[1][1] - 2) < 1e-9);
+    const arc = profileSegments("polyline", result! as Record<string, unknown>).find((segment) => segment.kind === "arc");
+    assert.ok(arc);
+    assert.ok(Math.abs(arc.radius! - 2) < 1e-9);
+    assert.ok(Math.abs(arc.sweep! - Math.PI / 2) < 1e-9);
+    assert.equal(sampleProfile("polyline", result! as Record<string, unknown>).length > 5, true);
+    assert.equal((result?.topology as ReturnType<typeof createDrawingTopology>).controls[0].id, "rectangle-a:vertex:0");
+  });
+
+  test("creates a chamfer and rejects impossible or already-curved corners", () => {
+    const sourcePoints = points([0, 0, 0], [10, 0, 0], [10, 10, 0]);
+    const topology = createDrawingTopology("polyline", { points: sourcePoints }, "path");
+    const chamfer = editDrawingCornerParams({ kind: "polyline", workPlane: "XY", points: sourcePoints, topology }, "path:vertex:1", "chamfer", 2);
+    assert.deepEqual(chamfer?.points, points([0, 0, 0], [8, 0, 0], [10, 2, 0], [10, 10, 0]));
+    assert.equal(editDrawingCornerParams({ kind: "polyline", workPlane: "XY", points: sourcePoints, topology }, "path:vertex:1", "fillet", 20), null);
+    assert.equal(editDrawingCornerParams({ kind: "polyline", workPlane: "XY", points: sourcePoints, bulges: [0, 0.2], topology }, "path:vertex:1", "fillet", 1), null);
   });
 });
 
