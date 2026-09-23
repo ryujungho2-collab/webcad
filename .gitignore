@@ -7,3 +7,5 @@ coverage/
 *-errors.txt
 *.backup.css
 *.tsbuildinfo
+# TypeScript incremental build cache
+*.tsbuildinfo
