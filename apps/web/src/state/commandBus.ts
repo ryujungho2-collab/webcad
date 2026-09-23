@@ -8,6 +8,7 @@ import {
 } from "./cadDocument";
 import { getObjectTransform } from "./objectTransform";
 import { registerDrawingCommandHandlers } from "./registerDrawingCommandHandlers";
+import { registerSketchCommandHandlers } from "./registerSketchCommandHandlers";
 import { createDrawingTopology } from "../precision/drawingTopology";
 import { extractSketchLoops } from "../precision/sketchProfiles";
 import { validateExtrudeOperation } from "../viewport/kernelGeometryService";
@@ -19,6 +20,7 @@ function restoreDocumentSnapshot(snapshot: typeof cadDocument) {
   cadDocument.id = snapshot.id;
   cadDocument.objects = structuredClone(snapshot.objects);
   cadDocument.features = structuredClone(snapshot.features);
+  cadDocument.sketches = structuredClone(snapshot.sketches);
   cadDocument.layers = structuredClone(snapshot.layers);
   cadDocument.rootObjects = [...snapshot.rootObjects];
   cadDocument.rootLayers = [...snapshot.rootLayers];
@@ -184,6 +186,7 @@ commandBus.registerHandler(
       !targetLayer ||
       object.layerId === targetLayer.id ||
       sourceLayer?.locked ||
+      Boolean(Object.values(cadDocument.features).find((feature) => feature.output === command.objectId)?.params.sketchId) ||
       targetLayer.locked
     ) {
       return;
@@ -357,7 +360,7 @@ function findFeatureForObject(objectId: string) {
 function getEditableObject(objectId: string) {
   const object = cadDocument.objects[objectId];
   const layer = object ? cadDocument.layers[object.layerId] : undefined;
-  return object && !layer?.locked ? object : undefined;
+  return object && !layer?.locked && !findFeatureForObject(objectId)?.params.sketchId ? object : undefined;
 }
 
 function primitiveKind(feature: { params: Record<string, unknown> }) {
@@ -375,6 +378,7 @@ function isValidPrimitiveParams(kind: string, params: Record<string, number>) {
 }
 
 registerDrawingCommandHandlers(commandBus, cadDocument);
+registerSketchCommandHandlers(commandBus, cadDocument);
 
 commandBus.registerHandler(
   "create-primitive",
@@ -568,6 +572,12 @@ commandBus.registerHandler(
       }
     }
 
+    // Sketches are document-owned entities even before their viewport adapter
+    // is enabled. Keep their layer references valid when a layer is removed.
+    for (const sketch of Object.values(cadDocument.sketches ?? {})) {
+      if (sketch.layerId === command.layerId) sketch.layerId = "layer-default";
+    }
+
     delete cadDocument.layers[
       command.layerId
     ];
@@ -663,6 +673,8 @@ commandBus.registerHandler(
       return;
     }
 
+    if (findFeatureForObject(object.id)?.params.sketchId) return;
+
     const layer =
       cadDocument.layers[
         object.layerId
@@ -747,6 +759,10 @@ commandBus.registerHandler(
     if (!sourceFeature) {
       return;
     }
+
+    // Sketch geometry is owned by its sketch. A standalone duplicate must not
+    // retain the ownership marker or it would be mistaken for a projection.
+    if (sourceFeature.params.sketchId) return;
 
     const id =
       `copy-${crypto.randomUUID()}`;

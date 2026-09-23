@@ -16,6 +16,33 @@ function isVector3(value: unknown): value is [number, number, number] {
   return Array.isArray(value) && value.length === 3 && value.every(isFiniteNumber);
 }
 
+function isVector2(value: unknown): value is [number, number] {
+  return Array.isArray(value) && value.length === 2 && value.every(isFiniteNumber);
+}
+
+function isSketchPointRef(value: unknown) {
+  return isRecord(value) && isString(value.geometryId) && isString(value.pointId);
+}
+
+function isSketchGeometry(value: unknown) {
+  if (!isRecord(value) || !isString(value.id)) return false;
+  if (value.kind === "line") return isString(value.startId) && isString(value.endId) && isString(value.segmentId) && isVector2(value.start) && isVector2(value.end);
+  if (value.kind === "polyline") return Array.isArray(value.vertices) && value.vertices.length >= 2 && value.vertices.every((entry) => isRecord(entry) && isString(entry.id) && isVector2(entry.point)) && Array.isArray(value.segmentIds) && value.segmentIds.every(isString) && typeof value.closed === "boolean";
+  if (value.kind === "rectangle") return Array.isArray(value.cornerIds) && value.cornerIds.length === 4 && value.cornerIds.every(isString) && Array.isArray(value.edgeIds) && value.edgeIds.length === 4 && value.edgeIds.every(isString) && isVector2(value.origin) && isFiniteNumber(value.width) && isFiniteNumber(value.height);
+  if (value.kind === "circle") return isString(value.centerId) && isString(value.curveId) && isVector2(value.center) && isFiniteNumber(value.radius);
+  if (value.kind === "arc") return isString(value.centerId) && isString(value.startId) && isString(value.endId) && isString(value.curveId) && isVector2(value.center) && isFiniteNumber(value.radius) && isFiniteNumber(value.startAngle) && isFiniteNumber(value.endAngle);
+  return false;
+}
+
+function isSketchConstraint(value: unknown) {
+  if (!isRecord(value) || !isString(value.id)) return false;
+  if (value.kind === "radius" || value.kind === "diameter") return isString(value.geometryId) && isFiniteNumber(value.value) && value.value > 0;
+  if (value.kind === "angle") return isString(value.firstLineId) && isString(value.secondLineId) && value.firstLineId !== value.secondLineId && isFiniteNumber(value.value) && Math.abs(value.value) <= Math.PI;
+  if (value.kind === "fixed-point") return isSketchPointRef(value.point) && isVector2(value.value);
+  if (!["coincident", "horizontal", "vertical", "distance"].includes(String(value.kind))) return false;
+  return isSketchPointRef(value.first) && isSketchPointRef(value.second) && (value.kind !== "distance" || isFiniteNumber(value.value) && value.value > 0);
+}
+
 function isVector3Array(value: unknown, minimum: number) {
   return Array.isArray(value) && value.length >= minimum && value.every(isVector3);
 }
@@ -38,6 +65,14 @@ export function validateCommand(command: unknown): command is CadCommand {
   }
 
   switch (command.type) {
+    case "create-sketch": return isString(command.id) && ["XY", "XZ", "YZ"].includes(String(command.workPlane)) && (command.layerId === undefined || isString(command.layerId));
+    case "add-sketch-geometry": return isString(command.sketchId) && isSketchGeometry(command.geometry);
+    case "remove-sketch-geometry": return isString(command.sketchId) && isString(command.geometryId);
+    case "add-sketch-constraint": return isString(command.sketchId) && isSketchConstraint(command.constraint);
+    case "remove-sketch-constraint": return isString(command.sketchId) && isString(command.constraintId);
+    case "set-sketch-dimension": return isString(command.sketchId) && isString(command.constraintId) && isFiniteNumber(command.value);
+    case "move-sketch-point": return isString(command.sketchId) && isSketchPointRef(command.point) && isVector2(command.position);
+    case "move-sketch-segment": return isString(command.sketchId) && isString(command.geometryId) && isString(command.segmentId) && isVector2(command.delta);
     case "batch":
       return Array.isArray(command.commands) && command.commands.length > 0 && command.commands.every((entry) => validateCommand(entry) && entry.type !== "batch");
     case "create-drawing":

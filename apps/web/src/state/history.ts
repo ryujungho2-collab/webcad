@@ -44,6 +44,8 @@ export function restoreDocument(
       snapshot.features
     );
 
+  cadDocument.sketches = structuredClone(snapshot.sketches);
+
   cadDocument.layers =
     structuredClone(
       snapshot.layers

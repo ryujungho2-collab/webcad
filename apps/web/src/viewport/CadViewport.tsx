@@ -23,6 +23,7 @@ import {
   type DirectSelectionCandidate,
 } from "./directSelection";
 import { matchesSelectionWindow, type ScreenPoint } from "./selectionWindow";
+import { middleMouseNavigation } from "../input/shortcutRouter";
 
 type CadViewportProps = {
   documentRevision: number;
@@ -60,6 +61,7 @@ type CadViewportProps = {
   lineEditCutterId?: string | null;
   onLineEditCommit?: (mode: "trim" | "extend", targetId: string, pickPoint: Vec3) => void;
   onLineEditCancel?: () => void;
+  shortcutReadout?: string;
 };
 
 export type ViewportActionType =
@@ -196,6 +198,7 @@ export function CadViewport({
   lineEditCutterId = null,
   onLineEditCommit,
   onLineEditCancel,
+  shortcutReadout = "",
 }: CadViewportProps) {
   const [toolReadout, setToolReadout] = useState("");
   const [sceneReady, setSceneReady] = useState(false);
@@ -229,6 +232,9 @@ export function CadViewport({
   const groupProxyRef = useRef<THREE.Object3D | null>(null);
   const selectionBoundsHelperRef = useRef<THREE.Box3Helper | null>(null);
   const directMarkerRef = useRef<THREE.Mesh | null>(null);
+  const selectedDirectHandlesRef = useRef<THREE.Points | null>(null);
+  const directCandidatesRef = useRef<DirectSelectionCandidate[]>([]);
+  const directSnapEntitiesRef = useRef<SnapEntity[]>([]);
   const firstGeometryReadyRef = useRef(false);
   const activeWorkPlaneRef = useRef(WORK_PLANES[activeWorkPlane]);
   const cameraWorkspaceRef = useRef({ mode: workspaceMode, plane: activeWorkPlane });
@@ -270,7 +276,17 @@ export function CadViewport({
   useEffect(() => { onDirectSelectSubObjectRef.current = onDirectSelectSubObject; }, [onDirectSelectSubObject]);
   useEffect(() => { onLineEditCommitRef.current = onLineEditCommit; }, [onLineEditCommit]);
   useEffect(() => { onLineEditCancelRef.current = onLineEditCancel; }, [onLineEditCancel]);
-  useEffect(() => { directSelectModeRef.current = directSelectMode; }, [directSelectMode]);
+  useEffect(() => {
+    directSelectModeRef.current = directSelectMode;
+    if (directSelectMode) {
+      directCandidatesRef.current = buildDirectSelectionCandidates(cadDocument, meshesRef.current);
+      directSnapEntitiesRef.current = buildDirectSnapEntities();
+    } else {
+      directCandidatesRef.current = [];
+      directSnapEntitiesRef.current = [];
+    }
+    updateSelectedDirectHandles();
+  }, [directSelectMode]);
   useEffect(() => { snapEnabledRef.current = snapEnabled; }, [snapEnabled]);
   useEffect(() => { orthoEnabledRef.current = orthoEnabled; }, [orthoEnabled]);
 
@@ -282,7 +298,7 @@ export function CadViewport({
 
   /* React SelectionState is authoritative; the viewport only renders it. */
   const selectedObjectIdRef = useRef<string | null>(selectedObjectId);
-  useEffect(() => { selectedObjectIdRef.current = selectedObjectId; applySelectionColor(); }, [selectedObjectId]);
+  useEffect(() => { selectedObjectIdRef.current = selectedObjectId; applySelectionColor(); updateSelectedDirectHandles(); }, [selectedObjectId]);
   const selectedObjectIdsRef = useRef<string[]>(selectedObjectIds);
   useEffect(() => { selectedObjectIdsRef.current = selectedObjectIds; applySelectionColor(); }, [selectedObjectIds]);
   const isolatedObjectIdsRef = useRef<Set<string> | null>(isolatedObjectIds ? new Set(isolatedObjectIds) : null);
@@ -329,6 +345,45 @@ export function CadViewport({
       );
     }
     updateSelectionBoundsHelper();
+  }
+
+  function updateSelectedDirectHandles() {
+    const handles = selectedDirectHandlesRef.current;
+    if (!handles) return;
+    const objectId = selectedObjectIdRef.current;
+    const controls = directSelectModeRef.current && objectId
+      ? directCandidatesRef.current.filter((candidate) => candidate.objectId === objectId && candidate.kind === "control")
+      : [];
+    handles.geometry.setAttribute("position", new THREE.Float32BufferAttribute(
+      controls.flatMap((candidate) => candidate.worldPoint.toArray()), 3,
+    ));
+    handles.geometry.computeBoundingSphere();
+    handles.visible = controls.length > 0;
+  }
+
+  function buildDirectSnapEntities(): SnapEntity[] {
+    const result: SnapEntity[] = [];
+    for (const feature of Object.values(cadDocument.features)) {
+      if (feature.type !== "drawing") continue;
+      const object = cadDocument.objects[feature.output];
+      const layer = object ? cadDocument.layers[object.layerId] : undefined;
+      const mesh = meshesRef.current.get(feature.output);
+      const kind = feature.params.kind;
+      if (!object?.visible || layer?.visible === false || !mesh?.visible || !(["line", "polyline", "rectangle", "circle", "arc"] as unknown[]).includes(kind)) continue;
+      const world = getWorldDrawingGeometry(object, feature);
+      if (!world) continue;
+      result.push({
+        objectId: object.id,
+        kind: kind as SnapEntity["kind"],
+        points: world.points,
+        center: world.center,
+        radius: world.radius,
+        startAngle: world.startAngle,
+        endAngle: world.endAngle,
+        profileSegments: world.profileSegments,
+      });
+    }
+    return result;
   }
 
   function updateSelectionBoundsHelper(sceneBounds?: THREE.Box3) {
@@ -614,23 +669,22 @@ export function CadViewport({
         renderer.domElement
       );
 
-    // CAD navigation convention: left mouse is reserved for selection and
-    // direct manipulation. Orbiting is a middle-button gesture; right click is
-    // reserved for context menus and Shift+MMB is the pan gesture.
+    // Left mouse is reserved for selection and direct manipulation. Middle
+    // mouse pans; holding Shift orbits in 3D. Right click opens context menus.
     controls.mouseButtons.LEFT = -1 as THREE.MOUSE;
-    controls.mouseButtons.MIDDLE = THREE.MOUSE.ROTATE;
+    controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN;
     controls.mouseButtons.RIGHT = -1 as THREE.MOUSE;
 
     // OrbitControls reads its mapping during pointerdown. Capture the event
     // so the modifier-aware MMB mapping is in place before it handles it.
     const handleNavigationPointerDown = (event: PointerEvent) => {
-      if (event.button === 1) controls.mouseButtons.MIDDLE = event.shiftKey ? THREE.MOUSE.PAN : THREE.MOUSE.ROTATE;
+      if (event.button === 1) controls.mouseButtons.MIDDLE = middleMouseNavigation(cameraWorkspaceRef.current.mode, event.shiftKey) === "orbit" ? THREE.MOUSE.ROTATE : THREE.MOUSE.PAN;
     };
     const handleNavigationPointerUp = (event: PointerEvent) => {
-      if (event.button === 1) controls.mouseButtons.MIDDLE = THREE.MOUSE.ROTATE;
+      if (event.button === 1) controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN;
     };
     const handleNavigationPointerCancel = (event: PointerEvent) => {
-      if (event.button === 1 || event.buttons === 0) controls.mouseButtons.MIDDLE = THREE.MOUSE.ROTATE;
+      if (event.button === 1 || event.buttons === 0) controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN;
     };
     renderer.domElement.addEventListener("pointerdown", handleNavigationPointerDown, true);
     renderer.domElement.addEventListener("pointerup", handleNavigationPointerUp, true);
@@ -819,6 +873,14 @@ export function CadViewport({
     directMarker.visible = false;
     scene.add(directMarker);
     directMarkerRef.current = directMarker;
+    const selectedDirectHandles = new THREE.Points(
+      new THREE.BufferGeometry(),
+      new THREE.PointsMaterial({ color: 0x76ead1, size: 7, sizeAttenuation: false, depthTest: false }),
+    );
+    selectedDirectHandles.renderOrder = 28;
+    selectedDirectHandles.visible = false;
+    scene.add(selectedDirectHandles);
+    selectedDirectHandlesRef.current = selectedDirectHandles;
     const directSegmentPreview = new THREE.Line(
       new THREE.BufferGeometry(),
       new THREE.LineBasicMaterial({ color: 0xffc107, depthTest: false, transparent: true, opacity: 0.95 }),
@@ -855,36 +917,11 @@ export function CadViewport({
     ) {
       const cursor = pointerPixels(event);
       return nearestDirectSelectionCandidate(
-        buildDirectSelectionCandidates(cadDocument, meshesRef.current),
+        directCandidatesRef.current,
         cursor,
         projectPixels,
         exclude,
       );
-    }
-
-    function directSnapEntities(): SnapEntity[] {
-      const result: SnapEntity[] = [];
-      for (const feature of Object.values(cadDocument.features)) {
-        if (feature.type !== "drawing") continue;
-        const object = cadDocument.objects[feature.output];
-        const layer = object ? cadDocument.layers[object.layerId] : undefined;
-        const mesh = meshesRef.current.get(feature.output);
-        const kind = feature.params.kind;
-        if (!object?.visible || layer?.visible === false || !mesh?.visible || !(["line", "polyline", "rectangle", "circle", "arc"] as unknown[]).includes(kind)) continue;
-        const world = getWorldDrawingGeometry(object, feature);
-        if (!world) continue;
-        result.push({
-          objectId: object.id,
-          kind: kind as SnapEntity["kind"],
-          points: world.points,
-          center: world.center,
-          radius: world.radius,
-          startAngle: world.startAngle,
-          endAngle: world.endAngle,
-          profileSegments: world.profileSegments,
-        });
-      }
-      return result;
     }
 
     function directWorldPoint(event: PointerEvent) {
@@ -920,7 +957,7 @@ export function CadViewport({
         const snapped = querySnap({
           point: world.toArray() as Vec3,
           referencePoint: directDrag.startWorld.toArray() as Vec3,
-          entities: directSnapEntities(),
+          entities: directSnapEntitiesRef.current,
           plane: activeWorkPlaneRef.current,
           gridStep: 1,
           tolerancePx: 12,
@@ -1079,7 +1116,9 @@ export function CadViewport({
           directMarker.position.copy(candidate.worldPoint);
           directMarker.visible = true;
           (directMarker.material as THREE.MeshBasicMaterial).color.setHex(candidate.kind === "segment" ? 0xffc107 : 0xb78cff);
-        if (candidate.kind === "segment") {
+        const candidateFeature = Object.values(cadDocument.features).find((entry) => entry.output === candidate.objectId);
+        const movableSegment = candidate.kind === "segment" && !(candidateFeature?.params.sketchId && candidateFeature.params.kind === "rectangle");
+        if (movableSegment) {
             directDrag = { candidate, startWorld: candidate.worldPoint.clone(), startClient: [event.clientX, event.clientY], pointerId: event.pointerId, committed: false, lastWorld: candidate.worldPoint.clone(), numericBuffer: "" };
             updateDirectSegmentPreview(candidate, new THREE.Vector3());
             controls.enabled = false;
@@ -1092,7 +1131,8 @@ export function CadViewport({
         // or OrbitControls can process the same pointer-down.
         event.preventDefault();
         event.stopImmediatePropagation();
-        updateSelection(candidate.objectId, event.shiftKey || event.ctrlKey || event.metaKey);
+        if (!additive || !selectedObjectIdsRef.current.includes(candidate.objectId)) updateSelection(candidate.objectId, additive);
+        onDirectSelectSubObjectRef.current?.({ objectId: candidate.objectId, kind: "drawing-control", topologyId: candidate.topologyId }, additive);
         directDrag = { candidate, startWorld: candidate.worldPoint.clone(), startClient: [event.clientX, event.clientY], pointerId: event.pointerId, committed: false, lastWorld: candidate.worldPoint.clone(), numericBuffer: "" };
         directMarker.position.copy(candidate.worldPoint);
         directMarker.visible = true;
@@ -1454,10 +1494,14 @@ export function CadViewport({
       renderer.domElement.removeEventListener("pointerup", handleSelectionUp);
       window.removeEventListener("keydown", handleDirectKeyDown, true);
       scene.remove(directMarker);
+      scene.remove(selectedDirectHandles);
       scene.remove(directSegmentPreview);
       if (directMarkerRef.current === directMarker) directMarkerRef.current = null;
+      if (selectedDirectHandlesRef.current === selectedDirectHandles) selectedDirectHandlesRef.current = null;
       directMarker.geometry.dispose();
       (directMarker.material as THREE.Material).dispose();
+      selectedDirectHandles.geometry.dispose();
+      (selectedDirectHandles.material as THREE.Material).dispose();
       directSegmentPreview.geometry.dispose();
       (directSegmentPreview.material as THREE.Material).dispose();
 
@@ -1938,7 +1982,14 @@ export function CadViewport({
       /*
        * Selection color LAST.
        */
+      // Pointer movement reads these document/scene snapshots. Geometry and
+      // visibility changes refresh them once, never on each hover or drag frame.
+      if (directSelectModeRef.current) {
+        directCandidatesRef.current = buildDirectSelectionCandidates(cadDocument, meshesRef.current);
+        directSnapEntitiesRef.current = buildDirectSnapEntities();
+      }
       applySelectionColor();
+      updateSelectedDirectHandles();
       syncTransformControl();
       performance.measure("agent-webcad:viewport-sync", {
         start: syncStartedAt,
@@ -2077,7 +2128,10 @@ export function CadViewport({
       ).multiply(new THREE.Matrix4().makeTranslation(-pivot.x, -pivot.y, -pivot.z));
     }
 
+    let snapEntityRevision = -1;
+    let cachedSnapEntities: SnapEntity[] = [];
     function snapEntities(): SnapEntity[] {
+      if (snapEntityRevision === cadDocument.revision) return cachedSnapEntities;
       const result: SnapEntity[] = [];
       for (const feature of Object.values(cadDocument.features)) {
         if (feature.type !== "drawing") continue;
@@ -2088,6 +2142,10 @@ export function CadViewport({
         if (!(["line", "polyline", "rectangle", "circle", "arc"] as unknown[]).includes(kind)) continue;
         const world = getWorldDrawingGeometry(object, feature);
         if (!world) continue;
+        // A 2D sketch cannot acquire a point from geometry outside its work
+        // plane. Screen-space overlap is not geometric coincidence.
+        const onPlane = (point: Vec3) => Math.abs((point[0] - plane.origin[0]) * plane.normal[0] + (point[1] - plane.origin[1]) * plane.normal[1] + (point[2] - plane.origin[2]) * plane.normal[2]) <= 1e-6;
+        if (world.points?.some((point) => !onPlane(point)) || world.center && !onPlane(world.center)) continue;
         result.push({
           objectId: object.id,
           kind: kind as SnapEntity["kind"],
@@ -2099,7 +2157,9 @@ export function CadViewport({
           profileSegments: world.profileSegments,
         });
       }
-      return result;
+      snapEntityRevision = cadDocument.revision;
+      cachedSnapEntities = result;
+      return cachedSnapEntities;
     }
 
     function constrain(point: Vec3) {
@@ -2172,9 +2232,11 @@ export function CadViewport({
       const snapped = snapEnabled ? querySnap({ point: raw, referencePoint: acquired.at(-1), entities: snapEntities(), plane, gridStep: 1, tolerancePx: 12, project }) : null;
       performance.measure("agent-webcad:snap-query", { start: startedAt, end: performance.now(), detail: { entityCount: cadDocument.rootObjects.length, result: snapped?.type ?? "disabled" } });
       if (performance.getEntriesByName("agent-webcad:snap-query").length > 200) performance.clearMeasures("agent-webcad:snap-query");
-      const point = constrain(snapped && Number.isFinite(snapped.screenDistance) ? snapped.point : raw);
-      if (snapped && Number.isFinite(snapped.screenDistance)) markerShape(snapped, point); else marker.visible = false;
-      return { point, snap: snapped && Number.isFinite(snapped.screenDistance) ? snapped : null };
+      const onPlane = snapped && Math.abs((snapped.point[0] - plane.origin[0]) * plane.normal[0] + (snapped.point[1] - plane.origin[1]) * plane.normal[1] + (snapped.point[2] - plane.origin[2]) * plane.normal[2]) <= 1e-6;
+      const validSnap = snapped && onPlane && Number.isFinite(snapped.screenDistance) ? snapped : null;
+      const point = constrain(validSnap ? validSnap.point : raw);
+      if (validSnap) markerShape(validSnap, point); else marker.visible = false;
+      return { point, snap: validSnap };
     }
 
     function commit(params: Record<string, unknown>) {
@@ -2565,7 +2627,7 @@ export function CadViewport({
           : ([['fit-all', 'Fit All'], ['top', 'Top'], ['front', 'Front'], ['right', 'Right'], ['isometric', 'Isometric'], ['toggle-projection', 'Perspective / Orthographic'], ['toggle-grid', 'Toggle Grid']] as const)
         ).map(([action, label]) => <button key={action} type="button" role="menuitem" onClick={() => { setContextMenu(null); onContextMenuActionRef.current?.(action); }}>{label}</button>)}
       </div>}
-      {toolReadout && <div className="cad-tool-readout" role="status">{toolReadout}</div>}
+      {(toolReadout || shortcutReadout) && <div className="cad-tool-readout" role="status">{toolReadout || shortcutReadout}</div>}
     </>
   );
 }

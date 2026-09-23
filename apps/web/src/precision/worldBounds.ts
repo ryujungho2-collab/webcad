@@ -135,6 +135,49 @@ export function getSelectionWorldBounds(document: CadDocument, objectIds: readon
   return hasBounds ? finiteWorldBounds(bounds) : null;
 }
 
+/**
+ * Local point around which the viewport applies an object's transform.
+ * Solids currently use their model origin; drawing render objects use the
+ * center of their untransformed geometry so TransformControls can rotate and
+ * scale them without moving the authored CAD points.
+ */
+export function getObjectLocalTransformPivot(
+  document: CadDocument,
+  objectId: string,
+  featureByOutput?: ReadonlyMap<string, CadFeature>,
+): [number, number, number] | null {
+  const object = document.objects[objectId];
+  if (!object) return null;
+  const feature = featureByOutput ? featureByOutput.get(objectId) : Object.values(document.features).find((entry) => entry.output === objectId);
+  if (!feature) return null;
+  if (feature.type !== "drawing") return [0, 0, 0];
+
+  const localGeometry = getWorldDrawingGeometry({
+    ...object,
+    transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+  }, feature);
+  if (!localGeometry?.points?.length) return null;
+  return new THREE.Box3()
+    .setFromPoints(localGeometry.points.map((point) => new THREE.Vector3(...point)))
+    .getCenter(new THREE.Vector3())
+    .toArray() as [number, number, number];
+}
+
+/** World position of the object transform pivot, not merely its stored delta. */
+export function getObjectWorldTransformPivot(
+  document: CadDocument,
+  objectId: string,
+  featureByOutput?: ReadonlyMap<string, CadFeature>,
+): [number, number, number] | null {
+  const object = document.objects[objectId];
+  if (!object) return null;
+  const feature = featureByOutput ? featureByOutput.get(objectId) : Object.values(document.features).find((entry) => entry.output === objectId);
+  const localPivot = getObjectLocalTransformPivot(document, objectId, featureByOutput);
+  if (!feature || !localPivot) return null;
+  const transform = getObjectTransform(object, feature);
+  return localPivot.map((value, index) => value + transform.translation[index]) as [number, number, number];
+}
+
 export function boundsCenter(bounds: WorldBounds): [number, number, number] {
   return [
     (bounds.min[0] + bounds.max[0]) / 2,

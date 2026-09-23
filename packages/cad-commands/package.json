@@ -15,6 +15,9 @@
   ],
   "author": "agent-webcad team",
   "license": "MIT",
+  "dependencies": {
+    "@agent-webcad/cad-document": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^7.0.2"
   }

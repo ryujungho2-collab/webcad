@@ -123,4 +123,45 @@ describe("selection command planning", () => {
     ]);
     assert.equal(planBulkTransformEdit(document, ["box-0", "box-1"], "scale", [0, null, null]), null);
   });
+
+  test("uses a drawing's actual transform pivot for mixed 2D/3D group rotation", () => {
+    const document = documentWithBoxes([0]);
+    document.objects.line = {
+      id: "line",
+      geometryId: "geometry-line",
+      name: "Line",
+      visible: true,
+      layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    document.features["feature-line"] = {
+      id: "feature-line",
+      type: "drawing",
+      inputs: [],
+      output: "line",
+      params: { kind: "line", workPlane: "XY", points: [[100, 0, 0], [110, 0, 0]] },
+    };
+    document.layers["layer-default"].objectIds.push("line");
+    document.rootObjects.push("line");
+
+    const commands = planGroupTransform(document, ["box-0", "line"], "rotate", {
+      translation: [55, 5, 5], rotation: [0, 0, 180], scale: [1, 1, 1],
+    });
+    const lineMove = commands?.find((command) => command.type === "move-object" && command.objectId === "line");
+    assert.ok(lineMove && lineMove.type === "move-object");
+    assert.deepEqual(lineMove.translation.map((value) => Math.round(value * 1e9) / 1e9), [-100, 10, 0]);
+
+    assert.deepEqual(planBulkTransformEdit(document, ["line"], "translate", [200, null, null]), [
+      { type: "move-object", objectId: "line", translation: [95, 0, 0] },
+    ]);
+  });
+
+  test("distributes unequal object bounds with equal edge gaps", () => {
+    const document = documentWithBoxes([0, 30, 100]);
+    document.features["feature-box-1"].params.width = 20;
+    document.features["feature-box-2"].params.width = 30;
+    assert.deepEqual(planDistribution(document, ["box-2", "box-0", "box-1"], "horizontal", "XY"), [
+      { type: "move-object", objectId: "box-1", translation: [45, 0, 0] },
+    ]);
+  });
 });

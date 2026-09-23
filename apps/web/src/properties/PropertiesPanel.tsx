@@ -11,6 +11,7 @@ import { formatLength } from "../precision/units";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 import type { TopologySelectionRef } from "../state/selection";
 import { extractSketchLoops } from "../precision/sketchProfiles";
+import { getObjectWorldTransformPivot } from "../precision/worldBounds";
 
 type PropertiesPanelProps = {
   documentRevision: number;
@@ -91,6 +92,9 @@ export function PropertiesPanel({
     const f = Object.values(cadDocument.features).find((candidate) => candidate.output === entry.id);
     return getObjectTransform(entry, f);
   });
+  const selectedPositions = selectedObjects.map((entry, index) =>
+    getObjectWorldTransformPivot(cadDocument, entry.id) ?? selectedTransforms[index].translation
+  );
   const mixed = (values: number[]) => values.length > 1 && values.some((value) => Math.abs(value - values[0]) > 1e-9);
   const mixedLayer = selectedObjects.length > 1 && selectedObjects.some((entry) => entry.layerId !== selectedObjects[0].layerId);
   const mixedVisible = selectedObjects.length > 1 && selectedObjects.some((entry) => entry.visible !== selectedObjects[0].visible);
@@ -135,9 +139,9 @@ export function PropertiesPanel({
     if (object) {
       const transform = getObjectTransform(object, feature);
       const transformValues = {
-        x: mixed(selectedTransforms.map((t) => t.translation[0])),
-        y: mixed(selectedTransforms.map((t) => t.translation[1])),
-        z: mixed(selectedTransforms.map((t) => t.translation[2])),
+        x: mixed(selectedPositions.map((position) => position[0])),
+        y: mixed(selectedPositions.map((position) => position[1])),
+        z: mixed(selectedPositions.map((position) => position[2])),
         rx: mixed(selectedTransforms.map((t) => t.rotation[0])),
         ry: mixed(selectedTransforms.map((t) => t.rotation[1])),
         rz: mixed(selectedTransforms.map((t) => t.rotation[2])),
@@ -146,9 +150,9 @@ export function PropertiesPanel({
         sz: mixed(selectedTransforms.map((t) => t.scale[2])),
       };
       setTransformDraft({
-        x: transformValues.x ? "Mixed" : String(transform.translation[0]),
-        y: transformValues.y ? "Mixed" : String(transform.translation[1]),
-        z: transformValues.z ? "Mixed" : String(transform.translation[2]),
+        x: transformValues.x ? "Mixed" : String(getObjectWorldTransformPivot(cadDocument, object.id)?.[0] ?? transform.translation[0]),
+        y: transformValues.y ? "Mixed" : String(getObjectWorldTransformPivot(cadDocument, object.id)?.[1] ?? transform.translation[1]),
+        z: transformValues.z ? "Mixed" : String(getObjectWorldTransformPivot(cadDocument, object.id)?.[2] ?? transform.translation[2]),
         rx: transformValues.rx ? "Mixed" : String(transform.rotation[0]),
         ry: transformValues.ry ? "Mixed" : String(transform.rotation[1]),
         rz: transformValues.rz ? "Mixed" : String(transform.rotation[2]),
@@ -215,49 +219,30 @@ export function PropertiesPanel({
 
   async function commitTransform(kind: "move" | "rotate" | "scale") {
     if (!object || isLocked) return;
-    const current = getObjectTransform(object, feature);
     const allEditable = selectedObjects.every((entry) => {
       const layer = cadDocument.layers[entry.layerId];
       return Boolean(entry.visible && layer?.visible && !layer.locked);
     });
     if (!allEditable) return;
-    const group = selectedObjects.length > 1;
-    if (group) {
-      const keys = kind === "move"
-        ? ["x", "y", "z"] as const
-        : kind === "rotate"
-          ? ["rx", "ry", "rz"] as const
-          : ["sx", "sy", "sz"] as const;
-      const values = keys.map((key) => {
-        const draft = transformDraft[key];
-        if (draft === "Mixed" || draft.trim() === "") return null;
-        const value = Number(draft);
-        return Number.isFinite(value) ? value : Number.NaN;
-      }) as [number | null, number | null, number | null];
-      const commands = planBulkTransformEdit(
-        cadDocument,
-        selectedObjects.map((entry) => entry.id),
-        kind === "move" ? "translate" : kind,
-        values,
-      );
-      if (!commands) return;
-      if (commands.length) await dispatchCadCommand({ type: "batch", commands });
-      onDocumentChange();
-      return;
-    }
-    if (kind === "scale") {
-      const keys = ["sx", "sy", "sz"] as const;
-      const scale = keys.map((key, index) => { const value = Number(transformDraft[key]); return Number.isFinite(value) ? value : current.scale[index]; }) as [number, number, number];
-      if (scale.some((value) => value <= 0)) return;
-      await dispatchCadCommand({ type: "scale-object", objectId: object.id, scale });
-    } else {
-      const keys = kind === "move" ? ["x", "y", "z"] as const : ["rx", "ry", "rz"] as const;
-      const fallback = kind === "move" ? current.translation : current.rotation;
-      const values = keys.map((key, index) => { const value = Number(transformDraft[key]); return Number.isFinite(value) ? value : fallback[index]; }) as [number, number, number];
-      // Mixed fields retain each member's current value. This lets a user edit
-      // one axis (for example X) without overwriting unrelated mixed axes.
-      await dispatchCadCommand({ type: kind === "move" ? "move-object" : "rotate-object", objectId: object.id, [kind === "move" ? "translation" : "rotation"]: values } as never);
-    }
+    const keys = kind === "move"
+      ? ["x", "y", "z"] as const
+      : kind === "rotate"
+        ? ["rx", "ry", "rz"] as const
+        : ["sx", "sy", "sz"] as const;
+    const values = keys.map((key) => {
+      const draft = transformDraft[key];
+      if (draft === "Mixed" || draft.trim() === "") return null;
+      const value = Number(draft);
+      return Number.isFinite(value) ? value : Number.NaN;
+    }) as [number | null, number | null, number | null];
+    const commands = planBulkTransformEdit(
+      cadDocument,
+      selectedObjects.map((entry) => entry.id),
+      kind === "move" ? "translate" : kind,
+      values,
+    );
+    if (!commands) return;
+    if (commands.length) await dispatchCadCommand(selectedObjects.length > 1 ? { type: "batch", commands } : commands[0]);
     onDocumentChange();
   }
 
@@ -442,7 +427,7 @@ export function PropertiesPanel({
       <section className="property-section">
         <h3>Position <small>World · mm</small></h3>
         {(["x", "y", "z"] as const).map((key) => (
-          <NumericField key={key} label={key.toUpperCase()} context="Position" unit="mm" disabled={isLocked} step="0.1" mixed={mixed(selectedTransforms.map((t) => t.translation[["x","y","z"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("move")} />
+          <NumericField key={key} label={key.toUpperCase()} context="Position" unit="mm" disabled={isLocked} step="0.1" mixed={mixed(selectedPositions.map((position) => position[["x","y","z"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("move")} />
         ))}
       </section>
 

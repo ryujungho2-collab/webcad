@@ -27,6 +27,8 @@ type RibbonProps = {
   workspaceMode: WorkspaceMode;
   directSelectMode: boolean;
   activeLayerName: string;
+  activeSketchId?: string | null;
+  onToggleSketch?: () => void;
   onNew: () => void;
   onOpen: () => void;
   onSave: () => void;
@@ -107,6 +109,8 @@ export function Ribbon({
   workspaceMode,
   directSelectMode,
   activeLayerName,
+  activeSketchId,
+  onToggleSketch,
   onNew,
   onOpen,
   onSave,
@@ -140,15 +144,16 @@ export function Ribbon({
   return (
     <div className="ribbon">
       <div className="ribbon-tabs" aria-label="Model workspace">
-        <span className="workspace-label">{workspaceMode === "2d" ? "DRAFT" : "MODEL"}</span>
-        <span className="workspace-description">{workspaceMode === "2d" ? "2D drafting · " : "Solid modeling · "}millimeters</span>
+        <span className="workspace-label">{activeSketchId ? "SKETCH" : workspaceMode === "2d" ? "DRAFT" : "MODEL"}</span>
+        <span className="workspace-description">{activeSketchId ? `${activeSketchId} · ${activeWorkPlane} · ` : workspaceMode === "2d" ? "2D drafting · " : "Solid modeling · "}millimeters</span>
         <div className="workspace-switch" role="group" aria-label="Dimensional workspace">
           <button type="button" className={workspaceMode === "2d" ? "workspace-switch-active" : ""} aria-pressed={workspaceMode === "2d"} onClick={() => onWorkspaceMode("2d")}>2D</button>
-          <button type="button" className={workspaceMode === "3d" ? "workspace-switch-active" : ""} aria-pressed={workspaceMode === "3d"} onClick={() => onWorkspaceMode("3d")}>3D</button>
+          <button type="button" className={workspaceMode === "3d" ? "workspace-switch-active" : ""} aria-pressed={workspaceMode === "3d"} title={activeSketchId ? "Finish sketch editing and enter 3D" : "Enter 3D workspace"} onClick={() => onWorkspaceMode("3d")}>3D</button>
         </div>
       </div>
 
       <div className="ribbon-body">
+        <div className="ribbon-group"><div className="ribbon-commands"><RibbonButton icon="⌗" label={activeSketchId ? "Finish" : "Sketch"} title={activeSketchId ? "Finish sketch editing" : `Create sketch on ${activeWorkPlane}`} active={Boolean(activeSketchId)} disabled={!activeSketchId && !canCreateBox} onClick={() => onToggleSketch?.()} /></div><span className="ribbon-group-label">Sketch</span></div>
         <div className="ribbon-group">
           <div className="ribbon-commands">
             <RibbonButton icon="◇" label="Object" title="Select whole CAD objects" active={!directSelectMode} onClick={() => onDirectSelectMode(false)} />
@@ -175,29 +180,29 @@ export function Ribbon({
 
         <div className="ribbon-group">
           <div className="ribbon-commands">
-            <RibbonButton icon="◇" label="Box" title={canCreateBox ? "Create box on active layer" : "Unlock the active layer to create geometry"} disabled={!canCreateBox} onClick={onCreateBox} />
-            <RibbonButton icon="○" label="Cylinder" title="Create cylinder on active layer" disabled={!canCreateBox} onClick={() => onCreatePrimitive("cylinder")} />
-            <RibbonButton icon="●" label="Sphere" title="Create sphere on active layer" disabled={!canCreateBox} onClick={() => onCreatePrimitive("sphere")} />
-            <RibbonButton icon="△" label="Cone" title="Create cone on active layer" disabled={!canCreateBox} onClick={() => onCreatePrimitive("cone")} />
-            <RibbonButton icon="⊘" label="Torus" title="Create torus on active layer" disabled={!canCreateBox} onClick={() => onCreatePrimitive("torus")} />
+            <RibbonButton icon="◇" label="Box" title={canCreateBox ? "Create box on active layer" : "Unlock the active layer to create geometry"} disabled={!canCreateBox || Boolean(activeSketchId)} onClick={onCreateBox} />
+            <RibbonButton icon="○" label="Cylinder" title="Create cylinder on active layer" disabled={!canCreateBox || Boolean(activeSketchId)} onClick={() => onCreatePrimitive("cylinder")} />
+            <RibbonButton icon="●" label="Sphere" title="Create sphere on active layer" disabled={!canCreateBox || Boolean(activeSketchId)} onClick={() => onCreatePrimitive("sphere")} />
+            <RibbonButton icon="△" label="Cone" title="Create cone on active layer" disabled={!canCreateBox || Boolean(activeSketchId)} onClick={() => onCreatePrimitive("cone")} />
+            <RibbonButton icon="⊘" label="Torus" title="Create torus on active layer" disabled={!canCreateBox || Boolean(activeSketchId)} onClick={() => onCreatePrimitive("torus")} />
           </div>
           <span className="ribbon-group-label">Create</span>
         </div>
 
         <div className="ribbon-group">
           <div className="ribbon-commands">
-            <RibbonButton icon="▰" label="Extrude" title={canExtrude ? "Extrude selected closed profile 10 mm" : "Select one closed profile or one connected closed chain"} disabled={!canExtrude} onClick={onExtrude} />
+            <RibbonButton icon="▰" label="Extrude" title={canExtrude ? "Extrude selected closed profile 10 mm (E)" : "Select one closed profile or one connected closed chain"} disabled={!canExtrude || Boolean(activeSketchId)} onClick={onExtrude} />
           </div>
           <span className="ribbon-group-label">Solid</span>
         </div>
 
         <div className="ribbon-group">
           <div className="ribbon-commands">
-            <RibbonButton icon="╱" label="Line" active={drawingTool === "line"} disabled={!canCreateBox} onClick={() => onDrawingTool("line")} />
-            <RibbonButton icon="⌁" label="Polyline" active={drawingTool === "polyline"} disabled={!canCreateBox} onClick={() => onDrawingTool("polyline")} />
-            <RibbonButton icon="▭" label="Rectangle" active={drawingTool === "rectangle"} disabled={!canCreateBox} onClick={() => onDrawingTool("rectangle")} />
-            <RibbonButton icon="○" label="Circle" active={drawingTool === "circle"} disabled={!canCreateBox} onClick={() => onDrawingTool("circle")} />
-            <RibbonButton icon="⌒" label="Arc" active={drawingTool === "arc"} disabled={!canCreateBox} onClick={() => onDrawingTool("arc")} />
+            <RibbonButton icon="╱" label="Line" title="Draw line (L)" active={drawingTool === "line"} disabled={!canCreateBox} onClick={() => onDrawingTool("line")} />
+            <RibbonButton icon="⌁" label="Polyline" title="Draw polyline (P)" active={drawingTool === "polyline"} disabled={!canCreateBox} onClick={() => onDrawingTool("polyline")} />
+            <RibbonButton icon="▭" label="Rectangle" title="Draw rectangle (R when nothing is selected)" active={drawingTool === "rectangle"} disabled={!canCreateBox} onClick={() => onDrawingTool("rectangle")} />
+            <RibbonButton icon="○" label="Circle" title="Draw circle (C)" active={drawingTool === "circle"} disabled={!canCreateBox} onClick={() => onDrawingTool("circle")} />
+            <RibbonButton icon="⌒" label="Arc" title="Draw arc (A)" active={drawingTool === "arc"} disabled={!canCreateBox} onClick={() => onDrawingTool("arc")} />
           </div>
           <span className="ribbon-group-label">Draw</span>
         </div>
@@ -206,14 +211,14 @@ export function Ribbon({
           <div className="ribbon-commands">
             <RibbonButton icon="⊙" label="Snap" title="Object snap (F3)" active={snapEnabled} onClick={onToggleSnap} />
             <RibbonButton icon="└" label="Ortho" title="Orthogonal constraint (F8)" active={orthoEnabled} onClick={onToggleOrtho} />
-            <RibbonButton icon="▱" label={activeWorkPlane} title="Cycle active work plane" onClick={onCycleWorkPlane} />
+            <RibbonButton icon="▱" label={activeWorkPlane} title={activeSketchId ? "Finish sketch before changing its plane" : "Cycle active work plane"} disabled={Boolean(activeSketchId)} onClick={onCycleWorkPlane} />
           </div>
           <span className="ribbon-group-label">Precision</span>
         </div>
 
         <div className="ribbon-group">
           <div className="ribbon-commands">
-            <RibbonButton icon="↔" label="Distance" title="Measure distance between two points" active={measurementTool === "distance"} onClick={onMeasurementTool} />
+            <RibbonButton icon="↔" label="Distance" title="Measure distance between two points (I)" active={measurementTool === "distance"} onClick={onMeasurementTool} />
           </div>
           <span className="ribbon-group-label">Measure</span>
         </div>
@@ -222,7 +227,7 @@ export function Ribbon({
           <div className="ribbon-commands">
             <RibbonButton icon="⧉" label="Duplicate" title="Duplicate (Ctrl+D); move the copy precisely, then repeat its spacing" disabled={!canDuplicate} onClick={onDuplicate} />
             <RibbonButton icon="⌫" label="Delete" title={hasSelection && !canDelete ? "Unlock the object's layer to delete it" : "Delete selection (Delete)"} disabled={!canDelete} danger onClick={onDelete} />
-            <RibbonButton icon="✂" label="Trim" title="Use selected drawing as boundary; click the portion of a line to remove" disabled={!canTrim} active={lineEditTool === "trim"} onClick={() => onLineEditTool?.("trim")} />
+            <RibbonButton icon="✂" label="Trim" title="Use selected drawing as boundary; click the portion of a line to remove (T)" disabled={!canTrim} active={lineEditTool === "trim"} onClick={() => onLineEditTool?.("trim")} />
             <RibbonButton icon="↦" label="Extend" title="Use selected drawing as boundary; click a line near the endpoint to extend" disabled={!canTrim} active={lineEditTool === "extend"} onClick={() => onLineEditTool?.("extend")} />
           </div>
           <span className="ribbon-group-label">Modify</span>
@@ -230,7 +235,7 @@ export function Ribbon({
 
         <div className="ribbon-group">
           <div className="ribbon-commands">
-            <RibbonButton icon="→" label="Move" title="Move gizmo (G); use Properties for exact XYZ" active={transformMode === "translate"} disabled={!canTransform} onClick={() => onTransformMode("translate")} />
+            <RibbonButton icon="→" label="Move" title="Move gizmo (M or G); use Properties for exact XYZ" active={transformMode === "translate"} disabled={!canTransform} onClick={() => onTransformMode("translate")} />
             <RibbonButton icon="↻" label="Rotate" title="Rotate gizmo (R); use Properties for exact angles" active={transformMode === "rotate"} disabled={!canTransform} onClick={() => onTransformMode("rotate")} />
             <RibbonButton icon="⤢" label="Scale" title="Scale gizmo (S); use Properties for exact factors" active={transformMode === "scale"} disabled={!canTransform} onClick={() => onTransformMode("scale")} />
           </div>

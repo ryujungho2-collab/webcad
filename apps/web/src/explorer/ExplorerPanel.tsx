@@ -16,6 +16,8 @@ type ExplorerPanelProps = {
   onSelectLayer: (layerId: string) => void;
   onSelectObject: (objectId: string, additive?: boolean) => void;
   onDocumentChange: () => void;
+  activeSketchId?: string | null;
+  onEditSketch?: (id: string) => void;
 };
 
 const titles: Record<ActivityId, string> = {
@@ -61,7 +63,7 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
 
       <div className="explorer-content">
         {props.activeActivity === "model" && (
-          <ModelPanel query={normalizedQuery} selectedObjectId={props.selectedObjectId} selectedObjectIds={props.selectedObjectIds} onSelectObject={props.onSelectObject} onDocumentChange={props.onDocumentChange} />
+          <ModelPanel query={normalizedQuery} selectedObjectId={props.selectedObjectId} selectedObjectIds={props.selectedObjectIds} onSelectObject={props.onSelectObject} onDocumentChange={props.onDocumentChange} activeSketchId={props.activeSketchId} onEditSketch={props.onEditSketch} />
         )}
         {props.activeActivity === "layers" && (
           <LayersPanel

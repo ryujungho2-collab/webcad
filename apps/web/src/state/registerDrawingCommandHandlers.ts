@@ -63,7 +63,7 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
     if (command.type !== "edit-drawing-control") return;
     const object = editableObject(command.objectId);
     const feature = featureForObject(command.objectId);
-    if (!object?.visible || !feature || feature.type !== "drawing") return;
+    if (!object?.visible || !feature || feature.type !== "drawing" || feature.params.sketchId) return;
     const params = editDrawingControlParams(feature.params, command.controlId, command.point);
     if (!params) return;
     feature.params = params;
@@ -74,7 +74,7 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
     if (command.type !== "edit-drawing-segment") return;
     const object = editableObject(command.objectId);
     const feature = featureForObject(command.objectId);
-    if (!object?.visible || !feature || feature.type !== "drawing") return;
+    if (!object?.visible || !feature || feature.type !== "drawing" || feature.params.sketchId) return;
     const params = editDrawingSegmentParams(feature.params, command.segmentId, command.delta);
     if (!params) return;
     feature.params = params;
@@ -85,7 +85,7 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
     if (command.type !== "edit-drawing-corner") return;
     const object = editableObject(command.objectId);
     const feature = featureForObject(command.objectId);
-    if (!object?.visible || !feature || feature.type !== "drawing") return;
+    if (!object?.visible || !feature || feature.type !== "drawing" || feature.params.sketchId) return;
     const params = editDrawingCornerParams(feature.params, command.controlId, command.treatment, command.distance);
     if (!params) return;
     feature.params = params;
@@ -96,7 +96,7 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
     if (command.type !== "close-drawing-profile") return;
     const object = editableObject(command.objectId);
     const feature = featureForObject(command.objectId);
-    if (!object?.visible || !feature || feature.type !== "drawing") return;
+    if (!object?.visible || !feature || feature.type !== "drawing" || feature.params.sketchId) return;
     const params = closeDrawingProfileParams(feature.params);
     if (!params) return;
     feature.params = params;
@@ -114,7 +114,7 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
       const cutterLayer = cutter ? document.layers[cutter.layerId] : undefined;
       if (
         !target || !cutter || !targetFeature || !cutterFeature ||
-        targetFeature.type !== "drawing" || cutterFeature.type !== "drawing" ||
+        targetFeature.type !== "drawing" || cutterFeature.type !== "drawing" || Boolean(targetFeature.params.sketchId) ||
         !target.visible || !cutter.visible || !targetLayer?.visible || !cutterLayer?.visible ||
         targetLayer.locked || cutterLayer.locked
       ) return;

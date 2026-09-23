@@ -28,8 +28,8 @@ export function TypePanel({ query, selectedObjectId, selectedObjectIds, onSelect
           <div className="tree-root"><span className="tree-chevron">⌄</span><span className="tree-document-icon">◇</span><strong>{type}</strong><span className="tree-meta">{objectIds.length}</span></div>
           {objectIds.map((objectId) => {
             const object = cadDocument.objects[objectId];
-            return object && (
-              <button key={objectId} type="button" className={selectedObjectIds.includes(objectId) ? "tree-row tree-row-selected" : "tree-row"} onClick={(event) => onSelectObject(objectId, event.shiftKey || event.ctrlKey || event.metaKey)}>
+              return object && (
+              <button key={objectId} type="button" aria-selected={selectedObjectIds.includes(objectId)} className={`${selectedObjectIds.includes(objectId) ? "tree-row tree-row-selected" : "tree-row"}${selectedObjectId === objectId ? " tree-row-primary" : ""}`} onClick={(event) => onSelectObject(objectId, event.shiftKey || event.ctrlKey || event.metaKey)}>
                 <span className="tree-branch" /><span className="tree-object-icon">◇</span><span className="tree-label">{object.name}</span>
               </button>
             );

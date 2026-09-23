@@ -59,6 +59,10 @@ importers:
         version: 5.9.3
 
   packages/cad-commands:
+    dependencies:
+      '@agent-webcad/cad-document':
+        specifier: workspace:*
+        version: link:../cad-document
     devDependencies:
       typescript:
         specifier: ^7.0.2

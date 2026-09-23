@@ -29,6 +29,7 @@ button, input, select { border-radius: var(--radius); }
 .explorer-count { color: var(--muted); border-radius: 3px; }
 .tree-row { height: var(--row-height); contain-intrinsic-block-size: var(--row-height); font-size: 12px; }
 .tree-row-selected, .tree-row-selected:hover { background: var(--accent-soft); box-shadow: inset 2px 0 var(--accent); }
+.tree-row-primary { outline: 1px solid color-mix(in srgb, var(--accent) 58%, transparent); outline-offset: -1px; }
 .tree-row-selected .tree-layer { color: #b3d1cf; }
 .tree-layer, .tree-meta { color: var(--muted); font-size: 10px; }
 .tree-object-icon, .tree-document-icon { color: var(--accent); }
@@ -54,6 +55,12 @@ button, input, select { border-radius: var(--radius); }
 .numeric-row[data-axis="z"] > span:first-child { border-color: var(--axis-z); }
 .numeric-control:has(input:disabled) { opacity: .55; }
 .property-actions button { font-size: 11px; }
+.sketch-actions { display: flex; flex-wrap: wrap; gap: 4px; padding: 3px 0 8px; }
+.sketch-actions button, .sketch-edit-button, .sketch-constraint button { color: var(--text); background: var(--bg-2); border: 1px solid var(--line); min-height: 24px; padding: 2px 7px; font-size: 11px; }
+.sketch-actions button:hover, .sketch-edit-button:hover, .sketch-constraint button:hover { color: var(--accent); border-color: var(--accent); }
+.sketch-constraint { grid-template-columns: minmax(65px, .7fr) minmax(0, 1fr) 24px; gap: 4px; }
+.sketch-constraint input { width: 100%; min-width: 0; font-family: var(--font-numeric); text-align: right; }
+.sketch-constraint button { padding: 0; }
 .property-boolean-actions { grid-template-columns: repeat(3, 1fr); padding: 4px 0 0; }
 .boolean-error { margin: 7px 0 0; color: var(--danger); font-size: 11px; line-height: 1.35; }
 .inspector-empty span, .inspector-notice { font-size: 12px; }

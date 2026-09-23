@@ -8,9 +8,11 @@ type ModelPanelProps = {
   selectedObjectIds: string[];
   onSelectObject: (objectId: string, additive?: boolean) => void;
   onDocumentChange: () => void;
+  activeSketchId?: string | null;
+  onEditSketch?: (id: string) => void;
 };
 
-export function ModelPanel({ query, selectedObjectId, selectedObjectIds, onSelectObject, onDocumentChange }: ModelPanelProps) {
+export function ModelPanel({ query, selectedObjectId, selectedObjectIds, onSelectObject, onDocumentChange, activeSketchId, onEditSketch }: ModelPanelProps) {
   const [expanded, setExpanded] = useState(true);
 
   useEffect(() => {
@@ -30,12 +32,15 @@ export function ModelPanel({ query, selectedObjectId, selectedObjectIds, onSelec
         <span className="tree-meta">{cadDocument.rootObjects.length}</span>
       </button>
 
+      {expanded && Object.values(cadDocument.sketches ?? {}).filter((sketch) => !query || sketch.id.toLowerCase().includes(query)).map((sketch) => <button key={sketch.id} type="button" className={`tree-row${activeSketchId === sketch.id ? " tree-row-selected" : ""}`} onClick={() => onEditSketch?.(sketch.id)} title={`Edit ${sketch.workPlane} sketch`}><span className="tree-branch" /><span className="tree-object-icon">⌗</span><span className="tree-label">{sketch.id}</span><span className="tree-layer">{sketch.workPlane} · {sketch.geometry.length}</span></button>)}
+
       {expanded && objects.map((object) => object && (
         <div
           key={object.id}
           role="button"
           tabIndex={0}
-          className={selectedObjectIds.includes(object.id) ? "tree-row tree-row-selected" : "tree-row"}
+          aria-selected={selectedObjectIds.includes(object.id)}
+          className={`${selectedObjectIds.includes(object.id) ? "tree-row tree-row-selected" : "tree-row"}${selectedObjectId === object.id ? " tree-row-primary" : ""}`}
           onClick={(event) => onSelectObject(object.id, event.shiftKey || event.ctrlKey || event.metaKey)}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") {

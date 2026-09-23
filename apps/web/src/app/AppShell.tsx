@@ -15,6 +15,9 @@ type AppShellProps = {
   documentRevision: number;
   selectedLayerId: string;
   activeLayerName: string;
+  activeSketchId?: string | null;
+  onToggleSketch?: () => void;
+  onEditSketch?: (id: string) => void;
   selectedObjectId: string | null;
   selectedObjectIds: string[];
   isolationActive?: boolean;
@@ -135,6 +138,8 @@ export function AppShell(props: AppShellProps) {
         workspaceMode={props.workspaceMode}
         directSelectMode={props.directSelectMode}
         activeLayerName={props.activeLayerName}
+        activeSketchId={props.activeSketchId}
+        onToggleSketch={props.onToggleSketch}
         onNew={props.onNew}
         onOpen={props.onOpen}
         onSave={props.onSave}
@@ -175,6 +180,8 @@ export function AppShell(props: AppShellProps) {
           onSelectLayer={props.onSelectLayer}
           onSelectObject={props.onSelectObject}
           onDocumentChange={props.onDocumentChange}
+          activeSketchId={props.activeSketchId}
+          onEditSketch={props.onEditSketch}
         />
 
         <section className="workbench-viewport">
@@ -185,7 +192,7 @@ export function AppShell(props: AppShellProps) {
           <div className="view-triad" aria-label="World axes">
             <span className="axis-z">Z</span><span className="axis-y">Y</span><span className="axis-x">X</span><i />
           </div>
-          <div className="navigation-hint"><span>Select</span> LMB <b>·</b> <span>Orbit</span> MMB <b>·</b> <span>Pan</span> Shift+MMB <b>·</b> <span>Zoom</span> wheel <b>·</b> <span>G / R / S</span> transform <b>·</b> <span>Esc</span> cancel</div>
+          <div className="navigation-hint"><span>Select</span> LMB <b>·</b> <span>Pan</span> MMB {props.workspaceMode === "3d" && <><b>·</b> <span>Orbit</span> Shift+MMB </>}<b>·</b> <span>Zoom</span> wheel <b>·</b> <span>G / R / S</span> transform <b>·</b> <span>Esc</span> cancel</div>
         </section>
 
         <aside className="workbench-properties">{props.properties}</aside>

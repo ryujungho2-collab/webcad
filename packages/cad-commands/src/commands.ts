@@ -1,5 +1,15 @@
+import type { SketchConstraint, SketchGeometry, SketchPointRef, SketchWorkPlane } from "@agent-webcad/cad-document";
+
 export type CadCommand =
   | { type: "batch"; commands: Exclude<CadCommand, { type: "batch" }>[] }
+  | { type: "create-sketch"; id: string; workPlane: SketchWorkPlane; layerId?: string }
+  | { type: "add-sketch-geometry"; sketchId: string; geometry: SketchGeometry }
+  | { type: "remove-sketch-geometry"; sketchId: string; geometryId: string }
+  | { type: "add-sketch-constraint"; sketchId: string; constraint: SketchConstraint }
+  | { type: "remove-sketch-constraint"; sketchId: string; constraintId: string }
+  | { type: "set-sketch-dimension"; sketchId: string; constraintId: string; value: number }
+  | { type: "move-sketch-point"; sketchId: string; point: SketchPointRef; position: [number, number] }
+  | { type: "move-sketch-segment"; sketchId: string; geometryId: string; segmentId: string; delta: [number, number] }
   | {
       type: "create-drawing";
       id?: string;

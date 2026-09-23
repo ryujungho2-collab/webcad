@@ -1,7 +1,7 @@
 import type { CadCommand } from "@agent-webcad/cad-commands";
 import type { CadDocument } from "@agent-webcad/cad-document";
 import * as THREE from "three";
-import { boundsCenter, getObjectWorldBounds, getSelectionWorldBounds } from "../precision/worldBounds";
+import { boundsCenter, getObjectLocalTransformPivot, getObjectWorldBounds, getObjectWorldTransformPivot, getSelectionWorldBounds } from "../precision/worldBounds";
 import { WORK_PLANES, type WorkPlaneId } from "../precision/workPlane";
 import { getObjectTransform } from "./objectTransform";
 
@@ -54,7 +54,13 @@ export function planBulkTransformEdit(
     const feature = featureForObject(document, id);
     const current = getObjectTransform(object, feature);
     const key = mode === "translate" ? "translation" : mode === "rotate" ? "rotation" : "scale";
-    const next = current[key].map((value, index) => values[index] ?? value) as [number, number, number];
+    const currentValue = mode === "translate"
+      ? getObjectWorldTransformPivot(document, id) ?? current.translation
+      : current[key];
+    const requested = currentValue.map((value, index) => values[index] ?? value) as [number, number, number];
+    const next = mode === "translate"
+      ? requested.map((value, index) => value - (getObjectLocalTransformPivot(document, id)?.[index] ?? 0)) as [number, number, number]
+      : requested;
     if (!changedVector(next, current[key])) continue;
     if (mode === "translate") commands.push({ type: "move-object", objectId: id, translation: next });
     else if (mode === "rotate") commands.push({ type: "rotate-object", objectId: id, rotation: next });
@@ -98,13 +104,19 @@ export function planGroupTransform(
     const object = document.objects[id];
     const feature = featureForObject(document, id);
     const current = getObjectTransform(object, feature);
-    const relative = new THREE.Vector3(...current.translation).sub(pivotVector);
+    const localPivot = getObjectLocalTransformPivot(document, id);
+    const worldObjectPivot = getObjectWorldTransformPivot(document, id);
+    if (!localPivot || !worldObjectPivot) return null;
+    const relative = new THREE.Vector3(...worldObjectPivot).sub(pivotVector);
     if (mode === "rotate") relative.applyQuaternion(rotationDelta);
     if (mode === "scale") relative.multiply(scaleDelta);
     const transformedPosition = relative.add(pivotVector);
-    const position = mode === "translate"
+    const worldPosition = mode === "translate"
       ? new THREE.Vector3(...current.translation).add(translationDelta).toArray()
       : transformedPosition.toArray();
+    const position = mode === "translate"
+      ? worldPosition
+      : worldPosition.map((value, index) => value - localPivot[index]) as [number, number, number];
     if (changedVector(position, current.translation)) {
       commands.push({ type: "move-object", objectId: id, translation: position });
     }
@@ -182,18 +194,25 @@ export function planDistribution(
     return {
       id,
       transform,
+      min: bounds.min[dimension],
+      max: bounds.max[dimension],
+      size: bounds.max[dimension] - bounds.min[dimension],
       center: (bounds.min[dimension] + bounds.max[dimension]) / 2,
     };
   });
   if (entries.some((entry) => !entry)) return null;
   const sorted = entries.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
   sorted.sort((a, b) => a.center - b.center || a.id.localeCompare(b.id));
-  const first = sorted[0].center;
-  const last = sorted.at(-1)!.center;
-  const step = (last - first) / (sorted.length - 1);
+  const first = sorted[0];
+  const last = sorted.at(-1)!;
+  const totalInteriorSize = sorted.slice(1, -1).reduce((sum, entry) => sum + entry.size, 0);
+  const gap = (last.min - first.max - totalInteriorSize) / (sorted.length - 1);
+  let cursor = first.max + gap;
   return sorted.flatMap((entry, index) => {
+    if (index === 0 || index === sorted.length - 1) return [];
     const translation = [...entry.transform.translation] as [number, number, number];
-    translation[dimension] += first + step * index - entry.center;
+    translation[dimension] += cursor - entry.min;
+    cursor += entry.size + gap;
     return changedVector(translation, entry.transform.translation)
       ? [{ type: "move-object" as const, objectId: entry.id, translation }]
       : [];

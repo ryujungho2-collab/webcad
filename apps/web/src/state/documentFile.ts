@@ -136,6 +136,7 @@ export function newDocument() {
     objects: {},
 
     features: {},
+    sketches: {},
 
     layers: {
       "layer-default": {
@@ -179,6 +180,8 @@ function restoreLoadedDocument(
     structuredClone(
       loaded.features
     );
+
+  cadDocument.sketches = structuredClone(loaded.sketches ?? {});
 
   cadDocument.layers =
     structuredClone(

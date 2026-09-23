@@ -16,4 +16,5 @@ export type {
 } from "./Layer";
 
 export * from "./Revision";
+export * from "./Sketch";
 export * from "./serialization";

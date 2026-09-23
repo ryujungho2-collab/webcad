@@ -17,6 +17,7 @@ export const cadDocument: CadDocument = {
   },
 
   features: {},
+  sketches: {},
 
   layers: {
     "layer-default": {
