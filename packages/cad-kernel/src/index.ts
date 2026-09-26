@@ -7,6 +7,7 @@ export * from './io/iges';
 export * from './operations/primitives';
 export * from './operations/transforms';
 export * from './operations/booleans';
+export * from './operations/topology';
 export * from './operations/fillet';
 export * from './operations/measurements';
 export * from './operations/extrude';

@@ -53,6 +53,15 @@ export function validSelection(state: SelectionState): SelectionState {
     if (entry.kind === "drawing-control") return topology?.controls?.some((candidate) => candidate.id === entry.topologyId) ?? false;
     if (entry.kind === "drawing-segment") return topology?.segments?.some((candidate) => candidate.id === entry.topologyId) ?? false;
     if (entry.kind === "drawing-curve") return topology?.curves?.some((candidate) => candidate.id === entry.topologyId) ?? false;
+    if (entry.kind === "brep-edge" || entry.kind === "brep-face") {
+      // Two-tier contract: object-level validity is enforced synchronously
+      // here (the object check above already passed), while geometric
+      // resolution against the kernel is deferred to use-time
+      // (resolveBrepReference), which alone can verify a fingerprint against
+      // rebuilt geometry. Harmless viewport/camera changes therefore never
+      // drop a live sub-selection.
+      return true;
+    }
     return false;
   }) ?? [];
   return { ids, primaryId: state.primaryId && ids.includes(state.primaryId) ? state.primaryId : (ids.at(-1) ?? null), subObjects };

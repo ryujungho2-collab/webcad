@@ -106,6 +106,7 @@ export function PropertiesPanel({
     ? Object.values(cadDocument.features).find((entry) => entry.output === object.id)
     : undefined;
   const isPrimitive = feature?.type === "primitive";
+  const isSolid = feature?.type === "primitive" || feature?.type === "extrude" || feature?.type === "boolean";
   const isDrawing = feature?.type === "drawing";
   const isExtrude = feature?.type === "extrude";
   const profileResult = extractSketchLoops(cadDocument, selectedObjectIds);
@@ -290,10 +291,10 @@ export function PropertiesPanel({
   }
 
   async function runBoolean(operation: "union" | "cut" | "intersect") {
-    if (!object || !feature || !isPrimitive || isLocked || !booleanToolId) return;
+    if (!object || !feature || !isSolid || isLocked || !booleanToolId) return;
     const tool = cadDocument.objects[booleanToolId];
     const toolFeature = tool && Object.values(cadDocument.features).find((entry) => entry.output === tool.id);
-    if (!tool || !toolFeature || toolFeature.type !== "primitive") return;
+    if (!tool || !toolFeature || (toolFeature.type !== "primitive" && toolFeature.type !== "extrude" && toolFeature.type !== "boolean")) return;
     const params = { operation, operands: [
       { params: structuredClone(feature.params), transform: structuredClone(getObjectTransform(object, feature)) },
       { params: structuredClone(toolFeature.params), transform: structuredClone(getObjectTransform(tool, toolFeature)) },
@@ -307,6 +308,7 @@ export function PropertiesPanel({
     }
     const id = await dispatchCadCommand({ type: "boolean-operation", operation, target: object.id, tool: booleanToolId });
     if (typeof id === "string") { onBooleanCreated(id); onDocumentChange(); }
+    else setBooleanError("The selected solids do not produce a valid boolean result.");
   }
 
   async function commitTransform(kind: "move" | "rotate" | "scale") {
@@ -449,7 +451,7 @@ export function PropertiesPanel({
             const measure = describeSubObject(cadDocument, entry);
             return (
               <div key={`${entry.objectId}:${entry.kind}:${entry.topologyId}`}>
-                <div className="property-row"><span>{entry.kind === "drawing-control" ? "Vertex" : entry.kind === "drawing-segment" ? "Segment" : entry.kind === "drawing-curve" ? "Curve" : entry.kind}</span><code>{entry.topologyId}</code></div>
+                <div className="property-row"><span>{entry.kind === "drawing-control" ? "Vertex" : entry.kind === "drawing-segment" ? "Segment" : entry.kind === "drawing-curve" ? "Curve" : entry.kind === "brep-edge" ? "Edge" : entry.kind === "brep-face" ? "Face" : entry.kind}</span><code>{entry.topologyId}</code></div>
                 {measure?.rows.map((row) => <div className="property-row" key={row.label}><span>{measure.title} {row.label}</span><strong>{row.value}</strong></div>)}
               </div>
             );
@@ -536,12 +538,12 @@ export function PropertiesPanel({
       )}
 
 
-      {isPrimitive && selectedObjects.length === 1 && (
+      {isSolid && selectedObjects.length === 1 && (
         <section className="property-section">
           <h3>Boolean <small>Consumes target + tool</small></h3>
-          <label className="property-row"><span>Tool</span><select disabled={isLocked} value={booleanToolId} onChange={(event) => setBooleanToolId(event.target.value)}><option value="">Choose primitive…</option>{cadDocument.rootObjects.filter((id) => id !== object.id).map((id) => {
+          <label className="property-row"><span>Tool</span><select disabled={isLocked} value={booleanToolId} onChange={(event) => setBooleanToolId(event.target.value)}><option value="">Choose solid…</option>{cadDocument.rootObjects.filter((id) => id !== object.id).map((id) => {
             const candidate = cadDocument.objects[id]; const candidateFeature = candidate && Object.values(cadDocument.features).find((entry) => entry.output === id); const candidateLayer = candidate && cadDocument.layers[candidate.layerId];
-            return candidate && candidateFeature?.type === "primitive" && !candidateLayer?.locked ? <option key={id} value={id}>{candidate.name}</option> : null;
+            return candidate && (candidateFeature?.type === "primitive" || candidateFeature?.type === "extrude" || candidateFeature?.type === "boolean") && !candidateLayer?.locked ? <option key={id} value={id}>{candidate.name}</option> : null;
           })}</select></label>
           <div className="property-actions property-boolean-actions"><button type="button" disabled={isLocked || !booleanToolId} onClick={() => void runBoolean("union")}>Union</button><button type="button" disabled={isLocked || !booleanToolId} onClick={() => void runBoolean("cut")}>Cut</button><button type="button" disabled={isLocked || !booleanToolId} onClick={() => void runBoolean("intersect")}>Intersect</button></div>
           {booleanError && <p className="boolean-error" role="status">{booleanError}</p>}

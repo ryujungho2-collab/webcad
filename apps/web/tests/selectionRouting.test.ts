@@ -4,6 +4,7 @@ import { describe, test } from "node:test";
 import {
   cycleSelectionCandidate,
   hasSelectionToggleModifier,
+  selectionDisplayTone,
   selectionPointerOwner,
   uniqueSelectionCandidates,
 } from "../src/viewport/selectionRouting";
@@ -21,6 +22,18 @@ describe("viewport selection routing", () => {
     assert.equal(hasSelectionToggleModifier({ shiftKey: false, ctrlKey: true, metaKey: false }), true);
     assert.equal(hasSelectionToggleModifier({ shiftKey: false, ctrlKey: false, metaKey: false }), false);
     assert.deepEqual(uniqueSelectionCandidates(["front", undefined, "front", "back"]), ["front", "back"]);
+  });
+
+  test("selection display tone prioritizes real selection over hover", () => {
+    const base = { primaryId: "a", selectedIds: ["a", "b"], hoveredId: "c" };
+    assert.equal(selectionDisplayTone({ ...base, objectId: "a" }), "primary");
+    assert.equal(selectionDisplayTone({ ...base, objectId: "b" }), "secondary");
+    assert.equal(selectionDisplayTone({ ...base, objectId: "c" }), "hover");
+    assert.equal(selectionDisplayTone({ ...base, objectId: "d" }), "default");
+    // Hover never overrides selection, even when they coincide.
+    assert.equal(selectionDisplayTone({ ...base, objectId: "a", hoveredId: "a" }), "primary");
+    assert.equal(selectionDisplayTone({ ...base, objectId: "b", hoveredId: "b" }), "secondary");
+    assert.equal(selectionDisplayTone({ primaryId: null, selectedIds: [], hoveredId: null, objectId: "a" }), "default");
   });
 
   test("cycles overlapping objects only for an unmodified repeated pick", () => {

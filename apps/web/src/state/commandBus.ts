@@ -837,7 +837,18 @@ commandBus.registerHandler(
     const toolFeature = findFeatureForObject(command.tool);
     const targetLayer = target ? cadDocument.layers[target.layerId] : undefined;
     const toolLayer = tool ? cadDocument.layers[tool.layerId] : undefined;
-    if (!target || !tool || !targetFeature || !toolFeature || targetFeature.type !== "primitive" || toolFeature.type !== "primitive" || targetLayer?.locked || toolLayer?.locked) return;
+    // Booleans compose over primitives, extrusions, and prior boolean results.
+    // Drawings and sketches have no solid volume and are rejected here, before
+    // any kernel work starts.
+    const solidKinds = ["primitive", "extrude", "boolean"];
+    if (!target || !tool || !targetFeature || !toolFeature || !solidKinds.includes(targetFeature.type) || !solidKinds.includes(toolFeature.type) || targetLayer?.locked || toolLayer?.locked) return;
+    // Operand placement applies translation and rotation only: a scaled
+    // operand would silently cut the wrong shape, so reject scaled operands
+    // rather than producing corrupted geometry.
+    for (const [object, feature] of [[target, targetFeature], [tool, toolFeature]] as const) {
+      const scale = getObjectTransform(object, feature).scale;
+      if (!scale.every((value) => Math.abs(value - 1) <= 1e-9)) return;
+    }
     const id = `boolean-${crypto.randomUUID()}`;
     const featureId = `feature-${id}`;
     const operands = [target, tool].map((object, index) => ({

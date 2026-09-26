@@ -11,7 +11,7 @@ import { querySnap, type SnapEntity, type SnapResult } from "../precision/snapEn
 import { measurePoints } from "../precision/measurements";
 import { intersectRayWithWorkPlane, planeToWorld, WORK_PLANES, worldToPlane, type Vec3, type WorkPlaneId } from "../precision/workPlane";
 import { easeWorkspaceTransition, workspaceTransitionDuration, type WorkspaceMode } from "./workspaceTransition";
-import { buildBooleanMesh, buildDemoPartMesh, buildExtrudeMesh, buildPrimitiveMesh, subscribeKernelStatus, type KernelStatus } from "../cad/kernelGeometryService";
+import { buildBooleanMesh, buildDemoPartMesh, buildExtrudeMesh, buildPrimitiveMesh, enumerateSolidTopology, subscribeKernelStatus, type KernelStatus } from "../cad/kernelGeometryService";
 import { drawingPlaneScale, getWorldDrawingGeometry } from "../precision/worldGeometry";
 import type { TopologySelectionRef } from "../state/selection";
 import { offsetDrawingParams } from "../precision/drawingOperations";
@@ -24,11 +24,13 @@ import {
   type DirectSelectionCandidate,
 } from "./directSelection";
 import { matchesSelectionWindow, type ScreenPoint } from "./selectionWindow";
+import { brepFaceKeyAtOrdinal, nearestBrepEdgeHit } from "./brepPicking";
 import { middleMouseNavigation } from "../input/shortcutRouter";
 import {
   cycleSelectionCandidate,
   hasSelectionToggleModifier,
   pointerBucketKey,
+  selectionDisplayTone,
   selectionPointerOwner,
   uniqueSelectionCandidates,
 } from "./selectionRouting";
@@ -99,6 +101,7 @@ type RenderObject = THREE.Mesh<THREE.BufferGeometry, THREE.Material> | THREE.Lin
 const DEFAULT_COLOR = 0x4f8cff;
 const SELECTED_COLOR = 0xffc107;
 const SECONDARY_SELECTED_COLOR = 0x58a6ff;
+const HOVER_OBJECT_COLOR = 0x8fc3ff;
 
 function createAdaptiveGrid(): AdaptiveGrid {
   const material = new THREE.ShaderMaterial({
@@ -321,6 +324,93 @@ export function CadViewport({
   useEffect(() => { snapEnabledRef.current = snapEnabled; }, [snapEnabled]);
   useEffect(() => { orthoEnabledRef.current = orthoEnabled; }, [orthoEnabled]);
 
+  // Async edge-reference cache for solid direct picking. Faces resolve
+  // synchronously from mesh attribution; edges need kernel enumeration, so
+  // picking reads this cache live and degrades to faces-only when empty.
+  // Keyed by document revision: any geometry change invalidates entries.
+  const brepEdgeCacheRef = useRef(new Map<string, { revision: number; edges: { key: string; points: [number, number, number][] }[] }>());
+  useEffect(() => {
+    if (!directSelectMode) {
+      brepEdgeCacheRef.current.clear();
+      return;
+    }
+    let cancelled = false;
+    const revision = cadDocument.revision;
+    void (async () => {
+      for (const id of cadDocument.rootObjects) {
+        if (cancelled) return;
+        const cached = brepEdgeCacheRef.current.get(id);
+        if (cached && cached.revision === revision) continue;
+        const object = cadDocument.objects[id];
+        const feature = object ? Object.values(cadDocument.features).find((entry) => entry.output === id) : undefined;
+        const layer = object ? cadDocument.layers[object.layerId] : undefined;
+        if (!object?.visible || !feature || (feature.type !== "primitive" && feature.type !== "extrude" && feature.type !== "boolean") || layer?.visible === false || layer?.locked) {
+          brepEdgeCacheRef.current.delete(id);
+          continue;
+        }
+        try {
+          const topology = await enumerateSolidTopology(feature.params as Record<string, unknown>);
+          if (cancelled) return;
+          brepEdgeCacheRef.current.set(id, { revision, edges: topology.edges });
+        } catch {
+          brepEdgeCacheRef.current.delete(id);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [directSelectMode, documentRevision]);
+
+  // Object hover preselection for Select mode only. Every active tool owns
+  // its own pointer feedback, so this listener exists solely when no drawing,
+  // direct, measurement, line-edit, offset, or gizmo mode is engaged. Render
+  // state only: a ref plus direct material updates, never React state and
+  // never document history.
+  useEffect(() => {
+    const renderer = rendererRef.current;
+    if (!renderer) return;
+    if (drawingTool || directSelectMode || measurementTool || lineEditTool || offsetActive || transformMode) {
+      clearObjectHover();
+      return;
+    }
+    const domElement = renderer.domElement;
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    function pickHover(event: PointerEvent) {
+      const camera = cameraRef.current;
+      if (!camera || event.buttons !== 0) {
+        clearObjectHover();
+        return;
+      }
+      const rect = domElement.getBoundingClientRect();
+      pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+      raycaster.setFromCamera(pointer, camera);
+      const selectableMeshes = Array.from(meshesRef.current.entries())
+        .filter(([objectId, mesh]) => {
+          const object = cadDocument.objects[objectId];
+          const layer = object ? cadDocument.layers[object.layerId] : undefined;
+          return mesh.visible && Boolean(object) && !(layer?.locked ?? false);
+        })
+        .map(([, mesh]) => mesh);
+      const id = raycaster.intersectObjects(selectableMeshes, false)[0]?.object.userData.cadObjectId as string | undefined;
+      if (id === hoveredObjectIdRef.current) return;
+      hoveredObjectIdRef.current = id ?? null;
+      domElement.style.cursor = id ? "pointer" : "";
+      applySelectionColor();
+    }
+    function leaveHover() {
+      clearObjectHover();
+    }
+    domElement.addEventListener("pointermove", pickHover);
+    domElement.addEventListener("pointerleave", leaveHover);
+    return () => {
+      domElement.removeEventListener("pointermove", pickHover);
+      domElement.removeEventListener("pointerleave", leaveHover);
+      clearObjectHover();
+    };
+  }, [drawingTool, directSelectMode, measurementTool, lineEditTool, offsetActive, transformMode, sceneReady]);
+
   useEffect(() => { drawingToolRef.current = drawingTool; }, [drawingTool]);
 
   useEffect(() => { activeWorkPlaneRef.current = WORK_PLANES[activeWorkPlane]; }, [activeWorkPlane]);
@@ -357,6 +447,18 @@ export function CadViewport({
     }
   }
 
+  // Hover preselection is viewport-only render state (a ref, never React state):
+  // it must always lose to real selection and never reach the document.
+  const hoveredObjectIdRef = useRef<string | null>(null);
+
+  function clearObjectHover() {
+    if (hoveredObjectIdRef.current === null) return;
+    hoveredObjectIdRef.current = null;
+    const domElement = rendererRef.current?.domElement;
+    if (domElement) domElement.style.cursor = "";
+    applySelectionColor();
+  }
+
   function applySelectionColor() {
     for (
       const [
@@ -367,11 +469,19 @@ export function CadViewport({
     ) {
       const material = mesh.material as THREE.Material & { color?: THREE.Color };
 
+      const tone = selectionDisplayTone({
+        objectId,
+        primaryId: selectedObjectIdRef.current,
+        selectedIds: selectedObjectIdsRef.current,
+        hoveredId: hoveredObjectIdRef.current,
+      });
       material.color?.set(
-        objectId === selectedObjectIdRef.current
+        tone === "primary"
           ? SELECTED_COLOR
-          : selectedObjectIdsRef.current.includes(objectId)
+          : tone === "secondary"
             ? SECONDARY_SELECTED_COLOR
+            : tone === "hover"
+              ? HOVER_OBJECT_COLOR
           : DEFAULT_COLOR
       );
     }
@@ -443,6 +553,8 @@ export function CadViewport({
 
   function updateSelection(objectId: string | null, additive = false) {
     // React SelectionState is authoritative; highlight re-renders from props.
+    // Drop hover first so a click never leaves a stale preselection behind.
+    clearObjectHover();
     onSelectObjectRef.current?.(objectId, additive);
   }
 
@@ -452,6 +564,7 @@ export function CadViewport({
       positions: number[];
       normals: number[];
       indices: number[];
+      faces?: { key: string; start: number; count: number }[];
     }
   ) {
     const geometry =
@@ -495,6 +608,8 @@ export function CadViewport({
 
     mesh.userData.cadObjectId =
       objectId;
+    mesh.userData.topologyFaces =
+      meshData.faces ?? [];
 
     return mesh;
   }
@@ -967,6 +1082,66 @@ export function CadViewport({
       );
     }
 
+    type BrepPick = { ref: TopologySelectionRef; worldPoint: THREE.Vector3; markerColor: number };
+
+    /**
+     * Solid sub-object pick for Direct Select mode: edges by projected
+     * proximity (precise topology targets win), otherwise faces by raycast
+     * triangle attribution. 2D drawing candidates keep priority; callers
+     * only reach here when those miss. Selection only — no drag editing;
+     * future fillet/chamfer will consume these references via commands.
+     * Marker language extends the existing direct palette: amber edges
+     * (like segments), violet faces (like curves).
+     */
+    function pickBrepSubObject(event: PointerEvent): BrepPick | null {
+      const camera = cameraRef.current;
+      const renderer = rendererRef.current;
+      if (!camera || !renderer) return null;
+      const rect = renderer.domElement.getBoundingClientRect();
+      const cursor = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      const project = (point: Vec3): { x: number; y: number } => {
+        const projected = new THREE.Vector3(...point).project(camera);
+        return { x: (projected.x + 1) * rect.width / 2, y: (1 - projected.y) * rect.height / 2 };
+      };
+      const edgeInputs: { objectId: string; key: string; points: Vec3[] }[] = [];
+      for (const [objectId, mesh] of meshesRef.current) {
+        if (!mesh.visible) continue;
+        const cached = brepEdgeCacheRef.current.get(objectId);
+        if (!cached) continue;
+        mesh.updateWorldMatrix(true, false);
+        for (const edge of cached.edges) {
+          edgeInputs.push({
+            objectId,
+            key: edge.key,
+            points: edge.points.map((point) => new THREE.Vector3(...point).applyMatrix4(mesh.matrixWorld).toArray() as Vec3),
+          });
+        }
+      }
+      const edgeHit = nearestBrepEdgeHit(edgeInputs, project, cursor, 12);
+      if (edgeHit) {
+        return {
+          ref: { objectId: edgeHit.objectId, kind: "brep-edge", topologyId: edgeHit.key },
+          worldPoint: new THREE.Vector3(...edgeHit.worldPoint),
+          markerColor: 0xffc107,
+        };
+      }
+      pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+      raycaster.setFromCamera(pointer, camera);
+      const solidMeshes = Array.from(meshesRef.current.entries()).filter(([objectId, mesh]) => {
+        const object = cadDocument.objects[objectId];
+        const feature = object ? Object.values(cadDocument.features).find((entry) => entry.output === objectId) : undefined;
+        const layer = object ? cadDocument.layers[object.layerId] : undefined;
+        return mesh.visible && Boolean(object) && (feature?.type === "primitive" || feature?.type === "extrude" || feature?.type === "boolean") && layer?.visible !== false && !layer?.locked;
+      }).map(([, mesh]) => mesh);
+      const hit = raycaster.intersectObjects(solidMeshes, false)[0];
+      if (!hit || hit.faceIndex === null || hit.faceIndex === undefined) return null;
+      const objectId = hit.object.userData.cadObjectId as string | undefined;
+      const ranges = (hit.object.userData.topologyFaces ?? []) as { key: string; start: number; count: number }[];
+      const key = brepFaceKeyAtOrdinal(ranges, hit.faceIndex);
+      if (!objectId || !key) return null;
+      return { ref: { objectId, kind: "brep-face", topologyId: key }, worldPoint: hit.point.clone(), markerColor: 0xb78cff };
+    }
+
     function directWorldPoint(event: PointerEvent) {
       const currentCamera = cameraRef.current; if (!currentCamera) return null;
       const rect = renderer.domElement.getBoundingClientRect();
@@ -980,11 +1155,16 @@ export function CadViewport({
       if (!directDrag) {
         directSegmentPreview.visible = false;
         const hover = nearestDirectCandidate(event);
-        directMarker.visible = Boolean(hover);
+        const brepHover = !hover ? pickBrepSubObject(event) : null;
+        directMarker.visible = Boolean(hover ?? brepHover);
         if (hover) {
           directMarker.position.copy(hover.worldPoint);
           (directMarker.material as THREE.MeshBasicMaterial).color.setHex(hover.kind === "control" ? 0x76ead1 : hover.kind === "segment" ? 0xffc107 : 0xb78cff);
           directMarker.scale.setScalar(hover.kind === "control" ? 1 : 0.8);
+        } else if (brepHover) {
+          directMarker.position.copy(brepHover.worldPoint);
+          (directMarker.material as THREE.MeshBasicMaterial).color.setHex(brepHover.markerColor);
+          directMarker.scale.setScalar(1);
         }
         return;
       }
@@ -1158,7 +1338,19 @@ export function CadViewport({
         directOverlapSelection = candidate
           ? { objectId: candidate.objectId, topologyId: candidate.topologyId }
           : null;
-        if (!candidate) { updateSelection(null); directMarker.visible = false; return; }
+        if (!candidate) {
+          const brep = pickBrepSubObject(event);
+          if (!brep) { updateSelection(null); directMarker.visible = false; return; }
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          if (!additive || !selectedObjectIdsRef.current.includes(brep.ref.objectId)) updateSelection(brep.ref.objectId, additive);
+          onDirectSelectSubObjectRef.current?.(brep.ref, additive);
+          directMarker.position.copy(brep.worldPoint);
+          directMarker.visible = true;
+          (directMarker.material as THREE.MeshBasicMaterial).color.setHex(brep.markerColor);
+          directMarker.scale.setScalar(1);
+          return;
+        }
         if (candidate.kind !== "control") {
           event.preventDefault();
           event.stopImmediatePropagation();

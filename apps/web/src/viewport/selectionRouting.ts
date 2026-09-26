@@ -30,6 +30,25 @@ export function uniqueSelectionCandidates(ids: Array<string | undefined>) {
   return ids.filter((id, index, all): id is string => Boolean(id) && all.indexOf(id) === index);
 }
 
+export type SelectionDisplayTone = "primary" | "secondary" | "hover" | "default";
+
+/**
+ * Visual priority for one object: real selection always wins over hover
+ * preselection so the two states can never be confused. Pure and
+ * viewport-rendering only; never touches selection or document state.
+ */
+export function selectionDisplayTone(input: {
+  objectId: string;
+  primaryId: string | null;
+  selectedIds: readonly string[];
+  hoveredId: string | null;
+}): SelectionDisplayTone {
+  if (input.objectId === input.primaryId) return "primary";
+  if (input.selectedIds.includes(input.objectId)) return "secondary";
+  if (input.objectId === input.hoveredId) return "hover";
+  return "default";
+}
+
 export function cycleSelectionCandidate(input: {
   candidates: string[];
   pointerKey: string;

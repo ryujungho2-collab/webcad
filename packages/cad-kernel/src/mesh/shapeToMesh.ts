@@ -21,11 +21,21 @@
 // SOFTWARE.
 
 import { CadEngine } from "../runtime/CadEngine";
+import { fingerprintFace } from "../operations/topology";
+
+export type MeshedFaceRange = {
+  key: string;
+  /** First triangle ordinal (index into indices / 3). */
+  start: number;
+  /** Number of triangles belonging to this face. */
+  count: number;
+};
 
 export async function shapeToMesh(shape: any): Promise<{
   positions: number[];
   normals: number[];
   indices: number[];
+  faces: MeshedFaceRange[];
 }> {
   const engine = await CadEngine.create();
   const oc = engine.oc;
@@ -46,6 +56,7 @@ export async function shapeToMesh(shape: any): Promise<{
   const positions: number[] = [];
   const normals: number[] = [];
   const indices: number[] = [];
+  const faces: MeshedFaceRange[] = [];
 
   type ExplorerFindArg =
     ConstructorParameters<typeof oc.TopExp_Explorer_2>[1];
@@ -100,6 +111,8 @@ export async function shapeToMesh(shape: any): Promise<{
         );
 
       const nodeCount = triangulation.NbNodes();
+      const faceNodes: number[] = [];
+      const faceTriangles: number[] = [];
 
       const reversed = face.Orientation_1() === oc.TopAbs_Orientation.TopAbs_REVERSED;
 
@@ -116,7 +129,11 @@ export async function shapeToMesh(shape: any): Promise<{
           ? point.Transformed(transform)
           : point;
 
-        
+        faceNodes.push(
+          worldPoint.X(),
+          worldPoint.Y(),
+          worldPoint.Z()
+        );
         positions.push(
           worldPoint.X(),
           worldPoint.Y(),
@@ -142,6 +159,7 @@ export async function shapeToMesh(shape: any): Promise<{
 
       const triangleCount =
         triangulation.NbTriangles();
+      const faceStart = indices.length / 3;
 
       for (
         let i = 1;
@@ -158,6 +176,7 @@ export async function shapeToMesh(shape: any): Promise<{
         const i3 =
           triangle.Value(3) - 1;
 
+        faceTriangles.push(i1, i2, i3);
         if (reversed) {
           indices.push(
             globalVertexOffset + i3,
@@ -172,6 +191,12 @@ export async function shapeToMesh(shape: any): Promise<{
           );
         }
       }
+
+      faces.push({
+        key: fingerprintFace({ nodes: faceNodes, triangles: faceTriangles }),
+        start: faceStart,
+        count: triangleCount,
+      });
 
       globalVertexOffset += nodeCount;
     }
@@ -257,6 +282,7 @@ export async function shapeToMesh(shape: any): Promise<{
   return {
     positions,
     normals,
-    indices
+    indices,
+    faces
   };
 }

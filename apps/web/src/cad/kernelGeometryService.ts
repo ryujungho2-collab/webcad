@@ -2,7 +2,12 @@ export type MeshData = {
   positions: number[];
   normals: number[];
   indices: number[];
+  faces?: import("@agent-webcad/cad-kernel").MeshedFaceRange[];
 };
+
+export type BrepTopologyFace = { key: string };
+export type BrepTopologyEdge = { key: string; points: [number, number, number][] };
+export type BrepTopology = { faces: BrepTopologyFace[]; edges: BrepTopologyEdge[] };
 
 export type KernelStatus = "deferred" | "loading" | "ready" | "working" | "error";
 
@@ -165,20 +170,76 @@ export function buildPrimitiveMesh(params: PrimitiveParams) {
   }));
 }
 
+/**
+ * Builds one operand shape, recursing into composed (extrude/boolean) params
+ * so booleans compose over the full solid pipeline instead of primitives
+ * only. Each level applies its own stored placement; ownership transfers to
+ * the caller, mirroring the existing cleanup discipline.
+ */
+async function buildOperandShape(kernel: CadKernelModule, operand: SerializedOperand): Promise<any> {
+  const kind = String(operand.params.kind ?? "");
+  if (kind === "extrude") {
+    const distance = Number(operand.params.distance);
+    const profile = operand.params.profile as Parameters<typeof kernel.extrudeProfile>[0];
+    if (!profile || !Number.isFinite(distance)) throw new Error("Invalid extrude operand.");
+    const raw = await kernel.extrudeProfile(profile, distance);
+    const placed = await placeShape(kernel, raw, operand);
+    if (placed !== raw) raw?.delete?.();
+    return placed;
+  }
+  const nested = operand.params.operands as SerializedOperand[] | undefined;
+  const operation = String(operand.params.operation ?? "");
+  if (Array.isArray(nested) && (operation === "union" || operation === "cut" || operation === "intersect")) {
+    if (nested.length !== 2) throw new Error("Invalid nested boolean operands.");
+    const left = await buildOperandShape(kernel, nested[0]);
+    let right: any;
+    try {
+      right = await buildOperandShape(kernel, nested[1]);
+    } catch (error) {
+      left?.delete?.();
+      throw error;
+    }
+    let combined: any;
+    try {
+      combined = operation === "union" ? await kernel.fuse(left, right)
+        : operation === "intersect" ? await kernel.intersect(left, right)
+        : await kernel.cut(left, right);
+    } finally {
+      left?.delete?.();
+      right?.delete?.();
+    }
+    const placed = await placeShape(kernel, combined, operand);
+    if (placed !== combined) combined?.delete?.();
+    return placed;
+  }
+  const source = await createPrimitiveShape(kernel, operand.params);
+  const placedPrimitive = await placeShape(kernel, source, operand);
+  if (placedPrimitive !== source) source?.delete?.();
+  return placedPrimitive;
+}
+
 export function buildBooleanMesh(params: PrimitiveParams, preflight = false) {
   const key = `boolean:${JSON.stringify(params)}`;
   return getCachedMesh(key, () => runKernelTask(key, async (kernel) => {
     const operands = params.operands as SerializedOperand[];
     if (!Array.isArray(operands) || operands.length !== 2) throw new Error("Invalid boolean operands.");
-    const sourceA = await createPrimitiveShape(kernel, operands[0].params);
-    const sourceB = await createPrimitiveShape(kernel, operands[1].params);
-    let a: any = sourceA; let b: any = sourceB; let result: any;
+    const a = await buildOperandShape(kernel, operands[0]);
+    let b: any;
     try {
-      a = await placeShape(kernel, a, operands[0]);
-      b = await placeShape(kernel, b, operands[1]);
+      b = await buildOperandShape(kernel, operands[1]);
+    } catch (error) {
+      a?.delete?.();
+      throw error;
+    }
+    let result: any;
+    try {
       result = params.operation === "union" ? await kernel.fuse(a, b) : params.operation === "intersect" ? await kernel.intersect(a, b) : await kernel.cut(a, b);
       return await kernel.shapeToMesh(result);
-    } finally { result?.delete?.(); if (a !== sourceA) a?.delete?.(); if (b !== sourceB) b?.delete?.(); sourceA?.delete?.(); sourceB?.delete?.(); }
+    } finally {
+      result?.delete?.();
+      a?.delete?.();
+      b?.delete?.();
+    }
   }, { fatal: !preflight }));
 }
 
@@ -203,6 +264,54 @@ export async function validateExtrudeOperation(params: PrimitiveParams) {
 /** Runs the exact cached operation before a boolean command mutates the document. */
 export async function validateBooleanOperation(params: PrimitiveParams) {
   await buildBooleanMesh(params, true);
+}
+
+const topologyCache = new Map<string, Promise<BrepTopology>>();
+
+/**
+ * Enumerates stable geometric references (faces + edges) for one solid's
+ * feature params in params-local frame: no object placement is applied, so
+ * keys survive viewport moves and can be matched after deterministic
+ * rebuilds. Resolution primitive for selection validation and future
+ * selective fillet/chamfer; never called per pointer event (viewport caches).
+ */
+export function enumerateSolidTopology(params: PrimitiveParams): Promise<BrepTopology> {
+  const key = `brep-topology:${JSON.stringify(params)}`;
+  const cached = topologyCache.get(key);
+  if (cached) return cached;
+  if (topologyCache.size >= MAX_PRIMITIVE_CACHE_ENTRIES) {
+    const oldestKey = topologyCache.keys().next().value;
+    if (oldestKey) topologyCache.delete(oldestKey);
+  }
+  const pending = runKernelTask(key, async (kernel) => {
+    const shape = await buildOperandShape(kernel, { params });
+    try {
+      const mesh = await kernel.shapeToMesh(shape);
+      const edges = await kernel.enumerateSolidEdges(shape);
+      return {
+        faces: (mesh.faces as { key: string }[]).map((entry) => ({ key: entry.key })),
+        edges: edges.map((entry) => ({ key: entry.key, points: entry.points })),
+      };
+    } finally {
+      shape?.delete?.();
+    }
+  }, { fatal: false });
+  pending.catch(() => {
+    topologyCache.delete(key);
+  });
+  topologyCache.set(key, pending);
+  return pending;
+}
+
+/** Async use-time check: does this reference still resolve against current params? */
+export async function resolveBrepReference(
+  params: PrimitiveParams,
+  kind: "brep-edge" | "brep-face",
+  key: string,
+): Promise<boolean> {
+  const topology = await enumerateSolidTopology(params);
+  const list = kind === "brep-edge" ? topology.edges : topology.faces;
+  return list.some((entry) => entry.key === key);
 }
 
 export function buildDemoPartMesh() {

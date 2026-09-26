@@ -8,7 +8,7 @@ import { cadDocument } from "../src/state/cadDocument";
 import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
 import { cadHistory, redoDocument, undoDocument } from "../src/state/history";
 import { validSelection } from "../src/state/selection";
-import { buildExtrudeMesh } from "../src/cad/kernelGeometryService";
+import { buildBooleanMesh, buildExtrudeMesh } from "../src/cad/kernelGeometryService";
 
 const original = structuredClone(cadDocument);
 
@@ -622,6 +622,116 @@ describe("command/history precision workflows", () => {
     assert.ok(reopened.objects["extrude-test"]);
     const reopenedMesh = await buildExtrudeMesh(reopened.features["feature-extrude-test"].params);
     assert.ok(reopenedMesh.positions.length > 0 && reopenedMesh.indices.length > 0);
+  });
+
+  async function installExtrudedWall(id: string, width: number, depth: number, distance: number) {
+    const wallPoints: [number, number, number][] = [[0, 0, 0], [width, 0, 0], [width, depth, 0], [0, depth, 0]];
+    cadDocument.objects[`${id}-profile`] = {
+      id: `${id}-profile`, geometryId: `geometry-${id}-profile`, name: "Wall profile", visible: true, layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.features[`feature-${id}-profile`] = {
+      id: `feature-${id}-profile`, type: "drawing", inputs: [], output: `${id}-profile`,
+      params: { kind: "rectangle", workPlane: "XY", points: wallPoints, topology: createDrawingTopology("rectangle", { points: wallPoints }, `${id}-profile`) },
+    };
+    cadDocument.layers["layer-default"].objectIds.push(`${id}-profile`);
+    cadDocument.rootObjects.push(`${id}-profile`);
+    const created = await dispatchCadCommand({ type: "create-extrude", id, profileObjectIds: [`${id}-profile`], distance });
+    assert.equal(created, id);
+    return id;
+  }
+
+  async function installSolidBox(id: string, size: [number, number, number], position: [number, number, number]) {
+    const created = await dispatchCadCommand({
+      type: "create-primitive", id, primitive: "box",
+      params: { width: size[0], depth: size[1], height: size[2] }, position,
+    });
+    assert.equal(created, id);
+    return id;
+  }
+
+  test("cuts a window opening through an extruded wall as one history entry", async () => {
+    await installExtrudedWall("wall", 20, 12, 10);
+    await installSolidBox("plug", [4, 4, 12], [8, 4, -1]);
+    cadHistory.clear();
+    const revision = cadDocument.revision;
+
+    const result = await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "wall", tool: "plug" });
+    assert.equal(typeof result, "string");
+    assert.deepEqual(cadHistory.getPastLabels(), ["boolean-operation"]);
+    assert.equal(cadDocument.revision, revision + 1);
+    const feature = typeof result === "string" ? cadDocument.features[`feature-${result}`] : undefined;
+    assert.equal(feature?.type, "boolean");
+    assert.deepEqual(feature?.inputs, ["wall", "plug"]);
+    assert.ok(!cadDocument.objects.wall && !cadDocument.objects.plug);
+    const mesh = typeof result === "string" ? await buildBooleanMesh(feature.params as Record<string, unknown>) : null;
+    assert.ok(mesh && mesh.positions.length > 0 && mesh.indices.length > 0);
+
+    assert.equal(undoDocument(), true);
+    assert.ok(cadDocument.objects.wall && cadDocument.objects.plug);
+    assert.equal(typeof result === "string" && cadDocument.objects[result] ? true : false, false);
+    assert.equal(redoDocument(), true);
+    assert.ok(typeof result === "string" && cadDocument.objects[result]);
+  });
+
+  test("unions an extrusion with a primitive and nests booleans", async () => {
+    await installExtrudedWall("plate", 10, 10, 4);
+    await installSolidBox("block", [6, 6, 6], [2, 2, 2]);
+    await installSolidBox("cap", [4, 4, 4], [0, 0, 8]);
+    cadHistory.clear();
+
+    const first = await dispatchCadCommand({ type: "boolean-operation", operation: "union", target: "plate", tool: "block" });
+    assert.equal(typeof first, "string");
+    assert.deepEqual(cadHistory.getPastLabels(), ["boolean-operation"]);
+    const second = await dispatchCadCommand({ type: "boolean-operation", operation: "union", target: first as string, tool: "cap" });
+    assert.equal(typeof second, "string");
+    assert.deepEqual(cadHistory.getPastLabels(), ["boolean-operation", "boolean-operation"]);
+    const nested = typeof second === "string" ? cadDocument.features[`feature-${second}`] : undefined;
+    assert.equal(nested?.type, "boolean");
+    assert.equal(undoDocument(), true);
+    assert.ok(typeof first === "string" && cadDocument.objects[first]);
+    assert.equal(undoDocument(), true);
+    assert.ok(cadDocument.objects.plate && cadDocument.objects.block);
+  });
+
+  test("uses an extrusion as the boolean tool", async () => {
+    await installSolidBox("block", [10, 10, 10], [0, 0, 0]);
+    await installExtrudedWall("punch", 4, 4, 14);
+    cadHistory.clear();
+    const result = await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "block", tool: "punch" });
+    assert.equal(typeof result, "string");
+    assert.deepEqual(cadHistory.getPastLabels(), ["boolean-operation"]);
+    assert.equal(undoDocument(), true);
+    assert.ok(cadDocument.objects.block && cadDocument.objects.punch);
+  });
+
+  test("rejects drawing operands, scaled solids and locked layers without history", async () => {
+    await installExtrudedWall("wall", 20, 12, 10);
+    await installSolidBox("plug", [4, 4, 12], [8, 4, -1]);
+    cadDocument.objects.line = {
+      id: "line", geometryId: "geometry-line", name: "Line", visible: true, layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.features["feature-line"] = {
+      id: "feature-line", type: "drawing", inputs: [], output: "line",
+      params: { kind: "line", workPlane: "XY", points: [[0, 0, 0], [10, 0, 0]], topology: createDrawingTopology("line", { points: [[0, 0, 0], [10, 0, 0]] }, "line") },
+    };
+    cadDocument.layers["layer-default"].objectIds.push("line");
+    cadDocument.rootObjects.push("line");
+    cadHistory.clear();
+    const revision = cadDocument.revision;
+
+    assert.equal(await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "wall", tool: "line" }), undefined);
+    cadDocument.objects.plug.transform!.scale = [2, 2, 2];
+    assert.equal(await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "wall", tool: "plug" }), undefined);
+    cadDocument.objects.plug.transform!.scale = [1, 1, 1];
+    cadDocument.layers["layer-default"].locked = true;
+    assert.equal(await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "wall", tool: "plug" }), undefined);
+    cadDocument.layers["layer-default"].locked = false;
+
+    assert.equal(cadDocument.revision, revision);
+    assert.deepEqual(cadHistory.getPastLabels(), []);
+    assert.ok(cadDocument.objects.wall && cadDocument.objects.plug);
   });
 
   test("rejects an open extrusion profile without document or history mutation", async () => {
