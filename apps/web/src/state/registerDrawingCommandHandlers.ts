@@ -127,7 +127,13 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
         command.pickPoint,
       );
       if (!edit) return;
-      targetFeature.params = { ...targetFeature.params, points: edit.points };
+      // Vertex structure is unchanged for line/polyline/arc edits, so the
+      // existing stable topology ids stay valid. Circle-to-arc conversion
+      // changes the control set and regenerates deterministic references;
+      // stale sub-selections drop through validSelection instead of dangling.
+      targetFeature.params = edit.rebuildTopologyKind
+        ? { ...edit.params, kind: edit.rebuildTopologyKind, topology: createDrawingTopology(edit.rebuildTopologyKind, edit.params, target.id) }
+        : { ...edit.params, topology: targetFeature.params.topology };
       document.revision += 1;
     });
   }

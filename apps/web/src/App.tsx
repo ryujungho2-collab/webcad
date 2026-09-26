@@ -8,6 +8,7 @@ import { dispatchCadCommand } from "./state/dispatchCadCommand";
 import { loadDocumentFromCache, newDocument, openDocumentFile, saveDocumentAsFile, saveDocumentToCache } from "./state/documentFile";
 import { cadHistory, redoDocument, undoDocument } from "./state/history";
 import { reduceSelection, selectAllIds, validSelection, type SelectionState, type TopologySelectionRef } from "./state/selection";
+import type { CornerPreviewRequest } from "./viewport/cornerPreview";
 import { getObjectTransform } from "./state/objectTransform";
 import { repeatDuplicateOffset, type DuplicateSeries } from "./state/duplicateWorkflow";
 import { planAlignment, planDistribution, planGroupTransform } from "./state/selectionCommands";
@@ -62,6 +63,7 @@ export function App() {
   const [offsetDistance, setOffsetDistance] = useState("10");
   const [offsetSide, setOffsetSide] = useState<"left" | "right">("left");
   const [offsetActive, setOffsetActive] = useState(false);
+  const [cornerPreview, setCornerPreview] = useState<CornerPreviewRequest | null>(null);
   const [lineEditTool, setLineEditTool] = useState<"trim" | "extend" | null>(null);
   const [viewAction, setViewAction] = useState<ViewportAction | null>(null);
   const [transformMode, setTransformMode] = useState<TransformMode | null>(null);
@@ -755,6 +757,7 @@ export function App() {
       offsetActive={offsetActive}
       onOffsetStart={activateOffsetTool}
       onOffsetCancel={() => setOffsetActive(false)}
+      onCornerPreview={setCornerPreview}
     />
   );
 
@@ -886,6 +889,7 @@ export function App() {
           onOffsetSideChange={setOffsetSide}
           onOffsetCommit={(side) => { setOffsetSide(side); setOffsetActive(false); void commitOffsetFromViewport(side); }}
           onOffsetCancel={() => setOffsetActive(false)}
+          cornerPreview={cornerPreview}
           onKernelStatus={setKernelStatus}
           onTransformCommit={(objectId, mode, transform) => void commitViewportTransform(objectId, mode, transform)}
           onSelectObject={(id, additive) => selectObject(id, additive)}

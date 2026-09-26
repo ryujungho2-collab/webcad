@@ -17,6 +17,7 @@ import type { TopologySelectionRef } from "../state/selection";
 import { offsetDrawingParams } from "../precision/drawingOperations";
 import { resolveLineEdit } from "../precision/lineEditing";
 import { createDrawingRenderObject, drawingRenderOrigin, drawingRenderPoints } from "./drawingRenderer";
+import { resolveCornerPreview, type CornerPreviewRequest } from "./cornerPreview";
 import {
   buildDirectSelectionCandidates,
   nearestDirectSelectionCandidate,
@@ -64,6 +65,7 @@ type CadViewportProps = {
   onOffsetSideChange?: (side: "left" | "right") => void;
   onOffsetCommit?: (side: "left" | "right") => void;
   onOffsetCancel?: () => void;
+  cornerPreview?: CornerPreviewRequest | null;
   lineEditTool?: "trim" | "extend" | null;
   lineEditCutterId?: string | null;
   onLineEditCommit?: (mode: "trim" | "extend", targetId: string, pickPoint: Vec3) => void;
@@ -201,6 +203,7 @@ export function CadViewport({
   onOffsetSideChange,
   onOffsetCommit,
   onOffsetCancel,
+  cornerPreview = null,
   lineEditTool = null,
   lineEditCutterId = null,
   onLineEditCommit,
@@ -892,6 +895,19 @@ export function CadViewport({
     let directOverlapKey = "";
     let directOverlapSelection: Pick<DirectSelectionCandidate, "objectId" | "topologyId"> | null = null;
     let directDrag: { candidate: DirectSelectionCandidate; startWorld: THREE.Vector3; startClient: [number, number]; pointerId: number; committed: boolean; lastWorld: THREE.Vector3; numericBuffer: string } | null = null;
+    let directReadout = "";
+    let directSnapLabel = "Free";
+    function updateDirectReadout(text: string) {
+      // Pointermove fires faster than React needs; only publish on change.
+      if (text === directReadout) return;
+      directReadout = text;
+      setToolReadout(text);
+    }
+    function buildDirectReadout() {
+      if (!directDrag) return "";
+      const plane = worldToPlane(directDrag.lastWorld.toArray() as Vec3, activeWorkPlaneRef.current);
+      return `DIRECT · ${orthoEnabledRef.current ? "Ortho · " : ""}${directSnapLabel}${directDrag.numericBuffer ? ` · ${directDrag.numericBuffer}` : ""} · ${plane.map((value) => value.toFixed(2)).join(", ")} mm`;
+    }
     const directMarker = new THREE.Mesh(
       new THREE.SphereGeometry(0.18, 12, 8),
       new THREE.MeshBasicMaterial({ color: 0x76ead1, depthTest: false }),
@@ -980,6 +996,7 @@ export function CadViewport({
         if (Math.abs(b[0] - a[0]) >= Math.abs(b[1] - a[1])) b[1] = a[1]; else b[0] = a[0];
         world = new THREE.Vector3(...planeToWorld(b, activeWorkPlaneRef.current));
       }
+      let snapLabel = "Free";
       if (snapEnabledRef.current) {
         const snapped = querySnap({
           point: world.toArray() as Vec3,
@@ -990,9 +1007,14 @@ export function CadViewport({
           tolerancePx: 12,
           project: (point) => projectPixels(new THREE.Vector3(...point)).toArray() as [number, number],
         });
-        if (Number.isFinite(snapped.screenDistance)) world.set(...snapped.point);
+        if (Number.isFinite(snapped.screenDistance)) {
+          world.set(...snapped.point);
+          snapLabel = snapped.type[0].toUpperCase() + snapped.type.slice(1);
+        }
       }
+      directSnapLabel = snapLabel;
       directDrag.lastWorld.copy(world);
+      updateDirectReadout(buildDirectReadout());
       directMarker.position.copy(world); directMarker.visible = true;
       if (directDrag.candidate.kind === "segment") {
         updateDirectSegmentPreview(directDrag.candidate, world.clone().sub(directDrag.startWorld));
@@ -1030,6 +1052,7 @@ export function CadViewport({
       }
       try { renderer.domElement.releasePointerCapture(event.pointerId); } catch { /* capture may already be released */ }
       directSegmentPreview.visible = false;
+      updateDirectReadout("");
       directDrag = null;
       controls.enabled = true;
       if (transformControlsRef.current) transformControlsRef.current.enabled = true;
@@ -1042,6 +1065,7 @@ export function CadViewport({
       event.stopImmediatePropagation();
       if (event.key === "Escape") {
         try { renderer.domElement.releasePointerCapture(directDrag.pointerId); } catch { /* capture may already be released */ }
+        updateDirectReadout("");
         directDrag = null;
         directMarker.visible = false;
         directSegmentPreview.visible = false;
@@ -1067,6 +1091,7 @@ export function CadViewport({
         commitDirectDrag();
         directDrag.committed = true;
         try { renderer.domElement.releasePointerCapture(directDrag.pointerId); } catch { /* capture may already be released */ }
+        updateDirectReadout("");
         directDrag = null;
         controls.enabled = true;
         if (transformControlsRef.current) transformControlsRef.current.enabled = true;
@@ -1074,6 +1099,7 @@ export function CadViewport({
       }
       if (event.key === "Backspace") directDrag.numericBuffer = directDrag.numericBuffer.slice(0, -1);
       else directDrag.numericBuffer += event.key === "," ? "." : event.key;
+      updateDirectReadout(buildDirectReadout());
       return;
     }
 
@@ -2483,6 +2509,51 @@ export function CadViewport({
     };
   }, [offsetPreview, documentRevision, sceneReady]);
 
+  const cornerPreviewRef = useRef<RenderObject | null>(null);
+
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+    const previous = cornerPreviewRef.current;
+    if (previous) {
+      scene.remove(previous);
+      previous.geometry.dispose();
+      (previous.material as THREE.Material).dispose();
+      cornerPreviewRef.current = null;
+    }
+    if (!cornerPreview) return;
+    // Same pure function and inputs as the commit path, so the overlay can
+    // never disagree with the committed result. Nothing here touches the
+    // document; the overlay is transient scene state only.
+    const params = resolveCornerPreview(cadDocument, cornerPreview);
+    if (!params) return;
+    const object = cadDocument.objects[cornerPreview.objectId];
+    const feature = Object.values(cadDocument.features).find((entry) => entry.output === cornerPreview.objectId && entry.type === "drawing");
+    if (!object || !feature) return;
+    const transform = getObjectTransform(object, feature);
+    const preview = createDrawingRenderObject("corner-preview", params);
+    const origin = Array.isArray(preview.userData.drawingOrigin) ? preview.userData.drawingOrigin as Vec3 : [0, 0, 0] as Vec3;
+    preview.position.set(origin[0] + transform.translation[0], origin[1] + transform.translation[1], origin[2] + transform.translation[2]);
+    preview.rotation.set(...transform.rotation.map(THREE.MathUtils.degToRad) as [number, number, number]);
+    preview.scale.set(...transform.scale);
+    const material = preview.material as THREE.LineBasicMaterial;
+    material.color.setHex(0x36d9c5);
+    material.transparent = true;
+    material.opacity = 0.8;
+    material.depthTest = false;
+    preview.renderOrder = 20;
+    scene.add(preview);
+    cornerPreviewRef.current = preview;
+    return () => {
+      if (cornerPreviewRef.current === preview) {
+        scene.remove(preview);
+        preview.geometry.dispose();
+        (preview.material as THREE.Material).dispose();
+        cornerPreviewRef.current = null;
+      }
+    };
+  }, [cornerPreview, documentRevision, sceneReady]);
+
   useEffect(() => {
     if (!offsetActive || !offsetPreview) return;
     const renderer = rendererRef.current;
@@ -2570,13 +2641,19 @@ export function CadViewport({
     const cutterWorld = getWorldDrawingGeometry(cutter, cutterFeature);
     if (!cutterWorld) return;
     const candidates = Object.values(cadDocument.features).flatMap((feature) => {
-      if (feature.type !== "drawing" || feature.output === lineEditCutterId || feature.params.kind !== "line") return [];
+      if (feature.type !== "drawing" || feature.output === lineEditCutterId) return [];
+      const kind = String(feature.params.kind);
+      // Rectangle edges and closed loops have no valid trim/extend
+      // representation; the engine rejects them, so they are not pickable.
+      if (kind !== "line" && kind !== "polyline" && kind !== "arc" && kind !== "circle") return [];
+      if (feature.params.closed === true) return [];
       const object = cadDocument.objects[feature.output];
       const layer = object ? cadDocument.layers[object.layerId] : undefined;
       const mesh = meshesRef.current.get(feature.output);
       if (!object?.visible || !layer?.visible || layer.locked || !mesh?.visible) return [];
       const world = getWorldDrawingGeometry(object, feature);
-      if (!world?.points || world.points.length !== 2 || world.workPlane !== cutterWorld.workPlane) return [];
+      if (!world?.points || world.points.length < 2 || world.workPlane !== cutterWorld.workPlane) return [];
+      if (kind === "polyline" && world.profileSegments?.some((entry) => entry.kind !== "line")) return [];
       return [{ object, feature, points: world.points }];
     });
     const geometry = new THREE.BufferGeometry();
@@ -2594,27 +2671,28 @@ export function CadViewport({
       const x = event.clientX - rect.left, y = event.clientY - rect.top;
       let nearest: { object: typeof cutter; feature: typeof cutterFeature; pickPoint: Vec3; distance: number } | null = null;
       for (const candidate of candidates) {
-        const a = new THREE.Vector3(...candidate.points[0]).project(camera);
-        const b = new THREE.Vector3(...candidate.points[1]).project(camera);
-        const ax = (a.x + 1) * rect.width / 2, ay = (1 - a.y) * rect.height / 2;
-        const bx = (b.x + 1) * rect.width / 2, by = (1 - b.y) * rect.height / 2;
-        const dx = bx - ax, dy = by - ay, length2 = dx * dx + dy * dy;
-        if (length2 < 1e-9) continue;
-        const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / length2));
-        const distance = Math.hypot(x - ax - dx * t, y - ay - dy * t);
-        if (distance > 14 || (nearest && distance >= nearest.distance)) continue;
-        const pickPoint: Vec3 = candidate.points[0].map((v, index) => v + (candidate.points[1][index] - v) * t) as Vec3;
-        nearest = { object: candidate.object, feature: candidate.feature, pickPoint, distance };
+        for (let index = 0; index < candidate.points.length - 1; index += 1) {
+          const a = new THREE.Vector3(...candidate.points[index]).project(camera);
+          const b = new THREE.Vector3(...candidate.points[index + 1]).project(camera);
+          const ax = (a.x + 1) * rect.width / 2, ay = (1 - a.y) * rect.height / 2;
+          const bx = (b.x + 1) * rect.width / 2, by = (1 - b.y) * rect.height / 2;
+          const dx = bx - ax, dy = by - ay, length2 = dx * dx + dy * dy;
+          if (length2 < 1e-9) continue;
+          const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / length2));
+          const distance = Math.hypot(x - ax - dx * t, y - ay - dy * t);
+          if (distance > 14 || (nearest && distance >= nearest.distance)) continue;
+          const pickPoint: Vec3 = candidate.points[index].map((v, axis) => v + (candidate.points[index + 1][axis] - v) * t) as Vec3;
+          nearest = { object: candidate.object, feature: candidate.feature, pickPoint, distance };
+        }
       }
       const edit = nearest && resolveLineEdit(lineEditTool, nearest.object, nearest.feature, cutter, cutterFeature, nearest.pickPoint);
       preview.visible = Boolean(edit);
       hover = edit && nearest ? { targetId: nearest.object.id, pickPoint: nearest.pickPoint } : null;
       if (edit) {
-        positions.set([...edit.preview[0], ...edit.preview[1]]);
-        geometry.attributes.position.needsUpdate = true;
-        geometry.computeBoundingSphere();
+        preview.geometry.dispose();
+        preview.geometry = new THREE.BufferGeometry().setFromPoints(edit.previewPoints.map((point) => new THREE.Vector3(...point)));
       }
-      setToolReadout(hover ? `${lineEditTool.toUpperCase()} · click highlighted segment` : `${lineEditTool.toUpperCase()} · hover a valid line; Esc to cancel`);
+      setToolReadout(hover ? `${lineEditTool.toUpperCase()} · click highlighted segment` : `${lineEditTool.toUpperCase()} · hover a line, polyline end, arc, or circle; Esc to cancel`);
     };
     const onDown = (event: PointerEvent) => {
       if (event.button !== 0) return;
@@ -2632,7 +2710,7 @@ export function CadViewport({
     renderer.domElement.addEventListener("pointermove", update);
     renderer.domElement.addEventListener("pointerdown", onDown, true);
     window.addEventListener("keydown", onKey, true);
-    setToolReadout(`${lineEditTool.toUpperCase()} · hover a valid line; Esc to cancel`);
+    setToolReadout(`${lineEditTool.toUpperCase()} · hover a line, polyline end, arc, or circle; Esc to cancel`);
     return () => {
       renderer.domElement.removeEventListener("pointermove", update);
       renderer.domElement.removeEventListener("pointerdown", onDown, true);

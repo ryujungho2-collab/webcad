@@ -164,4 +164,52 @@ describe("offset", () => {
     assert.equal(offsetDrawingParams("circle", { kind: "circle", center: [0, 0, 0], radius: 5 }, -5), null);
     assert.equal(offsetDrawingParams("arc", { kind: "arc", center: [0, 0, 0], radius: 5 }, 2)?.radius, 7);
   });
+
+  test("offsets circles inside and outside while preserving center", () => {
+    const circle = { kind: "circle", workPlane: "XY", center: [1, 2, 0], radius: 5 };
+    const outside = offsetDrawingParams("circle", circle, 2);
+    assert.equal(outside?.radius, 7);
+    assert.deepEqual(outside?.center, [1, 2, 0]);
+    const inside = offsetDrawingParams("circle", circle, -2);
+    assert.equal(inside?.radius, 3);
+    assert.deepEqual(inside?.center, [1, 2, 0]);
+    assert.equal(offsetDrawingParams("circle", circle, -6), null);
+  });
+
+  test("offsets arcs preserving center and sweep angles", () => {
+    const arc = { kind: "arc", workPlane: "XY", center: [0, 0, 0], radius: 5, startAngle: 0, endAngle: Math.PI / 2 };
+    const offset = offsetDrawingParams("arc", arc, 2);
+    assert.equal(offset?.radius, 7);
+    assert.deepEqual(offset?.center, [0, 0, 0]);
+    assert.equal(offset?.startAngle, 0);
+    assert.equal(offset?.endAngle, Math.PI / 2);
+    const inside = offsetDrawingParams("arc", arc, -2);
+    assert.equal(inside?.radius, 3);
+    assert.equal(offsetDrawingParams("arc", arc, -5), null);
+  });
+
+  test("offsets closed polylines and mirrors open paths on negative distance", () => {
+    const square = { kind: "polyline", workPlane: "XY", closed: true, points: points([0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]) };
+    const inset = offsetDrawingParams("polyline", square, 1);
+    assert.deepEqual(inset?.points, points([1, 1, 0], [9, 1, 0], [9, 9, 0], [1, 9, 0]));
+    assert.equal(inset?.closed, true);
+    const outset = offsetDrawingParams("polyline", square, -1);
+    assert.deepEqual(outset?.points, points([-1, -1, 0], [11, -1, 0], [11, 11, 0], [-1, 11, 0]));
+
+    const line = { kind: "line", workPlane: "XY", points: points([0, 0, 0], [10, 0, 0]) };
+    assert.deepEqual(offsetDrawingParams("line", line, -2)?.points, points([0, -2, 0], [10, -2, 0]));
+  });
+
+  test("offsets YZ-plane geometry and rejects degenerate input", () => {
+    const yzLine = { kind: "line", workPlane: "YZ", points: points([0, 0, 0], [0, 10, 0]) };
+    assert.deepEqual(offsetDrawingParams("line", yzLine, 2)?.points, points([0, 0, 2], [0, 10, 2]));
+
+    const line = { kind: "line", workPlane: "XY", points: points([0, 0, 0], [10, 0, 0]) };
+    assert.equal(offsetDrawingParams("line", line, 0), null);
+    assert.equal(offsetDrawingParams("line", line, Number.NaN), null);
+    const collapsed = { kind: "line", workPlane: "XY", points: points([4, 4, 0], [4, 4, 0]) };
+    assert.equal(offsetDrawingParams("line", collapsed, 2), null);
+    const arced = { kind: "polyline", workPlane: "XY", points: points([0, 0, 0], [10, 0, 0]), bulges: [0.5, 0] };
+    assert.equal(offsetDrawingParams("polyline", arced, 2), null);
+  });
 });

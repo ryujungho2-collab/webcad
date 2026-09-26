@@ -65,17 +65,44 @@ function sampleDrawing(feature: CadFeature, plane: WorkPlaneId): { points?: Vec3
   return { points, center, radius, startAngle: kind === "arc" ? start : undefined, endAngle: kind === "arc" ? end : undefined };
 }
 
+export function drawingWorkPlane(feature: CadFeature): WorkPlaneId {
+  return (feature.params.workPlane === "XZ" || feature.params.workPlane === "YZ" ? feature.params.workPlane : "XY") as WorkPlaneId;
+}
+
+function drawingTransformMatrix(object: CadObject, feature: CadFeature, localPoints: Vec3[]): THREE.Matrix4 {
+  const transform = getObjectTransform(object, feature);
+  const origin = localPoints.length ? new THREE.Box3().setFromPoints(localPoints.map((point) => new THREE.Vector3(...point))).getCenter(new THREE.Vector3()) : new THREE.Vector3();
+  const rotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(...transform.rotation.map(THREE.MathUtils.degToRad) as [number, number, number]));
+  return new THREE.Matrix4().compose(origin.clone().add(new THREE.Vector3(...transform.translation)), rotation, new THREE.Vector3(...transform.scale)).multiply(new THREE.Matrix4().makeTranslation(-origin.x, -origin.y, -origin.z));
+}
+
+/** Maps one world-space point back into a drawing feature's model coordinates. */
+export function drawingWorldToModel(object: CadObject, feature: CadFeature, worldPoint: Vec3): Vec3 | null {
+  if (feature.type !== "drawing") return null;
+  const plane = drawingWorkPlane(feature);
+  const localPoints = sampleDrawing(feature, plane).points ?? [];
+  const matrix = drawingTransformMatrix(object, feature, localPoints).invert();
+  return new THREE.Vector3(...worldPoint).applyMatrix4(matrix).toArray() as Vec3;
+}
+
+/** Maps one model-space point of a drawing feature to world coordinates. */
+export function drawingModelToWorld(object: CadObject, feature: CadFeature, modelPoint: Vec3): Vec3 | null {
+  if (feature.type !== "drawing") return null;
+  const plane = drawingWorkPlane(feature);
+  const localPoints = sampleDrawing(feature, plane).points ?? [];
+  return new THREE.Vector3(...modelPoint).applyMatrix4(drawingTransformMatrix(object, feature, localPoints)).toArray() as Vec3;
+}
+
 export function getWorldDrawingGeometry(object: CadObject, feature: CadFeature): WorldDrawingGeometry | null {
   if (feature.type !== "drawing") return null;
   const kind = String(feature.params.kind) as WorldDrawingGeometry["kind"];
   if (!["line", "polyline", "rectangle", "circle", "arc"].includes(kind)) return null;
-  const plane = (feature.params.workPlane === "XZ" || feature.params.workPlane === "YZ" ? feature.params.workPlane : "XY") as WorkPlaneId;
+  const plane = drawingWorkPlane(feature);
   const local = sampleDrawing(feature, plane);
   const transform = getObjectTransform(object, feature);
   const localPoints = local.points ?? [];
-  const origin = localPoints.length ? new THREE.Box3().setFromPoints(localPoints.map((point) => new THREE.Vector3(...point))).getCenter(new THREE.Vector3()) : new THREE.Vector3();
+  const matrix = drawingTransformMatrix(object, feature, localPoints);
   const rotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(...transform.rotation.map(THREE.MathUtils.degToRad) as [number, number, number]));
-  const matrix = new THREE.Matrix4().compose(origin.clone().add(new THREE.Vector3(...transform.translation)), rotation, new THREE.Vector3(...transform.scale)).multiply(new THREE.Matrix4().makeTranslation(-origin.x, -origin.y, -origin.z));
   const points = localPoints.map((point) => new THREE.Vector3(...point).applyMatrix4(matrix).toArray() as Vec3);
   const center = local.center ? new THREE.Vector3(...local.center).applyMatrix4(matrix).toArray() as Vec3 : undefined;
   const planeScale = drawingPlaneScale(transform.scale, plane);

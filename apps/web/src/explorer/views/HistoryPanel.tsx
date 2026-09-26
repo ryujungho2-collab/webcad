@@ -27,6 +27,8 @@ const labels: Record<string, string> = {
   "show-all-objects": "Show all objects",
   "delete-object": "Delete object",
   "duplicate-object": "Duplicate object",
+  "trim-drawing": "Trim drawing",
+  "extend-drawing": "Extend drawing",
 };
 
 export function HistoryPanel({ query }: HistoryPanelProps) {

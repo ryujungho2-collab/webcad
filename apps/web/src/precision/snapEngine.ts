@@ -43,7 +43,7 @@ function curveEndpoints(entity: SnapEntity, plane: WorkPlane): [Vec3, string][] 
   });
 }
 
-function angleOnSweep(angle: number, start: number, end: number) {
+export function angleOnSweep(angle: number, start: number, end: number) {
   const tau = Math.PI * 2;
   if (end >= start) {
     while (angle < start) angle += tau;
@@ -61,7 +61,7 @@ function pointOnCurve(curve: SnapCurve, point: [number, number], plane: WorkPlan
   return angleOnSweep(Math.atan2(point[1] - center[1], point[0] - center[0]), curve.startAngle, curve.endAngle);
 }
 
-function segmentCircleIntersections(a: [number, number], b: [number, number], center: [number, number], radius: number) {
+export function segmentCircleIntersections(a: [number, number], b: [number, number], center: [number, number], radius: number) {
   const dx = b[0] - a[0], dy = b[1] - a[1];
   const fx = a[0] - center[0], fy = a[1] - center[1];
   const aa = dx * dx + dy * dy;
@@ -76,7 +76,7 @@ function segmentCircleIntersections(a: [number, number], b: [number, number], ce
     .map((value) => [a[0] + dx * value, a[1] + dy * value] as [number, number]);
 }
 
-function circleCircleIntersections(aCenter: [number, number], aRadius: number, bCenter: [number, number], bRadius: number) {
+export function circleCircleIntersections(aCenter: [number, number], aRadius: number, bCenter: [number, number], bRadius: number) {
   const dx = bCenter[0] - aCenter[0], dy = bCenter[1] - aCenter[1];
   const distance = Math.hypot(dx, dy);
   if (distance < 1e-9 || distance > aRadius + bRadius + 1e-9 || distance < Math.abs(aRadius - bRadius) - 1e-9) return [];

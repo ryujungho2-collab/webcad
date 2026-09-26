@@ -7,6 +7,7 @@ import { createDrawingTopology } from "../src/precision/drawingTopology";
 import { cadDocument } from "../src/state/cadDocument";
 import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
 import { cadHistory, redoDocument, undoDocument } from "../src/state/history";
+import { validSelection } from "../src/state/selection";
 import { buildExtrudeMesh } from "../src/cad/kernelGeometryService";
 
 const original = structuredClone(cadDocument);
@@ -266,6 +267,242 @@ describe("command/history precision workflows", () => {
     assert.equal(cadDocument.rootObjects.length, 2);
     assert.equal(redoDocument(), true);
     assert.equal(cadDocument.rootObjects.length, 3);
+  });
+
+  test("offset preserves the source transform and mirrors on the right side", async () => {
+    const topology = createDrawingTopology("line", { points: [[0, 0, 0], [10, 0, 0]] }, "moved-line");
+    cadDocument.objects.line = {
+      id: "line",
+      geometryId: "geometry-line",
+      name: "Line",
+      visible: true,
+      layerId: "layer-default",
+      transform: { translation: [5, 5, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.features["feature-line"] = {
+      id: "feature-line",
+      type: "drawing",
+      inputs: [],
+      output: "line",
+      params: { kind: "line", workPlane: "XY", points: [[0, 0, 0], [10, 0, 0]], topology },
+    };
+    cadDocument.layers["layer-default"].objectIds.push("line");
+    cadDocument.rootObjects.push("line");
+    const revision = cadDocument.revision;
+
+    const id = await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "right" });
+    assert.equal(typeof id, "string");
+    assert.deepEqual(cadHistory.getPastLabels(), ["offset-drawing"]);
+    const copy = typeof id === "string" ? cadDocument.objects[id] : undefined;
+    assert.deepEqual(copy?.transform?.translation, [5, 5, 0]);
+    assert.equal(copy?.layerId, "layer-default");
+    const copyFeature = Object.values(cadDocument.features).find((entry) => entry.output === id);
+    assert.deepEqual(copyFeature?.type === "drawing" ? copyFeature.params.points : null, [[0, -2, 0], [10, -2, 0]]);
+    assert.ok(copyFeature?.type === "drawing" && typeof (copyFeature.params.topology as { version?: number })?.version === "number");
+    assert.equal(cadDocument.revision, revision + 1);
+    assert.equal(undoDocument(), true);
+    assert.equal(typeof id === "string" && cadDocument.objects[id] ? true : false, false);
+  });
+
+  test("offset rejects non-uniform scale, tilted planes and locked layers without history", async () => {
+    const topology = createDrawingTopology("line", { points: [[0, 0, 0], [10, 0, 0]] }, "guard-line");
+    cadDocument.objects.line = {
+      id: "line",
+      geometryId: "geometry-line",
+      name: "Line",
+      visible: true,
+      layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [2, 1, 1] },
+    };
+    cadDocument.features["feature-line"] = {
+      id: "feature-line",
+      type: "drawing",
+      inputs: [],
+      output: "line",
+      params: { kind: "line", workPlane: "XY", points: [[0, 0, 0], [10, 0, 0]], topology },
+    };
+    cadDocument.layers["layer-default"].objectIds.push("line");
+    cadDocument.rootObjects.push("line");
+    const revision = cadDocument.revision;
+
+    assert.equal(await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "left" }), undefined);
+    cadDocument.objects.line.transform!.scale = [1, 1, 1];
+    cadDocument.objects.line.transform!.rotation = [0, 90, 0];
+    assert.equal(await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "left" }), undefined);
+    cadDocument.objects.line.transform!.rotation = [0, 0, 0];
+    cadDocument.layers["layer-default"].locked = true;
+    assert.equal(await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "left" }), undefined);
+    cadDocument.layers["layer-default"].locked = false;
+
+    assert.equal(cadDocument.revision, revision);
+    assert.deepEqual(cadHistory.getPastLabels(), []);
+    assert.ok(cadDocument.objects.line);
+  });
+
+  function installCornerProfile() {
+    const topology = createDrawingTopology("polyline", { points: [[0, 0, 0], [10, 0, 0], [10, 10, 0]] }, "corner");
+    cadDocument.objects.corner = {
+      id: "corner", geometryId: "geometry-corner", name: "Corner", visible: true, layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.features["feature-corner"] = {
+      id: "feature-corner", type: "drawing", inputs: [], output: "corner",
+      params: {
+        kind: "polyline", workPlane: "XY", points: [[0, 0, 0], [10, 0, 0], [10, 10, 0]],
+        topology: structuredClone(topology),
+      },
+    };
+    cadDocument.layers["layer-default"].objectIds.push("corner");
+    cadDocument.rootObjects.push("corner");
+    return structuredClone(topology);
+  }
+
+  test("fillet corner commits one history entry with exact undo/redo", async () => {
+    const original = installCornerProfile();
+    const near = (actual: unknown, expected: [number, number, number][]) => {
+      const points = actual as [number, number, number][];
+      assert.equal(points.length, expected.length);
+      points.forEach((point, index) => point.forEach((value, axis) => assert.ok(
+        Math.abs(value - expected[index][axis]) < 1e-9,
+        `${value} ≈ ${expected[index][axis]}`,
+      )));
+    };
+    assert.equal(await dispatchCadCommand({ type: "edit-drawing-corner", objectId: "corner", controlId: "corner:vertex:1", treatment: "fillet", distance: 2 }), undefined);
+    const feature = cadDocument.features["feature-corner"];
+    near(feature.params.points, [[0, 0, 0], [8, 0, 0], [10, 2, 0], [10, 10, 0]]);
+    assert.deepEqual(cadHistory.getPastLabels(), ["edit-drawing-corner"]);
+    assert.equal(undoDocument(), true);
+    assert.deepEqual(cadDocument.features["feature-corner"].params.points, [[0, 0, 0], [10, 0, 0], [10, 10, 0]]);
+    assert.deepEqual(cadDocument.features["feature-corner"].params.topology, original);
+    assert.equal(redoDocument(), true);
+    near(cadDocument.features["feature-corner"].params.points, [[0, 0, 0], [8, 0, 0], [10, 2, 0], [10, 10, 0]]);
+  });
+
+  test("chamfer corner preserves transform and follows the treated vertex", async () => {
+    installCornerProfile();
+    cadDocument.objects.corner.transform!.translation = [5, 5, 5];
+    assert.equal(await dispatchCadCommand({ type: "edit-drawing-corner", objectId: "corner", controlId: "corner:vertex:1", treatment: "chamfer", distance: 2 }), undefined);
+    const feature = cadDocument.features["feature-corner"];
+    assert.deepEqual(feature.params.points, [[0, 0, 0], [8, 0, 0], [10, 2, 0], [10, 10, 0]]);
+    assert.deepEqual(feature.params.bulges, [0, 0, 0]);
+    assert.deepEqual(cadDocument.objects.corner.transform?.translation, [5, 5, 5]);
+    // The treated vertex id is retained by the first trim point, so the
+    // sub-selection follows the edit instead of dangling. It now addresses
+    // the trim point rather than the original corner (documented limitation
+    // for future constraint anchoring).
+    const cleaned = validSelection({
+      ids: ["corner"],
+      primaryId: "corner",
+      subObjects: [{ objectId: "corner", kind: "drawing-control", topologyId: "corner:vertex:1" }],
+    });
+    assert.deepEqual(cleaned.ids, ["corner"]);
+    assert.deepEqual(cleaned.subObjects, [{ objectId: "corner", kind: "drawing-control", topologyId: "corner:vertex:1" }]);
+  });
+
+  function installTrimPair() {
+    const targetTopology = createDrawingTopology("line", { points: [[0, 0, 0], [10, 0, 0]] }, "tline");
+    const cutterTopology = createDrawingTopology("line", { points: [[5, -5, 0], [5, 5, 0]] }, "cut");
+    cadDocument.objects.tline = {
+      id: "tline", geometryId: "geometry-tline", name: "Target", visible: true, layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.objects.cut = {
+      id: "cut", geometryId: "geometry-cut", name: "Cutter", visible: true, layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.features["feature-tline"] = {
+      id: "feature-tline", type: "drawing", inputs: [], output: "tline",
+      params: { kind: "line", workPlane: "XY", points: [[0, 0, 0], [10, 0, 0]], topology: targetTopology },
+    };
+    cadDocument.features["feature-cut"] = {
+      id: "feature-cut", type: "drawing", inputs: [], output: "cut",
+      params: { kind: "line", workPlane: "XY", points: [[5, -5, 0], [5, 5, 0]], topology: cutterTopology },
+    };
+    cadDocument.layers["layer-default"].objectIds.push("tline", "cut");
+    cadDocument.rootObjects.push("tline", "cut");
+  }
+
+  test("trim commits one history entry with exact undo/redo", async () => {
+    installTrimPair();
+    assert.equal(await dispatchCadCommand({ type: "trim-drawing", targetId: "tline", cutterId: "cut", pickPoint: [8, 0, 0] }), undefined);
+    assert.deepEqual(cadDocument.features["feature-tline"].params.points, [[0, 0, 0], [5, 0, 0]]);
+    assert.deepEqual(cadHistory.getPastLabels(), ["trim-drawing"]);
+    assert.equal(undoDocument(), true);
+    assert.deepEqual(cadDocument.features["feature-tline"].params.points, [[0, 0, 0], [10, 0, 0]]);
+    assert.equal(redoDocument(), true);
+    assert.deepEqual(cadDocument.features["feature-tline"].params.points, [[0, 0, 0], [5, 0, 0]]);
+  });
+
+  test("extend commits one history entry with exact undo/redo", async () => {
+    installTrimPair();
+    cadDocument.features["feature-tline"].params.points = [[0, 0, 0], [4, 0, 0]];
+    assert.equal(await dispatchCadCommand({ type: "extend-drawing", targetId: "tline", cutterId: "cut", pickPoint: [3, 0, 0] }), undefined);
+    assert.deepEqual(cadDocument.features["feature-tline"].params.points, [[0, 0, 0], [5, 0, 0]]);
+    assert.deepEqual(cadHistory.getPastLabels(), ["extend-drawing"]);
+    assert.equal(undoDocument(), true);
+    assert.deepEqual(cadDocument.features["feature-tline"].params.points, [[0, 0, 0], [4, 0, 0]]);
+    assert.equal(redoDocument(), true);
+    assert.deepEqual(cadDocument.features["feature-tline"].params.points, [[0, 0, 0], [5, 0, 0]]);
+  });
+
+  test("trim rejects misses and locked layers without revision or history", async () => {
+    installTrimPair();
+    const revision = cadDocument.revision;
+    cadDocument.features["feature-cut"].params.points = [[5, 10, 0], [5, 20, 0]];
+    assert.equal(await dispatchCadCommand({ type: "trim-drawing", targetId: "tline", cutterId: "cut", pickPoint: [8, 0, 0] }), undefined);
+    assert.equal(cadDocument.revision, revision);
+    cadDocument.features["feature-cut"].params.points = [[5, -5, 0], [5, 5, 0]];
+    cadDocument.layers["layer-default"].locked = true;
+    assert.equal(await dispatchCadCommand({ type: "trim-drawing", targetId: "tline", cutterId: "cut", pickPoint: [8, 0, 0] }), undefined);
+    cadDocument.layers["layer-default"].locked = false;
+    assert.equal(cadDocument.revision, revision);
+    assert.deepEqual(cadHistory.getPastLabels(), []);
+    assert.deepEqual(cadDocument.features["feature-tline"].params.points, [[0, 0, 0], [10, 0, 0]]);
+  });
+
+  test("circle trim converts to arc with deterministic topology and remapped selection", async () => {
+    const topology = createDrawingTopology("circle", { center: [0, 0, 0], radius: 5 }, "circ");
+    cadDocument.objects.circ = {
+      id: "circ", geometryId: "geometry-circ", name: "Circle", visible: true, layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.objects.cut = {
+      id: "cut", geometryId: "geometry-cut", name: "Cutter", visible: true, layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    };
+    cadDocument.features["feature-circ"] = {
+      id: "feature-circ", type: "drawing", inputs: [], output: "circ",
+      params: { kind: "circle", workPlane: "XY", center: [0, 0, 0], radius: 5, topology },
+    };
+    const cutterTopology = createDrawingTopology("line", { points: [[3, -10, 0], [3, 10, 0]] }, "cut");
+    cadDocument.features["feature-cut"] = {
+      id: "feature-cut", type: "drawing", inputs: [], output: "cut",
+      params: { kind: "line", workPlane: "XY", points: [[3, -10, 0], [3, 10, 0]], topology: cutterTopology },
+    };
+    cadDocument.layers["layer-default"].objectIds.push("circ", "cut");
+    cadDocument.rootObjects.push("circ", "cut");
+
+    assert.equal(await dispatchCadCommand({ type: "trim-drawing", targetId: "circ", cutterId: "cut", pickPoint: [-5, 0, 0] }), undefined);
+    const feature = cadDocument.features["feature-circ"];
+    assert.equal(feature.params.kind, "arc");
+    assert.equal(feature.params.radius, 5);
+    const rebuilt = feature.params.topology as { controls: { id: string }[]; curves: { id: string }[] };
+    assert.deepEqual(rebuilt.controls.map((entry) => entry.id), ["circ:center:0", "circ:start:0", "circ:end:0"]);
+    assert.deepEqual(rebuilt.curves.map((entry) => entry.id), ["circ:curve:0"]);
+    assert.deepEqual(cadHistory.getPastLabels(), ["trim-drawing"]);
+
+    const cleaned = validSelection({
+      ids: ["circ"],
+      primaryId: "circ",
+      subObjects: [
+        { objectId: "circ", kind: "drawing-curve", topologyId: "circ:curve:0" },
+        { objectId: "circ", kind: "drawing-control", topologyId: "circ:radius:0" },
+      ],
+    });
+    assert.deepEqual(cleaned.ids, ["circ"]);
+    assert.deepEqual(cleaned.subObjects, [{ objectId: "circ", kind: "drawing-curve", topologyId: "circ:curve:0" }]);
+    assert.equal(undoDocument(), true);
+    assert.equal(cadDocument.features["feature-circ"].params.kind, "circle");
   });
 
   test("corner treatment and profile closure are deterministic single history operations", async () => {

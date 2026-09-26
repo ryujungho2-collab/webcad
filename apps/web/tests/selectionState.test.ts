@@ -121,3 +121,89 @@ describe("selection cleanup", () => {
     assert.deepEqual(validSelection(state), { ...state, subObjects: [] });
   });
 });
+
+describe("sub-object reference cleanup", () => {
+  function installDrawing() {
+    cadDocument.objects.line = {
+      id: "line",
+      geometryId: "geometry-line",
+      name: "line",
+      visible: true,
+      layerId: "layer-default",
+    };
+    cadDocument.features["feature-line"] = {
+      id: "feature-line",
+      type: "drawing",
+      inputs: [],
+      output: "line",
+      params: {
+        kind: "line",
+        workPlane: "XY",
+        points: [[0, 0, 0], [10, 0, 0]],
+        topology: {
+          version: 1,
+          controls: [{ id: "v0", role: "vertex", index: 0 }, { id: "v1", role: "vertex", index: 1 }],
+          segments: [{ id: "s0", startControlId: "v0", endControlId: "v1", index: 0, kind: "line" }],
+          curves: [],
+        },
+      },
+    };
+    cadDocument.layers["layer-default"].objectIds.push("line");
+    cadDocument.rootObjects.push("line");
+  }
+
+  test("keeps live control and segment references", () => {
+    installDrawing();
+    const cleaned = validSelection({
+      ids: ["line"],
+      primaryId: "line",
+      subObjects: [
+        { objectId: "line", kind: "drawing-control", topologyId: "v1" },
+        { objectId: "line", kind: "drawing-segment", topologyId: "s0" },
+      ],
+    });
+    assert.deepEqual(cleaned.ids, ["line"]);
+    assert.deepEqual(cleaned.subObjects, [
+      { objectId: "line", kind: "drawing-control", topologyId: "v1" },
+      { objectId: "line", kind: "drawing-segment", topologyId: "s0" },
+    ]);
+  });
+
+  test("drops references to removed topology without dropping the object", () => {
+    installDrawing();
+    cadDocument.features["feature-line"].params.topology = {
+      version: 1,
+      controls: [{ id: "v0", role: "vertex", index: 0 }],
+      segments: [],
+      curves: [],
+    };
+    const cleaned = validSelection({
+      ids: ["line"],
+      primaryId: "line",
+      subObjects: [
+        { objectId: "line", kind: "drawing-control", topologyId: "v1" },
+        { objectId: "line", kind: "drawing-segment", topologyId: "s0" },
+        { objectId: "line", kind: "drawing-control", topologyId: "v0" },
+      ],
+    });
+    assert.deepEqual(cleaned.ids, ["line"]);
+    assert.equal(cleaned.primaryId, "line");
+    assert.deepEqual(cleaned.subObjects, [{ objectId: "line", kind: "drawing-control", topologyId: "v0" }]);
+  });
+
+  test("drops sub-objects of deleted objects and object-kind passthrough", () => {
+    installDrawing();
+    delete cadDocument.objects.line;
+    const cleaned = validSelection({
+      ids: ["line", "box-0"],
+      primaryId: "line",
+      subObjects: [
+        { objectId: "line", kind: "drawing-control", topologyId: "v1" },
+        { objectId: "box-0", kind: "object", topologyId: "box-0" },
+      ],
+    });
+    assert.deepEqual(cleaned.ids, ["box-0"]);
+    assert.equal(cleaned.primaryId, "box-0");
+    assert.deepEqual(cleaned.subObjects, [{ objectId: "box-0", kind: "object", topologyId: "box-0" }]);
+  });
+});

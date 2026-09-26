@@ -77,9 +77,9 @@ describe("trim and extend regression", () => {
     const cutterObject = object("cutter");
     const cutterFeature = drawing("cutter", "line", { points: [[10, -5, 0], [10, 5, 0]] });
     const result = resolveLineEdit("trim", targetObject, targetFeature, cutterObject, cutterFeature, [14, 0, 0]);
-    assert.deepEqual(result?.points, [[0, 0, 0], [5, 0, 0]]);
+    assert.deepEqual(result?.params.points, [[0, 0, 0], [5, 0, 0]]);
     assert.deepEqual(result?.intersection, [10, 0, 0]);
-    assert.deepEqual(result?.preview, [[10, 0, 0], [15, 0, 0]]);
+    assert.deepEqual(result?.previewPoints, [[10, 0, 0], [15, 0, 0]]);
   });
 
   test("extends the nearest endpoint to the boundary", () => {
@@ -88,8 +88,155 @@ describe("trim and extend regression", () => {
     const cutterObject = object("cutter");
     const cutterFeature = drawing("cutter", "line", { points: [[12, -5, 0], [12, 5, 0]] });
     const result = resolveLineEdit("extend", targetObject, targetFeature, cutterObject, cutterFeature, [10, 0, 0]);
-    assert.deepEqual(result?.points, [[0, 0, 0], [7, 0, 0]]);
+    assert.deepEqual(result?.params.points, [[0, 0, 0], [7, 0, 0]]);
     assert.deepEqual(result?.intersection, [12, 0, 0]);
+  });
+
+  test("trims lines against circle and arc cutters on either side", () => {
+    const targetObject = object("target");
+    const targetFeature = drawing("target", "line", { points: [[-10, 0, 0], [10, 0, 0]] });
+    const circleCutter = drawing("cutter", "circle", { center: [0, 0, 0], radius: 5 });
+    const left = resolveLineEdit("trim", targetObject, targetFeature, object("cutter"), circleCutter, [-8, 0, 0]);
+    assert.deepEqual(left?.params.points, [[-5, 0, 0], [10, 0, 0]]);
+    assert.deepEqual(left?.intersection, [-5, 0, 0]);
+    const right = resolveLineEdit("trim", targetObject, targetFeature, object("cutter"), circleCutter, [8, 0, 0]);
+    assert.deepEqual(right?.params.points, [[-10, 0, 0], [5, 0, 0]]);
+
+    const arcCutter = drawing("cutter", "arc", { center: [10, 0, 0], radius: 5, startAngle: Math.PI / 2, endAngle: 3 * Math.PI / 2 });
+    const longTarget = drawing("target", "line", { points: [[0, 0, 0], [20, 0, 0]] });
+    const trimmed = resolveLineEdit("trim", targetObject, longTarget, object("cutter"), arcCutter, [18, 0, 0]);
+    assert.deepEqual(trimmed?.params.points, [[0, 0, 0], [5, 0, 0]]);
+  });
+
+  test("trims on XZ and YZ work planes", () => {
+    const xzTarget = drawing("target", "line", { workPlane: "XZ", points: [[0, 3, 0], [10, 3, 0]] });
+    const xzCutter = drawing("cutter", "line", { workPlane: "XZ", points: [[5, 3, -5], [5, 3, 5]] });
+    assert.deepEqual(
+      resolveLineEdit("trim", object("target"), xzTarget, object("cutter"), xzCutter, [8, 3, 0])?.params.points,
+      [[0, 3, 0], [5, 3, 0]],
+    );
+    const yzTarget = drawing("target", "line", { workPlane: "YZ", points: [[0, 0, 0], [0, 10, 0]] });
+    const yzCutter = drawing("cutter", "line", { workPlane: "YZ", points: [[0, 5, -5], [0, 5, 5]] });
+    assert.deepEqual(
+      resolveLineEdit("trim", object("target"), yzTarget, object("cutter"), yzCutter, [0, 8, 0])?.params.points,
+      [[0, 0, 0], [0, 5, 0]],
+    );
+  });
+
+  test("trims rotated lines using world geometry", () => {
+    const targetObject: CadObject = {
+      id: "target", geometryId: "geometry-target", name: "target", visible: true, layerId: "layer-default",
+      transform: { translation: [0, 0, 0], rotation: [0, 0, 90], scale: [1, 1, 1] },
+    };
+    const targetFeature = drawing("target", "line", { points: [[0, 0, 0], [10, 0, 0]] });
+    const cutterFeature = drawing("cutter", "line", { points: [[-10, 0, 0], [10, 0, 0]] });
+    const result = resolveLineEdit("trim", targetObject, targetFeature, object("cutter"), cutterFeature, [5, -4, 0]);
+    assert.deepEqual(result?.params.points, [[5, 0, 0], [10, 0, 0]]);
+    assert.deepEqual(result?.intersection, [5, 0, 0]);
+  });
+
+  test("rejects endpoint touches, misses, tangents, coincidence, splits and degenerate input", () => {
+    const targetObject = object("target");
+    const targetFeature = drawing("target", "line", { points: [[-10, 0, 0], [10, 0, 0]] });
+    const endTouch = drawing("cutter", "line", { points: [[10, -5, 0], [10, 5, 0]] });
+    assert.equal(resolveLineEdit("trim", targetObject, targetFeature, object("cutter"), endTouch, [9, 0, 0]), null);
+    const parallel = drawing("cutter", "line", { points: [[-10, 5, 0], [10, 5, 0]] });
+    assert.equal(resolveLineEdit("trim", targetObject, targetFeature, object("cutter"), parallel, [0, 0, 0]), null);
+    const tangent = drawing("cutter", "circle", { center: [0, 5, 0], radius: 5 });
+    assert.equal(resolveLineEdit("trim", targetObject, targetFeature, object("cutter"), tangent, [0, 0, 0]), null);
+    const coincident = drawing("cutter", "line", { points: [[-10, 0, 0], [10, 0, 0]] });
+    assert.equal(resolveLineEdit("trim", targetObject, targetFeature, object("cutter"), coincident, [0, 0, 0]), null);
+    const circle = drawing("cutter", "circle", { center: [0, 0, 0], radius: 5 });
+    assert.equal(resolveLineEdit("trim", targetObject, targetFeature, object("cutter"), circle, [0, 0, 0]), null);
+    const collapsedTarget = drawing("target", "line", { points: [[4, 4, 0], [4, 4, 0]] });
+    const cutter = drawing("cutter", "line", { points: [[10, -5, 0], [10, 5, 0]] });
+    assert.equal(resolveLineEdit("trim", targetObject, collapsedTarget, object("cutter"), cutter, [4, 4, 0]), null);
+    const collapsedCutter = drawing("cutter", "line", { points: [[1, 1, 0], [1, 1, 0]] });
+    assert.equal(resolveLineEdit("trim", targetObject, targetFeature, object("cutter"), collapsedCutter, [0, 0, 0]), null);
+  });
+
+  test("trims and extends open polyline end segments", () => {
+    const targetObject = object("target");
+    const feature = drawing("target", "polyline", { points: [[0, 0, 0], [10, 0, 0], [10, 10, 0]] });
+    const cutter = drawing("cutter", "line", { points: [[4, -5, 0], [4, 15, 0]] });
+    const trimmed = resolveLineEdit("trim", targetObject, feature, object("cutter"), cutter, [1, 0, 0]);
+    assert.deepEqual(trimmed?.params.points, [[4, 0, 0], [10, 0, 0], [10, 10, 0]]);
+    assert.deepEqual(trimmed?.intersection, [4, 0, 0]);
+    assert.deepEqual(trimmed?.previewPoints, [[0, 0, 0], [4, 0, 0]]);
+
+    const wall = drawing("cutter", "line", { points: [[5, -5, 0], [5, 15, 0]] });
+    const endFeature = drawing("target", "polyline", { points: [[0, 0, 0], [10, 0, 0], [10, 10, 0]] });
+    const endTrimmed = resolveLineEdit("trim", targetObject, endFeature, object("cutter"), wall, [10, 9, 0]);
+    assert.equal(endTrimmed, null);
+
+    const ledge = drawing("cutter", "line", { points: [[5, 15, 0], [15, 15, 0]] });
+    const extended = resolveLineEdit("extend", targetObject, feature, object("cutter"), ledge, [10, 9, 0]);
+    assert.deepEqual(extended?.params.points, [[0, 0, 0], [10, 0, 0], [10, 15, 0]]);
+    assert.deepEqual(extended?.intersection, [10, 15, 0]);
+  });
+
+  test("rejects middle-segment, closed-loop and rectangle trims", () => {
+    const targetObject = object("target");
+    const open = drawing("target", "polyline", { points: [[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]] });
+    const ruling = drawing("cutter", "line", { points: [[-5, 5, 0], [15, 5, 0]] });
+    assert.equal(resolveLineEdit("trim", targetObject, open, object("cutter"), ruling, [10, 7, 0]), null);
+    const closed = drawing("target", "polyline", { closed: true, points: [[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]] });
+    assert.equal(resolveLineEdit("trim", targetObject, closed, object("cutter"), ruling, [10, 7, 0]), null);
+    const rectangle = drawing("target", "rectangle", { points: [[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]] });
+    assert.equal(resolveLineEdit("trim", targetObject, rectangle, object("cutter"), ruling, [5, 10, 0]), null);
+  });
+
+  test("trims and extends arcs by angle without touching topology", () => {
+    const targetObject = object("target");
+    const feature = drawing("target", "arc", { center: [0, 0, 0], radius: 5, startAngle: 0, endAngle: Math.PI / 2 });
+    const cutter = drawing("cutter", "line", { points: [[3, -10, 0], [3, 10, 0]] });
+    const pickEnd = [5 * Math.cos(1.3963), 5 * Math.sin(1.3963), 0] as [number, number, number];
+    const trimmed = resolveLineEdit("trim", targetObject, feature, object("cutter"), cutter, pickEnd);
+    assert.equal(trimmed?.params.startAngle, 0);
+    assert.ok(Math.abs(Number(trimmed?.params.endAngle) - Math.atan2(4, 3)) < 1e-9);
+    assert.equal(trimmed?.rebuildTopologyKind, undefined);
+    assert.ok((trimmed?.previewPoints.length ?? 0) > 2);
+
+    const short = drawing("target", "arc", { center: [0, 0, 0], radius: 5, startAngle: 0, endAngle: Math.PI / 4 });
+    const rail = drawing("cutter", "line", { points: [[0, 4, 0], [0, 12, 0]] });
+    const pickTip = [5 * Math.cos(0.7), 5 * Math.sin(0.7), 0] as [number, number, number];
+    const extended = resolveLineEdit("extend", targetObject, short, object("cutter"), rail, pickTip);
+    assert.equal(extended?.params.startAngle, 0);
+    assert.ok(Math.abs(Number(extended?.params.endAngle) - Math.PI / 2) < 1e-9);
+
+    const half = drawing("target", "arc", { center: [0, 0, 0], radius: 5, startAngle: 0, endAngle: Math.PI });
+    const cross = drawing("cutter", "line", { points: [[-10, 4, 0], [10, 4, 0]] });
+    assert.equal(resolveLineEdit("trim", targetObject, half, object("cutter"), cross, [0, 5, 0]), null);
+  });
+
+  test("trims circles into arcs and rejects extend and ambiguous cuts", () => {
+    const targetObject = object("target");
+    const feature = drawing("target", "circle", { center: [0, 0, 0], radius: 5 });
+    const cutter = drawing("cutter", "line", { points: [[3, -10, 0], [3, 10, 0]] });
+    const trimmed = resolveLineEdit("trim", targetObject, feature, object("cutter"), cutter, [-5, 0, 0]);
+    assert.equal(trimmed?.params.kind, "arc");
+    assert.equal(trimmed?.rebuildTopologyKind, "arc");
+    assert.equal(trimmed?.params.radius, 5);
+    assert.deepEqual(trimmed?.params.center, [0, 0, 0]);
+    assert.ok(Math.abs(Number(trimmed?.params.startAngle) - Math.atan2(4, 3)) < 1e-9);
+    assert.ok(Math.abs(Number(trimmed?.params.endAngle) - (Math.PI * 2 - Math.atan2(4, 3))) < 1e-9);
+    assert.ok((trimmed?.previewPoints.length ?? 0) > 2);
+    assert.equal(resolveLineEdit("extend", targetObject, feature, object("cutter"), cutter, [5, 0, 0]), null);
+
+    const tangentCutter = drawing("cutter", "line", { points: [[-10, 5, 0], [10, 5, 0]] });
+    assert.equal(resolveLineEdit("trim", targetObject, feature, object("cutter"), tangentCutter, [0, -5, 0]), null);
+    const boxCutter = drawing("cutter", "rectangle", { points: [[-4, -6, 0], [4, -6, 0], [4, 6, 0], [-4, 6, 0]] });
+    assert.equal(resolveLineEdit("trim", targetObject, feature, object("cutter"), boxCutter, [-5, 0, 0]), null);
+  });
+
+  test("keeps stable topology references for edits that preserve structure", () => {
+    const topology = createDrawingTopology("line", { points: [[0, 0, 0], [10, 0, 0]] }, "stable");
+    const targetFeature = drawing("target", "line", { points: [[0, 0, 0], [10, 0, 0]], topology });
+    assert.ok(targetFeature.params.topology === topology);
+    const cutter = drawing("cutter", "line", { points: [[10, -5, 0], [10, 5, 0]] });
+    const result = resolveLineEdit("trim", object("target", [5, 0, 0]), targetFeature, object("cutter"), cutter, [14, 0, 0]);
+    assert.deepEqual(result?.params.points, [[0, 0, 0], [5, 0, 0]]);
+    assert.equal(result?.params.topology, topology);
   });
 });
 

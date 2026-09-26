@@ -9,6 +9,8 @@ import { validateBooleanOperation } from "../cad/kernelGeometryService";
 import { measureDrawing } from "../precision/measurements";
 import { formatLength } from "../precision/units";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
+import { describeSubObject } from "../viewport/subObjectMeasure";
+import type { CornerPreviewRequest } from "../viewport/cornerPreview";
 import type { TopologySelectionRef } from "../state/selection";
 import { extractSketchLoops } from "../precision/sketchProfiles";
 import { getObjectWorldTransformPivot } from "../precision/worldBounds";
@@ -34,6 +36,7 @@ type PropertiesPanelProps = {
   offsetActive?: boolean;
   onOffsetStart?: () => void;
   onOffsetCancel?: () => void;
+  onCornerPreview?: (preview: CornerPreviewRequest | null) => void;
 };
 
 type PrimitiveDraft = Record<string, string>;
@@ -85,6 +88,7 @@ export function PropertiesPanel({
   offsetActive = false,
   onOffsetStart,
   onOffsetCancel,
+  onCornerPreview,
 }: PropertiesPanelProps) {
   const object = selectedObjectId ? cadDocument.objects[selectedObjectId] : null;
   const selectedObjects = selectedObjectIds.map((id) => cadDocument.objects[id]).filter(Boolean);
@@ -149,6 +153,7 @@ export function PropertiesPanel({
   const [transformDraft, setTransformDraft] = useState<TransformDraft>(emptyTransformDraft);
   const [offsetDistanceLocal, setOffsetDistanceLocal] = useState("10");
   const [cornerDistance, setCornerDistance] = useState("5");
+  const [previewTreatment, setPreviewTreatment] = useState<"fillet" | "chamfer" | null>(null);
   const offsetDistance = offsetDistanceProp ?? offsetDistanceLocal;
   const setOffsetDistance = (value: string) => { setOffsetDistanceLocal(value); onOffsetDistanceChange?.(value); };
   const visibilityInputRef = useRef<HTMLInputElement>(null);
@@ -157,6 +162,25 @@ export function PropertiesPanel({
   useEffect(() => {
     if (visibilityInputRef.current) visibilityInputRef.current.indeterminate = mixedVisible;
   }, [mixedVisible]);
+
+  useEffect(() => {
+    const subObject = selectedSubObjects[0];
+    const canPreview = Boolean(
+      object && !isLocked && previewTreatment && selectedObjects.length === 1 && selectedSubObjects.length === 1 &&
+      subObject?.kind === "drawing-control" && subObject.objectId === object.id,
+    );
+    if (!canPreview || !object || !subObject || !previewTreatment) {
+      onCornerPreview?.(null);
+      return;
+    }
+    const distance = Number(cornerDistance);
+    if (!Number.isFinite(distance) || distance <= 1e-9) {
+      onCornerPreview?.(null);
+      return;
+    }
+    onCornerPreview?.({ objectId: object.id, controlId: subObject.topologyId, treatment: previewTreatment, distance });
+    return () => onCornerPreview?.(null);
+  }, [object, isLocked, previewTreatment, selectedObjects.length, selectedSubObjects, cornerDistance, onCornerPreview]);
 
   useEffect(() => {
     setName(object?.name ?? "");
@@ -421,11 +445,38 @@ export function PropertiesPanel({
       {selectedSubObjects.length > 0 && (
         <section className="property-section">
           <h3>Direct selection <small>{selectedSubObjects.length}</small></h3>
-          {selectedSubObjects.map((entry) => <div className="property-row" key={`${entry.objectId}:${entry.kind}:${entry.topologyId}`}><span>{entry.kind === "drawing-control" ? "Vertex" : entry.kind === "drawing-segment" ? "Segment" : entry.kind === "drawing-curve" ? "Curve" : entry.kind}</span><code>{entry.topologyId}</code></div>)}
+          {selectedSubObjects.map((entry) => {
+            const measure = describeSubObject(cadDocument, entry);
+            return (
+              <div key={`${entry.objectId}:${entry.kind}:${entry.topologyId}`}>
+                <div className="property-row"><span>{entry.kind === "drawing-control" ? "Vertex" : entry.kind === "drawing-segment" ? "Segment" : entry.kind === "drawing-curve" ? "Curve" : entry.kind}</span><code>{entry.topologyId}</code></div>
+                {measure?.rows.map((row) => <div className="property-row" key={row.label}><span>{measure.title} {row.label}</span><strong>{row.value}</strong></div>)}
+              </div>
+            );
+          })}
           {isDrawing && selectedObjects.length === 1 && selectedSubObjects.length === 1 && selectedSubObjects[0].kind === "drawing-control" && ["polyline", "rectangle"].includes(String(feature.params.kind)) && <>
             <NumericField label="Corner" context="Corner treatment" unit="mm" disabled={isLocked} min="0.001" step="0.1" value={cornerDistance} onChange={setCornerDistance} />
-            <div className="property-actions"><button type="button" disabled={isLocked} onClick={() => void commitCornerTreatment("fillet")}>Fillet</button><button type="button" disabled={isLocked} onClick={() => void commitCornerTreatment("chamfer")}>Chamfer</button></div>
-            <p className="property-hint">Applies an exact radius or equal-distance setback to the selected straight corner.</p>
+            <div className="property-actions">
+              <button
+                type="button"
+                disabled={isLocked}
+                onClick={() => void commitCornerTreatment("fillet")}
+                onMouseEnter={() => setPreviewTreatment("fillet")}
+                onMouseLeave={() => setPreviewTreatment(null)}
+                onFocus={() => setPreviewTreatment("fillet")}
+                onBlur={() => setPreviewTreatment(null)}
+              >Fillet</button>
+              <button
+                type="button"
+                disabled={isLocked}
+                onClick={() => void commitCornerTreatment("chamfer")}
+                onMouseEnter={() => setPreviewTreatment("chamfer")}
+                onMouseLeave={() => setPreviewTreatment(null)}
+                onFocus={() => setPreviewTreatment("chamfer")}
+                onBlur={() => setPreviewTreatment(null)}
+              >Chamfer</button>
+            </div>
+            <p className="property-hint">Applies an exact radius or equal-distance setback to the selected straight corner. Hover a button to preview.</p>
           </>}
         </section>
       )}
