@@ -113,6 +113,19 @@ G2에서 정의 수정·중첩 component는 이미 존재한다. B1-C는 그 기
 | B3-E | 스냅 추적점 획득·해제·일시 억제와 방향 잠금 | transient UI state, 문서 저장/구속과 구별. 원본 삭제/숨김/문서 교체 시 해제, 정확 입력 우선순위 |
 | B3-F | 복수 추적선 교점과 후보 전환 | B3-E. 후보 우선순위·기호/원본 표시·zoom 독립 픽셀 반경, 잡히지 않는 이유·해제 안내 |
 
+#### B3-C의 작은 실행 단위 (아직 미구현)
+
+G5-A 검수 다음에 일반 각도 주석을 시작한다. 기존 sketch angle constraint는 구동 치수이고 이 카드는 일반 주석이다. solver의 구동 각도 범위를 확대하지 않는다. 현재 일반 치수는 sourceObjectId/sourceSegmentId 한 쌍과 한 source input을 전제로 하므로, 두 선을 측정하는 기능을 renderer에만 추가해서는 완료할 수 없다.
+
+| 하위 ID | 한 요청의 범위 | 다음 단계로 넘길 계약 |
+| --- | --- | --- |
+| B3-C1 | 순수 측정·표시 기하와 branch 계약, 독립 Node 검사 | 같은 XY/XZ/YZ 평면의 두 유효 직선/직선 변. 교점이 선분 밖에 있어도 supporting line으로 계산. 원호/bulge 변·퇴화·다른 평면 거부. 방향/끝점 순서와 내각·외각의 명시적인 측정 가지, 0/180° 및 평행/공선의 처리 정책을 확정. rad 계산·deg 표시·허용오차. 공개 도구·schema 추가 없음 |
+| B3-C2a | typed create/update, 두 source/edge 참조와 refresh·history | C1. 각 source의 stable topology identity와 branch를 저장. 원본 회전/치수 수정 뒤 재측정, detached preview 불변성·실패 원자성·한 Undo. source 소멸/평면 변경 정책을 숨기지 않고 기존 일반 치수 동결 정책과 비교해 확정. UI 미완료로 기록 |
+| B3-C2b | Trim/Join 참조 재연결·serialization·재로드 | C2a. 두 source를 각각 remap하며 모호한 변을 임의 선택하지 않음. 잠긴 downstream 치수와 삭제/원형 변 교체의 원자성. 새 의미가 있는 문서의 최소 버전 결정, 기존 v13 이하 호환·위장 downgrade 거부·reload/recompute 검사 |
+| B3-C3 | 대상 2개/변 선택·측정 가지·표시 위치·Review/Apply 및 출력 | C2b. 검색/리본/우클릭의 같은 명칭, 공통 canApply·PrecisionField·영향/오류/복구·result handoff. 실제 browser Cancel/stale/Undo/Redo/저장, 원본 수정→치수 갱신과 DXF TEXT·기존 CAD SVG/PDF 출력 확인. 전체 Node/browser·타입·architecture·build 후 B3-C 완료 판단 |
+
+C1/C2는 중간 구현이며 B3-C 지원표를 완료로 올리지 않는다. 최종 사용자 경로는 `두 선/변 선택 → 각도 주석 → 측정 가지·위치 review → Apply → 원본 회전/Trim/Join → 자동 갱신 → 저장/출력`이다. driving dimension, arc tangent angle, Leader/공통 style은 별도 카드로 유지한다. 실행할 세션과 검증 수치는 WORK-SLICES/PROJECT-STATE가 소유한다.
+
 기존 `B3-A`는 A1–A3의 상위 이름으로 유지한다. A1/A2의 지원 범위가 검증되면 기본 왕복 묶음을 완료로 표시할 수 있으나, A3의 미지원 평면까지 지원한다고 적지 않는다.
 
 ### B4 — 호를 포함한 스케치 관계

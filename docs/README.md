@@ -8,7 +8,9 @@
 
 | 목적 | 문서 |
 | --- | --- |
-| 현재 범위 분할·재시작 프롬프트 | [G4 첫 범위·CAD DXF/지름 완료 / 다음 G5-A·각도 치수 / 남은 카드](WORK-SLICES-2026-10-06.md) |
+| 현재 범위 분할·재시작 프롬프트 | [G5-A1 완료 / 다음 G5-A2·A3와 각도 치수 하위 세션 / 남은 카드](WORK-SLICES-2026-10-06.md) |
+| G5-A1 응답·취소 경계 구현/검수 | [stalled body·late response 종료, ownership 주입 거부·복구 workflow](implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md) |
+| G5-A1 전체 검증 요약 | [618 Node·35 browser/734 checks·빌드/타입/301 module guard](verification/G5-A1-CLOSEOUT-2026-10-06.json) |
 | G4·CAD 최신 구현 및 검수 | [원본·component 인계·state/time/link·SVG·DXF review·지름 v13](implementation/G4-CAD-BASICS-2026-10-06.md) |
 | G4·CAD 전체 검증 결과 요약 | [613 Node·35 browser/729 checks·빌드/타입/301 module guard](verification/G4-CAD-CLOSEOUT-2026-10-06.json) |
 | CAD 구현 카드·선행 조건·책임 분리 | [B0–B5 보완 및 X1–X7 신규 기능 설계](product/CAD-BASICS-IMPLEMENTATION-PLAN.md) |

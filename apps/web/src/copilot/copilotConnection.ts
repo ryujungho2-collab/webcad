@@ -5,6 +5,19 @@ import type { CopilotPlan, CopilotGhost } from "./copilotPlan";
 export type CopilotConnection={mode:"rules"|"gateway";endpoint:string};
 export const COPILOT_CAPABILITIES=["create-drawing","create-primitive"] as const;
 const MAX_BYTES=65536;
+const DRAWING_FIELDS:Record<string,string[]>={
+  line:["points"],polyline:["points","closed","bulges"],rectangle:["points","closed"],
+  circle:["center","radius"],arc:["center","radius","startAngle","endAngle"],
+};
+const PRIMITIVE_FIELDS:Record<string,string[]>={
+  box:["width","depth","height"],cylinder:["radius","height"],sphere:["radius"],
+  cone:["radius1","radius2","height"],torus:["majorRadius","minorRadius"],
+};
+const record=(value:unknown):value is Record<string,unknown>=>typeof value==="object"&&value!==null&&!Array.isArray(value);
+function supportedFields(value:Record<string,unknown>,fields:string[]){
+  const unsupported=Object.keys(value).find(key=>!fields.includes(key));
+  if(unsupported)throw new Error(`Gateway proposal has an unsupported field '${unsupported}'. Return only the advertised creation parameters and Plan again.`);
+}
 
 /** Credentials belong to the user's gateway. No provider key is stored in a CAD document. */
 export function validateCopilotEndpoint(endpoint:string,base:string):string {
@@ -25,13 +38,31 @@ export function copilotRequest(prompt:string,document:CadDocument,selection:stri
 }
 
 export function validateCopilotResponse(value:unknown):CopilotPlan {
-  if(!value||typeof value!=="object")throw new Error("Gateway returned no plan. Return a version 1 command proposal.");
+  if(!record(value))throw new Error("Gateway returned no plan. Return a version 1 command proposal.");
   const response=value as Record<string,unknown>;
-  if(response.version!==1||!validateCommand(response.command))throw new Error("Gateway returned an invalid version or CAD command. Correct the proposal and Plan again.");
-  const command=response.command as CadCommand,commands=command.type==="batch"?command.commands:[command];
+  if(response.version!==1||!record(response.command))throw new Error("Gateway returned an invalid version or CAD command. Correct the proposal and Plan again.");
+  const raw=response.command;
+  if(raw.type==="batch")supportedFields(raw,["type","label","commands"]);
+  const commands=raw.type==="batch"&&Array.isArray(raw.commands)?raw.commands:[raw];
   if(!commands.length||commands.length>20)throw new Error("A gateway plan supports 1–20 commands. Split the request into smaller steps.");
+  // Reject ownership/reference metadata before the permissive public CAD validator.
+  // Inspect only one flat batch, so nested commands cannot recurse through validation.
+  for(const entry of commands){
+    if(!record(entry))throw new Error("Gateway returned an invalid version or CAD command. Correct the proposal and Plan again.");
+    if(entry.type!=="create-drawing"&&entry.type!=="create-primitive")throw new Error(`Gateway returned an invalid version or CAD command for its creation capabilities (${String(entry.type)}). Nested batches and editing commands are unsupported.`);
+    supportedFields(entry,entry.type==="create-drawing"?["type","id","name","drawing","params","layerId"]:["type","id","primitive","params","position","layerId"]);
+    const fields=entry.type==="create-drawing"?DRAWING_FIELDS[String(entry.drawing)]:PRIMITIVE_FIELDS[String(entry.primitive)];
+    if(!Array.isArray(fields)||!record(entry.params))throw new Error("Gateway returned an invalid version or CAD command. Correct the proposal and Plan again.");
+    supportedFields(entry.params,entry.type==="create-drawing"?[...fields,"kind","workPlane","construction"]:fields);
+    if(entry.type==="create-drawing"&&entry.params.kind!==undefined&&entry.params.kind!==entry.drawing)throw new Error("Gateway drawing kind must match the command. Correct the proposal and Plan again.");
+    if(entry.params.closed!==undefined&&typeof entry.params.closed!=="boolean")throw new Error("Gateway closed-contour parameters must be boolean. Correct the proposal and Plan again.");
+    if(entry.type==="create-primitive"&&Object.values(entry.params).some(n=>typeof n!=="number"||!Number.isFinite(n)))throw new Error("Gateway primitive parameters must be finite numbers. Correct the proposal and Plan again.");
+  }
+  if(raw.label!==undefined&&(typeof raw.label!=="string"||!raw.label.trim()||raw.label.length>200))throw new Error("Gateway returned an invalid version or CAD command. Correct the proposal and Plan again.");
+  if(!validateCommand(raw))throw new Error("Gateway returned an invalid version or CAD command. Correct the proposal and Plan again.");
+  const command=raw as CadCommand;
   if(!Array.isArray(response.summary)||response.summary.length>20||!response.summary.length||!response.summary.every(s=>typeof s==="string"&&s.length>0&&s.length<=500))throw new Error("Gateway must include 1–20 short review summaries.");
-  const ghosts:CopilotGhost[]=commands.map((entry,index)=>{
+  const ghosts:CopilotGhost[]=(command.type==="batch"?command.commands:[command]).map((entry,index)=>{
     if(entry.type==="create-primitive")return {kind:"primitive",key:`gateway-${index}`,primitive:entry.primitive,params:entry.params,position:entry.position??[0,0,0]};
     if(entry.type==="create-drawing"&&entry.drawing!=="point"&&entry.drawing!=="infinite-line"&&entry.drawing!=="ray")return {kind:"drawing",key:`gateway-${index}`,drawing:entry.drawing,params:{...entry.params,kind:entry.drawing}};
     throw new Error(`Gateway command ${entry.type} is outside the current creation capabilities. Use manual editing for this operation.`);
@@ -44,17 +75,32 @@ export async function requestCopilotPlan(endpoint:string,body:ReturnType<typeof 
   const url=validateCopilotEndpoint(endpoint,options.baseUrl),controller=new AbortController();
   const abort=()=>controller.abort(options.signal.reason);options.signal.throwIfAborted();options.signal.addEventListener("abort",abort,{once:true});
   const timer=setTimeout(()=>controller.abort(new Error("Gateway timed out. Check the connection and Plan again.")),options.timeoutMs??30000);
+  let rejectAbort:(reason:unknown)=>void=()=>{};
+  const aborted=new Promise<never>((_resolve,reject)=>{rejectAbort=reject;});
+  const rejectOnAbort=()=>rejectAbort(controller.signal.reason);
+  controller.signal.addEventListener("abort",rejectOnAbort,{once:true});
   let reader:ReadableStreamDefaultReader<Uint8Array>|undefined;
+  let response:Response|undefined;
   try{
-    const response=await (options.fetcher??fetch)(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),credentials:"omit",redirect:"error",signal:controller.signal});
+    const fetching=(options.fetcher??fetch)(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),credentials:"omit",redirect:"error",signal:controller.signal}).then(response=>{
+      if(controller.signal.aborted)void response.body?.cancel().catch(()=>{});
+      return response;
+    });
+    response=await Promise.race([fetching,aborted]);
     controller.signal.throwIfAborted();
     if(!response.ok)throw new Error(`Gateway returned HTTP ${response.status}. Check its configuration and Plan again.`);
     if(!response.headers.get("content-type")?.includes("application/json"))throw new Error("Gateway must return application/json.");
     if(Number(response.headers.get("content-length"))>MAX_BYTES)throw new Error("Gateway plan exceeds 64 KiB. Ask for a smaller operation.");
     if(!response.body)throw new Error("Gateway returned an empty response.");
     reader=response.body.getReader();let size=0,text="";const decoder=new TextDecoder();
-    while(true){const chunk=await reader.read();controller.signal.throwIfAborted();if(chunk.done)break;size+=chunk.value.byteLength;if(size>MAX_BYTES)throw new Error("Gateway plan exceeds 64 KiB. Ask for a smaller operation.");text+=decoder.decode(chunk.value,{stream:true});}
-    text+=decoder.decode();return validateCopilotResponse(JSON.parse(text));
+    while(true){const chunk=await Promise.race([reader.read(),aborted]);controller.signal.throwIfAborted();if(chunk.done)break;size+=chunk.value.byteLength;if(size>MAX_BYTES)throw new Error("Gateway plan exceeds 64 KiB. Ask for a smaller operation.");text+=decoder.decode(chunk.value,{stream:true});}
+    text+=decoder.decode();
+    let value:unknown;try{value=JSON.parse(text);}catch{throw new Error("Gateway returned malformed JSON. Correct the response and Plan again.");}
+    return validateCopilotResponse(value);
   }catch(error){if(controller.signal.aborted)throw controller.signal.reason;throw error;}
-  finally{clearTimeout(timer);options.signal.removeEventListener("abort",abort);await reader?.cancel().catch(()=>{});reader?.releaseLock();}
+  finally{
+    clearTimeout(timer);options.signal.removeEventListener("abort",abort);controller.signal.removeEventListener("abort",rejectOnAbort);
+    if(reader){void reader.cancel().catch(()=>{});reader.releaseLock();}
+    else void response?.body?.cancel().catch(()=>{});
+  }
 }

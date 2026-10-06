@@ -40,7 +40,7 @@ Photopea hosted iframe/API는 별도 선택 adapter 후보다. 소스 재사용�
 | --- | --- | --- |
 | 1 | G3-5A 기존 자원 최적화 마감 | 전체 Node/browser/build/architecture, 새 이름의 resource benchmark, 미실시 외부 평가 기록 |
 | 2 · I1 | native 이미지 원본 교체와 TIFF 공통 decoder | 파일 선택 → source/캔버스 preview → 기존 숫자 편집 → 단일 Apply/Cancel → 원본 공유/Undo/Redo/save/export 확인 |
-| 3 | G4-A/첫 B·C 및 CAD B3-A1/A2·B 완료 → G5-A gateway 검수 | [장면·DXF·지름 구현 근거](../implementation/G4-CAD-BASICS-2026-10-06.md). CAD 다음은 B3-C. 실제 provider 미연결 표시 유지 |
+| 3 | G4 첫 범위/CAD B3-A1/A2·B와 G5-A1 완료 → G5-A2/A3 검수 | [장면·DXF·지름 근거](../implementation/G4-CAD-BASICS-2026-10-06.md), [gateway 응답·취소 근거](../implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md). CAD는 B3-C1/C2a/C2b/C3으로 분할. 실제 provider 미연결 표시 유지 |
 | 4 · I2 | 한 이미지의 선택 영역/마스크 편집 | 먼저 rectangle/polygon selection + non-destructive mask. 대형 brush/tile engine은 별도 묶음 |
 | 5 · I3/I4 | 필터 한 종류·clipboard를 각각 구현 | 기존 decoder/source replacement/Review/History 소비. pixel/export·실제 browser 검증 |
 | 6 · I5 | 제한된 PSD composite import, 이어서 레이어 mapping | parser의 unsupported metadata/effect와 3 MiB 정책을 먼저 정함. silent flatten 금지 |

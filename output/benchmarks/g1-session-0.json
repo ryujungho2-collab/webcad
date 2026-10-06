@@ -1,32 +1,32 @@
 {
-  "at": "2026-10-06T13:54:09.561Z",
+  "at": "2026-10-06T14:28:10.254Z",
   "browser": "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
   "renderer": "SwiftShader",
   "backgroundCount": 0,
   "timings": [
     {
       "operation": "Curve workflow",
-      "enterMs": 123.79999999981374,
-      "undoMs": 71.09999999962747,
-      "redoMs": 69.1000000005588
+      "enterMs": 128.40000000037253,
+      "undoMs": 72.19999999925494,
+      "redoMs": 73.09999999962747
     },
     {
       "operation": "Break",
-      "enterMs": 124.29999999981374,
-      "undoMs": 72.1000000005588,
-      "redoMs": 75.29999999981374
+      "enterMs": 128.30000000074506,
+      "undoMs": 73.30000000074506,
+      "redoMs": 70.20000000111759
     },
     {
       "operation": "Construction",
-      "enterMs": 124.1000000005588,
-      "undoMs": 70.70000000018626,
-      "redoMs": 69.29999999981374
+      "enterMs": 126.80000000074506,
+      "undoMs": 71.09999999962747,
+      "redoMs": 70.39999999850988
     },
     {
       "operation": "Extrude",
-      "enterMs": 128.79999999981374,
-      "undoMs": 82,
-      "redoMs": 77.5
+      "enterMs": 126.60000000149012,
+      "undoMs": 77.59999999962747,
+      "redoMs": 76.09999999962747
     }
   ],
   "measurement": "Native CDP input to observed React/DOM completion; includes input transport and 25ms polling/settling. Four different operations, not repeated p95, input-to-paint or practitioner task time."
