@@ -1,6 +1,10 @@
 node_modules/
+.pnpm-store/
 dist/
 coverage/
+.env
+.env.local
+.env.*.local
 
 # Logs / build-debug output
 *.log
@@ -8,6 +12,7 @@ coverage/
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+tmp/
 
 # Temporary / backup files
 *.backup.css

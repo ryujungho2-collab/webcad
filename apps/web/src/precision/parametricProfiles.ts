@@ -63,6 +63,7 @@ export function recognizeSketchProfiles(sketch: Sketch): ParametricSketchProfile
     return resolved;
   };
   for (const geometry of sketch.geometry) {
+    if (geometry.construction) continue;
     if (geometry.kind === "line") {
       const startKey = `${geometry.id}/${geometry.startId}`;
       const endKey = `${geometry.id}/${geometry.endId}`;

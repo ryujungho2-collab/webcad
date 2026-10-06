@@ -7,13 +7,14 @@ export function parseLength(value: string, defaultUnit: LengthUnit = "mm") {
   if (!match) return null;
   const number = Number(match[1]);
   if (!Number.isFinite(number)) return null;
-  return number * millimetersPerUnit[(match[2] as LengthUnit | undefined) ?? defaultUnit];
+  const millimeters=number * millimetersPerUnit[(match[2] as LengthUnit | undefined) ?? defaultUnit];
+  return Number.isFinite(millimeters)?millimeters:null;
 }
 
 export function parseAngle(value: string) {
-  const match = value.trim().toLowerCase().match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*(deg|°)?$/);
+  const match = value.trim().toLowerCase().match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*(deg|°|rad)?$/);
   if (!match) return null;
-  const degrees = Number(match[1]);
+  const degrees = Number(match[1])*(match[2]==="rad"?180/Math.PI:1);
   return Number.isFinite(degrees) ? degrees : null;
 }
 

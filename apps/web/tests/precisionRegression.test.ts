@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { CadDocument, CadFeature, CadObject } from "@agent-webcad/cad-document";
-import { resolveLineEdit } from "../src/precision/lineEditing";
+import { resolveLineEdit } from "../src/features/drawing-editing/geometry/lineEditing";
 import { getObjectWorldBounds, getSelectionWorldBounds } from "../src/precision/worldBounds";
 import { getWorldDrawingGeometry } from "../src/precision/worldGeometry";
-import { editDrawingCornerParams } from "../src/precision/drawingOperations";
+import { editDrawingCornerParams } from "../src/features/drawing-editing/geometry/drawingOperations";
 import { createDrawingTopology } from "../src/precision/drawingTopology";
 import { querySnap } from "../src/precision/snapEngine";
 import { WORK_PLANES } from "../src/precision/workPlane";

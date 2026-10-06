@@ -1,7 +1,7 @@
 import type { CadDocument, Sketch, SketchGeometry, SketchPoint } from "@agent-webcad/cad-document";
-import { getObjectTransform } from "../state/objectTransform";
+import { getObjectTransform } from "./objectTransform";
 import { WORK_PLANES, planeToWorld, worldToPlane, type Vec3 } from "./workPlane";
-import { SKETCH_TOLERANCE, solveSketch } from "./sketchSolver";
+import { SKETCH_TOLERANCE, solveSketch, sketchPoint } from "./sketchSolver";
 import type { DrawingTopology } from "./drawingTopology";
 
 /** The sole projection boundary for parametric sketch-local points. */
@@ -28,10 +28,15 @@ export function drawingToSketchGeometry(sketch: Sketch, kind: string, params: Re
     if (kind === "line" && local.length === 2) return { id, kind, startId: pointId("vertex", 0), endId: pointId("vertex", 1), segmentId: pointId("segment", 0), start: local[0], end: local[1] };
     if (kind === "polyline" && local.length >= 2) return { id, kind, vertices: local.map((point, index) => ({ id: pointId("vertex", index), point })), segmentIds: Array.from({ length: local.length - (params.closed === true ? 0 : 1) }, (_, index) => pointId("segment", index)), closed: params.closed === true };
     if (kind === "rectangle" && local.length === 4) {
-      const xs = local.map((point) => point[0]), ys = local.map((point) => point[1]);
-      const x = Math.min(...xs), y = Math.min(...ys), width = Math.max(...xs) - x, height = Math.max(...ys) - y;
-      if (width <= SKETCH_TOLERANCE || height <= SKETCH_TOLERANCE) return null;
-      return { id, kind, origin: [x, y], width, height, cornerIds: [0, 1, 2, 3].map((index) => pointId("vertex", index)) as [string, string, string, string], edgeIds: [0, 1, 2, 3].map((index) => pointId("segment", index)) as [string, string, string, string] };
+      const corners = [...local];
+      const cross = (corners[1][0] - corners[0][0]) * (corners[3][1] - corners[0][1]) - (corners[1][1] - corners[0][1]) * (corners[3][0] - corners[0][0]);
+      if (cross < 0) [corners[1], corners[3]] = [corners[3], corners[1]];
+      const ux = corners[1][0] - corners[0][0], uy = corners[1][1] - corners[0][1];
+      const vx = corners[3][0] - corners[0][0], vy = corners[3][1] - corners[0][1];
+      const width = Math.hypot(ux, uy), height = Math.hypot(vx, vy), angle = Math.atan2(uy, ux);
+      if (width <= SKETCH_TOLERANCE || height <= SKETCH_TOLERANCE || Math.abs(ux * vx + uy * vy) > SKETCH_TOLERANCE * Math.max(width, height) ||
+        Math.hypot(corners[2][0] - corners[0][0] - ux - vx, corners[2][1] - corners[0][1] - uy - vy) > SKETCH_TOLERANCE) return null;
+      return { id, kind, origin: corners[0], width, height, ...(angle ? { angle } : {}), cornerIds: [0, 1, 2, 3].map((index) => pointId("vertex", index)) as [string, string, string, string], edgeIds: [0, 1, 2, 3].map((index) => pointId("segment", index)) as [string, string, string, string] };
     }
     return null;
   }
@@ -48,8 +53,9 @@ export function sketchGeometryToDrawingParams(sketch: Sketch, geometry: SketchGe
   const world = (point: SketchPoint) => sketchPointToWorld(sketch, point);
   const topology: DrawingTopology = { version: 1, controls: [], segments: [], curves: [] };
   const params: Record<string, unknown> = { kind: geometry.kind, workPlane: sketch.workPlane, sketchId: sketch.id };
+  if (geometry.construction) params.construction = true;
   if (geometry.kind === "line" || geometry.kind === "polyline" || geometry.kind === "rectangle") {
-    const points: SketchPoint[] = geometry.kind === "line" ? [geometry.start, geometry.end] : geometry.kind === "polyline" ? geometry.vertices.map((vertex) => vertex.point) : [geometry.origin, [geometry.origin[0] + geometry.width, geometry.origin[1]], [geometry.origin[0] + geometry.width, geometry.origin[1] + geometry.height], [geometry.origin[0], geometry.origin[1] + geometry.height]];
+    const points: SketchPoint[] = geometry.kind === "line" ? [geometry.start, geometry.end] : geometry.kind === "polyline" ? geometry.vertices.map((vertex) => vertex.point) : geometry.cornerIds.map((id) => sketchPoint(geometry, id)!);
     const ids = geometry.kind === "line" ? [geometry.startId, geometry.endId] : geometry.kind === "polyline" ? geometry.vertices.map((vertex) => vertex.id) : geometry.cornerIds;
     const segments = geometry.kind === "line" ? [geometry.segmentId] : geometry.kind === "polyline" ? geometry.segmentIds : geometry.edgeIds;
     params.points = points.map(world);

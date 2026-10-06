@@ -1,0 +1,440 @@
+{
+  "label": "baseline",
+  "at": "2026-10-03T12:53:33.336Z",
+  "platform": "win32",
+  "browser": "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+  "renderer": "SwiftShader",
+  "server": "Vite development; local HTTP; warmed Worker",
+  "status": "passed",
+  "checks": 16,
+  "message": "PASS: Trial 1: preview preserves the complete baseline and History\nPASS: Trial 1: exact Apply adds one history step and returns to the same grip\nPASS: Trial 2: preview preserves the complete baseline and History\nPASS: Trial 2: exact Apply adds one history step and returns to the same grip\nPASS: Trial 3: preview preserves the complete baseline and History\nPASS: Trial 3: exact Apply adds one history step and returns to the same grip\nPASS: Trial 4: preview preserves the complete baseline and History\nPASS: Trial 4: exact Apply adds one history step and returns to the same grip\nPASS: Trial 5: preview preserves the complete baseline and History\nPASS: Trial 5: exact Apply adds one history step and returns to the same grip\nPASS: Trial 6: preview preserves the complete baseline and History\nPASS: Trial 6: exact Apply adds one history step and returns to the same grip\nPASS: One Undo/Redo reproduces the entire last edit\nPASS: Six Undo operations restore every source, relation, binding, background object and solid definition\nPASS: Six Redo operations reproduce the complete final document\nPASS: Wrong units block Apply without altering the document\nALL 16 CHECKS PASSED",
+  "metrics": {
+    "summary": {
+      "task": "drawing",
+      "count": 250,
+      "objects": 251,
+      "completedEdits": 6,
+      "unexpectedRetries": 0,
+      "intentionalInvalidInputs": 1,
+      "work": {
+        "n": 6,
+        "medianMs": 158.10000000149012,
+        "p95Ms": 280.70000000298023,
+        "maxMs": 280.70000000298023
+      },
+      "requested": {
+        "n": 6,
+        "medianMs": 22.69999999552965,
+        "p95Ms": 33.79999999701977,
+        "maxMs": 33.79999999701977
+      },
+      "verified": {
+        "n": 6,
+        "medianMs": 42.399999998509884,
+        "p95Ms": 47,
+        "maxMs": 47
+      },
+      "apply": {
+        "n": 6,
+        "medianMs": 65.29999999701977,
+        "p95Ms": 149.60000000149012,
+        "maxMs": 149.60000000149012
+      },
+      "frameGap": {
+        "n": 66,
+        "medianMs": 8.400000000000091,
+        "p95Ms": 41.59999999999991,
+        "maxMs": 83.29999999999995
+      },
+      "longTasks": {
+        "n": 2,
+        "medianMs": 63,
+        "p95Ms": 63,
+        "maxMs": 63
+      },
+      "phases": {
+        "direct-plan": {
+          "n": 6,
+          "medianMs": 2.5,
+          "p95Ms": 5.600000001490116,
+          "maxMs": 5.600000001490116
+        },
+        "preview-prepare": {
+          "n": 6,
+          "medianMs": 9,
+          "p95Ms": 16.69999999552965,
+          "maxMs": 16.69999999552965
+        },
+        "preview-diff": {
+          "n": 6,
+          "medianMs": 2.2000000029802322,
+          "p95Ms": 2.3000000044703484,
+          "maxMs": 2.3000000044703484
+        },
+        "preview-compare": {
+          "n": 6,
+          "medianMs": 2,
+          "p95Ms": 2.1000000089406967,
+          "maxMs": 2.1000000089406967
+        },
+        "direct-feedback": {
+          "n": 6,
+          "medianMs": 0.10000000149011612,
+          "p95Ms": 0.3999999985098839,
+          "maxMs": 0.3999999985098839
+        },
+        "viewport-sync": {
+          "n": 6,
+          "medianMs": 2.899999998509884,
+          "p95Ms": 5.799999997019768,
+          "maxMs": 5.799999997019768
+        }
+      }
+    },
+    "trials": [
+      {
+        "workMs": 280.70000000298023,
+        "activateMs": 58.5,
+        "requestedMs": 31.19999999552965,
+        "verifiedMs": 42.79999999701977,
+        "applyMs": 149.60000000149012,
+        "phases": {
+          "direct-plan": {
+            "n": 2,
+            "medianMs": 2.5,
+            "p95Ms": 2.5,
+            "maxMs": 2.5
+          },
+          "preview-prepare": {
+            "n": 1,
+            "medianMs": 7.700000002980232,
+            "p95Ms": 7.700000002980232,
+            "maxMs": 7.700000002980232
+          },
+          "preview-diff": {
+            "n": 1,
+            "medianMs": 2,
+            "p95Ms": 2,
+            "maxMs": 2
+          },
+          "preview-compare": {
+            "n": 1,
+            "medianMs": 1.8000000044703484,
+            "p95Ms": 1.8000000044703484,
+            "maxMs": 1.8000000044703484
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 0.10000000149011612,
+            "p95Ms": 0.10000000149011612,
+            "maxMs": 0.10000000149011612
+          },
+          "viewport-sync": {
+            "n": 1,
+            "medianMs": 5.700000002980232,
+            "p95Ms": 5.700000002980232,
+            "maxMs": 5.700000002980232
+          }
+        }
+      },
+      {
+        "workMs": 171,
+        "activateMs": 39.5,
+        "requestedMs": 22.69999999552965,
+        "verifiedMs": 35,
+        "applyMs": 88,
+        "phases": {
+          "direct-plan": {
+            "n": 2,
+            "medianMs": 2.399999998509884,
+            "p95Ms": 2.399999998509884,
+            "maxMs": 2.399999998509884
+          },
+          "preview-prepare": {
+            "n": 1,
+            "medianMs": 8,
+            "p95Ms": 8,
+            "maxMs": 8
+          },
+          "preview-diff": {
+            "n": 1,
+            "medianMs": 2.1999999955296516,
+            "p95Ms": 2.1999999955296516,
+            "maxMs": 2.1999999955296516
+          },
+          "preview-compare": {
+            "n": 1,
+            "medianMs": 1.8999999985098839,
+            "p95Ms": 1.8999999985098839,
+            "maxMs": 1.8999999985098839
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 0,
+            "p95Ms": 0.10000000149011612,
+            "maxMs": 0.10000000149011612
+          },
+          "viewport-sync": {
+            "n": 1,
+            "medianMs": 2.899999998509884,
+            "p95Ms": 2.899999998509884,
+            "maxMs": 2.899999998509884
+          }
+        }
+      },
+      {
+        "workMs": 140.69999999552965,
+        "activateMs": 29.899999998509884,
+        "requestedMs": 21.19999999552965,
+        "verifiedMs": 42.399999998509884,
+        "applyMs": 55.5,
+        "phases": {
+          "direct-plan": {
+            "n": 2,
+            "medianMs": 2.4000000059604645,
+            "p95Ms": 2.4000000059604645,
+            "maxMs": 2.4000000059604645
+          },
+          "preview-prepare": {
+            "n": 1,
+            "medianMs": 8.400000005960464,
+            "p95Ms": 8.400000005960464,
+            "maxMs": 8.400000005960464
+          },
+          "preview-diff": {
+            "n": 1,
+            "medianMs": 2.0999999940395355,
+            "p95Ms": 2.0999999940395355,
+            "maxMs": 2.0999999940395355
+          },
+          "preview-compare": {
+            "n": 1,
+            "medianMs": 1.7999999970197678,
+            "p95Ms": 1.7999999970197678,
+            "maxMs": 1.7999999970197678
+          },
+          "direct-feedback": {
+            "n": 8,
+            "medianMs": 0.09999999403953552,
+            "p95Ms": 0.19999999552965164,
+            "maxMs": 0.19999999552965164
+          },
+          "viewport-sync": {
+            "n": 1,
+            "medianMs": 2.7000000029802322,
+            "p95Ms": 2.7000000029802322,
+            "maxMs": 2.7000000029802322
+          }
+        }
+      },
+      {
+        "workMs": 141.39999999850988,
+        "activateMs": 33.79999999701977,
+        "requestedMs": 20.600000001490116,
+        "verifiedMs": 31.799999997019768,
+        "applyMs": 64.5,
+        "phases": {
+          "direct-plan": {
+            "n": 2,
+            "medianMs": 5.600000001490116,
+            "p95Ms": 5.600000001490116,
+            "maxMs": 5.600000001490116
+          },
+          "preview-prepare": {
+            "n": 1,
+            "medianMs": 9.099999994039536,
+            "p95Ms": 9.099999994039536,
+            "maxMs": 9.099999994039536
+          },
+          "preview-diff": {
+            "n": 1,
+            "medianMs": 2.3000000044703484,
+            "p95Ms": 2.3000000044703484,
+            "maxMs": 2.3000000044703484
+          },
+          "preview-compare": {
+            "n": 1,
+            "medianMs": 2.1000000089406967,
+            "p95Ms": 2.1000000089406967,
+            "maxMs": 2.1000000089406967
+          },
+          "direct-feedback": {
+            "n": 7,
+            "medianMs": 0,
+            "p95Ms": 0.10000000149011612,
+            "maxMs": 0.10000000149011612
+          },
+          "viewport-sync": {
+            "n": 1,
+            "medianMs": 5.799999997019768,
+            "p95Ms": 5.799999997019768,
+            "maxMs": 5.799999997019768
+          }
+        }
+      },
+      {
+        "workMs": 125.29999999701977,
+        "activateMs": 27.399999998509884,
+        "requestedMs": 20.400000005960464,
+        "verifiedMs": 30.900000005960464,
+        "applyMs": 58.5,
+        "phases": {
+          "direct-plan": {
+            "n": 2,
+            "medianMs": 1.8999999985098839,
+            "p95Ms": 1.8999999985098839,
+            "maxMs": 1.8999999985098839
+          },
+          "preview-prepare": {
+            "n": 1,
+            "medianMs": 9,
+            "p95Ms": 9,
+            "maxMs": 9
+          },
+          "preview-diff": {
+            "n": 1,
+            "medianMs": 2.3000000044703484,
+            "p95Ms": 2.3000000044703484,
+            "maxMs": 2.3000000044703484
+          },
+          "preview-compare": {
+            "n": 1,
+            "medianMs": 2,
+            "p95Ms": 2,
+            "maxMs": 2
+          },
+          "direct-feedback": {
+            "n": 7,
+            "medianMs": 0,
+            "p95Ms": 0.10000000149011612,
+            "maxMs": 0.10000000149011612
+          },
+          "viewport-sync": {
+            "n": 1,
+            "medianMs": 2.899999998509884,
+            "p95Ms": 2.899999998509884,
+            "maxMs": 2.899999998509884
+          }
+        }
+      },
+      {
+        "workMs": 158.10000000149012,
+        "activateMs": 27,
+        "requestedMs": 33.79999999701977,
+        "verifiedMs": 47,
+        "applyMs": 65.29999999701977,
+        "phases": {
+          "direct-plan": {
+            "n": 2,
+            "medianMs": 2.600000001490116,
+            "p95Ms": 2.600000001490116,
+            "maxMs": 2.600000001490116
+          },
+          "preview-prepare": {
+            "n": 1,
+            "medianMs": 16.69999999552965,
+            "p95Ms": 16.69999999552965,
+            "maxMs": 16.69999999552965
+          },
+          "preview-diff": {
+            "n": 1,
+            "medianMs": 2.2000000029802322,
+            "p95Ms": 2.2000000029802322,
+            "maxMs": 2.2000000029802322
+          },
+          "preview-compare": {
+            "n": 1,
+            "medianMs": 2,
+            "p95Ms": 2,
+            "maxMs": 2
+          },
+          "direct-feedback": {
+            "n": 8,
+            "medianMs": 0.10000000149011612,
+            "p95Ms": 0.3999999985098839,
+            "maxMs": 0.3999999985098839
+          },
+          "viewport-sync": {
+            "n": 1,
+            "medianMs": 1.8000000044703484,
+            "p95Ms": 1.8000000044703484,
+            "maxMs": 1.8000000044703484
+          }
+        }
+      }
+    ],
+    "frameGaps": [
+      25,
+      25,
+      33.30000000000018,
+      16.699999999999818,
+      16.600000000000136,
+      8.399999999999864,
+      16.600000000000136,
+      83.29999999999995,
+      8.400000000000091,
+      41.59999999999991,
+      16.699999999999818,
+      25,
+      8.300000000000182,
+      8.400000000000091,
+      16.59999999999991,
+      8.400000000000091,
+      8.299999999999727,
+      58.30000000000018,
+      16.699999999999818,
+      8.400000000000091,
+      8.300000000000182,
+      16.59999999999991,
+      8.300000000000182,
+      8.399999999999636,
+      8.300000000000182,
+      8.400000000000091,
+      16.699999999999818,
+      8.300000000000182,
+      8.299999999999727,
+      33.30000000000018,
+      8.400000000000091,
+      8.299999999999727,
+      8.400000000000091,
+      16.5,
+      16.700000000000273,
+      8.399999999999636,
+      8.300000000000182,
+      8.400000000000091,
+      8.299999999999727,
+      8.300000000000182,
+      41.59999999999991,
+      8.400000000000091,
+      8.400000000000091,
+      8.299999999999727,
+      16.600000000000364,
+      8.299999999999727,
+      8.400000000000091,
+      8.400000000000091,
+      8.299999999999727,
+      8.300000000000182,
+      8.300000000000182,
+      33.399999999999636,
+      8.300000000000182,
+      8.400000000000091,
+      8.299999999999727,
+      16.700000000000273,
+      8.199999999999818,
+      8.400000000000091,
+      8.300000000000182,
+      16.699999999999818,
+      16.699999999999818,
+      8.300000000000182,
+      8.300000000000182,
+      41.69999999999982,
+      8.300000000000182,
+      8.299999999999727
+    ],
+    "longTasks": [
+      52,
+      63
+    ],
+    "method": "Six trusted keyboard precision edits after one canceled warm-up; input event to two animation frames after ready; automatic work time includes adapter overhead and baseline/history guards, excludes setup and Undo/Redo checks. Long tasks/frame gaps include the timed loop and assertions. Median/p95 use nearest-rank samples; software GPU, dev build, local assets."
+  }
+}

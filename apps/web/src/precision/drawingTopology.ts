@@ -46,7 +46,7 @@ export function createDrawingTopology(
   const segments: DrawingTopologySegment[] = [];
   const curves: DrawingTopologyCurve[] = [];
 
-  if ((kind === "line" || kind === "polyline" || kind === "rectangle") && Array.isArray(params.points)) {
+  if (["line", "polyline", "rectangle", "point", "infinite-line", "ray"].includes(kind) && Array.isArray(params.points)) {
     params.points.forEach((_, index) => controls.push({ id: id("vertex", index), role: "vertex", index }));
     for (let index = 0; index < controls.length - 1; index += 1) {
       const bulge = Array.isArray(params.bulges) ? Number(params.bulges[index] ?? 0) : 0;
@@ -58,7 +58,7 @@ export function createDrawingTopology(
         kind: Math.abs(bulge) > 1e-9 ? "arc" : "line",
       });
     }
-    if ((kind === "rectangle" || params.closed === true) && controls.length > 2) {
+    if ((kind === "rectangle" || params.closed === true) && controls.length >= 2) {
       segments.push({
         id: id("segment", controls.length - 1),
         startControlId: controls.at(-1)!.id,

@@ -1,0 +1,1049 @@
+{
+  "method": "Medians average the central two observations for even samples. p95 uses nearest rank (six trials means the maximum). Phase medians summarize each trial's maximum entry. Raw timings remain in the labeled reports.",
+  "cases": [
+    {
+      "task": "mechanical",
+      "count": 0,
+      "beforeFile": "baseline-mechanical-0.json",
+      "afterFile": "after-mechanical-0.json",
+      "before": {
+        "completedEdits": 6,
+        "unexpectedRetries": 0,
+        "work": {
+          "n": 6,
+          "medianMs": 318.5,
+          "p95Ms": 354.5,
+          "maxMs": 354.5
+        },
+        "requested": {
+          "n": 6,
+          "medianMs": 27,
+          "p95Ms": 47.19999999552965,
+          "maxMs": 47.19999999552965
+        },
+        "verified": {
+          "n": 6,
+          "medianMs": 183.2500000037253,
+          "p95Ms": 232.20000000298023,
+          "maxMs": 232.20000000298023
+        },
+        "apply": {
+          "n": 6,
+          "medianMs": 89.55000000074506,
+          "p95Ms": 102.79999999701977,
+          "maxMs": 102.79999999701977
+        },
+        "activate": {
+          "n": 6,
+          "medianMs": 23.099999997764826,
+          "p95Ms": 63.70000000298023,
+          "maxMs": 63.70000000298023
+        },
+        "frameGap": {
+          "n": 118,
+          "medianMs": 16.600000000000364,
+          "p95Ms": 50,
+          "maxMs": 66.60000000000036
+        },
+        "longTasks": {
+          "n": 1,
+          "medianMs": 55,
+          "p95Ms": 55,
+          "maxMs": 55
+        },
+        "phases": {
+          "direct-plan": {
+            "n": 6,
+            "medianMs": 0.75,
+            "p95Ms": 2,
+            "maxMs": 2
+          },
+          "preview-prepare": {
+            "n": 6,
+            "medianMs": 71.94999999925494,
+            "p95Ms": 107.79999999701977,
+            "maxMs": 107.79999999701977
+          },
+          "preview-diff": {
+            "n": 6,
+            "medianMs": 77.84999999776483,
+            "p95Ms": 91.39999999850988,
+            "maxMs": 91.39999999850988
+          },
+          "preview-compare": {
+            "n": 6,
+            "medianMs": 0,
+            "p95Ms": 0.10000000149011612,
+            "maxMs": 0.10000000149011612
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 3.2000000029802322,
+            "p95Ms": 8.600000001490116,
+            "maxMs": 8.600000001490116
+          },
+          "viewport-sync": {
+            "n": 6,
+            "medianMs": 2.550000000745058,
+            "p95Ms": 3.4000000059604645,
+            "maxMs": 3.4000000059604645
+          }
+        }
+      },
+      "after": {
+        "completedEdits": 6,
+        "unexpectedRetries": 0,
+        "work": {
+          "n": 6,
+          "medianMs": 248.60000000149012,
+          "p95Ms": 317.3999999985099,
+          "maxMs": 317.3999999985099
+        },
+        "requested": {
+          "n": 6,
+          "medianMs": 28.5,
+          "p95Ms": 32.79999999701977,
+          "maxMs": 32.79999999701977
+        },
+        "verified": {
+          "n": 6,
+          "medianMs": 113,
+          "p95Ms": 118.69999999552965,
+          "maxMs": 118.69999999552965
+        },
+        "apply": {
+          "n": 6,
+          "medianMs": 93.15000000223517,
+          "p95Ms": 123.79999999701977,
+          "maxMs": 123.79999999701977
+        },
+        "activate": {
+          "n": 6,
+          "medianMs": 27.100000001490116,
+          "p95Ms": 66.29999999701977,
+          "maxMs": 66.29999999701977
+        },
+        "frameGap": {
+          "n": 89,
+          "medianMs": 16.599999999999454,
+          "p95Ms": 50,
+          "maxMs": 58.30000000000018
+        },
+        "longTasks": {
+          "n": 0,
+          "medianMs": 0,
+          "p95Ms": 0,
+          "maxMs": 0
+        },
+        "phases": {
+          "direct-plan": {
+            "n": 6,
+            "medianMs": 0.7000000029802322,
+            "p95Ms": 2,
+            "maxMs": 2
+          },
+          "preview-prepare": {
+            "n": 6,
+            "medianMs": 82.60000000149012,
+            "p95Ms": 85.5,
+            "maxMs": 85.5
+          },
+          "preview-diff": {
+            "n": 6,
+            "medianMs": 0.6499999985098839,
+            "p95Ms": 0.8999999985098839,
+            "maxMs": 0.8999999985098839
+          },
+          "preview-compare": {
+            "n": 6,
+            "medianMs": 0.04999999701976776,
+            "p95Ms": 0.20000000298023224,
+            "maxMs": 0.20000000298023224
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 1.75,
+            "p95Ms": 5.699999995529652,
+            "maxMs": 5.699999995529652
+          },
+          "viewport-sync": {
+            "n": 6,
+            "medianMs": 2.25,
+            "p95Ms": 3.600000001490116,
+            "maxMs": 3.600000001490116
+          }
+        }
+      }
+    },
+    {
+      "task": "mechanical",
+      "count": 250,
+      "beforeFile": "baseline-mechanical-250.json",
+      "afterFile": "after-mechanical-250.json",
+      "before": {
+        "completedEdits": 6,
+        "unexpectedRetries": 0,
+        "work": {
+          "n": 6,
+          "medianMs": 448.75,
+          "p95Ms": 549.1000000014901,
+          "maxMs": 549.1000000014901
+        },
+        "requested": {
+          "n": 6,
+          "medianMs": 54.350000001490116,
+          "p95Ms": 59.400000005960464,
+          "maxMs": 59.400000005960464
+        },
+        "verified": {
+          "n": 6,
+          "medianMs": 263.4000000022352,
+          "p95Ms": 303.79999999701977,
+          "maxMs": 303.79999999701977
+        },
+        "apply": {
+          "n": 6,
+          "medianMs": 121.60000000149012,
+          "p95Ms": 157.39999999850988,
+          "maxMs": 157.39999999850988
+        },
+        "activate": {
+          "n": 6,
+          "medianMs": 46.849999997764826,
+          "p95Ms": 55.80000000447035,
+          "maxMs": 55.80000000447035
+        },
+        "frameGap": {
+          "n": 122,
+          "medianMs": 24.899999999999636,
+          "p95Ms": 58.30000000000018,
+          "maxMs": 75
+        },
+        "longTasks": {
+          "n": 6,
+          "medianMs": 59,
+          "p95Ms": 60,
+          "maxMs": 60
+        },
+        "phases": {
+          "direct-plan": {
+            "n": 6,
+            "medianMs": 7.050000000745058,
+            "p95Ms": 9.099999994039536,
+            "maxMs": 9.099999994039536
+          },
+          "preview-prepare": {
+            "n": 6,
+            "medianMs": 113.30000000074506,
+            "p95Ms": 130.30000000447035,
+            "maxMs": 130.30000000447035
+          },
+          "preview-diff": {
+            "n": 6,
+            "medianMs": 95.55000000074506,
+            "p95Ms": 112.10000000149012,
+            "maxMs": 112.10000000149012
+          },
+          "preview-compare": {
+            "n": 6,
+            "medianMs": 2.449999999254942,
+            "p95Ms": 2.6000000089406967,
+            "maxMs": 2.6000000089406967
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 5.600000001490116,
+            "p95Ms": 10.100000001490116,
+            "maxMs": 10.100000001490116
+          },
+          "viewport-sync": {
+            "n": 6,
+            "medianMs": 4.850000005215406,
+            "p95Ms": 13.100000001490116,
+            "maxMs": 13.100000001490116
+          }
+        }
+      },
+      "after": {
+        "completedEdits": 6,
+        "unexpectedRetries": 0,
+        "work": {
+          "n": 6,
+          "medianMs": 334.1499999985099,
+          "p95Ms": 390.3999999985099,
+          "maxMs": 390.3999999985099
+        },
+        "requested": {
+          "n": 6,
+          "medianMs": 56.5,
+          "p95Ms": 70.5,
+          "maxMs": 70.5
+        },
+        "verified": {
+          "n": 6,
+          "medianMs": 164.60000000149012,
+          "p95Ms": 181,
+          "maxMs": 181
+        },
+        "apply": {
+          "n": 6,
+          "medianMs": 97.45000000298023,
+          "p95Ms": 158.89999999850988,
+          "maxMs": 158.89999999850988
+        },
+        "activate": {
+          "n": 6,
+          "medianMs": 45.599999997764826,
+          "p95Ms": 69.69999999552965,
+          "maxMs": 69.69999999552965
+        },
+        "frameGap": {
+          "n": 89,
+          "medianMs": 16.700000000000728,
+          "p95Ms": 50.100000000000364,
+          "maxMs": 75.10000000000036
+        },
+        "longTasks": {
+          "n": 2,
+          "medianMs": 56,
+          "p95Ms": 59,
+          "maxMs": 59
+        },
+        "phases": {
+          "direct-plan": {
+            "n": 6,
+            "medianMs": 6.75,
+            "p95Ms": 19.100000001490116,
+            "maxMs": 19.100000001490116
+          },
+          "preview-prepare": {
+            "n": 6,
+            "medianMs": 106.75,
+            "p95Ms": 112.39999999850988,
+            "maxMs": 112.39999999850988
+          },
+          "preview-diff": {
+            "n": 6,
+            "medianMs": 2.199999999254942,
+            "p95Ms": 8.599999994039536,
+            "maxMs": 8.599999994039536
+          },
+          "preview-compare": {
+            "n": 6,
+            "medianMs": 0.8499999977648258,
+            "p95Ms": 1.0999999940395355,
+            "maxMs": 1.0999999940395355
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 2.4000000059604645,
+            "p95Ms": 2.7000000029802322,
+            "maxMs": 2.7000000029802322
+          },
+          "viewport-sync": {
+            "n": 6,
+            "medianMs": 4.50000000372529,
+            "p95Ms": 5.600000001490116,
+            "maxMs": 5.600000001490116
+          }
+        }
+      }
+    },
+    {
+      "task": "mechanical",
+      "count": 1000,
+      "beforeFile": "baseline-mechanical-1000.json",
+      "afterFile": "after-mechanical-1000.json",
+      "before": {
+        "completedEdits": 6,
+        "unexpectedRetries": 0,
+        "work": {
+          "n": 6,
+          "medianMs": 1022.8000000007451,
+          "p95Ms": 1066.7000000029802,
+          "maxMs": 1066.7000000029802
+        },
+        "requested": {
+          "n": 6,
+          "medianMs": 140.45000000298023,
+          "p95Ms": 192,
+          "maxMs": 192
+        },
+        "verified": {
+          "n": 6,
+          "medianMs": 521.3999999985099,
+          "p95Ms": 569.7999999970198,
+          "maxMs": 569.7999999970198
+        },
+        "apply": {
+          "n": 6,
+          "medianMs": 247.05000000074506,
+          "p95Ms": 266.79999999701977,
+          "maxMs": 266.79999999701977
+        },
+        "activate": {
+          "n": 6,
+          "medianMs": 126.05000000447035,
+          "p95Ms": 165.40000000596046,
+          "maxMs": 165.40000000596046
+        },
+        "frameGap": {
+          "n": 122,
+          "medianMs": 41.69999999999982,
+          "p95Ms": 100.09999999999854,
+          "maxMs": 158.20000000000073
+        },
+        "longTasks": {
+          "n": 20,
+          "medianMs": 71,
+          "p95Ms": 136,
+          "maxMs": 142
+        },
+        "phases": {
+          "direct-plan": {
+            "n": 6,
+            "medianMs": 21.950000002980232,
+            "p95Ms": 27.100000001490116,
+            "maxMs": 27.100000001490116
+          },
+          "preview-prepare": {
+            "n": 6,
+            "medianMs": 203.35000000149012,
+            "p95Ms": 215.40000000596046,
+            "maxMs": 215.40000000596046
+          },
+          "preview-diff": {
+            "n": 6,
+            "medianMs": 176,
+            "p95Ms": 191.5,
+            "maxMs": 191.5
+          },
+          "preview-compare": {
+            "n": 6,
+            "medianMs": 27.849999997764826,
+            "p95Ms": 29.600000001490116,
+            "maxMs": 29.600000001490116
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 23.75,
+            "p95Ms": 40.899999998509884,
+            "maxMs": 40.899999998509884
+          },
+          "viewport-sync": {
+            "n": 6,
+            "medianMs": 11.300000000745058,
+            "p95Ms": 14.700000002980232,
+            "maxMs": 14.700000002980232
+          }
+        }
+      },
+      "after": {
+        "completedEdits": 6,
+        "unexpectedRetries": 0,
+        "work": {
+          "n": 6,
+          "medianMs": 794.9499999955297,
+          "p95Ms": 818.7000000029802,
+          "maxMs": 818.7000000029802
+        },
+        "requested": {
+          "n": 6,
+          "medianMs": 154.4999999962747,
+          "p95Ms": 180.79999999701977,
+          "maxMs": 180.79999999701977
+        },
+        "verified": {
+          "n": 6,
+          "medianMs": 348.1000000014901,
+          "p95Ms": 368,
+          "maxMs": 368
+        },
+        "apply": {
+          "n": 6,
+          "medianMs": 247.25,
+          "p95Ms": 257.70000000298023,
+          "maxMs": 257.70000000298023
+        },
+        "activate": {
+          "n": 6,
+          "medianMs": 94.60000000149012,
+          "p95Ms": 109.10000000149012,
+          "maxMs": 109.10000000149012
+        },
+        "frameGap": {
+          "n": 97,
+          "medianMs": 33.399999999999636,
+          "p95Ms": 133.30000000000018,
+          "maxMs": 158.40000000000055
+        },
+        "longTasks": {
+          "n": 24,
+          "medianMs": 65.5,
+          "p95Ms": 137,
+          "maxMs": 137
+        },
+        "phases": {
+          "direct-plan": {
+            "n": 6,
+            "medianMs": 20.400000002235174,
+            "p95Ms": 31.100000001490116,
+            "maxMs": 31.100000001490116
+          },
+          "preview-prepare": {
+            "n": 6,
+            "medianMs": 182.59999999776483,
+            "p95Ms": 195.70000000298023,
+            "maxMs": 195.70000000298023
+          },
+          "preview-diff": {
+            "n": 6,
+            "medianMs": 6.700000002980232,
+            "p95Ms": 9.600000001490116,
+            "maxMs": 9.600000001490116
+          },
+          "preview-compare": {
+            "n": 6,
+            "medianMs": 5.300000000745058,
+            "p95Ms": 8.199999988079071,
+            "maxMs": 8.199999988079071
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 6.850000001490116,
+            "p95Ms": 8.600000001490116,
+            "maxMs": 8.600000001490116
+          },
+          "viewport-sync": {
+            "n": 6,
+            "medianMs": 11.350000001490116,
+            "p95Ms": 13.200000002980232,
+            "maxMs": 13.200000002980232
+          }
+        }
+      }
+    },
+    {
+      "task": "drawing",
+      "count": 0,
+      "beforeFile": "baseline-drawing-0.json",
+      "afterFile": "after-drawing-0.json",
+      "before": {
+        "completedEdits": 6,
+        "unexpectedRetries": 0,
+        "work": {
+          "n": 6,
+          "medianMs": 101.5,
+          "p95Ms": 152.70000000298023,
+          "maxMs": 152.70000000298023
+        },
+        "requested": {
+          "n": 6,
+          "medianMs": 14.599999997764826,
+          "p95Ms": 25.5,
+          "maxMs": 25.5
+        },
+        "verified": {
+          "n": 6,
+          "medianMs": 22.699999999254942,
+          "p95Ms": 33.80000000447035,
+          "maxMs": 33.80000000447035
+        },
+        "apply": {
+          "n": 6,
+          "medianMs": 50.30000000074506,
+          "p95Ms": 86.70000000298023,
+          "maxMs": 86.70000000298023
+        },
+        "activate": {
+          "n": 6,
+          "medianMs": 17.149999998509884,
+          "p95Ms": 19.200000002980232,
+          "maxMs": 19.200000002980232
+        },
+        "frameGap": {
+          "n": 60,
+          "medianMs": 8.300000000000182,
+          "p95Ms": 16.700000000000273,
+          "maxMs": 50
+        },
+        "longTasks": {
+          "n": 0,
+          "medianMs": 0,
+          "p95Ms": 0,
+          "maxMs": 0
+        },
+        "phases": {
+          "direct-plan": {
+            "n": 6,
+            "medianMs": 0.10000000149011612,
+            "p95Ms": 0.20000000298023224,
+            "maxMs": 0.20000000298023224
+          },
+          "preview-prepare": {
+            "n": 6,
+            "medianMs": 0.19999999925494194,
+            "p95Ms": 0.29999999701976776,
+            "maxMs": 0.29999999701976776
+          },
+          "preview-diff": {
+            "n": 6,
+            "medianMs": 0.10000000149011612,
+            "p95Ms": 0.10000000149011612,
+            "maxMs": 0.10000000149011612
+          },
+          "preview-compare": {
+            "n": 6,
+            "medianMs": 0,
+            "p95Ms": 0,
+            "maxMs": 0
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 0.10000000149011612,
+            "p95Ms": 0.10000000149011612,
+            "maxMs": 0.10000000149011612
+          },
+          "viewport-sync": {
+            "n": 6,
+            "medianMs": 0.4000000022351742,
+            "p95Ms": 1.0999999940395355,
+            "maxMs": 1.0999999940395355
+          }
+        }
+      },
+      "after": {
+        "completedEdits": 6,
+        "unexpectedRetries": 0,
+        "work": {
+          "n": 6,
+          "medianMs": 119.99999999627471,
+          "p95Ms": 159.20000000298023,
+          "maxMs": 159.20000000298023
+        },
+        "requested": {
+          "n": 6,
+          "medianMs": 16.099999997764826,
+          "p95Ms": 25.400000005960464,
+          "maxMs": 25.400000005960464
+        },
+        "verified": {
+          "n": 6,
+          "medianMs": 25.050000000745058,
+          "p95Ms": 34.5,
+          "maxMs": 34.5
+        },
+        "apply": {
+          "n": 6,
+          "medianMs": 60.099999997764826,
+          "p95Ms": 98.20000000298023,
+          "maxMs": 98.20000000298023
+        },
+        "activate": {
+          "n": 6,
+          "medianMs": 19.5,
+          "p95Ms": 26,
+          "maxMs": 26
+        },
+        "frameGap": {
+          "n": 59,
+          "medianMs": 8.400000000000091,
+          "p95Ms": 25,
+          "maxMs": 58.200000000000045
+        },
+        "longTasks": {
+          "n": 0,
+          "medianMs": 0,
+          "p95Ms": 0,
+          "maxMs": 0
+        },
+        "phases": {
+          "direct-plan": {
+            "n": 6,
+            "medianMs": 0.10000000149011612,
+            "p95Ms": 0.20000000298023224,
+            "maxMs": 0.20000000298023224
+          },
+          "preview-prepare": {
+            "n": 6,
+            "medianMs": 0.20000000298023224,
+            "p95Ms": 0.30000000447034836,
+            "maxMs": 0.30000000447034836
+          },
+          "preview-diff": {
+            "n": 6,
+            "medianMs": 0.10000000149011612,
+            "p95Ms": 0.19999999552965164,
+            "maxMs": 0.19999999552965164
+          },
+          "preview-compare": {
+            "n": 6,
+            "medianMs": 0,
+            "p95Ms": 0.10000000149011612,
+            "maxMs": 0.10000000149011612
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 0.10000000149011612,
+            "p95Ms": 0.10000000149011612,
+            "maxMs": 0.10000000149011612
+          },
+          "viewport-sync": {
+            "n": 6,
+            "medianMs": 0.3500000014901161,
+            "p95Ms": 1,
+            "maxMs": 1
+          }
+        }
+      }
+    },
+    {
+      "task": "drawing",
+      "count": 250,
+      "beforeFile": "baseline-drawing-250.json",
+      "afterFile": "after-drawing-250.json",
+      "before": {
+        "completedEdits": 6,
+        "unexpectedRetries": 0,
+        "work": {
+          "n": 6,
+          "medianMs": 149.75,
+          "p95Ms": 280.70000000298023,
+          "maxMs": 280.70000000298023
+        },
+        "requested": {
+          "n": 6,
+          "medianMs": 21.94999999552965,
+          "p95Ms": 33.79999999701977,
+          "maxMs": 33.79999999701977
+        },
+        "verified": {
+          "n": 6,
+          "medianMs": 38.69999999925494,
+          "p95Ms": 47,
+          "maxMs": 47
+        },
+        "apply": {
+          "n": 6,
+          "medianMs": 64.89999999850988,
+          "p95Ms": 149.60000000149012,
+          "maxMs": 149.60000000149012
+        },
+        "activate": {
+          "n": 6,
+          "medianMs": 31.849999997764826,
+          "p95Ms": 58.5,
+          "maxMs": 58.5
+        },
+        "frameGap": {
+          "n": 66,
+          "medianMs": 8.400000000000091,
+          "p95Ms": 41.59999999999991,
+          "maxMs": 83.29999999999995
+        },
+        "longTasks": {
+          "n": 2,
+          "medianMs": 57.5,
+          "p95Ms": 63,
+          "maxMs": 63
+        },
+        "phases": {
+          "direct-plan": {
+            "n": 6,
+            "medianMs": 2.4500000029802322,
+            "p95Ms": 5.600000001490116,
+            "maxMs": 5.600000001490116
+          },
+          "preview-prepare": {
+            "n": 6,
+            "medianMs": 8.700000002980232,
+            "p95Ms": 16.69999999552965,
+            "maxMs": 16.69999999552965
+          },
+          "preview-diff": {
+            "n": 6,
+            "medianMs": 2.199999999254942,
+            "p95Ms": 2.3000000044703484,
+            "maxMs": 2.3000000044703484
+          },
+          "preview-compare": {
+            "n": 6,
+            "medianMs": 1.949999999254942,
+            "p95Ms": 2.1000000089406967,
+            "maxMs": 2.1000000089406967
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 0.10000000149011612,
+            "p95Ms": 0.3999999985098839,
+            "maxMs": 0.3999999985098839
+          },
+          "viewport-sync": {
+            "n": 6,
+            "medianMs": 2.899999998509884,
+            "p95Ms": 5.799999997019768,
+            "maxMs": 5.799999997019768
+          }
+        }
+      },
+      "after": {
+        "completedEdits": 6,
+        "unexpectedRetries": 0,
+        "work": {
+          "n": 6,
+          "medianMs": 168.40000000223517,
+          "p95Ms": 230.89999999850988,
+          "maxMs": 230.89999999850988
+        },
+        "requested": {
+          "n": 6,
+          "medianMs": 20.400000002235174,
+          "p95Ms": 25.799999997019768,
+          "maxMs": 25.799999997019768
+        },
+        "verified": {
+          "n": 6,
+          "medianMs": 40.94999999925494,
+          "p95Ms": 44.899999998509884,
+          "maxMs": 44.899999998509884
+        },
+        "apply": {
+          "n": 6,
+          "medianMs": 71.95000000298023,
+          "p95Ms": 148,
+          "maxMs": 148
+        },
+        "activate": {
+          "n": 6,
+          "medianMs": 30.75,
+          "p95Ms": 42.100000001490116,
+          "maxMs": 42.100000001490116
+        },
+        "frameGap": {
+          "n": 69,
+          "medianMs": 8.400000000000091,
+          "p95Ms": 41.69999999999982,
+          "maxMs": 75
+        },
+        "longTasks": {
+          "n": 2,
+          "medianMs": 72.5,
+          "p95Ms": 85,
+          "maxMs": 85
+        },
+        "phases": {
+          "direct-plan": {
+            "n": 6,
+            "medianMs": 2.449999999254942,
+            "p95Ms": 2.600000001490116,
+            "maxMs": 2.600000001490116
+          },
+          "preview-prepare": {
+            "n": 6,
+            "medianMs": 9.349999997764826,
+            "p95Ms": 10.100000001490116,
+            "maxMs": 10.100000001490116
+          },
+          "preview-diff": {
+            "n": 6,
+            "medianMs": 0.8500000014901161,
+            "p95Ms": 1,
+            "maxMs": 1
+          },
+          "preview-compare": {
+            "n": 6,
+            "medianMs": 0.6999999992549419,
+            "p95Ms": 0.8999999985098839,
+            "maxMs": 0.8999999985098839
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 0.10000000149011612,
+            "p95Ms": 0.20000000298023224,
+            "maxMs": 0.20000000298023224
+          },
+          "viewport-sync": {
+            "n": 6,
+            "medianMs": 4.199999999254942,
+            "p95Ms": 7.4000000059604645,
+            "maxMs": 7.4000000059604645
+          }
+        }
+      }
+    },
+    {
+      "task": "drawing",
+      "count": 1000,
+      "beforeFile": "baseline-drawing-1000.json",
+      "afterFile": "after-drawing-1000.json",
+      "before": {
+        "completedEdits": 6,
+        "unexpectedRetries": 0,
+        "work": {
+          "n": 6,
+          "medianMs": 400,
+          "p95Ms": 468,
+          "maxMs": 468
+        },
+        "requested": {
+          "n": 6,
+          "medianMs": 81.94999999925494,
+          "p95Ms": 121.20000000298023,
+          "maxMs": 121.20000000298023
+        },
+        "verified": {
+          "n": 6,
+          "medianMs": 143.39999999850988,
+          "p95Ms": 206,
+          "maxMs": 206
+        },
+        "apply": {
+          "n": 6,
+          "medianMs": 150.85000000149012,
+          "p95Ms": 184.60000000149012,
+          "maxMs": 184.60000000149012
+        },
+        "activate": {
+          "n": 6,
+          "medianMs": 76.79999999701977,
+          "p95Ms": 86,
+          "maxMs": 86
+        },
+        "frameGap": {
+          "n": 76,
+          "medianMs": 16.600000000000364,
+          "p95Ms": 116.59999999999991,
+          "maxMs": 158.4000000000001
+        },
+        "longTasks": {
+          "n": 19,
+          "medianMs": 65,
+          "p95Ms": 126,
+          "maxMs": 126
+        },
+        "phases": {
+          "direct-plan": {
+            "n": 6,
+            "medianMs": 10.199999999254942,
+            "p95Ms": 14.899999998509884,
+            "maxMs": 14.899999998509884
+          },
+          "preview-prepare": {
+            "n": 6,
+            "medianMs": 36.349999997764826,
+            "p95Ms": 48.80000000447035,
+            "maxMs": 48.80000000447035
+          },
+          "preview-diff": {
+            "n": 6,
+            "medianMs": 15.550000000745058,
+            "p95Ms": 24.100000001490116,
+            "maxMs": 24.100000001490116
+          },
+          "preview-compare": {
+            "n": 6,
+            "medianMs": 15.350000005215406,
+            "p95Ms": 23.69999999552965,
+            "maxMs": 23.69999999552965
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 0.20000000298023224,
+            "p95Ms": 0.3999999985098839,
+            "maxMs": 0.3999999985098839
+          },
+          "viewport-sync": {
+            "n": 6,
+            "medianMs": 8.25,
+            "p95Ms": 9,
+            "maxMs": 9
+          }
+        }
+      },
+      "after": {
+        "completedEdits": 6,
+        "unexpectedRetries": 0,
+        "work": {
+          "n": 6,
+          "medianMs": 383.1500000022352,
+          "p95Ms": 409.8999999985099,
+          "maxMs": 409.8999999985099
+        },
+        "requested": {
+          "n": 6,
+          "medianMs": 70.80000000447035,
+          "p95Ms": 81.10000000149012,
+          "maxMs": 81.10000000149012
+        },
+        "verified": {
+          "n": 6,
+          "medianMs": 100.39999999850988,
+          "p95Ms": 137.70000000298023,
+          "maxMs": 137.70000000298023
+        },
+        "apply": {
+          "n": 6,
+          "medianMs": 184.94999999925494,
+          "p95Ms": 213.59999999403954,
+          "maxMs": 213.59999999403954
+        },
+        "activate": {
+          "n": 6,
+          "medianMs": 74.19999999925494,
+          "p95Ms": 90.70000000298023,
+          "maxMs": 90.70000000298023
+        },
+        "frameGap": {
+          "n": 73,
+          "medianMs": 16.600000000000364,
+          "p95Ms": 116.60000000000036,
+          "maxMs": 174.9000000000001
+        },
+        "longTasks": {
+          "n": 12,
+          "medianMs": 92.5,
+          "p95Ms": 156,
+          "maxMs": 156
+        },
+        "phases": {
+          "direct-plan": {
+            "n": 6,
+            "medianMs": 10.949999999254942,
+            "p95Ms": 14.600000001490116,
+            "maxMs": 14.600000001490116
+          },
+          "preview-prepare": {
+            "n": 6,
+            "medianMs": 42.399999998509884,
+            "p95Ms": 46.399999998509884,
+            "maxMs": 46.399999998509884
+          },
+          "preview-diff": {
+            "n": 6,
+            "medianMs": 2.399999998509884,
+            "p95Ms": 3,
+            "maxMs": 3
+          },
+          "preview-compare": {
+            "n": 6,
+            "medianMs": 1.949999999254942,
+            "p95Ms": 2.399999998509884,
+            "maxMs": 2.399999998509884
+          },
+          "direct-feedback": {
+            "n": 6,
+            "medianMs": 0.10000000149011612,
+            "p95Ms": 0.20000000298023224,
+            "maxMs": 0.20000000298023224
+          },
+          "viewport-sync": {
+            "n": 6,
+            "medianMs": 7.200000002980232,
+            "p95Ms": 10.099999994039536,
+            "maxMs": 10.099999994039536
+          }
+        }
+      }
+    }
+  ]
+}

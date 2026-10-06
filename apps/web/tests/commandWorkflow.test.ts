@@ -1,3 +1,4 @@
+import { restoreTestDocument as restore, documentState, assertMeshBounds, meshVolume } from "./helpers/documentHarness";
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, test } from "node:test";
 import type { CadDocument } from "@agent-webcad/cad-document";
@@ -12,15 +13,7 @@ import { buildBooleanMesh, buildExtrudeMesh } from "../src/cad/kernelGeometrySer
 
 const original = structuredClone(cadDocument);
 
-function restore(snapshot: CadDocument) {
-  cadDocument.id = snapshot.id;
-  cadDocument.revision = snapshot.revision;
-  cadDocument.objects = structuredClone(snapshot.objects);
-  cadDocument.features = structuredClone(snapshot.features);
-  cadDocument.layers = structuredClone(snapshot.layers);
-  cadDocument.rootObjects = [...snapshot.rootObjects];
-  cadDocument.rootLayers = [...snapshot.rootLayers];
-}
+
 
 function resetDocument() {
   restore({
@@ -71,14 +64,14 @@ describe("command/history precision workflows", () => {
     const result = await dispatchCadCommand({ type: "batch", commands: [
       { type: "duplicate-object", objectId: "box", offset: [1200, 0, 0] },
       { type: "duplicate-object", objectId: "box", offset: [0, 2400, 0] },
-    ] }) as { accepted: boolean; results: string[] };
-    assert.equal(result.accepted, true);
-    assert.deepEqual(result.results.map((id) => cadDocument.objects[id].transform?.translation), [[1200, 0, 0], [0, 2400, 0]]);
+    ] });
+    assert.equal(result.ok, true);
+    assert.deepEqual(result.createdIds.map((id) => cadDocument.objects[id].transform?.translation), [[1200, 0, 0], [0, 2400, 0]]);
     assert.deepEqual(cadHistory.getPastLabels(), ["batch"]);
     assert.equal(undoDocument(), true);
-    assert.equal(result.results.every((id) => !cadDocument.objects[id]), true);
+    assert.equal(result.createdIds.every((id) => !cadDocument.objects[id]), true);
     assert.equal(redoDocument(), true);
-    assert.deepEqual(result.results.map((id) => cadDocument.objects[id].transform?.translation), [[1200, 0, 0], [0, 2400, 0]]);
+    assert.deepEqual(result.createdIds.map((id) => cadDocument.objects[id].transform?.translation), [[1200, 0, 0], [0, 2400, 0]]);
   });
 
   test("commits a successful batch as one history transaction", async () => {
@@ -149,7 +142,7 @@ describe("command/history precision workflows", () => {
       tool: "tool",
     });
 
-    assert.equal(result, undefined);
+    assert.equal(result.ok, false);
     assert.equal(cadDocument.revision, revision);
     assert.ok(cadDocument.objects.box);
     assert.ok(cadDocument.objects.tool);
@@ -260,7 +253,9 @@ describe("command/history precision workflows", () => {
     cadDocument.layers["layer-default"].objectIds.push("line");
     cadDocument.rootObjects.push("line");
     const result = await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "left" });
-    assert.equal(typeof result, "string");
+    assert.equal(result.ok, true);
+    const id = result.createdIds[0];
+    assert.equal(typeof id, "string");
     assert.deepEqual(cadHistory.getPastLabels(), ["offset-drawing"]);
     assert.equal(cadDocument.rootObjects.length, 3);
     assert.equal(undoDocument(), true);
@@ -290,10 +285,12 @@ describe("command/history precision workflows", () => {
     cadDocument.rootObjects.push("line");
     const revision = cadDocument.revision;
 
-    const id = await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "right" });
+    const result = await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "right" });
+    assert.equal(result.ok, true);
+    const id = result.createdIds[0];
     assert.equal(typeof id, "string");
     assert.deepEqual(cadHistory.getPastLabels(), ["offset-drawing"]);
-    const copy = typeof id === "string" ? cadDocument.objects[id] : undefined;
+    const copy = cadDocument.objects[id];
     assert.deepEqual(copy?.transform?.translation, [5, 5, 0]);
     assert.equal(copy?.layerId, "layer-default");
     const copyFeature = Object.values(cadDocument.features).find((entry) => entry.output === id);
@@ -301,7 +298,7 @@ describe("command/history precision workflows", () => {
     assert.ok(copyFeature?.type === "drawing" && typeof (copyFeature.params.topology as { version?: number })?.version === "number");
     assert.equal(cadDocument.revision, revision + 1);
     assert.equal(undoDocument(), true);
-    assert.equal(typeof id === "string" && cadDocument.objects[id] ? true : false, false);
+    assert.equal(cadDocument.objects[id] ? true : false, false);
   });
 
   test("offset rejects non-uniform scale, tilted planes and locked layers without history", async () => {
@@ -325,13 +322,13 @@ describe("command/history precision workflows", () => {
     cadDocument.rootObjects.push("line");
     const revision = cadDocument.revision;
 
-    assert.equal(await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "left" }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "left" })).ok, false);
     cadDocument.objects.line.transform!.scale = [1, 1, 1];
     cadDocument.objects.line.transform!.rotation = [0, 90, 0];
-    assert.equal(await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "left" }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "left" })).ok, false);
     cadDocument.objects.line.transform!.rotation = [0, 0, 0];
     cadDocument.layers["layer-default"].locked = true;
-    assert.equal(await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "left" }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "offset-drawing", objectId: "line", distance: 2, side: "left" })).ok, false);
     cadDocument.layers["layer-default"].locked = false;
 
     assert.equal(cadDocument.revision, revision);
@@ -367,7 +364,7 @@ describe("command/history precision workflows", () => {
         `${value} ≈ ${expected[index][axis]}`,
       )));
     };
-    assert.equal(await dispatchCadCommand({ type: "edit-drawing-corner", objectId: "corner", controlId: "corner:vertex:1", treatment: "fillet", distance: 2 }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "edit-drawing-corner", objectId: "corner", controlId: "corner:vertex:1", treatment: "fillet", distance: 2 })).ok, true);
     const feature = cadDocument.features["feature-corner"];
     near(feature.params.points, [[0, 0, 0], [8, 0, 0], [10, 2, 0], [10, 10, 0]]);
     assert.deepEqual(cadHistory.getPastLabels(), ["edit-drawing-corner"]);
@@ -381,7 +378,7 @@ describe("command/history precision workflows", () => {
   test("chamfer corner preserves transform and follows the treated vertex", async () => {
     installCornerProfile();
     cadDocument.objects.corner.transform!.translation = [5, 5, 5];
-    assert.equal(await dispatchCadCommand({ type: "edit-drawing-corner", objectId: "corner", controlId: "corner:vertex:1", treatment: "chamfer", distance: 2 }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "edit-drawing-corner", objectId: "corner", controlId: "corner:vertex:1", treatment: "chamfer", distance: 2 })).ok, true);
     const feature = cadDocument.features["feature-corner"];
     assert.deepEqual(feature.params.points, [[0, 0, 0], [8, 0, 0], [10, 2, 0], [10, 10, 0]]);
     assert.deepEqual(feature.params.bulges, [0, 0, 0]);
@@ -424,7 +421,7 @@ describe("command/history precision workflows", () => {
 
   test("trim commits one history entry with exact undo/redo", async () => {
     installTrimPair();
-    assert.equal(await dispatchCadCommand({ type: "trim-drawing", targetId: "tline", cutterId: "cut", pickPoint: [8, 0, 0] }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "trim-drawing", targetId: "tline", cutterId: "cut", pickPoint: [8, 0, 0] })).ok, true);
     assert.deepEqual(cadDocument.features["feature-tline"].params.points, [[0, 0, 0], [5, 0, 0]]);
     assert.deepEqual(cadHistory.getPastLabels(), ["trim-drawing"]);
     assert.equal(undoDocument(), true);
@@ -436,7 +433,7 @@ describe("command/history precision workflows", () => {
   test("extend commits one history entry with exact undo/redo", async () => {
     installTrimPair();
     cadDocument.features["feature-tline"].params.points = [[0, 0, 0], [4, 0, 0]];
-    assert.equal(await dispatchCadCommand({ type: "extend-drawing", targetId: "tline", cutterId: "cut", pickPoint: [3, 0, 0] }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "extend-drawing", targetId: "tline", cutterId: "cut", pickPoint: [3, 0, 0] })).ok, true);
     assert.deepEqual(cadDocument.features["feature-tline"].params.points, [[0, 0, 0], [5, 0, 0]]);
     assert.deepEqual(cadHistory.getPastLabels(), ["extend-drawing"]);
     assert.equal(undoDocument(), true);
@@ -449,11 +446,11 @@ describe("command/history precision workflows", () => {
     installTrimPair();
     const revision = cadDocument.revision;
     cadDocument.features["feature-cut"].params.points = [[5, 10, 0], [5, 20, 0]];
-    assert.equal(await dispatchCadCommand({ type: "trim-drawing", targetId: "tline", cutterId: "cut", pickPoint: [8, 0, 0] }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "trim-drawing", targetId: "tline", cutterId: "cut", pickPoint: [8, 0, 0] })).ok, false);
     assert.equal(cadDocument.revision, revision);
     cadDocument.features["feature-cut"].params.points = [[5, -5, 0], [5, 5, 0]];
     cadDocument.layers["layer-default"].locked = true;
-    assert.equal(await dispatchCadCommand({ type: "trim-drawing", targetId: "tline", cutterId: "cut", pickPoint: [8, 0, 0] }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "trim-drawing", targetId: "tline", cutterId: "cut", pickPoint: [8, 0, 0] })).ok, false);
     cadDocument.layers["layer-default"].locked = false;
     assert.equal(cadDocument.revision, revision);
     assert.deepEqual(cadHistory.getPastLabels(), []);
@@ -482,7 +479,7 @@ describe("command/history precision workflows", () => {
     cadDocument.layers["layer-default"].objectIds.push("circ", "cut");
     cadDocument.rootObjects.push("circ", "cut");
 
-    assert.equal(await dispatchCadCommand({ type: "trim-drawing", targetId: "circ", cutterId: "cut", pickPoint: [-5, 0, 0] }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "trim-drawing", targetId: "circ", cutterId: "cut", pickPoint: [-5, 0, 0] })).ok, true);
     const feature = cadDocument.features["feature-circ"];
     assert.equal(feature.params.kind, "arc");
     assert.equal(feature.params.radius, 5);
@@ -571,7 +568,9 @@ describe("command/history precision workflows", () => {
     cadDocument.layers["layer-default"].objectIds.push("line");
     cadDocument.rootObjects.push("line");
 
-    const duplicateId = await dispatchCadCommand({ type: "duplicate-object", objectId: "line" });
+    const duplicateResult = await dispatchCadCommand({ type: "duplicate-object", objectId: "line" });
+    assert.equal(duplicateResult.ok, true);
+    const duplicateId = duplicateResult.createdIds[0];
     assert.equal(typeof duplicateId, "string");
     const duplicateFeature = Object.values(cadDocument.features).find((feature) => feature.output === duplicateId);
     const duplicateTopology = duplicateFeature?.params.topology as typeof topology | undefined;
@@ -580,9 +579,9 @@ describe("command/history precision workflows", () => {
     assert.ok(duplicateTopology.controls.every((control) => control.id.startsWith(`${duplicateId}:`)));
     assert.deepEqual(cadHistory.getPastLabels(), ["duplicate-object"]);
     assert.equal(undoDocument(), true);
-    assert.equal(cadDocument.objects[String(duplicateId)], undefined);
+    assert.equal(cadDocument.objects[duplicateId], undefined);
     assert.equal(redoDocument(), true);
-    assert.ok(cadDocument.objects[String(duplicateId)]);
+    assert.ok(cadDocument.objects[duplicateId]);
   });
 
   test("creates and edits a kernel-backed extrusion as one history entry per operation", async () => {
@@ -598,7 +597,9 @@ describe("command/history precision workflows", () => {
     cadDocument.layers["layer-default"].objectIds.push("profile");
     cadDocument.rootObjects.push("profile");
 
-    const id = await dispatchCadCommand({ type: "create-extrude", id: "extrude-test", profileObjectIds: ["profile"], distance: 12 });
+    const extrudeResult = await dispatchCadCommand({ type: "create-extrude", id: "extrude-test", profileObjectIds: ["profile"], distance: 12 });
+    assert.equal(extrudeResult.ok, true);
+    const id = extrudeResult.createdIds[0];
     assert.equal(id, "extrude-test");
     assert.deepEqual(cadHistory.getPastLabels(), ["create-extrude"]);
     const feature = cadDocument.features["feature-extrude-test"];
@@ -637,7 +638,8 @@ describe("command/history precision workflows", () => {
     cadDocument.layers["layer-default"].objectIds.push(`${id}-profile`);
     cadDocument.rootObjects.push(`${id}-profile`);
     const created = await dispatchCadCommand({ type: "create-extrude", id, profileObjectIds: [`${id}-profile`], distance });
-    assert.equal(created, id);
+    assert.equal(created.ok, true);
+    assert.equal(created.createdIds[0], id);
     return id;
   }
 
@@ -646,7 +648,8 @@ describe("command/history precision workflows", () => {
       type: "create-primitive", id, primitive: "box",
       params: { width: size[0], depth: size[1], height: size[2] }, position,
     });
-    assert.equal(created, id);
+    assert.equal(created.ok, true);
+    assert.equal(created.createdIds[0], id);
     return id;
   }
 
@@ -655,23 +658,33 @@ describe("command/history precision workflows", () => {
     await installSolidBox("plug", [4, 4, 12], [8, 4, -1]);
     cadHistory.clear();
     const revision = cadDocument.revision;
+    const before = documentState();
 
     const result = await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "wall", tool: "plug" });
-    assert.equal(typeof result, "string");
+    assert.equal(result.ok, true);
+    const id = result.createdIds[0]!;
+    assert.equal(typeof id, "string");
     assert.deepEqual(cadHistory.getPastLabels(), ["boolean-operation"]);
     assert.equal(cadDocument.revision, revision + 1);
-    const feature = typeof result === "string" ? cadDocument.features[`feature-${result}`] : undefined;
+    const feature = cadDocument.features[`feature-${id}`];
     assert.equal(feature?.type, "boolean");
     assert.deepEqual(feature?.inputs, ["wall", "plug"]);
-    assert.ok(!cadDocument.objects.wall && !cadDocument.objects.plug);
-    const mesh = typeof result === "string" ? await buildBooleanMesh(feature.params as Record<string, unknown>) : null;
-    assert.ok(mesh && mesh.positions.length > 0 && mesh.indices.length > 0);
+    assert.equal(cadDocument.objects.wall.visible, false);
+    assert.equal(cadDocument.objects.plug.visible, false);
+    assert.ok(cadDocument.features["feature-wall"] && cadDocument.features["feature-plug"]);
+    assert.ok(!cadDocument.rootObjects.includes("wall") && !cadDocument.rootObjects.includes("plug"));
+    const mesh = await buildBooleanMesh(feature.params as Record<string, unknown>);
+    assertMeshBounds(mesh, [0, 0, 0], [20, 12, 10]);
+    assert.ok(Math.abs(meshVolume(mesh) - (20 * 12 * 10 - 4 * 4 * 10)) < 1e-3);
+    const after = documentState();
 
     assert.equal(undoDocument(), true);
+    assert.deepEqual(documentState(), before);
     assert.ok(cadDocument.objects.wall && cadDocument.objects.plug);
-    assert.equal(typeof result === "string" && cadDocument.objects[result] ? true : false, false);
+    assert.equal(cadDocument.objects[id] ? true : false, false);
     assert.equal(redoDocument(), true);
-    assert.ok(typeof result === "string" && cadDocument.objects[result]);
+    assert.deepEqual(documentState(), after);
+    assert.ok(cadDocument.objects[id]);
   });
 
   test("unions an extrusion with a primitive and nests booleans", async () => {
@@ -680,16 +693,20 @@ describe("command/history precision workflows", () => {
     await installSolidBox("cap", [4, 4, 4], [0, 0, 8]);
     cadHistory.clear();
 
-    const first = await dispatchCadCommand({ type: "boolean-operation", operation: "union", target: "plate", tool: "block" });
+    const firstResult = await dispatchCadCommand({ type: "boolean-operation", operation: "union", target: "plate", tool: "block" });
+    assert.equal(firstResult.ok, true);
+    const first = firstResult.createdIds[0]!;
     assert.equal(typeof first, "string");
     assert.deepEqual(cadHistory.getPastLabels(), ["boolean-operation"]);
-    const second = await dispatchCadCommand({ type: "boolean-operation", operation: "union", target: first as string, tool: "cap" });
+    const secondResult = await dispatchCadCommand({ type: "boolean-operation", operation: "union", target: first, tool: "cap" });
+    assert.equal(secondResult.ok, true);
+    const second = secondResult.createdIds[0]!;
     assert.equal(typeof second, "string");
     assert.deepEqual(cadHistory.getPastLabels(), ["boolean-operation", "boolean-operation"]);
-    const nested = typeof second === "string" ? cadDocument.features[`feature-${second}`] : undefined;
+    const nested = cadDocument.features[`feature-${second}`];
     assert.equal(nested?.type, "boolean");
     assert.equal(undoDocument(), true);
-    assert.ok(typeof first === "string" && cadDocument.objects[first]);
+    assert.ok(cadDocument.objects[first]);
     assert.equal(undoDocument(), true);
     assert.ok(cadDocument.objects.plate && cadDocument.objects.block);
   });
@@ -699,7 +716,9 @@ describe("command/history precision workflows", () => {
     await installExtrudedWall("punch", 4, 4, 14);
     cadHistory.clear();
     const result = await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "block", tool: "punch" });
-    assert.equal(typeof result, "string");
+    assert.equal(result.ok, true);
+    const id = result.createdIds[0]!;
+    assert.equal(typeof id, "string");
     assert.deepEqual(cadHistory.getPastLabels(), ["boolean-operation"]);
     assert.equal(undoDocument(), true);
     assert.ok(cadDocument.objects.block && cadDocument.objects.punch);
@@ -721,12 +740,12 @@ describe("command/history precision workflows", () => {
     cadHistory.clear();
     const revision = cadDocument.revision;
 
-    assert.equal(await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "wall", tool: "line" }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "wall", tool: "line" })).ok, false);
     cadDocument.objects.plug.transform!.scale = [2, 2, 2];
-    assert.equal(await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "wall", tool: "plug" }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "wall", tool: "plug" })).ok, false);
     cadDocument.objects.plug.transform!.scale = [1, 1, 1];
     cadDocument.layers["layer-default"].locked = true;
-    assert.equal(await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "wall", tool: "plug" }), undefined);
+    assert.equal((await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "wall", tool: "plug" })).ok, false);
     cadDocument.layers["layer-default"].locked = false;
 
     assert.equal(cadDocument.revision, revision);
@@ -748,7 +767,7 @@ describe("command/history precision workflows", () => {
     cadDocument.rootObjects.push("profile");
     const beforeRevision = cadDocument.revision;
     const result = await dispatchCadCommand({ type: "create-extrude", profileObjectIds: ["profile"], distance: 10 });
-    assert.equal(result, undefined);
+    assert.equal(result.ok, false);
     assert.equal(cadDocument.revision, beforeRevision);
     assert.deepEqual(cadHistory.getPastLabels(), []);
   });

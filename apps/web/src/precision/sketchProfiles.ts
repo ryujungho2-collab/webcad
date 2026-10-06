@@ -2,6 +2,7 @@ import type { CadDocument } from "@agent-webcad/cad-document";
 import type { ExtrudeProfile, ExtrudeProfileSegment } from "@agent-webcad/cad-kernel";
 import { getWorldDrawingGeometry, type WorldProfileSegment } from "./worldGeometry";
 import { planeToWorld, worldToPlane, WORK_PLANES, type Vec3, type WorkPlaneId } from "./workPlane";
+import { profileBoundaryPoints, profileContainsPoint, profilesTouch } from "./profileRegions";
 
 export type SketchLoop = ExtrudeProfile & {
   workPlane: WorkPlaneId;
@@ -144,16 +145,18 @@ function makeLoop(edges: LoopEdge[], plane: WorkPlaneId): SketchLoopResult {
 
 /**
  * Converts selected drawing topology into deterministic, exact, planar loops.
- * Disconnected islands and holes are deliberately rejected until face nesting
- * can be represented without ambiguity.
+ * Classifies independent boundaries by containment, preserving exact holes
+ * and islands. Crossing/touching boundaries are rejected before kernel work.
  */
-export function extractSketchLoops(document: CadDocument, objectIds: readonly string[]): SketchLoopResult {
+export function extractSketchLoops(document: CadDocument, objectIds: readonly string[], options?: { forRegeneration?: boolean }): SketchLoopResult {
+  objectIds = objectIds.filter((id) => !Object.values(document.features).some((entry) => entry.output === id && (entry.params.construction === true || ["point", "infinite-line", "ray"].includes(String(entry.params.kind)))));
   if (!objectIds.length) return { ok: false, reason: "Select a closed drawing profile." };
   const geometries = objectIds.map((objectId) => {
     const object = document.objects[objectId];
     const feature = object && Object.values(document.features).find((entry) => entry.output === objectId);
     const layer = object ? document.layers[object.layerId] : undefined;
-    if (!object || !feature || feature.type !== "drawing" || !object.visible || !layer?.visible || layer.locked) return null;
+    if (!object || !feature || feature.type !== "drawing" || !layer ||
+      (!options?.forRegeneration && (!object.visible || !layer.visible || layer.locked))) return null;
     const world = getWorldDrawingGeometry(object, feature);
     return world ? { object, feature, world } : null;
   });
@@ -167,12 +170,12 @@ export function extractSketchLoops(document: CadDocument, objectIds: readonly st
   const elevations = valid.flatMap(({ world }) => world.points?.length ? [profilePlaneElevation(world.points[0], plane)] : world.center ? [profilePlaneElevation(world.center, plane)] : []);
   if (!elevations.length || elevations.some((value) => Math.abs(value - elevations[0]) > TOLERANCE)) return { ok: false, reason: "Profile entities are not coplanar." };
 
-  if (valid.length === 1 && valid[0].world.kind === "circle") {
-    const { object, feature, world } = valid[0];
+  const loops: SketchLoop[] = [];
+  for (const { object, feature, world } of valid.filter(entry => entry.world.kind === "circle")) {
     const topology = feature.params.topology as { curves?: { id: string }[] } | undefined;
     if (!world.center || !world.radius) return { ok: false, reason: "Circle transform cannot be represented exactly." };
     const topologyReference = `${object.id}/${topology?.curves?.[0]?.id ?? "curve:0"}`;
-    return { ok: true, loops: [{
+    loops.push({
       id: `loop:${topologyReference}`,
       workPlane: plane,
       normal: [...WORK_PLANES[plane].normal],
@@ -192,12 +195,12 @@ export function extractSketchLoops(document: CadDocument, objectIds: readonly st
             ]
           : [...WORK_PLANES[plane].xAxis],
       }],
-    }] };
+    });
   }
 
   const edges: LoopEdge[] = [];
   for (const { object, feature, world } of valid) {
-    if (world.kind === "circle") return { ok: false, reason: "Circle profiles cannot be mixed with other selected entities yet." };
+    if (world.kind === "circle") continue;
     if (world.kind === "arc") {
       const topology = feature.params.topology as { curves?: { id: string }[] } | undefined;
       if (!world.points?.length || !world.center || !world.radius || world.startAngle === undefined || world.endAngle === undefined) return { ok: false, reason: "Arc transform cannot be represented exactly." };
@@ -207,5 +210,38 @@ export function extractSketchLoops(document: CadDocument, objectIds: readonly st
     if (!world.profileSegments?.length) return { ok: false, reason: "Drawing has no exact profile segments." };
     edges.push(...world.profileSegments.map((segment) => ({ ...segment, objectId: object.id })));
   }
-  return makeLoop(edges, plane);
+  // Split by endpoint connectivity; each component must be an unbranched loop.
+  const remaining = edges.slice();
+  while (remaining.length) {
+    const component = [remaining.shift()!];
+    for (let i = 0; i < component.length; i++) {
+      for (let j = remaining.length - 1; j >= 0; j--) {
+        const a = component[i], b = remaining[j];
+        if ([a.start, a.end].some(p => samePoint(p, b.start) || samePoint(p, b.end))) component.push(...remaining.splice(j, 1));
+      }
+    }
+    const result = makeLoop(component, plane);
+    if (!result.ok) return result;
+    loops.push(...result.loops);
+  }
+  loops.sort((a, b) => a.id.localeCompare(b.id));
+  for (let i = 0; i < loops.length; i++) for (let j = i + 1; j < loops.length; j++) {
+    if (profilesTouch(loops[i], loops[j], plane)) return { ok: false, reason: "Profile boundaries cross, overlap or touch. Separate the boundaries before choosing a region." };
+  }
+  const containers = loops.map(loop => loops.filter(other => other !== loop && profileContainsPoint(other, profileBoundaryPoints(loop, plane)[0], plane)));
+  const regions = loops.filter((_, i) => containers[i].length % 2 === 0).map(loop => {
+    const depth = containers[loops.indexOf(loop)].length;
+    const holes = loops.filter((hole, i) => containers[i].length === depth + 1 && containers[i].includes(loop));
+    return {
+      ...loop,
+      ...(holes.length ? { holes } : {}),
+      sourceObjectIds: [...new Set([loop, ...holes].flatMap(boundary => boundary.sourceObjectIds))],
+      sourceTopologyIds: [loop, ...holes].flatMap(boundary => boundary.sourceTopologyIds),
+    };
+  });
+  return { ok: true, loops: regions };
+}
+
+export function extrusionProfileParams(loops: SketchLoop[]): { profile?: SketchLoop; profiles?: SketchLoop[] } {
+  return loops.length === 1 ? { profile: structuredClone(loops[0]) } : { profiles: structuredClone(loops) };
 }

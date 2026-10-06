@@ -21,35 +21,58 @@
 
 import { CadEngine } from "../runtime/CadEngine";
 
-export async function volume(shape: any): Promise<number> {
-  const engine = await CadEngine.create();
-  const oc = engine.oc;
-
-  const props = new oc.GProp_GProps_1();
-
-  oc.BRepGProp.VolumeProperties_1(
-    shape,
-    props,
-    false,
-    false,
-    false
-  );
-
-  return props.Mass();
+// Relative integration precision is independent of linear/angle modeling tolerances.
+const PROPERTY_RELATIVE_TOLERANCE = 1e-10;
+function assertIntegrationTolerance(value: number) {
+  if (!Number.isFinite(value) || value <= 0 || value > 1e-3) throw new Error("Invalid BRep integration tolerance.");
 }
 
-export async function surfaceArea(shape: any): Promise<number> {
+export async function volume(shape: any, relativeTolerance = PROPERTY_RELATIVE_TOLERANCE): Promise<number> {
+  assertIntegrationTolerance(relativeTolerance);
   const engine = await CadEngine.create();
   const oc = engine.oc;
 
   const props = new oc.GProp_GProps_1();
 
-  oc.BRepGProp.SurfaceProperties_1(
-    shape,
-    props,
-    false,
-    false
-  );
+  try {
+    oc.BRepGProp.VolumeProperties_2(shape, props, relativeTolerance, false, false);
+    return props.Mass();
+  } finally { props.delete(); }
+}
 
-  return props.Mass();
+export async function surfaceArea(shape: any, relativeTolerance = PROPERTY_RELATIVE_TOLERANCE): Promise<number> {
+  assertIntegrationTolerance(relativeTolerance);
+  const engine = await CadEngine.create();
+  const oc = engine.oc;
+
+  const props = new oc.GProp_GProps_1();
+
+  try {
+    oc.BRepGProp.SurfaceProperties_2(shape, props, relativeTolerance, false);
+    return props.Mass();
+  } finally { props.delete(); }
+}
+
+/** Uses analytic BRep properties and optimal bounds, never render triangles. */
+export async function inspectShape(shape: any, relativeTolerance = PROPERTY_RELATIVE_TOLERANCE) {
+  assertIntegrationTolerance(relativeTolerance);
+  const { oc: instance } = await CadEngine.create();
+  // The shipped runtime exposes these APIs although its generated declaration is incomplete.
+  const oc = instance as unknown as Record<string, any>;
+  if (!shape || shape.IsNull()) throw new Error("Cannot measure an empty shape.");
+  const checker = new oc.BRepCheck_Analyzer(shape, true, false);
+  const box = new oc.Bnd_Box_1();
+  let min: any, max: any;
+  try {
+    const validity = checker.IsValid_2() ? "valid" as const : "invalid" as const;
+    oc.BRepBndLib.AddOptimal(shape, box, false, false);
+    if (box.IsVoid() || box.IsOpen()) throw new Error("Shape has no finite bounds.");
+    min = box.CornerMin(); max = box.CornerMax();
+    const bounds = { min: [min.X(), min.Y(), min.Z()] as [number, number, number],
+      max: [max.X(), max.Y(), max.Z()] as [number, number, number] };
+    const measuredVolume = Math.abs(await volume(shape, relativeTolerance));
+    const area = Math.abs(await surfaceArea(shape, relativeTolerance));
+    if (![measuredVolume, area, ...bounds.min, ...bounds.max].every(Number.isFinite)) throw new Error("Non-finite BRep measurement.");
+    return { basis: "brep" as const, lengthUnit: "mm" as const, volume: measuredVolume, area, bounds, validity };
+  } finally { max?.delete(); min?.delete(); box.delete(); checker.delete(); }
 }

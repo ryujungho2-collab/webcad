@@ -3,6 +3,10 @@ import { cadHistory } from "../../state/history";
 type HistoryPanelProps = { query: string };
 
 const labels: Record<string, string> = {
+  "set-variable":"Edit document variable",
+  "remove-variable":"Remove document variable",
+  "set-parameter-binding":"Drive parameter by expression",
+  "remove-parameter-binding":"Remove parameter binding",
   "batch": "Batch operation",
   "create-box": "Create box",
   "create-drawing": "Create drawing entity",
@@ -11,6 +15,10 @@ const labels: Record<string, string> = {
   "update-extrude": "Edit extrusion",
   "update-primitive": "Edit primitive parameters",
   "boolean-operation": "Boolean operation",
+  "fillet": "Fillet edges",
+  "chamfer": "Chamfer edges",
+  "create-revolve": "Revolve profile",
+  "update-revolve": "Edit revolution",
   "create-layer": "Create layer",
   "delete-layer": "Delete layer",
   "rename-layer": "Rename layer",
@@ -31,22 +39,27 @@ const labels: Record<string, string> = {
   "extend-drawing": "Extend drawing",
 };
 
+export function historyOperationLabel(label: string) {
+  return labels[label] ?? label.replace(/-/g, " ").replace(/^./, (letter) => letter.toUpperCase());
+}
+
 export function HistoryPanel({ query }: HistoryPanelProps) {
   const entries = cadHistory.getPastLabels()
-    .map((label, index) => ({ label: labels[label] ?? label, index }))
+    .map((label, index) => ({ label: historyOperationLabel(label), index }))
     .filter((entry) => !query || entry.label.toLowerCase().includes(query));
 
   return (
-    <div className="history-list">
-      <div className="history-origin"><span />Document opened</div>
+    <div className="history-list operation-log">
+      <div className="explorer-view-note">Completed operations in undo history.</div>
+      <div role="list" aria-label="Completed operations">
       {entries.map((entry) => (
-        <div className="history-row" key={`${entry.index}-${entry.label}`}>
-          <span className="history-node" />
+        <div className="history-row" role="listitem" key={`${entry.index}-${entry.label}`}>
+          <small className="operation-number">{entry.index + 1}</small>
           <span>{entry.label}</span>
-          <small>{entry.index + 1}</small>
         </div>
       ))}
-      {entries.length === 0 && cadHistory.getPastLabels().length > 0 && <div className="empty-panel">No matching operations</div>}
+      </div>
+      {entries.length === 0 && <div className="empty-panel">{query ? "No matching operations." : "No operations yet. Changes to your model will appear here."}</div>}
     </div>
   );
 }

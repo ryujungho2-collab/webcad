@@ -4,17 +4,8 @@
   background: #111419;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --bg-0: #111419;
-  --bg-1: #171b21;
-  --bg-2: #1d222a;
-  --bg-3: #252b34;
-  --line: #303640;
-  --line-soft: #252b32;
-  --text: #d4d7dc;
-  --muted: #8e97a5;
-  --accent: #36a3ff;
-  --accent-soft: #173b57;
-  --danger: #f07878;
+  /* Color tokens live in ui/tokens.css (loaded after this file and therefore
+     authoritative); do not redeclare them here. */
 }
 
 * { box-sizing: border-box; }
@@ -166,6 +157,7 @@ button.tree-root:hover { background: #1d232b; }
 .cad-viewport { position: absolute; inset: 0; width: 100%; height: 100%; }
 .cad-viewport canvas { display: block; width: 100% !important; height: 100% !important; }
 .cad-tool-readout { position: absolute; z-index: 3; left: 50%; bottom: 42px; transform: translateX(-50%); padding: 5px 8px; border: 1px solid #40515d; border-radius: 3px; background: #111820ee; color: #9ee8da; font: 10px/1.2 var(--font-ui, sans-serif); letter-spacing: .02em; pointer-events: none; }
+.cad-cursor-tag { position: absolute; z-index: 5; transform: translate(16px, 20px); max-width: 280px; padding: 3px 7px; border: 1px solid #40515d; border-radius: 3px; background: #111820ee; color: #9ee8da; font: 10px/1.4 var(--font-numeric, monospace); white-space: nowrap; pointer-events: none; }
 .cad-selection-box { position: absolute; z-index: 4; pointer-events: none; border: 1px solid #5b9dff; background: #4f8cff22; }
 .cad-selection-box-crossing { border-color: #65d6ad; border-style: dashed; background: #43c59e20; }
 .cad-context-menu { position: absolute; z-index: 8; min-width: 132px; padding: 4px; border: 1px solid #354552; border-radius: 3px; background: #151b22; box-shadow: 0 5px 16px #0008; }
@@ -243,3 +235,127 @@ button.tree-root:hover { background: #1d232b; }
   .menu-brand > span:last-child, .menu-save-as, .ribbon-group:first-child { display: none; }
   .status-bar > span:nth-child(3), .status-bar > span:nth-child(4), .navigation-hint { display: none; }
 }
+.sketch-overlay { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 8; }
+.sketch-overlay-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+.sketch-overlay-lines line { stroke: #57cfc0; stroke-width: 1; opacity: .8; }
+.sketch-overlay-lines polyline { fill: none; stroke-width: 3; }
+.sketch-overlay-lines .focused { stroke: #ffc85c; }
+.sketch-overlay-lines .focused line { stroke: #ffc85c; }
+.sketch-overlay-lines .conflict, .sketch-overlay-lines .conflict line { stroke: #ff7777; }
+.sketch-annotation { position: absolute; transform: translate(-50%, -50%); pointer-events: auto; min-height: 24px; padding: 3px 7px; border: 1px solid #397a74; border-radius: 4px; background: #14282beb; color: #b5fff0; font: 12px ui-monospace, monospace; white-space: nowrap; cursor: pointer; }
+.sketch-annotation[aria-pressed=true], .sketch-annotation:focus-visible { border-color: #ffc85c; color: #ffda85; outline: 1px solid #ffc85c; }
+.sketch-annotation.conflict { color: #ffb6b6; border-color: #ff7777; }
+.sketch-annotation[data-preview-relation-status=changed] { color: #6cf4d6; border-color: #6cf4d6; }
+.sketch-annotation[data-preview-relation-status=released] { color: #ffc283; border-style: dashed; }
+.sketch-dimension-editor, .sketch-relation-actions { position: absolute; pointer-events: auto; background: #1c252f; color: #e5edf6; border: 1px solid #4c667a; border-radius: 6px; padding: 10px; width: 270px; box-shadow: 0 4px 18px #0008; font: 12px system-ui; z-index: 2; }
+.sketch-dimension-editor label { display: flex; align-items: center; gap: 8px; }
+.sketch-dimension-editor input { min-width: 0; width: 170px; padding: 5px; background: #111b23; color: #e5edf6; border: 1px solid #5c8b9d; }
+.sketch-dimension-editor button, .sketch-relation-actions button { margin: 8px 4px 0 0; padding: 4px 6px; background: #2c3e48; color: #e5edf6; border: 1px solid #4c667a; cursor: pointer; }
+.sketch-dimension-editor p { margin: 8px 0 0; color: #ffadad; }
+.sketch-dimension-editor { box-sizing: border-box; width: 340px; max-width: calc(100% - 16px); max-height: calc(100% - 16px); overflow: auto; }
+.sketch-dimension-editor .dimension-driver { color: #ffda85; margin: 6px 0 10px; overflow-wrap: anywhere; }
+.dimension-preview-status { margin-top: 8px; color: #b4cbd6; }
+.dimension-impact { margin: 10px 0; padding: 8px; border: 1px solid #397a74; background: #122c29; }
+.sketch-dimension-editor .dimension-impact p { color: #d1e8e3; margin: 4px 0; }
+.preview-before-key { color: #ffce83; }.preview-after-key { color: #6cf4d6; }
+.dimension-relations summary { cursor: pointer; color: #bad4e3; margin: 8px 0; }
+.dimension-relations div { margin: 4px 0; color: #bce3db; overflow-wrap: anywhere; }
+.sketch-dimension-editor .dimension-relation-inspect { margin: 0; padding: 2px; display: block; width: 100%; text-align: left; background: transparent; border-color: transparent; color: inherit; overflow-wrap: anywhere; }
+.sketch-dimension-editor .dimension-relation-inspect:hover,.sketch-dimension-editor .dimension-relation-inspect:focus-visible { border-color: #ffc85c; }
+.dimension-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.sketch-dimension-editor .dimension-title button { margin: 0; font-size: 10px; }
+.dimension-relations [data-relation-status=changed] { color: #6cf4d6; }
+.dimension-relations [data-relation-status=released],.dimension-releases { color: #ffc283; }
+.dimension-blockers { margin-top: 10px; padding: 8px; border: 1px solid #ff7777; }
+.dimension-blockers div { margin: 8px 0; color: #ffb6b6; }
+.dimension-blockers span { display: block; overflow-wrap: anywhere; }
+.dimension-actions { position: sticky; bottom: -10px; background: #1c252f; padding-bottom: 6px; }
+.sketch-dimension-editor button:disabled { opacity: .45; cursor: default; }
+.sketch-overlay-lines .dimension-ghost-before { stroke: #ffce83; stroke-width: 1.5; stroke-dasharray: 5 5; opacity: .7; }
+.sketch-overlay-lines .dimension-ghost-after { stroke: #6cf4d6; stroke-width: 2; }
+.direct-edit-handles,.direct-edit-ghosts { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9; }
+.direct-edit-handles rect { fill: #162329; stroke: #6cf4d6; stroke-width: 1.5; }
+.direct-edit-handles [data-handle-kind=segment] { stroke: #ffce83; }
+.direct-edit-handles rect:focus { outline: none; stroke: #ffffff; stroke-width: 3; fill: #397a74; }
+.direct-target-inspection { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+.direct-target-inspection polyline { fill: none; stroke: #79bfff; stroke-width: 1.8; stroke-dasharray: 4 4; opacity: .8; }
+.direct-target-inspection [data-target-path] { stroke: #ffce83; stroke-width: 3; stroke-dasharray: none; opacity: 1; }
+.direct-target-inspection circle { fill: none; stroke: #ffffff; stroke-width: 2; }
+.direct-target-caption { position: absolute; right: 12px; bottom: 48px; max-width: calc(100% - 24px); display: grid; gap: 5px; padding: 9px 12px; color: #dce4e9; background: #14282bf2; border: 1px solid #79bfff; border-radius: 4px; font: 12px system-ui; pointer-events: none; z-index: 10; }
+.direct-target-hint { position: absolute; z-index: 10; border: 1px solid #79bfff; border-radius: 4px; padding: 4px 7px; background: #14282b; color: #dce4e9; font: 11px system-ui; cursor: pointer; }
+.direct-target-chooser { box-sizing: border-box; position: absolute; z-index: 12; width: 322px; max-width: calc(100% - 16px); display: flex; flex-direction: column; overflow: hidden; padding: 10px; border: 1px solid #79bfff; border-radius: 5px; background: #1c252f; color: #e5edf6; font: 12px system-ui; box-shadow: 0 6px 22px #0007; }
+.direct-target-title { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 8px; }
+.direct-target-chooser button { background: #243640; color: #e5edf6; border: 1px solid #5c8b9d; border-radius: 3px; padding: 5px; cursor: pointer; }
+.direct-target-options { display: grid; flex: 0 1 auto; min-height: 0; overflow: auto; gap: 4px; }
+.direct-target-options button { text-align: left; display: grid; gap: 4px; }
+.direct-target-options button:focus,.direct-target-options button:hover { outline: 2px solid #ffce83; background: #315054; }
+.direct-target-options span,.direct-target-chooser p { color: #bbd3dd; }
+.direct-target-chooser p { flex-shrink: 0; margin: 8px 0; }
+.direct-target-relations { display: grid; flex-shrink: 0; max-height: 110px; overflow: auto; gap: 4px; padding: 8px; margin-top: 8px; border: 1px solid #397a74; overflow-wrap: anywhere; }
+.direct-edit-ghosts polyline,.sketch-overlay-lines .direct-ghost-requested { fill: none; stroke: #ffce83; stroke-width: 1.5; stroke-dasharray: 5 5; }
+.sketch-overlay-lines .direct-ghost-requested.conflict { stroke: #ff7777; }
+.direct-edit-ghosts .direct-ghost-before { stroke: #ffce83; opacity: .65; }
+.direct-edit-ghosts .direct-ghost-after { stroke: #6cf4d6; stroke-width: 2; stroke-dasharray: none; }
+.direct-edit-ghosts .direct-ghost-inspected { stroke: #ffce83; stroke-width: 2; stroke-dasharray: none; }
+.direct-edit-ghosts .conflict { stroke: #ff7777; }
+.direct-edit-ghosts circle { fill: #13282a; stroke: #6cf4d6; stroke-width: 2; }
+.direct-edit-ghosts [data-direct-target=blocked] { stroke: #ff7777; }
+.sketch-dimension-editor.direct-edit-review { z-index: 11; }
+.direct-edit-review select { min-width: 0; padding: 4px; background: #111b23; color: #e5edf6; border: 1px solid #5c8b9d; }
+.direct-target-coordinates { display: flex; gap: 8px; margin: 8px 0; }
+.direct-target-coordinates label { flex: 1; flex-direction: column; align-items: stretch; gap: 4px; }
+.direct-target-coordinates input { box-sizing: border-box; width: 100%; }
+.sketch-dimension-editor .direct-motion-caption { color: #aeece2; margin: 8px 0; line-height: 1.4; }
+.sketch-dimension-editor .direct-intent-caption { color: #c6d4de; line-height: 1.4; }
+.sketch-dimension-editor .direct-motion-caption.locked { color: #ffaaaa; }
+.sketch-dimension-editor .direct-motion-applied { margin: 6px 0; color: #aeece2; line-height: 1.4; }
+.direct-edit-ghosts .direct-motion-guide [data-motion-direction],.direct-edit-ghosts .direct-motion-guide [data-motion-orbit] { stroke: #79bfff; stroke-width: 1.5; stroke-dasharray: none; fill: none; opacity: .85; }
+.direct-motion-guide [data-motion-origin] { fill: #142327; stroke: #79bfff; }
+.direct-motion-guide [data-motion-projection] { stroke: #ffce83; stroke-width: 1; stroke-dasharray: 3 4; }
+.direct-edit-ghosts .direct-motion-guide [data-motion-requested] { fill: none; stroke: #ffce83; stroke-width: 1.5; }
+.direct-edit-ghosts .direct-motion-guide [data-motion-controlled] { fill: #13282a; stroke: #6cf4d6; stroke-width: 2; }
+.direct-edit-ghosts .motion-locked [data-motion-controlled] { stroke: #ff7777; }
+.direct-motion-guide [data-motion-locked] { stroke: #ff7777; stroke-width: 1.5; fill: none; }
+.sketch-canvas-context { position: absolute; left: 12px; bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px; max-width: calc(100% - 24px); padding: 6px 8px; border: 1px solid #397a74; border-radius: 4px; background: #14282beb; color: #c6ddd9; font: 11px system-ui; }
+.sketch-canvas-context button { pointer-events: auto; border: 1px solid #4c667a; border-radius: 3px; background: #2c3e48; color: #c6ddd9; cursor: pointer; }
+.sketch-constraint.focused { outline: 1px solid #ffc85c; }
+.sketch-constraint.conflict { outline: 1px solid #ff7777; }
+.point-operations { position: absolute; top: 12px; left: 12px; display: flex; gap: 4px; z-index: 10; }
+.point-operations button { background: #1c2932ed; color: #d8e6eb; border: 1px solid #47606c; padding: 5px 8px; border-radius: 4px; font: 12px system-ui; cursor: pointer; }
+.point-operations button:disabled { opacity: .4; cursor: default; }
+.point-transform-preview { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 7; }
+.point-transform-preview polyline { fill: none; stroke: #6ce6cf; stroke-width: 2; stroke-dasharray: 6 4; }
+.point-transform-preview circle, .point-transform-preview rect { fill: var(--bg-0); stroke: var(--accent); stroke-width: 2; }
+.point-transform-preview text { fill: var(--accent); stroke: var(--bg-0); stroke-width: 3; paint-order: stroke; font: 11px var(--font-numeric); }
+.point-operation-readout { display: flex; align-items: center; gap: 8px; }
+.point-operation-readout button { pointer-events: auto; flex-shrink: 0; border: 1px solid var(--line); border-radius: 3px; padding: 3px 6px; background: var(--bg-1); color: var(--text); cursor: pointer; font-size: 10px; }
+.point-operation-readout button:disabled { opacity: .5; cursor: wait; }
+@media (max-width: 900px) { .point-operation-readout { flex-wrap: wrap; justify-content: center; } }
+.point-operations label { background: #1c2932ed; color: #c6ddd9; padding: 5px 8px; font: 11px system-ui; border-radius: 4px; }
+.extrusion-session {position:absolute;top:72px;left:24px;z-index:40;display:grid;gap:8px;max-width:320px;padding:14px;background:#18232f;border:1px solid #36d9c5;border-radius:6px;color:#e2edf3;}
+.extrusion-session label {display:flex;gap:8px;align-items:center;}
+.extrusion-session input {max-width:130px;}
+.region-overlay {position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:12;}
+.region-overlay path {pointer-events:fill;fill:#63cab11a;stroke:#63cab1;stroke-width:1;cursor:pointer;}
+.region-overlay path.chosen {fill:#63cab13b;stroke-width:2;}
+.image-crop-overlay {position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:16;overflow:visible;}
+.image-crop-overlay [data-crop-source-outline] {fill:none;stroke:#f2f6fa;stroke-width:1;stroke-dasharray:5 4;opacity:.8;}
+.image-crop-overlay [data-crop-boundary] {fill:#45d9c51a;stroke:#52ead5;stroke-width:1.7;stroke-dasharray:5 3;}
+.image-crop-overlay [data-crop-handle] {pointer-events:all;fill:#14232a;stroke:#ffd178;stroke-width:1.6;cursor:move;touch-action:none;}
+.image-crop-overlay [data-crop-handle=left],.image-crop-overlay [data-crop-handle=right] {cursor:ew-resize;}
+.image-crop-overlay [data-crop-handle=top],.image-crop-overlay [data-crop-handle=bottom] {cursor:ns-resize;}
+.image-crop-overlay [data-crop-handle]:focus {outline:none;stroke:#fff;stroke-width:3;fill:#397a74;}
+.image-crop-overlay text {fill:#ecf6fa;font:600 10px var(--font-ui);paint-order:stroke;stroke:#132028;stroke-width:3px;stroke-linejoin:round;pointer-events:none;}
+.drafting-panel {position:absolute;top:72px;left:24px;z-index:40;display:grid;gap:8px;width:340px;padding:14px;background:#18232f;border:1px solid #718896;border-radius:6px;color:#e2edf3;max-height:calc(100% - 100px);overflow:auto;}
+.drafting-panel label,.layer-style-editor label {display:flex;gap:8px;align-items:center;justify-content:space-between;}
+.drafting-panel input {width:150px;}
+.layer-style-editor {display:grid;gap:6px;margin:8px;}
+.cad-pattern-ghosts { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:12; }
+.cad-pattern-tool { position:absolute; left:12px; top:52px; z-index:20; width:280px; max-height:calc(100% - 64px); overflow:auto; display:grid; gap:9px; padding:14px; border:1px solid #445663; border-radius:8px; background:#19252eed; color:#edf4f6; box-shadow:0 5px 24px #0005; }
+.cad-pattern-tool small { color:#aebfc8; font-size:11px; line-height:1.5; }
+.cad-pattern-tool label { display:grid; grid-template-columns:1fr 115px; align-items:center; gap:8px; font-size:12px; }
+.cad-pattern-tool input { width:100%; padding:6px; background:#101c24; color:#edf4f6; border:1px solid #486070; border-radius:4px; }
+.cad-pattern-tool p { margin:0; font-size:12px; line-height:1.5; }
+.cad-pattern-tool button { margin-right:8px; padding:7px; border:1px solid #486070; border-radius:4px; background:#233743; color:#edf4f6; }
+.cad-pattern-tool button[type="submit"] { background:#215544; border-color:#438b70; }
+.cad-pattern-tool button:disabled { opacity:.5; }

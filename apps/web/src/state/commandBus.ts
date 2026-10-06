@@ -1,26 +1,72 @@
+import { registerSceneCommands } from "./sceneCommands";
+import { validateSceneGraph } from "@agent-webcad/cad-document";
 import {
   CommandBus,
   type CadCommand,
 } from "@agent-webcad/cad-commands";
 
-import {
-  cadDocument,
-} from "./cadDocument";
-import { getObjectTransform } from "./objectTransform";
-import { registerDrawingCommandHandlers } from "./registerDrawingCommandHandlers";
+import type { CadDocument } from "@agent-webcad/cad-document";
+import {validatePatternGroups, validateConstructionGraph} from "@agent-webcad/cad-document";
+import {registerPatternCommandHandlers} from "./patternCommands";
+import { registerDrawingEditingCommands } from "../features/drawing-editing/registerCommands";
+import { registerConstructionCommands } from "./constructionCommands";
+import { FeatureRegenerationError, regenerateDependentFeatures } from "./featureRegeneration";
+import { getObjectTransform } from "../precision/objectTransform";
+import { registerDimensionCommandHandlers } from "./registerDimensionCommandHandlers";
 import { registerSketchCommandHandlers } from "./registerSketchCommandHandlers";
 import { createDrawingTopology } from "../precision/drawingTopology";
-import { extractSketchLoops } from "../precision/sketchProfiles";
-import { validateBooleanOperation, validateExtrudeOperation } from "../cad/kernelGeometryService";
+import { extractSketchLoops, extrusionProfileParams } from "../precision/sketchProfiles";
+import { getWorldDrawingGeometry } from "../precision/worldGeometry";
+import { buildBooleanMesh, buildChamferMesh, buildExtrudeMesh, buildFilletMesh, buildLoftMesh, buildRevolveMesh, buildSweepMesh, meshPositionsBounds, validateBooleanOperation, validateChamferOperation, validateExtrudeOperation, validateFilletOperation, validateLoftOperation, validateRevolveOperation, validateSweepOperation } from "../cad/kernelGeometryService";
+import { WORK_PLANES } from "../precision/workPlane";
+import { registerDraftingCommandHandlers } from "./registerDraftingCommandHandlers";
+import { refreshDrafting } from "../precision/draftingGeometry";
+import { registerParameterCommandHandlers,refreshParameterBindings,SketchParameterConflictError } from "./documentParameters";
+import { registerArtboardCommandHandlers } from "./artboardCommands";
+import { registerVectorCommandHandlers } from "./vectorCommands";
+import { registerImageCommandHandlers } from "./imageCommands";
 
-export const commandBus =
-  new CommandBus();
+/** Handlers bind to a transaction-owned document, never the live UI document. */
+export function createDocumentCommandExecutor(cadDocument: CadDocument) {
+const commandBus = new CommandBus();
+registerDraftingCommandHandlers(commandBus,cadDocument);
+registerParameterCommandHandlers(commandBus,cadDocument);
+registerPatternCommandHandlers(commandBus,cadDocument);
+registerDrawingEditingCommands(commandBus,cadDocument);
+registerDimensionCommandHandlers(commandBus,cadDocument);
+registerConstructionCommands(commandBus,cadDocument);
+registerArtboardCommandHandlers(commandBus,cadDocument);
+registerSceneCommands(commandBus,cadDocument);
+registerVectorCommandHandlers(commandBus,cadDocument);
+registerImageCommandHandlers(commandBus,cadDocument);
+
+async function dispatchWithRegeneration(command: CadCommand): Promise<unknown> {
+  const fields=command as unknown as Record<string,unknown>;
+  const ids=[fields.objectId,fields.targetId].filter((v):v is string=>typeof v==="string");
+  if(!["rename-object","set-object-visible","move-object-to-layer","duplicate-object","create-dimension","create-drafting"].includes(command.type)&&ids.some(id=>Object.values(cadDocument.features).some(f=>f.output===id&&f.pattern)))throw new Error("Edit the pattern or its source, or detach the pattern before editing an individual instance.");
+  if (!['rename-object','set-object-visible','move-object-to-layer','delete-object'].includes(command.type) && [...ids, ...(Array.isArray(fields.objectIds) ? fields.objectIds : [])].some(id => Object.values(cadDocument.features).some(f => f.output === id && f.construction))) throw new Error("This object is defined by a construction. Edit its sources; its derived coordinates cannot be overwritten.");
+  const before = structuredClone(cadDocument);
+  const raw = await commandBus.dispatch(command);
+  if (command.type !== "batch" && cadDocument.revision !== before.revision) {
+    try { validateSceneGraph(cadDocument); validatePatternGroups(cadDocument); validateConstructionGraph(cadDocument); const rebuild=refreshParameterBindings(cadDocument,before); refreshDrafting(cadDocument,before); await regenerateDependentFeatures(cadDocument, before,rebuild); refreshDrafting(cadDocument,before); }
+    catch (error) { if(error instanceof SketchParameterConflictError || error instanceof FeatureRegenerationError)throw error;
+      throw new FeatureRegenerationError(error instanceof Error ? error.message : "Regeneration failed.",
+      Object.values(cadDocument.features).filter((feature) => JSON.stringify(feature) !== JSON.stringify(before.features[feature.id])).map((feature) => feature.output)); }
+  }
+  return raw;
+}
 
 function restoreDocumentSnapshot(snapshot: typeof cadDocument) {
   cadDocument.id = snapshot.id;
   cadDocument.objects = structuredClone(snapshot.objects);
   cadDocument.features = structuredClone(snapshot.features);
   cadDocument.sketches = structuredClone(snapshot.sketches);
+  if(snapshot.blocks) cadDocument.blocks = structuredClone(snapshot.blocks); else delete cadDocument.blocks;
+  if(snapshot.variables) cadDocument.variables = structuredClone(snapshot.variables); else delete cadDocument.variables;
+  if(snapshot.parameterBindings) cadDocument.parameterBindings = structuredClone(snapshot.parameterBindings); else delete cadDocument.parameterBindings;
+  if(snapshot.artboards) cadDocument.artboards = structuredClone(snapshot.artboards); else delete cadDocument.artboards;
+  if(snapshot.scenes) cadDocument.scenes = structuredClone(snapshot.scenes); else delete cadDocument.scenes;
+  if(snapshot.rasterAssets) cadDocument.rasterAssets = structuredClone(snapshot.rasterAssets); else delete cadDocument.rasterAssets;
   cadDocument.layers = structuredClone(snapshot.layers);
   cadDocument.rootObjects = [...snapshot.rootObjects];
   cadDocument.rootLayers = [...snapshot.rootLayers];
@@ -36,21 +82,25 @@ commandBus.registerHandler("batch", async (command: CadCommand) => {
   }
   const snapshot = structuredClone(cadDocument);
   const results: unknown[] = [];
+  // Coupled driver edits must solve/rebuild the final values together. An
+  // intermediate width/height can invalidate a profile that the final pair preserves.
+  const coupledDrivers=command.commands.every(entry=>["set-variable","remove-variable","set-parameter-binding","remove-parameter-binding","set-sketch-dimension","remove-sketch-constraint"].includes(entry.type));
   try {
     for (const entry of command.commands) {
       const beforeRevision = cadDocument.revision;
-      const result = await commandBus.dispatch(entry);
+      const result = await (coupledDrivers?commandBus.dispatch(entry):dispatchWithRegeneration(entry));
       // Handlers signal a rejected/no-op command by leaving revision intact.
       // A batch containing one such child must not leak earlier mutations.
       if (cadDocument.revision === beforeRevision) {
         restoreDocumentSnapshot(snapshot);
-        return { accepted: false, reason: `Command rejected: ${entry.type}` };
+        return { accepted: false, reason: (result as { reason?: string } | undefined)?.reason ?? `Command rejected: ${entry.type}`, diagnostic: (result as { diagnostic?: unknown } | undefined)?.diagnostic };
       }
       results.push(result);
     }
+    if(coupledDrivers){const rebuild=refreshParameterBindings(cadDocument,snapshot);refreshDrafting(cadDocument,snapshot);await regenerateDependentFeatures(cadDocument,snapshot,rebuild);}
   } catch (error) {
     restoreDocumentSnapshot(snapshot);
-    return { accepted: false, reason: error instanceof Error ? error.message : "Batch rejected." };
+    return { accepted: false, reason: error instanceof Error ? error.message : "Batch rejected.", diagnostic: error instanceof SketchParameterConflictError ? error.diagnostic : error instanceof FeatureRegenerationError ? { kind: "regeneration-failed", constraintIds: [], geometryIds: error.geometryIds } : undefined };
   }
   return { accepted: true, results };
 });
@@ -273,12 +323,13 @@ commandBus.registerHandler(
   "show-all-objects",
   async (command: CadCommand) => {
     if (command.type !== "show-all-objects") return;
-    if (Object.values(cadDocument.objects).some((object) => {
+    const objects = cadDocument.rootObjects.map(id => cadDocument.objects[id]).filter(Boolean);
+    if (objects.some((object) => {
       const layer = cadDocument.layers[object.layerId];
       return !object.visible && layer?.locked;
     })) return;
     let changed = false;
-    for (const object of Object.values(cadDocument.objects)) {
+    for (const object of objects) {
       if (!object.visible) {
         object.visible = true;
         changed = true;
@@ -377,7 +428,6 @@ function isValidPrimitiveParams(kind: string, params: Record<string, number>) {
   return false;
 }
 
-registerDrawingCommandHandlers(commandBus, cadDocument);
 registerSketchCommandHandlers(commandBus, cadDocument);
 
 commandBus.registerHandler(
@@ -402,16 +452,17 @@ commandBus.registerHandler(
 commandBus.registerHandler("create-extrude", async (command: CadCommand) => {
   if (command.type !== "create-extrude") return;
   const loopResult = extractSketchLoops(cadDocument, command.profileObjectIds);
-  if (!loopResult.ok || loopResult.loops.length !== 1) return;
-  const profile = loopResult.loops[0];
+  if (!loopResult.ok || !loopResult.loops.length) return;
+  const profiles = loopResult.loops;
   const layerId = command.layerId ?? cadDocument.objects[command.profileObjectIds[0]]?.layerId ?? "layer-default";
   const layer = cadDocument.layers[layerId];
   const id = command.id ?? `extrude-${crypto.randomUUID()}`;
   const featureId = `feature-${id}`;
   if (!layer || layer.locked || cadDocument.objects[id] || cadDocument.features[featureId]) return;
-  const params = { kind: "extrude", distance: command.distance, profile: structuredClone(profile) };
+  const params:Record<string,unknown> = { kind: "extrude", distance: command.distance, ...extrusionProfileParams(profiles) };
   try {
     await validateExtrudeOperation(params);
+    params.bounds = meshPositionsBounds((await buildExtrudeMesh(params)).positions);
   } catch {
     return;
   }
@@ -426,7 +477,8 @@ commandBus.registerHandler("create-extrude", async (command: CadCommand) => {
   cadDocument.features[featureId] = {
     id: featureId,
     type: "extrude",
-    inputs: [...profile.sourceObjectIds],
+    dependencyMode: "live",
+    inputs: [...new Set(profiles.flatMap(profile => profile.sourceObjectIds))],
     output: id,
     params,
   };
@@ -441,13 +493,182 @@ commandBus.registerHandler("update-extrude", async (command: CadCommand) => {
   const object = getEditableObject(command.objectId);
   const feature = findFeatureForObject(command.objectId);
   if (!object || !feature || feature.type !== "extrude" || Number(feature.params.distance) === command.distance) return;
-  const params = { ...structuredClone(feature.params), distance: command.distance };
+  const params:Record<string,unknown> = { ...structuredClone(feature.params), distance: command.distance };
   try {
     await validateExtrudeOperation(params);
+    params.bounds = meshPositionsBounds((await buildExtrudeMesh(params)).positions);
   } catch {
     return;
   }
   feature.params = params;
+  cadDocument.revision += 1;
+});
+
+commandBus.registerHandler("create-revolve", async (command: CadCommand) => {
+  if (command.type !== "create-revolve") return;
+  const loopResult = extractSketchLoops(cadDocument, command.profileObjectIds);
+  if (!loopResult.ok || loopResult.loops.length !== 1 || loopResult.loops[0].holes?.length) return;
+  const profile = loopResult.loops[0];
+  const angle = command.angle ?? 360;
+  if (!(angle > 0) || angle > 360) return;
+  const plane = WORK_PLANES[profile.workPlane];
+  const direction = command.axis === "y" ? plane.yAxis : plane.xAxis;
+  const layerId = command.layerId ?? cadDocument.objects[command.profileObjectIds[0]]?.layerId ?? "layer-default";
+  const layer = cadDocument.layers[layerId];
+  const id = command.id ?? `revolve-${crypto.randomUUID()}`;
+  const featureId = `feature-${id}`;
+  if (!layer || layer.locked || cadDocument.objects[id] || cadDocument.features[featureId]) return;
+  const params = {
+    kind: "revolve",
+    angle,
+    axis: command.axis,
+    axisOrigin: [...plane.origin] as [number, number, number],
+    axisDirection: [...direction] as [number, number, number],
+    profile: structuredClone(profile),
+  };
+  try {
+    await validateRevolveOperation(params);
+  } catch {
+    return;
+  }
+  const mesh = await buildRevolveMesh(params);
+  const bounds = meshPositionsBounds(mesh.positions);
+  cadDocument.objects[id] = {
+    id,
+    geometryId: `geometry-${id}`,
+    name: "Revolve",
+    visible: true,
+    layerId,
+    transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+  };
+  cadDocument.features[featureId] = {
+    id: featureId,
+    type: "revolve",
+    dependencyMode: "live",
+    inputs: [...profile.sourceObjectIds],
+    output: id,
+    params: bounds ? { ...params, bounds } : params,
+  };
+  cadDocument.rootObjects.push(id);
+  layer.objectIds.push(id);
+  cadDocument.revision += 1;
+  return id;
+});
+
+commandBus.registerHandler("create-sweep", async (command: CadCommand) => {
+  if (command.type !== "create-sweep") return;
+  const loopResult = extractSketchLoops(cadDocument, command.profileObjectIds);
+  if (!loopResult.ok || loopResult.loops.length !== 1 || loopResult.loops[0].holes?.length) return;
+  const profile = loopResult.loops[0];
+  const pathObject = cadDocument.objects[command.pathObjectId];
+  const pathFeature = findFeatureForObject(command.pathObjectId);
+  const pathLayer = pathObject ? cadDocument.layers[pathObject.layerId] : undefined;
+  if (!pathObject || !pathFeature || pathFeature.type !== "drawing" || !pathObject.visible || !pathLayer?.visible || pathLayer.locked) return;
+  const pathKind = String(pathFeature.params.kind);
+  if (!["line", "polyline", "arc", "circle"].includes(pathKind)) return;
+  const pathWorld = getWorldDrawingGeometry(pathObject, pathFeature);
+  const spine = pathWorld?.points?.filter((point, index, points) =>
+    index === 0 || Math.hypot(point[0] - points[index - 1][0], point[1] - points[index - 1][1], point[2] - points[index - 1][2]) > 1e-9);
+  if (!spine || spine.length < 2) return;
+  const layerId = command.layerId ?? cadDocument.objects[command.profileObjectIds[0]]?.layerId ?? "layer-default";
+  const layer = cadDocument.layers[layerId];
+  const id = command.id ?? `sweep-${crypto.randomUUID()}`;
+  const featureId = `feature-${id}`;
+  if (!layer || layer.locked || cadDocument.objects[id] || cadDocument.features[featureId]) return;
+  const params = { kind: "sweep", profile: structuredClone(profile), spine: structuredClone(spine) };
+  try {
+    await validateSweepOperation(params);
+  } catch {
+    return;
+  }
+  const mesh = await buildSweepMesh(params);
+  const bounds = meshPositionsBounds(mesh.positions);
+  cadDocument.objects[id] = {
+    id,
+    geometryId: `geometry-${id}`,
+    name: "Sweep",
+    visible: true,
+    layerId,
+    transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+  };
+  cadDocument.features[featureId] = {
+    id: featureId,
+    type: "sweep",
+    dependencyMode: "live",
+    inputs: [...profile.sourceObjectIds, command.pathObjectId],
+    output: id,
+    params: bounds ? { ...params, bounds } : params,
+  };
+  cadDocument.rootObjects.push(id);
+  layer.objectIds.push(id);
+  cadDocument.revision += 1;
+  return id;
+});
+
+commandBus.registerHandler("create-loft", async (command: CadCommand) => {
+  if (command.type !== "create-loft") return;
+  // Loft sections live on different planes by design, while extractSketchLoops
+  // requires one coplanar set. Extract each section separately so every
+  // profile keeps full loop validation (closed, non-branching, non-zero area).
+  const profiles = [];
+  for (const profileId of command.profileObjectIds) {
+    const section = extractSketchLoops(cadDocument, [profileId]);
+    if (!section.ok || section.loops.length !== 1 || section.loops[0].holes?.length) return;
+    profiles.push(section.loops[0]);
+  }
+  if (profiles.length < 2) return;
+  const ruled = command.ruled === true;
+  const layerId = command.layerId ?? cadDocument.objects[command.profileObjectIds[0]]?.layerId ?? "layer-default";
+  const layer = cadDocument.layers[layerId];
+  const id = command.id ?? `loft-${crypto.randomUUID()}`;
+  const featureId = `feature-${id}`;
+  if (!layer || layer.locked || cadDocument.objects[id] || cadDocument.features[featureId]) return;
+  const params = { kind: "loft", ruled, profiles: structuredClone(profiles) };
+  try {
+    await validateLoftOperation(params);
+  } catch {
+    return;
+  }
+  const mesh = await buildLoftMesh(params);
+  const bounds = meshPositionsBounds(mesh.positions);
+  // Sections keep their own loop metadata (workPlane, source ids); only the
+  // kernel profile shape is stored. Source drawings stay in the document.
+  cadDocument.objects[id] = {
+    id,
+    geometryId: `geometry-${id}`,
+    name: "Loft",
+    visible: true,
+    layerId,
+    transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+  };
+  cadDocument.features[featureId] = {
+    id: featureId,
+    type: "loft",
+    dependencyMode: "live",
+    inputs: [...command.profileObjectIds],
+    output: id,
+    params: bounds ? { ...params, bounds } : params,
+  };
+  cadDocument.rootObjects.push(id);
+  layer.objectIds.push(id);
+  cadDocument.revision += 1;
+  return id;
+});
+
+commandBus.registerHandler("update-revolve", async (command: CadCommand) => {
+  if (command.type !== "update-revolve") return;
+  const object = getEditableObject(command.objectId);
+  const feature = findFeatureForObject(command.objectId);
+  if (!object || !feature || feature.type !== "revolve" || Number(feature.params.angle) === command.angle) return;
+  const params = { ...structuredClone(feature.params), angle: command.angle };
+  try {
+    await validateRevolveOperation(params);
+  } catch {
+    return;
+  }
+  const mesh = await buildRevolveMesh(params);
+  const bounds = meshPositionsBounds(mesh.positions);
+  feature.params = bounds ? { ...params, bounds } : params;
   cadDocument.revision += 1;
 });
 
@@ -577,6 +798,7 @@ commandBus.registerHandler(
     for (const sketch of Object.values(cadDocument.sketches ?? {})) {
       if (sketch.layerId === command.layerId) sketch.layerId = "layer-default";
     }
+    for(const block of Object.values(cadDocument.blocks??{}))for(const member of block.members)if(member.layerId===command.layerId)member.layerId="layer-default";
 
     delete cadDocument.layers[
       command.layerId
@@ -674,6 +896,9 @@ commandBus.registerHandler(
     }
 
     if (findFeatureForObject(object.id)?.params.sketchId) return;
+    const releasedInputs = [...(findFeatureForObject(object.id)?.inputs ?? [])];
+    const removedFeature = findFeatureForObject(object.id);
+    const releasedAssetId = removedFeature?.type === "image" ? String(removedFeature.params.assetId) : undefined;
 
     const layer =
       cadDocument.layers[
@@ -720,6 +945,21 @@ commandBus.registerHandler(
     delete cadDocument.objects[
       object.id
     ];
+
+    if (releasedAssetId && !Object.values(cadDocument.features).some(feature => feature.type === "image" && feature.params.assetId === releasedAssetId)) {
+      delete cadDocument.rasterAssets?.[releasedAssetId];
+      if (cadDocument.rasterAssets && !Object.keys(cadDocument.rasterAssets).length) delete cadDocument.rasterAssets;
+    }
+
+    for (const id of releasedInputs) {
+      const source = cadDocument.objects[id];
+      const stillUsed = Object.values(cadDocument.features).some(feature => feature.dependencyMode !== "snapshot" && feature.inputs.includes(id));
+      if (source && !stillUsed && !cadDocument.rootObjects.includes(id)) {
+        if (cadDocument.layers[source.layerId]?.locked) throw new Error(`Cannot restore source ${id}: layer is locked.`);
+        source.visible = true;
+        cadDocument.rootObjects.push(id);
+      }
+    }
 
     cadDocument.revision += 1;
   }
@@ -811,8 +1051,11 @@ commandBus.registerHandler(
       id: featureId,
       output: id,
       params,
+      dependencyMode: "snapshot",
+      inputs: [],
     };
 
+    delete cadDocument.features[featureId].pattern;
     cadDocument.rootObjects.push(
       id
     );
@@ -840,7 +1083,7 @@ commandBus.registerHandler(
     // Booleans compose over primitives, extrusions, and prior boolean results.
     // Drawings and sketches have no solid volume and are rejected here, before
     // any kernel work starts.
-    const solidKinds = ["primitive", "extrude", "boolean"];
+    const solidKinds = ["primitive", "extrude", "boolean", "fillet", "chamfer", "revolve", "sweep", "loft"];
     if (!target || !tool || !targetFeature || !toolFeature || !solidKinds.includes(targetFeature.type) || !solidKinds.includes(toolFeature.type) || targetLayer?.locked || toolLayer?.locked) return;
     // Operand placement applies translation and rotation only: a scaled
     // operand would silently cut the wrong shape, so reject scaled operands
@@ -849,8 +1092,9 @@ commandBus.registerHandler(
       const scale = getObjectTransform(object, feature).scale;
       if (!scale.every((value) => Math.abs(value - 1) <= 1e-9)) return;
     }
-    const id = `boolean-${crypto.randomUUID()}`;
+    const id = command.id ?? `boolean-${crypto.randomUUID()}`;
     const featureId = `feature-${id}`;
+    if (command.id && (cadDocument.objects[id] || cadDocument.features[featureId])) return;
     const operands = [target, tool].map((object, index) => ({
       params: structuredClone((index === 0 ? targetFeature : toolFeature).params),
       transform: structuredClone(getObjectTransform(object, index === 0 ? targetFeature : toolFeature)),
@@ -862,18 +1106,104 @@ commandBus.registerHandler(
       // preflight remains an optional responsiveness optimization only.
       return;
     }
-    for (const object of [target, tool]) {
-      const layer = cadDocument.layers[object.layerId];
-      if (layer) layer.objectIds = layer.objectIds.filter((objectId) => objectId !== object.id);
-      cadDocument.rootObjects = cadDocument.rootObjects.filter((objectId) => objectId !== object.id);
-      for (const [existingFeatureId, feature] of Object.entries(cadDocument.features)) {
-        if (feature.output === object.id) delete cadDocument.features[existingFeatureId];
-      }
-      delete cadDocument.objects[object.id];
-    }
+    // Exact kernel bounds make composed results behave in align, selection
+    // bounds and group pivots. The mesh call below is a cache hit on the
+    // validation above, so no kernel work is repeated.
+    const boundsMesh = await buildBooleanMesh({ operation: command.operation, operands });
+    const bounds = meshPositionsBounds(boundsMesh.positions);
+    for (const object of [target, tool]) retainSource(object.id);
     cadDocument.objects[id] = { id, geometryId: `geometry-${id}`, name: `${command.operation[0].toUpperCase()}${command.operation.slice(1)}`, visible: true, layerId: target.layerId, transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] } };
-    cadDocument.features[featureId] = { id: featureId, type: "boolean", inputs: [target.id, tool.id], output: id, params: { operation: command.operation, operands } };
+    cadDocument.features[featureId] = { id: featureId, type: "boolean", dependencyMode: "live", inputs: [target.id, tool.id], output: id, params: bounds ? { operation: command.operation, operands, bounds } : { operation: command.operation, operands } };
     cadDocument.rootObjects.push(id); targetLayer?.objectIds.push(id); cadDocument.revision += 1;
     return id;
   },
 );
+
+commandBus.registerHandler(
+  "fillet",
+  async (command: CadCommand) => {
+    if (command.type !== "fillet") return;
+    const target = cadDocument.objects[command.target];
+    const targetFeature = findFeatureForObject(command.target);
+    const targetLayer = target ? cadDocument.layers[target.layerId] : undefined;
+    // Selective fillet consumes one solid (primitive, extrusion, prior
+    // boolean or prior fillet) and produces a new filleted body. Drawings
+    // have no solid volume and are rejected before any kernel work starts.
+    const solidKinds = ["primitive", "extrude", "boolean", "fillet", "chamfer", "revolve", "sweep", "loft"];
+    if (!target || !targetFeature || !solidKinds.includes(targetFeature.type) || !target.visible || !targetLayer?.visible || targetLayer?.locked) return;
+    if (!Array.isArray(command.edges) || !command.edges.length) return;
+    if (!Number.isFinite(command.radius) || command.radius <= 0) return;
+    const transform = getObjectTransform(target, targetFeature);
+    if (!transform.scale.every((value) => Math.abs(value - 1) <= 1e-9)) return;
+    const params = {
+      kind: "fillet",
+      radius: command.radius,
+      edgeKeys: [...new Set(command.edges)],
+      source: { params: structuredClone(targetFeature.params), transform: structuredClone(transform) },
+    };
+    try {
+      await validateFilletOperation(params);
+    } catch {
+      // Unresolvable references and impossible radii reject atomically.
+      return;
+    }
+    const mesh = await buildFilletMesh(params);
+    const bounds = meshPositionsBounds(mesh.positions);
+    const id = `fillet-${crypto.randomUUID()}`;
+    const featureId = `feature-${id}`;
+    retainSource(target.id);
+    cadDocument.objects[id] = { id, geometryId: `geometry-${id}`, name: "Fillet", visible: true, layerId: target.layerId, transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] } };
+    cadDocument.features[featureId] = { id: featureId, type: "fillet", dependencyMode: "live", inputs: [target.id], output: id, params: bounds ? { ...params, bounds } : params };
+    cadDocument.rootObjects.push(id); targetLayer?.objectIds.push(id); cadDocument.revision += 1;
+    return id;
+  },
+);
+
+commandBus.registerHandler(
+  "chamfer",
+  async (command: CadCommand) => {
+    if (command.type !== "chamfer") return;
+    const target = cadDocument.objects[command.target];
+    const targetFeature = findFeatureForObject(command.target);
+    const targetLayer = target ? cadDocument.layers[target.layerId] : undefined;
+    // Selective symmetric chamfer, mirroring the fillet handler: one solid
+    // in (primitive, extrusion, prior boolean, fillet or chamfer), one new
+    // chamfered body out. Drawings have no solid volume and are rejected
+    // before any kernel work starts.
+    const solidKinds = ["primitive", "extrude", "boolean", "fillet", "chamfer", "revolve", "sweep", "loft"];
+    if (!target || !targetFeature || !solidKinds.includes(targetFeature.type) || !target.visible || !targetLayer?.visible || targetLayer?.locked) return;
+    if (!Array.isArray(command.edges) || !command.edges.length) return;
+    if (!Number.isFinite(command.distance) || command.distance <= 0) return;
+    const transform = getObjectTransform(target, targetFeature);
+    if (!transform.scale.every((value) => Math.abs(value - 1) <= 1e-9)) return;
+    const params = {
+      kind: "chamfer",
+      distance: command.distance,
+      edgeKeys: [...new Set(command.edges)],
+      source: { params: structuredClone(targetFeature.params), transform: structuredClone(transform) },
+    };
+    try {
+      await validateChamferOperation(params);
+    } catch {
+      // Unresolvable references and impossible distances reject atomically.
+      return;
+    }
+    const mesh = await buildChamferMesh(params);
+    const bounds = meshPositionsBounds(mesh.positions);
+    const id = `chamfer-${crypto.randomUUID()}`;
+    const featureId = `feature-${id}`;
+    retainSource(target.id);
+    cadDocument.objects[id] = { id, geometryId: `geometry-${id}`, name: "Chamfer", visible: true, layerId: target.layerId, transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] } };
+    cadDocument.features[featureId] = { id: featureId, type: "chamfer", dependencyMode: "live", inputs: [target.id], output: id, params: bounds ? { ...params, bounds } : params };
+    cadDocument.rootObjects.push(id); targetLayer?.objectIds.push(id); cadDocument.revision += 1;
+    return id;
+  },
+);
+
+function retainSource(id: string) {
+  cadDocument.objects[id].visible = false;
+  cadDocument.rootObjects = cadDocument.rootObjects.filter(objectId => objectId !== id);
+}
+
+return dispatchWithRegeneration;
+}

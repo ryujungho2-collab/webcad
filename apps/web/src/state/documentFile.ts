@@ -11,21 +11,21 @@ import {
 import {
   cadHistory,
 } from "./history";
-
-const CACHE_KEY =
-  "agent-webcad-working-document";
+import { assertDocumentIdle,isDocumentCommandPending } from "./documentCommandQueue";
+import { notifyDocumentChanged, subscribeDocumentChanges } from "./documentSession";
+import { readRecoveryCheckpoint,writeRecoveryCheckpoint,reportRecoveryStatus } from "./documentRecovery";
+import { assertConstructionEvaluation } from "../precision/constructionGeometry";
 
 export function saveDocumentToCache() {
+  assertDocumentIdle();
   const startedAt = performance.now();
   const data =
     serializeDocument(
       cadDocument
     );
 
-  localStorage.setItem(
-    CACHE_KEY,
-    data
-  );
+  try {writeRecoveryCheckpoint(localStorage,cadDocument);reportRecoveryStatus({state:"saved"});}
+  catch(error){reportRecoveryStatus({state:"failed",message:error instanceof Error?error.message:"Could not save recovery checkpoint."});throw error;}
 
   performance.measure("agent-webcad:document-save-cache", {
     start: startedAt,
@@ -36,28 +36,21 @@ export function saveDocumentToCache() {
 
 export function loadDocumentFromCache():
   boolean {
-  const data =
-    localStorage.getItem(
-      CACHE_KEY
-    );
-
-  if (!data) {
+  const checkpoint=readRecoveryCheckpoint(localStorage);
+  if (!checkpoint) {
     return false;
   }
 
-  const loaded =
-    deserializeDocument(
-      data
-    );
-
   restoreLoadedDocument(
-    loaded
+    checkpoint.document
   );
+  if(checkpoint.recovered)reportRecoveryStatus({state:"recovered",message:"Recovered the previous valid checkpoint."});
 
   return true;
 }
 
 export function saveDocumentAsFile() {
+  assertDocumentIdle();
   const data =
     serializeDocument(
       cadDocument
@@ -168,6 +161,8 @@ export function newDocument() {
 function restoreLoadedDocument(
   loaded: CadDocument
 ) {
+  assertDocumentIdle();
+  assertConstructionEvaluation(loaded);
   cadDocument.id =
     loaded.id;
 
@@ -182,6 +177,12 @@ function restoreLoadedDocument(
     );
 
   cadDocument.sketches = structuredClone(loaded.sketches ?? {});
+  if(loaded.blocks) cadDocument.blocks = structuredClone(loaded.blocks); else delete cadDocument.blocks;
+  if(loaded.variables) cadDocument.variables = structuredClone(loaded.variables); else delete cadDocument.variables;
+  if(loaded.parameterBindings) cadDocument.parameterBindings = structuredClone(loaded.parameterBindings); else delete cadDocument.parameterBindings;
+  if(loaded.artboards) cadDocument.artboards = structuredClone(loaded.artboards); else delete cadDocument.artboards;
+  if(loaded.scenes) cadDocument.scenes = structuredClone(loaded.scenes); else delete cadDocument.scenes;
+  if(loaded.rasterAssets) cadDocument.rasterAssets = structuredClone(loaded.rasterAssets); else delete cadDocument.rasterAssets;
 
   cadDocument.layers =
     structuredClone(
@@ -204,6 +205,24 @@ function restoreLoadedDocument(
    * editing history session.
    */
   cadHistory.clear();
+  notifyDocumentChanged();
 
-  saveDocumentToCache();
+  try{saveDocumentToCache();}catch{/* The loaded document is valid; surface storage failure through RecoveryStatus. */}
+}
+
+/** Debounced recovery writes are independent of the user's file-save state. */
+export function startDocumentAutosave(){
+  let timer:ReturnType<typeof setTimeout>|undefined;
+  const saveWhenIdle=()=>{
+    if(isDocumentCommandPending()){timer=setTimeout(saveWhenIdle,100);return;}
+    timer=undefined;try{saveDocumentToCache();}catch{/* Displayed by RecoveryStatus. */}
+  };
+  const stop=subscribeDocumentChanges(()=>{
+    if(timer)clearTimeout(timer);
+    timer=setTimeout(saveWhenIdle,300);
+  });
+  const flush=()=>{if(timer){clearTimeout(timer);timer=undefined;try{saveDocumentToCache();}catch{/* Last valid checkpoint is retained. */}}};
+  const hidden=()=>{if(document.visibilityState==="hidden")flush();};
+  window.addEventListener("pagehide",flush);document.addEventListener("visibilitychange",hidden);
+  return ()=>{stop();if(timer)clearTimeout(timer);window.removeEventListener("pagehide",flush);document.removeEventListener("visibilitychange",hidden);};
 }

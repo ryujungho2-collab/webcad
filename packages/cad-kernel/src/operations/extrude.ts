@@ -27,12 +27,17 @@ export type ExtrudeProfile = {
   id: string;
   normal: [number, number, number];
   segments: ExtrudeProfileSegment[];
+  holes?: ExtrudeProfile[];
 };
 
 const finitePoint = (point: [number, number, number]) =>
   point.length === 3 && point.every(Number.isFinite);
 
 function validateProfile(profile: ExtrudeProfile, distance: number) {
+  for (const hole of profile.holes ?? []) {
+    if (hole.holes?.length) throw new Error("Nested islands must be separate extrusion regions.");
+    validateProfile(hole, distance);
+  }
   if (!profile.id || !finitePoint(profile.normal) || !Number.isFinite(distance) || Math.abs(distance) <= 1e-9) {
     throw new Error("Invalid extrusion profile or distance.");
   }
@@ -45,46 +50,70 @@ function validateProfile(profile: ExtrudeProfile, distance: number) {
     throw new Error("Extrusion profile contains invalid geometry.");
   }
 }
+/**
+ * Shared wire builder for profile-consuming operations (extrude, sweep,
+ * loft). Appends every temporary to the caller's list; returns the live
+ * wire maker whose Wire() stays valid until temporaries are deleted.
+ */
+export function buildProfileWire(
+  oc: any,
+  profile: ExtrudeProfile,
+  temporaries: { delete?: () => void }[],
+) {
+  if (!profile.segments.length) {
+    throw new Error("Extrusion profile contains invalid geometry.");
+  }
+  const wireMaker = new oc.BRepBuilderAPI_MakeWire_1();
+  temporaries.push(wireMaker);
+  for (const segment of profile.segments) {
+    let edgeMaker: any;
+    if (segment.kind === "line") {
+      const start = new oc.gp_Pnt_3(...segment.start);
+      const end = new oc.gp_Pnt_3(...segment.end);
+      temporaries.push(start, end);
+      edgeMaker = new oc.BRepBuilderAPI_MakeEdge_3(start, end);
+    } else if (segment.kind === "arc") {
+      const start = new oc.gp_Pnt_3(...segment.start);
+      const mid = new oc.gp_Pnt_3(...segment.mid);
+      const end = new oc.gp_Pnt_3(...segment.end);
+      const arcMaker = new oc.GC_MakeArcOfCircle_4(start, mid, end);
+      const trimmed = arcMaker.Value();
+      const curve = new oc.Handle_Geom_Curve_2(trimmed.get());
+      temporaries.push(start, mid, end, arcMaker, trimmed, curve);
+      edgeMaker = new oc.BRepBuilderAPI_MakeEdge_24(curve);
+    } else {
+      const center = new oc.gp_Pnt_3(...segment.center);
+      const normal = new oc.gp_Dir_4(...segment.normal);
+      const xAxis = new oc.gp_Dir_4(...segment.xAxis);
+      const axis = new oc.gp_Ax2_2(center, normal, xAxis);
+      const circle = new oc.gp_Circ_2(axis, segment.radius);
+      temporaries.push(center, normal, xAxis, axis, circle);
+      edgeMaker = new oc.BRepBuilderAPI_MakeEdge_8(circle);
+    }
+    temporaries.push(edgeMaker);
+    if (!edgeMaker.IsDone()) throw new Error(`OpenCascade rejected profile edge ${segment.topologyReference}.`);
+    wireMaker.Add_1(edgeMaker.Edge());
+  }
+  if (!wireMaker.IsDone()) throw new Error("OpenCascade could not form a closed profile wire.");
+  return wireMaker;
+}
 
 /** Builds an exact planar face and sweeps it with OpenCascade. */
 export async function extrudeProfile(profile: ExtrudeProfile, distance: number): Promise<any> {
   validateProfile(profile, distance);
   const oc = (await CadEngine.create()).oc;
-  const wireMaker = new oc.BRepBuilderAPI_MakeWire_1();
-  const temporaries: { delete?: () => void }[] = [wireMaker];
+  const temporaries: { delete?: () => void }[] = [];
   try {
-    for (const segment of profile.segments) {
-      let edgeMaker: any;
-      if (segment.kind === "line") {
-        const start = new oc.gp_Pnt_3(...segment.start);
-        const end = new oc.gp_Pnt_3(...segment.end);
-        temporaries.push(start, end);
-        edgeMaker = new oc.BRepBuilderAPI_MakeEdge_3(start, end);
-      } else if (segment.kind === "arc") {
-        const start = new oc.gp_Pnt_3(...segment.start);
-        const mid = new oc.gp_Pnt_3(...segment.mid);
-        const end = new oc.gp_Pnt_3(...segment.end);
-        const arcMaker = new oc.GC_MakeArcOfCircle_4(start, mid, end);
-        const trimmed = arcMaker.Value();
-        const curve = new oc.Handle_Geom_Curve_2(trimmed.get());
-        temporaries.push(start, mid, end, arcMaker, trimmed, curve);
-        edgeMaker = new oc.BRepBuilderAPI_MakeEdge_24(curve);
-      } else {
-        const center = new oc.gp_Pnt_3(...segment.center);
-        const normal = new oc.gp_Dir_4(...segment.normal);
-        const xAxis = new oc.gp_Dir_4(...segment.xAxis);
-        const axis = new oc.gp_Ax2_2(center, normal, xAxis);
-        const circle = new oc.gp_Circ_2(axis, segment.radius);
-        temporaries.push(center, normal, xAxis, axis, circle);
-        edgeMaker = new oc.BRepBuilderAPI_MakeEdge_8(circle);
-      }
-      temporaries.push(edgeMaker);
-      if (!edgeMaker.IsDone()) throw new Error(`OpenCascade rejected profile edge ${segment.topologyReference}.`);
-      wireMaker.Add_1(edgeMaker.Edge());
-    }
-    if (!wireMaker.IsDone()) throw new Error("OpenCascade could not form a closed profile wire.");
+    const wireMaker = buildProfileWire(oc, profile, temporaries);
     const faceMaker = new oc.BRepBuilderAPI_MakeFace_15(wireMaker.Wire(), true);
     temporaries.push(faceMaker);
+    for (const hole of profile.holes ?? []) {
+      const maker = buildProfileWire(oc, hole, temporaries);
+      const wire = maker.Wire();
+      temporaries.push(wire);
+      wire.Reverse();
+      faceMaker.Add(wire);
+    }
     if (!faceMaker.IsDone()) throw new Error("OpenCascade could not form a planar profile face.");
     const vector = new oc.gp_Vec_4(
       profile.normal[0] * distance,
@@ -98,4 +127,21 @@ export async function extrudeProfile(profile: ExtrudeProfile, distance: number):
   } finally {
     for (const value of temporaries.reverse()) value.delete?.();
   }
+}
+
+/** Independent regions remain independent solids in one compound feature. */
+export async function extrudeProfiles(profiles: ExtrudeProfile[], distance: number): Promise<any> {
+  if (!profiles.length) throw new Error("Select at least one extrusion region.");
+  if (profiles.length === 1) return extrudeProfile(profiles[0], distance);
+  const oc: any = (await CadEngine.create()).oc;
+  const compound = new oc.TopoDS_Compound(), builder = new oc.BRep_Builder();
+  try {
+    builder.MakeCompound(compound);
+    for (const profile of profiles) {
+      const shape = await extrudeProfile(profile, distance);
+      try { builder.Add(compound, shape); } finally { shape.delete(); }
+    }
+    return compound;
+  } catch (error) { compound.delete(); throw error; }
+  finally { builder.delete(); }
 }

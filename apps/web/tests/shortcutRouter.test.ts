@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { middleMouseNavigation, routeCadShortcut, type CadShortcutContext } from "../src/input/shortcutRouter";
+import { middleMouseNavigation, routeCadShortcut, routeHistoryShortcut, type CadShortcutContext } from "../src/input/shortcutRouter";
 
 const idle2d: CadShortcutContext = {
   workspaceMode: "2d",
@@ -13,11 +13,33 @@ const idle2d: CadShortcutContext = {
 };
 
 describe("CAD shortcut routing", () => {
-  test("R draws a rectangle only in empty 2D context, and rotates an editable selection", () => {
+  test("document history has one chord grammar independent of the active tool", () => {
+    const chord = { key: "z", ctrlKey: true, metaKey: false, altKey: false, shiftKey: false, defaultPrevented: false };
+    assert.equal(routeHistoryShortcut(chord), "undo");
+    assert.equal(routeHistoryShortcut({ ...chord, shiftKey: true }), "redo");
+    assert.equal(routeHistoryShortcut({ ...chord, key: "Y" }), "redo");
+    assert.equal(routeHistoryShortcut({ ...chord, ctrlKey: false, metaKey: true }), "undo");
+    assert.equal(routeHistoryShortcut({ ...chord, ctrlKey: false }), null);
+    assert.equal(routeHistoryShortcut({ ...chord, altKey: true }), null);
+    assert.equal(routeHistoryShortcut({ ...chord, defaultPrevented: true }), null);
+    assert.equal(routeHistoryShortcut({ ...chord, key: "s" }), null);
+  });
+  test("R keeps its rectangle meaning after creation or selection, including a locked selection", () => {
     assert.equal(routeCadShortcut("r", idle2d), "rectangle");
     assert.equal(routeCadShortcut("r", { ...idle2d, workspaceMode: "3d" }), null);
-    assert.equal(routeCadShortcut("r", { ...idle2d, hasSelection: true, selectionEditable: true }), "rotate");
-    assert.equal(routeCadShortcut("r", { ...idle2d, hasSelection: true }), null);
+    assert.equal(routeCadShortcut("r", { ...idle2d, hasSelection: true, selectionEditable: true }), "rectangle");
+    assert.equal(routeCadShortcut("r", { ...idle2d, hasSelection: true }), "rectangle");
+    assert.equal(routeCadShortcut("r", { ...idle2d, activeLayerLocked: true }), null);
+  });
+
+  test("explicit transform chords do not fall back to creating unrelated geometry", () => {
+    const selected = { ...idle2d, hasSelection: true, selectionEditable: true };
+    assert.equal(routeCadShortcut("R", selected, { shiftKey: true }), "rotate");
+    assert.equal(routeCadShortcut("C", selected, { shiftKey: true }), "copy");
+    assert.equal(routeCadShortcut("r", idle2d, { shiftKey: true }), null);
+    assert.equal(routeCadShortcut("c", { ...selected, selectionEditable: false }, { shiftKey: true }), null);
+    assert.equal(routeCadShortcut("c", { ...selected, workspaceMode: "3d" }, { shiftKey: true }), null);
+    assert.equal(routeCadShortcut("c", selected), "circle");
   });
 
   test("drawing and precision commands route only when their document context permits them", () => {

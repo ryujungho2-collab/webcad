@@ -1,0 +1,56 @@
+import assert from "node:assert/strict";
+import { beforeEach, test } from "node:test";
+import type { SketchGeometry } from "@agent-webcad/cad-document";
+import { cadDocument } from "../src/state/cadDocument";
+import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
+import { inferSketchConstraints, sketchSnapBinding } from "../src/precision/automaticSketchConstraints";
+import { recognizeSketchProfiles } from "../src/precision/parametricProfiles";
+import { extractSketchLoops } from "../src/precision/sketchProfiles";
+import { cadHistory, undoDocument, redoDocument } from "../src/state/history";
+import { deserializeDocument, serializeDocument } from "../../../packages/cad-document/src/serialization";
+import { resetTestDocument, documentState } from "./helpers/documentHarness";
+beforeEach(resetTestDocument);
+const line = (id: string, start: [number, number], end: [number, number]): SketchGeometry => ({ id, kind: "line", startId: `${id}:a`, endId: `${id}:b`, segmentId: `${id}:edge`, start, end });
+test("automatic snapped joins and axis constraints commit once and maintain connectivity after editing", async () => {
+  await dispatchCadCommand({ type: "create-sketch", id: "sketch", workPlane: "XY" });
+  const first = line("first", [0, 0], [100, 0]);
+  await dispatchCadCommand({ type: "add-sketch-geometry", sketchId: "sketch", geometry: first, constraints: inferSketchConstraints(cadDocument.sketches!.sketch, first) });
+  const binding = sketchSnapBinding(cadDocument.sketches!.sketch, { type: "endpoint", objectId: "first", point: [100, 0, 0], screenDistance: 0 })!;
+  const second = line("second", [100, 0], [100, 60]), before = documentState(); cadHistory.clear();
+  const constraints = inferSketchConstraints(cadDocument.sketches!.sketch, second, [binding]);
+  const result = await dispatchCadCommand({ type: "add-sketch-geometry", sketchId: "sketch", geometry: second, constraints });
+  assert.ok(result.ok); assert.equal(cadHistory.getPastLabels().length, 1); assert.equal(cadDocument.sketches!.sketch.constraints.length, 3);
+  const after = documentState(); assert.ok(undoDocument()); assert.deepEqual(documentState(), before); assert.ok(redoDocument()); assert.deepEqual(documentState(), after);
+  const moved = await dispatchCadCommand({ type: "move-sketch-point", sketchId: "sketch", point: { geometryId: "first", pointId: "first:b" }, position: [120, 0] });
+  assert.ok(moved.ok, moved.reason); const changed = cadDocument.sketches!.sketch.geometry.find((entry) => entry.id === "second")!;
+  assert.ok(changed.kind === "line" && Math.abs(changed.start[0] - 120) < 3e-6 && Math.abs(changed.end[0] - changed.start[0]) <= 1e-6, JSON.stringify(changed));
+  const changedFirst = cadDocument.sketches!.sketch.geometry.find((entry) => entry.id === "first")!;
+  assert.ok(changed.kind === "line" && changedFirst.kind === "line" && Math.hypot(changed.start[0] - changedFirst.end[0], changed.start[1] - changedFirst.end[1]) <= 1.5e-6);
+});
+test("mere proximity and midpoint/intersection snaps never infer a persistent endpoint join", async () => {
+  await dispatchCadCommand({ type: "create-sketch", id: "sketch", workPlane: "XY" });
+  await dispatchCadCommand({ type: "add-sketch-geometry", sketchId: "sketch", geometry: line("first", [0, 0], [100, 0]) });
+  for (const type of ["midpoint", "intersection", "nearest", "grid"] as const) assert.equal(sketchSnapBinding(cadDocument.sketches!.sketch, { type, objectId: "first", point: [100, 0, 0], screenDistance: 0 }), null);
+  assert.equal(inferSketchConstraints(cadDocument.sketches!.sketch, line("second", [100, 0], [100, 60])).filter((entry) => entry.kind === "coincident").length, 0);
+});
+test("construction participates in constraints, but is excluded from recognized and kernel profiles and survives save/Undo", async () => {
+  await dispatchCadCommand({ type: "create-sketch", id: "sketch", workPlane: "XY" });
+  await dispatchCadCommand({ type: "add-sketch-geometry", sketchId: "sketch", geometry: { id: "rect", kind: "rectangle", origin: [0, 0], width: 100, height: 60, cornerIds: ["a", "b", "c", "d"], edgeIds: ["ab", "bc", "cd", "da"] } });
+  await dispatchCadCommand({ type: "add-sketch-geometry", sketchId: "sketch", geometry: { id: "helper", kind: "circle", centerId: "centre", curveId: "curve", center: [40, 30], radius: 10 } });
+  const before = documentState();
+  assert.ok((await dispatchCadCommand({ type: "set-sketch-construction", sketchId: "sketch", geometryIds: ["helper"], construction: true })).ok);
+  assert.deepEqual(recognizeSketchProfiles(cadDocument.sketches!.sketch).map((entry) => entry.id), ["profile:rect"]);
+  const profile = extractSketchLoops(cadDocument, ["rect", "helper"]); assert.ok(profile.ok); if (profile.ok) assert.deepEqual(profile.loops[0].sourceObjectIds, ["rect"]);
+  const loaded = deserializeDocument(serializeDocument(cadDocument)); assert.equal(loaded.sketches!.sketch.geometry.find((entry) => entry.id === "helper")!.construction, true);
+  const after = documentState(); assert.ok(undoDocument()); assert.deepEqual(documentState(), before); assert.ok(redoDocument()); assert.deepEqual(documentState(), after);
+  const copy = await dispatchCadCommand({ type: "duplicate-sketch-geometry", sketchId: "sketch", geometryIds: ["helper"], offset: [10, 0] });
+  assert.ok(copy.ok); assert.equal(cadDocument.sketches!.sketch.geometry.find((entry) => entry.id === copy.createdIds[0])!.construction, true);
+});
+test("turning a live profile into construction rejects the entire edit and preserves history", async () => {
+  await dispatchCadCommand({ type: "create-sketch", id: "sketch", workPlane: "XY" });
+  await dispatchCadCommand({ type: "add-sketch-geometry", sketchId: "sketch", geometry: { id: "circle", kind: "circle", centerId: "c", curveId: "r", center: [0, 0], radius: 10 } });
+  await dispatchCadCommand({ type: "create-extrude", id: "solid", profileObjectIds: ["circle"], distance: 8 });
+  const before = documentState(), history = cadHistory.getPastLabels().length;
+  const result = await dispatchCadCommand({ type: "set-sketch-construction", sketchId: "sketch", geometryIds: ["circle"], construction: true });
+  assert.equal(result.ok, false); assert.equal(result.diagnostic?.kind, "regeneration-failed"); assert.deepEqual(documentState(), before); assert.equal(cadHistory.getPastLabels().length, history);
+});

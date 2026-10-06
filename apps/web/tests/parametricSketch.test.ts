@@ -9,6 +9,8 @@ import { cadDocument } from "../src/state/cadDocument";
 import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
 import { cadHistory, redoDocument, undoDocument } from "../src/state/history";
 import { validSelection } from "../src/state/selection";
+import { buildExtrudeMesh } from "../src/cad/kernelGeometryService";
+import { assertMeshBounds, documentState } from "./helpers/documentHarness";
 
 const ref = (geometryId: string, pointId: string) => ({ geometryId, pointId });
 const line = (id = "line", start: [number, number] = [0, 0], end: [number, number] = [100, 0]) =>
@@ -164,7 +166,7 @@ describe("sketch commands, history and persistence", () => {
     const before = structuredClone(cadDocument.sketches!.sketch);
     const count = cadHistory.getPastLabels().length;
     const rejected = await dispatchCadCommand({ type: "add-sketch-constraint", sketchId: "sketch", constraint: { ...length, id: "conflict", value: 200 } });
-    assert.equal((rejected as { accepted: boolean }).accepted, false);
+    assert.equal(rejected.ok, false);
     assert.deepEqual(cadDocument.sketches!.sketch, before);
     assert.equal(cadHistory.getPastLabels().length, count);
     await dispatchCadCommand({ type: "set-sketch-dimension", sketchId: "sketch", constraintId: "length", value: 100 });
@@ -176,7 +178,7 @@ describe("sketch commands, history and persistence", () => {
       { type: "create-sketch", id: "first", workPlane: "YZ" },
       { type: "remove-sketch-geometry", sketchId: "missing", geometryId: "x" },
     ] });
-    assert.equal((result as { accepted: boolean }).accepted, false);
+    assert.equal(result.ok, false);
     assert.deepEqual(cadDocument.sketches, {});
     assert.deepEqual(cadHistory.getPastLabels(), []);
   });
@@ -186,7 +188,7 @@ describe("sketch commands, history and persistence", () => {
     cadDocument.layers["layer-default"].locked = true;
     const count = cadHistory.getPastLabels().length;
     const result = await dispatchCadCommand({ type: "add-sketch-geometry", sketchId: "sketch", geometry: line() });
-    assert.equal((result as { accepted: boolean }).accepted, false);
+    assert.equal(result.ok, false);
     assert.deepEqual(cadDocument.sketches!.sketch.geometry, []);
     assert.equal(cadHistory.getPastLabels().length, count);
   });
@@ -262,7 +264,7 @@ test("Sketch Mode adapter projects every drawing tool on XY/XZ/YZ with stable to
   }
 });
 
-test("sketch dimension edits update projected drawing atomically and survive undo/redo and JSON", async () => {
+test("driving sketch dimension rebuilds the projected drawing and extrusion atomically across Undo/Redo and JSON", async () => {
   await dispatchCadCommand({ type: "create-sketch", id: "sketch", workPlane: "XY" });
   const rectangle: Sketch["geometry"][number] = { id: "plate", kind: "rectangle", cornerIds: ["a", "b", "c", "d"], edgeIds: ["ab", "bc", "cd", "da"], origin: [0, 0], width: 120, height: 80 };
   await dispatchCadCommand({ type: "add-sketch-geometry", sketchId: "sketch", geometry: rectangle });
@@ -270,21 +272,28 @@ test("sketch dimension edits update projected drawing atomically and survive und
   assert.equal(cadDocument.features["feature-plate"].params.sketchId, "sketch");
   assert.equal(validSelection({ ids: ["plate"], primaryId: "plate", subObjects: [{ objectId: "plate", kind: "drawing-control", topologyId: "a" }] }).subObjects?.length, 1);
   await dispatchCadCommand({ type: "add-sketch-constraint", sketchId: "sketch", constraint: { id: "width", kind: "distance", first: ref("plate", "a"), second: ref("plate", "b"), value: 120 } });
+  assert.equal((await dispatchCadCommand({ type: "create-extrude", id: "solid", profileObjectIds: ["plate"], distance: 10 })).ok, true);
+  const beforeEdit = documentState();
   const count = cadHistory.getPastLabels().length;
-  await dispatchCadCommand({ type: "set-sketch-dimension", sketchId: "sketch", constraintId: "width", value: 160 });
+  assert.equal((await dispatchCadCommand({ type: "set-sketch-dimension", sketchId: "sketch", constraintId: "width", value: 160 })).ok, true);
   assert.equal(cadHistory.getPastLabels().length, count + 1);
   assert.ok(Math.abs((cadDocument.sketches!.sketch.geometry[0] as typeof rectangle).width - 160) < SKETCH_TOLERANCE);
   assert.ok(Math.abs(((cadDocument.features["feature-plate"].params.points as number[][])[1][0] - (cadDocument.features["feature-plate"].params.points as number[][])[0][0]) - 160) < SKETCH_TOLERANCE);
+  assertMeshBounds(await buildExtrudeMesh(cadDocument.features["feature-solid"].params), [0, 0, 0], [160, 80, 10]);
+  const afterEdit = documentState();
   const reloaded = deserializeDocument(serializeDocument(cadDocument));
   assert.equal(reloaded.sketches?.sketch.constraints[0].id, "width");
   assert.deepEqual(reloaded.features["feature-plate"].params.topology, cadDocument.features["feature-plate"].params.topology);
+  assert.deepEqual(reloaded.features["feature-solid"], cadDocument.features["feature-solid"]);
   assert.equal(undoDocument(), true);
+  assert.deepEqual(documentState(), beforeEdit);
   assert.ok(Math.abs((cadDocument.sketches!.sketch.geometry[0] as typeof rectangle).width - 120) < SKETCH_TOLERANCE);
   assert.equal(redoDocument(), true);
+  assert.deepEqual(documentState(), afterEdit);
   assert.ok(Math.abs((cadDocument.sketches!.sketch.geometry[0] as typeof rectangle).width - 160) < SKETCH_TOLERANCE);
   const before = serializeDocument(cadDocument), history = cadHistory.getPastLabels().length;
   const rejected = await dispatchCadCommand({ type: "add-sketch-constraint", sketchId: "sketch", constraint: { id: "conflict", kind: "distance", first: ref("plate", "a"), second: ref("plate", "b"), value: 200 } });
-  assert.equal((rejected as { accepted: boolean }).accepted, false);
+  assert.equal(rejected.ok, false);
   assert.equal(serializeDocument(cadDocument), before);
   assert.equal(cadHistory.getPastLabels().length, history);
 });
@@ -297,7 +306,7 @@ test("constrained plate keeps circle center on rectangle corner when width chang
   await dispatchCadCommand({ type: "add-sketch-constraint", sketchId: "plate-sketch", constraint: { id: "corner", kind: "coincident", first: ref("rect", "c"), second: ref("hole", "center") } });
   await dispatchCadCommand({ type: "add-sketch-constraint", sketchId: "plate-sketch", constraint: { id: "width", kind: "distance", first: ref("rect", "a"), second: ref("rect", "b"), value: 120 } });
   const result = await dispatchCadCommand({ type: "set-sketch-dimension", sketchId: "plate-sketch", constraintId: "width", value: 160 });
-  assert.equal((result as { accepted: boolean }).accepted, true);
+  assert.equal(result.ok, true);
   const sketch = cadDocument.sketches!["plate-sketch"];
   const rect = sketch.geometry.find((entity) => entity.id === "rect")!;
   const hole = sketch.geometry.find((entity) => entity.id === "hole")!;
@@ -311,19 +320,35 @@ test("one sketch segment drag is one history entry; locked or no-op edits leave 
   await dispatchCadCommand({ type: "create-sketch", id: "sketch", workPlane: "YZ" });
   await dispatchCadCommand({ type: "add-sketch-geometry", sketchId: "sketch", geometry: line("edge", [0, 0], [10, 0]) });
   const before = cadHistory.getPastLabels().length;
+  const beforeState = documentState();
   const moved = await dispatchCadCommand({ type: "move-sketch-segment", sketchId: "sketch", geometryId: "edge", segmentId: "edge:edge", delta: [0, 5] });
-  assert.equal((moved as { accepted: boolean }).accepted, true);
+  assert.equal(moved.ok, true);
+  assert.deepEqual(moved.createdIds, []);
   assert.equal(cadHistory.getPastLabels().length, before + 1);
   assert.deepEqual((cadDocument.sketches!.sketch.geometry[0] as ReturnType<typeof line>).start, [0, 5]);
+  assert.deepEqual((cadDocument.sketches!.sketch.geometry[0] as ReturnType<typeof line>).end, [10, 5]);
   assert.deepEqual((cadDocument.features["feature-edge"].params.points as unknown[])[0], [0, 0, 5]);
+  assert.deepEqual((cadDocument.features["feature-edge"].params.points as unknown[])[1], [0, 10, 5]);
+  const movedState = documentState();
   assert.equal(undoDocument(), true);
-  assert.deepEqual((cadDocument.sketches!.sketch.geometry[0] as ReturnType<typeof line>).start, [0, 0]);
+  assert.deepEqual(documentState(), beforeState);
   assert.equal(redoDocument(), true);
-  assert.deepEqual((cadDocument.sketches!.sketch.geometry[0] as ReturnType<typeof line>).start, [0, 5]);
+  assert.deepEqual(documentState(), movedState);
   const count = cadHistory.getPastLabels().length;
-  await dispatchCadCommand({ type: "move-sketch-segment", sketchId: "sketch", geometryId: "edge", segmentId: "edge:edge", delta: [0, 0] });
+  const revision = cadDocument.revision;
+  const unchanged = await dispatchCadCommand({ type: "move-sketch-segment", sketchId: "sketch", geometryId: "edge", segmentId: "edge:edge", delta: [0, 0] });
+  assert.equal(unchanged.ok, false);
+  assert.equal(unchanged.changed, false);
+  assert.deepEqual(documentState(), movedState);
+  assert.equal(cadDocument.revision, revision);
   assert.equal(cadHistory.getPastLabels().length, count);
   cadDocument.layers["layer-default"].locked = true;
-  await dispatchCadCommand({ type: "move-sketch-segment", sketchId: "sketch", geometryId: "edge", segmentId: "edge:edge", delta: [0, 5] });
+  const lockedState = documentState();
+  const locked = await dispatchCadCommand({ type: "move-sketch-segment", sketchId: "sketch", geometryId: "edge", segmentId: "edge:edge", delta: [0, 5] });
+  assert.equal(locked.ok, false);
+  assert.equal(locked.changed, false);
+  assert.match(locked.reason!, /locked/);
+  assert.deepEqual(documentState(), lockedState);
+  assert.equal(cadDocument.revision, revision);
   assert.equal(cadHistory.getPastLabels().length, count);
 });

@@ -1,0 +1,41 @@
+/* Persistent document controls, independent of the active modeling tool tab. */
+.menu-bar { grid-template-columns: auto auto auto minmax(0, 1fr) auto; gap: 10px; padding: 0 10px; }
+.menu-brand { gap: 7px; font-size: 11px; }
+.menu-items { gap: 0; }
+.app-menu summary { padding: 0 8px; font-size: 11px; cursor: pointer; }
+.app-menu[open] summary { color: var(--accent); background: var(--accent-soft); }
+.menu-popover { top: calc(100% + 1px); width: 230px; border-color: var(--line); background: var(--bg-2); box-shadow: 0 8px 22px #0006; }
+.menu-popover button { min-height: 31px; padding: 0 9px; font-size: 11px; cursor: pointer; }
+.menu-popover button:disabled { cursor: not-allowed; }
+.menu-popover kbd { color: var(--muted); font-size: 10px; }
+.menu-quick-actions { display: flex; align-items: center; gap: 2px; padding-left: 9px; border-left: 1px solid var(--line-soft); }
+.menu-quick-button { display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 1px solid transparent; border-radius: var(--radius); background: transparent; color: var(--muted); cursor: pointer; }
+.menu-quick-button svg { width: 16px; height: 16px; }
+.menu-quick-button:hover:not(:disabled) { border-color: var(--line); background: var(--bg-2); color: var(--text); }
+.menu-quick-button:active:not(:disabled) { background: var(--accent-soft); color: var(--accent); }
+.menu-quick-button:disabled { opacity: .35; cursor: not-allowed; }
+.menu-quick-divider { width: 1px; height: 14px; margin: 0 4px; background: var(--line-soft); }
+.menu-bar .document-title { display: flex; min-width: 0; max-width: 100%; padding: 0 8px; justify-self: center; color: var(--text); font-size: 11px; }
+.document-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.document-state { flex: 0 0 5px; width: 5px; height: 5px; box-shadow: none; background: var(--muted); }
+.document-state-modified { background: var(--warning, #dbb676); box-shadow: none; }
+.document-modified-label { flex-shrink: 0; color: var(--muted); font-size: 10px; }
+.menu-bar .menu-save-as { display: block; height: 25px; padding: 0 9px; border-color: var(--line); background: var(--bg-1); font-size: 10px; }
+@media (max-width: 1000px) {
+  .menu-brand > span:last-child { display: none; }
+  .menu-bar { gap: 8px; }
+}
+@media (max-width: 650px) {
+  .document-modified-label { display: none; }
+  .menu-bar { gap: 4px; padding: 0 6px; }
+  .menu-quick-actions { padding-left: 4px; gap: 0; }
+  .app-menu summary { padding: 0 6px; }
+}
+@media (max-width: 460px) {
+  .menu-bar { grid-template-columns: auto auto minmax(0, 1fr) auto; }
+  .menu-bar .document-title { display: none; }
+  .menu-brand { display: none; }
+  .menu-items { grid-column: 1; }
+  .menu-quick-actions { grid-column: 2; }
+  .menu-bar .menu-save-as { grid-column: 4; padding: 0 6px; }
+}

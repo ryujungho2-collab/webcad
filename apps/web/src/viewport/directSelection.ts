@@ -18,6 +18,23 @@ export type DirectSelectionCandidate = {
   samples?: THREE.Vector3[];
 };
 
+export type DirectTargetRef=Pick<DirectSelectionCandidate,"objectId"|"topologyId"|"kind">;
+export const sameDirectTarget=(a:DirectTargetRef|undefined|null,b:DirectTargetRef|undefined|null)=>Boolean(a&&b&&a.objectId===b.objectId&&a.topologyId===b.topologyId&&a.kind===b.kind);
+
+/** All references under the pointer, scoped by object as well as topology ID. */
+export function directSelectionHits(candidates:readonly DirectSelectionCandidate[],cursor:THREE.Vector2,project:(point:THREE.Vector3)=>THREE.Vector2){
+  const hits:{candidate:DirectSelectionCandidate;distance:number}[]=[];
+  for(const candidate of candidates){
+    let distance=project(candidate.worldPoint).distanceTo(cursor),point=candidate.worldPoint;
+    const edges=candidate.segment?[candidate.segment]:candidate.samples?.slice(1).map((p,i)=>[candidate.samples![i],p] as [THREE.Vector3,THREE.Vector3])??[];
+    for(const [start,end] of edges){const a=project(start),b=project(end),delta=b.clone().sub(a),t=delta.lengthSq()>1e-9?Math.max(0,Math.min(1,cursor.clone().sub(a).dot(delta)/delta.lengthSq())):0;
+      const next=a.clone().addScaledVector(delta,t).distanceTo(cursor);if(next<=distance){distance=next;point=start.clone().lerp(end,t);}}
+    if(distance<=12&&!hits.some(hit=>sameDirectTarget(hit.candidate,candidate)))hits.push({candidate:{...candidate,worldPoint:point.clone()},distance});
+  }
+  const priority=(c:DirectSelectionCandidate)=>c.kind==="control"?0:c.kind==="segment"?1:2;
+  return hits.sort((a,b)=>priority(a.candidate)-priority(b.candidate)||a.distance-b.distance);
+}
+
 export function drawingControlModelPoint(
   params: Record<string, unknown>,
   role: string,
@@ -61,7 +78,7 @@ export function buildDirectSelectionCandidates(
 ): DirectSelectionCandidate[] {
   const candidates: DirectSelectionCandidate[] = [];
   for (const feature of Object.values(document.features)) {
-    if (feature.type !== "drawing") continue;
+    if (feature.type !== "drawing" || feature.pattern || feature.construction) continue;
     const object = document.objects[feature.output];
     const layer = object ? document.layers[object.layerId] : undefined;
     const mesh = renderObjects.get(feature.output);

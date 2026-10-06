@@ -1,0 +1,71 @@
+import { createRoot } from "react-dom/client";
+import { App } from "../src/App";
+import "../src/ui/tokens.css";
+import "../src/ui/workstation.css";
+import "../src/ui/commands.css";
+import "../src/ui/menu.css";
+import "../src/ui/explorer.css";
+import "../src/ui/inspector.css";
+import { cadDocument } from "../src/state/cadDocument";
+import { cadHistory } from "../src/state/history";
+import { isDocumentCommandPending } from "../src/state/documentCommandQueue";
+import { getWorldDrawingGeometry } from "../src/precision/worldGeometry";
+import { installBrowserChecks } from "./helpers/browserChecks";
+createRoot(document.getElementById("root")!).render(<App />);
+const button = document.getElementById("run-points") as HTMLButtonElement, output = document.getElementById("point-result")!;
+const pause = () => new Promise<void>((resolve) => setTimeout(resolve, 25));
+const state = () => { const { revision: _, ...state } = cadDocument; return JSON.stringify(state); };
+async function waitFor(check: () => boolean) { const deadline = Date.now() + 15000; while (!check()) { if (Date.now() > deadline) throw new Error("UI condition timed out"); await pause(); } await pause(); }
+async function click(name: string) { const button = Array.from(document.querySelectorAll<HTMLButtonElement>("#root button")).find((entry) => (entry.getAttribute("aria-label") ?? entry.textContent?.trim()) === name); if (!button) throw new Error(`Button missing: ${name}`); button.click(); await pause(); await waitFor(() => !isDocumentCommandPending()); }
+async function keys(...values: string[]) { for (const key of values) { document.body.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true })); await pause(); } await waitFor(() => !isDocumentCommandPending()); }
+const world = (id: string) => getWorldDrawingGeometry(cadDocument.objects[id], Object.values(cadDocument.features).find((entry) => entry.output === id)!)!;
+button.onclick = async () => {
+  button.disabled = true; const lines: string[] = [];
+  const check = (condition: unknown, label: string) => { if (!condition) throw new Error(label); lines.push(`PASS: ${label}`); output.textContent = lines.join("\n"); };
+  try {
+    await waitFor(() => Boolean(document.querySelector("#root canvas"))); await click("New document"); await click("2D"); document.getElementById("tools-tab-draw")!.click(); await pause();
+    await click("Line"); await keys(..."10,5", "Enter", ..."@20,0", "Enter", "Escape");
+    const id = cadDocument.rootObjects[0]; check(world(id).points![1][0] === 30 && world(id).points![1][1] === 5, "Line relative coordinate input preserves its first point");
+    const initial = state(), history = cadHistory.getPastLabels().length;
+    await click("Move by points"); await keys(..."10,5", "Enter", ..."@20,30", "Enter");
+    check(world(id).points![0][0] === 30 && world(id).points![0][1] === 35 && cadHistory.getPastLabels().length === history + 1, "Base/target Move commits the exact relative displacement once");
+    await click("Undo"); check(state() === initial, "Point Move Undo restores the full document"); await click("Redo");
+    await click("Rotate about point"); await keys(..."0,0", "Enter", ..."90deg", "Enter");
+    check(Math.abs(world(id).points![0][0] + 35) < 1e-5 && Math.abs(world(id).points![0][1] - 30) < 1e-5, "Rotate uses the requested centre instead of the selection centre");
+    await click("Copy by points"); await keys(..."0,0", "Enter", ..."@100,0", "Enter");
+    const copied = cadDocument.rootObjects[1]; check(Math.abs(world(copied).points![0][0] - 65) < 1e-5, "Copy uses the chosen base/target displacement");
+    await keys("Enter");
+    await keys(" ", ..."0,0", "Enter", ..."@100,0", "Enter");
+    check(cadDocument.rootObjects.length === 3, "Space repeats the last point command on the current selection");
+    await keys("Enter");
+    const beforeCancel = state(); await click("Move by points"); await keys(..."0,0", "Enter", ..."40", "Escape", "Escape", "Escape");
+    check(state() === beforeCancel, "Staged point-session Esc cancels without a document/history change");
+    document.getElementById("tools-tab-draw")!.click(); await pause();
+    await click("Line"); await keys(..."0,0", "Enter", ..."100", "Tab", ..."90", "Tab", "Enter", "Escape");
+    const locked = world(cadDocument.rootObjects.at(-1)!); check(Math.abs(locked.points![1][0]) < 1e-6 && Math.abs(locked.points![1][1] - 100) < 1e-6, "Length and angle Tab locks determine preview and committed endpoint");
+    await keys("Enter", ..."200,0", "Enter", ..."@0,50", "Enter", "Escape");
+    check(cadDocument.rootObjects.length === 5, "Enter repeats Line creation even with an existing selection");
+    await click("Sketch"); await click("Line"); await keys(..."0,0", "Enter", ..."100<0", "Enter", "Escape");
+    const sketch = () => Object.values(cadDocument.sketches!)[0], first = sketch().geometry[0], h = sketch().constraints.find((entry) => entry.kind === "horizontal")!;
+    check(Boolean(h) && sketch().constraints.length === 1, "Sketch Line persists the previewed horizontal relation");
+    await click(`Canvas horizontal ${h.id}`); await pause();
+    const path = document.querySelector<SVGPolylineElement>(`[data-highlight-geometry="${first.id}"]`)!;
+    const endpoint = path.points.getItem(1), canvas = document.querySelector<HTMLCanvasElement>("#root canvas")!, rect = canvas.getBoundingClientRect();
+    await click("Line");
+    canvas.dispatchEvent(new PointerEvent("pointerdown", { clientX: rect.left + endpoint.x, clientY: rect.top + endpoint.y, button: 0, pointerId: 19, pointerType: "mouse", isPrimary: true, bubbles: true, cancelable: true })); await pause();
+    await keys(..."@0,60", "Enter", "Escape");
+    check(sketch().constraints.some((entry) => entry.kind === "coincident") && sketch().constraints.some((entry) => entry.kind === "vertical"), "Actual endpoint snap creates persistent Coincident and Vertical relations");
+    const construction = document.querySelector<HTMLInputElement>('[aria-label="Construction geometry"]')!; construction.click(); await waitFor(() => !isDocumentCommandPending());
+    check(sketch().geometry[1].construction && Object.values(cadDocument.features).find((entry) => entry.output === sketch().geometry[1].id)!.params.construction, "Construction checkbox updates the source and dashed drawing projection");
+    await click("Undo"); check(!sketch().geometry[1].construction, "Construction purpose is one reversible document edit");
+    document.querySelector<HTMLInputElement>('[aria-label="Automatic sketch constraints"]')!.click(); await pause();
+    const count = sketch().constraints.length; await click("Line"); await keys(..."200,0", "Enter", ..."100<0", "Enter", "Escape");
+    check(sketch().constraints.length === count, "Automatic sketch constraints can be turned off without constraining ordinary drawing");
+    document.querySelector<HTMLInputElement>('[aria-label="Automatic sketch constraints"]')!.click(); await pause();
+    await click("Line"); await keys(..."400,0", "Enter", ..."100<0");
+    document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", altKey: true, bubbles: true, cancelable: true })); await waitFor(() => !isDocumentCommandPending()); await keys("Escape");
+    check(sketch().constraints.length === count, "Alt temporarily suppresses inferred constraints for the current creation");
+    output.textContent = `${lines.join("\n")}\nALL ${lines.length} CHECKS PASSED`;
+  } catch (error) { output.textContent = `${lines.join("\n")}\nFAIL: ${error instanceof Error ? error.message : error}`; }
+};
+installBrowserChecks(button, output);

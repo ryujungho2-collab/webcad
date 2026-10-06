@@ -1,0 +1,7 @@
+# Preserve exported media bytes and PDF cross-reference offsets on Windows.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.wasm binary

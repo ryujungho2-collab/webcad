@@ -1,12 +1,13 @@
 import { planeToWorld, worldToPlane, type Vec3, type WorkPlane } from "./workPlane";
+import { intersectLinear, linearCircleBranches, type LinearDomain } from "./constructionGeometry";
 
-export type SnapType = "intersection" | "endpoint" | "midpoint" | "center" | "perpendicular" | "tangent" | "nearest" | "grid";
+export type SnapType = "intersection" | "endpoint" | "midpoint" | "center" | "quadrant" | "perpendicular" | "tangent" | "extension" | "nearest" | "grid";
 export type SnapResult = { type: SnapType; point: Vec3; objectId?: string; topologyReference?: string; screenDistance: number; metadata?: Record<string, unknown> };
 export type SnapProfileSegment = { topologyReference: string; kind: "line" | "arc"; start: Vec3; end: Vec3; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number };
-export type SnapEntity = { objectId: string; kind: "line" | "polyline" | "rectangle" | "circle" | "arc"; points?: Vec3[]; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number; profileSegments?: SnapProfileSegment[] };
+export type SnapEntity = { objectId: string; kind: "line" | "polyline" | "rectangle" | "circle" | "arc" | "point" | "infinite-line" | "ray"; points?: Vec3[]; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number; profileSegments?: SnapProfileSegment[] };
 export type SnapQuery = { point: Vec3; referencePoint?: Vec3; entities: SnapEntity[]; plane: WorkPlane; gridStep: number; tolerancePx: number; project: (point: Vec3) => [number, number]; enabled?: Partial<Record<SnapType, boolean>> };
 
-const priorities: Record<SnapType, number> = { intersection: 0, endpoint: 1, midpoint: 2, center: 3, perpendicular: 4, tangent: 5, nearest: 6, grid: 7 };
+const priorities: Record<SnapType, number> = { intersection: 0, endpoint: 1, midpoint: 2, center: 3, quadrant: 4, perpendicular: 5, tangent: 6, extension: 7, nearest: 8, grid: 9 };
 const sq = (value: number) => value * value;
 const dist2 = (a: [number, number], b: [number, number]) => sq(a[0] - b[0]) + sq(a[1] - b[1]);
 
@@ -122,9 +123,10 @@ function segmentIntersection(a0: [number, number], a1: [number, number], b0: [nu
 export function querySnap(query: SnapQuery): SnapResult {
   const pointerScreen = query.project(query.point);
   const candidates: Omit<SnapResult, "screenDistance">[] = [];
-  const enabled = (type: SnapType) => query.enabled?.[type] !== false;
+  const enabled = (type: SnapType) => type === "extension" ? query.enabled?.extension === true : query.enabled?.[type] !== false;
   const add = (type: SnapType, point: Vec3, objectId?: string, topologyReference?: string, metadata?: Record<string, unknown>) => { if (enabled(type)) candidates.push({ type, point, objectId, topologyReference, metadata }); };
   const nearby = query.entities.filter((entity) => {
+    if (["infinite-line", "ray"].includes(entity.kind)) return true;
     const points = [...(entity.points ?? [])];
     if (entity.center && entity.radius) {
       const center = worldToPlane(entity.center, query.plane);
@@ -142,23 +144,31 @@ export function querySnap(query: SnapQuery): SnapResult {
     return pointerScreen[0] >= minX && pointerScreen[0] <= maxX && pointerScreen[1] >= minY && pointerScreen[1] <= maxY;
   });
   for (const entity of nearby) {
+    if (entity.kind === "point" && entity.points?.[0]) add("endpoint", entity.points[0], entity.objectId, "point");
     for (const [point, reference] of curveEndpoints(entity, query.plane)) add("endpoint", point, entity.objectId, reference);
     for (const [a, b, reference] of segments(entity)) {
-      add("endpoint", a, entity.objectId, `${reference}:start`); add("endpoint", b, entity.objectId, `${reference}:end`);
-      add("midpoint", [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2], entity.objectId, `${reference}:midpoint`);
+      const unbounded = entity.kind === "infinite-line" || entity.kind === "ray";
+      if (entity.kind !== "infinite-line") add("endpoint", a, entity.objectId, `${reference}:start`);
+      if (!unbounded) { add("endpoint", b, entity.objectId, `${reference}:end`); add("midpoint", [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2], entity.objectId, `${reference}:midpoint`); }
       const p = worldToPlane(query.point, query.plane), pa = worldToPlane(a, query.plane), pb = worldToPlane(b, query.plane);
       const dx = pb[0] - pa[0], dy = pb[1] - pa[1], length2 = dx * dx + dy * dy;
-      const t = length2 ? Math.max(0, Math.min(1, ((p[0] - pa[0]) * dx + (p[1] - pa[1]) * dy) / length2)) : 0;
+      const raw = length2 ? ((p[0] - pa[0]) * dx + (p[1] - pa[1]) * dy) / length2 : 0;
+      const t = entity.kind === "infinite-line" ? raw : entity.kind === "ray" ? Math.max(0, raw) : Math.max(0, Math.min(1, raw));
       add("nearest", planeToWorld([pa[0] + dx * t, pa[1] + dy * t], query.plane), entity.objectId, reference);
       if (query.referencePoint) {
         const referencePlane = worldToPlane(query.referencePoint, query.plane);
-        const perpendicular = perpendicularPoint(referencePlane, pa, pb);
+        const amount = length2 ? ((referencePlane[0] - pa[0]) * dx + (referencePlane[1] - pa[1]) * dy) / length2 : 0;
+        const perpendicular = unbounded ? entity.kind === "ray" && amount < 0 ? null : [pa[0] + dx * amount, pa[1] + dy * amount] as [number, number] : perpendicularPoint(referencePlane, pa, pb);
         if (perpendicular) add("perpendicular", planeToWorld(perpendicular, query.plane), entity.objectId, `${reference}:perpendicular`);
       }
     }
     for (const curve of curves(entity)) {
       add("center", curve.center, entity.objectId, `${curve.reference}:center`);
       const p = worldToPlane(query.point, query.plane), c = worldToPlane(curve.center, query.plane);
+      for(let quadrant=0;quadrant<4;quadrant++){
+        const angle=quadrant*Math.PI/2;
+        if(curve.startAngle===undefined||curve.endAngle===undefined||angleOnSweep(angle,curve.startAngle,curve.endAngle))add("quadrant",planeToWorld([c[0]+Math.cos(angle)*curve.radius,c[1]+Math.sin(angle)*curve.radius],query.plane),entity.objectId,`${curve.reference}:quadrant:${quadrant}`);
+      }
       const angle = Math.atan2(p[1] - c[1], p[0] - c[0]);
       const radial = planeToWorld([c[0] + Math.cos(angle) * curve.radius, c[1] + Math.sin(angle) * curve.radius], query.plane);
       if (curve.startAngle === undefined || curve.endAngle === undefined || angleOnSweep(angle, curve.startAngle, curve.endAngle)) {
@@ -175,18 +185,27 @@ export function querySnap(query: SnapQuery): SnapResult {
       }
     }
   }
+  // Extension cannot use finite-object bounds: the cursor is outside those bounds.
+  if(enabled("extension"))for(const entity of query.entities)if(!["infinite-line","ray"].includes(entity.kind))for(const [a,b,reference] of segments(entity)){
+    const p=worldToPlane(query.point,query.plane),pa=worldToPlane(a,query.plane),pb=worldToPlane(b,query.plane),dx=pb[0]-pa[0],dy=pb[1]-pa[1],length2=dx*dx+dy*dy;
+    if(length2<=1e-12)continue;
+    const t=((p[0]-pa[0])*dx+(p[1]-pa[1])*dy)/length2;
+    if(t<0||t>1)add("extension",planeToWorld([pa[0]+t*dx,pa[1]+t*dy],query.plane),entity.objectId,`${reference}:extension`,{extensionFrom:t<0?a:b});
+  }
   if (enabled("intersection")) {
     const all = nearby.flatMap((entity) => segments(entity).map((segment) => ({ entity, segment })));
     for (let i = 0; i < all.length; i += 1) for (let j = i + 1; j < all.length; j += 1) {
       if (all[i].entity.objectId === all[j].entity.objectId) continue;
-      const hit = segmentIntersection(worldToPlane(all[i].segment[0], query.plane), worldToPlane(all[i].segment[1], query.plane), worldToPlane(all[j].segment[0], query.plane), worldToPlane(all[j].segment[1], query.plane));
+      const domain = (entity: SnapEntity): LinearDomain => entity.kind === "infinite-line" || entity.kind === "ray" ? entity.kind : "line";
+      const hit = intersectLinear(worldToPlane(all[i].segment[0], query.plane), worldToPlane(all[i].segment[1], query.plane), domain(all[i].entity), worldToPlane(all[j].segment[0], query.plane), worldToPlane(all[j].segment[1], query.plane), domain(all[j].entity));
       if (hit) add("intersection", planeToWorld(hit, query.plane), all[i].entity.objectId, `${all[i].segment[2]}|${all[j].segment[2]}`, { otherObjectId: all[j].entity.objectId });
     }
     const curveEntries = nearby.flatMap((entity) => curves(entity).map((curve) => ({ entity, curve })));
     for (const lineEntity of nearby) for (const segment of segments(lineEntity)) for (const entry of curveEntries) {
       if (lineEntity.objectId === entry.entity.objectId) continue;
       const a = worldToPlane(segment[0], query.plane), b = worldToPlane(segment[1], query.plane), center = worldToPlane(entry.curve.center, query.plane);
-      for (const hit of segmentCircleIntersections(a, b, center, entry.curve.radius)) {
+      const hits = ["infinite-line", "ray"].includes(lineEntity.kind) ? linearCircleBranches(a, b, center, entry.curve.radius, lineEntity.kind as LinearDomain).map(p => p.point) : segmentCircleIntersections(a, b, center, entry.curve.radius);
+      for (const hit of hits) {
         if (pointOnCurve(entry.curve, hit, query.plane)) add("intersection", planeToWorld(hit, query.plane), lineEntity.objectId, `${segment[2]}|${entry.curve.reference}`, { otherObjectId: entry.entity.objectId });
       }
     }

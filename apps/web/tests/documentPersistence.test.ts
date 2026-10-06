@@ -6,7 +6,7 @@ import {
 } from "../../../packages/cad-document/src/serialization";
 import type { CadDocument } from "../../../packages/cad-document/src/CadDocument";
 import { createDrawingTopology } from "../src/precision/drawingTopology";
-import { editDrawingCornerParams } from "../src/precision/drawingOperations";
+import { editDrawingCornerParams } from "../src/features/drawing-editing/geometry/drawingOperations";
 
 function legacyDrawingDocument(): CadDocument {
   return {

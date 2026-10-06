@@ -1,5 +1,5 @@
 import type { CadDocument } from "@agent-webcad/cad-document";
-import { getObjectTransform } from "./objectTransform";
+import { getObjectTransform } from "../precision/objectTransform";
 
 export type DuplicateSeries = { sourceIds: string[]; copyIds: string[] };
 

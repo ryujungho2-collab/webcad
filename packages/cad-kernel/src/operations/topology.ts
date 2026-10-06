@@ -34,6 +34,13 @@ export type EdgeFingerprint = {
   key: string;
   /** Representative points along the edge in shape-local frame, for picking. */
   points: TopologyPoint[];
+  /**
+   * 1-based explorer position of the first occurrence. Matches the indexing
+   * used by filletEdges, which counts the same explorer sequence — including
+   * orientation duplicates. Never persisted: callers resolve stable keys to
+   * fresh indices on every operation.
+   */
+  index: number;
 };
 
 /**
@@ -186,7 +193,9 @@ export async function enumerateSolidEdges(shape: any): Promise<EdgeFingerprint[]
   const shapeEnum = oc.TopAbs_ShapeEnum.TopAbs_SHAPE as unknown as ExplorerAvoidArg;
   const byKey = new Map<string, EdgeFingerprint>();
   const explorer = new oc.TopExp_Explorer_2(shape, edgeEnum, shapeEnum);
+  let position = 0;
   while (explorer.More()) {
+    position += 1;
     try {
       const edge = oc.TopoDS.Edge_1(explorer.Current());
       const adaptor = new oc.BRepAdaptor_Curve_2(edge);
@@ -194,7 +203,7 @@ export async function enumerateSolidEdges(shape: any): Promise<EdgeFingerprint[]
       if (samples) {
         const fingerprinted = fingerprintEdge(samples);
         if (fingerprinted && !byKey.has(fingerprinted.key)) {
-          byKey.set(fingerprinted.key, fingerprinted);
+          byKey.set(fingerprinted.key, { ...fingerprinted, index: position });
         }
       }
     } catch {

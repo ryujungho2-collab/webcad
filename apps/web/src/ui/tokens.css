@@ -11,6 +11,17 @@
   --accent: #64d6c5;
   --accent-soft: #203e40;
   --danger: #ee9696;
+  --warning: #dbb676;
+  --success: #78cba2;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --font-size-ui: 12px;
+  --font-size-small: 11px;
+  --rail-width: 40px;
+  --chrome-menu: 34px;
+  --chrome-tools: 94px;
+  --chrome-status: 28px;
   --axis-x: #ef9292;
   --axis-y: #9acb91;
   --axis-z: #8dbaf0;

@@ -1,0 +1,263 @@
+{
+  "at": "2026-10-06T13:58:19.2619627Z",
+  "scope": [
+    "G4-A",
+    "G4-B first source/component handoff",
+    "G4-C static SVG",
+    "CAD B3-A1/A2",
+    "CAD B3-B"
+  ],
+  "environment": {
+    "pnpm": "11.26.0",
+    "externalAdapters": "not connected",
+    "renderer": "SwiftShader",
+    "server": "local Vite",
+    "externalLlm": "not connected",
+    "node": "24.19.0",
+    "browser": "Microsoft Edge headless CDP"
+  },
+  "node": {
+    "suites": 54,
+    "skipped": 0,
+    "failed": 0,
+    "tests": 613
+  },
+  "browser": {
+    "cases": [
+      {
+        "workflow": "draftingWorkflow",
+        "checks": 16
+      },
+      {
+        "workflow": "sketchCanvas",
+        "checks": 11
+      },
+      {
+        "workflow": "pointWorkflow",
+        "checks": 15
+      },
+      {
+        "workflow": "regionWorkflow",
+        "checks": 8
+      },
+      {
+        "workflow": "deliveryWorkflow",
+        "checks": 15
+      },
+      {
+        "workflow": "trustWorkflow",
+        "checks": 15
+      },
+      {
+        "workflow": "variablesWorkflow",
+        "checks": 20
+      },
+      {
+        "workflow": "commandExperience",
+        "checks": 27
+      },
+      {
+        "workflow": "canvasIntent",
+        "checks": 27
+      },
+      {
+        "workflow": "directEditExperience",
+        "checks": 43
+      },
+      {
+        "workflow": "constrainedDrag",
+        "checks": 19
+      },
+      {
+        "workflow": "directTargetExperience",
+        "checks": 28
+      },
+      {
+        "workflow": "patternsWorkflow",
+        "checks": 22
+      },
+      {
+        "workflow": "contourWorkflow",
+        "checks": 20
+      },
+      {
+        "workflow": "basicEditWorkflow",
+        "checks": 24
+      },
+      {
+        "workflow": "dependencyWorkflow",
+        "checks": 9
+      },
+      {
+        "workflow": "constructionWorkflow",
+        "checks": 25
+      },
+      {
+        "workflow": "extendedCadWorkflow",
+        "checks": 27
+      },
+      {
+        "workflow": "curveWorkflow",
+        "checks": 20
+      },
+      {
+        "workflow": "contourTrimWorkflow",
+        "checks": 21
+      },
+      {
+        "workflow": "interactionRelations",
+        "checks": 17
+      },
+      {
+        "workflow": "artboardsWorkflow",
+        "checks": 29
+      },
+      {
+        "workflow": "componentsWorkflow",
+        "checks": 13
+      },
+      {
+        "workflow": "imageWorkflow",
+        "checks": 38
+      },
+      {
+        "workflow": "tiffImportWorkflow",
+        "checks": 10
+      },
+      {
+        "workflow": "imageSourceWorkflow",
+        "checks": 16
+      },
+      {
+        "workflow": "artboardPngWorkflow",
+        "checks": 25
+      },
+      {
+        "workflow": "artboardPdfWorkflow",
+        "checks": 21
+      },
+      {
+        "workflow": "imageResources",
+        "checks": 34
+      },
+      {
+        "workflow": "scenesWorkflow",
+        "checks": 24
+      },
+      {
+        "workflow": "dxfWorkflow",
+        "checks": 18
+      },
+      {
+        "workflow": "diameterWorkflow",
+        "checks": 17
+      },
+      {
+        "workflow": "copilotGateway",
+        "checks": 8
+      },
+      {
+        "workflow": "sessionContinuity",
+        "checks": 24
+      },
+      {
+        "workflow": "historySelection",
+        "checks": 23
+      }
+    ],
+    "checks": 729,
+    "workflows": 35
+  },
+  "commands": {
+    "workspaceBuild": "passed",
+    "node": "passed",
+    "architecture": "passed: 301 modules and documentation links",
+    "typecheck": "passed",
+    "diffCheck": "passed",
+    "browser": "passed"
+  },
+  "serialization": {
+    "diameterAnnotation": 13,
+    "scene": 12
+  },
+  "resourceRegression": {
+    "fixtures": [
+      {
+        "size": 128,
+        "sourceBytes": 868,
+        "placements": 2,
+        "coldMs": 21.40000000037253,
+        "editP50": 0.10000000055879354,
+        "editP95": 0.7000000001862645,
+        "samples": [
+          0.39999999944120646,
+          0.7000000001862645,
+          0.10000000055879354,
+          0.19999999925494194,
+          0,
+          0.10000000055879354,
+          0.09999999962747097,
+          0.10000000055879354,
+          0
+        ],
+        "gpuTextures": 1,
+        "uploadVersionChanges": 0,
+        "estimatedTextureRgbaBytes": 65536
+      },
+      {
+        "size": 2048,
+        "sourceBytes": 88722,
+        "placements": 2,
+        "coldMs": 192.70000000018626,
+        "editP50": 0.10000000055879354,
+        "editP95": 0.2999999998137355,
+        "samples": [
+          0.09999999962747097,
+          0.20000000018626451,
+          0.09999999962747097,
+          0.10000000055879354,
+          0.09999999962747097,
+          0.20000000018626451,
+          0,
+          0.2999999998137355,
+          0.10000000055879354
+        ],
+        "gpuTextures": 1,
+        "uploadVersionChanges": 0,
+        "estimatedTextureRgbaBytes": 16777216
+      },
+      {
+        "size": 4000,
+        "sourceBytes": 316992,
+        "placements": 2,
+        "coldMs": 81.8999999994412,
+        "editP50": 0.09999999962747097,
+        "editP95": 0.20000000018626451,
+        "samples": [
+          0.20000000018626451,
+          0,
+          0.10000000055879354,
+          0,
+          0,
+          0.19999999925494194,
+          0,
+          0.10000000055879354,
+          0.09999999962747097
+        ],
+        "gpuTextures": 1,
+        "uploadVersionChanges": 0,
+        "estimatedTextureRgbaBytes": 64000000
+      }
+    ],
+    "measurement": "WebGL render + gl.finish in SwiftShader; 9 warm edits per size; estimated RGBA excludes mipmaps, actual heap/VRAM not measured"
+  },
+  "remaining": [
+    "CAD B3-C angular annotation",
+    "DXF non-default OCS and curved non-uniform/tilted geometry",
+    "component override/variant and direct scene layout handles",
+    "PPTX/GIF/animation exports",
+    "G5 gateway independent audit and actual provider connection",
+    "G6 adapters",
+    "external practitioner/native GPU evaluation"
+  ]
+}

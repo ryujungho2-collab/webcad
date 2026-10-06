@@ -12,13 +12,33 @@ export function isTextEditingTarget(target: EventTarget | null): boolean {
     || Boolean(element?.isContentEditable);
 }
 
+/** Modal commands and editors own their keystrokes, even during a CAD tool. */
+export function isCadKeyboardBlocked(target: EventTarget | null): boolean {
+  return isTextEditingTarget(target)
+    || (target instanceof Element && Boolean(target.closest('dialog[open], [data-cad-editor], .sketch-overlay')));
+}
+
+/** History belongs to the document even when a tool control has focus.
+ * Text/select editors and modal dialogs keep their own native keyboard scope. */
+export function isCadHistoryBlocked(target: EventTarget | null): boolean {
+  return isTextEditingTarget(target)
+    || (target instanceof Element && Boolean(target.closest('dialog[open], [role="dialog"]')));
+}
+
+export function routeHistoryShortcut(event: { key: string; ctrlKey: boolean; metaKey: boolean; altKey: boolean; shiftKey: boolean; defaultPrevented: boolean }): "undo" | "redo" | null {
+  if (event.defaultPrevented || event.altKey || !(event.ctrlKey || event.metaKey)) return null;
+  const key = event.key.toLowerCase();
+  if (key === "z") return event.shiftKey ? "redo" : "undo";
+  return key === "y" ? "redo" : null;
+}
+
 export function numericShortcutCharacter(key: string): boolean {
   return /^[0-9.,+\-]$/.test(key);
 }
 
 export type CadShortcutAction =
   | "line" | "polyline" | "rectangle" | "circle" | "arc"
-  | "move" | "rotate" | "scale" | "offset" | "trim"
+  | "move" | "copy" | "rotate" | "scale" | "offset" | "trim"
   | "measure" | "extrude" | "fit" | "hide";
 
 export type CadShortcutContext = {
@@ -31,16 +51,21 @@ export type CadShortcutContext = {
   canExtrude: boolean;
 };
 
-/** Resolve the CAD meaning before handling a key. A selected object gives R
- * its transform meaning; an empty 2D workspace gives R its drawing meaning. */
-export function routeCadShortcut(key: string, context: CadShortcutContext): CadShortcutAction | null {
+/** Drawing keys keep their meaning after a creation leaves objects selected.
+ * Shift+R rotates; Shift+C copies by points in the 2D workspace. */
+export function routeCadShortcut(key: string, context: CadShortcutContext, modifiers: { shiftKey?: boolean } = {}): CadShortcutAction | null {
   const drawingAvailable = context.workspaceMode === "2d" && !context.activeLayerLocked;
+  if (modifiers.shiftKey) {
+    if (key.toLowerCase() === "r") return context.hasSelection && context.selectionEditable ? "rotate" : null;
+    if (key.toLowerCase() === "c") return context.workspaceMode === "2d" && context.hasSelection && context.selectionEditable ? "copy" : null;
+    return null;
+  }
   switch (key.toLowerCase()) {
     case "l": return drawingAvailable ? "line" : null;
     case "p": return drawingAvailable ? "polyline" : null;
     case "c": return drawingAvailable ? "circle" : null;
     case "a": return drawingAvailable ? "arc" : null;
-    case "r": return context.hasSelection && context.selectionEditable ? "rotate" : !context.hasSelection && drawingAvailable ? "rectangle" : null;
+    case "r": return drawingAvailable ? "rectangle" : null;
     case "g":
     case "m": return context.hasSelection && context.selectionEditable ? "move" : null;
     case "s": return context.hasSelection && context.selectionEditable ? "scale" : null;

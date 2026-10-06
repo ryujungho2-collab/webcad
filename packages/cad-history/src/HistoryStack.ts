@@ -3,9 +3,17 @@ export type HistorySnapshot<T> = {
   value: T;
 };
 
+/** In-memory identity of one document state, independent of stack depth.
+ * UI metadata may use this stable object as a WeakMap key. It is never saved
+ * with document snapshots; a weak cache does not retain discarded branches. */
+export type HistoryStateToken = Readonly<{ id: number }>;
+type StoredSnapshot<T> = HistorySnapshot<T> & { state: HistoryStateToken };
+
 export class HistoryStack<T> {
-  private past: HistorySnapshot<T>[] = [];
-  private future: HistorySnapshot<T>[] = [];
+  private past: StoredSnapshot<T>[] = [];
+  private future: StoredSnapshot<T>[] = [];
+  private nextStateId = 1;
+  private currentState: HistoryStateToken = Object.freeze({ id: 0 });
 
   constructor(
     private readonly clone: (value: T) => T,
@@ -32,7 +40,8 @@ export class HistoryStack<T> {
     label: string,
     value: T
   ) {
-    this.past.push({ label, value });
+    this.past.push({ label, value, state: this.currentState });
+    this.currentState = Object.freeze({ id: this.nextStateId++ });
     this.trimPast();
 
     this.future = [];
@@ -51,7 +60,9 @@ export class HistoryStack<T> {
     this.future.push({
       label: previous.label,
       value: this.clone(currentValue),
+      state: this.currentState,
     });
+    this.currentState = previous.state;
 
     return {
       label: previous.label,
@@ -72,7 +83,9 @@ export class HistoryStack<T> {
     this.past.push({
       label: next.label,
       value: this.clone(currentValue),
+      state: this.currentState,
     });
+    this.currentState = next.state;
     this.trimPast();
 
     return {
@@ -87,6 +100,10 @@ export class HistoryStack<T> {
 
   canRedo() {
     return this.future.length > 0;
+  }
+
+  getStateToken(): HistoryStateToken {
+    return this.currentState;
   }
 
   getPastLabels() {
@@ -104,5 +121,6 @@ export class HistoryStack<T> {
   clear() {
     this.past = [];
     this.future = [];
+    this.currentState = Object.freeze({ id: this.nextStateId++ });
   }
 }

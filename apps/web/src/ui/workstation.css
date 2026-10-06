@@ -75,3 +75,24 @@ button, input, select { border-radius: var(--radius); }
   .ribbon-context { display: none; }
   .navigation-hint { max-width: calc(100% - 70px); overflow: hidden; text-overflow: ellipsis; }
 }
+.recovery-notice { position:fixed;bottom:36px;left:50%;transform:translateX(-50%);max-width:70vw;padding:10px 16px;background:var(--surface-raised,#282b33);color:var(--text-primary,#fff);border:1px solid #d29245;border-radius:6px;z-index:110; }
+
+.snap-settings-host { position: relative; }
+.snap-settings-panel { position: fixed; bottom: 34px; left: 0; z-index: 90; width: 320px; max-width: calc(100vw - 16px); padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-2); color: var(--text); box-shadow: 0 8px 32px #0008; font-size: 12px; }
+.snap-settings-panel p { margin: 8px 0 12px; white-space: normal; line-height: 1.5; }
+.snap-settings-panel > label { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; }
+.snap-settings-panel input:not([type="checkbox"]) { width: 70px; padding: 4px 6px; color: inherit; background: #10151c; border: 1px solid #485263; border-radius: 4px; }
+.snap-settings-types { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.snap-settings-types label { display: flex; align-items: center; gap: 6px; }
+.snap-settings-types span { width: 14px; color: #81d6fc; }
+.snap-settings-panel > div:last-child { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+.snap-settings-panel button { padding: 5px 8px; background: var(--bg-3); color: var(--text); border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
+.sketch-annotation[data-preview-relation-status=added] { color: #6cf4d6; border: 1px dashed #6cf4d6; opacity: 1; }
+.cad-curve-workbench { max-height: calc(100% - 48px); overflow: auto; width: 300px; }
+.cad-workflow-actions, .cad-workflow-result { display: flex; flex-wrap: wrap; gap: 6px; }
+.cad-workflow-actions button[aria-pressed="true"] { background: #214b42; border-color: #70dfb2; }
+.cad-workflow-result { padding: 8px; background: #15332d; border: 1px solid #40685d; border-radius: 6px; }
+.cad-workflow-result span { width: 100%; }
+.cad-curve-workbench fieldset { margin: 8px 0; padding: 8px; border: 1px solid var(--line); }
+.cad-curve-workbench fieldset small, .cad-curve-workbench [aria-label="Contour reference impact"] small { display: block; margin: 5px 0; }
+.cad-curve-workbench fieldset select { width: 100%; margin: 3px 0; }

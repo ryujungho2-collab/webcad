@@ -4,6 +4,10 @@ import { App } from "./App";
 import "./styles.css";
 import "./ui/tokens.css";
 import "./ui/workstation.css";
+import "./ui/commands.css";
+import "./ui/menu.css";
+import "./ui/explorer.css";
+import "./ui/inspector.css";
 
 const bootstrapStartedAt = performance.now();
 

@@ -51,7 +51,10 @@ export function measureDrawing(params: Record<string, unknown>): DrawingMeasurem
       result.angle = Math.atan2(b[1] - a[1], b[0] - a[0]);
     }
     if (closed && (kind === "rectangle" || kind === "polyline") && points.length >= 3) {
-      const projected = (exactSegments?.length ? exactSegments.map((segment) => segment.start) : points).map((point) => worldToPlane(point, plane));
+      const absolute = (exactSegments?.length ? exactSegments.map((segment) => segment.start) : points).map((point) => worldToPlane(point, plane));
+      const origin=absolute[0];
+      // Translate before cross products; large survey coordinates must not erase a small area.
+      const projected=absolute.map(point=>[point[0]-origin[0],point[1]-origin[1]]);
       let signed = projected.reduce((sum, point, index) => {
         const next = projected[(index + 1) % projected.length];
         return sum + point[0] * next[1] - next[0] * point[1];

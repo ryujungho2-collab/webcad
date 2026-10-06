@@ -1,0 +1,412 @@
+{
+  "label": "before",
+  "at": "2026-10-03T12:49:30.911Z",
+  "platform": "win32",
+  "browser": "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+  "renderer": "SwiftShader",
+  "server": "Vite development; local HTTP; warmed Worker",
+  "status": "passed",
+  "checks": 17,
+  "message": "PASS: Trial 1: preview preserves the complete baseline and History\nPASS: Trial 1: exact Apply adds one history step and returns to the same grip\nPASS: Trial 2: preview preserves the complete baseline and History\nPASS: Trial 2: exact Apply adds one history step and returns to the same grip\nPASS: Trial 3: preview preserves the complete baseline and History\nPASS: Trial 3: exact Apply adds one history step and returns to the same grip\nPASS: Trial 4: preview preserves the complete baseline and History\nPASS: Trial 4: exact Apply adds one history step and returns to the same grip\nPASS: Trial 5: preview preserves the complete baseline and History\nPASS: Trial 5: exact Apply adds one history step and returns to the same grip\nPASS: Trial 6: preview preserves the complete baseline and History\nPASS: Trial 6: exact Apply adds one history step and returns to the same grip\nPASS: One Undo/Redo reproduces the entire last edit\nPASS: Six Undo operations restore every source, relation, binding, background object and solid definition\nPASS: Six Redo operations reproduce the complete final document\nPASS: Real Worker volume agrees with 130 × 60 plate and four unchanged holes\nPASS: Wrong units block Apply without altering the document\nALL 17 CHECKS PASSED",
+  "metrics": {
+    "summary": {
+      "task": "mechanical",
+      "count": 250,
+      "objects": 256,
+      "completedEdits": 6,
+      "unexpectedRetries": 0,
+      "intentionalInvalidInputs": 1,
+      "work": {
+        "n": 6,
+        "medianMs": 471.70000000298023,
+        "p95Ms": 503.1000000014901,
+        "maxMs": 503.1000000014901
+      },
+      "requested": {
+        "n": 6,
+        "medianMs": 52.5,
+        "p95Ms": 60.30000000447035,
+        "maxMs": 60.30000000447035
+      },
+      "verified": {
+        "n": 6,
+        "medianMs": 259.20000000298023,
+        "p95Ms": 297,
+        "maxMs": 297
+      },
+      "apply": {
+        "n": 6,
+        "medianMs": 117.70000000298023,
+        "p95Ms": 157,
+        "maxMs": 157
+      },
+      "frameGap": {
+        "n": 119,
+        "medianMs": 24.899999999999636,
+        "p95Ms": 58.30000000000018,
+        "maxMs": 83.39999999999964
+      },
+      "longTasks": {
+        "n": 5,
+        "medianMs": 55,
+        "p95Ms": 66,
+        "maxMs": 66
+      },
+      "phases": {
+        "direct-plan": {
+          "n": 6,
+          "medianMs": 8.100000001490116,
+          "p95Ms": 13.5,
+          "maxMs": 13.5
+        },
+        "preview-prepare": {
+          "n": 6,
+          "medianMs": 109.90000000596046,
+          "p95Ms": 118.5,
+          "maxMs": 118.5
+        },
+        "preview-diff": {
+          "n": 6,
+          "medianMs": 99.89999999850988,
+          "p95Ms": 115.79999999701977,
+          "maxMs": 115.79999999701977
+        },
+        "direct-feedback": {
+          "n": 6,
+          "medianMs": 5.899999998509884,
+          "p95Ms": 7.899999998509884,
+          "maxMs": 7.899999998509884
+        }
+      }
+    },
+    "trials": [
+      {
+        "workMs": 503.1000000014901,
+        "activateMs": 53.600000001490116,
+        "requestedMs": 43.600000001490116,
+        "verifiedMs": 259.20000000298023,
+        "applyMs": 157,
+        "phases": {
+          "direct-plan": {
+            "n": 2,
+            "medianMs": 7.799999997019768,
+            "p95Ms": 7.799999997019768,
+            "maxMs": 7.799999997019768
+          },
+          "preview-prepare": {
+            "n": 1,
+            "medianMs": 118.5,
+            "p95Ms": 118.5,
+            "maxMs": 118.5
+          },
+          "preview-diff": {
+            "n": 1,
+            "medianMs": 89.5,
+            "p95Ms": 89.5,
+            "maxMs": 89.5
+          },
+          "direct-feedback": {
+            "n": 13,
+            "medianMs": 2.4000000059604645,
+            "p95Ms": 5.300000004470348,
+            "maxMs": 5.300000004470348
+          }
+        }
+      },
+      {
+        "workMs": 411.1000000014901,
+        "activateMs": 48.5,
+        "requestedMs": 57.70000000298023,
+        "verifiedMs": 252.20000000298023,
+        "applyMs": 98,
+        "phases": {
+          "direct-plan": {
+            "n": 2,
+            "medianMs": 8.899999998509884,
+            "p95Ms": 8.899999998509884,
+            "maxMs": 8.899999998509884
+          },
+          "preview-prepare": {
+            "n": 1,
+            "medianMs": 109.90000000596046,
+            "p95Ms": 109.90000000596046,
+            "maxMs": 109.90000000596046
+          },
+          "preview-diff": {
+            "n": 1,
+            "medianMs": 98,
+            "p95Ms": 98,
+            "maxMs": 98
+          },
+          "direct-feedback": {
+            "n": 14,
+            "medianMs": 1.8999999985098839,
+            "p95Ms": 3.7000000029802322,
+            "maxMs": 3.7000000029802322
+          }
+        }
+      },
+      {
+        "workMs": 486.5,
+        "activateMs": 51.399999998509884,
+        "requestedMs": 50.29999999701977,
+        "verifiedMs": 297,
+        "applyMs": 121,
+        "phases": {
+          "direct-plan": {
+            "n": 2,
+            "medianMs": 8.100000001490116,
+            "p95Ms": 8.100000001490116,
+            "maxMs": 8.100000001490116
+          },
+          "preview-prepare": {
+            "n": 1,
+            "medianMs": 115.29999999701977,
+            "p95Ms": 115.29999999701977,
+            "maxMs": 115.29999999701977
+          },
+          "preview-diff": {
+            "n": 1,
+            "medianMs": 114.29999999701977,
+            "p95Ms": 114.29999999701977,
+            "maxMs": 114.29999999701977
+          },
+          "direct-feedback": {
+            "n": 16,
+            "medianMs": 2,
+            "p95Ms": 7.899999998509884,
+            "maxMs": 7.899999998509884
+          }
+        }
+      },
+      {
+        "workMs": 450.3999999985099,
+        "activateMs": 47.600000001490116,
+        "requestedMs": 60.30000000447035,
+        "verifiedMs": 256.70000000298023,
+        "applyMs": 117.5,
+        "phases": {
+          "direct-plan": {
+            "n": 2,
+            "medianMs": 6.5,
+            "p95Ms": 6.5,
+            "maxMs": 6.5
+          },
+          "preview-prepare": {
+            "n": 1,
+            "medianMs": 108.60000000149012,
+            "p95Ms": 108.60000000149012,
+            "maxMs": 108.60000000149012
+          },
+          "preview-diff": {
+            "n": 1,
+            "medianMs": 97.5,
+            "p95Ms": 97.5,
+            "maxMs": 97.5
+          },
+          "direct-feedback": {
+            "n": 16,
+            "medianMs": 1.8000000044703484,
+            "p95Ms": 5.899999998509884,
+            "maxMs": 5.899999998509884
+          }
+        }
+      },
+      {
+        "workMs": 469.70000000298023,
+        "activateMs": 52.900000005960464,
+        "requestedMs": 52.5,
+        "verifiedMs": 281.09999999403954,
+        "applyMs": 117.70000000298023,
+        "phases": {
+          "direct-plan": {
+            "n": 2,
+            "medianMs": 13.5,
+            "p95Ms": 13.5,
+            "maxMs": 13.5
+          },
+          "preview-prepare": {
+            "n": 1,
+            "medianMs": 99.89999999850988,
+            "p95Ms": 99.89999999850988,
+            "maxMs": 99.89999999850988
+          },
+          "preview-diff": {
+            "n": 1,
+            "medianMs": 115.79999999701977,
+            "p95Ms": 115.79999999701977,
+            "maxMs": 115.79999999701977
+          },
+          "direct-feedback": {
+            "n": 16,
+            "medianMs": 2.7000000029802322,
+            "p95Ms": 4.600000001490116,
+            "maxMs": 4.600000001490116
+          }
+        }
+      },
+      {
+        "workMs": 471.70000000298023,
+        "activateMs": 74.80000000447035,
+        "requestedMs": 51.399999998509884,
+        "verifiedMs": 256,
+        "applyMs": 109.10000000149012,
+        "phases": {
+          "direct-plan": {
+            "n": 2,
+            "medianMs": 7,
+            "p95Ms": 7,
+            "maxMs": 7
+          },
+          "preview-prepare": {
+            "n": 1,
+            "medianMs": 107.10000000149012,
+            "p95Ms": 107.10000000149012,
+            "maxMs": 107.10000000149012
+          },
+          "preview-diff": {
+            "n": 1,
+            "medianMs": 99.89999999850988,
+            "p95Ms": 99.89999999850988,
+            "maxMs": 99.89999999850988
+          },
+          "direct-feedback": {
+            "n": 15,
+            "medianMs": 2.1999999955296516,
+            "p95Ms": 7,
+            "maxMs": 7
+          }
+        }
+      }
+    ],
+    "frameGaps": [
+      8.299999999999727,
+      25,
+      8.300000000000182,
+      16.799999999999727,
+      25,
+      25,
+      25,
+      24.90000000000009,
+      16.700000000000273,
+      33.30000000000018,
+      25,
+      33.399999999999636,
+      33.30000000000018,
+      8.300000000000182,
+      66.79999999999927,
+      8.300000000000182,
+      75,
+      16.699999999999818,
+      25,
+      16.600000000000364,
+      16.600000000000364,
+      16.699999999999818,
+      25.099999999999454,
+      24.900000000000546,
+      25.099999999999454,
+      16.5,
+      33.5,
+      24.900000000000546,
+      16.699999999999818,
+      16.600000000000364,
+      16.699999999999818,
+      16.699999999999818,
+      16.600000000000364,
+      50.099999999999454,
+      8.300000000000182,
+      25,
+      16.699999999999818,
+      33.30000000000018,
+      8.300000000000182,
+      8.300000000000182,
+      8.399999999999636,
+      16.699999999999818,
+      33.30000000000018,
+      16.699999999999818,
+      24.900000000000546,
+      33.399999999999636,
+      16.600000000000364,
+      25.099999999999454,
+      33.30000000000018,
+      25,
+      25,
+      25.100000000000364,
+      16.599999999999454,
+      8.300000000000182,
+      83.39999999999964,
+      8.300000000000182,
+      25,
+      16.699999999999818,
+      16.600000000000364,
+      8.399999999999636,
+      16.600000000000364,
+      8.399999999999636,
+      16.600000000000364,
+      16.699999999999818,
+      33.400000000000546,
+      24.899999999999636,
+      25,
+      16.699999999999818,
+      25,
+      25,
+      25,
+      16.699999999999818,
+      24.900000000000546,
+      8.399999999999636,
+      16.699999999999818,
+      66.70000000000073,
+      8.299999999999272,
+      33.30000000000018,
+      8.400000000000546,
+      33.29999999999927,
+      16.600000000000364,
+      8.399999999999636,
+      8.300000000000182,
+      16.699999999999818,
+      33.400000000000546,
+      16.599999999999454,
+      8.300000000000182,
+      33.30000000000018,
+      8.399999999999636,
+      33.30000000000018,
+      25.100000000000364,
+      24.899999999999636,
+      25,
+      16.699999999999818,
+      33.30000000000018,
+      16.800000000000182,
+      66.5,
+      8.399999999999636,
+      25,
+      16.700000000000728,
+      50,
+      8.299999999999272,
+      8.300000000000182,
+      16.699999999999818,
+      16.700000000000728,
+      16.599999999999454,
+      25.100000000000364,
+      33.30000000000018,
+      16.699999999999818,
+      33.19999999999982,
+      25.100000000000364,
+      24.899999999999636,
+      25,
+      25,
+      25.100000000000364,
+      8.299999999999272,
+      58.30000000000018,
+      8.400000000000546,
+      33.29999999999927
+    ],
+    "longTasks": [
+      52,
+      66,
+      55,
+      51,
+      55
+    ],
+    "method": "Six trusted keyboard precision edits after one canceled warm-up; input event to two animation frames after ready; automatic work time excludes setup, geometric assertions and Undo/Redo checks. Long tasks/frame gaps include the timed loop and assertions. Median/p95 use nearest-rank samples; software GPU, dev build, local assets."
+  }
+}

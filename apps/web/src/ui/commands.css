@@ -1,0 +1,131 @@
+/* Task-oriented command chrome. The existing command callbacks remain authoritative. */
+.app-shell { grid-template-rows: var(--chrome-menu) var(--chrome-tools) minmax(0, 1fr) var(--chrome-status); }
+.ribbon { grid-template-rows: 34px 60px; }
+.ribbon-tabs { gap: 18px; padding: 0 12px; background: var(--bg-0); }
+.workspace-switch { flex: 0 0 auto; margin: 0; height: 26px; border-color: var(--line); }
+.workspace-switch button { padding: 0 10px; font-size: 11px; background: transparent; color: var(--muted); border-color: var(--line); }
+.workspace-switch button span { margin-left: 4px; }
+.workspace-switch .workspace-switch-active { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 -1px var(--accent); }
+.command-tabs { align-self: stretch; display: flex; gap: 3px; }
+.ribbon-tab { min-width: 61px; color: var(--muted); font-size: 11px; }
+.ribbon-tab-active { color: var(--text); }
+.ribbon-tab-active::after { left: 10px; right: 10px; }
+.workspace-context { min-width: 0; margin-left: auto; display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 10px; white-space: nowrap; }
+.workspace-context > span { overflow: hidden; text-overflow: ellipsis; }
+.workspace-context .workspace-mode-badge { color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+.workspace-plane { border-left: 1px solid var(--line); padding-left: 10px; font: 10px var(--font-numeric); }
+.ribbon-body { padding: 3px 10px 2px; scrollbar-width: thin; scrollbar-color: var(--line) var(--bg-1); }
+.ribbon-group { padding: 0 10px; border-color: var(--line-soft); grid-template-rows: minmax(0, 1fr) 12px; }
+.ribbon-command { width: auto; min-width: 49px; padding: 1px 7px; height: 39px; grid-template-rows: 21px 13px; gap: 1px; font-size: 10px; color: var(--text); }
+.ribbon-command-icon { display: grid; place-items: center; color: inherit; }
+.ribbon-command-icon svg { width: 18px; height: 18px; }
+.ribbon-command:disabled, .ribbon-command:disabled .ribbon-command-icon { color: var(--muted); opacity: .45; }
+.ribbon-command:hover:not(:disabled) { border-color: var(--line); background: var(--bg-3); }
+.ribbon-command-active:not(:disabled) { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
+.ribbon-group-label { color: var(--muted); font-size: 8px; letter-spacing: .7px; }
+.ribbon-context { min-width: 95px; padding-right: 4px; font-size: 9px; color: var(--muted); }
+.ribbon-context strong { color: var(--text); }
+.ribbon-context small { color: var(--warning); font-size: 9px; }
+
+/* The canvas is never resized by transient tools or selection feedback. */
+.workbench { grid-template-columns: var(--rail-width) var(--panel-explorer) minmax(0, 1fr) var(--panel-inspector); }
+.workbench.explorer-collapsed { grid-template-columns: var(--rail-width) 0 minmax(0, 1fr) var(--panel-inspector); }
+.workbench.properties-collapsed { grid-template-columns: var(--rail-width) var(--panel-explorer) minmax(0, 1fr) 0; }
+.workbench.explorer-collapsed.properties-collapsed { grid-template-columns: var(--rail-width) 0 minmax(0, 1fr) 0; }
+.activity-button { width: var(--rail-width); }
+.viewport-label { top: 10px; left: 12px; padding: 6px 8px; color: var(--muted); background: var(--bg-0); border-color: var(--line-soft); }
+.viewport-label strong { font-size: 10px; color: var(--text); }
+.viewport-label span { border-color: var(--line); }
+.viewport-frame-actions { position: absolute; right: 12px; top: 10px; z-index: 3; display: flex; border: 1px solid var(--line-soft); border-radius: var(--radius); background: var(--bg-0); }
+.viewport-frame-actions button { display: grid; place-items: center; width: 30px; height: 28px; padding: 0; border: 0; border-radius: 0; color: var(--muted); background: transparent; cursor: pointer; }
+.viewport-frame-actions button + button { border-left: 1px solid var(--line-soft); }
+.viewport-frame-actions button:hover:not(:disabled) { color: var(--accent); background: var(--bg-2); }
+.viewport-frame-actions button:disabled { opacity: .4; cursor: not-allowed; }
+.viewport-frame-actions svg { width: 16px; height: 16px; }
+.viewport-artboard-label { position: absolute; z-index: 3; right: 12px; bottom: 48px; max-width: min(50%, 260px); overflow: hidden; padding: 5px 8px; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--bg-0); color: var(--accent); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.viewport-isolation { position: absolute; z-index: 3; left: 12px; top: 48px; padding: 5px 8px; background: var(--bg-0); border: 1px solid var(--warning); border-radius: var(--radius); color: var(--warning); font-size: 10px; }
+.viewport-isolation button { padding: 1px 0 1px 8px; border: 0; background: transparent; color: var(--text); text-decoration: underline; cursor: pointer; font-size: 10px; }
+.panel-toggle { width: 15px; height: 38px; margin-top: -19px; border-color: var(--line); border-radius: var(--radius); background: var(--bg-1); }
+.navigation-hint { max-width: calc(100% - 48px); bottom: 10px; padding: 5px 8px; font-size: 9px; overflow: hidden; text-overflow: ellipsis; border: 1px solid var(--line-soft); color: var(--muted); }
+.navigation-hint span { color: var(--text); }
+.navigation-hint b { padding: 0 3px; color: var(--line); }
+.cad-tool-readout { max-width: calc(100% - 40px); padding: 8px 10px; bottom: 45px; border: 1px solid var(--accent); border-left-width: 3px; background: var(--bg-0); color: var(--accent); font: 11px/1.5 var(--font-numeric); white-space: normal; text-align: center; }
+.cad-context-menu { background: var(--bg-1); border-color: var(--line); box-shadow: 0 3px 10px #0004; }
+.cad-context-menu button { font-size: 11px; min-height: 27px; color: var(--text); }
+.cad-context-menu button:hover { background: var(--accent-soft); color: var(--accent); }
+.viewport-loading { background: var(--bg-0); color: var(--muted); font-size: 12px; }
+
+.status-bar { gap: 12px; padding: 0 10px; font-size: 10px; border-top-color: var(--line); }
+.status-bar > span { flex-shrink: 0; }
+.status-ready { color: var(--muted); }
+.status-ready i { background: var(--success); }
+.status-ready-loading i, .status-ready-working i { background: var(--warning); }
+.status-ready-error i { background: var(--danger); }
+.status-precision { display: flex; gap: 1px; height: 100%; flex-shrink: 0; }
+.status-precision button { border: 0; border-radius: 0; padding: 0 7px; background: transparent; color: var(--muted); font-size: 10px; cursor: pointer; }
+.status-precision button strong { margin-left: 3px; font-size: 9px; color: var(--muted); }
+.status-precision button[aria-pressed="true"] { background: var(--accent-soft); color: var(--text); box-shadow: inset 0 -1px var(--accent); }
+.status-precision button[aria-pressed="true"] strong { color: var(--accent); }
+.status-precision button:hover:not(:disabled) { background: var(--bg-3); color: var(--text); }
+.status-precision button:disabled { cursor: not-allowed; opacity: .55; }
+.status-selection { max-width: 230px; min-width: 65px; flex-shrink: 1 !important; }
+.status-selection.has-selection, .status-selection.has-selection strong { color: var(--accent); }
+.status-selection > span { color: var(--muted); }
+.status-layer { max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
+.status-measurement { font-family: var(--font-numeric); }
+.status-document { color: var(--muted); }
+.status-cancel { flex-shrink: 0; border: 1px solid var(--line); border-radius: 3px; padding: 1px 8px; background: transparent; color: var(--muted); font-size: 10px; cursor: pointer; }
+.status-cancel:hover { background: var(--bg-3); color: var(--danger); border-color: var(--danger); }
+@media (max-width: 1200px) {
+  .status-object-count, .status-layer { display: none; }
+  .workspace-context { gap: 7px; }
+}
+@media (max-width: 900px) {
+  .workspace-context { display: none; }
+  .status-ready, .status-document { display: none; }
+  .status-ready-loading, .status-ready-working, .status-ready-error { display: flex; }
+  .status-bar { gap: 6px; }
+  .status-selection { max-width: 140px; }
+}
+@media (max-width: 780px) {
+  /* Explicit panel controls still work: no hidden-but-reserved grid tracks. */
+  :root { --panel-explorer: 180px; --panel-inspector: 230px; }
+  .workbench-properties { display: block; }
+  .status-measurement { max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
+}
+@media (max-width: 600px) {
+  .side-bar { display: grid; }
+  .ribbon-group:first-child { display: grid; }
+  .ribbon-tabs { gap: 8px; }
+  .workspace-switch button span { display: none; }
+  .status-bar .status-selection { display: inline; }
+}
+.cad-contour-ghosts{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:20}
+.cad-contour-tool{position:absolute;left:18px;top:18px;z-index:25;display:grid;gap:9px;width:310px;max-width:calc(100% - 36px);padding:14px;border:1px solid #4c7164;border-radius:8px;background:#172022f5;box-shadow:0 10px 30px #0006;color:var(--text-primary,#e2e8f0)}
+.cad-contour-tool label{display:grid;grid-template-columns:115px minmax(0,1fr);align-items:center;gap:6px;font-size:12px}
+.cad-contour-tool input,.cad-contour-tool select{min-width:0;width:100%;box-sizing:border-box;padding:6px;background:#101719;border:1px solid #45605b;border-radius:4px;color:inherit}
+.cad-contour-tool p{font-size:12px;margin:2px 0;line-height:1.5;overflow-wrap:anywhere}
+.cad-contour-tool small{color:#a6bdb7;font-size:11px;line-height:1.5}
+.cad-contour-tool>div{display:flex;gap:6px;flex-wrap:wrap}
+.cad-contour-tool button{padding:7px 9px;border:1px solid #4c7164;background:#243832;color:inherit;border-radius:4px;cursor:pointer}
+.cad-contour-tool button:disabled{opacity:.45;cursor:default}
+.cad-contour-tool button[aria-pressed=true]{border-color:#72e3b3;background:#305749}
+.cad-contour-tool button[type=submit]{background:#295e49}
+.cad-construction-tool{max-height:calc(100% - 36px);overflow:auto}
+.cad-construction-tool input[type=checkbox]{width:auto;justify-self:start}
+.construction-impact p{color:#b5dbca;overflow-wrap:anywhere;line-height:1.5}
+.cad-basic-edit-tool{max-height:calc(100% - 36px);overflow-y:auto;box-sizing:border-box}
+/* Shared review grammar within specialized tool panels. */
+.cad-command-review { border: 1px solid #516477; border-radius: 6px; padding: 8px; margin: 8px 0; display: grid; gap: 4px; }
+.cad-command-review > div:first-child { display: flex; justify-content: space-between; gap: 12px; }
+.cad-command-review small, .cad-command-review details > button { display: block; }
+.cad-command-review p { margin: 4px 0; }
+.cad-command-review[data-command-stage="invalid"] { border-color: #da8a76; }
+.cad-command-review[data-command-stage="ready"] { border-color: #70b99a; }
+.cad-command-review details { max-height: 140px; overflow: auto; }
+.cad-pattern-tool, .cad-contour-tool.cad-construction-tool, .cad-contour-tool.cad-curve-workbench { display:flex; flex-direction:column; overflow:hidden; box-sizing:border-box; }
+.cad-tool-body { min-height:0; overflow:auto; overscroll-behavior:contain; display:grid; gap:8px; }
+.cad-tool-footer { flex-shrink:0; display:grid; gap:8px; padding-top:8px; border-top:1px solid #516477; }
+.cad-pattern-tool { width:310px; }
+.cad-pattern-tool label > small { grid-column:1 / -1; }
+.cad-tool-body select[multiple] { max-height:72px; }

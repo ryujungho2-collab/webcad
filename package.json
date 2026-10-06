@@ -6,11 +6,6 @@
     "scripts": {
         "build": "pnpm -r build"
     },
-    "pnpm": {
-        "onlyBuiltDependencies": [
-            "esbuild"
-        ]
-    },
     "devDependencies": {
         "typescript": "^7.0.2"
     }

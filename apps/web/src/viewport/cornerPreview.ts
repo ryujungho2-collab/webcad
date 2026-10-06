@@ -1,5 +1,5 @@
 import type { CadDocument } from "@agent-webcad/cad-document";
-import { editDrawingCornerParams } from "../precision/drawingOperations";
+import { editDrawingCornerParams } from "../features/drawing-editing/geometry/drawingOperations";
 
 export type CornerPreviewTreatment = "fillet" | "chamfer";
 export type CornerPreviewRequest = {

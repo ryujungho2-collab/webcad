@@ -1,0 +1,71 @@
+{
+  "fixtures": [
+    {
+      "size": 128,
+      "sourceBytes": 868,
+      "placements": 2,
+      "coldMs": 23.700000002980232,
+      "editP50": 0.19999999552965164,
+      "editP95": 0.8000000044703484,
+      "samples": [
+        0.3999999985098839,
+        0.8000000044703484,
+        0.09999999403953552,
+        0.20000000298023224,
+        0.10000000149011612,
+        0.19999999552965164,
+        0.10000000149011612,
+        0,
+        0.20000000298023224
+      ],
+      "gpuTextures": 1,
+      "uploadVersionChanges": 0,
+      "estimatedTextureRgbaBytes": 65536
+    },
+    {
+      "size": 2048,
+      "sourceBytes": 88722,
+      "placements": 2,
+      "coldMs": 42.70000000298023,
+      "editP50": 0.10000000149011612,
+      "editP95": 0.30000000447034836,
+      "samples": [
+        0.10000000149011612,
+        0.19999999552965164,
+        0,
+        0.10000000149011612,
+        0.10000000149011612,
+        0.19999999552965164,
+        0,
+        0.10000000149011612,
+        0.30000000447034836
+      ],
+      "gpuTextures": 1,
+      "uploadVersionChanges": 0,
+      "estimatedTextureRgbaBytes": 16777216
+    },
+    {
+      "size": 4000,
+      "sourceBytes": 316992,
+      "placements": 2,
+      "coldMs": 92.69999999552965,
+      "editP50": 0.10000000149011612,
+      "editP95": 0.10000000149011612,
+      "samples": [
+        0.10000000149011612,
+        0.10000000149011612,
+        0,
+        0.10000000149011612,
+        0.10000000149011612,
+        0,
+        0,
+        0.09999999403953552,
+        0.10000000149011612
+      ],
+      "gpuTextures": 1,
+      "uploadVersionChanges": 0,
+      "estimatedTextureRgbaBytes": 64000000
+    }
+  ],
+  "measurement": "WebGL render + gl.finish in SwiftShader; 9 warm edits per size; estimated RGBA excludes mipmaps, actual heap/VRAM not measured"
+}

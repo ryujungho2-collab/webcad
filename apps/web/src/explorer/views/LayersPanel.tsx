@@ -9,6 +9,8 @@ import {
 import {
   dispatchCadCommand,
 } from "../../state/dispatchCadCommand";
+import { ToolIcon } from "../../ui/ToolIcon";
+import { layerStyle } from "../../precision/layerStyle";
 
 type LayersPanelProps = {
   query: string;
@@ -154,15 +156,16 @@ export function LayersPanel({
   return (
     <aside className="layers-panel">
       <div className="layers-header">
-        <span>Layer controls</span>
+        <span>Working layers</span>
 
         <button
           type="button"
           className="layer-add-button"
           onClick={createLayer}
           title="Create layer"
+          aria-label="Create layer"
         >
-          +
+          <span aria-hidden="true">+</span> New
         </button>
       </div>
 
@@ -206,7 +209,8 @@ export function LayersPanel({
               <button
                 type="button"
                 className="layer-icon-button"
-                title="Visibility"
+                title={`${layer.visible ? "Hide" : "Show"} layer`}
+                aria-label={`${layer.visible ? "Hide" : "Show"} ${layer.name}`}
                 onClick={(event) => {
                   event.stopPropagation();
 
@@ -215,9 +219,7 @@ export function LayersPanel({
                   );
                 }}
               >
-                {layer.visible
-                  ? "◉"
-                  : "○"}
+                <ToolIcon name={layer.visible ? "Show All" : "Hide"} fallback={layer.visible ? "◉" : "○"} />
               </button>
 
               {editingLayerId === layer.id ? (
@@ -235,9 +237,7 @@ export function LayersPanel({
                   }}
                 />
               ) : (
-                <span className="layer-name" title={`${layer.name} · Double-click to rename`}>
-                  {layer.name}
-                </span>
+                <button type="button" className="layer-name" aria-pressed={selected} title={`${layer.name}${selected ? " · Active layer" : " · Set as active layer"} · Double-click to rename`}>{layer.name}</button>
               )}
 
               <span className="layer-count">
@@ -253,9 +253,10 @@ export function LayersPanel({
                 className="layer-icon-button"
                 title={
                   layer.locked
-                    ? "Unlock"
-                    : "Lock"
+                    ? "Unlock layer"
+                    : "Lock layer"
                 }
+                aria-label={`${layer.locked ? "Unlock" : "Lock"} ${layer.name}`}
                 onClick={(event) => {
                   event.stopPropagation();
 
@@ -264,9 +265,7 @@ export function LayersPanel({
                   );
                 }}
               >
-                {layer.locked
-                  ? "🔒"
-                  : "🔓"}
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" /><path d={layer.locked ? "M8 10V6a4 4 0 0 1 8 0v4 M12 14v3" : "M8 10V6a4 4 0 0 1 8 0 M12 14v3"} /></svg>
               </button>
 
               {layer.id !==
@@ -276,6 +275,7 @@ export function LayersPanel({
                   className="layer-delete-button"
                   disabled={layer.locked || cadDocument.layers["layer-default"]?.locked}
                   title={layer.locked || cadDocument.layers["layer-default"]?.locked ? "Unlock source and Default layers to delete" : "Delete layer"}
+                  aria-label={`Delete ${layer.name}`}
                   onClick={(event) => {
                     event.stopPropagation();
 
@@ -284,13 +284,20 @@ export function LayersPanel({
                     );
                   }}
                 >
-                  ×
+                  <ToolIcon name="Delete" fallback="×" />
                 </button>
               )}
             </div>
           );
         }
       )}
+      {!query && <div className="explorer-view-note">Click a layer to make it active. Double-click its name to rename.</div>}
+      {cadDocument.layers[selectedLayerId] && <fieldset className="layer-style-editor" disabled={cadDocument.layers[selectedLayerId].locked}>
+        <legend>Active layer style</legend>
+        <label>Color<input type="color" aria-label="Layer color" value={layerStyle(cadDocument.layers[selectedLayerId]).color} onChange={async(event)=>{await dispatchCadCommand({type:"set-layer-style",layerId:selectedLayerId,style:{...layerStyle(cadDocument.layers[selectedLayerId]),color:event.target.value}});onDocumentChange();}}/></label>
+        <label>Line type<select aria-label="Layer line type" value={layerStyle(cadDocument.layers[selectedLayerId]).lineType} onChange={async(event)=>{await dispatchCadCommand({type:"set-layer-style",layerId:selectedLayerId,style:{...layerStyle(cadDocument.layers[selectedLayerId]),lineType:event.target.value as "continuous"|"dashed"|"center"}});onDocumentChange();}}><option value="continuous">Continuous</option><option value="dashed">Dashed</option><option value="center">Center</option></select></label>
+        <label>Weight<select aria-label="Layer line weight" value={layerStyle(cadDocument.layers[selectedLayerId]).lineWeight} onChange={async(event)=>{await dispatchCadCommand({type:"set-layer-style",layerId:selectedLayerId,style:{...layerStyle(cadDocument.layers[selectedLayerId]),lineWeight:Number(event.target.value)}});onDocumentChange();}}>{[0.13,0.18,0.25,0.35,0.5,0.7,1].map(value=><option key={value} value={value}>{value} mm</option>)}</select></label>
+      </fieldset>}
       {cadDocument.rootLayers.filter((layerId) => {
         const layer = cadDocument.layers[layerId];
         return layer && (!query || layer.name.toLowerCase().includes(query));

@@ -1,3 +1,4 @@
+import { restoreTestDocument as restore } from "./helpers/documentHarness";
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, test } from "node:test";
 import type { CadDocument } from "@agent-webcad/cad-document";
@@ -10,15 +11,7 @@ import { buildBooleanMesh, buildPrimitiveMesh, enumerateSolidTopology, resolveBr
 
 const original = structuredClone(cadDocument);
 
-function restore(snapshot: CadDocument) {
-  cadDocument.id = snapshot.id;
-  cadDocument.revision = snapshot.revision;
-  cadDocument.objects = structuredClone(snapshot.objects);
-  cadDocument.features = structuredClone(snapshot.features);
-  cadDocument.layers = structuredClone(snapshot.layers);
-  cadDocument.rootObjects = [...snapshot.rootObjects];
-  cadDocument.rootLayers = [...snapshot.rootLayers];
-}
+
 
 function resetDocument() {
   restore({
@@ -154,16 +147,20 @@ describe("brep selection across undo and redo", () => {
     cadDocument.layers["layer-default"].objectIds.push("wall");
     cadDocument.rootObjects.push("wall");
     const wallId = await dispatchCadCommand({ type: "create-extrude", id: "plate", profileObjectIds: ["wall"], distance: 10 });
-    assert.equal(wallId, "plate");
+    assert.equal(wallId.ok, true);
+    assert.equal(wallId.createdIds[0], "plate");
     const plugId = await dispatchCadCommand({
       type: "create-primitive", id: "plug", primitive: "box",
       params: { width: 4, depth: 4, height: 12 }, position: [8, 4, -1],
     });
-    assert.equal(plugId, "plug");
+    assert.equal(plugId.ok, true);
+    assert.equal(plugId.createdIds[0], "plug");
     cadHistory.clear();
     const result = await dispatchCadCommand({ type: "boolean-operation", operation: "cut", target: "plate", tool: "plug" });
-    assert.equal(typeof result, "string");
-    return result as string;
+    assert.equal(result.ok, true);
+    const id = result.createdIds[0];
+    assert.equal(typeof id, "string");
+    return id;
   }
 
   test("extrude, cut, select edge, undo, redo keeps selection sane", async () => {

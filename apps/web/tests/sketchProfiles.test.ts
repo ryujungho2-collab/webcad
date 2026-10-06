@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { CadDocument } from "@agent-webcad/cad-document";
 import { createDrawingTopology } from "../src/precision/drawingTopology";
-import { editDrawingCornerParams } from "../src/precision/drawingOperations";
+import { editDrawingCornerParams } from "../src/features/drawing-editing/geometry/drawingOperations";
 import { extractSketchLoops } from "../src/precision/sketchProfiles";
 
 const baseDocument = (): CadDocument => ({

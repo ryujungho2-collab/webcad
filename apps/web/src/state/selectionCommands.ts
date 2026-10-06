@@ -3,7 +3,7 @@ import type { CadDocument } from "@agent-webcad/cad-document";
 import * as THREE from "three";
 import { boundsCenter, getObjectLocalTransformPivot, getObjectWorldBounds, getObjectWorldTransformPivot, getSelectionWorldBounds } from "../precision/worldBounds";
 import { WORK_PLANES, type WorkPlaneId } from "../precision/workPlane";
-import { getObjectTransform } from "./objectTransform";
+import { getObjectTransform } from "../precision/objectTransform";
 
 export type TransformMode = "translate" | "rotate" | "scale";
 export type TransformValue = {
@@ -90,11 +90,12 @@ export function planGroupTransform(
   objectIds: readonly string[],
   mode: TransformMode,
   transform: TransformValue,
+  pivotOverride?: [number, number, number],
 ): BatchChildCommand[] | null {
-  if (objectIds.length < 2 || !allEditable(document, objectIds)) return null;
+  if ((objectIds.length < 2 && !pivotOverride) || !allEditable(document, objectIds)) return null;
   const bounds = getSelectionWorldBounds(document, objectIds);
   if (!bounds) return null;
-  const pivot = boundsCenter(bounds);
+  const pivot = pivotOverride ?? boundsCenter(bounds);
   const pivotVector = new THREE.Vector3(...pivot);
   const translationDelta = new THREE.Vector3(
     transform.translation[0] - pivot[0],

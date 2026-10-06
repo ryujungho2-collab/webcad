@@ -1,7 +1,10 @@
 import type { CadDocument, CadFeature } from "@agent-webcad/cad-document";
 import * as THREE from "three";
-import { getObjectTransform } from "../state/objectTransform";
+import { getObjectTransform } from "./objectTransform";
 import { getWorldDrawingGeometry } from "./worldGeometry";
+import { resolveDimension } from "./dimensionGeometry";
+import { worldDraftingGeometry } from "./draftingGeometry";
+import { WORK_PLANES } from "./workPlane";
 
 export type WorldBounds = {
   min: [number, number, number];
@@ -50,6 +53,10 @@ export function getObjectWorldBounds(document: CadDocument, objectId: string, fe
   if (!object) return null;
   const feature = featureByOutput ? featureByOutput.get(objectId) : Object.values(document.features).find((entry) => entry.output === objectId);
   if (!feature) return null;
+  if(feature.type === "drafting") {
+    const data=worldDraftingGeometry(document,object,feature),points=[...data.lines.flatMap(line=>line.points),...data.texts.flatMap(text=>[text.point,[text.point[0]+text.height*text.text.length*0.6,text.point[1]+text.height,text.point[2]] as [number,number,number]])];
+    return points.length?finiteWorldBounds(new THREE.Box3().setFromPoints(points.map(p=>new THREE.Vector3(...p)))):null;
+  }
   if (feature.type === "drawing") {
     const world = getWorldDrawingGeometry(object, feature);
     if (!world?.points?.length) return null;
@@ -57,7 +64,38 @@ export function getObjectWorldBounds(document: CadDocument, objectId: string, fe
     return finiteWorldBounds(bounds);
   }
 
-  if (feature.type === "extrude") {
+  if (feature.type === "image") {
+    const planeId = feature.params.workPlane === "XZ" || feature.params.workPlane === "YZ" ? feature.params.workPlane : "XY";
+    const plane = WORK_PLANES[planeId];
+    const width = Number(feature.params.width), height = Number(feature.params.height);
+    if (!(width > 0 && height > 0)) return null;
+    const transform = getObjectTransform(object, feature);
+    const matrix = new THREE.Matrix4().compose(new THREE.Vector3(...transform.translation), new THREE.Quaternion().setFromEuler(new THREE.Euler(...transform.rotation.map(THREE.MathUtils.degToRad) as [number, number, number])), new THREE.Vector3(...transform.scale));
+    const points = [[-width/2,-height/2],[width/2,-height/2],[width/2,height/2],[-width/2,height/2]].map(([x,y]) => new THREE.Vector3(
+      plane.xAxis[0] * x + plane.yAxis[0] * y,
+      plane.xAxis[1] * x + plane.yAxis[1] * y,
+      plane.xAxis[2] * x + plane.yAxis[2] * y,
+    ).applyMatrix4(matrix));
+    return finiteWorldBounds(new THREE.Box3().setFromPoints(points));
+  }
+
+  if (feature.type === "dimension") {
+    // Same resolver as the renderer: bounds follow the annotation linework.
+    const resolved = resolveDimension(feature.params);
+    if (!resolved) return null;
+    const transform = getObjectTransform(object, feature);
+    const matrix = new THREE.Matrix4().compose(
+      new THREE.Vector3(...transform.translation),
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(...transform.rotation.map(THREE.MathUtils.degToRad) as [number, number, number])),
+      new THREE.Vector3(...transform.scale),
+    );
+    const points = resolved.segments.flat().map((point) => new THREE.Vector3(...point).applyMatrix4(matrix));
+    points.push(new THREE.Vector3(...resolved.textPosition).applyMatrix4(matrix));
+    if (!points.length) return null;
+    return finiteWorldBounds(new THREE.Box3().setFromPoints(points));
+  }
+
+  if (feature.type === "extrude" && !feature.params.bounds) {
     const profile = feature.params.profile as { normal?: [number, number, number]; segments?: Array<{ kind: string; start?: [number, number, number]; mid?: [number, number, number]; end?: [number, number, number]; center?: [number, number, number]; radius?: number; xAxis?: [number, number, number] }> } | undefined;
     const normal = profile?.normal;
     const extrusion = Number(feature.params.distance);
@@ -94,6 +132,26 @@ export function getObjectWorldBounds(document: CadDocument, objectId: string, fe
     for (const x of [local.min.x, local.max.x]) for (const y of [local.min.y, local.max.y]) for (const z of [local.min.z, local.max.z]) corners.push(new THREE.Vector3(x, y, z).applyMatrix4(matrix));
     const bounds = new THREE.Box3().setFromPoints(corners);
     return finiteWorldBounds(bounds);
+  }
+
+  if (feature.type === "extrude" || feature.type === "boolean" || feature.type === "fillet" || feature.type === "chamfer" || feature.type === "revolve" || feature.type === "sweep" || feature.type === "loft") {
+    // Composed solids store exact kernel bounds at creation. Legacy features
+    // predate stored bounds and fall through to the stub estimate below.
+    const stored = feature.params.bounds as { min?: [number, number, number]; max?: [number, number, number] } | undefined;
+    if (stored && Array.isArray(stored.min) && Array.isArray(stored.max)) {
+      const transform = getObjectTransform(object, feature);
+      const matrix = new THREE.Matrix4().compose(
+        new THREE.Vector3(...transform.translation),
+        new THREE.Quaternion().setFromEuler(new THREE.Euler(
+          ...transform.rotation.map(THREE.MathUtils.degToRad) as [number, number, number],
+        )),
+        new THREE.Vector3(...transform.scale),
+      );
+      const corners: THREE.Vector3[] = [];
+      for (const x of [stored.min[0], stored.max[0]]) for (const y of [stored.min[1], stored.max[1]]) for (const z of [stored.min[2], stored.max[2]]) corners.push(new THREE.Vector3(x, y, z).applyMatrix4(matrix));
+      const storedBounds = new THREE.Box3().setFromPoints(corners);
+      return finiteWorldBounds(storedBounds);
+    }
   }
 
   const localBounds = primitiveLocalBounds(feature.params);
@@ -151,6 +209,7 @@ export function getObjectLocalTransformPivot(
   const feature = featureByOutput ? featureByOutput.get(objectId) : Object.values(document.features).find((entry) => entry.output === objectId);
   if (!feature) return null;
   if (feature.type !== "drawing") return [0, 0, 0];
+  if (["infinite-line", "ray"].includes(String(feature.params.kind))) return (getWorldDrawingGeometry({ ...object, transform: { translation: [0,0,0], rotation: [0,0,0], scale: [1,1,1] } }, feature)?.points?.[0] ?? null);
 
   const localGeometry = getWorldDrawingGeometry({
     ...object,

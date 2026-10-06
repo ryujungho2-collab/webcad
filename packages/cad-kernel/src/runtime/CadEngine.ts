@@ -27,18 +27,10 @@ async function loadBrowserOpenCascade(): Promise<OpenCascadeInstance> {
 
   const mainWasm = wasmModule.default;
 
-  return new Promise((resolve) => {
-    new mainJS({
-      locateFile(path: string) {
-        if (path.endsWith(".wasm")) {
-          return mainWasm;
-        }
-
-        return path;
-      },
-    }).then((oc) => {
-      resolve(oc);
-    });
+  return new mainJS({
+    locateFile(path: string) {
+      return path.endsWith(".wasm") ? mainWasm : path;
+    },
   });
 }
 
@@ -59,6 +51,7 @@ async function loadNodeOpenCascade(): Promise<OpenCascadeInstance> {
 
 export class CadEngine {
   private static instance: CadEngine | null = null;
+  private static initializing: Promise<CadEngine> | null = null;
 
   public readonly oc: OpenCascadeInstance;
 
@@ -69,24 +62,28 @@ export class CadEngine {
   }
 
   static async create(): Promise<CadEngine> {
-    if (!CadEngine.instance) {
-      const startedAt = globalThis.performance?.now();
-      const oc =
-        typeof window !== "undefined"
+    if (CadEngine.instance) return CadEngine.instance;
+    if (!CadEngine.initializing) {
+      CadEngine.initializing = (async () => {
+        const startedAt = globalThis.performance?.now();
+        // `self` exists in browser workers as well as Window, but not Node.
+        const oc = typeof self !== "undefined"
           ? await loadBrowserOpenCascade()
           : await loadNodeOpenCascade();
-
-      CadEngine.instance =
-        new CadEngine(oc);
-
-      if (startedAt !== undefined) {
-        globalThis.performance?.measure("agent-webcad:opencascade-init", {
-          start: startedAt,
-          end: globalThis.performance.now(),
-        });
-      }
+        CadEngine.instance = new CadEngine(oc);
+        if (startedAt !== undefined) {
+          globalThis.performance?.measure("agent-webcad:opencascade-init", {
+            start: startedAt,
+            end: globalThis.performance.now(),
+          });
+        }
+        return CadEngine.instance;
+      })().catch((error) => {
+        CadEngine.initializing = null;
+        throw error;
+      });
     }
 
-    return CadEngine.instance;
+    return CadEngine.initializing;
   }
 }
