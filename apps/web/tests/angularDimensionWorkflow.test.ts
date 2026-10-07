@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { beforeEach, test } from "node:test";
-import type { AngularDimensionDefinition } from "@agent-webcad/cad-document";
+import { deserializeDocument, serializeDocument, type AngularDimensionDefinition } from "@agent-webcad/cad-document";
 import { validateCommand, type CadCommand } from "@agent-webcad/cad-commands";
 import { cadDocument } from "../src/state/cadDocument";
 import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
@@ -9,6 +9,10 @@ import { cadHistory, undoDocument, redoDocument } from "../src/state/history";
 import { resolveDimension } from "../src/precision/dimensionGeometry";
 import type { DrawingTopology } from "../src/precision/drawingTopology";
 import { documentState, resetTestDocument } from "./helpers/documentHarness";
+import { contourReferenceRequirements } from "../src/features/drawing-editing/commands/contourReferences";
+import { assertAngularEvaluation } from "../src/precision/angularDimensionSource";
+import { refreshAssociativeDimensions } from "../src/state/dimensionRefresh";
+import { openDocumentFile } from "../src/state/documentFile";
 
 beforeEach(resetTestDocument);
 const feature = (id: string) => Object.values(cadDocument.features).find(f => f.output === id)!;
@@ -71,4 +75,68 @@ test("Distinct straight edges on one polyline are allowed; curved, missing and d
   await rejected({ type: "update-dimension", objectId: "angle", params: { second: { objectId: "a", segmentId: "missing" } } }, /referenced edge/i);
   await apply({ type: "create-drawing", id: "curve", drawing: "polyline", params: { workPlane: "XY", points: [[0,0,0],[20,20,0]], bulges: [1] } });
   await rejected({ type: "update-dimension", objectId: "angle", params: { second: reference("curve") } }, /straight/i);
+});
+
+test("Join reverses a reference ray, then Trim routes both slots of the same source without changing its angle region", async () => {
+  await sources(); await apply(create());
+  const before = documentState();
+  await rejected({ type: "join-drawings", objectIds: ["a","b"], id: "joined", referenceRoutes: [] }, /reconnect every/i);
+  await apply({ type: "join-drawings", objectIds: ["a","b"], id: "joined", referenceRoutes: [
+    { dependentId: "angle", sourceId: "a", referenceSlot: "first", resultIndices: [0], segmentIndex: 0 },
+    { dependentId: "angle", sourceId: "b", referenceSlot: "second", resultIndices: [0], segmentIndex: 1 },
+  ] });
+  assert.equal(angle().value, Math.PI / 2); assert.equal((feature("angle").params.branch as any).firstRay, -1);
+  assert.deepEqual(feature("angle").inputs, ["joined"]);
+  const joined = documentState(); assert.ok(undoDocument()); assert.deepEqual(documentState(), before); assert.ok(redoDocument()); assert.deepEqual(documentState(), joined);
+  const requirements = contourReferenceRequirements(cadDocument, ["joined"]);
+  assert.deepEqual(requirements.map(r => "referenceSlot" in r && r.referenceSlot), ["first","second"]);
+  await apply({ type: "create-drawing", id: "cutter", drawing: "line", params: { workPlane: "XY", points: [[20,-10,0],[20,10,0]] } });
+  const trim: Extract<CadCommand,{type:"trim-contour"}> = { type: "trim-contour", objectId: "joined", cutterIds: ["cutter"], pickPoint: [30,0,0], referenceRoutes: [
+    { dependentId: "angle", sourceId: "joined", referenceSlot: "first", resultIndices: [0], segmentIndex: 0 },
+    { dependentId: "angle", sourceId: "joined", referenceSlot: "second", resultIndices: [0], segmentIndex: 1 },
+  ] };
+  await rejected({ ...trim, referenceRoutes: trim.referenceRoutes!.slice(0,1) }, /reconnect every/i);
+  await rejected({ ...trim, referenceRoutes: trim.referenceRoutes!.map(r=>({...r,segmentIndex:0})) }, /direction|distinct/i);
+  await apply(trim); assert.equal(angle().value, Math.PI / 2);
+  const saved = serializeDocument(cadDocument); assert.equal(JSON.parse(saved).version, 14);
+  const restored = deserializeDocument(saved); assertAngularEvaluation(restored); assert.equal(refreshAssociativeDimensions(restored), false); assert.deepEqual(restored, cadDocument);
+});
+
+test("Angular v14 verifies both inputs and topology; file load rejects stale geometry before replacing the document", async () => {
+  await sources(); await apply(create()); const data = serializeDocument(cadDocument);
+  const old = JSON.parse(data); old.version = 13; assert.throws(()=>deserializeDocument(JSON.stringify(old)), /version 14/i);
+  for (const damage of [
+    (d: any)=>{d.features[feature("angle").id].inputs=["a"];},
+    (d: any)=>{d.features[feature("angle").id].params.second.segmentId="missing";},
+    (d: any)=>{d.features[feature("angle").id].params.branch.sweep="random";},
+  ]) { const bad=JSON.parse(data); damage(bad.document); assert.throws(()=>deserializeDocument(JSON.stringify(bad)), /angular|feature/i); }
+  const bad=JSON.parse(data); bad.document.features[feature("angle").id].params.lines[1].end=[30,30,0];
+  const before=structuredClone(cadDocument), history=cadHistory.getPastLabels();
+  await assert.rejects(openDocumentFile(new File([JSON.stringify(bad)], "bad.webcad.json")), /outdated measurement/i);
+  assert.deepEqual(cadDocument,before); assert.deepEqual(cadHistory.getPastLabels(),history);
+  assert.equal(JSON.parse(serializeDocument({ ...cadDocument, features: { ...cadDocument.features, [feature("angle").id]: { ...feature("angle"), params: { ...feature("angle").params } } } })).version,14);
+});
+
+test("Sketch driving angle refreshes the independent annotation after solve and projection", async () => {
+  await apply({type:"create-sketch",id:"s",workPlane:"XY"});
+  for (const [id, end] of [["a",[40,0]],["b",[0,30]]] as const) await apply({type:"add-sketch-geometry",sketchId:"s",geometry:{id,kind:"line",start:[0,0],end:[...end],startId:`${id}:start`,endId:`${id}:end`,segmentId:`${id}:edge`}});
+  await apply({type:"add-sketch-constraint",sketchId:"s",constraint:{id:"driver",kind:"angle",firstLineId:"a",secondLineId:"b",value:Math.PI/2}});
+  await apply(create()); const identity=feature("angle").id;
+  await apply({type:"set-sketch-dimension",sketchId:"s",constraintId:"driver",value:Math.PI/3});
+  assert.ok(Math.abs(angle().value-Math.PI/3)<1e-5); assert.equal(feature("angle").id,identity); assertAngularEvaluation(cadDocument);
+});
+
+test("Nested pattern child angular reference follows explicit root Trim routing and regenerated members", async () => {
+  await sources();
+  for (const [id, source] of [["p","a"],["q","p:a:1"]]) {
+    const sourceId = id === "p" ? source : Object.values(cadDocument.features).find(f=>f.pattern?.id==="p")!.output;
+    await apply({type:"create-pattern",id,sourceObjectIds:[sourceId],spec:{kind:"linear",workPlane:"XY",columns:2,rows:1,spacing:[50,0]}});
+  }
+  const child=Object.values(cadDocument.features).find(f=>f.pattern?.id==="q")!.output;
+  await apply({type:"create-dimension",id:"angle",dimension:"angular",params:{...definition(),first:reference(child)}});
+  await apply({type:"create-drawing",id:"cutter",drawing:"line",params:{workPlane:"XY",points:[[20,-10,0],[20,10,0]]}});
+  const routes = contourReferenceRequirements(cadDocument,["a"]).map(r=>({dependentId:r.dependentId,sourceId:r.sourceId,resultIndices:[0],...(r.kind==="dimension"?{referenceSlot:r.referenceSlot,segmentIndex:0}:{})}));
+  await apply({type:"trim-contour",objectId:"a",cutterIds:["cutter"],pickPoint:[30,0,0],referenceRoutes:routes});
+  assert.equal((feature("angle").params.first as any).objectId,child); assert.equal(angle().value,Math.PI/2); assertAngularEvaluation(cadDocument);
+  assert.deepEqual(deserializeDocument(serializeDocument(cadDocument)),cadDocument);
 });

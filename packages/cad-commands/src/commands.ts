@@ -1,7 +1,7 @@
 import type { SketchConstraint, SketchGeometry, SketchPointRef, SketchWorkPlane } from "@agent-webcad/cad-document";
 
 /** Explicit routing from a replaced source to reviewed output pieces. */
-export type ContourReferenceRoute = { dependentId: string; sourceId: string; resultIndices: number[]; segmentIndex?: number; pointIndex?: number; branch?: "positive" | "negative" };
+export type ContourReferenceRoute = { dependentId: string; sourceId: string; referenceSlot?: "first" | "second"; resultIndices: number[]; segmentIndex?: number; pointIndex?: number; branch?: "positive" | "negative" };
 export type ContourBridge = { fromId: string; fromEnd: "start" | "end"; toId: string; toEnd: "start" | "end" };
 
 export type CadCommand =

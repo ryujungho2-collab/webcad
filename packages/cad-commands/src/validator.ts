@@ -53,7 +53,8 @@ function referenceRoutes(value: unknown) {
     if (!isRecord(r) || !isString(r.dependentId) || !isString(r.sourceId) || !Array.isArray(r.resultIndices) || !r.resultIndices.length || r.resultIndices.length > 4096 || !r.resultIndices.every(i => Number.isInteger(i) && i >= 0 && i < 4096) || new Set(r.resultIndices).size !== r.resultIndices.length || (r.segmentIndex !== undefined && (!Number.isInteger(r.segmentIndex) || Number(r.segmentIndex) < 0))) return false;
     if (r.pointIndex !== undefined && (!Number.isInteger(r.pointIndex) || Number(r.pointIndex) < 0 || r.segmentIndex !== undefined)) return false;
     if (r.branch !== undefined && r.branch !== "positive" && r.branch !== "negative") return false;
-    const key = JSON.stringify([r.dependentId, r.sourceId]); if (keys.has(key)) return false; keys.add(key); return true;
+    if (r.referenceSlot !== undefined && r.referenceSlot !== "first" && r.referenceSlot !== "second") return false;
+    const key = JSON.stringify([r.dependentId, r.sourceId, r.referenceSlot]); if (keys.has(key)) return false; keys.add(key); return true;
   });
 }
 

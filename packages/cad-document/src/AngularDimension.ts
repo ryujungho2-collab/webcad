@@ -1,4 +1,5 @@
 import type { SketchWorkPlane } from "./Sketch";
+import type { CadDocument } from "./CadDocument";
 
 export type AngularDimensionReference = { objectId: string; segmentId: string };
 export type AngularDimensionBranch = { firstRay: 1 | -1; secondRay: 1 | -1; sweep: "ccw" | "cw" };
@@ -30,4 +31,24 @@ export function validAngularParams(v: unknown): v is AngularDimensionParams {
   if (!record(v) || v.kind !== "angular" || !["XY", "XZ", "YZ"].includes(String(v.workPlane)) || !Array.isArray(v.lines) || v.lines.length !== 2) return false;
   const plane = v.workPlane;
   return v.lines.every(line => record(line) && line.kind === "line" && line.workPlane === plane && [line.start, line.end].every(p => Array.isArray(p) && p.length === 3 && p.every(Number.isFinite))) && validAngularDefinition(v);
+}
+
+export function validateAngularReferences(document: CadDocument) {
+  const features = new Map(Object.values(document.features).map(f => [f.output, f]));
+  for (const f of features.values()) if (f.type === "dimension" && f.params.kind === "angular") {
+    const p = f.params;
+    const fail = (): never => { throw new Error(`Invalid CAD document: angular annotation ${f.id}. Check both edge references and inputs.`); };
+    if (!validAngularParams(p)) fail();
+    const definition = p as AngularDimensionParams;
+    const expected = [...new Set([definition.first.objectId, definition.second.objectId])];
+    if (JSON.stringify(f.inputs) !== JSON.stringify(expected)) fail();
+    const transform = document.objects[f.output]?.transform;
+    if (transform && (transform.translation.some(v=>v!==0) || transform.rotation.some(v=>v!==0) || transform.scale.some(v=>v!==1))) fail();
+    for (const ref of [definition.first, definition.second]) {
+      const source = features.get(ref.objectId), topology = source?.params.topology;
+      if (!document.objects[ref.objectId] || source?.type !== "drawing" || !record(topology) || !Array.isArray(topology.segments)) fail();
+      const edge = (topology as { segments: unknown[] }).segments.find(s => record(s) && s.id === ref.segmentId);
+      if (!record(edge) || edge.kind === "arc") fail();
+    }
+  }
 }

@@ -2,6 +2,8 @@ import { constructionInputs, type CadDocument, type CadFeature, type CadObject, 
 import type { ContourReferenceRoute } from "@agent-webcad/cad-commands";
 import type { DrawingTopology } from "../../../precision/drawingTopology";
 import { dimensionSourceGeometry } from "../../../precision/dimensionSource";
+import { remapAngularReference, resolveAngularSources } from "../../../precision/angularDimensionSource";
+import type { AngularDimensionDefinition } from "@agent-webcad/cad-document";
 import { resolveDimension } from "../../../precision/dimensionGeometry";
 import { WORK_PLANES, worldToPlane } from "../../../precision/workPlane";
 import { buildPatternDrawingParams } from "../../../precision/patternGeometry";
@@ -9,7 +11,7 @@ import { prepareSketchContourReplacement, sketchContourRequirements, type Sketch
 
 type PatternOrigin = { rootSourceId: string; rootDependentId: string; patternPath: CadPatternInstance[] };
 export type ContourReferenceRequirement = {
-  dependentId: string; sourceId: string; name: string;
+  dependentId: string; sourceId: string; name: string; referenceSlot?: "first" | "second";
   kind: "dimension" | "profile" | "construction" | "pattern" | "unsupported";
   dimensionKind?: string; elementKind?: "point" | "segment" | "intersection";
   patternId?: string; throughPattern?: PatternOrigin;
@@ -35,8 +37,17 @@ export function contourReferenceRequirements(document: CadDocument, sourceIds: s
   const selected = new Set(sourceIds), affected = affectedPatternMembers(document, sourceIds), groups = new Map<string, CadFeature[]>();
   for (const f of Object.values(document.features)) if (f.pattern) groups.set(f.pattern.id, [...(groups.get(f.pattern.id) ?? []), f]);
   const pattern: ContourReferenceRequirement[] = [...groups].flatMap(([id, members]) => members[0].pattern!.sourceObjectIds.filter(sourceId => selected.has(sourceId)).map(sourceId => ({ dependentId: patternKey(id), sourceId, name: `${members[0].pattern!.spec.kind} pattern · ${members.length} instances`, kind: "pattern" as const, patternId: id })));
-  const features: ContourReferenceRequirement[] = Object.values(document.features).flatMap(f => {
+  const features: ContourReferenceRequirement[] = Object.values(document.features).flatMap((f): ContourReferenceRequirement[] => {
     if (selected.has(f.output) || f.pattern) return [];
+    if (f.type === "dimension" && f.params.kind === "angular") {
+      const definition = f.params as AngularDimensionDefinition;
+      return (["first", "second"] as const).flatMap(referenceSlot => {
+        const sourceId = definition[referenceSlot].objectId;
+        return selected.has(sourceId) || affected.has(sourceId) ? [{ dependentId: f.output, sourceId, referenceSlot,
+          name: `${document.objects[f.output]?.name ?? f.output} · ${referenceSlot} edge · ${document.objects[sourceId]?.name ?? sourceId}`,
+          kind: "dimension" as const, dimensionKind: "angular", throughPattern: affected.get(sourceId) }] : [];
+      });
+    }
     const ids = [...f.inputs, String(f.params.sourceObjectId ?? ""), ...(Array.isArray(f.params.sourceObjectIds) ? f.params.sourceObjectIds.map(String) : [])];
     const refs = new Set(ids.filter(id => selected.has(id) || affected.has(id) && (f.type === "dimension" || !!f.construction)));
     return [...refs].map(sourceId => ({ dependentId: f.output, sourceId, name: `${document.objects[f.output]?.name ?? f.output}${affected.has(sourceId) ? ` · ${document.objects[sourceId]?.name ?? sourceId}` : ""}`,
@@ -51,7 +62,9 @@ export function contourReferenceRequirements(document: CadDocument, sourceIds: s
 /** Stage owner/group metadata and explicit element references before replacement. */
 export function reconnectContourReferences(document: CadDocument, sourceIds: string[], outputs: { object: CadObject; feature: CadFeature }[], routes: ContourReferenceRoute[] = []) {
   const requirements = contourReferenceRequirements(document, sourceIds);
-  if (routes.length !== requirements.length || requirements.some(r => !routes.some(route => route.dependentId === r.dependentId && route.sourceId === r.sourceId))) throw new Error("Reconnect every dependent reference to a result before applying. Stale or extra reference mappings are rejected.");
+  const slot = (r: ContourReferenceRequirement | ContourReferenceRoute) => "referenceSlot" in r ? r.referenceSlot : undefined;
+  const matches = (route: ContourReferenceRoute, r: ContourReferenceRequirement) => route.dependentId === r.dependentId && route.sourceId === r.sourceId && slot(route) === slot(r);
+  if (routes.length !== requirements.length || requirements.some(r => !routes.some(route => matches(route, r)))) throw new Error("Reconnect every dependent reference to a result before applying. Stale or extra reference mappings are rejected.");
   for (const route of routes) if (route.branch !== undefined) {
     const r = requirements.find(r => r.dependentId === route.dependentId && r.sourceId === route.sourceId);
     if (r?.kind !== "construction" || r.elementKind !== "intersection" || routes.some(other => other.dependentId === route.dependentId && other.branch !== undefined && other.branch !== route.branch)) throw new Error("Choose one consistent branch for each intersection reference.");
@@ -61,7 +74,7 @@ export function reconnectContourReferences(document: CadDocument, sourceIds: str
   for (const f of Object.values(stage.features)) if (removed.has(f.output)) { delete stage.features[f.id]; delete stage.objects[f.output]; }
   for (const output of outputs) { stage.objects[output.object.id] = output.object; stage.features[output.feature.id] = output.feature; }
   for (const f of owned.features) stage.features[f.id] = f;
-  const routeFor = (r: { dependentId: string; sourceId: string }) => routes.find(route => route.dependentId === r.dependentId && route.sourceId === r.sourceId)!;
+  const routeFor = (r: { dependentId: string; sourceId: string; referenceSlot?: "first" | "second" }) => routes.find(route => route.dependentId === r.dependentId && route.sourceId === r.sourceId && route.referenceSlot === r.referenceSlot)!;
   const targetsFor = (route: ContourReferenceRoute) => {
     const targets = route.resultIndices.map(i => outputs[i]);
     if (!targets.length || targets.some(t => !t)) throw new Error("A reference mapping names a result that no longer exists. Review the results again.");
@@ -111,6 +124,12 @@ export function reconnectContourReferences(document: CadDocument, sourceIds: str
       const t = targets[0], topology = t.feature.params.topology as DrawingTopology;
       const segmentId = route.segmentIndex === undefined ? undefined : topology.segments[route.segmentIndex]?.id ?? (route.segmentIndex === 0 ? topology.curves[0]?.id : undefined);
       if (route.segmentIndex !== undefined && !segmentId) throw new Error("Choose an existing result edge for the dimension.");
+      if (r.dimensionKind === "angular") {
+        if (!segmentId || !r.referenceSlot) throw new Error("Reconnect each angular dimension reference to an explicit straight edge.");
+        f.params = remapAngularReference(document, stage, f.params as AngularDimensionDefinition, r.referenceSlot, { objectId: t.object.id, segmentId });
+        f.inputs = [...new Set([(f.params as AngularDimensionDefinition).first.objectId, (f.params as AngularDimensionDefinition).second.objectId])];
+        continue;
+      }
       const geometry = dimensionSourceGeometry(t.object, t.feature, segmentId);
       if (!geometry || (r.dimensionKind === "linear" ? !geometry.points : geometry.radius === undefined)) throw new Error("A linear dimension needs a straight edge or open endpoint span; a radius dimension needs an exact circular edge.");
       const plane = WORK_PLANES[(f.params.workPlane ?? geometry.workPlane) as keyof typeof WORK_PLANES];
@@ -139,5 +158,6 @@ export function reconnectContourReferences(document: CadDocument, sourceIds: str
     }
     if (r.kind !== "construction") f.inputs = [...new Set(f.inputs.flatMap(id => id === route.sourceId ? targets.map(t => t.object.id) : [id]))];
   }
+  for (const f of edits.values()) if (f.type === "dimension" && f.params.kind === "angular") f.params = resolveAngularSources(stage, f.params as AngularDimensionDefinition);
   return { features: [...edits.values()], sketches: owned.sketches };
 }

@@ -1,6 +1,7 @@
 import { deserializeDocument,serializeDocument,type CadDocument,type CadRasterAsset } from "@agent-webcad/cad-document";
 import { assertConstructionEvaluation } from "../precision/constructionGeometry";
-const decodeCheckpoint = (data: string) => { const document = deserializeDocument(data); assertConstructionEvaluation(document); return document; };
+import { assertAngularEvaluation } from "../precision/angularDimensionSource";
+const decodeCheckpoint = (data: string) => { const document = deserializeDocument(data); assertConstructionEvaluation(document); assertAngularEvaluation(document); return document; };
 export const DOCUMENT_CACHE_KEY="agent-webcad-working-document";
 export const DOCUMENT_BACKUP_KEY=`${DOCUMENT_CACHE_KEY}-backup`;
 export const DOCUMENT_RASTER_ASSET_PREFIX="agent-webcad-recovery-asset-";

@@ -10,16 +10,18 @@ import { validateConstructionGraph } from "./Construction";
 import { EXTENDED_SKETCH_RELATIONS, sketchConstraintGeometryIds, validSketchConstraint } from "./SketchRelations";
 import { MAX_DOCUMENT_RASTER_BYTES, validRasterAsset } from "./RasterAsset";
 import { validImageNodeParams } from "./ImageNode";
+import { validateAngularReferences } from "./AngularDimension";
 
 type SerializedCadFile = {
   format: "agent-webcad";
-  version: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13;
+  version: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14;
   document: CadDocument;
 };
 
 const hasElementReferences = (document: CadDocument) => Object.values(document.features ?? {}).some(f => f?.construction?.elements !== undefined) || Object.values(document.sketches ?? {}).some(s => Array.isArray(s.constraints) && s.constraints.some(c => c.kind === "angle" && (c.firstSegmentId !== undefined || c.secondSegmentId !== undefined)));
 const hasArtboards = (document: CadDocument) => document.artboards !== undefined;
 const hasDiameterAnnotations=(document:CadDocument)=>Object.values(document.features??{}).some(f=>f?.type==="dimension"&&f.params?.kind==="diameter");
+const hasAngularAnnotations=(document:CadDocument)=>Object.values(document.features??{}).some(f=>f?.type==="dimension"&&f.params?.kind==="angular");
 const hasRasterAssets = (document: CadDocument) => document.rasterAssets !== undefined || Object.values(document.features).some(feature => feature?.type === "image");
 const hasImageMasks = (document: CadDocument) => Object.values(document.features).some(feature => feature?.type === "image" && feature.params.mask === "ellipse");
 const hasImageAdjustments = (document: CadDocument) => Object.values(document.features).some(feature => feature?.type === "image" && typeof feature.params.opacity === "number" && feature.params.opacity < 1);
@@ -34,7 +36,7 @@ export function serializeDocument(
   const file: SerializedCadFile = {
     format: "agent-webcad",
     // Older readers must reject files whose driving relationships they cannot preserve.
-    version: hasDiameterAnnotations(document) ? 13 : document.scenes !== undefined ? 12 : hasImageColorAdjustments(document) ? 11 : hasImageAdjustments(document) ? 10 : hasImageMasks(document) ? 9 : hasRasterAssets(document) ? 8 : hasArtboards(document) ? 7 : hasElementReferences(document) ? 6 : Object.values(document.sketches??{}).some(s=>s.constraints.some(c=>(EXTENDED_SKETCH_RELATIONS as readonly string[]).includes(c.kind))) ? 5 : Object.values(document.features).some(f=>f.construction || ["point","infinite-line","ray"].includes(String(f.params.kind))) ? 4 : Object.values(document.features).some(f=>f.pattern)?3:document.variables !== undefined || document.parameterBindings !== undefined ? 2 : 1,
+    version: hasAngularAnnotations(document) ? 14 : hasDiameterAnnotations(document) ? 13 : document.scenes !== undefined ? 12 : hasImageColorAdjustments(document) ? 11 : hasImageAdjustments(document) ? 10 : hasImageMasks(document) ? 9 : hasRasterAssets(document) ? 8 : hasArtboards(document) ? 7 : hasElementReferences(document) ? 6 : Object.values(document.sketches??{}).some(s=>s.constraints.some(c=>(EXTENDED_SKETCH_RELATIONS as readonly string[]).includes(c.kind))) ? 5 : Object.values(document.features).some(f=>f.construction || ["point","infinite-line","ray"].includes(String(f.params.kind))) ? 4 : Object.values(document.features).some(f=>f.pattern)?3:document.variables !== undefined || document.parameterBindings !== undefined ? 2 : 1,
     document,
   };
 
@@ -66,7 +68,7 @@ export function deserializeDocument(
   if (
     file.format !==
       "agent-webcad" ||
-      (file.version !== 1 && file.version !== 2 && file.version !== 3 && file.version !== 4 && file.version !== 5 && file.version !== 6 && file.version !== 7 && file.version !== 8 && file.version !== 9 && file.version !== 10 && file.version !== 11 && file.version !== 12 && file.version !== 13) ||
+      (file.version !== 1 && file.version !== 2 && file.version !== 3 && file.version !== 4 && file.version !== 5 && file.version !== 6 && file.version !== 7 && file.version !== 8 && file.version !== 9 && file.version !== 10 && file.version !== 11 && file.version !== 12 && file.version !== 13 && file.version !== 14) ||
     !file.document
   ) {
     throw new Error(
@@ -88,6 +90,7 @@ export function deserializeDocument(
 
   if(file.version! < 12 && document.scenes !== undefined)throw new Error("Scenes require CAD file version 12.");
   if(file.version! < 13 && hasDiameterAnnotations(document))throw new Error("Diameter annotations require CAD file version 13.");
+  if(file.version! < 14 && hasAngularAnnotations(document))throw new Error("Angular annotations require CAD file version 14.");
   validateDocumentStructure(document);
   migrateDrawingTopology(document);
   return document;
@@ -134,6 +137,7 @@ export function validateDocumentStructure(document:CadDocument){
       fail(`diameter annotation ${feature.id}`);
     }
   }
+  validateAngularReferences(document);
   validatePatternGroups(document);
   validateConstructionGraph(document);
   if(document.sketches!==undefined&&!record(document.sketches))fail("sketch collection");

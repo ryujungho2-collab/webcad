@@ -15,6 +15,7 @@ import { assertDocumentIdle,isDocumentCommandPending } from "./documentCommandQu
 import { notifyDocumentChanged, subscribeDocumentChanges } from "./documentSession";
 import { readRecoveryCheckpoint,writeRecoveryCheckpoint,reportRecoveryStatus } from "./documentRecovery";
 import { assertConstructionEvaluation } from "../precision/constructionGeometry";
+import { assertAngularEvaluation } from "../precision/angularDimensionSource";
 
 export function saveDocumentToCache() {
   assertDocumentIdle();
@@ -163,6 +164,7 @@ function restoreLoadedDocument(
 ) {
   assertDocumentIdle();
   assertConstructionEvaluation(loaded);
+  assertAngularEvaluation(loaded);
   cadDocument.id =
     loaded.id;
 
