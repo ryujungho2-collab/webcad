@@ -1,17 +1,11 @@
-import { CAD_PRECISION, linearToleranceAt } from "@agent-webcad/cad-document";
+import { CAD_PRECISION, linearToleranceAt, type AngularDimensionLine, type AngularDimensionBranch } from "@agent-webcad/cad-document";
+export type { AngularDimensionLine, AngularDimensionBranch } from "@agent-webcad/cad-document";
 import { dimensionArrowhead } from "./dimensionSymbols";
 import { planeToWorld, worldToPlane, WORK_PLANES, type Vec3, type WorkPlaneId } from "./workPlane";
 
 type Vec2 = [number, number];
-export type AngularDimensionLine = {
-  kind: "line" | "arc";
-  workPlane: WorkPlaneId;
-  start: Vec3;
-  end: Vec3;
-};
 /** Rays follow each source's ordered start→end direction. Reversing an edge
  * requires reversing its ray sign when remapping a saved reference. */
-export type AngularDimensionBranch = { firstRay: 1 | -1; secondRay: 1 | -1; sweep: "ccw" | "cw" };
 export type AngularDimensionError = {
   ok: false;
   code: "unsupported-edge" | "invalid-plane" | "non-finite" | "degenerate-line" | "different-plane"

@@ -16,6 +16,8 @@ export type {
 } from "./Layer";
 
 export * from "./Revision";
+export { validAngularReference, validAngularBranch, validAngularDefinition, validAngularParams } from "./AngularDimension";
+export type { AngularDimensionReference, AngularDimensionBranch, AngularDimensionDefinition, AngularDimensionLine, AngularDimensionParams } from "./AngularDimension";
 export type { LayerStyle } from "./Layer";
 export { DEFAULT_VECTOR_STYLE, validVectorStyle } from "./VectorStyle";
 export type { CadVectorStyle } from "./VectorStyle";

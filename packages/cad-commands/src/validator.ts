@@ -1,4 +1,4 @@
-import { validScene } from "@agent-webcad/cad-document";
+import { validScene, validAngularDefinition, validAngularReference, validAngularBranch } from "@agent-webcad/cad-document";
 import type { CadCommand } from "./commands";
 import {validVectorStyle,validVariableName,validParameterTarget,validPatternSpec,patternSlots,MAX_PATTERN_OUTPUTS,validRasterAsset,validImageNodeParams} from "@agent-webcad/cad-document";
 import { validConstructionDefinition, validSketchConstraint } from "@agent-webcad/cad-document";
@@ -161,14 +161,18 @@ export function validateCommand(command: unknown): command is CadCommand {
         (command.id === undefined || isString(command.id)) &&
         (command.layerId === undefined || isString(command.layerId));
     case "create-dimension":
-      return (command.dimension === "linear" || command.dimension === "radius" || command.dimension === "diameter") &&
-        isDimensionParams(command.dimension, command.params) &&
+      return (command.dimension === "angular" ? validAngularDefinition(command.params) && Object.keys(command.params).every(k => ["first", "second", "branch", "radius", "text"].includes(k)) :
+        (command.dimension === "linear" || command.dimension === "radius" || command.dimension === "diameter") && isDimensionParams(command.dimension, command.params)) &&
         (command.id === undefined || isString(command.id)) &&
         (command.layerId === undefined || isString(command.layerId));
     case "update-dimension":
       return isString(command.objectId) && isRecord(command.params) &&
         Object.keys(command.params).every((key) =>
-          ["orientation", "offset", "angle", "text"].includes(key)) &&
+          ["orientation", "offset", "angle", "text", "radius", "branch", "first", "second"].includes(key)) &&
+        (command.params.radius === undefined || isFiniteNumber(command.params.radius) && command.params.radius > 0) &&
+        (command.params.branch === undefined || validAngularBranch(command.params.branch)) &&
+        (command.params.first === undefined || validAngularReference(command.params.first)) &&
+        (command.params.second === undefined || validAngularReference(command.params.second)) &&
         (command.params.orientation === undefined || ["aligned", "horizontal", "vertical"].includes(String(command.params.orientation))) &&
         (command.params.offset === undefined || isFiniteNumber(command.params.offset)) &&
         (command.params.angle === undefined || isFiniteNumber(command.params.angle)) &&

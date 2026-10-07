@@ -98,6 +98,7 @@ export type CadCommand =
       distance: number;
       id?: string;
     }
+  | { type: "create-dimension"; id?: string; dimension: "angular"; params: import("@agent-webcad/cad-document").AngularDimensionDefinition; layerId?: string }
   | {
       type: "edit-drawing-corner";
       objectId: string;

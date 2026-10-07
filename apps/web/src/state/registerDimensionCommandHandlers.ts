@@ -1,6 +1,8 @@
 import type { CadDocument } from "@agent-webcad/cad-document";
 import type { CommandBus, CadCommand } from "@agent-webcad/cad-commands";
 import { dimensionSourceGeometry } from "../precision/dimensionSource";
+import { resolveAngularSources } from "../precision/angularDimensionSource";
+import type { AngularDimensionDefinition } from "@agent-webcad/cad-document";
 
 /** Annotation mutations belong to dimensions, independently of contour tools. */
 export function registerDimensionCommandHandlers(commandBus: CommandBus, document: CadDocument) {
@@ -18,7 +20,7 @@ export function registerDimensionCommandHandlers(commandBus: CommandBus, documen
     const featureId = `feature-${id}`;
     if (document.objects[id] || document.features[featureId]) return;
     const kind = command.dimension;
-    const params = structuredClone(command.params);
+    const params: Record<string, unknown> = kind === "angular" ? resolveAngularSources(document, command.params as AngularDimensionDefinition, true) : structuredClone(command.params);
     if (kind === "diameter" && typeof params.sourceObjectId === "string") {
       const source = editableObject(params.sourceObjectId), sourceFeature = featureForObject(params.sourceObjectId);
       if (!source?.visible || !sourceFeature || !dimensionSourceGeometry(source, sourceFeature, typeof params.sourceSegmentId === "string" ? params.sourceSegmentId : undefined)?.radius) return;
@@ -26,7 +28,7 @@ export function registerDimensionCommandHandlers(commandBus: CommandBus, documen
     document.objects[id] = {
       id,
       geometryId: `geometry-${id}`,
-      name: kind === "linear" ? "Linear Dimension" : kind === "diameter" ? "Diameter Dimension" : "Radius Dimension",
+      name: kind === "angular" ? "Angular Dimension" : kind === "linear" ? "Linear Dimension" : kind === "diameter" ? "Diameter Dimension" : "Radius Dimension",
       visible: true,
       layerId,
       transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
@@ -34,7 +36,7 @@ export function registerDimensionCommandHandlers(commandBus: CommandBus, documen
     document.features[featureId] = {
       id: featureId,
       type: "dimension",
-      inputs: typeof params.sourceObjectId === "string" ? [params.sourceObjectId] : [],
+      inputs: kind === "angular" ? [...new Set([(params as AngularDimensionDefinition).first.objectId, (params as AngularDimensionDefinition).second.objectId])] : typeof params.sourceObjectId === "string" ? [params.sourceObjectId] : [],
       output: id,
       params: { ...params, kind },
     };
@@ -50,6 +52,16 @@ export function registerDimensionCommandHandlers(commandBus: CommandBus, documen
     const feature = featureForObject(command.objectId);
     if (!object?.visible || !feature || feature.type !== "dimension") return;
     const patch = command.params;
+    if (feature.params.kind === "angular") {
+      if (Object.keys(patch).some(k => !["first", "second", "branch", "radius", "text"].includes(k))) throw new Error("Edit the angular dimension's references, angle region, radius or text.");
+      const next = resolveAngularSources(document, { ...feature.params, ...patch } as AngularDimensionDefinition, true);
+      if (JSON.stringify(next) === JSON.stringify(feature.params)) return;
+      feature.params = next;
+      feature.inputs = [...new Set([next.first.objectId, next.second.objectId])];
+      document.revision++;
+      return;
+    }
+    if (Object.keys(patch).some(k => ["first", "second", "branch", "radius"].includes(k))) throw new Error("These parameters require an angular dimension.");
     const next = { ...feature.params };
     let changed = false;
     for (const key of ["orientation", "offset", "angle", "text"] as const) {

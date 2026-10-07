@@ -2,6 +2,7 @@ import type { CadFeature } from "./Feature";
 import type { GeometryRepresentation } from "./Precision";
 import { validVectorStyle } from "./VectorStyle";
 import { validImageNodeParams } from "./ImageNode";
+import { validAngularParams } from "./AngularDimension";
 
 export const SOLID_FEATURE_TYPES = ["primitive","extrude","boolean","fillet","chamfer","revolve","sweep","loft"] as const;
 export type SolidFeatureType = typeof SOLID_FEATURE_TYPES[number];
@@ -24,6 +25,7 @@ export function featureContract(feature:CadFeature):FeatureContract {
 }
 
 export function validateFeatureParameters(feature:CadFeature):boolean {
+  if(feature.type === "dimension" && feature.params.kind === "angular") return validAngularParams(feature.params);
   if(feature.type === "image") return validImageNodeParams(feature.params);
   if(feature.params.vectorStyle!==undefined&&(feature.type!=="drawing"||!validVectorStyle(feature.params.vectorStyle)))return false;
   if(feature.type==="primitive"&&!primitiveParameters[String(feature.params.kind??"box")])return false;

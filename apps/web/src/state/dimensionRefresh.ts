@@ -1,4 +1,5 @@
-import type { CadDocument, CadFeature } from "@agent-webcad/cad-document";
+import type { CadDocument, CadFeature, AngularDimensionDefinition } from "@agent-webcad/cad-document";
+import { resolveAngularSources } from "../precision/angularDimensionSource";
 import { dimensionSourceGeometry } from "../precision/dimensionSource";
 import { worldToPlane, WORK_PLANES } from "../precision/workPlane";
 
@@ -18,6 +19,17 @@ export function refreshAssociativeDimensions(document: CadDocument): boolean {
   let refreshed = false;
   for (const feature of Object.values(document.features)) {
     if (feature.type !== "dimension") continue;
+    if (feature.params.kind === "angular") {
+      const object = document.objects[feature.output], transform = object.transform;
+      if (transform && (transform.translation.some(n => n !== 0) || transform.rotation.some(n => n !== 0) || transform.scale.some(n => n !== 1))) throw new Error("Use the angular dimension's radius and angle region to reposition its annotation.");
+      const next = resolveAngularSources(document, feature.params as AngularDimensionDefinition);
+      const inputs = [...new Set([next.first.objectId, next.second.objectId])];
+      if (JSON.stringify([feature.params, feature.inputs]) !== JSON.stringify([next, inputs])) {
+        if (document.layers[object.layerId]?.locked) throw new Error(`Unlock '${object.name}' before changing its angular dimension references or measurement.`);
+        feature.params = next; feature.inputs = inputs; refreshed = true;
+      }
+      continue;
+    }
     const sourceId = feature.params.sourceObjectId;
     if (typeof sourceId !== "string") continue;
     const source = document.objects[sourceId];

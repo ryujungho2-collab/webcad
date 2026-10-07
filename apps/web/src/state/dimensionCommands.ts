@@ -2,6 +2,7 @@ import type { CadDocument } from "@agent-webcad/cad-document";
 import type { CadCommand } from "@agent-webcad/cad-commands";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 import { worldToPlane, WORK_PLANES } from "../precision/workPlane";
+type SingleSourceDimensionCommand = Exclude<Extract<CadCommand, { type: "create-dimension" }>, { dimension: "angular" }>;
 
 /**
  * Shared dimension-creation planning for the Inspector button, the App
@@ -12,7 +13,7 @@ import { worldToPlane, WORK_PLANES } from "../precision/workPlane";
  * measured line/circle inside the same undo step; deleting the source
  * freezes the annotation and drops the link.
  */
-export function planDimensionFromSelection(document: CadDocument, objectId: string): Extract<CadCommand, { type: "create-dimension" }> | null {
+export function planDimensionFromSelection(document: CadDocument, objectId: string): SingleSourceDimensionCommand | null {
   const object = document.objects[objectId];
   if (!object) return null;
   const layer = document.layers[object.layerId];
@@ -55,7 +56,7 @@ export function planDimensionFromSelection(document: CadDocument, objectId: stri
 }
 
 /** Diameter annotation measures the supporting circle, without adding a sketch driver. */
-export function planDiameterFromSelection(document:CadDocument,objectId:string):Extract<CadCommand,{type:"create-dimension"}>|null {
+export function planDiameterFromSelection(document:CadDocument,objectId:string):SingleSourceDimensionCommand|null {
  const object=document.objects[objectId],layer=object&&document.layers[object.layerId];
  if(!object?.visible||!layer?.visible||layer.locked)return null;
  const feature=Object.values(document.features).find(f=>f.output===objectId);

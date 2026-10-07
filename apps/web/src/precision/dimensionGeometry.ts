@@ -1,6 +1,8 @@
 import { planeToWorld, WORK_PLANES, type Vec3, type WorkPlaneId } from "./workPlane";
 import { formatLength } from "./units";
 import { dimensionArrowhead as arrowhead } from "./dimensionSymbols";
+import { validAngularParams } from "@agent-webcad/cad-document";
+import { resolveAngularDimension } from "./angularDimension";
 
 export type DimensionOrientation = "aligned" | "horizontal" | "vertical";
 
@@ -11,8 +13,9 @@ export type DimensionRender = {
   text: string;
   /** World-space text anchor. */
   textPosition: Vec3;
-  /** Measured value in millimetres (length, radius or diameter). */
+  /** Measured value in `unit`; angular measurements use radians, lengths mm. */
   value: number;
+  unit: "mm" | "rad";
 };
 
 const EXTENSION_OVERSHOOT = 2;
@@ -84,6 +87,7 @@ function resolveLinear(params: Record<string, unknown>): DimensionRender | null 
     text: overrideText(params) ?? formatLength(value),
     textPosition: toWorld(plane, textAnchor),
     value,
+    unit: "mm",
   };
 }
 
@@ -112,6 +116,7 @@ function resolveRadius(params: Record<string, unknown>): DimensionRender | null 
     text: overrideText(params) ?? `${diameter?"Ø":"R"} ${formatLength(diameter?2*radius:radius)}`,
     textPosition: toWorld(plane, textAnchor),
     value: diameter?2*radius:radius,
+    unit: "mm",
   };
 }
 
@@ -122,6 +127,13 @@ function resolveRadius(params: Record<string, unknown>): DimensionRender | null 
  * validator rejects those before they reach the document).
  */
 export function resolveDimension(params: Record<string, unknown>): DimensionRender | null {
+  if (params.kind === "angular") {
+    if (!validAngularParams(params)) return null;
+    const result = resolveAngularDimension(params.lines[0], params.lines[1], params.branch, { radius: params.radius, text: params.text ?? undefined });
+    if (!result.ok) return null;
+    const g = result.geometry;
+    return { segments: g.segments, text: g.text, textPosition: g.textPosition, value: g.measurement.angleRadians, unit: "rad" };
+  }
   if (params.kind === "linear") return resolveLinear(params);
   if (params.kind === "radius" || params.kind === "diameter") return resolveRadius(params);
   return null;
