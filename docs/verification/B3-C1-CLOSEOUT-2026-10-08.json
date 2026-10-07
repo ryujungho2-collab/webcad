@@ -1,0 +1,318 @@
+{
+  "verifiedOn": "2026-10-08",
+  "timezone": "Asia/Seoul",
+  "status": "passed",
+  "baseline": "22720aa",
+  "scope": "B3-C1 pure angular measurement and presentation geometry",
+  "environment": {
+    "node": "24.19.0",
+    "pnpm": "11.19.0",
+    "browser": "Microsoft Edge headless CDP",
+    "renderer": "SwiftShader",
+    "server": "local Vite"
+  },
+  "focused": {
+    "angularTests": 10,
+    "includingExistingDimensions": 21,
+    "failed": 0
+  },
+  "node": {
+    "tests": 628,
+    "suites": 54,
+    "passed": 628,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "browser": {
+    "workflows": 35,
+    "checks": 734.0,
+    "newAngularUiWorkflow": false,
+    "scope": "Existing UI regression only; angular UI not connected",
+    "cases": [
+      {
+        "workflow": "draftingWorkflow",
+        "checks": 16
+      },
+      {
+        "workflow": "sketchCanvas",
+        "checks": 11
+      },
+      {
+        "workflow": "pointWorkflow",
+        "checks": 15
+      },
+      {
+        "workflow": "regionWorkflow",
+        "checks": 8
+      },
+      {
+        "workflow": "deliveryWorkflow",
+        "checks": 15
+      },
+      {
+        "workflow": "trustWorkflow",
+        "checks": 15
+      },
+      {
+        "workflow": "variablesWorkflow",
+        "checks": 20
+      },
+      {
+        "workflow": "commandExperience",
+        "checks": 27
+      },
+      {
+        "workflow": "canvasIntent",
+        "checks": 27
+      },
+      {
+        "workflow": "directEditExperience",
+        "checks": 43
+      },
+      {
+        "workflow": "constrainedDrag",
+        "checks": 19
+      },
+      {
+        "workflow": "directTargetExperience",
+        "checks": 28
+      },
+      {
+        "workflow": "patternsWorkflow",
+        "checks": 22
+      },
+      {
+        "workflow": "contourWorkflow",
+        "checks": 20
+      },
+      {
+        "workflow": "basicEditWorkflow",
+        "checks": 24
+      },
+      {
+        "workflow": "dependencyWorkflow",
+        "checks": 9
+      },
+      {
+        "workflow": "constructionWorkflow",
+        "checks": 25
+      },
+      {
+        "workflow": "extendedCadWorkflow",
+        "checks": 27
+      },
+      {
+        "workflow": "curveWorkflow",
+        "checks": 20
+      },
+      {
+        "workflow": "contourTrimWorkflow",
+        "checks": 21
+      },
+      {
+        "workflow": "interactionRelations",
+        "checks": 17
+      },
+      {
+        "workflow": "artboardsWorkflow",
+        "checks": 29
+      },
+      {
+        "workflow": "componentsWorkflow",
+        "checks": 13
+      },
+      {
+        "workflow": "imageWorkflow",
+        "checks": 38
+      },
+      {
+        "workflow": "tiffImportWorkflow",
+        "checks": 10
+      },
+      {
+        "workflow": "imageSourceWorkflow",
+        "checks": 16
+      },
+      {
+        "workflow": "artboardPngWorkflow",
+        "checks": 25
+      },
+      {
+        "workflow": "artboardPdfWorkflow",
+        "checks": 21
+      },
+      {
+        "workflow": "imageResources",
+        "checks": 34
+      },
+      {
+        "workflow": "scenesWorkflow",
+        "checks": 24
+      },
+      {
+        "workflow": "dxfWorkflow",
+        "checks": 18
+      },
+      {
+        "workflow": "diameterWorkflow",
+        "checks": 17
+      },
+      {
+        "workflow": "copilotGateway",
+        "checks": 13
+      },
+      {
+        "workflow": "sessionContinuity",
+        "checks": 24
+      },
+      {
+        "workflow": "historySelection",
+        "checks": 23
+      }
+    ]
+  },
+  "architecture": {
+    "passed": true,
+    "modules": 304,
+    "documentationLinks": true
+  },
+  "typecheck": "passed",
+  "build": {
+    "workspace": "passed",
+    "mainRawKB": 1021.28,
+    "viewportRawKB": 607.53,
+    "kernelWasmRawKB": 50305.13,
+    "kernelWasmGzipKB": 13955.45
+  },
+  "commands": [
+    "pnpm --filter @agent-webcad/web exec tsc -b",
+    "pnpm --filter @agent-webcad/web exec tsx --test tests/angularDimension.test.ts tests/dimensionGeometry.test.ts tests/diameterDimension.test.ts",
+    "pnpm --filter @agent-webcad/web test",
+    "pnpm --filter @agent-webcad/web check:architecture",
+    "pnpm --filter @agent-webcad/web test:browser",
+    "pnpm build"
+  ],
+  "contracts": [
+    "Analytic supporting-line intersection including outside-segment vertex",
+    "XY/XZ/YZ and common elevation preserved",
+    "Explicit signed first/second rays and clockwise/counterclockwise sweep",
+    "Radians stored in calculation results; degrees used for display",
+    "No vertex invented for coincident, parallel or 0/180-degree cases",
+    "Curved edges not flattened to chords",
+    "Returned exact arc separated from sampled presentation lines",
+    "No document or caller input mutation"
+  ],
+  "regression": "Initial focused test found angle-dependent text spacing caused by sharing arrow fit scale; text spacing and arrow scaling were separated and the unchanged expectation passed",
+  "remaining": [
+    "B3-C2a typed creation/update and two source references/refresh/history",
+    "B3-C2b topology remap and serialization",
+    "B3-C3 public UI/export/browser workflow",
+    "G5-A2/A3 still pending"
+  ],
+  "resourceSample": {
+    "fixtures": [
+      {
+        "size": 128,
+        "sourceBytes": 868,
+        "placements": 2,
+        "coldMs": 22.300000000046566,
+        "editP50": 0.09999999997671694,
+        "editP95": 0.5999999999767169,
+        "samples": [
+          0.40000000002328306,
+          0.5999999999767169,
+          0.19999999995343387,
+          0.10000000009313226,
+          0.09999999997671694,
+          0.09999999997671694,
+          0.09999999997671694,
+          0,
+          0
+        ],
+        "gpuTextures": 1,
+        "uploadVersionChanges": 0,
+        "estimatedTextureRgbaBytes": 65536
+      },
+      {
+        "size": 2048,
+        "sourceBytes": 88722,
+        "placements": 2,
+        "coldMs": 39.40000000002328,
+        "editP50": 0,
+        "editP95": 0.2000000000698492,
+        "samples": [
+          0.19999999995343387,
+          0,
+          0.2000000000698492,
+          0,
+          0.09999999997671694,
+          0,
+          0.09999999997671694,
+          0,
+          0
+        ],
+        "gpuTextures": 1,
+        "uploadVersionChanges": 0,
+        "estimatedTextureRgbaBytes": 16777216
+      },
+      {
+        "size": 4000,
+        "sourceBytes": 316992,
+        "placements": 2,
+        "coldMs": 80.30000000004657,
+        "editP50": 0.09999999997671694,
+        "editP95": 0.10000000009313226,
+        "samples": [
+          0.09999999997671694,
+          0.09999999997671694,
+          0.09999999997671694,
+          0,
+          0.09999999997671694,
+          0,
+          0.10000000009313226,
+          0.09999999997671694,
+          0
+        ],
+        "gpuTextures": 1,
+        "uploadVersionChanges": 0,
+        "estimatedTextureRgbaBytes": 64000000
+      }
+    ],
+    "measurement": "WebGL render + gl.finish in SwiftShader; 9 warm edits per size; estimated RGBA excludes mipmaps, actual heap/VRAM not measured"
+  },
+  "sessionSample": {
+    "at": "2026-10-07T15:18:34.301Z",
+    "browser": "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+    "renderer": "SwiftShader",
+    "backgroundCount": 0,
+    "timings": [
+      {
+        "operation": "Curve workflow",
+        "enterMs": 126.59999999997672,
+        "undoMs": 72.90000000002328,
+        "redoMs": 74.5
+      },
+      {
+        "operation": "Break",
+        "enterMs": 127.60000000009313,
+        "undoMs": 74.09999999997672,
+        "redoMs": 76.20000000006985
+      },
+      {
+        "operation": "Construction",
+        "enterMs": 126.69999999995343,
+        "undoMs": 71.09999999997672,
+        "redoMs": 75.59999999997672
+      },
+      {
+        "operation": "Extrude",
+        "enterMs": 126.40000000002328,
+        "undoMs": 75.80000000004657,
+        "redoMs": 80.09999999997672
+      }
+    ],
+    "measurement": "Native CDP input to observed React/DOM completion; includes input transport and 25ms polling/settling. Four different operations, not repeated p95, input-to-paint or practitioner task time."
+  },
+  "performance": "No angular interaction benchmark: public UI is not connected. Existing suite samples are regression observations."
+}

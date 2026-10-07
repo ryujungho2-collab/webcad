@@ -1,6 +1,6 @@
 # 기본 CAD 기능 기준과 현재 공백
 
-2026-10-06 구현 갱신: **B3-A1/A2 DXF bulge 정확한 왕복·실제 파일 Review와 B3-B 일반 지름 치수**를 G4 장면 작업과 함께 구현·검수했다. [구현·지원 경계·실제 browser 근거](../implementation/G4-CAD-BASICS-2026-10-06.md)를 따른다. B0–B5의 보완과 신규 확장 X1–X7은 [CAD 구현 단위 설계](CAD-BASICS-IMPLEMENTATION-PLAN.md)의 별도 카드이며 전체 완료가 아니다. 다음 CAD 카드는 B3-C 일반 각도 치수다. 제품 전체 순서는 [작업 분할](../WORK-SLICES-2026-10-06.md)을 따른다.
+2026-10-08 구현 갱신: 일반 각도 치수의 **B3-C1 순수 계산·측정 가지·표시 기하**를 구현했다. [C1 근거와 미완료 경계](../implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md)를 따른다. UI/명령/두 참조·저장은 C2a/C2b/C3에 남아 있으며 일반 각도 치수를 아직 사용자 지원으로 표시하지 않는다. 기존 **B3-A1/A2 DXF bulge 왕복·실제 Review와 B3-B 일반 지름 치수**는 [지원·browser 근거](../implementation/G4-CAD-BASICS-2026-10-06.md)를 유지한다. B0–B5/X의 나머지 카드는 [CAD 구현 단위 설계](CAD-BASICS-IMPLEMENTATION-PLAN.md), 실행 순서는 [작업 분할](../WORK-SLICES-2026-10-06.md)을 따른다. 다음 CAD 단계는 B3-C2a다.
 
 2026-10-05 갱신. CAD의 기준은 **정밀하고 간편한 기본 조작을 검증하고
 공백을 메우되 차후 확장을 고려하는 것**이다. 일반 2D Join/Explode/Break와

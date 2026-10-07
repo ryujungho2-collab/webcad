@@ -1,33 +1,34 @@
 # 현재 프로젝트 상태
 
-갱신일: 2026-10-06. 이 문서는 **현재 구현과 최근 검수**를 요약한다. 실행 순서는 [NEXT-STEPS](NEXT-STEPS.md), 기능별 지원 대상과 공백은 [CAD-BASICS](docs/product/CAD-BASICS.md)를 따른다. 단계별 상세 기록은 [문서 목록](docs/README.md)에서 찾는다.
+갱신일: 2026-10-08. 이 문서는 **현재 구현과 최근 검수**를 요약한다. 실행 순서는 [NEXT-STEPS](NEXT-STEPS.md), 기능별 지원 대상과 공백은 [CAD-BASICS](docs/product/CAD-BASICS.md)를 따른다. 단계별 상세 기록은 [문서 목록](docs/README.md)에서 찾는다.
 
 ## 최신 통합 구현·검수 상태
 
-G3-5A/I1 이후 **G4-A 검수, G4-B/C의 첫 원본·component 인계·SVG 출력, CAD B3-A1/A2·B**를 구현하고 **G5-A1 gateway 응답·취소 경계**를 검수·수정했다. [G4·DXF·지름 결과](docs/implementation/G4-CAD-BASICS-2026-10-06.md), [G5-A1 결과](docs/implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md)를 따른다. 다음 제품 검수는 G5-A2→A3, 이후 CAD B3-C1→C2a→C2b→C3이다. 작은 세션별로 기록 후 멈춘다. 전체 brush/PSD/벡터 편집기나 G4–G6/CAD-BASICS 전체 완료가 아니다.
+사용자 요청으로 **B3-C1 일반 각도 치수의 계산·측정 가지·표시 기하**를 우선 구현했다. [C1 실제 범위](docs/implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md)를 따른다. 다음은 C2a 두 참조/명령/갱신 → C2b remap/저장 → C3 UI/출력이다. G5-A2/A3는 대기 상태로 보존했다. 기존 [G4·DXF·지름](docs/implementation/G4-CAD-BASICS-2026-10-06.md), [G5-A1](docs/implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md)의 구현을 유지한다. 일반 각도 도구와 G4–G6/CAD-BASICS 전체를 완료한 상태는 아니다.
 
-- G3-5: 공유 이미지 source의 texture 중복과 crop/opacity/color 재업로드를 제거했다. 최신 resource browser **34 checks**는 source 교체/Cancel의 실제 픽셀과 해제도 검사한다. 같은 4000×4000 두 배치에서 texture 2→1, 9회 편집 upload-version 증가 18→0. 최종 재측정 p95 **0.2ms**, texture 1·upload 증가 0. Edge/SwiftShader 9개 warm 표본이며 실사용 GPU·heap/VRAM 측정이 아니다. [전후 증거와 마감](docs/verification/G3-5-IMAGE-RESOURCES-2026-10-06.md).
+- G3-5: 공유 이미지 source의 texture 중복과 crop/opacity/color 재업로드를 제거했다. 최신 resource browser **34 checks**는 source 교체/Cancel의 실제 픽셀과 해제도 검사한다. 같은 4000×4000 두 배치에서 texture 2→1, 9회 편집 upload-version 증가 18→0. 2026-10-06 마감 측정 p95 **0.2ms**, texture 1·upload 증가 0. Edge/SwiftShader 9개 warm 표본이며 실사용 GPU·heap/VRAM 측정이 아니다. [전후 증거와 마감](docs/verification/G3-5-IMAGE-RESOURCES-2026-10-06.md).
 - I1: PNG/JPEG/WebP와 제한된 TIFF의 공통 import/replacement decoder, Current/Replacement와 캔버스 preview, Cancel·stale·Worker abort, 원본 교체+숫자 편집 한 Apply/Undo를 추가했다. object/Scene 참조·crop/mask/color·다른 공유 배치를 보존하고 마지막 이전 source만 해제한다. 새 Node **3개**, source browser **16개**, TIFF browser **10개**. [실제 workflow·제한](docs/verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md).
 - G4-A 및 첫 B/C: 원본 revision 변경 후 draft 유지, 동시 scene 변경 충돌 차단, 숨김 state의 layout collapse, editor state/time preview·link target state, 원본 Properties 선택 인계·finite nested vector component·정지 SVG 출력. Scene Node **7개**, actual pointer browser **24개**. 기존 원본 ID와 v12 유지. layout canvas handle·component override/variant·PPTX/GIF/영상은 남는다.
 - CAD B3-A1/A2: ordered vertex/sparse·signed·closed bulge·inch/R12 elevation, exact control vertex writer와 회전/반사·uniform scale 왕복. Import/Export detached Review의 단위·제외·subset 수락·stale·Cancel/한 Undo, 선택한 root의 component definition closure. DXF Node **7개**, 실제 file input/download/reimport browser **18개**. width/mesh/non-default OCS/tilted/non-uniform curved geometry는 명시적 제외다.
 - CAD B3-B: 원/원호 supporting circle의 일반 Ø 주석·양끝 화살표, deg/rad leader review·재배치, 원본 수정과 Trim/Join circular edge remap·source 삭제 동결·v13·DXF TEXT. Node **4개**, browser **17개**. 잠금으로 selection이 바뀌어도 검토 창/입력 유지. 일반 각도 치수·dimension style·canvas annotation handle은 후속이다.
+- CAD B3-C1: 순수 함수로 두 straight edge의 연장 교점·공통 elevation·명시적 ±ray/CW/CCW를 계산한다. rad 측정·deg 표시, 정확한 arc와 표시 선분/접선 화살표/문자 위치. 평행·일치·0/180°·곡선·퇴화·다른 평면은 원인과 복구 안내를 반환한다. 신규 **10 Node**, 기존 치수 포함 집중 **21개** 통과. typed 명령·두 원본 참조·저장·공개 UI는 아직 미구현이다.
 - G5 진행 중/A1 완료: ownership/topology 주입·nested batch 거부, 멈춘 header/body와 cancel promise에도 취소/deadline 종료, 늦은 응답·거부된 body 해제, UTF-8 byte 제한·재시도 오류 안내. gateway Node **8개**, mock transport actual UI browser **13개** 통과. A2 패널/설정/context 수명과 A3 Apply/잠금 검수는 남음. 실제 공급자/서버는 연결하지 않았고 현재 finite drawing/primitive 생성만 허용한다.
-- 최신 전체 **618 Node / 54 suites / fail·skip 0**, **35 browser workflows / 734 checks**, TypeScript, architecture/import·문서 링크 **301 modules**, workspace production build 통과. gateway 13개는 mock 검수이며 실제 LLM 연결 증거가 아니다. 이전 613/35/729는 G4/CAD, 599/33/686은 G3-5A/I1 당시 기준이다.
+- 최신 전체 **628 Node / 54 suites / fail·skip 0**, **35 browser workflows / 734 checks**, TypeScript, architecture/import·문서 링크 **304 modules**, workspace production build 통과. 각도 UI는 연결 전이므로 browser 결과는 기존 기능의 회귀다. gateway 13개는 mock 검수이며 실제 LLM 연결 증거가 아니다. 이전 618/35/734는 G5-A1, 613/35/729는 G4/CAD 당시 기준이다.
 - `utif@3.1.0`과 전이 `pako@1.0.11`은 TIFF 전용 Worker에만 들어가며 production Worker chunk는 **87.19 kB**다. UPNG/Typr/ag-psd/Paper/PptxGenJS는 확인한 후보이며 미설치다. Photopea 전체 편집기 소스는 가져오지 않았다.
-- G6의 실제 외부 환경은 없고 새 adapter 구현은 시작하지 않았다. CAD B3-A1/A2·B 외에 B0–B5/X의 나머지 카드는 계획 상태를 유지한다.
+- G6의 실제 외부 환경은 없고 새 adapter 구현은 시작하지 않았다. CAD B3-A1/A2·B·C1 외에 B0–B5/X의 나머지 카드는 계획 상태를 유지한다.
 
 2026-10-06 설계와 후속 구현: [CAD 구현 카드](docs/product/CAD-BASICS-IMPLEMENTATION-PLAN.md)에 B0–B5/X1–X7의 경계·선행 조건·수정 위치·검수를 구분했다. 이후 B3-A1/A2·B를 실제 구현해 카드와 지원표를 갱신했다. 일반 CAD 전체 기능 동등성을 달성한 것은 아니다.
 
-| 최신 검사 (2026-10-06, G5-A1) | 결과와 로그 |
+| 최신 검사 (2026-10-08, B3-C1) | 결과와 로그 |
 | --- | --- |
-| 전체 Node | [618 tests / 54 suites, fail·skip 0](output/g5-a1-node-2026-10-06.log) |
-| 전체 browser | [35 workflows / 734 checks](output/g5-a1-browser-2026-10-06.log), actual pointer/file input·download/reimport·React·Worker·픽셀·이력 검사 |
-| 타입·architecture | [tsc -b](output/g5-a1-typecheck-2026-10-06.log) 통과, [301 modules·문서 링크](output/g5-a1-architecture-2026-10-06.log) |
-| 전체 production build | [workspace build 통과](output/g5-a1-build-2026-10-06.log). main 1,021.06 kB / viewport 607.53 kB, >500 kB 경고 유지. OpenCascade WASM 50,305.13 kB raw / 13,955.45 kB gzip |
+| 전체 Node | [628 tests / 54 suites, fail·skip 0](output/b3-c1-node-2026-10-08.log) |
+| 전체 browser | [35 workflows / 734 checks](output/b3-c1-browser-2026-10-08.log), 기존 UI의 pointer/file input·download/reimport·React·Worker·픽셀·이력 검사 |
+| 타입·architecture | [tsc -b](output/b3-c1-typecheck-2026-10-08.log) 통과, [304 modules·문서 링크](output/b3-c1-architecture-2026-10-08.log) |
+| 전체 production build | [workspace build 통과](output/b3-c1-build-2026-10-08.log). main 1,021.28 kB / viewport 607.53 kB, >500 kB 경고 유지. OpenCascade WASM 50,305.13 kB raw / 13,955.45 kB gzip |
 
-원시 실행 로그는 로컬 생성 파일이며 Git에서는 제외한다. 재현 가능한 명령·전체 workflow별 검사 수·환경은 [G5-A1 검증 요약](docs/verification/G5-A1-CLOSEOUT-2026-10-06.json)에 커밋으로 보존한다. 이전 G4/CAD 수치와 resource sample은 [이전 검증 요약](docs/verification/G4-CAD-CLOSEOUT-2026-10-06.json)에 유지한다.
+원시 실행 로그는 로컬 생성 파일이며 Git에서는 제외한다. 재현 가능한 명령·workflow별 검사 수·환경은 [C1 검증 요약](docs/verification/B3-C1-CLOSEOUT-2026-10-08.json)에 커밋으로 보존한다. 이전 수치는 [G5-A1 검증 요약](docs/verification/G5-A1-CLOSEOUT-2026-10-06.json)과 [G4/CAD 검증 요약](docs/verification/G4-CAD-CLOSEOUT-2026-10-06.json)에 유지한다.
 
-이전 G3-5A/I1 최초 전체 browser는 PDF native file fetch의 `Failed to fetch`로 중단됐으며 원인은 미확정이다. 이번 전체 회귀에서는 재현되지 않았다. [이전 실패 로그](output/integrated-browser-2026-10-06.log)를 보존한다. 이번 최초 Node는 DXF 정밀도가 높아져 정수 문자열을 전제한 패턴 radius 검사 한 개가 실패했다. analytic circle 개수 검사를 유지하고 실제 radius와 세 center XYZ를 독립 수치 검증하도록 보강한 최종 전체는 통과했다.
+이전 G3-5A/I1 최초 전체 browser는 PDF native file fetch의 `Failed to fetch`로 중단됐으며 원인은 미확정이다. 이번 전체 회귀에서는 재현되지 않았다. [이전 실패 로그](output/integrated-browser-2026-10-06.log)를 보존한다. 2026-10-06 G4/CAD 최초 Node는 DXF 정밀도가 높아져 정수 문자열을 전제한 패턴 radius 검사 한 개가 실패했다. analytic circle 개수 검사를 유지하고 실제 radius와 세 center XYZ를 독립 수치 검증하도록 보강한 최종 전체는 통과했다.
 
 ## 제품 방향
 
@@ -45,7 +46,7 @@ G3-5A/I1 이후 **G4-A 검수, G4-B/C의 첫 원본·component 인계·SVG 출�
 | 스케치·구속 | 기본 치수/일치/수평/수직/고정과 평행·수직·동일 길이/반지름·동심·선/원 접선·점의 선/원 위·대칭. DOF/충돌, 구속을 유지하는 드래그·방향 안내, 캔버스 검토 | 호 접점 범위·호 위 점, 일반 곡선 관계, 큰 연결 스케치의 솔버 비용 |
 | 스냅 | Grid/Endpoint/Midpoint/Center/Intersection/Tangent/Perpendicular/Nearest/Quadrant/Extension, 종류·격자 간격·픽셀 반경 설정, 기호·원본 표시와 Alt 억제 | 취득한 추적점 유지·해제, 복수 추적 교점·후보 전환 |
 | 저장 관계·자동화 | 변수/수식·바인딩, live 2D Mirror/Linear·Grid/Radial Pattern, 중점→수직이등분선→교점 저장/재계산, 재귀 component definition/instances, Dependency Query/Inspector | component instance property override/variant, 작도 정의 편집, 공통 노드 UI |
-| 치수·표현·교환 | 일반 선형/반지름/연속 치수, 스케치 구동 치수, 문자·해치·레이어 style·CAD vector fill/stroke/opacity/width, limited DXF, active-plane/board SVG, PDF·일부 STEP/STL 출력 | 일반 지름/각도/Leader, DXF bulge/association 왕복, SVG path-node/import, gradient/mask/blend, 여러 시트·폰트, DWG/STEP/IFC 가져오기 |
+| 치수·표현·교환 | 일반 선형/반지름/지름/연속 치수, 스케치 구동 치수, 문자·해치·레이어 style·CAD vector fill/stroke/opacity/width, limited DXF와 exact bulge 왕복, active-plane/board SVG, PDF·일부 STEP/STL 출력 | 일반 각도 도구(계산 기하만 C1 완료)/Leader, DXF association 왕복, SVG path-node/import, gradient/mask/blend, 여러 시트·폰트, DWG/STEP/IFC 가져오기 |
 | 아트보드 | CRUD·v7·mm/cm 입력·공통 detached Review/Apply/Cancel·impact·실제 frame/background·활성 선택·Fit·별도 SVG/PNG/PDF export·다중 PDF page·visible vector/raster order·crop/mask/opacity/color·보드 경계/배경 | drafting text/dimension·무한선/ray/독립점 export, 다중 선택·편집/인쇄 출판, 큰 문서 성능 측정. 생성/삭제/Hide/Lock은 즉시 한 Undo |
 | 3D | 기본 솔리드, Extrude/Revolve/Sweep/Loft/Boolean/일부 엣지 Fillet·Chamfer, 원본 편집의 종속 재생성 | Axonometric ViewPreset, 면 위 스케치·연관 투영, 전용 Cut/Hole/Shell/Section Plane, 3D 미러/배열·엣지 참조 복구. RVT/IFC adapter는 미구현 |
 | 웹 문서·AI·mesh | JSON 저장/열기·자동 복구·Undo/Redo, rule 기반 Copilot과 공용 Query/Preview/Apply. 표현·측정 출처의 확장 계약 | URL 저장소·협업/버전/댓글, 실제 LLM 연결, 편집 가능한 mesh 자산과 도구, BIM 의미 계층·Publication Graph, Manim adapter. CAD를 원본으로 한 아트보드·vector·raster image·컴포넌트·타임라인·와이어프레임·슬라이드 확장은 [통합 제작 로드맵](docs/product/UNIFIED-CREATIVE-SUITE-ROADMAP.md)에 정의 |

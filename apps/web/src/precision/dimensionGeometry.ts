@@ -1,5 +1,6 @@
 import { planeToWorld, WORK_PLANES, type Vec3, type WorkPlaneId } from "./workPlane";
 import { formatLength } from "./units";
+import { dimensionArrowhead as arrowhead } from "./dimensionSymbols";
 
 export type DimensionOrientation = "aligned" | "horizontal" | "vertical";
 
@@ -14,8 +15,6 @@ export type DimensionRender = {
   value: number;
 };
 
-const ARROW_LENGTH = 3;
-const ARROW_HALF_ANGLE = Math.PI / 9;
 const EXTENSION_OVERSHOOT = 2;
 const TEXT_GAP = 2.5;
 const DEFAULT_OFFSET = 10;
@@ -26,16 +25,6 @@ type V2 = [number, number];
 const add = (a: V2, b: V2): V2 => [a[0] + b[0], a[1] + b[1]];
 const scale = (a: V2, s: number): V2 => [a[0] * s, a[1] * s];
 const dot = (a: V2, b: V2): number => a[0] * b[0] + a[1] * b[1];
-
-/** Two barb segments forming an arrowhead with its tip at `tip`, pointing along `direction`. */
-function arrowhead(tip: V2, direction: V2, symbolScale = 1): [V2, V2][] {
-  const back: V2 = [-direction[0], -direction[1]];
-  const cos = Math.cos(ARROW_HALF_ANGLE);
-  const sin = Math.sin(ARROW_HALF_ANGLE);
-  const left: V2 = [back[0] * cos - back[1] * sin, back[0] * sin + back[1] * cos];
-  const right: V2 = [back[0] * cos + back[1] * sin, -back[0] * sin + back[1] * cos];
-  return [[tip, add(tip, scale(left, ARROW_LENGTH * symbolScale))], [tip, add(tip, scale(right, ARROW_LENGTH * symbolScale))]];
-}
 
 function workPlaneOf(params: Record<string, unknown>): WorkPlaneId {
   return params.workPlane === "XZ" || params.workPlane === "YZ" ? params.workPlane : "XY";
