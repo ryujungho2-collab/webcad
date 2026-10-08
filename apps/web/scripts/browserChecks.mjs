@@ -27,7 +27,7 @@ const server = await createServer({ server: { host: "127.0.0.1", port: 0 }, logL
 await server.listen();
 const port = server.httpServer.address().port;
 try {
-  const pages=["draftingWorkflow", "sketchCanvas", "pointWorkflow", "regionWorkflow", "deliveryWorkflow","trustWorkflow","variablesWorkflow","commandExperience","canvasIntent","directEditExperience","constrainedDrag","directTargetExperience","patternsWorkflow","contourWorkflow","basicEditWorkflow","dependencyWorkflow","constructionWorkflow","extendedCadWorkflow","curveWorkflow","contourTrimWorkflow","interactionRelations","artboardsWorkflow","componentsWorkflow","imageWorkflow","tiffImportWorkflow","imageSourceWorkflow","artboardPngWorkflow","artboardPdfWorkflow","imageResources","scenesWorkflow","dxfWorkflow","diameterWorkflow","angularWorkflow","copilotGateway","sessionContinuity","historySelection"];
+  const pages=["draftingWorkflow", "sketchCanvas", "pointWorkflow", "regionWorkflow", "deliveryWorkflow","trustWorkflow","variablesWorkflow","commandExperience","canvasIntent","directEditExperience","constrainedDrag","directTargetExperience","patternsWorkflow","contourWorkflow","basicEditWorkflow","dependencyWorkflow","constructionWorkflow","extendedCadWorkflow","curveWorkflow","contourTrimWorkflow","interactionRelations","artboardsWorkflow","componentsWorkflow","imageWorkflow","tiffImportWorkflow","imageSourceWorkflow","artboardPngWorkflow","artboardPdfWorkflow","imageResources","scenesWorkflow","dxfWorkflow","diameterWorkflow","angularWorkflow","copilotGateway","copilotContext","sessionContinuity","historySelection"];
   const selected=process.argv.find(value=>value.startsWith("--page="))?.slice(7);
   const sessionCount=process.argv.find(value=>value.startsWith("--session-count="))?.slice(16)??"0";
   if(!["0","1000"].includes(sessionCount)||sessionCount!=="0"&&selected!=="sessionContinuity")throw new Error("Invalid session fixture count");
@@ -40,13 +40,13 @@ try {
     let timer;
     const result = new Promise((resolve, reject) => {
       pending.set(run, resolve);
-      timer = setTimeout(() => reject(new Error(`${page}: browser checks timed out`)), benchmark?180000:["dxfWorkflow","interactionRelations","angularWorkflow","historySelection","imageWorkflow","tiffImportWorkflow","imageSourceWorkflow","artboardPngWorkflow","artboardPdfWorkflow","imageResources"].includes(page)?120000:60000);
+      timer = setTimeout(() => reject(new Error(`${page}: browser checks timed out`)), benchmark?180000:["dxfWorkflow","interactionRelations","angularWorkflow","copilotContext","historySelection","imageWorkflow","tiffImportWorkflow","imageSourceWorkflow","artboardPngWorkflow","artboardPdfWorkflow","imageResources"].includes(page)?120000:60000);
     });
     const targetUrl = `http://127.0.0.1:${port}/tests/${page}.browser.html?auto=1&run=${run}${benchmark?`&task=${task}&count=${count}`:page==="sessionContinuity"?`&count=${sessionCount}`:""}${process.argv.includes("--artifacts")?"&artifacts=1":""}`;
     const closeInput = registerBrowserInput(run, profile, targetUrl);
     const child = spawn(executable, ["--headless", "--no-first-run", "--no-default-browser-check", "--disable-background-networking", "--remote-debugging-port=0", "--remote-debugging-address=127.0.0.1",
       ...(executable.toLowerCase().includes("msedge") ? ["--edge-skip-compat-layer-relaunch"] : []),
-      ...(["commandExperience","canvasIntent","directEditExperience","constrainedDrag","directTargetExperience","editPerformance","patternsWorkflow","contourWorkflow","basicEditWorkflow","dependencyWorkflow","constructionWorkflow","extendedCadWorkflow","curveWorkflow","contourTrimWorkflow","interactionRelations","angularWorkflow","artboardsWorkflow","componentsWorkflow","imageWorkflow","tiffImportWorkflow","imageSourceWorkflow","artboardPngWorkflow","artboardPdfWorkflow","imageResources","scenesWorkflow","dxfWorkflow","copilotGateway","sessionContinuity","historySelection"].includes(page) ? ["--window-size=1440,1000"] : []),
+      ...(["commandExperience","canvasIntent","directEditExperience","constrainedDrag","directTargetExperience","editPerformance","patternsWorkflow","contourWorkflow","basicEditWorkflow","dependencyWorkflow","constructionWorkflow","extendedCadWorkflow","curveWorkflow","contourTrimWorkflow","interactionRelations","angularWorkflow","artboardsWorkflow","componentsWorkflow","imageWorkflow","tiffImportWorkflow","imageSourceWorkflow","artboardPngWorkflow","artboardPdfWorkflow","imageResources","scenesWorkflow","dxfWorkflow","copilotGateway","copilotContext","sessionContinuity","historySelection"].includes(page) ? ["--window-size=1440,1000"] : []),
       "--use-angle=swiftshader", "--enable-unsafe-swiftshader", `--user-data-dir=${profile}`,
       targetUrl], { stdio: "ignore", windowsHide: true });
     child.on("error", (error) => pending.get(run)?.({ status: "failed", message: error.message }));

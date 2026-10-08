@@ -60,8 +60,9 @@ button.onclick=async()=>{
     await click("Save document");
     check(!document.querySelector(".document-modified-label")&&!document.querySelector(".recovery-notice"),"A successful retry clears the save failure only after writing");
     await plan("radius 5 sphere");await click("New document");await click("Copilot");
-    check(Boolean(find("Apply")?.disabled)&&document.querySelector('[data-testid="copilot-panel"]')?.textContent?.includes("document changed"),"A document change disables a stale prepared plan with an explanation");
-    await click("Clear");check(!find("Apply"),"Discard removes the review without creating geometry");
+    await waitFor(()=>Boolean(document.querySelector('[data-testid="copilot-panel"] [role="alert"]')?.textContent?.includes("document changed")));
+    check(!find("Apply")&&(document.querySelector('[aria-label="Copilot prompt"]') as HTMLInputElement).value==="radius 5 sphere","A document change discards a stale prepared plan with an explanation and preserves the prompt");
+    check(!find("Apply")&&cadDocument.rootObjects.length===0&&cadHistory.getPastLabels().length===0,"Automatic invalidation removes the review without creating geometry or history");
     // Wait for the New-document debounce before injecting corruption and doing a real reload.
     await new Promise(resolve=>setTimeout(resolve,400));
     localStorage.setItem(DOCUMENT_BACKUP_KEY,savedSolid);

@@ -1,11 +1,14 @@
-import { useState } from "react";
 import type { CopilotPlan } from "./copilotPlan";
 import { PropertySection } from "../ui/PropertySection";
 import type { CopilotConnection } from "./copilotConnection";
+import type { CopilotPlanningContext } from "./copilotContext";
 import { CommandReview } from "../ui/CommandReview";
 import type { CommandInteraction } from "../state/commandInteraction";
 
 export type CopilotPanelProps = {
+  draft: string;
+  connection: CopilotConnection;
+  requestContext: CopilotPlanningContext | null;
   plan: CopilotPlan | null;
   error: string;
   previewFailed: number;
@@ -16,6 +19,8 @@ export type CopilotPanelProps = {
   applyDisabledReason?: string;
   interaction?: CommandInteraction;
   onSubmit: (input: string, connection?: CopilotConnection) => void;
+  onDraftChange: (value: string) => void;
+  onConnectionChange: (value: CopilotConnection) => void;
   onTogglePreview: () => void;
   onApply: () => void;
   onClear: () => void;
@@ -28,23 +33,21 @@ const EXAMPLES = ["100x50x30 박스 3개", "100x50 사각형 돌출 20", "반지
  * Submit evaluates a detached proposal with the real kernel. Typing never
  * issues geometry work. Apply publishes the validated proposal once and
  * rejects a stale baseline. Ghosts remain temporary viewport objects.
- * The status-bar Cancel button stays the single explicit abort path.
+ * Draft and connection settings live above the activity panel so navigation
+ * does not discard an unfinished request or its editable input.
  */
 export function CopilotPanel(props: CopilotPanelProps) {
-  const [draft, setDraft] = useState("");
-  const [connection,setConnection]=useState<CopilotConnection>({mode:"rules",endpoint:"/api/copilot/plan"});
-
   function submit() {
-    if (!draft.trim() || props.applying) return;
-    props.onSubmit(draft,connection);
+    if (!props.draft.trim() || props.applying) return;
+    props.onSubmit(props.draft,props.connection);
   }
 
   return (
     <div className="properties-content" data-testid="copilot-panel">
-      <div className="inspector-header"><span>Copilot</span><small>{connection.mode==="rules"?"rule-based":"gateway"}</small></div>
+      <div className="inspector-header"><span>Copilot</span><small>{props.connection.mode==="rules"?"rule-based":"gateway"}</small></div>
       <PropertySection title="Connection" meta="Optional gateway">
-        <label>Planner<select aria-label="Copilot planner" value={connection.mode} onChange={e=>{props.onClear();setConnection({...connection,mode:e.target.value as CopilotConnection["mode"]});}}><option value="rules">Local rules</option><option value="gateway">LLM gateway</option></select></label>
-        {connection.mode==="gateway"&&<><label>Gateway URL<input aria-label="Copilot gateway URL" value={connection.endpoint} onChange={e=>{props.onClear();setConnection({...connection,endpoint:e.target.value});}}/></label><p className="property-hint">Plan sends your prompt, document identity and up to 50 selected object names/types/references to this gateway. Image bytes and API keys are not included. Configure your provider on the server. Current gateway capabilities: finite 2D drawings and solid primitives, up to 20 commands.</p></>}
+        <label>Planner<select aria-label="Copilot planner" value={props.connection.mode} onChange={e=>{props.onClear();props.onConnectionChange({...props.connection,mode:e.target.value as CopilotConnection["mode"]});}}><option value="rules">Local rules</option><option value="gateway">LLM gateway</option></select></label>
+        {props.connection.mode==="gateway"&&<><label>Gateway URL<input aria-label="Copilot gateway URL" value={props.connection.endpoint} onChange={e=>{props.onClear();props.onConnectionChange({...props.connection,endpoint:e.target.value});}}/></label><p className="property-hint">Plan sends your prompt, document identity and up to 50 selected object names/types/references to this gateway. Image bytes and API keys are not included. Configure your provider on the server. Current gateway capabilities: finite 2D drawings and solid primitives, up to 20 commands.</p></>}
       </PropertySection>
       <PropertySection title="Prompt" meta="NL → commands">
         <div className="numeric-control">
@@ -52,15 +55,15 @@ export function CopilotPanel(props: CopilotPanelProps) {
             aria-label="Copilot prompt"
             type="text"
             placeholder="100x50x30 박스 3개…"
-            value={draft}
-            onChange={(event) => {props.onClear();setDraft(event.target.value);}}
+            value={props.draft}
+            onChange={(event) => {props.onClear();props.onDraftChange(event.target.value);}}
             onKeyDown={(event) => {
               if (event.key === "Enter" && !event.nativeEvent.isComposing) submit();
             }}
           />
         </div>
         <div className="sketch-actions">
-          <button type="button" onClick={submit} disabled={!draft.trim() || props.applying}>Plan</button>
+          <button type="button" onClick={submit} disabled={!props.draft.trim() || props.applying}>Plan</button>
           {(props.plan||props.planning) && <button type="button" onClick={props.onClear}>{props.planning?"Cancel request":"Clear"}</button>}
         </div>
         <div className="property-hint">Examples: {EXAMPLES.map((example, index) => (
@@ -68,12 +71,16 @@ export function CopilotPanel(props: CopilotPanelProps) {
             type="button"
             className="copilot-example"
             title={`Try “${example}”`}
-            onClick={() => { setDraft(example); props.onSubmit(example,connection); }}
+            onClick={() => { props.onDraftChange(example); props.onSubmit(example,props.connection); }}
           >{example}</button></span>
         ))}</div>
       </PropertySection>
 
       {props.error && <div className="inspector-notice inspector-error" role="alert">{props.error}</div>}
+      {props.requestContext && <div className="property-hint" aria-label="Copilot request context">
+        <strong>Planned context:</strong> {props.requestContext.version.documentId} · {props.requestContext.workPlane} · {props.requestContext.layerName} · {props.requestContext.selectionIds.length} selected
+        {props.requestContext.selectionNames.length>0 && <span> ({props.requestContext.selectionNames.slice(0,3).join(", ")}{props.requestContext.selectionNames.length>3?", …":""})</span>}
+      </div>}
       {props.planning&&!props.plan&&<p role="status">Requesting a command proposal… You can cancel or edit the prompt.</p>}
       {props.interaction&&<CommandReview state={props.interaction}/>}
 

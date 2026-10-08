@@ -115,6 +115,9 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
         {props.activeActivity === "variables" && <VariablesPanel query={normalizedQuery} documentRevision={props.documentRevision} selectedObjectId={props.selectedObjectId} activeSketchId={props.activeSketchId} onDocumentChange={props.onDocumentChange}/>}
         {props.activeActivity === "copilot" && props.copilot && (
           <CopilotPanel
+            draft={props.copilot.draft}
+            connection={props.copilot.connection}
+            requestContext={props.copilot.requestContext}
             plan={props.copilot.plan}
             interaction={props.copilot.interaction}
             error={props.copilot.error}
@@ -125,6 +128,8 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
             canApply={props.copilot.canApply}
             applyDisabledReason={props.copilot.applyDisabledReason}
             onSubmit={props.copilot.onSubmit}
+            onDraftChange={props.copilot.onDraftChange}
+            onConnectionChange={props.copilot.onConnectionChange}
             onTogglePreview={props.copilot.onTogglePreview}
             onApply={props.copilot.onApply}
             onClear={props.copilot.onClear}

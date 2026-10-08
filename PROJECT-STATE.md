@@ -4,7 +4,7 @@
 
 ## 최신 통합 구현·검수 상태
 
-사용자 요청으로 **B3-C 일반 각도 치수의 계산·두 참조/갱신·Trim/Join 재연결·v14 저장·공개 도구·출력**을 구현했다. [C1 계산](docs/implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md), [C2/C3 작업·검증](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)을 따른다. G5-A2/A3는 대기 상태로 보존했다. 기존 [G4·DXF·지름](docs/implementation/G4-CAD-BASICS-2026-10-06.md), [G5-A1](docs/implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md)의 구현을 유지한다. G4–G6/CAD-BASICS 전체 기능 동등성을 달성한 상태는 아니다.
+사용자 요청으로 **G5-A2 Copilot 패널 draft와 요청 context 수명**을 구현·검수했다. [G5-A2 구현](docs/implementation/G5-A2-COPILOT-CONTEXT-2026-10-08.md)과 [검증 요약](docs/verification/G5-A2-CLOSEOUT-2026-10-08.json)을 따른다. 앞서 구현한 **B3-C 일반 각도 치수의 계산·두 참조/갱신·Trim/Join 재연결·v14 저장·공개 도구·출력**은 [C1 계산](docs/implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md), [C2/C3 작업·검증](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)에 기록했다. G5-A3는 대기 상태다. 기존 [G4·DXF·지름](docs/implementation/G4-CAD-BASICS-2026-10-06.md), [G5-A1](docs/implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md)의 구현을 유지한다. G4–G6/CAD-BASICS 전체 기능 동등성을 달성한 상태는 아니다.
 
 - G3-5: 공유 이미지 source의 texture 중복과 crop/opacity/color 재업로드를 제거했다. 최신 resource browser **34 checks**는 source 교체/Cancel의 실제 픽셀과 해제도 검사한다. 같은 4000×4000 두 배치에서 texture 2→1, 9회 편집 upload-version 증가 18→0. 2026-10-06 마감 측정 p95 **0.2ms**, texture 1·upload 증가 0. Edge/SwiftShader 9개 warm 표본이며 실사용 GPU·heap/VRAM 측정이 아니다. [전후 증거와 마감](docs/verification/G3-5-IMAGE-RESOURCES-2026-10-06.md).
 - I1: PNG/JPEG/WebP와 제한된 TIFF의 공통 import/replacement decoder, Current/Replacement와 캔버스 preview, Cancel·stale·Worker abort, 원본 교체+숫자 편집 한 Apply/Undo를 추가했다. object/Scene 참조·crop/mask/color·다른 공유 배치를 보존하고 마지막 이전 source만 해제한다. 새 Node **3개**, source browser **16개**, TIFF browser **10개**. [실제 workflow·제한](docs/verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md).
@@ -12,21 +12,21 @@
 - CAD B3-A1/A2: ordered vertex/sparse·signed·closed bulge·inch/R12 elevation, exact control vertex writer와 회전/반사·uniform scale 왕복. Import/Export detached Review의 단위·제외·subset 수락·stale·Cancel/한 Undo, 선택한 root의 component definition closure. DXF Node **7개**, 실제 file input/download/reimport browser **18개**. width/mesh/non-default OCS/tilted/non-uniform curved geometry는 명시적 제외다.
 - CAD B3-B: 원/원호 supporting circle의 일반 Ø 주석·양끝 화살표, deg/rad leader review·재배치, 원본 수정과 Trim/Join circular edge remap·source 삭제 동결·v13·DXF TEXT. Node **4개**, browser **17개**. 잠금으로 selection이 바뀌어도 검토 창/입력 유지. 공통 dimension style과 지름 전용 canvas annotation handle은 후속이다.
 - CAD B3-C1–C3: 두 straight edge의 연장 교점·공통 elevation·명시적 ±ray/CW/CCW를 계산하고 각 source의 객체/edge identity를 저장한다. 원본/Sketch/Pattern 수정과 Trim/Join 참조 재연결에서 각도를 원자적으로 갱신하며 모호한 참조는 거부한다. v14 저장·재열기, 검색/리본/우클릭의 Angular Dimension 도구, 캔버스 edge picking·반지름 핸들·정밀 입력·검토/인계, DXF/SVG/PDF 출력까지 연결했다. C1 신규 **10 Node**, C2 신규 **8 Node**, C3 browser **24 checks**가 독립 검증됐다. 일반 각도는 구동 스케치 치수와 별도의 연관 주석이다.
-- G5 진행 중/A1 완료: ownership/topology 주입·nested batch 거부, 멈춘 header/body와 cancel promise에도 취소/deadline 종료, 늦은 응답·거부된 body 해제, UTF-8 byte 제한·재시도 오류 안내. gateway Node **8개**, mock transport actual UI browser **13개** 통과. A2 패널/설정/context 수명과 A3 Apply/잠금 검수는 남음. 실제 공급자/서버는 연결하지 않았고 현재 finite drawing/primitive 생성만 허용한다.
-- C3 최신 전체 **636 Node / 54 suites / fail·skip 0**, **36 browser workflows / 758 checks**, TypeScript, architecture/import·문서 링크 **308 modules**, workspace production build 통과. 각도 browser **24 checks**가 실제 React/Worker/포인터/파일 출력 경로에서 통과했다. 검증 조건·한계는 [C3 검증 요약](docs/verification/B3-C3-CLOSEOUT-2026-10-08.json)에 기록한다. gateway 13개는 mock 검수이며 실제 LLM 연결 증거가 아니다. 이전 628/35/734는 C1, 618/35/734는 G5-A1 당시 기준이다.
+- G5 진행 중/A1·A2 완료: A1의 ownership/topology 주입·nested batch 거부, 멈춘 header/body와 cancel promise에도 취소/deadline 종료, 늦은 응답·거부된 body 해제, UTF-8 byte 제한·재시도 오류 안내를 유지한다. A2에서 패널 activity 왕복 뒤에도 prompt/설정 draft와 off-panel 제안을 유지한다. 요청 시 문서·선택·작업면·활성 레이어·prompt·설정을 복사해 검토에 표시하고, 변경되면 기존 제안과 ghost를 폐기해 재계획을 요구한다. A2 신규 Node **2개**, mock transport browser **15개**가 독립 통과했다. A3 Apply/잠금·경합 검수는 남는다. 실제 공급자/서버는 연결하지 않았고 현재 finite drawing/primitive 생성만 허용한다.
+- A2 최신 전체 **638 Node / 54 suites / fail·skip 0**, **37 browser workflows / 773 checks**, TypeScript, architecture/import·문서 링크 **311 modules**, workspace production build 통과. A2 mock context browser **15 checks**와 기존 gateway 13개를 포함한다. 검증 조건·한계는 [A2 검증 요약](docs/verification/G5-A2-CLOSEOUT-2026-10-08.json)에 기록한다. 실제 LLM 연결 증거는 아니다. C3 당시 636/36/758과 C1·A1의 앞선 수치는 단계별 검수 기록이다.
 - `utif@3.1.0`과 전이 `pako@1.0.11`은 TIFF 전용 Worker에만 들어가며 production Worker chunk는 **87.19 kB**다. UPNG/Typr/ag-psd/Paper/PptxGenJS는 확인한 후보이며 미설치다. Photopea 전체 편집기 소스는 가져오지 않았다.
 - G6의 실제 외부 환경은 없고 새 adapter 구현은 시작하지 않았다. CAD B3-A1/A2·B·C1–C3 외에 B0–B5/X의 나머지 카드는 계획 상태를 유지한다.
 
 2026-10-06 설계와 후속 구현: [CAD 구현 카드](docs/product/CAD-BASICS-IMPLEMENTATION-PLAN.md)에 B0–B5/X1–X7의 경계·선행 조건·수정 위치·검수를 구분했다. 이후 B3-A1/A2·B·C1–C3를 실제 구현해 카드와 지원표를 갱신했다. 일반 CAD 전체 기능 동등성을 달성한 것은 아니다.
 
-| 최신 검사 (2026-10-08, B3-C3) | 결과와 로그 |
+| 최신 검사 (2026-10-08, G5-A2) | 결과와 로그 |
 | --- | --- |
-| 전체 Node | [636 tests / 54 suites, fail·skip 0](output/angular-c3-node-2026-10-08.log) |
-| 전체 browser | [36 workflows / 758 checks](output/angular-c3-browser-2026-10-08.log), 각도 24개 포함. pointer/file input·download/reimport·React·Worker·픽셀·이력 검사 |
-| 타입·architecture | `tsc -b` 통과, 308 modules·문서 링크 통과 |
-| 전체 production build | [workspace build 통과](output/angular-c3-build-2026-10-08.log). main 1,036.35 kB / viewport 618.81 kB, >500 kB 경고 유지. OpenCascade WASM 50,305.13 kB raw / 13,955.45 kB gzip |
+| 전체 Node | [638 tests / 54 suites, fail·skip 0](output/g5-a2-node-2026-10-08.log) |
+| 전체 browser | [37 workflows / 773 checks](output/g5-a2-browser-2026-10-08.log), G5-A2 context 15개·기존 gateway 13개 포함. 실제 React/Worker·mock transport·취소·이력 검사 |
+| 타입·architecture | `tsc -b` 통과, 311 modules·문서 링크 통과 |
+| 전체 production build | [workspace build 통과](output/g5-a2-build-2026-10-08.log). main 1,038.93 kB / viewport 618.81 kB, >500 kB 경고 유지. OpenCascade WASM 50,305.13 kB raw / 13,955.45 kB gzip |
 
-원시 실행 로그는 로컬 생성 파일이며 Git에서는 제외한다. 새 각도 기능의 실제 workflow·제한은 [C2/C3 기록](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)에 기록한다. 이전 수치는 [C1 검증 요약](docs/verification/B3-C1-CLOSEOUT-2026-10-08.json), [G5-A1 검증 요약](docs/verification/G5-A1-CLOSEOUT-2026-10-06.json)과 [G4/CAD 검증 요약](docs/verification/G4-CAD-CLOSEOUT-2026-10-06.json)에 유지한다.
+원시 실행 로그는 로컬 생성 파일이며 Git에서는 제외한다. A2의 실제 workflow·제한은 [A2 기록](docs/implementation/G5-A2-COPILOT-CONTEXT-2026-10-08.md)에, 각도 기능은 [C2/C3 기록](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)에 기록한다. 이전 수치는 [C3 검증 요약](docs/verification/B3-C3-CLOSEOUT-2026-10-08.json), [C1 검증 요약](docs/verification/B3-C1-CLOSEOUT-2026-10-08.json), [G5-A1 검증 요약](docs/verification/G5-A1-CLOSEOUT-2026-10-06.json)과 [G4/CAD 검증 요약](docs/verification/G4-CAD-CLOSEOUT-2026-10-06.json)에 유지한다.
 
 이전 G3-5A/I1 최초 전체 browser는 PDF native file fetch의 `Failed to fetch`로 중단됐으며 원인은 미확정이다. 이번 전체 회귀에서는 재현되지 않았다. [이전 실패 로그](output/integrated-browser-2026-10-06.log)를 보존한다. 2026-10-06 G4/CAD 최초 Node는 DXF 정밀도가 높아져 정수 문자열을 전제한 패턴 radius 검사 한 개가 실패했다. analytic circle 개수 검사를 유지하고 실제 radius와 세 center XYZ를 독립 수치 검증하도록 보강한 최종 전체는 통과했다.
 
@@ -59,7 +59,7 @@
 - 도면 편집은 `apps/web/src/features/drawing-editing/{geometry,commands,ui}`에 모았다. `contracts.ts`는 타입, `registerCommands.ts`는 등록 진입점이다. 공용 변환 함수는 `precision`, 치수 명령은 별도 어댑터에 있다.
 - UI·노드·AI는 같은 문서와 명령을 사용한다. Preview는 분리된 제안을 계산하고, Apply는 검토한 제안을 한 Undo로 게시한다. 오래된 계획·잠금·구속·연관 재생성 실패는 부분 변경을 남기지 않는다. 현재 viewport는 WebGL, 기하·메시 계산은 Worker와 제한된 세션 캐시를 사용한다. WebGPU backend, 영속 파생 캐시와 자원 예산은 [웹 런타임 자원 전략](docs/architecture/WEB-RUNTIME-RESOURCE-STRATEGY.md)에 정의된 다음 작업이다.
 - 해석 곡선/BRep 원본과 표시용 mesh를 구분한다. Offset·두 객체 코너·Trim/Join 결과는 적용 당시의 편집 가능한 기하다. 변경되지 않은 해석 모서리 ID와 명시적으로 지정한 치수·솔리드 참조를 보존한다. 영구 Fillet/Trim 정의를 추가한 것은 아니다.
-- JSON은 필요한 의미에 따라 v1–v13을 사용한다. 변수/바인딩 v2, live 패턴 v3, 작도 v4, 확장 구속 v5, topology/span 관계 v6, 아트보드 v7, image v8, ellipse mask v9, opacity v10, color adjustment v11, Scene v12, 일반 지름 주석 v13이다. 이전 버전을 읽고 새 의미가 없는 문서는 기존 최소 버전으로 저장한다. 구형 version에 새 지름 주석을 넣은 파일은 거부한다.
+- JSON은 필요한 의미에 따라 v1–v14를 사용한다. 변수/바인딩 v2, live 패턴 v3, 작도 v4, 확장 구속 v5, topology/span 관계 v6, 아트보드 v7, image v8, ellipse mask v9, opacity v10, color adjustment v11, Scene v12, 일반 지름 주석 v13, 일반 각도 주석 v14다. 이전 버전을 읽고 새 의미가 없는 문서는 기존 최소 버전으로 저장한다. 구형 version에 새 주석 의미를 넣은 파일은 거부한다.
 
 [디렉토리 규칙](docs/architecture/DIRECTORY-STRUCTURE.md), [재생성 계약](docs/architecture/PARAMETRIC-REGENERATION.md), [구조 리뷰](docs/reviews/CODE-REVIEW-2026-10-04.md)를 따른다.
 

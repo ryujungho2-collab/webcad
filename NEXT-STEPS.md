@@ -1,6 +1,6 @@
 # 다음 작업
 
-갱신일: 2026-10-08. **일반 각도 치수 B3-C1–C3를 완료했다.** 두 source/edge의 live 참조, Trim/Join 재연결·v14 저장, 검색/리본/우클릭 도구와 캔버스 검토·출력의 실제 범위는 [C2/C3 기록](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)을 따른다. 전체 Node **636개**, browser **36 workflows / 758 checks**(각도 24개), 타입·architecture **308 modules**·workspace build가 통과했다. 다음 보류 작업은 **G5-A2 패널/설정/context 수명 검수 → G5-A3 Apply/잠금 검수**다. CAD의 다음 확장 후보는 B3-A3 OCS/기울어진 DXF와 B/X 카드다. Pro 한도의 약 15% 단위 분할은 [작업 분할](docs/WORK-SLICES-2026-10-06.md)을 따른다.
+갱신일: 2026-10-08. **G5-A2 패널 draft·요청 context 수명과 일반 각도 치수 B3-C1–C3를 완료했다.** Copilot activity 왕복·off-panel 제안·문서/선택/작업면/레이어/입력 변경 후 안전한 폐기의 실제 범위는 [A2 기록](docs/implementation/G5-A2-COPILOT-CONTEXT-2026-10-08.md), 두 source/edge 치수와 v14는 [C2/C3 기록](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)을 따른다. 최신 전체 Node **638개**, browser **37 workflows / 773 checks**, 타입·architecture **311 modules**·workspace build가 통과했다. 다음 보류 작업은 **G5-A3 Apply/잠금·경합 검수**다. CAD의 다음 확장 후보는 B3-A3 OCS/기울어진 DXF와 B/X 카드다. Pro 한도의 약 15% 단위 분할은 [작업 분할](docs/WORK-SLICES-2026-10-06.md)을 따른다.
 
 최상위 목표는 기본 CAD·벡터·이미지·레이아웃 기능을 공통 문서·선택·명령·History와 통합 UI로 연결하는 것이다. 상세 범위와 완료 기준은 [구현 인계](docs/IMPLEMENTATION-READINESS-2026-10-05.md), 실제 상태는 [PROJECT-STATE](PROJECT-STATE.md), 수정 위치는 [CHANGE-GUIDE](docs/architecture/CHANGE-GUIDE.md)를 따른다.
 
@@ -50,7 +50,7 @@ Photopea 관련 요청의 최초 TIFF 도입은 Node 596개·TIFF browser 9개·
 
 ## 이후 순서
 
-G4 첫 범위·CAD DXF/지름과 G5-A1 뒤에 일반 각도 치수 C1–C3를 완료했다. 다음 실행 우선순위는 **G5-A2 패널/context 수명 → G5-A3 Apply/잠금 검수**다. CAD 확장을 다시 선택하면 B3-A3 OCS/기울어진 DXF와 B/X 카드의 선행 조건을 평가한다. component override/variant·직접 layout handle과 PPTX/GIF, 이미지 I2–I5, G6 및 나머지 CAD B/X는 [통합 계획](docs/product/CREATIVE-REUSE-IMPLEMENTATION-PLAN.md)과 [작업 분할](docs/WORK-SLICES-2026-10-06.md)의 독립 카드로 남긴다.
+G4 첫 범위·CAD DXF/지름과 G5-A1 뒤에 일반 각도 치수 C1–C3와 **G5-A2 패널/context 수명**을 완료했다. 다음 실행 우선순위는 **G5-A3 Apply/잠금·경합 검수**다. CAD 확장을 다시 선택하면 B3-A3 OCS/기울어진 DXF와 B/X 카드의 선행 조건을 평가한다. component override/variant·직접 layout handle과 PPTX/GIF, 이미지 I2–I5, G6 및 나머지 CAD B/X는 [통합 계획](docs/product/CREATIVE-REUSE-IMPLEMENTATION-PLAN.md)과 [작업 분할](docs/WORK-SLICES-2026-10-06.md)의 독립 카드로 남긴다.
 
 | 순서 | 작업 | 상세 기준 |
 | --- | --- | --- |
@@ -66,7 +66,7 @@ G4 첫 범위·CAD DXF/지름과 G5-A1 뒤에 일반 각도 치수 C1–C3를 �
 | G3-4b3 완료 | Artboard PDF output | active/all-visible pages, mm MediaBox, DPI/page/pixel/memory/file guards, real multi-page decode |
 | G3-5 / I1 | 자원 공유·재업로드 제거 및 원본 교체 자동 검수 완료. 외부 실무자/실제 GPU 평가는 남음 | [G3-5 전후 측정·마감](docs/verification/G3-5-IMAGE-RESOURCES-2026-10-06.md), [source 교체 검수](docs/verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md) |
 | G4 첫 A/B/C 완료 | Scene source 선택·draft/recovery·finite nested component·Auto Layout/state/time·target state·재생·정지 SVG | [구현 근거](docs/implementation/G4-CAD-BASICS-2026-10-06.md). 직접 layout handle·component override/variant·PPTX/GIF/영상은 후속 |
-| G5 | Copilot·LLM이 공통 Query/Preview/Apply 소비 | 수동/자동 작업 결과와 복구의 일치 |
+| G5-A1/A2 완료, A3 대기 | gateway 응답·취소 경계와 패널 draft/요청 context 수명 | [A2 구현·검증](docs/implementation/G5-A2-COPILOT-CONTEXT-2026-10-08.md). 다음은 Apply·잠금·경합과 로컬 규칙 회귀. 실제 LLM 공급자 연결 전 |
 | G6 | IFC/RVT·Axo·Manim·Notion/InDesign adapter | 핵심 문서·asset·view 계약 재사용 |
 
 성능은 매 단계에서 같은 과제의 지연·메모리·자원 해제를 측정한다. WebGPU·영속 캐시는 [웹 자원 전략](docs/architecture/WEB-RUNTIME-RESOURCE-STRATEGY.md)에 따라 병목이 확인된 경우 도입하고, 핵심 제작 기능의 선행 조건으로 두지 않는다. 자동 회귀 마감 후에도 외부 실무자의 task time·재시도·복구율과 native GPU/heap/VRAM 평가를 별도로 남긴다.

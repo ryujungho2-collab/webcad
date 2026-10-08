@@ -1,6 +1,6 @@
 # 작업 범위 분할과 재시작 계약
 
-갱신일 2026-10-08. 기존 G0–G6와 CAD B0–B5를 작은 검증 가능한 결과로 구분한다. G4 첫 범위·CAD B3-A1/A2·B와 G5-A1 이후, 사용자 요청으로 **B3-C1–C3 일반 각도 치수**를 구현했다. [C1 계산](implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md), [C2/C3 구현·검수](implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md), [G4/CAD 기록](implementation/G4-CAD-BASICS-2026-10-06.md), [G5-A1 기록](implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md)을 따른다. 다음 우선순위는 G5-A2/A3 검수다.
+갱신일 2026-10-08. 기존 G0–G6와 CAD B0–B5를 작은 검증 가능한 결과로 구분한다. G4 첫 범위·CAD B3-A1/A2·B·C1–C3와 **G5-A1/A2**를 구현·검수했다. [C1 계산](implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md), [C2/C3 구현·검수](implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md), [G4/CAD 기록](implementation/G4-CAD-BASICS-2026-10-06.md), [G5-A1 기록](implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md), [G5-A2 기록](implementation/G5-A2-COPILOT-CONTEXT-2026-10-08.md)을 따른다. 다음 우선순위는 G5-A3 검수다.
 
 ## 현재 작업 트리에서 이어받을 것
 
@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | G3-5 자원 / I1 원본 교체 | source 공유·재업로드 제거·마지막 해제·원본 교체 마감. 당시 599 Node / 33 browser·686 checks / architecture 294 modules. 최신 전체는 PROJECT-STATE | 외부 실무자/native GPU/heap/VRAM·3 MiB 정책 평가. [측정과 제한](verification/G3-5-IMAGE-RESOURCES-2026-10-06.md), [원본 교체 검수](verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md) |
 | G4-A / 첫 B·C | Scene v12·원본/finite nested component 선택 인계·row/column·숨김 collapse·state/time preview·target state 링크·재생·SVG 출력. draft 유지/동시 수정 충돌·scroll review를 수정. Node 7개·browser 24개 | 직접 layout handle·component override/variant·PPTX/GIF/영상과 실무자 평가 남음. 숨김 state를 variant로 표시하지 않음 |
-| G5 첫 연결 + A1 | 로컬 규칙과 gateway Review/Apply. 응답 ownership/topology 주입·nested batch 거부, 멈춘 body/header 취소·deadline·late body 해제. gateway Node 8개, mock transport actual UI browser 13개 통과 | A2 패널 draft/설정·context 수명, A3 Apply/잠금/반복 요청 검수 남음. 실제 LLM 공급자·키·서버 없음. 허용 명령은 finite drawing/primitive 생성 1–20개 |
+| G5 첫 연결 + A1/A2 | 로컬 규칙과 gateway Review/Apply. 응답 주입·취소·deadline 경계, 패널 왕복 draft 유지·요청 context 검토·변경 시 plan 폐기. A1 gateway Node 8개/mock browser 13개, A2 신규 Node 2개/mock browser 15개 | A3 Apply/잠금/반복 요청 검수 남음. 실제 LLM 공급자·키·서버 없음. 허용 명령은 finite drawing/primitive 생성 1–20개 |
 | G6 | 이번에 새 adapter 구현 없음 | 외부 연결 환경이 없으므로 오프라인 계약/fixture와 실제 연결 검증을 분리 |
 | CAD B3-A1/A2·B | DXF bulge analytic 왕복과 Import/Export review, 일반 원/원호 Ø 주석·source 갱신·Trim/Join circular edge remap·v13. 신규 Node DXF 7/지름 4, browser DXF 18/지름 17 | B3-C는 뒤이어 구현했다. B3-A3 OCS/tilted와 나머지 B/X 카드는 계획. 전체 CAD 기능 동등성 아님 |
 | CAD B3-C1–C3 | 두 straight edge의 ±ray/CW/CCW 측정, source별 topology/branch·갱신, Trim/Join remap, v14 저장, 공개 UI/정밀 입력/캔버스 반지름 핸들 및 출력. C1 신규 Node 10개·C2 신규 Node 8개 | 전체 36 browser workflows/758 checks 통과. 구동 각도 치수·곡선 접선각·공통 style·아트보드 주석 출력은 후속 카드 |
@@ -25,7 +25,7 @@ G4/CAD 기준선은 커밋 `291c1c3`에 보존했다. 새 작업의 git status�
 | 완료 · G4-A 검수 | Scene/Auto Layout/state/link/player/v12 검수·결함 수정 | 같은 source identity·한 Undo·stale·잠금·저장·draft 유지/오류 복구 |
 | 완료 · B3-A1/A2 | DXF bulge 입출력·단위·레이어 왕복·실제 review/파일 흐름 | sparse/final/signed arc·inch·회전/반사·exact vertices·subset 수락. A3 OCS/tilted·DWG/일반 spline 남음 |
 | G5-A1 완료 | 응답 payload/stream 취소·timeout·late response 경계 | 실제 provider 없는 모의 검증. ownership/topology 주입 거부와 prompt 유지→재시도→한 Apply/Undo 확인 |
-| 대기 · G5-A2 | 패널/설정 draft·요청 context 수명 | activity 왕복·문서 교체·selection/workPlane/layer 변경·prompt/endpoint 수정 중 늦은 응답. 요청 context를 보존하거나 재검토를 요구. API 키 저장 금지 |
+| 완료 · G5-A2 | 패널/설정 draft·요청 context 수명 | activity 왕복·문서 교체·selection/workPlane/layer 변경·prompt/endpoint 수정 중 늦은 응답. 변경 시 폐기·재계획, 키 저장 없음. [검증 요약](verification/G5-A2-CLOSEOUT-2026-10-08.json) |
 | G5-A3 | Apply 중복/경합·잠금·로컬 규칙 회귀 및 A 통합 마감 | 같은 authoritative canApply·정확한 검토 key, 배치 일부 실패의 mutation/history 0, 한 Undo·결과 선택·취소 복구. 전체 검증 후 G5-A 완료 판단 |
 | B3-B/C1–C3 완료 | 일반 지름 주석과 두 참조 각도 주석 | 주석과 driver 구분. C3 전체 회귀 결과는 PROJECT-STATE에서 확인 |
 | G4-B 첫 범위 완료 | Scene source→Properties와 finite nested component 재사용 | 직접 layout handle·override/variant는 별도 후속. original identity 보존 |
@@ -51,37 +51,34 @@ B0–B5 전체 완료와 일반 CAD 전체 기능 동등성은 구분한다. 여
 
 한도의 15%를 작업 시간이나 토큰 수로 정확히 환산할 수 없다. 각 행을 **한 요청**으로 실행하고 검수·기록 후 멈추는 방식으로 범위를 제한한다. 현재 CAD 묶음은 B3-C1–C3를 구현했다. 새 라이브러리/실제 provider/다른 CAD 카드를 동시에 시작하지 않는다.
 
-사용자의 각도 치수 우선 요청에 따른 **B3-C2a → B3-C2b → B3-C3** 구현은 끝났다. **G5-A2 → G5-A3**는 별도의 대기 검수이며 완료 처리하지 않는다. B3-C의 수정 위치·계약·완료 경계는 [CAD 카드의 하위 설계](product/CAD-BASICS-IMPLEMENTATION-PLAN.md)에서 관리한다.
+사용자의 각도 치수 우선 요청에 따른 **B3-C2a → B3-C2b → B3-C3** 구현과 **G5-A2** 검수는 끝났다. **G5-A3**는 별도의 대기 검수다. B3-C의 수정 위치·계약·완료 경계는 [CAD 카드의 하위 설계](product/CAD-BASICS-IMPLEMENTATION-PLAN.md)에서 관리한다.
 
-## 바로 다음 명령 — G5-A2 패널·설정·요청 context 검수
+## 바로 다음 명령 — G5-A3 Apply·잠금·경합 통합 검수
 
 ```text
-WebCAD G5-A2만 구현·검수하고 기록 후 멈춰. G5-A3/다른 CAD 카드를 자동 시작하지 마.
-Pro 5시간 한도의 약 15%를 목표로 하는 작은 세션이므로 패널/설정 draft와 요청 context 수명에 한정해.
-실제 LLM 공급자/서버/키가 없으므로 mock 검증과 실제 연결을 명확히 구별하라.
-component variant, PPTX/영상 export, 새로운 CAD/G6 adapter는 이 검수에 포함하지 않는다.
+WebCAD G5-A3만 구현·검수하고 기록 후 멈춰. G5-B/다른 CAD 카드를 자동 시작하지 마.
+Pro 5시간 한도의 약 15%를 목표로 하는 작은 세션으로 Apply 중복·경합·잠금·로컬 규칙 회귀에 한정해.
+실제 LLM 공급자/서버/키가 없으므로 mock 검증과 실제 연결을 구별한다.
 
 PROJECT-STATE.md, NEXT-STEPS.md, docs/WORK-SLICES-2026-10-06.md,
-docs/implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md와
-apps/web/src/copilot/CopilotPanel.tsx, copilotConnection.ts, App.tsx의 Copilot handlers,
-apps/web/tests/copilotGateway.browser.tsx를 먼저 읽는다.
-이미 구현한 G4(v12), 일반 지름(v13), DXF review와 Copilot gateway 변경을 보존한다.
+docs/implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md,
+docs/implementation/G5-A2-COPILOT-CONTEXT-2026-10-08.md와
+apps/web/src/copilot, App.tsx의 Copilot handlers, documentPlans.ts,
+apps/web/tests/copilotGateway.browser.tsx, copilotContext.browser.tsx를 먼저 읽는다.
+G4(v12), DXF·치수(v13/v14), gateway A1 및 패널/context A2 변경을 보존한다.
 reset, checkout, clean, 대규모 재작성은 금지한다.
 
-Copilot activity 왕복에서 prompt/connection draft가 사라지는 수명 문제와 off-panel 요청을 조사한다.
-selection/작업면/활성 layer 변경 중 response가 이전 context로 Apply 준비되는지 재현한다.
-요청 시점 context를 명시적으로 검토하거나 변경 시 안전한 취소/재계획을 제공하라.
-API 키를 브라우저 저장소에 넣지 말고 실제 승인되지 않은 네트워크 환경을 만들지 않는다.
-prompt/endpoint/모드 변경·취소·늦은 응답·문서 교체/변경을 검증한다.
-로컬 규칙 모드와 gateway mode가 같은 typed command·detached review/atomic Apply를 쓰는지 확인한다.
-현재 허용 drawing/primitive 생성 1–20개와 gateway Node 8개/mock browser 13개를 보존한다.
+Apply를 두 번 누르거나 다른 요청·Cancel·selection/문서 변경이 Apply와 경합할 때
+같은 reviewed key와 authoritative canApply만 게시되도록 확인한다.
+잠긴 객체/레이어, 활성 Sketch, 만료된 계획, 배치 일부 실패에서 원본 문서와 History mutation 0을 검증한다.
+성공 시 한 Undo, 결과 선택·인계, Undo/Redo 복원을 실제 UI로 확인한다.
+로컬 규칙과 mock gateway가 같은 typed command·detached review/atomic Apply를 쓰는지 회귀한다.
+기존 A2 draft/context 보존과 변경 시 폐기, gateway 취소·늦은 응답 검사를 유지한다.
+허용 명령과 실제 provider 연결 범위를 넓히지 않는다.
 
-실제 browser UI에서 설정→mock 제안→영향 검토→오류 수정/재시도→Apply→Undo/Redo를 검증한다.
-tsc -b, 전체 Node/browser, check:architecture, production build로 회귀를 마감한다.
-최신 통합 기준선은 PROJECT-STATE의 G4·CAD 결과를 따른다. 이전 599/33/686을 최신으로 쓰지 않는다.
-처음 전체 browser의 PDF fetch 실패와 최종 전체 통과를 구분한 기록을 보존한다.
-실행한 검수만 PROJECT-STATE, NEXT-STEPS와 gateway 검수 문서에 기록한다.
-다음은 G5-A3 Apply 통합 검수다. B3-C1–C3는 기존 구현·검수 결과를 보존한다.
+집중 Node/browser 검사를 먼저 수행하고 tsc -b, 전체 Node/browser,
+check:architecture, production build로 마감한다.
+실행한 결과만 PROJECT-STATE, NEXT-STEPS 및 G5-A3 검수 문서에 기록한다.
 ```
 
-후속 요청은 “분할 문서의 G5-A2만”처럼 행을 지정한다. 각 결과에는 통과한 명령, 실패/미실행 검사, 다음 재시작 파일을 남긴다. C3 전체 회귀는 36 workflows/758 checks로 마감했다.
+후속 요청은 “분할 문서의 G5-A3만”처럼 행을 지정한다. 각 결과에는 통과한 명령, 실패/미실행 검사, 다음 재시작 파일을 남긴다. 최신 전체 결과는 PROJECT-STATE를 따른다. C3 당시 전체 회귀는 36 workflows/758 checks였다.

@@ -8,7 +8,9 @@
 
 | 목적 | 문서 |
 | --- | --- |
-| 현재 범위 분할·재시작 프롬프트 | [각도 C1–C3 구현 / 다음 G5-A2·A3 대기](WORK-SLICES-2026-10-06.md) |
+| 현재 범위 분할·재시작 프롬프트 | [각도 C1–C3·G5-A2 완료 / 다음 G5-A3](WORK-SLICES-2026-10-06.md) |
+| G5-A2 패널 draft·요청 context 구현/검수 | [activity 왕복, off-panel 응답, context 변경과 늦은 제안 폐기](implementation/G5-A2-COPILOT-CONTEXT-2026-10-08.md) |
+| G5-A2 전체 검증 요약 | [Node/browser·타입/build/architecture와 mock 연결 경계](verification/G5-A2-CLOSEOUT-2026-10-08.json) |
 | 일반 각도 치수 C1 계산·branch·표시 기하 | [실제 계약·오류·검수와 UI/명령/저장 미완료 경계](implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md) |
 | 일반 각도 치수 C2/C3 참조·명령·UI·출력 | [두 source remap·v14·검토/Apply·브라우저 검증과 남은 범위](implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md) |
 | B3-C3 전체 검증 요약 | [636 Node·36 browser/758 checks·타입/build/308 module guard](verification/B3-C3-CLOSEOUT-2026-10-08.json) |

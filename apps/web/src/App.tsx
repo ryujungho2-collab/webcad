@@ -13,6 +13,7 @@ import {recoveryStatus,subscribeRecoveryStatus,reportRecoveryStatus} from "./sta
 import {previewCadCommand,applyCadPlan,discardCadPlan,type CadPlanPreview} from "./state/documentPlans";
 import {documentVersion,sameDocumentVersion,subscribeDocumentChanges} from "./state/documentSession";
 import {copilotRequest,requestCopilotPlan,type CopilotConnection} from "./copilot/copilotConnection";
+import {captureCopilotContext,copilotContextChange,type CopilotContextInputs,type CopilotPlanningContext} from "./copilot/copilotContext";
 import { cadHistory, redoDocument, undoDocument } from "./state/history";
 import type { HistoryStateToken } from "@agent-webcad/cad-history";
 import { reduceSelection, selectAllIds, validSelection, type SelectionState, type TopologySelectionRef } from "./state/selection";
@@ -152,6 +153,9 @@ export function App() {
   const [shortcutReadout, setShortcutReadout] = useState("");
   const [kernelStatus, setKernelStatus] = useState<KernelStatus>("deferred");
   const [copilotPlan, setCopilotPlan] = useState<CopilotPlan | null>(null);
+  const [copilotDraft,setCopilotDraft]=useState("");
+  const [copilotConnection,setCopilotConnection]=useState<CopilotConnection>({mode:"rules",endpoint:"/api/copilot/plan"});
+  const [copilotRequestContext,setCopilotRequestContext]=useState<CopilotPlanningContext|null>(null);
   const [copilotReviewedKey,setCopilotReviewedKey]=useState<string>();
   const [copilotError, setCopilotError] = useState("");
   const [copilotPreviewFailed, setCopilotPreviewFailed] = useState(0);
@@ -160,6 +164,7 @@ export function App() {
   const [copilotValidated,setCopilotValidated]=useState<CadPlanPreview|null>(null);
   const copilotSequence=useRef(0);
   const copilotAbort=useRef<AbortController|null>(null);
+  const copilotPublishing=useRef(false);
   useEffect(()=>()=>copilotAbort.current?.abort(),[]);
   const viewActionId = useRef(0);
   const lastDuplicate = useRef<DuplicateSeries | null>(null);
@@ -192,6 +197,10 @@ export function App() {
 
   const selectedObjectId = selection.primaryId;
   const selectedObjectIds = selection.ids;
+  const liveCopilotContext:CopilotContextInputs={version:documentVersion(),selectionIds:selectedObjectIds,workPlane:activeWorkPlane,layerId:selectedLayerId,prompt:copilotDraft,connection:copilotConnection};
+  const liveCopilotContextRef=useRef(liveCopilotContext);
+  liveCopilotContextRef.current=liveCopilotContext;
+  const copilotContextError=copilotRequestContext?copilotContextChange(copilotRequestContext,liveCopilotContext):undefined;
   useEffect(() => { if (imageCropEditingId && !selectedObjectIds.includes(imageCropEditingId)) setImageCropEditingId(null); }, [imageCropEditingId, selectedObjectIds.join("\0")]);
   const selectedObject = selectedObjectId ? cadDocument.objects[selectedObjectId] : null;
   const activeSketch = activeSketchId ? cadDocument.sketches?.[activeSketchId] : undefined;
@@ -784,35 +793,47 @@ export function App() {
   function clearCopilot() {
     copilotSequence.current++;copilotAbort.current?.abort();copilotAbort.current=null;
     if(copilotValidated)discardCadPlan(copilotValidated.planId);
-    setCopilotValidated(null);setCopilotReviewedKey(undefined);setCopilotApplying(false);setCopilotPlan(null);setCopilotError("");setCopilotPreviewFailed(0);
+    setCopilotValidated(null);setCopilotReviewedKey(undefined);setCopilotApplying(false);setCopilotPlan(null);setCopilotError("");setCopilotPreviewFailed(0);setCopilotRequestContext(null);
   }
+
+  useEffect(()=>{
+    if(!copilotContextError||copilotPublishing.current)return;
+    clearCopilot();
+    setCopilotError(copilotContextError);
+  },[copilotContextError]);
 
   async function handleCopilotSubmit(input: string,connection:CopilotConnection={mode:"rules",endpoint:""}) {
     const sequence=++copilotSequence.current;
     copilotAbort.current?.abort();const controller=new AbortController();copilotAbort.current=controller;
-    const baseline=documentVersion();
+    const context=captureCopilotContext(cadDocument,{version:documentVersion(),selectionIds:selectedObjectIds,workPlane:activeWorkPlane,layerId:selectedLayerId,prompt:input,connection});
+    setCopilotDraft(input);setCopilotConnection(connection);
+    liveCopilotContextRef.current={...liveCopilotContextRef.current,prompt:input,connection};
     if(copilotValidated)discardCadPlan(copilotValidated.planId);
     setCopilotValidated(null);
     setCopilotPlan(null);setCopilotReviewedKey(undefined);
     setCopilotError("");
     setCopilotPreviewFailed(0);
+    setCopilotRequestContext(context);
     setActiveActivity("copilot");
     setCopilotApplying(true);
     try{
-      const result=connection.mode==="gateway"?{ok:true as const,plan:await requestCopilotPlan(connection.endpoint,copilotRequest(input,cadDocument,selectedObjectIds,activeWorkPlane),{signal:controller.signal,baseUrl:location.href})}:ruleCopilotBackend.plan(input);
+      const result=connection.mode==="gateway"?{ok:true as const,plan:await requestCopilotPlan(connection.endpoint,copilotRequest(input,cadDocument,context.selectionIds,context.workPlane),{signal:controller.signal,baseUrl:location.href})}:ruleCopilotBackend.plan(input);
       if(sequence!==copilotSequence.current)return;
-      if(!sameDocumentVersion(baseline))throw new Error("The document changed during planning. Plan again using the current selection.");
+      const changed=copilotContextChange(context,liveCopilotContextRef.current);
+      if(changed)throw new Error(changed);
       if(!result.ok){setCopilotError(result.reason);return;}
-      const planned={...result.plan,command:withCopilotLayer(result.plan.command,selectedLayerId)};
+      const planned={...result.plan,command:withCopilotLayer(result.plan.command,context.layerId)};
       setCopilotPlan(planned);
       const preview=await previewCadCommand(planned.command,{signal:controller.signal});
       if(sequence!==copilotSequence.current){discardCadPlan(preview.planId);return;}
+      const changedDuringPreview=copilotContextChange(context,liveCopilotContextRef.current);
+      if(changedDuringPreview){discardCadPlan(preview.planId);throw new Error(changedDuringPreview);}
       if(!preview.result.ok||preview.stale){setCopilotError(preview.result.reason??"The document changed; plan again.");discardCadPlan(preview.planId);return;}
       setCopilotValidated(preview);
       setCopilotReviewedKey(JSON.stringify(planned.command));
       setCopilotPlan({...planned,summary:[...planned.summary,...preview.changes.filter(change=>change.after?.volume!==undefined).map(change=>`${change.name}: ${change.after!.volume!.toFixed(4)} mm³`)]});
     }catch(error){if(sequence===copilotSequence.current){setCopilotPlan(null);setCopilotError(error instanceof Error?error.message:"Preview failed.");}}
-    finally{if(sequence===copilotSequence.current)setCopilotApplying(false);}
+    finally{if(sequence===copilotSequence.current){setCopilotApplying(false);if(copilotAbort.current===controller)copilotAbort.current=null;}}
   }
 
   const dimensionCommand = selectedObjectId && !activeSketchId
@@ -835,9 +856,10 @@ export function App() {
     syncRevision();
   }
 
-  const copilotInteraction=commandInteraction({command:"Copilot",draftKey:JSON.stringify(copilotPlan?.command),reviewedKey:copilotReviewedKey,preview:copilotValidated,pending:copilotApplying,targets:[],inputError:activeSketchId?"Finish the active sketch first.":activeLayerLocked?"Unlock the active layer first.":copilotError});
+  const copilotInteraction=commandInteraction({command:"Copilot",draftKey:JSON.stringify(copilotPlan?.command),reviewedKey:copilotReviewedKey,preview:copilotValidated,pending:copilotApplying,targets:[],inputError:copilotContextError??(activeSketchId?"Finish the active sketch first.":activeLayerLocked?"Unlock the active layer first.":copilotError)});
   async function handleCopilotApply() {
-    if (!copilotInteraction.canApply || !copilotValidated) return;
+    if (!copilotInteraction.canApply || !copilotValidated || !copilotRequestContext || copilotContextChange(copilotRequestContext,liveCopilotContextRef.current)) return;
+    copilotPublishing.current=true;
     setCopilotApplying(true);
     try {
       const result = await applyCadPlan(copilotValidated.planId);
@@ -847,6 +869,8 @@ export function App() {
         setShortcutReadout(`Copilot: created ${created.length} object${created.length === 1 ? "" : "s"}`);
         setCopilotPlan(null);
         setCopilotValidated(null);
+        setCopilotRequestContext(null);
+        setCopilotReviewedKey(undefined);
         setCopilotError("");
         setCopilotPreviewFailed(0);
       } else {
@@ -854,6 +878,7 @@ export function App() {
       }
       syncRevision();
     } finally {
+      copilotPublishing.current=false;
       setCopilotApplying(false);
     }
   }
@@ -1603,6 +1628,9 @@ export function App() {
       onDimension={() => void handleDimensionFromSelection()}
       onInsertPavilion={() => void handleInsertPavilion()}
       copilot={{
+        draft:copilotDraft,
+        connection:copilotConnection,
+        requestContext:copilotRequestContext,
         interaction:copilotInteraction,
         plan: copilotPlan,
         error: copilotError,
@@ -1611,12 +1639,14 @@ export function App() {
         applying: copilotApplying,
         planning:copilotApplying&&!copilotValidated,
         canApply: copilotInteraction.canApply,
-        applyDisabledReason: activeSketchId
+        applyDisabledReason: copilotContextError??(activeSketchId
           ? "Finish the active sketch first."
           : activeLayerLocked
             ? "Unlock the active layer first."
-            : copilotValidated&&!sameDocumentVersion(copilotValidated.baseVersion)?"The document changed; plan again.":undefined,
+            : copilotValidated&&!sameDocumentVersion(copilotValidated.baseVersion)?"The document changed; plan again.":undefined),
         onSubmit: handleCopilotSubmit,
+        onDraftChange:setCopilotDraft,
+        onConnectionChange:setCopilotConnection,
         onTogglePreview: () => setCopilotPreviewVisible((value) => !value),
         onApply: () => void handleCopilotApply(),
         onClear: clearCopilot,

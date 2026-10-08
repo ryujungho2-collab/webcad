@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-08",
+  "status": "passed",
+  "baseline": "d1cce60",
+  "scope": "G5-A2 Copilot activity draft and request context lifetime",
+  "environment": {
+    "node": "24.19.0",
+    "pnpm": "11.26.0",
+    "browser": "Microsoft Edge headless CDP",
+    "renderer": "SwiftShader",
+    "transport": "mock gateway",
+    "externalLlm": "not connected"
+  },
+  "node": {
+    "tests": 638,
+    "suites": 54,
+    "passed": 638,
+    "failed": 0,
+    "skipped": 0,
+    "newContextTests": 2,
+    "log": "output/g5-a2-node-2026-10-08.log"
+  },
+  "browser": {
+    "workflows": 37,
+    "checks": 773,
+    "newContextChecks": 15,
+    "existingGatewayChecks": 13,
+    "trustChecks": 15,
+    "log": "output/g5-a2-browser-2026-10-08.log"
+  },
+  "typecheck": "passed",
+  "architecture": {
+    "passed": true,
+    "modules": 311,
+    "documentationLinks": true
+  },
+  "build": {
+    "workspace": "passed",
+    "mainRawKB": 1038.93,
+    "viewportRawKB": 618.81,
+    "kernelWasmRawKB": 50305.13,
+    "kernelWasmGzipKB": 13955.45,
+    "existingLargeChunkWarning": true,
+    "log": "output/g5-a2-build-2026-10-08.log"
+  },
+  "commands": [
+    "pnpm --filter @agent-webcad/web exec tsc -b",
+    "pnpm --filter @agent-webcad/web test",
+    "pnpm --filter @agent-webcad/web check:architecture",
+    "pnpm --filter @agent-webcad/web test:browser --page=copilotGateway",
+    "pnpm --filter @agent-webcad/web test:browser --page=copilotContext",
+    "pnpm --filter @agent-webcad/web test:browser --page=trustWorkflow",
+    "pnpm --filter @agent-webcad/web test:browser",
+    "pnpm build"
+  ],
+  "regressionEvidence": [
+    "Prompt and endpoint remain editable after Copilot activity navigation",
+    "Off-panel mock response remains reviewable without redirecting the activity",
+    "Document, selection, work plane, active layer, prompt and planner changes invalidate the old proposal",
+    "Late cancelled responses cannot restore Apply",
+    "Unchanged reviewed proposal applies once and survives Undo/Redo",
+    "Existing trust workflow now checks immediate stale-plan disposal with preserved prompt and no mutation"
+  ],
+  "intermediateFailure": "First full browser run exposed an outdated trustWorkflow expectation for a disabled stale Apply button. G5-A2 now discards that plan immediately; the regression assertion was updated to verify no Apply, a document-change explanation, preserved prompt and unchanged history. Focused and full browser runs then passed.",
+  "performance": "No G5-A2 latency, memory, native GPU or provider benchmark was conducted. The build retains the existing >500 kB chunk warning.",
+  "remaining": [
+    "G5-A3 Apply concurrency, locks, partial failure and local-rule integration audit",
+    "Actual LLM provider, gateway server and credentials are not configured",
+    "Prompt and endpoint survive activity navigation in the running app, not browser restart"
+  ]
+}
