@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-08",
+  "status": "passed",
+  "baseline": "7541fd3",
+  "scope": "G5-A3 Apply concurrency, cancellation, layer locks and local-rule integration",
+  "environment": {
+    "node": "24.19.0",
+    "pnpm": "11.26.0",
+    "browser": "Microsoft Edge headless CDP",
+    "renderer": "SwiftShader",
+    "transport": "mock gateway",
+    "externalLlm": "not connected"
+  },
+  "node": { "tests": 643, "suites": 54, "passed": 643, "failed": 0, "skipped": 0, "newApplyTests": 4, "newLayerTests": 1, "log": "output/g5-a3-node-2026-10-08.log" },
+  "browser": { "workflows": 38, "checks": 799, "applyChecks": 26, "gatewayChecks": 13, "contextChecks": 15, "log": "output/g5-a3-browser-2026-10-08.log" },
+  "typecheck": "passed",
+  "architecture": { "passed": true, "modules": 313, "documentationLinks": true },
+  "build": { "workspace": "passed", "mainRawKB": 1040.79, "viewportRawKB": 618.81, "kernelWasmRawKB": 50305.13, "kernelWasmGzipKB": 13955.45, "existingLargeChunkWarning": true, "log": "output/g5-a3-build-2026-10-08.log" },
+  "commands": [
+    "pnpm --filter @agent-webcad/web exec tsc -b",
+    "pnpm --filter @agent-webcad/web exec tsx --test tests/copilotApply.test.ts tests/copilotPlan.test.ts tests/documentPlans.test.ts",
+    "pnpm --filter @agent-webcad/web test:browser --page=copilotApply",
+    "pnpm --filter @agent-webcad/web test",
+    "pnpm --filter @agent-webcad/web test:browser",
+    "pnpm --filter @agent-webcad/web check:architecture",
+    "pnpm build"
+  ],
+  "regressionBeforeFix": [
+    "Queued Cancel test failed with Missing expected rejection and the old plan published",
+    "Publication context test failed because owner validation ran zero times"
+  ],
+  "regressionEvidence": [
+    "Concurrent Apply publishes exact reviewed IDs once with one Undo",
+    "Cancelled or invalidated queue items preserve full document JSON and past/future history",
+    "Old Apply completion does not clear or overwrite a newer reviewed request",
+    "Explicit gateway output layers must agree with every reviewed batch member",
+    "Locked layer and active Sketch block Apply and recover through replan",
+    "A failed second batch member leaves no partial first-member creation",
+    "Real bounded plan cache expiry reports recovery and preserves prompt/document/history",
+    "Gateway and local rules hand off selected results and restore document/selection through Undo/Redo",
+    "Native browser race workflow reports zero unhandled rejections"
+  ],
+  "performance": "No G5 latency or memory benchmark. Deterministic queue holds verify publication boundaries, not real service latency. Existing >500 kB build warnings remain.",
+  "remaining": [
+    "G5-B Query and one existing edit capability are not started",
+    "Actual provider, gateway server and API credentials are not configured",
+    "Cancel does not stop a predecessor's Worker computation or undo a published result"
+  ]
+}

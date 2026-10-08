@@ -169,6 +169,15 @@ describe("copilot rule planner", () => {
       boundBatch.commands.every((entry) => (entry as { layerId?: string }).layerId === "layer-b"),
     );
   });
+
+  test("explicit outputs must match the reviewed active layer, including every batch member", () => {
+    const command = { type: "create-drawing" as const, drawing: "circle" as const, layerId: "other", params: { workPlane: "XY", center: [0,0,0], radius: 4 } };
+    const before = structuredClone(command);
+    assert.throws(() => withCopilotLayer(command, "active"), /outside the reviewed active layer/);
+    assert.throws(() => withCopilotLayer({ type: "batch", commands: [{ ...command, layerId: "active" }, command] }, "active"), /Plan again/);
+    assert.deepEqual(command, before);
+    assert.deepEqual(withCopilotLayer(command, "other"), command);
+  });
 });
 
 describe("copilot extrude apply path", () => {

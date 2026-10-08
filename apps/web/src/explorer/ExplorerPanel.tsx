@@ -133,6 +133,7 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
             onTogglePreview={props.copilot.onTogglePreview}
             onApply={props.copilot.onApply}
             onClear={props.copilot.onClear}
+            onInspectResult={props.copilot.onInspectResult}
           />
         )}
       </div>

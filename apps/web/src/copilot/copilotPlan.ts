@@ -377,12 +377,13 @@ export function planCopilotCommand(input: string): CopilotPlanResult {
 export const ruleCopilotBackend: CopilotBackend = { plan: planCopilotCommand };
 
 /**
- * Apply-time layer injection. Plans are layer-agnostic (preview needs no
- * layer); the active layer is bound at Apply so a plan stays valid while
- * the user switches layers between Preview and Apply.
+ * Bind the request's output layer before review. An explicit output must match
+ * the reviewed context; layer changes require a new proposal.
  */
 export function withCopilotLayer(command: CadCommand, layerId: string): CadCommand {
   const bind = (entry: CadCommand): CadCommand => {
+    if ("layerId" in entry && entry.layerId !== undefined && entry.layerId !== layerId)
+      throw new Error(`The proposal targets layer '${entry.layerId}', outside the reviewed active layer '${layerId}'. Select that layer or correct the proposal, then Plan again.`);
     if (!("layerId" in entry) || (entry as { layerId?: string }).layerId === undefined) {
       return { ...entry, layerId } as CadCommand;
     }

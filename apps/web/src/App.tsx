@@ -162,10 +162,12 @@ export function App() {
   const [copilotPreviewVisible, setCopilotPreviewVisible] = useState(true);
   const [copilotApplying, setCopilotApplying] = useState(false);
   const [copilotValidated,setCopilotValidated]=useState<CadPlanPreview|null>(null);
+  const [copilotCompletedIds,setCopilotCompletedIds]=useState<string[]>([]);
   const copilotSequence=useRef(0);
   const copilotAbort=useRef<AbortController|null>(null);
   const copilotPublishing=useRef(false);
-  useEffect(()=>()=>copilotAbort.current?.abort(),[]);
+  const copilotApplyOperation=useRef<{controller:AbortController;sequence:number}|null>(null);
+  useEffect(()=>()=>{copilotAbort.current?.abort();copilotApplyOperation.current?.controller.abort();},[]);
   const viewActionId = useRef(0);
   const lastDuplicate = useRef<DuplicateSeries | null>(null);
   const precisionTransformRef = useRef<PrecisionTransformSession | null>(null);
@@ -792,17 +794,19 @@ export function App() {
 
   function clearCopilot() {
     copilotSequence.current++;copilotAbort.current?.abort();copilotAbort.current=null;
+    copilotApplyOperation.current?.controller.abort();copilotApplyOperation.current=null;copilotPublishing.current=false;
     if(copilotValidated)discardCadPlan(copilotValidated.planId);
-    setCopilotValidated(null);setCopilotReviewedKey(undefined);setCopilotApplying(false);setCopilotPlan(null);setCopilotError("");setCopilotPreviewFailed(0);setCopilotRequestContext(null);
+    setCopilotValidated(null);setCopilotReviewedKey(undefined);setCopilotApplying(false);setCopilotPlan(null);setCopilotError("");setCopilotPreviewFailed(0);setCopilotRequestContext(null);setCopilotCompletedIds([]);
   }
 
   useEffect(()=>{
     if(!copilotContextError||copilotPublishing.current)return;
     clearCopilot();
     setCopilotError(copilotContextError);
-  },[copilotContextError]);
+  },[copilotContextError,copilotApplying]);
 
   async function handleCopilotSubmit(input: string,connection:CopilotConnection={mode:"rules",endpoint:""}) {
+    copilotApplyOperation.current?.controller.abort();copilotApplyOperation.current=null;copilotPublishing.current=false;
     const sequence=++copilotSequence.current;
     copilotAbort.current?.abort();const controller=new AbortController();copilotAbort.current=controller;
     const context=captureCopilotContext(cadDocument,{version:documentVersion(),selectionIds:selectedObjectIds,workPlane:activeWorkPlane,layerId:selectedLayerId,prompt:input,connection});
@@ -810,6 +814,7 @@ export function App() {
     liveCopilotContextRef.current={...liveCopilotContextRef.current,prompt:input,connection};
     if(copilotValidated)discardCadPlan(copilotValidated.planId);
     setCopilotValidated(null);
+    setCopilotCompletedIds([]);
     setCopilotPlan(null);setCopilotReviewedKey(undefined);
     setCopilotError("");
     setCopilotPreviewFailed(0);
@@ -856,13 +861,27 @@ export function App() {
     syncRevision();
   }
 
-  const copilotInteraction=commandInteraction({command:"Copilot",draftKey:JSON.stringify(copilotPlan?.command),reviewedKey:copilotReviewedKey,preview:copilotValidated,pending:copilotApplying,targets:[],inputError:copilotContextError??(activeSketchId?"Finish the active sketch first.":activeLayerLocked?"Unlock the active layer first.":copilotError)});
+  const copilotResults=copilotCompletedIds.filter(id=>!!cadDocument.objects[id]);
+  const copilotReviewInput={command:"Copilot",draftKey:JSON.stringify(copilotPlan?.command),reviewedKey:copilotReviewedKey,preview:copilotValidated,targets:copilotRequestContext?.selectionIds??[],completedIds:copilotResults.length?copilotResults:undefined,inputError:copilotContextError??(activeSketchId?"Finish the active sketch first.":activeLayerLocked?"Unlock the active layer first.":copilotError)};
+  const copilotInteraction=commandInteraction({...copilotReviewInput,pending:copilotApplying});
+  const copilotReviewRef=useRef(copilotReviewInput);copilotReviewRef.current=copilotReviewInput;
   async function handleCopilotApply() {
-    if (!copilotInteraction.canApply || !copilotValidated || !copilotRequestContext || copilotContextChange(copilotRequestContext,liveCopilotContextRef.current)) return;
-    copilotPublishing.current=true;
+    if (copilotApplyOperation.current || !copilotInteraction.canApply || !copilotValidated || !copilotRequestContext || copilotContextChange(copilotRequestContext,liveCopilotContextRef.current)) return;
+    const preview=copilotValidated,context=copilotRequestContext;
+    const operation={controller:new AbortController(),sequence:++copilotSequence.current};
+    copilotApplyOperation.current=operation;
     setCopilotApplying(true);
     try {
-      const result = await applyCadPlan(copilotValidated.planId);
+      const result = await applyCadPlan(preview.planId,{signal:operation.controller.signal,validate:()=>{
+        const changed=copilotContextChange(context,{...liveCopilotContextRef.current,version:documentVersion()});
+        if(changed)return changed;
+        const review=commandInteraction({...copilotReviewRef.current,pending:false});
+        if(!review.canApply||copilotReviewRef.current.preview?.planId!==preview.planId)return review.validationError??"The reviewed proposal changed. Plan again.";
+        // Only suppress invalidation for this synchronous publication, never
+        // while Apply waits in the queue. Cancel remains effective until here.
+        copilotPublishing.current=true;
+      }});
+      if(operation.sequence!==copilotSequence.current)return;
       if (result.ok) {
         const created = result.createdIds.filter((id) => Boolean(cadDocument.objects[id]));
         if (created.length) selectObjects(created);
@@ -873,13 +892,20 @@ export function App() {
         setCopilotReviewedKey(undefined);
         setCopilotError("");
         setCopilotPreviewFailed(0);
+        setCopilotCompletedIds(created);
+        discardCadPlan(preview.planId);
       } else {
+        setCopilotError(result.reason??"Copilot Apply was rejected. Plan again.");
         setShortcutReadout(result.reason ?? "Copilot apply rejected");
       }
       syncRevision();
+    } catch(error) {
+      if(operation.sequence===copilotSequence.current){
+        discardCadPlan(preview.planId);setCopilotValidated(null);setCopilotReviewedKey(undefined);setCopilotPlan(null);
+        setCopilotError(error instanceof Error?error.message:"Copilot Apply failed. Plan again.");
+      }
     } finally {
-      copilotPublishing.current=false;
-      setCopilotApplying(false);
+      if(copilotApplyOperation.current===operation){copilotApplyOperation.current=null;copilotPublishing.current=false;setCopilotApplying(false);}
     }
   }
 
@@ -1650,6 +1676,7 @@ export function App() {
         onTogglePreview: () => setCopilotPreviewVisible((value) => !value),
         onApply: () => void handleCopilotApply(),
         onClear: clearCopilot,
+        onInspectResult:()=>{selectObjects(copilotResults);setActiveActivity("model");},
       }}
       properties={properties}
     >

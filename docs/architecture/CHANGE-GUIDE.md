@@ -27,7 +27,7 @@
 | 2D 계산·solver | `apps/web/src/precision`과 `features/drawing-editing/geometry` | 이곳의 계산부터 수정하고, 별도 엔진 추출은 검증을 동반한 후속 작업으로 한다 |
 | 명령 패키지 | `packages/cad-commands`는 명령 타입·검증·결과·버스를 제공 | 실제 명령 구현·재생성·Preview는 웹의 `state`와 도면 편집 모듈에 있다 |
 | 3D 커널 | `packages/cad-kernel`이 OpenCascade에 의존하고 웹 `cad`가 Worker 호출을 연결 | 목표는 의존성 제거가 아니라 커널 구현과 선택적 제작 기능의 경계를 유지하는 것 |
-| Copilot | 규칙 planner와 G5 공급자 독립 gateway 설정·비동기 제안·취소·stale 검증 코드가 있다 | 실제 LLM 공급자/서버와 인증 연결은 없고 mock 검증 범위다 |
+| Copilot | 규칙 planner·gateway의 공통 detached Review/Apply, draft/context 수명, queued Apply 취소·게시 직전 검증·결과 인계. [G5-A 검수](../implementation/G5-A3-COPILOT-APPLY-2026-10-08.md) | 실제 LLM 공급자/서버와 인증 연결은 없고 mock 검증 범위다 |
 | 아트보드 | G2 frame/Fit/vector/component 및 G3 SVG/PNG/PDF output 구현 | 전체 illustration/editor/publishing 기능 동등성과 구분한다 |
 | 제작 확장 | RasterAsset/ImageNode·source replacement·Scene(v12)·state/time/link/재생·finite vector component·원본 선택·정지 SVG | G4 첫 범위 검수 완료. pixel brush·레이어 graph·variant·직접 layout handle·PPTX/GIF 출력은 남아 있다 |
 | 외부 오픈소스 | MIT UTIF만 TIFF 전용 Worker에 채택. SVG-Edit/Paper.js/UPNG/Typr/ag-psd/PptxGenJS는 후보 | 외부 parser는 UI·문서·History를 대신하지 않는다. [재사용·직접 구현 경계](../product/CREATIVE-REUSE-IMPLEMENTATION-PLAN.md) |
@@ -62,7 +62,7 @@
 | 큰 문서에서 화면·메모리·GPU 자원이 부족함 | `viewport/CadViewport.tsx`, `drawingRenderer.ts`, `draftingRenderer.ts`, `cad/kernelGeometryService.ts`, `kernelWorkerClient.ts`, `state/documentPlans.ts` | 현재 WebGL/Worker/cache의 병목과 무효화를 먼저 측정한다. WebGPU는 선택적 backend, WebGL은 fallback이며 원본 문서·원자성은 바꾸지 않는다. 캐시 키·예산·eviction은 [웹 런타임 자원 전략](WEB-RUNTIME-RESOURCE-STRATEGY.md)을 따른다 |
 | 3D 연산·면/엣지 선택·Worker 오류 | `packages/cad-kernel/src/operations/`, 웹 `cad/kernelGeometryService.ts`, `kernelProtocol.ts`, `kernelRuntime.ts`, `kernelWorkerClient.ts` | 솔리드 계산·메쉬·작업 취소·통신. 화면 선택은 `brepPicking.ts`, live 연결은 재생성 계층까지 확인 |
 | SVG/DXF/PDF/STEP 출력이 화면과 다름 | `export/exportModel.ts`, `svgWriter.ts`, `interop/dxfParser.ts`·`dxfImport.ts`·`dxfWriter.ts`, `plot/plotPlan.ts`·`pdfWriter.ts` | 출력 대상·단위·축척·포맷 변환. 형식마다 포함 가능한 객체가 다름 |
-| Copilot이 요청·선택·결과를 잘못 설명함 | `copilot/copilotPlan.ts`, `CopilotPanel.tsx`, `App.tsx`, `state/documentQuery.ts` | 계획 해석·문서 조회·검토·결과 인계. 형상 오류라면 공유 명령/기하를 수정 |
+| Copilot이 요청·선택·결과를 잘못 설명함 | `copilot/copilotPlan.ts`, `copilotContext.ts`, `copilotConnection.ts`, `CopilotPanel.tsx`, `App.tsx`, `state/documentQuery.ts`, `documentPlans.ts` | 계획 해석·context 수명·문서 조회·검토·결과 인계. Apply 취소와 owner 재검증은 공통 plan queue 경계에서 실행. 형상 오류라면 공유 명령/기하를 수정 |
 | LLM·외부 라이브러리 도입 | 현재 `CopilotBackend`와 공개 명령/계획 경계에서 시작; 향후 `integrations` 어댑터 제안 | 네트워크·취소·외부 데이터 변환을 격리. 아직 존재하지 않는 통합 패키지를 선행 생성하지 않음 |
 
 ## 3. 변경을 놓치기 쉬운 연결 지점

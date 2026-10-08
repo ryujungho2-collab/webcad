@@ -124,14 +124,20 @@ export function getCadPlanDimensionParams(planId:string,objectId:string) {
 }
 
 /** Applying a preview uses the very same evaluated proposal and IDs, once. */
-export async function applyCadPlan(planId:string):Promise<CommandResult&{alreadyApplied?:boolean}> {
+export async function applyCadPlan(planId:string,options:{signal?:AbortSignal;validate?:()=>string|undefined}={}):Promise<CommandResult&{alreadyApplied?:boolean}> {
   return enqueueDocumentCommand(async()=>{
+    options.signal?.throwIfAborted();
     const stored=plans.get(planId);
     if(!stored)throw new Error("Preview expired; preview the edit again.");
     if(stored.applied)return structuredClone({...stored.applied,changed:false,alreadyApplied:true});
     const {prepared,before,version}=stored;
     if(!sameDocumentVersion(version)||JSON.stringify(before)!==JSON.stringify(cadDocument))return failedResult(prepared.command,"The document changed; preview the edit again.");
     if(!prepared.result.ok)return structuredClone(prepared.result);
+    // Recheck the owner's authoritative review after queueing. No await may
+    // separate this check from publication; Cancel can abort until this point.
+    const reason=options.validate?.();
+    if(reason)return failedResult(prepared.command,reason);
+    options.signal?.throwIfAborted();
     publishCadProposal(prepared,before);
     const {raw:_,...result}=prepared.result;
     stored.applied=structuredClone(result);

@@ -24,6 +24,7 @@ export type CopilotPanelProps = {
   onTogglePreview: () => void;
   onApply: () => void;
   onClear: () => void;
+  onInspectResult: () => void;
 };
 
 const EXAMPLES = ["100x50x30 박스 3개", "100x50 사각형 돌출 20", "반지름 5 높이 20 원기둥", "XZ 평면에 지름 20 원 돌출 15"];
@@ -64,7 +65,7 @@ export function CopilotPanel(props: CopilotPanelProps) {
         </div>
         <div className="sketch-actions">
           <button type="button" onClick={submit} disabled={!props.draft.trim() || props.applying}>Plan</button>
-          {(props.plan||props.planning) && <button type="button" onClick={props.onClear}>{props.planning?"Cancel request":"Clear"}</button>}
+          {(props.plan||props.planning) && <button type="button" onClick={props.onClear}>{props.planning?"Cancel request":props.applying?"Cancel apply":"Clear"}</button>}
         </div>
         <div className="property-hint">Examples: {EXAMPLES.map((example, index) => (
           <span key={example}>{index > 0 && " · "}<button
@@ -83,6 +84,10 @@ export function CopilotPanel(props: CopilotPanelProps) {
       </div>}
       {props.planning&&!props.plan&&<p role="status">Requesting a command proposal… You can cancel or edit the prompt.</p>}
       {props.interaction&&<CommandReview state={props.interaction}/>}
+      {!!props.interaction?.completedIds?.length && <div className="property-hint" aria-label="Copilot result">
+        Created {props.interaction.completedIds.length} object{props.interaction.completedIds.length===1?"":"s"}. The results are selected for the next edit.
+        <button type="button" onClick={props.onInspectResult}>Inspect result</button>
+      </div>}
 
       {props.plan && (
         <PropertySection title="Plan" meta={`${props.plan.ghosts.length} object${props.plan.ghosts.length === 1 ? "" : "s"}`}>
@@ -109,7 +114,7 @@ export function CopilotPanel(props: CopilotPanelProps) {
             >{props.planning?"Validating…":props.applying ? "Applying…" : "Apply"}</button>
           </div>
           {props.applyDisabledReason && <p className="property-hint">{props.applyDisabledReason}</p>}
-          <p className="property-hint">Apply commits one undoable batch. Undo restores everything.</p>
+          <p className="property-hint">Apply commits one undoable batch. Cancel stops it before publication; Undo restores a completed result.</p>
         </PropertySection>
       )}
     </div>
