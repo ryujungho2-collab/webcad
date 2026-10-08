@@ -4,8 +4,10 @@ import type { CopilotConnection } from "./copilotConnection";
 import type { CopilotPlanningContext } from "./copilotContext";
 import { CommandReview } from "../ui/CommandReview";
 import type { CommandInteraction } from "../state/commandInteraction";
+import { CopilotQueryPanel, type CopilotQueryPanelProps } from "./CopilotQueryPanel";
 
 export type CopilotPanelProps = {
+  query: CopilotQueryPanelProps;
   draft: string;
   connection: CopilotConnection;
   requestContext: CopilotPlanningContext | null;
@@ -46,6 +48,7 @@ export function CopilotPanel(props: CopilotPanelProps) {
   return (
     <div className="properties-content" data-testid="copilot-panel">
       <div className="inspector-header"><span>Copilot</span><small>{props.connection.mode==="rules"?"rule-based":"gateway"}</small></div>
+      <CopilotQueryPanel {...props.query}/>
       <PropertySection title="Connection" meta="Optional gateway">
         <label>Planner<select aria-label="Copilot planner" value={props.connection.mode} onChange={e=>{props.onClear();props.onConnectionChange({...props.connection,mode:e.target.value as CopilotConnection["mode"]});}}><option value="rules">Local rules</option><option value="gateway">LLM gateway</option></select></label>
         {props.connection.mode==="gateway"&&<><label>Gateway URL<input aria-label="Copilot gateway URL" value={props.connection.endpoint} onChange={e=>{props.onClear();props.onConnectionChange({...props.connection,endpoint:e.target.value});}}/></label><p className="property-hint">Plan sends your prompt, document identity and up to 50 selected object names/types/references to this gateway. Image bytes and API keys are not included. Configure your provider on the server. Current gateway capabilities: finite 2D drawings and solid primitives, up to 20 commands.</p></>}

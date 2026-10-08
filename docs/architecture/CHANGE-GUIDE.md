@@ -63,6 +63,7 @@
 | 3D 연산·면/엣지 선택·Worker 오류 | `packages/cad-kernel/src/operations/`, 웹 `cad/kernelGeometryService.ts`, `kernelProtocol.ts`, `kernelRuntime.ts`, `kernelWorkerClient.ts` | 솔리드 계산·메쉬·작업 취소·통신. 화면 선택은 `brepPicking.ts`, live 연결은 재생성 계층까지 확인 |
 | SVG/DXF/PDF/STEP 출력이 화면과 다름 | `export/exportModel.ts`, `svgWriter.ts`, `interop/dxfParser.ts`·`dxfImport.ts`·`dxfWriter.ts`, `plot/plotPlan.ts`·`pdfWriter.ts` | 출력 대상·단위·축척·포맷 변환. 형식마다 포함 가능한 객체가 다름 |
 | Copilot이 요청·선택·결과를 잘못 설명함 | `copilot/copilotPlan.ts`, `copilotContext.ts`, `copilotConnection.ts`, `CopilotPanel.tsx`, `App.tsx`, `state/documentQuery.ts`, `documentPlans.ts` | 계획 해석·context 수명·문서 조회·검토·결과 인계. Apply 취소와 owner 재검증은 공통 plan queue 경계에서 실행. 형상 오류라면 공유 명령/기하를 수정 |
+| Copilot의 local Read selection·취소·오래된 결과·수동 인계 | `copilot/copilotQuery.ts`, `useCopilotQuery.ts`, `CopilotQueryPanel.tsx`, `state/documentQuery.ts`, `App.tsx` | bounded 읽기 DTO·단위/관계/잠금·App 소유 context·Cancel. gateway 전송/편집 명령과 별도 경로. [B1은 Node/타입 검증까지, browser 검수 대기](../implementation/G5-B1-QUERY-CHECKPOINT-2026-10-09.md) |
 | LLM·외부 라이브러리 도입 | 현재 `CopilotBackend`와 공개 명령/계획 경계에서 시작; 향후 `integrations` 어댑터 제안 | 네트워크·취소·외부 데이터 변환을 격리. 아직 존재하지 않는 통합 패키지를 선행 생성하지 않음 |
 
 ## 3. 변경을 놓치기 쉬운 연결 지점

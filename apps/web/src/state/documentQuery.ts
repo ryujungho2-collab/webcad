@@ -25,19 +25,27 @@ export async function measureDocumentObject(document:CadDocument,objectId:string
 }
 
 /** Detached snapshot queries never expose writable document references to tools/agents. */
-export async function queryCadDocument(objectIds?:string[]) {
-  const version=documentVersion(),snapshot=structuredClone(cadDocument);
-  const ids=objectIds??snapshot.rootObjects;
+export async function queryCadDocument(objectIds?:string[],options:{signal?:AbortSignal;maxObjects?:number}={}) {
+  options.signal?.throwIfAborted();
+  const requested=[...new Set(objectIds??cadDocument.rootObjects)];
+  if(options.maxObjects!==undefined&&requested.length>options.maxObjects)throw new Error(`Select at most ${options.maxObjects} objects to read.`);
+  // Measurements and relationships never need original raster pixels.
+  const version=documentVersion(),snapshot=structuredClone({...cadDocument,rasterAssets:undefined});
+  const features=new Map(Object.values(snapshot.features).map(feature=>[feature.output,feature]));
   const dependencyGraph = buildDependencyGraph(snapshot);
   const explainDependencies = createDependencyExplainer(dependencyGraph);
-  const objects=await Promise.all([...new Set(ids)].map(async id=>{
-    const object=snapshot.objects[id],feature=Object.values(snapshot.features).find(f=>f.output===id);
+  const objects=await Promise.all(requested.map(async id=>{
+    options.signal?.throwIfAborted();
+    const object=snapshot.objects[id],feature=features.get(id);
     if(!object||!feature)return {id,error:"Object does not exist"};
     const contract=featureContract(feature),layer=snapshot.layers[object.layerId];
     let measurement:GeometryMeasurement|undefined,error:string|undefined;
-    if(contract.supportsExactMeasurement)try{measurement=await measureDocumentObject(snapshot,id);}catch(e){error=e instanceof Error?e.message:String(e);}
+    if(contract.supportsExactMeasurement)try{measurement=await measureDocumentObject(snapshot,id,features);}catch(e){error=e instanceof Error?e.message:String(e);}
+    options.signal?.throwIfAborted();
+    const editabilityReasons=[!layer?"Source layer is missing.":layer.locked?`Layer ${layer.name} is locked.`:undefined,!object.visible?"Object is hidden.":undefined,layer?.visible===false?`Layer ${layer.name} is hidden.`:undefined].filter((value):value is string=>!!value);
     return {id,name:object.name,feature:structuredClone(feature),contract,transform:getObjectTransform(object,feature),
       visible:object.visible&&layer?.visible!==false,editable:object.visible&&layer?.visible===true&&!layer.locked,
+      layer:layer?{id:layer.id,name:layer.name,locked:layer.locked,visible:layer.visible}:undefined,editabilityReasons,
       dependents:Object.values(snapshot.features).filter(f=>f.inputs.includes(id)).map(f=>f.output),dependencies:explainDependencies(id),measurement,error};
   }));
   return {version,stale:!sameDocumentVersion(version),units:CAD_PRECISION,objects,dependencyGraph,variables:evaluateVariables(snapshot.variables),bindings:structuredClone(snapshot.parameterBindings??{}),parameterTargets:parameterTargets(snapshot)};

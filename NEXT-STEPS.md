@@ -1,6 +1,8 @@
 # 다음 작업
 
-갱신일: 2026-10-08. **G5-A1–A3 검수와 일반 각도 치수 B3-C1–C3를 완료했다.** Apply의 게시 전 취소·context 재검증·잠금/부분 실패·만료 복구·결과 인계는 [A3 기록](docs/implementation/G5-A3-COPILOT-APPLY-2026-10-08.md), 두 source/edge 치수와 v14는 [C2/C3 기록](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)을 따른다. 최신 전체 Node **643개**, browser **38 workflows / 799 checks**, 타입·architecture **313 modules**·workspace build가 통과했다. 다음 보류 작업은 **G5-B Query와 기존 편집 명령 한 종류의 확대**다. 실제 provider 연결은 준비되지 않았다. CAD의 다음 확장 후보는 B3-A3 OCS/기울어진 DXF와 B/X 카드다. Pro 한도의 약 15% 단위 분할은 [작업 분할](docs/WORK-SLICES-2026-10-06.md)을 따른다.
+**2026-10-09 재시작 지점: G5-B1 검수부터.** local Read selection UI·읽기 DTO·취소/context 수명과 새 Node 7개까지 구현했다. 타입·architecture/import·문서 링크 317 modules와 집중 Node 15개는 통과했으며 사용자 요청으로 여기서 멈췄다. [B1 checkpoint](docs/implementation/G5-B1-QUERY-CHECKPOINT-2026-10-09.md)의 파일/경계를 읽고 Query browser fixture·runner 등록 → 실제 선택/읽기/취소/재조회/편집 인계 → 전체 회귀·build 순서로 **B1만 마감**한다. B2 allowlist 확대는 별도 요청이다. 아래 2026-10-08 전체 수치는 A3 기준선이다.
+
+이전 전체 기준선(2026-10-08): **G5-A1–A3 검수와 일반 각도 치수 B3-C1–C3를 완료했다.** Apply의 게시 전 취소·context 재검증·잠금/부분 실패·만료 복구·결과 인계는 [A3 기록](docs/implementation/G5-A3-COPILOT-APPLY-2026-10-08.md), 두 source/edge 치수와 v14는 [C2/C3 기록](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)을 따른다. 최신 전체 Node **643개**, browser **38 workflows / 799 checks**, 타입·architecture **313 modules**·workspace build가 통과했다. 현재 B1 검수와 후속 B2 편집 명령 한 종류 확대를 구분한다. 실제 provider 연결은 준비되지 않았다. CAD의 다음 확장 후보는 B3-A3 OCS/기울어진 DXF와 B/X 카드다. Pro 한도의 약 15% 단위 분할은 [작업 분할](docs/WORK-SLICES-2026-10-06.md)을 따른다.
 
 최상위 목표는 기본 CAD·벡터·이미지·레이아웃 기능을 공통 문서·선택·명령·History와 통합 UI로 연결하는 것이다. 상세 범위와 완료 기준은 [구현 인계](docs/IMPLEMENTATION-READINESS-2026-10-05.md), 실제 상태는 [PROJECT-STATE](PROJECT-STATE.md), 수정 위치는 [CHANGE-GUIDE](docs/architecture/CHANGE-GUIDE.md)를 따른다.
 
@@ -66,7 +68,7 @@ G4 첫 범위·CAD DXF/지름·각도 C1–C3와 **G5-A1–A3 검수**를 완료
 | G3-4b3 완료 | Artboard PDF output | active/all-visible pages, mm MediaBox, DPI/page/pixel/memory/file guards, real multi-page decode |
 | G3-5 / I1 | 자원 공유·재업로드 제거 및 원본 교체 자동 검수 완료. 외부 실무자/실제 GPU 평가는 남음 | [G3-5 전후 측정·마감](docs/verification/G3-5-IMAGE-RESOURCES-2026-10-06.md), [source 교체 검수](docs/verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md) |
 | G4 첫 A/B/C 완료 | Scene source 선택·draft/recovery·finite nested component·Auto Layout/state/time·target state·재생·정지 SVG | [구현 근거](docs/implementation/G4-CAD-BASICS-2026-10-06.md). 직접 layout handle·component override/variant·PPTX/GIF/영상은 후속 |
-| G5-A 완료, B 대기 | gateway 응답·취소·draft/context와 Apply·잠금·경합·local rule·결과 인계 검수 | [A3 구현·검증](docs/implementation/G5-A3-COPILOT-APPLY-2026-10-08.md). 다음은 Query와 기존 편집 명령 한 종류. 실제 LLM 공급자 연결 전 |
+| G5-A 완료, B1 진행 중 | A 검수 완료. B1 local Query UI/세션·Node 7개 추가, 타입·집중 15개 통과 | [B1 중간 정리](docs/implementation/G5-B1-QUERY-CHECKPOINT-2026-10-09.md). 다음은 B1 browser와 전체 마감 검수. B2 편집/실제 provider 미착수 |
 | G6 | IFC/RVT·Axo·Manim·Notion/InDesign adapter | 핵심 문서·asset·view 계약 재사용 |
 
 성능은 매 단계에서 같은 과제의 지연·메모리·자원 해제를 측정한다. WebGPU·영속 캐시는 [웹 자원 전략](docs/architecture/WEB-RUNTIME-RESOURCE-STRATEGY.md)에 따라 병목이 확인된 경우 도입하고, 핵심 제작 기능의 선행 조건으로 두지 않는다. 자동 회귀 마감 후에도 외부 실무자의 task time·재시도·복구율과 native GPU/heap/VRAM 평가를 별도로 남긴다.

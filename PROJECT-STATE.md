@@ -1,8 +1,10 @@
 # 현재 프로젝트 상태
 
-갱신일: 2026-10-08. 이 문서는 **현재 구현과 최근 검수**를 요약한다. 실행 순서는 [NEXT-STEPS](NEXT-STEPS.md), 기능별 지원 대상과 공백은 [CAD-BASICS](docs/product/CAD-BASICS.md)를 따른다. 단계별 상세 기록은 [문서 목록](docs/README.md)에서 찾는다.
+갱신일: 2026-10-09. 이 문서는 **현재 구현과 최근 검수**를 요약한다. 실행 순서는 [NEXT-STEPS](NEXT-STEPS.md), 기능별 지원 대상과 공백은 [CAD-BASICS](docs/product/CAD-BASICS.md)를 따른다. 단계별 상세 기록은 [문서 목록](docs/README.md)에서 찾는다.
 
 ## 최신 통합 구현·검수 상태
+
+**G5-B1은 중간 정리 상태다.** 사용자 요청으로 추가 구현을 멈췄다. Copilot의 local Read selection에 공통 Query·측정/관계/구속/잠금 설명·Cancel·context 무효화·수동 편집 인계를 연결하고 bounded DTO를 추가했다. 새 Node 7개를 포함한 집중 회귀 **15개**, `tsc -b`, architecture/import·문서 링크 **317 modules**는 통과했다. 이번 변경의 browser fixture/runner 등록·실제 UX 검수·전체 Node/browser·production build는 남아 있다. [구현과 재시작 지점](docs/implementation/G5-B1-QUERY-CHECKPOINT-2026-10-09.md), [중간 검증 요약](docs/verification/G5-B1-CHECKPOINT-2026-10-09.json)을 따른다. 아래 A3 수치는 **이전 전체 회귀 기준선**이며 B1 변경의 전체 통과 결과가 아니다. 다음은 B1 브라우저 검수·마감이고 B2는 시작하지 않았다.
 
 사용자 요청으로 **G5-A3 Copilot Apply·잠금·경합 검수**를 완료했다. [A3 구현](docs/implementation/G5-A3-COPILOT-APPLY-2026-10-08.md)과 [검증 요약](docs/verification/G5-A3-CLOSEOUT-2026-10-08.json)을 따른다. [A1 응답·취소](docs/implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md), [A2 패널·context 수명](docs/implementation/G5-A2-COPILOT-CONTEXT-2026-10-08.md)을 포함한 **G5-A 검수**가 끝났으며 다음은 G5-B 범위다. 앞서 구현한 B3-C 일반 각도 치수(v14)는 [C1 계산](docs/implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md), [C2/C3 작업·검증](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)에 기록했다. 기존 [G4·DXF·지름](docs/implementation/G4-CAD-BASICS-2026-10-06.md)을 유지한다. 실제 LLM 연결과 G4–G6/CAD-BASICS 전체 기능 동등성을 달성한 상태는 아니다.
 

@@ -115,6 +115,7 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
         {props.activeActivity === "variables" && <VariablesPanel query={normalizedQuery} documentRevision={props.documentRevision} selectedObjectId={props.selectedObjectId} activeSketchId={props.activeSketchId} onDocumentChange={props.onDocumentChange}/>}
         {props.activeActivity === "copilot" && props.copilot && (
           <CopilotPanel
+            query={props.copilot.query}
             draft={props.copilot.draft}
             connection={props.copilot.connection}
             requestContext={props.copilot.requestContext}

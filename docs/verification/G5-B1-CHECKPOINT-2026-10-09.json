@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-09",
+  "status": "checkpoint-incomplete",
+  "baseline": "7df88c2",
+  "scope": "G5-B1 local selection Query UI and bounded read session; user requested stop and documentation",
+  "typecheck": "passed",
+  "architecture": { "passed": true, "modules": 317, "documentationLinks": true, "log": "output/g5-b1-architecture-2026-10-09.log" },
+  "focusedNode": { "tests": 15, "passed": 15, "failed": 0, "skipped": 0, "newQueryTests": 7, "log": "output/g5-b1-focused-node-2026-10-09.log" },
+  "commands": [
+    "pnpm --filter @agent-webcad/web exec tsc -b",
+    "pnpm --filter @agent-webcad/web exec tsx --test tests/copilotQuery.test.ts tests/dependencyGraph.test.ts tests/copilotContext.test.ts",
+    "pnpm --filter @agent-webcad/web check:architecture"
+  ],
+  "browser": "not run; new Query browser fixture and runner registration not yet implemented",
+  "fullNode": "not run for B1",
+  "build": "not run for B1",
+  "queryLimits": { "selectedObjects": 50, "utf8ResultBytes": 65536, "deadlineMs": 30000, "sourcesPerObject": 20, "affectedPerObject": 20, "solveGroupsPerObject": 10, "displayTextCharacters": 200 },
+  "externalLlm": "not connected; Query is local and does not send its result to gateway",
+  "previousFullRegression": { "stage": "G5-A3", "date": "2026-10-08", "nodeTests": 643, "browserWorkflows": 38, "browserChecks": 799, "appliesToB1": false },
+  "remaining": [
+    "Actual browser Query workflow, scrolling, pointer hit-tests and manual handoff",
+    "Full Node/browser, production build and final integration validation",
+    "Deeper upstream missing references and per-target expression diagnostics",
+    "Cancel/deadline detaches reader; shared Worker work and synchronous graph computation are not interrupted",
+    "Whole-document snapshot and graph traversal remain; no performance benchmark"
+  ]
+}

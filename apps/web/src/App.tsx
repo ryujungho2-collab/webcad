@@ -14,6 +14,7 @@ import {previewCadCommand,applyCadPlan,discardCadPlan,type CadPlanPreview} from 
 import {documentVersion,sameDocumentVersion,subscribeDocumentChanges} from "./state/documentSession";
 import {copilotRequest,requestCopilotPlan,type CopilotConnection} from "./copilot/copilotConnection";
 import {captureCopilotContext,copilotContextChange,type CopilotContextInputs,type CopilotPlanningContext} from "./copilot/copilotContext";
+import { useCopilotQuery } from "./copilot/useCopilotQuery";
 import { cadHistory, redoDocument, undoDocument } from "./state/history";
 import type { HistoryStateToken } from "@agent-webcad/cad-history";
 import { reduceSelection, selectAllIds, validSelection, type SelectionState, type TopologySelectionRef } from "./state/selection";
@@ -199,6 +200,7 @@ export function App() {
 
   const selectedObjectId = selection.primaryId;
   const selectedObjectIds = selection.ids;
+  const copilotQuery = useCopilotQuery(selectedObjectIds, documentVersion());
   const liveCopilotContext:CopilotContextInputs={version:documentVersion(),selectionIds:selectedObjectIds,workPlane:activeWorkPlane,layerId:selectedLayerId,prompt:copilotDraft,connection:copilotConnection};
   const liveCopilotContextRef=useRef(liveCopilotContext);
   liveCopilotContextRef.current=liveCopilotContext;
@@ -1654,6 +1656,10 @@ export function App() {
       onDimension={() => void handleDimensionFromSelection()}
       onInsertPavilion={() => void handleInsertPavilion()}
       copilot={{
+        query: { state: copilotQuery.state, selectionCount: selectedObjectIds.length,
+          onRead: () => void copilotQuery.read(), onCancel: copilotQuery.cancel,
+          onInspect: id => { selectObject(id); setActiveActivity("model"); },
+          onEditSketch: id => { editSketch(id); setActiveActivity("model"); } },
         draft:copilotDraft,
         connection:copilotConnection,
         requestContext:copilotRequestContext,
