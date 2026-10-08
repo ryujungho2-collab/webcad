@@ -1,0 +1,71 @@
+{
+  "verifiedOn": "2026-10-08",
+  "timezone": "Asia/Seoul",
+  "status": "passed",
+  "baseline": "5824495",
+  "scope": "B3-C3 public angular dimension selection, review, precision input, result handoff and output",
+  "environment": {
+    "node": "24.19.0",
+    "browser": "Microsoft Edge headless CDP",
+    "renderer": "SwiftShader",
+    "server": "local Vite"
+  },
+  "node": {
+    "tests": 636,
+    "suites": 54,
+    "passed": 636,
+    "failed": 0,
+    "skipped": 0
+  },
+  "browser": {
+    "workflows": 36,
+    "checks": 758,
+    "angularWorkflowChecks": 24,
+    "contourTrimWorkflowChecks": 21,
+    "failed": 0,
+    "evidence": "output/angular-c3-browser-2026-10-08.log"
+  },
+  "typecheck": "passed",
+  "architecture": {
+    "passed": true,
+    "modules": 308,
+    "documentationLinks": true
+  },
+  "build": {
+    "workspace": "passed",
+    "mainRawKB": 1036.35,
+    "viewportRawKB": 618.81,
+    "kernelWasmRawKB": 50305.13,
+    "kernelWasmGzipKB": 13955.45,
+    "chunkOver500KBWarning": true
+  },
+  "commands": [
+    "pnpm --filter @agent-webcad/web exec tsc -b",
+    "pnpm --filter @agent-webcad/web test",
+    "pnpm --filter @agent-webcad/web check:architecture",
+    "pnpm --filter @agent-webcad/web test:browser --page=contourTrimWorkflow",
+    "pnpm --filter @agent-webcad/web test:browser --page=angularWorkflow",
+    "pnpm --filter @agent-webcad/web test:browser",
+    "pnpm build"
+  ],
+  "browserEvidence": [
+    "Ribbon and command search entry; first and second edge from list and physical canvas pick",
+    "Parallel edges explain invalidity; correcting the edge restores authoritative Apply",
+    "Clockwise reflex branch, inch radius entry and physical radius-handle drag share one draft/preview path",
+    "Invalid precision input blocks stale Apply; document revision revalidates without losing edge choices",
+    "Cancel leaves document and history unchanged; Apply selects result; Undo/Redo restores identity",
+    "Inspector edit retains annotation identity; source edit refreshes selected branch in one Undo",
+    "v14 JSON serialize/reload and actual document file open preserve both source references",
+    "Actual DXF and active-plane SVG downloads contain angular text; CAD PDF plot plan contains angular text"
+  ],
+  "regression": "The first full browser run stopped in existing contourTrimWorkflow because the C2 dimension impact UI now labels lengths with mm; the test still expected unitless text. Updated assertions to require 100.00 mm → 40.00 mm and repeated the isolated and full suites. Sandbox loopback timeouts were resolved by running the browser suite with local network permission; they were not product failures.",
+  "performance": "No C3-specific large-document interaction benchmark was run. Existing sessionContinuity and imageResources measurements in the browser log are regression samples, not angular-dimension latency claims.",
+  "remaining": [
+    "Driving sketch angular dimensions and tangent angles of curved edges are separate tasks",
+    "Shared dimension style and artboard annotation output are not implemented",
+    "DXF exports sampled linework and TEXT, not an associative native DIMENSION entity; SVG uses polylines and text",
+    "PDF plot-plan text was checked; an angular-dimension PDF file was not separately downloaded and parsed",
+    "No external practitioner or GPU/large-document performance validation in this slice",
+    "G5-A2/A3 remain pending"
+  ]
+}

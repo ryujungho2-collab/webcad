@@ -26,6 +26,7 @@ import { isCadKeyboardBlocked, isCadHistoryBlocked, numericShortcutCharacter, ro
 import { DOCUMENT_BUSY_REASON, isDocumentCommandPending } from "./state/documentCommandQueue";
 import type { DrawingTool, MeasurementTool, ObjectTransformValue, PointMeasurement, TransformMode, ViewportAction, ViewportActionType } from "./viewport/CadViewport";
 import type { WorkPlaneId } from "./precision/workPlane";
+import type { AngularDimensionSession } from "./viewport/AngularDimensionTool";
 import type { WorkspaceMode } from "./viewport/workspaceTransition";
 import type { KernelStatus } from "./cad/kernelGeometryService";
 import { enumerateSolidTopology } from "./cad/kernelGeometryService";
@@ -35,7 +36,7 @@ import {commandInteraction} from "./state/commandInteraction";
 import { APARTMENT_PRESET, HOUSE_PRESET, planBuilding } from "./architecture/buildingGenerator";
 import { loftReady, sweepReady } from "./state/profileSelection";
 import { planDimensionFromSelection } from "./state/dimensionCommands";
-import { collectArtboardExportItems, collectExportDrawings, collectExportImages, collectExportSolids, collectStepSolids, downloadFile, exportStepBytes } from "./export/exportModel";
+import { collectArtboardExportItems, collectExportAnnotations, collectExportDrawings, collectExportImages, collectExportSolids, collectStepSolids, downloadFile, exportStepBytes } from "./export/exportModel";
 import { encodeBinaryStl } from "./export/stlWriter";
 import { encodeSvg } from "./export/svgWriter";
 import { ArtboardPngDialog } from "./export/ArtboardPngDialog";
@@ -124,6 +125,7 @@ export function App() {
   const [patternSession,setPatternSession]=useState<PatternSession|null>(null);
   const [contourSession, setContourSession] = useState<ContourSession | null>(null);
   const [curveSession, setCurveSession] = useState<CurveSession | null>(null);
+  const [angularSession, setAngularSession] = useState<AngularDimensionSession | null>(null);
   const [constructionSession, setConstructionSession] = useState<ConstructionSession | null>(null);
   const [constructionVisible, setConstructionVisible] = useState(true);
   const pointCommitPending = useRef(false);
@@ -280,6 +282,7 @@ export function App() {
     setConstraintReviewReset(v=>v+1);setConstraintReview(undefined);
     setConstructionSession(null);
     setCurveSession(null);
+    setAngularSession(null);
     setContourSession(null);
     setPatternSession(null);
     clearPrecisionTransform();
@@ -549,13 +552,14 @@ export function App() {
 
   function handleExportSvg() {
     if (documentBusy()) return;
-    const lines = collectExportDrawings(activeWorkPlane);
+    const annotations = collectExportAnnotations(activeWorkPlane);
+    const lines = [...collectExportDrawings(activeWorkPlane),...annotations.lines];
     const images = collectExportImages(activeWorkPlane);
     if (!lines.length && !images.length) {
       setShortcutReadout(`Nothing to export: no visible drawings on ${activeWorkPlane}`);
       return;
     }
-    downloadFile(encodeSvg(lines, { images }), `${cadDocument.id}-${activeWorkPlane.toLowerCase()}.svg`, "image/svg+xml");
+    downloadFile(encodeSvg(lines, { images, texts:annotations.texts }), `${cadDocument.id}-${activeWorkPlane.toLowerCase()}.svg`, "image/svg+xml");
     setShortcutReadout(`Exported ${lines.length} drawing${lines.length === 1 ? "" : "s"} and ${images.length} image${images.length === 1 ? "" : "s"} from ${activeWorkPlane} to SVG`);
   }
 
@@ -1134,6 +1138,17 @@ export function App() {
     setConstructionSession({ id: `construction-${crypto.randomUUID()}`, workPlane: activeWorkPlane, layerId: selectedLayerId, selectedIds: [...selectedObjectIds] });
   }
 
+  function beginAngularDimension(editId?: string) {
+    if (documentBusy() || activeSketch || activeLayerLocked) return;
+    const edited = editId ? Object.values(cadDocument.features).find(f=>f.output===editId) : undefined;
+    if (editId && edited?.params.kind !== "angular") return;
+    const selected = selectedObjectIds.filter(id=>Object.values(cadDocument.features).some(f=>f.output===id&&f.type==="drawing"));
+    const first = Object.values(cadDocument.features).find(f=>f.output===selected[0]);
+    const plane = (edited?.params.workPlane ?? first?.params.workPlane ?? activeWorkPlane) as WorkPlaneId;
+    clearCommandTools(); changeWorkspace("2d"); setActiveWorkPlane(plane);
+    setAngularSession({id:`angular-${crypto.randomUUID()}`,layerId:selectedLayerId,workPlane:plane,selectedIds:selected,editId});
+  }
+
   function toggleConstruction() {
     clearCommandTools(); setConstructionVisible(v => !v);
     setSelection({ ids: [], primaryId: null });
@@ -1388,6 +1403,7 @@ export function App() {
 
   const properties = activeSketch ? <SketchInspector reviewResetKey={constraintReviewReset} onConstraintReview={setConstraintReview} onVariables={()=>setActiveActivity("variables")} selectedConstraintId={selectedSketchConstraintId} onSelectConstraint={setSelectedSketchConstraintId} diagnostic={sketchDiagnostic} offsetDistance={offsetDistance} onOffsetDistanceChange={setOffsetDistance} offsetSide={offsetSide} onOffsetSideChange={setOffsetSide} onOffset={() => void commitOffsetFromViewport()} sketch={activeSketch} selectedObjectIds={selectedObjectIds} selectedSubObjects={selection.subObjects ?? []} onDocumentChange={syncRevision} /> : selectedFeature?.params.sketchId ? <div className="properties-content"><section className="property-section"><h3>Sketch geometry</h3><div className="property-row"><span>Entity</span><strong>{selectedObject?.name}</strong></div><div className="property-row"><span>Owner</span><strong>{String(selectedFeature.params.sketchId)}</strong></div><button type="button" className="sketch-edit-button" onClick={() => editSketch(String(selectedFeature.params.sketchId))}>Edit Sketch</button></section>{selectedObjectId && <DependencyNotice objectId={selectedObjectId} revision={documentRevision}/>}</div> : (
     <PropertiesPanel
+      onEditAngularDimension={id=>beginAngularDimension(id)}
       onEditPattern={id=>beginPattern(Object.values(cadDocument.features).find(f=>f.pattern?.id===id)!.pattern!.spec.kind,id)}
       onImageCropPreview={setImageCropPreview}
       imageCropEditingId={imageCropEditingId}
@@ -1474,6 +1490,7 @@ export function App() {
       <input ref={imageFileInput} type="file" accept={RASTER_FILE_ACCEPT} aria-label="Import image file" tabIndex={-1} style={{ display: "none" }} onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ""; void handleImportImageFile(file); }} />
       <AppShell
       onConstruction={beginConstruction} constructionVisible={constructionVisible} onToggleConstruction={toggleConstruction}
+      onAngularDimension={()=>beginAngularDimension()}
       onCurveWorkflow={beginCurveWorkflow} canCurveWorkflow={!activeSketch}
       canContour={canContour} onContour={beginContour}
       activeActivity={activeActivity}
@@ -1626,6 +1643,11 @@ export function App() {
           patternSession={patternSession}
           contourSession={contourSession}
           curveSession={curveSession}
+          angularSession={angularSession}
+          onAngularClose={()=>setAngularSession(null)}
+          onAngularApplied={id=>{syncRevision();setSelection({ids:[id],primaryId:id});}}
+          onAngularEditSketch={editSketch}
+          onAngularInspectSource={id=>{clearCommandTools();selectObject(id);}}
           curveNextActions={[
             ...(selectedFeature?.params.sketchId ? [{ label: "Edit Sketch", run: () => editSketch(String(selectedFeature.params.sketchId)) }] : []),
             ...Object.values(cadDocument.features).filter(f=>f.construction&&f.inputs.some(id=>selectedObjectIds.includes(id))).slice(0,1).map(f=>({label:"Inspect Construction",run:()=>{clearCommandTools();selectObject(f.output);}})),
@@ -1706,6 +1728,7 @@ export function App() {
             else if (action === "delete") void handleDeleteObject();
             else if (action === "curve-workflow") beginCurveWorkflow();
             else if (action === "construction") beginConstruction();
+            else if (action === "angular-dimension") beginAngularDimension();
             else if (action === "edit-sketch") { const f=Object.values(cadDocument.features).find(f=>selectedObjectIds.includes(f.output)&&f.params.sketchId); if(f)editSketch(String(f.params.sketchId));else setShortcutReadout("Select a sketch-owned curve to Edit Sketch."); }
             else if (action === "pattern-linear") beginPattern("linear");
             else if (action === "pattern-radial") beginPattern("radial");

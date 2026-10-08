@@ -4,6 +4,7 @@ export const interactionTools = [
   { id: "curve-workflow", label: "Curve workflow", icon: "⌁", hint: "Trim / Join · select targets, reconnect relationships, review and continue" },
   { id: "edit-sketch", label: "Edit Sketch", icon: "◇", hint: "Edit the selected curve's owning sketch and driving constraints" },
   { id: "construction", label: "Construction", icon: "⊥", hint: "Points, lines, rays and saved construction relationships" },
+  { id: "angular-dimension", label: "Angular Dimension", icon: "∠", hint: "Measure two straight edges · choose rays and direction, review the live annotation" },
   { id: "pattern-linear", label: "Linear Array", icon: "▦", hint: "Repeat source curves in rows and columns" },
   { id: "pattern-radial", label: "Radial Array", icon: "◌", hint: "Repeat source curves about a center" },
   { id: "pattern-mirror", label: "Mirror", icon: "⇆", hint: "Reflect source curves about an axis" },
@@ -21,7 +22,7 @@ export function interactionToolReason(id:InteractionToolId,document:CadDocument,
     if(!layer?.visible||layer.locked)return "Show and unlock the sketch layer first.";
     return;
   }
-  if(id==="construction"||id.startsWith("pattern-")){
+  if(id==="construction"||id==="angular-dimension"||id.startsWith("pattern-")){
     const layer=document.layers[layerId];
     if(!layer?.visible||layer.locked)return "Show and unlock the active layer first.";
   }

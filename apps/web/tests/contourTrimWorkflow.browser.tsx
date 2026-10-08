@@ -53,14 +53,15 @@ button.onclick = async () => {
     check(wfButton("Apply workflow edit").disabled && !!editor()!.querySelector('[aria-label="Reconnect contour references"]'), "Apply waits for an explicit dimension reference");
     await choose("Reference result open-dim open", "0"); await choose("Reference portion open-dim open", "0"); await ready();
     check(!!document.querySelector('[data-curve-workflow-preview] polyline[stroke="#6cb9ff"]'), "The chosen dimension edge is highlighted on the canvas");
-    check(editor()!.querySelector('[aria-label="Contour reference impact"]')!.textContent!.includes("100.00 → 40.00"), "The reviewed dimension changes from 100 to 40 mm");
+    const firstImpact = editor()!.querySelector('[aria-label="Contour reference impact"]')!.textContent!;
+    check(firstImpact.includes("100.00 mm → 40.00 mm"), `The reviewed dimension changes from 100 to 40 mm: ${firstImpact}`);
     await screenshot("cad-trim-middle.png"); await click("Cancel workflow", true); await waitFor(() => !editor()); check(state() === initial && history() === initialH && document.activeElement === canvas(), "Cancel discards interval and reference review without changing the document or history");
     await click("Curve workflow"); await click("Trim", true); await choose("Workflow second curve", "open-cut"); await choose("Workflow trim scope", "interval"); await click("Fit workflow preview", true); await pause(); const repeatRail = screenLine(0); await click("Pick target branch", true); await pickScreen(repeatRail[0].map((v, i) => (v + repeatRail.at(-1)![i]) / 2)); await waitFor(() => !!document.querySelector('[data-curve-workflow-preview] polyline[stroke="#ff7878"]')); await choose("Reference result open-dim open", "0"); await choose("Reference portion open-dim open", "0"); await ready();
     await click("Apply workflow edit", true); await waitFor(() => !!wfButton("Reconnect gap and Join result"));
     const [left, right] = cadDocument.rootObjects.filter(id => id.startsWith("contour-"));
     check(near(contourLength(path(left)), 40) && near(contourLength(path(right)), 40) && feature("open-dim").params.sourceObjectId === left && history() === initialH + 1, "Middle Trim creates two exact pieces and routes the dimension in one Undo");
     await click("Reconnect gap and Join result", true); await choose(`Reference result open-dim ${left}`, "0"); await choose(`Reference portion open-dim ${left}`, "span"); await ready();
-    check(editor()!.querySelector('[aria-label="Contour reference impact"]')!.textContent!.includes("40.00 → 100.00"), "Gap Join reviews the endpoint dimension becoming 100 mm again");
+    check(editor()!.querySelector('[aria-label="Contour reference impact"]')!.textContent!.includes("40.00 mm → 100.00 mm"), "Gap Join reviews the endpoint dimension becoming 100 mm again");
     await click("Apply workflow edit", true); await waitFor(() => !!wfButton("Finish workflow")); const joined = String(feature("open-dim").params.sourceObjectId), joinedState = state();
     check(near(contourLength(path(joined)), 100) && feature("open-dim").inputs[0] === joined && !cadDocument.objects[left] && !cadDocument.objects[right] && history() === initialH + 2, "Explicit gap reconnection joins the pieces and updates the saved reference");
     await click("Finish workflow", true); await click("Undo"); await click("Undo"); check(state() === initial, "Two Undo actions restore original geometry and dimension"); await click("Redo"); await click("Redo"); check(state() === joinedState, "Two Redo actions restore the entire reconnected workflow");
@@ -76,7 +77,7 @@ button.onclick = async () => {
     check(wfButton("Apply workflow edit").disabled, "Changing reconnection resets the reference choices for renewed review");
     await choose("Reference result closed-dim closed", "0"); await choose("Reference portion closed-dim closed", "2"); await choose("Reference result plate closed", "0"); await ready();
     const impact = editor()!.querySelector('[aria-label="Contour reference impact"]')!.textContent!;
-    check(impact.includes("60000.00 → 47500.00") && impact.includes("100.00 → 100.00") && state() === beforeClosed, "The same preview shows reduced volume and the unchanged bottom-edge dimension");
+    check(impact.includes("60000.00 → 47500.00") && impact.includes("100.00 mm → 100.00 mm") && state() === beforeClosed, "The same preview shows reduced volume and the unchanged bottom-edge dimension");
     check(!!document.querySelector('[data-curve-workflow-preview] polyline[stroke="#ff7878"]') && !!document.querySelector('[data-curve-workflow-preview] polyline[stroke="#70dfb2"]') && !!document.querySelector('[data-curve-workflow-preview] polyline[stroke="#6cb9ff"]'), "Removed corner, closed result and retained reference edge are visible together");
     await screenshot("cad-trim-closed.png"); await click("Apply workflow edit", true); await waitFor(() => !!wfButton("Finish workflow")); const result = feature("plate").inputs[0];
     check(path(result).closed && near(meshVolume(await buildExtrudeMesh(feature("plate").params)), 47500) && feature("closed-dim").params.sourceObjectId === result && feature("closed-dim").params.sourceSegmentId === closedEdge && history() === closedH + 1, "Atomic cut/rejoin regenerates the solid and preserves the linked analytic edge");
@@ -86,6 +87,6 @@ button.onclick = async () => {
     const t = feature(result).params.topology as DrawingTopology, edit = await dispatchCadCommand({ type: "edit-drawing-control", objectId: result, controlId: t.controls[3].id, point: [280, 0, 0] });
     check(edit.ok && near(meshVolume(await buildExtrudeMesh(feature("plate").params)), 48500) && (feature("closed-dim").params.points as number[][])[1][0] === 280, "Later vertex edits continue to update the saved dimension and live extrusion");
     output.textContent = [...lines, `ALL ${lines.length} CHECKS PASSED`].join("\n");
-  } catch (e) { await screenshot("cad-trim-closed.png"); output.textContent = [...lines, `FAIL: ${e instanceof Error ? e.stack : String(e)}`].join("\n"); }
+  } catch (e) { output.textContent = [...lines, `FAIL: ${e instanceof Error ? e.stack : String(e)}`].join("\n"); }
 };
 installBrowserChecks(button, output);

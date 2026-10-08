@@ -1,6 +1,6 @@
 # 다음 작업
 
-갱신일: 2026-10-08. **각도 치수의 B3-C1 계산·표시 기하 완료. 다음은 C2a 두 원본 참조/명령/갱신 → C2b remap/저장 → C3 UI/출력**이다. [C1 실제 범위](docs/implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md)를 따른다. 사용자 요청으로 CAD를 우선했으며 G5-A2/A3는 대기 상태로 보존했다. 최신 전체 628 Node / 기존 browser 35 workflows·734 checks, 타입·architecture 304 modules·workspace build 통과. 각도 UI는 아직 미구현이다. Pro 한도의 약 15%를 목표로 각 하위 행을 한 세션으로 실행·검수·기록 후 멈춘다. 정확한 사용량을 보장하지 않는다. [작업 분할·다음 프롬프트](docs/WORK-SLICES-2026-10-06.md)를 따른다.
+갱신일: 2026-10-08. **일반 각도 치수 B3-C1–C3를 완료했다.** 두 source/edge의 live 참조, Trim/Join 재연결·v14 저장, 검색/리본/우클릭 도구와 캔버스 검토·출력의 실제 범위는 [C2/C3 기록](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)을 따른다. 전체 Node **636개**, browser **36 workflows / 758 checks**(각도 24개), 타입·architecture **308 modules**·workspace build가 통과했다. 다음 보류 작업은 **G5-A2 패널/설정/context 수명 검수 → G5-A3 Apply/잠금 검수**다. CAD의 다음 확장 후보는 B3-A3 OCS/기울어진 DXF와 B/X 카드다. Pro 한도의 약 15% 단위 분할은 [작업 분할](docs/WORK-SLICES-2026-10-06.md)을 따른다.
 
 최상위 목표는 기본 CAD·벡터·이미지·레이아웃 기능을 공통 문서·선택·명령·History와 통합 UI로 연결하는 것이다. 상세 범위와 완료 기준은 [구현 인계](docs/IMPLEMENTATION-READINESS-2026-10-05.md), 실제 상태는 [PROJECT-STATE](PROJECT-STATE.md), 수정 위치는 [CHANGE-GUIDE](docs/architecture/CHANGE-GUIDE.md)를 따른다.
 
@@ -50,7 +50,7 @@ Photopea 관련 요청의 최초 TIFF 도입은 Node 596개·TIFF browser 9개·
 
 ## 이후 순서
 
-G4 첫 범위·CAD DXF/지름과 G5-A1 이후 각도 치수 C1 계산/branch를 우선 구현했다. 다음 CAD 순서는 **C2a 두 참조/refresh → C2b remap/저장 → C3 UI/출력**이다. G5-A2 패널/context와 A3 Apply 검수는 대기 중이다. component override/variant·직접 layout handle과 PPTX/GIF, 이미지 I2–I5, G6 및 나머지 CAD B/X는 [통합 계획](docs/product/CREATIVE-REUSE-IMPLEMENTATION-PLAN.md)과 [작업 분할](docs/WORK-SLICES-2026-10-06.md)의 독립 카드로 남긴다.
+G4 첫 범위·CAD DXF/지름과 G5-A1 뒤에 일반 각도 치수 C1–C3를 완료했다. 다음 실행 우선순위는 **G5-A2 패널/context 수명 → G5-A3 Apply/잠금 검수**다. CAD 확장을 다시 선택하면 B3-A3 OCS/기울어진 DXF와 B/X 카드의 선행 조건을 평가한다. component override/variant·직접 layout handle과 PPTX/GIF, 이미지 I2–I5, G6 및 나머지 CAD B/X는 [통합 계획](docs/product/CREATIVE-REUSE-IMPLEMENTATION-PLAN.md)과 [작업 분할](docs/WORK-SLICES-2026-10-06.md)의 독립 카드로 남긴다.
 
 | 순서 | 작업 | 상세 기준 |
 | --- | --- | --- |
@@ -73,9 +73,9 @@ G4 첫 범위·CAD DXF/지름과 G5-A1 이후 각도 치수 C1 계산/branch를 
 
 ## CAD 공백은 계속 보존
 
-CAD 카드는 [구현 단위 설계](docs/product/CAD-BASICS-IMPLEMENTATION-PLAN.md)에 분리했다. **B3-A1/A2·B와 C1은 완료**다. C2a/C2b/C3 각도 치수의 사용자 완료와 A3 OCS/tilted 교환, 나머지 B0–B4·B5·X1–X7은 계획을 유지한다. 전체 CAD 공백을 이미지/장면 단계의 완료로 덮지 않는다.
+CAD 카드는 [구현 단위 설계](docs/product/CAD-BASICS-IMPLEMENTATION-PLAN.md)에 분리했다. **B3-A1/A2·B와 C1–C3를 완료했다.** C3 전체 회귀 결과와 잔여 문제는 PROJECT-STATE를 따른다. A3 OCS/tilted 교환과 나머지 B0–B4·B5·X1–X7은 계획을 유지한다. 전체 CAD 공백을 이미지/장면 단계의 완료로 덮지 않는다.
 
-일반 각도 치수/공통 스타일, 스냅 추적, 추가 DXF OCS, 원호 코너·비대칭 Chamfer, 해치·블록·변수 참조 재연결, 작도 정의 재편집, 면 위 스케치·Hole/Shell·mesh는 [CAD-BASICS](docs/product/CAD-BASICS.md)와 [로드맵](docs/product/PRODUCT-ROADMAP.md)에 남는다. 지름과 DXF 기본 bulge 왕복은 실제 검수 범위에서 지원한다.
+일반 치수의 공통 스타일, 스냅 추적, 추가 DXF OCS, 원호 코너·비대칭 Chamfer, 해치·블록·변수 참조 재연결, 작도 정의 재편집, 면 위 스케치·Hole/Shell·mesh는 [CAD-BASICS](docs/product/CAD-BASICS.md)와 [로드맵](docs/product/PRODUCT-ROADMAP.md)에 남는다. 지름·각도 주석과 DXF 기본 bulge 왕복은 실제 검수 범위에서 지원한다.
 
 ## 완료 판단
 

@@ -11,6 +11,7 @@ export type SvgPolyline = {
   objectId?: string;
 };
 export type SvgImage = { id: string; href: string; center: [number, number]; width: number; height: number; rotation: number; crop: { x: number; y: number; width: number; height: number }; mask?: "rect" | "ellipse"; opacity?: number; adjustments?: { brightness: number; contrast: number; saturation: number }; sourceSize?: [number, number] };
+export type SvgText = { position: [number,number]; text: string; color?: string; size?: number };
 export type SvgExportItem = { type: "image"; image: SvgImage } | { type: "polyline"; polyline: SvgPolyline };
 
 function format(value: number, decimals: number): string {
@@ -23,11 +24,12 @@ function format(value: number, decimals: number): string {
  * work plane), uniform polylines — circles/arcs arrive pre-sampled from the
  * world-geometry layer, so curved output stays faithful without arc syntax.
  */
-export function encodeSvg(polylines: SvgPolyline[], options: { decimals?: number; strokeWidth?: number; viewBox?: { origin: [number, number]; size: [number, number] }; background?: string; images?: SvgImage[]; items?: SvgExportItem[]; pixelSize?: { width: number; height: number } } = {}): string {
+export function encodeSvg(polylines: SvgPolyline[], options: { decimals?: number; strokeWidth?: number; viewBox?: { origin: [number, number]; size: [number, number] }; background?: string; images?: SvgImage[]; items?: SvgExportItem[]; texts?: SvgText[]; pixelSize?: { width: number; height: number } } = {}): string {
   const decimals = options.decimals ?? 3;
   const strokeWidth = options.strokeWidth ?? 0.5;
   const orderedPolylines = options.items ? options.items.filter((item): item is Extract<SvgExportItem, { type: "polyline" }> => item.type === "polyline").map(item => item.polyline) : polylines;
   const orderedImages = options.items ? options.items.filter((item): item is Extract<SvgExportItem, { type: "image" }> => item.type === "image").map(item => item.image) : options.images ?? [];
+  const texts = options.texts ?? [];
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const line of orderedPolylines) {
     for (const [x, y] of line.points) {
@@ -44,7 +46,8 @@ export function encodeSvg(polylines: SvgPolyline[], options: { decimals?: number
       minX=Math.min(minX,px);maxX=Math.max(maxX,px);minY=Math.min(minY,py);maxY=Math.max(maxY,py);
     }
   }
-  if ((!orderedPolylines.length && !orderedImages.length) || ![minX, minY, maxX, maxY].every(Number.isFinite)) {
+  for (const item of texts) { minX=Math.min(minX,item.position[0]);maxX=Math.max(maxX,item.position[0]);minY=Math.min(minY,item.position[1]);maxY=Math.max(maxY,item.position[1]); }
+  if ((!orderedPolylines.length && !orderedImages.length && !texts.length) || ![minX, minY, maxX, maxY].every(Number.isFinite)) {
     minX = 0; minY = 0; maxX = 10; maxY = 10;
   }
   const margin = Math.max(maxX - minX, maxY - minY) * 0.05 || 1;
@@ -80,6 +83,7 @@ export function encodeSvg(polylines: SvgPolyline[], options: { decimals?: number
       : `<rect x="${format(x,decimals)}" y="${format(y,decimals)}" width="${format(image.width,decimals)}" height="${format(image.height,decimals)}" />`;
     return `${filter}<defs><clipPath id="${id}">${shape}</clipPath></defs><g clip-path="url(#${id})" transform="rotate(${format(rotate,decimals)} ${format(image.center[0],decimals)} ${format(centerY,decimals)})"><image x="${format(sourceX,decimals)}" y="${format(sourceY,decimals)}" width="${format(sourceWidth,decimals)}" height="${format(sourceHeight,decimals)}" href="${safeHref}" preserveAspectRatio="none"${opacity}${filterAttribute} /></g>`;
   });
+  const textBodies=texts.map(item=>`<text x="${format(item.position[0],decimals)}" y="${format(-item.position[1],decimals)}" font-size="${format(item.size??3.5,decimals)}" fill="${/^#[0-9a-f]{6}$/i.test(item.color??"")?item.color:"#000000"}" stroke="none">${item.text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}</text>`);
   const background = /^#[0-9a-f]{6}$/i.test(options.background ?? "")
     ? `<rect x="${format(viewX, decimals)}" y="${format(viewY, decimals)}" width="${format(viewW, decimals)}" height="${format(viewH, decimals)}" fill="${options.background}" stroke="none" />\n`
     : "";
@@ -87,7 +91,7 @@ export function encodeSvg(polylines: SvgPolyline[], options: { decimals?: number
   const polylineBody = new Map(orderedPolylines.map((line, index) => [line, bodies[index]]));
   const orderedContent = options.items
     ? options.items.map(item => item.type === "image" ? imageBody.get(item.image)! : polylineBody.get(item.polyline)!)
-    : [...images, ...bodies];
+    : [...images, ...bodies, ...textBodies];
   const content = `${background}${orderedContent.join("\n")}`;
   const clippedContent = board
     ? `<defs><clipPath id="artboard-crop"><rect x="${format(viewX, decimals)}" y="${format(viewY, decimals)}" width="${format(viewW, decimals)}" height="${format(viewH, decimals)}" /></clipPath></defs>\n<g clip-path="url(#artboard-crop)">\n${content}\n</g>`

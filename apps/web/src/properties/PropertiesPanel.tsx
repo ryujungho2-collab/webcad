@@ -29,6 +29,7 @@ import type { CadImageCrop, CadImageNodeParams } from "@agent-webcad/cad-documen
 import { ImageInspector } from "./ImageInspector";
 
 type PropertiesPanelProps = {
+  onEditAngularDimension?: (id:string)=>void;
   onEditPattern?:(id:string)=>void;
   onVariables?:()=>void;
   documentRevision: number;
@@ -99,6 +100,7 @@ export function PropertiesPanel(props: PropertiesPanelProps) {
 
 function PropertiesContent({
   onDiameterDimension,
+  onEditAngularDimension,
   onEditPattern,
   onVariables,
   documentRevision,
@@ -154,7 +156,7 @@ function PropertiesContent({
   const isSweep = feature?.type === "sweep";
   const isLoft = feature?.type === "loft";
   const dimensionKind = isDimension ? String(feature.params.kind) : null;
-  const dimensionLabel = dimensionKind === "linear" ? "Linear" : dimensionKind === "diameter" ? "Diameter" : "Radius";
+  const dimensionLabel = dimensionKind === "linear" ? "Linear" : dimensionKind === "diameter" ? "Diameter" : dimensionKind === "angular" ? "Angular" : "Radius";
   const dimensionResolved = isDimension && feature ? resolveDimension(feature.params) : null;
   const isExtrude = feature?.type === "extrude";
   const profileResult = extractSketchLoops(cadDocument, selectedObjectIds);
@@ -200,7 +202,7 @@ function PropertiesContent({
   // every member is editable.
   const constructionOwned = selectedObjects.some(entry => Object.values(cadDocument.features).some(f => f.output === entry.id && f.construction));
   const generalEditDisabled = selectedObjects.length > 1 ? !allSelectedEditable : isLocked;
-  const bulkEditDisabled = constructionOwned || generalEditDisabled;
+  const bulkEditDisabled = constructionOwned || generalEditDisabled || dimensionKind === "angular";
   const [name, setName] = useState("");
   const [primitiveDraft, setPrimitiveDraft] = useState<PrimitiveDraft>({});
   const [extrudeDistance, setExtrudeDistance] = useState("10");
@@ -783,6 +785,7 @@ function PropertiesContent({
       {isDimension && selectedObjects.length === 1 && (
         <PropertySection title="Annotation" meta={dimensionLabel}>
           {dimensionResolved && <div className="property-row"><span>Measured</span><strong>{dimensionResolved.text}</strong></div>}
+          {dimensionKind === "angular" && <><div className="property-row"><span>References</span><strong>{String((feature.params.first as {objectId?:string}|undefined)?.objectId ?? "?")} · {String((feature.params.second as {objectId?:string}|undefined)?.objectId ?? "?")}</strong></div><button type="button" disabled={isLocked} onClick={()=>object&&onEditAngularDimension?.(object.id)}>Edit Angular Dimension</button></>}
           {dimensionKind === "linear" && (
             <label className="property-row"><span>Orientation</span><select disabled={isLocked} value={String(feature.params.orientation ?? "aligned")} onChange={(event) => void commitDimensionEdit({ orientation: event.target.value })}><option value="aligned">Aligned</option><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option></select></label>
           )}
@@ -798,8 +801,8 @@ function PropertiesContent({
               if (Number.isFinite(value)) void commitDimensionEdit({ angle: value });
             }} />
           )}
-          <label className="property-row"><span>Text</span><input disabled={isLocked} placeholder="Auto" value={dimensionText} onChange={(event) => setDimensionText(event.target.value)} onBlur={() => void commitDimensionEdit({ text: dimensionText })} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /></label>
-          <p className="property-hint">Linked annotation: follows line/circle edits and moves in the same undo step. Empty text shows the measured value.</p>
+          {dimensionKind !== "angular" && <label className="property-row"><span>Text</span><input disabled={isLocked} placeholder="Auto" value={dimensionText} onChange={(event) => setDimensionText(event.target.value)} onBlur={() => void commitDimensionEdit({ text: dimensionText })} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /></label>}
+          <p className="property-hint">Linked annotation follows source edits in the same Undo step. {dimensionKind === "angular" ? "Edit references, rays, radius and text in the reviewed tool." : "Empty text shows the measured value."}</p>
         </PropertySection>
       )}
 

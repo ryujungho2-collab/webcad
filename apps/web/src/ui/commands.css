@@ -129,3 +129,7 @@
 .cad-pattern-tool { width:310px; }
 .cad-pattern-tool label > small { grid-column:1 / -1; }
 .cad-tool-body select[multiple] { max-height:72px; }
+.cad-angular-tool { width:340px; max-height:calc(100% - 36px); }
+.cad-angular-tool label:has(>button) { grid-template-columns:95px minmax(0,1fr) auto; }
+.cad-angular-preview text { paint-order:stroke; stroke:#142326; stroke-width:3px; }
+.cad-angular-preview [data-angular-radius-handle] { pointer-events:all; cursor:grab; }

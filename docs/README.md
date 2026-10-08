@@ -8,8 +8,10 @@
 
 | 목적 | 문서 |
 | --- | --- |
-| 현재 범위 분할·재시작 프롬프트 | [각도 계산 C1 완료 / 다음 C2a·C2b·C3 / G5-A2·A3 대기](WORK-SLICES-2026-10-06.md) |
+| 현재 범위 분할·재시작 프롬프트 | [각도 C1–C3 구현 / 다음 G5-A2·A3 대기](WORK-SLICES-2026-10-06.md) |
 | 일반 각도 치수 C1 계산·branch·표시 기하 | [실제 계약·오류·검수와 UI/명령/저장 미완료 경계](implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md) |
+| 일반 각도 치수 C2/C3 참조·명령·UI·출력 | [두 source remap·v14·검토/Apply·브라우저 검증과 남은 범위](implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md) |
+| B3-C3 전체 검증 요약 | [636 Node·36 browser/758 checks·타입/build/308 module guard](verification/B3-C3-CLOSEOUT-2026-10-08.json) |
 | B3-C1 전체 검증 요약 | [628 Node·기존 browser 35/734·타입/build/304 module guard](verification/B3-C1-CLOSEOUT-2026-10-08.json) |
 | G5-A1 응답·취소 경계 구현/검수 | [stalled body·late response 종료, ownership 주입 거부·복구 workflow](implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md) |
 | G5-A1 전체 검증 요약 | [618 Node·35 browser/734 checks·빌드/타입/301 module guard](verification/G5-A1-CLOSEOUT-2026-10-06.json) |

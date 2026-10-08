@@ -108,23 +108,23 @@ G2에서 정의 수정·중첩 component는 이미 존재한다. B1-C는 그 기
 | B3-A2 · 완료 | 실제 Import review→편집→Export 흐름 | 포함/제외·단위·subset acknowledgement, 실제 native file input·download/reimport·stale/Cancel·한 Undo·전체 회귀 |
 | B3-A3 | 필요한 non-default OCS·기울어진 평면의 교환 확대 | A1/A2의 명시적 미지원 목록에서 과제 선택. 사용자 작업면이 필요한 경로는 B5-A/X5와 연결 |
 | B3-B · 완료 | 원/허용 호의 일반 지름 치수 생성·leader 각도 재배치·source 변경 추적 | Ø·2r·양끝 화살표·deg/rad·source scale·Trim/Join edge remap·잠금 복구·v13·DXF TEXT. driver와 구별. canvas 주석 핸들은 후속 |
-| B3-C | 두 선/변의 일반 각도 치수와 측정 가지 선택 | 같은 작업면, 교차 밖 연장·0/180°·평행·내각/외각, 원본 회전 후 측정, radians/degrees 변환 |
+| B3-C · 완료 | 두 선/변의 일반 각도 치수와 측정 가지 선택 | 같은 작업면, 교차 밖 연장·0/180°·평행·내각/외각, 원본 회전 후 측정, radians/degrees 변환. 실제 범위와 검증은 [C2/C3 기록](../implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md) |
 | B3-D | 선형/반지름/지름/각도/연속 치수의 공통 스타일 | D1 단위·자릿수→D2 글자/화살표/간격·종이 축척 별도 요청. 스타일 편집이 geometry/driver 값을 바꾸지 않음 |
 | B3-E | 스냅 추적점 획득·해제·일시 억제와 방향 잠금 | transient UI state, 문서 저장/구속과 구별. 원본 삭제/숨김/문서 교체 시 해제, 정확 입력 우선순위 |
 | B3-F | 복수 추적선 교점과 후보 전환 | B3-E. 후보 우선순위·기호/원본 표시·zoom 독립 픽셀 반경, 잡히지 않는 이유·해제 안내 |
 
-#### B3-C의 작은 실행 단위 (C1 완료, C2a/C2b/C3 미구현)
+#### B3-C의 작은 실행 단위 (C1–C3 완료)
 
-2026-10-08 사용자 요청으로 일반 각도 주석의 C1을 G5-A2/A3보다 먼저 구현했다. 기존 sketch angle constraint는 구동 치수이고 이 카드는 일반 주석이다. solver의 구동 각도 범위를 확대하지 않는다. 현재 일반 치수는 sourceObjectId/sourceSegmentId 한 쌍과 한 source input을 전제로 하므로, 두 선을 측정하는 기능을 renderer에만 추가해서는 완료할 수 없다.
+2026-10-08 사용자 요청으로 일반 각도 주석의 C1–C3를 G5-A2/A3보다 먼저 구현했다. 기존 sketch angle constraint는 구동 치수이고 이 카드는 일반 주석이다. solver의 구동 각도 범위를 확대하지 않는다. 두 source/edge와 branch를 문서 정의·명령·재생성·저장에 연결했다.
 
 | 하위 ID | 한 요청의 범위 | 다음 단계로 넘길 계약 |
 | --- | --- | --- |
 | B3-C1 · 완료 | 순수 측정·표시 기하와 branch 계약, 독립 Node 검사 | [실제 구현·정책](../implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md). 두 straight edge의 supporting-line 교점·공통 elevation, ±ray와 CW/CCW 내각/반사각. 평행/공선/0·180°는 유일한 vertex가 없어 명시적 거부. rad 계산·deg 표시·곡선/퇴화/다른 평면 거부. 새 Node 10개; 공개 도구·schema 추가 없음 |
-| B3-C2a | typed create/update, 두 source/edge 참조와 refresh·history | C1. 각 source의 stable topology identity와 branch를 저장. 원본 회전/치수 수정 뒤 재측정, detached preview 불변성·실패 원자성·한 Undo. source 소멸/평면 변경 정책을 숨기지 않고 기존 일반 치수 동결 정책과 비교해 확정. UI 미완료로 기록 |
-| B3-C2b | Trim/Join 참조 재연결·serialization·재로드 | C2a. 두 source를 각각 remap하며 모호한 변을 임의 선택하지 않음. 잠긴 downstream 치수와 삭제/원형 변 교체의 원자성. 새 의미가 있는 문서의 최소 버전 결정, 기존 v13 이하 호환·위장 downgrade 거부·reload/recompute 검사 |
-| B3-C3 | 대상 2개/변 선택·측정 가지·표시 위치·Review/Apply 및 출력 | C2b. 검색/리본/우클릭의 같은 명칭, 공통 canApply·PrecisionField·영향/오류/복구·result handoff. 실제 browser Cancel/stale/Undo/Redo/저장, 원본 수정→치수 갱신과 DXF TEXT·기존 CAD SVG/PDF 출력 확인. 전체 Node/browser·타입·architecture·build 후 B3-C 완료 판단 |
+| B3-C2a · 완료 | typed create/update, 두 source/edge 참조와 refresh·history | 두 source의 stable topology identity와 branch를 저장한다. 원본 변경 뒤 재측정, detached preview 불변성·실패 원자성·한 Undo를 확인했다. source 소멸/평면 변경은 원자적으로 거부한다 |
+| B3-C2b · 완료 | Trim/Join 참조 재연결·serialization·재로드 | 두 source를 각각 remap하고 모호한 변을 임의 선택하지 않는다. 잠긴 downstream 치수와 부적합 참조는 전체 거부한다. 각도 치수가 있을 때 v14를 사용하고 v13 이하 호환·위장 downgrade 거부·reload/recompute를 확인했다 |
+| B3-C3 · 완료 | 대상 2개/변 선택·측정 가지·표시 위치·Review/Apply 및 출력 | 검색/리본/우클릭 진입, 공통 canApply·PrecisionField·영향/오류/복구·result handoff, 캔버스 edge/반지름 핸들을 연결했다. 독립 browser에서 Cancel/stale/Undo/Redo/저장, 원본 수정→치수 갱신과 DXF TEXT·active-plane SVG/PDF 출력을 확인했다. 전체 36 workflows/758 checks는 PROJECT-STATE에 기록한다 |
 
-C1/C2는 중간 구현이며 B3-C 지원표를 완료로 올리지 않는다. 최종 사용자 경로는 `두 선/변 선택 → 각도 주석 → 측정 가지·위치 review → Apply → 원본 회전/Trim/Join → 자동 갱신 → 저장/출력`이다. driving dimension, arc tangent angle, Leader/공통 style은 별도 카드로 유지한다. 실행할 세션과 검증 수치는 WORK-SLICES/PROJECT-STATE가 소유한다.
+사용자 경로는 `두 선/변 선택 → 각도 주석 → 측정 가지·위치 review → Apply → 원본 회전/Trim/Join → 자동 갱신 → 저장/출력`이다. driving dimension, arc tangent angle, Leader/공통 style은 별도 카드로 유지한다. 실행할 세션과 검증 수치는 WORK-SLICES/PROJECT-STATE가 소유한다.
 
 기존 `B3-A`는 A1–A3의 상위 이름으로 유지한다. A1/A2의 지원 범위가 검증되면 기본 왕복 묶음을 완료로 표시할 수 있으나, A3의 미지원 평면까지 지원한다고 적지 않는다.
 
@@ -181,7 +181,7 @@ X는 계획 구분자이며 새 모듈이나 별도 기하 엔진의 이름이 �
 
 ## 7. 우선순위와 통합 과제
 
-G3-5A/I1, G4-A 및 G4-B/C의 첫 범위, CAD B3-A1/A2/B는 마감했다. **다음 CAD 카드는 B3-C 일반 각도 치수**, G5-A 등과의 교차 순서는 NEXT-STEPS를 따른다. B0의 해당 기본 조작을 각 묶음의 선행 회귀로 사용한다.
+G3-5A/I1, G4-A 및 G4-B/C의 첫 범위, CAD B3-A1/A2/B와 B3-C1–C3를 구현했다. **다음 우선순위는 G5-A2 검수**이며 CAD 확장은 B3-A3와 B/X 카드를 NEXT-STEPS에서 선택한다. B0의 해당 기본 조작을 각 묶음의 선행 회귀로 사용한다.
 
 다음 CAD 우선 후보는 `B1-A/B → B2-A → B4-A/B → B3-D/E/F`다. X1과 작도 재지정은 해당 사용자 과제가 필요할 때 독립 실행할 수 있다. B5-A1 이후 면 참조·3D 단계는 단계별 선행 조건을 충족해야 한다. 큰 solver/topology/schema 변경 두 종류를 같은 요청에 묶지 않는다.
 

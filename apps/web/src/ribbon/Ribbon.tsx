@@ -9,6 +9,7 @@ type RibbonProps = {
   onCurveWorkflow?: () => void;
   canCurveWorkflow?: boolean;
   onConstruction?: () => void;
+  onAngularDimension?: () => void;
   constructionVisible?: boolean;
   onToggleConstruction?: () => void;
   canContour?: Partial<Record<import("../features/drawing-editing/contracts").ContourMode, boolean>>;
@@ -167,6 +168,7 @@ export function Ribbon(props: RibbonProps) {
           </ToolGroup>
           <ToolGroup label="Measure">
             <RibbonButton icon="↔" label="Distance" title="Measure between two points (I)" active={props.measurementTool === "distance"} onClick={props.onMeasurementTool} />
+            <RibbonButton icon="∠" label="Angular Dimension" title="Choose two straight edges, angle region and arc radius" disabled={!props.canCreateBox || Boolean(props.activeSketchId)} onClick={() => props.onAngularDimension?.()} />
           </ToolGroup>
         </>}
 
@@ -228,7 +230,7 @@ export function Ribbon(props: RibbonProps) {
             <RibbonButton icon="◎" label={props.isolationActive ? "Exit Isolation" : "Isolate"} title={props.isolationActive ? "Restore visibility before isolation" : "Show only selected objects"} disabled={!props.hasSelection && !props.isolationActive} onClick={props.onIsolate} />
             <RibbonButton icon="◉" label="Show All" title="Show all document objects" onClick={props.onShowAll} />
           </ToolGroup>
-          <ToolGroup label="Measure"><RibbonButton icon="↔" label="Distance" title="Measure between two points (I)" active={props.measurementTool === "distance"} onClick={props.onMeasurementTool} /></ToolGroup>
+          <ToolGroup label="Measure"><RibbonButton icon="↔" label="Distance" title="Measure between two points (I)" active={props.measurementTool === "distance"} onClick={props.onMeasurementTool} /><RibbonButton icon="∠" label="Angular Dimension" title="Choose two straight edges, angle region and arc radius" disabled={!props.canCreateBox || Boolean(props.activeSketchId)} onClick={() => props.onAngularDimension?.()} /></ToolGroup>
         </>}
 
         <div className="ribbon-context" title="New objects are created on this layer">

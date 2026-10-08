@@ -37,7 +37,7 @@ export function createPaletteCommands(
   const viewReason = props.workspaceMode === "2d" ? "Switch to the 3D workspace first." : undefined;
   const sketchOwner = Object.values(cadDocument.features).find(f=>props.selectedObjectIds.includes(f.output)&&f.params.sketchId)?.params.sketchId;
   for(const tool of interactionTools) {
-    const run = () => { if(tool.id === "curve-workflow") props.onCurveWorkflow?.(); else if(tool.id === "edit-sketch" && sketchOwner) props.onEditSketch?.(String(sketchOwner)); else if(tool.id === "construction") props.onConstruction?.(); else if(tool.id.startsWith("pattern-")) props.onPattern?.(tool.id.slice(8) as "linear"|"radial"|"mirror"); };
+    const run = () => { if(tool.id === "curve-workflow") props.onCurveWorkflow?.(); else if(tool.id === "edit-sketch" && sketchOwner) props.onEditSketch?.(String(sketchOwner)); else if(tool.id === "construction") props.onConstruction?.(); else if(tool.id === "angular-dimension") props.onAngularDimension?.(); else if(tool.id.startsWith("pattern-")) props.onPattern?.(tool.id.slice(8) as "linear"|"radial"|"mirror"); };
     const reason = interactionToolReason(tool.id,cadDocument,props.selectedObjectIds,props.activeSketchId,props.selectedLayerId);
     add(tool.id,tool.label,"Workflow",`${tool.hint} 관계 재연결 스케치 작도 패턴`,run,reason);
   }

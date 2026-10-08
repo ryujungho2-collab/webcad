@@ -18,6 +18,7 @@ export type AppShellProps = {
   onCurveWorkflow?: () => void;
   canCurveWorkflow?: boolean;
   onConstruction?: () => void;
+  onAngularDimension?: () => void;
   constructionVisible?: boolean;
   onToggleConstruction?: () => void;
   canContour?: Partial<Record<import("../features/drawing-editing/contracts").ContourMode, boolean>>;
@@ -194,7 +195,7 @@ export function AppShell(props: AppShellProps) {
 
       <Ribbon
         onCurveWorkflow={props.onCurveWorkflow} canCurveWorkflow={props.canCurveWorkflow}
-        onConstruction={props.onConstruction} constructionVisible={props.constructionVisible} onToggleConstruction={props.onToggleConstruction}
+        onConstruction={props.onConstruction} onAngularDimension={props.onAngularDimension} constructionVisible={props.constructionVisible} onToggleConstruction={props.onToggleConstruction}
         canContour={props.canContour} onContour={props.onContour}
         canPattern={props.canPattern} onPattern={props.onPattern}
         canUndo={props.canUndo}

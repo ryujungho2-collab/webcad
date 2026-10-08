@@ -18,7 +18,8 @@ import type { SerializedOperand } from "../cad/kernelProtocol";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 import { worldToPlane, WORK_PLANES, type WorkPlaneId } from "../precision/workPlane";
 import { meshToTriangles, type StlTriangle } from "./stlWriter";
-import type { SvgExportItem, SvgImage, SvgPolyline } from "./svgWriter";
+import type { SvgExportItem, SvgImage, SvgPolyline, SvgText } from "./svgWriter";
+import { resolveDimension } from "../precision/dimensionGeometry";
 import { layerStyle, paperDash } from "../precision/layerStyle";
 import { worldDraftingGeometry } from "../precision/draftingGeometry";
 import { clipSvgPolylinesToArtboard } from "./artboardSvg";
@@ -117,6 +118,21 @@ export function collectExportDrawings(plane: WorkPlaneId, document: CadDocument 
     });
   }
   return lines;
+}
+
+/** Active-plane annotations are output graphics; their associative definitions stay in JSON. */
+export function collectExportAnnotations(plane: WorkPlaneId, document: CadDocument = cadDocument): { lines: SvgPolyline[]; texts: SvgText[] } {
+  const frame = WORK_PLANES[plane], lines: SvgPolyline[] = [], texts: SvgText[] = [];
+  for (const id of document.rootObjects) {
+    const object = document.objects[id], feature = Object.values(document.features).find(f=>f.output===id);
+    if (!object || !feature || feature.type !== "dimension" || feature.params.workPlane !== plane || !isVisible(id,document)) continue;
+    const annotation = resolveDimension(feature.params);
+    if (!annotation) throw new Error(`Cannot export ${object.name}: repair its annotation or source references first.`);
+    const style = layerStyle(document.layers[object.layerId]);
+    lines.push(...annotation.segments.map(segment=>({ objectId:id, points:segment.map(p=>worldToPlane(p,frame)), closed:false, color:style.color, lineWeight:style.lineWeight })));
+    texts.push({position:worldToPlane(annotation.textPosition,frame),text:annotation.text,color:style.color,size:3.5});
+  }
+  return { lines, texts };
 }
 
 /** Visible drawings clipped to one board's finite plane bounds. */

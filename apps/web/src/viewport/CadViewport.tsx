@@ -18,6 +18,7 @@ import { ContourTool } from "../features/drawing-editing/ui/ContourTool";
 import { CurveWorkbench } from "../features/drawing-editing/ui/CurveWorkbench";
 import type { ContourSession, CurveSession, CurveNextAction } from "../features/drawing-editing/contracts";
 import { ConstructionTool, type ConstructionSession } from "./ConstructionTool";
+import { AngularDimensionTool, type AngularDimensionSession } from "./AngularDimensionTool";
 import { RegionOverlay } from "./RegionOverlay";
 import type { SketchLoop } from "../precision/sketchProfiles";
 import { applyPolarLocks, emptyPolarLocks, parsePointEntry } from "../precision/pointInput";
@@ -70,6 +71,11 @@ import {
 type CadViewportProps = {
   activeLayerId?: string;
   curveSession?: CurveSession | null;
+  angularSession?: AngularDimensionSession | null;
+  onAngularClose?: () => void;
+  onAngularApplied?: (id: string) => void;
+  onAngularEditSketch?: (id: string) => void;
+  onAngularInspectSource?: (id: string) => void;
   curveNextActions?: CurveNextAction[];
   onCurveClose?: () => void;
   onCurveApplied?: (ids: string[]) => void;
@@ -256,6 +262,7 @@ export function CadViewport({
   patternSession=null,onPatternClose,onPatternApplied,
   contourSession=null,onContourClose,onContourApplied,
   curveSession=null,onCurveClose,onCurveApplied,curveNextActions,
+  angularSession=null,onAngularClose,onAngularApplied,onAngularEditSketch,onAngularInspectSource,
   extrusionPreview = null, onExtrusionStatus, extrusionRegions, chosenRegions = [], onToggleRegion,
   pointTransform = null,
   onPointTransformCommit,
@@ -432,6 +439,7 @@ export function CadViewport({
   const patternSessionRef=useRef(patternSession);patternSessionRef.current=patternSession;
   const contourSessionRef = useRef(contourSession); contourSessionRef.current = contourSession;
   const curveSessionRef = useRef(curveSession); curveSessionRef.current = curveSession;
+  const angularSessionRef = useRef(angularSession); angularSessionRef.current = angularSession;
   const constructionSessionRef = useRef(constructionSession); constructionSessionRef.current = constructionSession;
   const constructionVisibleRef = useRef(constructionVisible); constructionVisibleRef.current = constructionVisible;
   const sketchInputRef = useRef({ sketch: activeSketch, automaticConstraints });
@@ -1586,7 +1594,7 @@ export function CadViewport({
     ) {
       const owner = selectionPointerOwner({
         button: event.button,
-        drawingActive: Boolean(drawingToolRef.current || pointTransformRef.current || patternSessionRef.current || contourSessionRef.current || curveSessionRef.current || constructionSessionRef.current),
+        drawingActive: Boolean(drawingToolRef.current || pointTransformRef.current || patternSessionRef.current || contourSessionRef.current || curveSessionRef.current || angularSessionRef.current || constructionSessionRef.current),
         directSelectActive: directSelectModeRef.current,
         transformHandleActive: Boolean(transformControlsRef.current?.axis),
       });
@@ -3662,6 +3670,8 @@ export function CadViewport({
   return (
     <>
       <div ref={hostRef} className="cad-viewport" />
+      {angularSession && sceneReady && <AngularDimensionTool key={angularSession.id} session={angularSession} project={projectRegionPoint} getCanvas={()=>rendererRef.current?.domElement??null}
+        onClose={()=>onAngularClose?.()} onApplied={id=>onAngularApplied?.(id)} onEditSketch={id=>onAngularEditSketch?.(id)} onInspectSource={id=>onAngularInspectSource?.(id)}/>}
       {curveSession && sceneReady && <CurveWorkbench key={curveSession.id} session={curveSession} nextActions={curveNextActions} constructionVisible={constructionVisible} project={projectRegionPoint}
         getCanvas={() => rendererRef.current?.domElement ?? null} getCamera={() => cameraRef.current}
         onClose={() => onCurveClose?.()} onApplied={ids => onCurveApplied?.(ids)}
