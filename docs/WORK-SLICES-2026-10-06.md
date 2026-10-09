@@ -1,6 +1,6 @@
 # 작업 범위 분할과 재시작 계약
 
-**현재 실행 순서(2026-10-09 목표 변경):** 사용자가 별도로 요청한 G5-B2의 단일 2D Move를 먼저 구현했다. 이어 1차 건축·기계 CAD를 위해 **G6-A1 모델 뷰 저장 계약**부터 진행한다. 2차는 아트보드·벡터/이미지·프로토타입·슬라이드·LLM 통합이다. 아래 B1 마감 당시 B2 후보는 이력이며, 최신 [목표·분할](product/ARCHITECTURE-MECHANICAL-MILESTONE.md)과 이 문서의 G6-A1 재시작 명령을 우선한다.
+**현재 실행 순서(2026-10-09):** G5-B2 단일 2D Move 후 사용자의 CAD 공백 보완 요청으로 **CAD B2-A1 두 윤곽의 D1/D2 모따기**를 구현했다. [지원 범위·검증·남은 B2-A2](implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md)를 따른다. 다음 작은 CAD 후보는 B2-A2 내부 코너의 두 거리이며, 동일 모델의 도면 목표는 별도 **G6-A1 모델 뷰 저장 계약**부터 시작한다. 2차는 아트보드·벡터/이미지·프로토타입·슬라이드·LLM 통합이다. 아래 B1 당시 B2 후보는 이력이다. 최신 실행 우선순위는 [NEXT-STEPS](../NEXT-STEPS.md)가 소유한다.
 
 **2026-10-09 마감:** G5-B1을 재개해 선택/명시적 target Query·잠금/오류·취소/context·수동 인계와 문서 게시 직후 버전 경합을 검수했다. 새 Node 8개/browser 35 checks 포함 **651 Node / 39 browser·834 checks / 318 module guard / 타입·build** 통과. [B1 구현·지원 경계](implementation/G5-B1-COPILOT-QUERY-2026-10-09.md), [마감 증거](verification/G5-B1-CLOSEOUT-2026-10-09.json)를 따른다. 이전 checkpoint는 중단 당시 기록으로 보존한다. 다음 B2·G6는 시작하지 않았다.
 
@@ -10,6 +10,7 @@
 
 | 묶음 | 실제 상태 | 다음 담당의 책임 |
 | --- | --- | --- |
+| CAD B2-A1 | 두 독립 윤곽의 D1/D2·unit·swap/equal·캔버스 거리선·공통 review·Join 인계. 새 Node 8개/native browser 18 checks | B2-A2 단일 polyline/rectangle 내부 코너를 별도 요청으로 조사. B2-A 전체 완료나 3D asymmetric Chamfer로 보고하지 않음 |
 | G3-5 자원 / I1 원본 교체 | source 공유·재업로드 제거·마지막 해제·원본 교체 마감. 당시 599 Node / 33 browser·686 checks / architecture 294 modules. 최신 전체는 PROJECT-STATE | 외부 실무자/native GPU/heap/VRAM·3 MiB 정책 평가. [측정과 제한](verification/G3-5-IMAGE-RESOURCES-2026-10-06.md), [원본 교체 검수](verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md) |
 | G4-A / 첫 B·C | Scene v12·원본/finite nested component 선택 인계·row/column·숨김 collapse·state/time preview·target state 링크·재생·SVG 출력. draft 유지/동시 수정 충돌·scroll review를 수정. Node 7개·browser 24개 | 직접 layout handle·component override/variant·PPTX/GIF/영상과 실무자 평가 남음. 숨김 state를 variant로 표시하지 않음 |
 | G5 첫 연결 + A1–A3 / B1 완료 | A 검수와 B1 local 선택/explicit target Query·세션·bounded DTO·수동 인계·전체 회귀 마감. B1 신규 Node 8개/browser 35 checks | B2 편집 후보 한 종류부터 조사. Query→LLM 설명/실제 공급자·키·서버 없음. Gateway 허용 명령은 finite drawing/primitive 생성 1–20개 |

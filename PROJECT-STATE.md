@@ -4,6 +4,12 @@
 
 ## 최신 통합 구현·검수 상태
 
+**CAD B2-A1 두 독립 윤곽의 D1/D2 비대칭 모따기를 완료했다.** 사용자의 CAD 공백 보완 요청으로 두 직선 자유 끝부분의 모따기 거리를 따로 지정하고, 단위·거리 교환/대칭 복구·대상 이름·캔버스 거리선을 공통 Curve review에 연결했다. 기존 topology·치수/중점 갱신·atomic plan과 Apply→선택→Join 인계를 유지한다. [실제 범위·workflow·남은 B2-A2](docs/implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md), [마감 증거](docs/verification/B2-A1-CLOSEOUT-2026-10-09.json)를 따른다.
+
+최종 **667 Node / 54 suites / fail·skip 0**, **41 browser workflows / 877 checks**(신규 모따기 18), 타입·architecture/import·문서 링크 **323 modules**, workspace production build 통과. v14 저장·재로드, preview 원본 불변성·잠금/참조/경합 실패·한 Undo/Redo를 검사했다. 로그는 `output/cad-b2-a1-node-2026-10-09.log`, `output/cad-b2-a1-browser-full-2026-10-09.log`, `output/cad-b2-a1-build-2026-10-09.log`다. main **1,059.15 kB**, viewport **621.03 kB**, WASM **50,305.13 kB**이며 기존 >500 kB 경고는 남는다. 이번 새 대형 문서 benchmark는 없다. 다음 작은 CAD 후보는 **B2-A2 단일 polyline/rectangle 내부 코너의 D1/D2**다. G6-A1 모델 뷰 저장 계약은 별도 미구현이다.
+
+## 직전 G5-B2 구현·검수
+
 **G5-B2의 첫 편집 명령 확대를 완료했다.** gateway의 `move-object`를 선택된 독립 finite 2D drawing 한 개에 개방했다. absolute world translation mm·작업면/ownership/선택 권한과 게시 직전 context를 검증하며, 원본/결과 ghost는 detached plan에서 생성한다. 치수·중점 영향과 원본 identity를 보존하고, 편집 결과를 선택해 기존 Properties로 인계한다. 잠긴 연관 일반 치수가 갱신되던 문제와 단일 작도점 ghost 실패를 회귀 검사로 발견·수정했다. [B2 실제 workflow·지원 경계](docs/implementation/G5-B2-COPILOT-MOVE-2026-10-09.md), [마감 증거](docs/verification/G5-B2-CLOSEOUT-2026-10-09.json)를 따른다.
 
 최종 전체 **659 Node / 54 suites / fail·skip 0**, **40 browser workflows / 859 checks**(신규 Move 25), 타입·architecture/import·문서 링크 **321 modules**, workspace build 통과. 원시 로그는 `output/g5-b2-node-2026-10-09.log`, `output/g5-b2-browser-2026-10-09.log`, `output/g5-b2-build-2026-10-09.log`다. main **1,058.73 kB** / viewport **619.05 kB**, 기존 >500 kB 경고 유지. 실제 provider·다중 사용자·Move 성능 benchmark는 실행하지 않았다. v14 유지, 기존 local Query/생성/profile/extrusion은 유지한다. 다중 대상/다른 편집 명령과 local 자연어 Move parser는 미지원이다. 다음은 G6-A1이며 아직 시작하지 않았다.
@@ -25,7 +31,7 @@
 - G5-A 검수 완료: A1의 응답 주입 거부·취소/deadline, A2의 activity 왕복 draft 유지·요청 context 검토/변경 시 폐기를 유지한다. A3에서 queued Apply의 취소와 게시 직전 동일한 authoritative review 검증, 중복 진입 차단·이전 완료의 새 요청 보호, 명시적 output layer 일치·잠금/부분 실패·만료 복구를 검수했다. 성공 뒤 공통 completed review·결과 선택·Inspect result를 제공한다. A3 신규 Node **5개**, mock transport actual UI browser **26 checks**, A1 13/A2 15개의 browser 회귀가 통과했다. Gateway는 finite drawing/primitive 생성 1–20개만 허용하고 local rule의 기존 profile/extrusion을 유지한다. 실제 공급자/서버·새 Query/편집 명령은 연결하지 않았다.
 - A3 당시 전체 **643 Node / 54 suites / fail·skip 0**, **38 browser workflows / 799 checks**, architecture **313 modules**와 build가 통과했다. [A3 검증 요약](docs/verification/G5-A3-CLOSEOUT-2026-10-08.json)에 보존한다. 최신 전체는 B1의 651 Node / 39 browser·834 checks다. 실제 LLM 연결 증거는 아니다. A2 당시 638/37/773, C3 당시 636/36/758과 앞선 수치는 단계별 검수 기록이다.
 - `utif@3.1.0`과 전이 `pako@1.0.11`은 TIFF 전용 Worker에만 들어가며 production Worker chunk는 **87.19 kB**다. UPNG/Typr/ag-psd/Paper/PptxGenJS는 확인한 후보이며 미설치다. Photopea 전체 편집기 소스는 가져오지 않았다.
-- G6의 실제 외부 환경은 없고 새 adapter 구현은 시작하지 않았다. CAD B3-A1/A2·B·C1–C3 외에 B0–B5/X의 나머지 카드는 계획 상태를 유지한다.
+- G6의 실제 외부 환경은 없고 새 adapter 구현은 시작하지 않았다. CAD B3-A1/A2·B·C1–C3 이후 B2-A1 두 윤곽의 비대칭 모따기를 추가했다. 나머지 B0–B5/X 카드는 계획 상태를 유지한다.
 
 2026-10-06 설계와 후속 구현: [CAD 구현 카드](docs/product/CAD-BASICS-IMPLEMENTATION-PLAN.md)에 B0–B5/X1–X7의 경계·선행 조건·수정 위치·검수를 구분했다. 이후 B3-A1/A2·B·C1–C3를 실제 구현해 카드와 지원표를 갱신했다. 일반 CAD 전체 기능 동등성을 달성한 것은 아니다.
 

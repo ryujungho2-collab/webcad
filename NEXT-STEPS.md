@@ -4,9 +4,13 @@
 
 2026-10-09 사용자 목표: **1차는 동일 모델의 건축·기계 도면, 지름/길이 수치 편집, 저장 뷰와 분해도**다. **2차는 아트보드·벡터/이미지 편집·프로토타입·슬라이드·LLM 통합**이다. 기존 구현은 유지한다. [목표·기반/공백·구현 분할·완료 workflow](docs/product/ARCHITECTURE-MECHANICAL-MILESTONE.md)를 따른다.
 
-**다음 구현은 G6-A1 모델 뷰 저장 계약**이다. 이어 G6-A2 뷰 UI → 수치 편집 pilot → 부품/분해 표현 → 연관 정투영/건축 단면 → 시트·치수·출력 → 두 분야 전체 검수를 작은 요청으로 진행한다. 외부 환경 없이 현재 CAD에서 시작한다. 사용자가 별도로 요청한 **G5-B2는 단일 2D Move로 구현**했으며 [지원 계약·검수 기록](docs/implementation/G5-B2-COPILOT-MOVE-2026-10-09.md)을 따른다. 그 밖의 편집 command 확대와 실제 LLM 연결은 2차 후속이다. G6-A1은 아직 시작하지 않았다.
+**현재 요청은 CAD 기본 수정 공백 보완이다.** B2-A1 두 독립 윤곽의 D1/D2 비대칭 모따기를 구현했다. 다음 작은 CAD 후보는 **B2-A2 단일 polyline/rectangle 내부 코너의 D1/D2**이며 같은 검토·대상/거리 표시 경험을 확장한다. [B2-A1 실제 범위와 남은 공백](docs/implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md), [CAD 카드](docs/product/CAD-BASICS-IMPLEMENTATION-PLAN.md)를 따른다. 인접 호 B2-B/C와 Break 참조 B1-A는 별도 검증 단위다.
+
+동일 모델의 도면 작업 축은 **G6-A1 모델 뷰 저장 계약 → G6-A2 뷰 UI → 수치 편집 pilot → 부품/분해 표현 → 연관 정투영/건축 단면 → 시트·치수·출력 → 두 분야 전체 검수**다. 외부 환경 없이 현재 CAD에서 시작하며 G6-A1은 아직 시작하지 않았다. 사용자가 별도로 요청한 **G5-B2는 단일 2D Move로 구현**했고 [지원 계약·검수 기록](docs/implementation/G5-B2-COPILOT-MOVE-2026-10-09.md)을 유지한다. 그 밖의 gateway 편집 확대와 실제 LLM 연결은 2차 후속이다.
 
 ## 이전 구현·검수 기록
+
+**2026-10-09: CAD B2-A1 완료.** 두 독립 윤곽의 D1/D2 모따기와 unit·swap/equal·캔버스 표시·오류 복구·Apply→Join을 검증했다. 신규 Node 8개/native browser 18 checks 포함 **667 Node / 54 suites**, **41 browser workflows / 877 checks**, 타입·architecture **323 modules**·workspace build 통과. [마감 증거](docs/verification/B2-A1-CLOSEOUT-2026-10-09.json). 단일 내부 코너 B2-A2는 남는다.
 
 **2026-10-09: 별도로 요청한 G5-B2 단일 2D Move를 완료했다.** 새 Node 8개와 native browser Move 25 checks를 포함한 전체 **659 Node / 54 suites**, **40 browser workflows / 859 checks**, 타입·architecture **321 modules**·workspace build 통과. [지원 범위·발견/수정·사용자 workflow](docs/implementation/G5-B2-COPILOT-MOVE-2026-10-09.md), [검수 요약](docs/verification/G5-B2-CLOSEOUT-2026-10-09.json)을 따른다. 다른 편집 명령과 실제 provider는 자동 확대하지 않았다. 다음은 위 G6-A1이다.
 

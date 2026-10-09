@@ -9,6 +9,7 @@
 | 목적 | 문서 |
 | --- | --- |
 | 1차/2차 제품 목표 | [1차 건축·기계 CAD / 2차 아트보드·제작·LLM](product/ARCHITECTURE-MECHANICAL-MILESTONE.md) |
+| CAD B2-A1 기본 수정 공백 | [두 독립 윤곽의 D1/D2 모따기·캔버스 거리선·복구·Join·경계](implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md), [마감 증거](verification/B2-A1-CLOSEOUT-2026-10-09.json). 내부 코너 B2-A2는 남음 |
 | 현재 범위 분할·재시작 프롬프트 | [각도 C1–C3·G5-A/B1·B2 첫 범위 / 다음 G6-A1 모델 뷰 계약](WORK-SLICES-2026-10-06.md) |
 | G5-B2 gateway 편집 첫 범위 | [단일 2D Move·대상/좌표 계약·관계 갱신·원자성·인계](implementation/G5-B2-COPILOT-MOVE-2026-10-09.md), [659 Node·40 browser/859 checks·build/321 module guard](verification/G5-B2-CLOSEOUT-2026-10-09.json) |
 | G5-B1 local Query 구현·전체 검수 | [선택/명시적 target·잠금/측정·취소·버전 경합·수동 인계](implementation/G5-B1-COPILOT-QUERY-2026-10-09.md), [651 Node·39 browser/834 checks·build/318 module guard](verification/G5-B1-CLOSEOUT-2026-10-09.json) |

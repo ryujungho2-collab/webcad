@@ -96,6 +96,8 @@ export type CadCommand =
       secondPoint: [number, number, number];
       treatment: "fillet" | "chamfer";
       distance: number;
+      /** Chamfer setback on secondId, in world mm; omitted means symmetric. */
+      secondDistance?: number;
       id?: string;
     }
   | { type: "create-dimension"; id?: string; dimension: "angular"; params: import("@agent-webcad/cad-document").AngularDimensionDefinition; layerId?: string }

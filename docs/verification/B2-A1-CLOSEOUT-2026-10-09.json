@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "baseline": "2475221",
+  "scope": "CAD B2-A1: asymmetric chamfer of two independent straight free-end branches with D1/D2, shared review, canvas guides and Join handoff",
+  "environment": { "browser": "Microsoft Edge headless CDP", "renderer": "SwiftShader", "input": "native pointer/keyboard with hit testing; real React and CAD transactions" },
+  "node": { "tests": 667, "suites": 54, "failed": 0, "skipped": 0, "newTests": 8, "focusedTests": 23, "log": "output/cad-b2-a1-node-2026-10-09.log" },
+  "browser": { "workflows": 41, "checks": 877, "chamferChecks": 18, "log": "output/cad-b2-a1-browser-full-2026-10-09.log", "focusedLog": "output/cad-b2-a1-browser-2026-10-09.log" },
+  "typecheck": "passed",
+  "architecture": { "passed": true, "modules": 323, "documentationLinks": true },
+  "build": { "workspace": "passed", "mainRawKB": 1059.15, "mainGzipKB": 319.66, "viewportRawKB": 621.03, "viewportGzipKB": 168.64, "kernelWasmRawKB": 50305.13, "kernelWasmGzipKB": 13955.45, "existingLargeChunkWarning": true, "log": "output/cad-b2-a1-build-2026-10-09.log" },
+  "contract": { "command": "connect-drawings", "treatment": "chamfer", "D1": "distance on firstId retained branch from supporting-line intersection, world mm", "D2": "optional secondDistance on secondId retained branch, defaults to D1", "planes": ["XY", "XZ", "YZ"], "serialization": "v14 unchanged; existing source/connector geometry and topology", "fillet": "single radius unchanged; D2 rejected" },
+  "evidence": [
+    "Independent cosine-law length at 35/90/125-degree corners, reversed orientations, negative branches and swapped distances",
+    "World-mm XY/XZ/YZ setbacks with elevation, bounds-centre rotation, reflection and scale",
+    "Original topology retained; dimension and midpoint regenerate in the same atomic transaction",
+    "Preview byte equality and history invariance; one Undo/Redo and exact serialization/reload",
+    "Oversized D1/D2, locked downstream, unavailable construction intersection and stale Apply reject without partial mutation",
+    "Browser native input validates units, named target mapping, projected canvas setback ratios, Swap/Equal, draft invalidation, error recovery, Cancel and lock/Enter",
+    "Apply selects both sources plus connector; Join consumes that exact chain; Undo/Redo restores geometry and identities"
+  ],
+  "commands": ["pnpm --filter @agent-webcad/web exec tsc -b", "pnpm --filter @agent-webcad/web test", "pnpm --filter @agent-webcad/web test:browser --page=asymmetricChamfer", "pnpm --filter @agent-webcad/web test:browser", "pnpm --filter @agent-webcad/web check:architecture", "pnpm build"],
+  "performance": { "newLatencyBenchmark": "not run", "mainRawKBIncrease": 0.42, "viewportRawKBIncrease": 1.98, "scope": "Build size comparison only; no large-document, real GPU, multiplayer or practitioner time claim" },
+  "remaining": ["B2-A2 single polyline/rectangle internal-corner D1/D2", "Sketch-owned, derived construction/pattern instances, adjacent arc and 3D asymmetric chamfer", "Live chamfer recipe/re-editing", "Large-document performance and practitioner evaluation", "G6-A1 saved model views"]
+}

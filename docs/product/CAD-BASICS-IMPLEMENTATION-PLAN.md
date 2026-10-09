@@ -1,6 +1,6 @@
 # CAD 기본기 확장과 구현 단위 설계
 
-갱신일: 2026-10-06. 구현 카드와 지원 경계를 정하는 문서다. **B3-A1/A2 및 B3-B는 구현·검수 완료**, 나머지 신규 카드는 계획이다. [G4·DXF·지름 실제 결과](../implementation/G4-CAD-BASICS-2026-10-06.md)를 따른다. 현재 지원 범위는 [CAD-BASICS](CAD-BASICS.md), 제품 전체 실행 큐는 [NEXT-STEPS](../../NEXT-STEPS.md), 세션 분할은 [WORK-SLICES](../WORK-SLICES-2026-10-06.md)가 소유한다.
+갱신일: 2026-10-09. 구현 카드와 지원 경계를 정하는 문서다. **B3-A1/A2·B·C1–C3와 B2-A1 두 윤곽의 비대칭 모따기는 구현·검수 완료**, 나머지 신규 카드는 계획이다. [G4·DXF·지름 실제 결과](../implementation/G4-CAD-BASICS-2026-10-06.md), [각도 치수](../implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md), [모따기 지원 범위](../implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md)를 따른다. 현재 지원 범위는 [CAD-BASICS](CAD-BASICS.md), 제품 전체 실행 큐는 [NEXT-STEPS](../../NEXT-STEPS.md), 세션 분할은 [WORK-SLICES](../WORK-SLICES-2026-10-06.md)가 소유한다.
 
 목표는 기계·건축 사용자가 정확한 도면을 작성하고, 관련 형상을 수정하고, 출력까지 마치는 것이다. 명령 수뿐 아니라 같은 입력·미리보기·복구·결과 인계를 완료 기준으로 삼는다. 아래 카드의 전체를 구현했다는 뜻은 아니다.
 
@@ -91,7 +91,8 @@ G2에서 정의 수정·중첩 component는 이미 존재한다. B1-C는 그 기
 
 | ID | 한 번에 끝낼 사용자 결과 | 선행 / 완료 검사 |
 | --- | --- | --- |
-| B2-A | 두 거리 D1/D2로 비대칭 Chamfer, preview에서 어느 변의 거리인지 확인 | 기존 직선 corner 경로. swap·반대 방향·예각/둔각·너무 큰 거리, 한 Undo |
+| B2-A1 · 완료 | 두 독립 윤곽의 직선 끝부분에 D1/D2 비대칭 Chamfer | 단위·대상/캔버스 거리선·swap/equal·반대 방향·예각/둔각·소모 거부·치수/중점·잠금/참조 실패·한 Undo·Join·저장. [실제 범위와 검수](../implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md) |
+| B2-A2 | 단일 polyline/rectangle 내부 코너의 D1/D2 및 동일한 검토 UX | 기존 edit-drawing-corner·Properties·cornerPreview 경로. 이전/다음 edge에 값 배정·코너 topology/연관 치수·돌출·단위/Swap·소모/자체 교차·원자성 검수. 현재 한 대칭 거리만 지원 |
 | B2-B | line–arc Fillet에서 유지할 가지·접점 확인 후 적용 | 정확한 해석 접점·허용 구간·여러 해 선택. arc–arc는 B2-C로 분리 |
 | B2-C | arc–arc Fillet/Chamfer와 닫힌 윤곽 수정 | B2-B. 두 코너 연산도 별도 요청; 내/외접·불가능 반지름·Offset 후 접속 검증 |
 | B2-D | 교차 영역 Stretch에 포함된 블록의 이동 의미를 제어 | 완전 포함 instance의 rigid move 먼저. 일부 구성 요소 변형은 definition edit 또는 명시적 detach로 인계, 조용한 전역 definition 변경 금지 |

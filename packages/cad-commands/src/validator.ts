@@ -186,7 +186,9 @@ export function validateCommand(command: unknown): command is CadCommand {
       return isString(command.firstId) && isString(command.secondId) && command.firstId !== command.secondId &&
         isVector3(command.firstPoint) && isVector3(command.secondPoint) &&
         (command.treatment === "fillet" || command.treatment === "chamfer") &&
-        isFiniteNumber(command.distance) && command.distance > 1e-9 && (command.id === undefined || isString(command.id));
+        isFiniteNumber(command.distance) && command.distance > 1e-9 &&
+        (command.secondDistance === undefined || command.treatment === "chamfer" && isFiniteNumber(command.secondDistance) && command.secondDistance > 1e-9) &&
+        (command.id === undefined || isString(command.id));
     case "edit-drawing-corner":
       return isString(command.objectId) && isString(command.controlId) &&
         (command.treatment === "fillet" || command.treatment === "chamfer") &&

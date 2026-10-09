@@ -7,8 +7,9 @@ import { WORK_PLANES, worldToPlane, type Vec3 } from "../../../precision/workPla
  * endpoints survive; the connecting line/arc is a separate editable object. */
 export function connectDrawings(
   first: { object: CadObject; feature: CadFeature }, second: { object: CadObject; feature: CadFeature },
-  firstPoint: Vec3, secondPoint: Vec3, treatment: "fillet" | "chamfer", value: number,
+  firstPoint: Vec3, secondPoint: Vec3, treatment: "fillet" | "chamfer", value: number, secondDistance?: number,
 ) {
+  if (!Number.isFinite(value) || value <= 1e-9 || secondDistance !== undefined && (treatment !== "chamfer" || !Number.isFinite(secondDistance) || secondDistance <= 1e-9)) throw new Error("Enter positive finite chamfer distances; Fillet uses one radius.");
   const paths = [first, second].map(s => exactDrawingContour(s.object, s.feature));
   const tolerance = contourTolerance(paths), plane = WORK_PLANES[paths[0].workPlane];
   const height = (p: Vec3) => p.reduce((sum, v, i) => sum + v * plane.normal[i], 0);
@@ -41,9 +42,12 @@ export function connectDrawings(
   });
   const dot = Math.max(-1, Math.min(1, branch[0].ray[0] * branch[1].ray[0] + branch[0].ray[1] * branch[1].ray[1]));
   const angle = Math.acos(dot), setback = treatment === "fillet" ? value / Math.tan(angle / 2) : value;
-  if (!Number.isFinite(setback) || setback <= tolerance || branch.some(s => setback >= s.available - tolerance)) throw new Error("The radius/distance consumes a retained end segment. Use a smaller value or choose the other branch.");
+  const setbacks = [setback, treatment === "chamfer" ? secondDistance ?? value : setback];
+  branch.forEach((s, i) => {
+    if (!Number.isFinite(setbacks[i]) || setbacks[i] <= tolerance || setbacks[i] >= s.available - tolerance) throw new Error(`${treatment === "chamfer" ? `D${i + 1}` : "The radius"} consumes the ${i === 0 ? "target" : "second curve"} retained end segment. Use a smaller value or choose the other branch.`);
+  });
   const from = (p: number[]): Vec3 => plane.origin.map((n, i) => n + p[0] * plane.xAxis[i] + p[1] * plane.yAxis[i] + height(paths[0].segments[0].start) * plane.normal[i]) as Vec3;
-  const contacts = branch.map(s => from([corner[0] + s.ray[0] * setback, corner[1] + s.ray[1] * setback]));
+  const contacts = branch.map((s, i) => from([corner[0] + s.ray[0] * setbacks[i], corner[1] + s.ray[1] * setbacks[i]]));
   const replacements = [first, second].map((entry, i) => {
     const points = structuredClone(entry.feature.params.points as Vec3[]), point = drawingWorldToModel(entry.object, entry.feature, contacts[i]);
     if (!point) throw new Error("Unable to invert the drawing frame.");
@@ -57,5 +61,5 @@ export function connectDrawings(
     const r = [p[0] - center[0], p[1] - center[1]], s = [q[0] - center[0], q[1] - center[1]], startAngle = Math.atan2(r[1], r[0]), sweep = Math.atan2(cross(r, s), r[0] * s[0] + r[1] * s[1]);
     connector = { kind: "arc", workPlane: paths[0].workPlane, center: from(center), radius: value, startAngle, endAngle: startAngle + sweep };
   }
-  return { replacements, connector };
+  return { replacements, connector, corner: from(corner), contacts };
 }

@@ -93,7 +93,7 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
     });
     const construction = Boolean(sources[0].feature.params.construction);
     if (sources.some(s => s.object.layerId !== sources[0].object.layerId || Boolean(s.feature.params.construction) !== construction)) throw new Error("Use the same layer and construction purpose for a connected contour.");
-    const edit = connectDrawings(sources[0], sources[1], command.firstPoint, command.secondPoint, command.treatment, command.distance);
+    const edit = connectDrawings(sources[0], sources[1], command.firstPoint, command.secondPoint, command.treatment, command.distance, command.secondDistance);
     const id = command.id ?? `${command.treatment}-${crypto.randomUUID()}`, featureId = `feature-${id}`;
     if (document.objects[id] || document.features[featureId]) throw new Error("The connector ID already exists.");
     sources.forEach((s, i) => { s.object.transform = drawingTransformAfterEdit(s.object, s.feature, edit.replacements[i]); s.feature.params = edit.replacements[i]; });
