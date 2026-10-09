@@ -192,7 +192,9 @@ export function validateCommand(command: unknown): command is CadCommand {
     case "edit-drawing-corner":
       return isString(command.objectId) && isString(command.controlId) &&
         (command.treatment === "fillet" || command.treatment === "chamfer") &&
-        isFiniteNumber(command.distance) && command.distance > 1e-9;
+        isFiniteNumber(command.distance) && command.distance > 1e-9 &&
+        (command.secondDistance === undefined || command.treatment === "chamfer" && isFiniteNumber(command.secondDistance) && command.secondDistance > 1e-9) &&
+        (command.distanceSpace === undefined || command.distanceSpace === "world");
     case "close-drawing-profile":
       return isString(command.objectId);
     case "create-extrude":

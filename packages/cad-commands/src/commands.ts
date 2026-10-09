@@ -107,6 +107,10 @@ export type CadCommand =
       controlId: string;
       treatment: "fillet" | "chamfer";
       distance: number;
+      /** Chamfer setback on the next edge; omitted means equal setbacks. */
+      secondDistance?: number;
+      /** Omitted preserves legacy model-space distances. */
+      distanceSpace?: "world";
     }
   | {
       type: "close-drawing-profile";

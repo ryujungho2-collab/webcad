@@ -50,6 +50,7 @@ import { createDimensionRenderObject } from "./dimensionRenderer";
 import { createDraftingRenderObject } from "./draftingRenderer";
 import { layerStyle } from "../precision/layerStyle";
 import { resolveCornerPreview, type CornerPreviewRequest } from "./cornerPreview";
+import { CornerTool } from "../features/drawing-editing/ui/CornerTool";
 import {
   buildDirectSelectionCandidates,
   directSelectionHits,sameDirectTarget,type DirectTargetRef,
@@ -141,6 +142,8 @@ type CadViewportProps = {
   onOffsetCommit?: (side: "left" | "right") => void;
   onOffsetCancel?: () => void;
   cornerPreview?: CornerPreviewRequest | null;
+  onCornerClose?: () => void;
+  onCornerApplied?: (ids: string[]) => void;
   filletPreview?: Record<string, unknown> | null;
   chamferPreview?: Record<string, unknown> | null;
   copilotPreview?: CopilotGhost[] | null;
@@ -311,6 +314,7 @@ export function CadViewport({
   onOffsetCommit,
   onOffsetCancel,
   cornerPreview = null,
+  onCornerClose, onCornerApplied,
   filletPreview = null,
   chamferPreview = null,
   copilotPreview = null,
@@ -439,6 +443,7 @@ export function CadViewport({
   const patternSessionRef=useRef(patternSession);patternSessionRef.current=patternSession;
   const contourSessionRef = useRef(contourSession); contourSessionRef.current = contourSession;
   const curveSessionRef = useRef(curveSession); curveSessionRef.current = curveSession;
+  const cornerReviewRef = useRef(false); cornerReviewRef.current = Boolean(cornerPreview?.review);
   const angularSessionRef = useRef(angularSession); angularSessionRef.current = angularSession;
   const constructionSessionRef = useRef(constructionSession); constructionSessionRef.current = constructionSession;
   const constructionVisibleRef = useRef(constructionVisible); constructionVisibleRef.current = constructionVisible;
@@ -1594,7 +1599,7 @@ export function CadViewport({
     ) {
       const owner = selectionPointerOwner({
         button: event.button,
-        drawingActive: Boolean(drawingToolRef.current || pointTransformRef.current || patternSessionRef.current || contourSessionRef.current || curveSessionRef.current || angularSessionRef.current || constructionSessionRef.current),
+        drawingActive: Boolean(cornerReviewRef.current || drawingToolRef.current || pointTransformRef.current || patternSessionRef.current || contourSessionRef.current || curveSessionRef.current || angularSessionRef.current || constructionSessionRef.current),
         directSelectActive: directSelectModeRef.current,
         transformHandleActive: Boolean(transformControlsRef.current?.axis),
       });
@@ -3252,7 +3257,7 @@ export function CadViewport({
       (previous.material as THREE.Material).dispose();
       cornerPreviewRef.current = null;
     }
-    if (!cornerPreview) return;
+    if (!cornerPreview || cornerPreview.review) return;
     // Same pure function and inputs as the commit path, so the overlay can
     // never disagree with the committed result. Nothing here touches the
     // document; the overlay is transient scene state only.
@@ -3671,6 +3676,20 @@ export function CadViewport({
   return (
     <>
       <div ref={hostRef} className="cad-viewport" />
+      {cornerPreview?.review && sceneReady && <CornerTool key={`${cornerPreview.objectId}:${cornerPreview.controlId}`} session={cornerPreview} project={projectRegionPoint}
+        getCanvas={() => rendererRef.current?.domElement ?? null} getCamera={() => cameraRef.current}
+        onClose={() => onCornerClose?.()} onApplied={ids => onCornerApplied?.(ids)} nextActions={curveNextActions}
+        onFrame={points => {
+          if (!points.length) return;
+          fitBounds(new THREE.Box3().setFromPoints(points.map(p => new THREE.Vector3(...p))));
+          const camera = cameraRef.current, controls = controlsRef.current;
+          if (!(camera instanceof THREE.OrthographicCamera) || !controls) return;
+          const width = hostRef.current?.clientWidth ?? 850, height = hostRef.current?.clientHeight ?? 700, reserved = Math.min(350,width*.45), plane = WORK_PLANES[activeWorkPlane];
+          const ranges = new THREE.Box2().setFromPoints(points.map(p => new THREE.Vector2(...worldToPlane(p,plane)))).getSize(new THREE.Vector2());
+          camera.zoom = Math.min((camera.right-camera.left)*(width-reserved-32)/width/Math.max(ranges.x,.01),(camera.top-camera.bottom)*(height-100)/height/Math.max(ranges.y,.01));
+          camera.updateProjectionMatrix(); const offset = new THREE.Vector3(...plane.xAxis).multiplyScalar(-(camera.right-camera.left)/camera.zoom*reserved/2/width);
+          camera.position.add(offset);controls.target.add(offset);controls.update();
+        }}/>}
       {angularSession && sceneReady && <AngularDimensionTool key={angularSession.id} session={angularSession} project={projectRegionPoint} getCanvas={()=>rendererRef.current?.domElement??null}
         onClose={()=>onAngularClose?.()} onApplied={id=>onAngularApplied?.(id)} onEditSketch={id=>onAngularEditSketch?.(id)} onInspectSource={id=>onAngularInspectSource?.(id)}/>}
       {curveSession && sceneReady && <CurveWorkbench key={curveSession.id} session={curveSession} nextActions={curveNextActions} constructionVisible={constructionVisible} project={projectRegionPoint}
@@ -3731,7 +3750,7 @@ export function CadViewport({
         externalInspectedConstraint={directInspectedConstraint} openDimension={openDimension} onStartDimensionEdit={closeDirectEdit}
         disabled={!cadDocument.layers[activeSketch.layerId]?.visible || cadDocument.layers[activeSketch.layerId]?.locked}
         onSelect={(id) => onSelectSketchConstraint?.(id)} onDocumentChange={() => onSketchDocumentChange?.()} />}
-      {directSelectMode&&sceneReady&&!drawingTool&&!pointTransform&&<DirectEditHandles getCandidates={getDirectCandidates} selectedIds={selectedObjectIds} project={projectRegionPoint} disabled={Boolean(directSession||targetChoice)} focusTarget={focusTarget} onInspect={setInspectedTarget} onActivate={target=>beginKeyboardGripRef.current(target)} onExit={()=>rendererRef.current?.domElement.focus()}/>}
+      {directSelectMode&&sceneReady&&!drawingTool&&!pointTransform&&!cornerPreview?.review&&<DirectEditHandles getCandidates={getDirectCandidates} selectedIds={selectedObjectIds} project={projectRegionPoint} disabled={Boolean(directSession||targetChoice)} focusTarget={focusTarget} onInspect={setInspectedTarget} onActivate={target=>beginKeyboardGripRef.current(target)} onExit={()=>rendererRef.current?.domElement.focus()}/>}
       {directSelectMode&&inspectedTarget&&!directSession&&<DirectTargetInspector target={inspectedTarget} getCandidates={getDirectCandidates} project={projectRegionPoint} compact={Boolean(targetChoice)}/>}
       {directSelectMode&&targetHint&&!targetChoice&&!directSession&&<button type="button" className="direct-target-hint" aria-label={`Choose among ${targetHint.targets.length} canvas targets`} style={{left:Math.max(8,Math.min(targetHint.x+16,(hostRef.current?.clientWidth??600)-175)),top:Math.max(8,Math.min(targetHint.y+18,(hostRef.current?.clientHeight??500)-34))}} onClick={()=>openTargetChoice(targetHint.targets,targetHint.x,targetHint.y)}>{targetHint.targets.length} targets · choose · Alt+click</button>}
       {directSelectMode&&targetChoice&&<DirectTargetChooser choice={targetChoice} width={hostRef.current?.clientWidth??600} height={hostRef.current?.clientHeight??500} onInspect={setInspectedTarget} onChoose={target=>chooseTargetRef.current(target)} onClose={closeTargetChoice}/>}

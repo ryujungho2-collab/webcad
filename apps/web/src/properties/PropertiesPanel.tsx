@@ -574,6 +574,11 @@ function PropertiesContent({
     if (selected.objectId !== object.id || selected.kind !== "drawing-control") return;
     const distance = Number(cornerDistance);
     if (!Number.isFinite(distance) || distance <= 1e-9) return;
+    if (treatment === "chamfer") {
+      setPreviewTreatment(null);
+      onCornerPreview?.({ objectId:object.id, controlId:selected.topologyId, treatment, distance, distanceSpace:"world", review:true });
+      return;
+    }
     await dispatchCadCommand({ type: "edit-drawing-corner", objectId: object.id, controlId: selected.topologyId, treatment, distance });
     onDocumentChange();
   }
@@ -735,13 +740,9 @@ function PropertiesContent({
                 type="button"
                 disabled={isLocked}
                 onClick={() => void commitCornerTreatment("chamfer")}
-                onMouseEnter={() => setPreviewTreatment("chamfer")}
-                onMouseLeave={() => setPreviewTreatment(null)}
-                onFocus={() => setPreviewTreatment("chamfer")}
-                onBlur={() => setPreviewTreatment(null)}
               >Chamfer</button>
             </div>
-            <p className="property-hint">Radius or equal setback at this corner. Hover to preview.</p>
+            <p className="property-hint">Fillet: hover to preview the radius. Chamfer: review D1/D2 on the previous and next edges before applying.</p>
           </>}
         </PropertySection>
       )}

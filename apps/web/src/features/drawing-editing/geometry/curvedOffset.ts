@@ -67,6 +67,26 @@ function area(segments: Curve[]) {
   return segments.reduce((sum, s) => sum + (cross(sub(s.start, origin), sub(s.end, origin)) + (s.kind === "arc" ? s.radius! ** 2 * (s.sweep! - Math.sin(s.sweep!)) : 0)) / 2, 0);
 }
 
+function isSimple(curves: Curve[], closed: boolean, tolerance: number) {
+  if (!curves.length || curves.some(s => gap(s.start, s.end) <= tolerance)) return false;
+  for (let i = 0; i < curves.length; i++) for (let j = i + 1; j < curves.length; j++) {
+    if (overlaps(curves[i], curves[j], tolerance)) return false;
+    const adjacent = j === i + 1 || (closed && i === 0 && j === curves.length - 1);
+    if (!adjacent && [curves[i].start,curves[i].end].some(a => [curves[j].start,curves[j].end].some(b => gap(a,b) <= tolerance))) return false;
+    const permitted = adjacent ? (j === i + 1 ? curves[i].end : curves[i].start) : undefined;
+    if (hits(curves[i], curves[j], tolerance).some(p => contains(curves[i], p, tolerance) && contains(curves[j], p, tolerance) && (!permitted || gap(p, permitted) > tolerance))) return false;
+  }
+  return !closed || Math.abs(area(curves)) > tolerance ** 2;
+}
+
+/** Exact line/arc intersection and area checks shared by corner and offset edits. */
+export function isSimpleCurvedProfile(kind: string, params: Record<string, unknown>) {
+  const plane = params.workPlane === "XZ" || params.workPlane === "YZ" ? params.workPlane : "XY";
+  const segments = profileSegments(kind, params);
+  const tolerance = linearToleranceAt(Math.max(...segments.flatMap(s => [...s.start.map(Math.abs), ...s.end.map(Math.abs)]), 0));
+  return isSimple(segments.map(s => ({ kind:s.kind, start:planePoint(s.start,plane), end:planePoint(s.end,plane), center:s.center && planePoint(s.center,plane), radius:s.radius, angle:s.startAngle, sweep:s.sweep })), kind === "rectangle" || params.closed === true, tolerance);
+}
+
 /** Left offsets preserve exact bulge arcs and analytic miter joins. No tessellation. */
 export function offsetCurvedProfile(kind: string, source: Record<string, unknown>, distance: number): Record<string, unknown> | null {
   const plane: WorkPlaneId = source.workPlane === "XZ" || source.workPlane === "YZ" ? source.workPlane : "XY";
@@ -113,12 +133,7 @@ export function offsetCurvedProfile(kind: string, source: Record<string, unknown
     }
     s.start = start; s.end = end;
   }
-  for (let i = 0; i < offset.length; i++) for (let j = i + 1; j < offset.length; j++) {
-    if (overlaps(offset[i], offset[j], tolerance)) return null;
-    const adjacent = j === i + 1 || (closed && i === 0 && j === offset.length - 1);
-    const permitted = adjacent ? (j === i + 1 ? offset[i].end : offset[i].start) : undefined;
-    if (hits(offset[i], offset[j], tolerance).some(p => contains(offset[i], p, tolerance) && contains(offset[j], p, tolerance) && (!permitted || gap(p, permitted) > tolerance))) return null;
-  }
+  if (!isSimple(offset, closed, tolerance)) return null;
   if (closed && (Math.abs(area(offset)) <= tolerance ** 2 || area(curves) * area(offset) <= 0)) return null;
   const elevation = plane === "XZ" ? input[0].start[1] : plane === "YZ" ? input[0].start[0] : input[0].start[2];
   const from = (p: P): Vec3 => plane === "XZ" ? [p[0], elevation, p[1]] : plane === "YZ" ? [elevation, p[0], p[1]] : [p[0], p[1], elevation];

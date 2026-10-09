@@ -2,7 +2,7 @@
 
 갱신일: 2026-10-09. G 단계와 CAD B/A/C 하위 카드, 확장 X, 이미지 I, 건축·기계 도면 목표를 이 문서에서 함께 확인한다. **실행할 과제는 전체 ID로 지정한다.** `A1`은 G5-A1·G6-A1·B3-A1·B5-A1 등 서로 다른 과제를 뜻할 수 있고, 각도 치수 `C3`는 **B3-C3**다. 상위 단계의 일부가 끝나도 나머지 카드를 완료로 올리지 않는다.
 
-상태: **완료**는 해당 지원 범위의 구현·자동 검수가 끝남, **부분**은 첫 범위만 완료, **대기**는 추가 구현/검수가 남음, **환경 필요**는 실제 외부 연결 검증이 준비되지 않음이다. 기존 기능이 있어도 확장 카드가 대기일 수 있다. 아래 표는 탐색용 목록이며 상세 계약은 연결된 기획/구현 문서가 소유한다. 최신 검수는 [PROJECT-STATE](PROJECT-STATE.md)의 **667 Node / 41 browser·877 checks**를 따른다.
+상태: **완료**는 해당 지원 범위의 구현·자동 검수가 끝남, **부분**은 첫 범위만 완료, **대기**는 추가 구현/검수가 남음, **환경 필요**는 실제 외부 연결 검증이 준비되지 않음이다. 기존 기능이 있어도 확장 카드가 대기일 수 있다. 아래 표는 탐색용 목록이며 상세 계약은 연결된 기획/구현 문서가 소유한다. 최신 검수는 [PROJECT-STATE](PROJECT-STATE.md)의 **677 Node / 42 browser·895 checks**를 따른다.
 
 빠른 이동: [제품 G](#제품-g-전체와-하위-단계) · [CAD B0/B1](#cad-b0b1--조작구성편집참조) · [CAD B2](#cad-b2--수정명령-대상-확대) · [CAD B3/A/C](#cad-b3--치수스냅교환-ac-하위-단계) · [CAD B4/B5](#cad-b4b5--호-구속작업면솔리드) · [확장 X](#확장-x--추가-객체작도클립보드3d) · [이미지 I](#이미지-i와-제작-후속) · [건축·기계 목표](#건축기계-도면-목표의-남은-연결) · [이전 기록](#이전-구현검수-기록).
 
@@ -10,7 +10,7 @@
 
 2026-10-09 사용자 목표: **1차는 동일 모델의 건축·기계 도면, 지름/길이 수치 편집, 저장 뷰와 분해도**다. **2차는 아트보드·벡터/이미지 편집·프로토타입·슬라이드·LLM 통합**이다. 기존 구현은 유지한다. [목표·기반/공백·구현 분할·완료 workflow](docs/product/ARCHITECTURE-MECHANICAL-MILESTONE.md)를 따른다.
 
-**현재 요청은 CAD 기본 수정 공백 보완이다.** B2-A1 두 독립 윤곽의 D1/D2 비대칭 모따기를 구현했다. 다음 작은 CAD 후보는 **B2-A2 단일 polyline/rectangle 내부 코너의 D1/D2**이며 같은 검토·대상/거리 표시 경험을 확장한다. [B2-A1 실제 범위와 남은 공백](docs/implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md), [CAD 카드](docs/product/CAD-BASICS-IMPLEMENTATION-PLAN.md)를 따른다. 인접 호 B2-B/C와 Break 참조 B1-A는 별도 검증 단위다.
+**현재 요청은 CAD 기본 수정 공백 보완이다.** B2-A1 두 윤곽과 **B2-A2 내부 코너의 D1/D2**를 구현했다. [내부 코너의 검토·거리선·관계 갱신·한계](docs/implementation/B2-A2-INTERNAL-CHAMFER-2026-10-09.md), [CAD 카드](docs/product/CAD-BASICS-IMPLEMENTATION-PLAN.md)를 따른다. 사용자의 다음 요청은 **B0-A 기본 선택/입력/그립/반복 결함 한 종류 검수·수정**이다. 인접 호 B2-B/C와 Break 참조 B1-A는 별도 검증 단위다.
 
 동일 모델의 도면 작업 축은 **G6-A1 모델 뷰 저장 계약 → G6-A2 뷰 UI → 수치 편집 pilot → 부품/분해 표현 → 연관 정투영/건축 단면 → 시트·치수·출력 → 두 분야 전체 검수**다. 외부 환경 없이 현재 CAD에서 시작하며 G6-A1은 아직 시작하지 않았다. 사용자가 별도로 요청한 **G5-B2는 단일 2D Move로 구현**했고 [지원 계약·검수 기록](docs/implementation/G5-B2-COPILOT-MOVE-2026-10-09.md)을 유지한다. 그 밖의 gateway 편집 확대와 실제 LLM 연결은 2차 후속이다.
 
@@ -69,7 +69,7 @@
 | 전체 ID | 상태 | 다음 결과 / 완료 범위 |
 | --- | --- | --- |
 | B2-A1 | 완료 | 두 독립 윤곽의 D1/D2 모따기·unit·swap/equal·거리선·Apply→Join. [실제 범위](docs/implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md) |
-| **B2-A2** | **대기·다음 CAD 후보** | 단일 polyline/rectangle 내부 코너의 D1/D2와 동일한 검토 UX |
+| **B2-A2** | **완료** | 독립 polyline/rectangle 내부 직선 코너의 D1/D2·단위·Swap/Equal·거리선·review·치수/작도/돌출 갱신·원호/ID 보존·원자성·Undo/reload. [지원 경계](docs/implementation/B2-A2-INTERNAL-CHAMFER-2026-10-09.md) |
 | B2-B | 대기 | line–arc Fillet의 접점·유지할 가지·허용 구간 |
 | B2-C | 대기 | arc–arc Fillet/Chamfer 및 닫힌 윤곽. 두 연산은 따로 검증 |
 | B2-D | 대기 | 블록 Stretch의 완전 포함 rigid move·부분 포함 의미 |
@@ -172,7 +172,9 @@
 
 ## 이전 구현·검수 기록
 
-아래는 날짜별 이력이다. 당시 “다음”과 테스트 수치는 현재 실행 큐를 대신하지 않는다. 현재 선택은 위 **B2-A2**, 전체 미완료 목록은 위 표를 따른다.
+아래는 날짜별 이력이다. 당시 “다음”과 테스트 수치는 현재 실행 큐를 대신하지 않는다. 현재 요청은 위 **B0-A**, 전체 미완료 목록은 위 표를 따른다.
+
+**2026-10-09: CAD B2-A2 완료.** 내부 코너 두 거리의 실제 검토·오류 복구·캔버스 Enter·결과 인계와 연관 edge 치수/작도/돌출을 검사했다. 신규 Node 10개/native browser 18 checks 포함 **677 Node / 54 suites**, **42 browser workflows / 895 checks**, 타입·architecture **328 modules**·workspace build 통과. [구현](docs/implementation/B2-A2-INTERNAL-CHAMFER-2026-10-09.md), [마감 증거](docs/verification/B2-A2-CLOSEOUT-2026-10-09.json).
 
 **2026-10-09: CAD B2-A1 완료.** 두 독립 윤곽의 D1/D2 모따기와 unit·swap/equal·캔버스 표시·오류 복구·Apply→Join을 검증했다. 신규 Node 8개/native browser 18 checks 포함 **667 Node / 54 suites**, **41 browser workflows / 877 checks**, 타입·architecture **323 modules**·workspace build 통과. [마감 증거](docs/verification/B2-A1-CLOSEOUT-2026-10-09.json). 단일 내부 코너 B2-A2는 남는다.
 

@@ -1,5 +1,5 @@
 import type { CadDocument } from "@agent-webcad/cad-document";
-import { editDrawingCornerParams } from "../features/drawing-editing/geometry/drawingOperations";
+import { editDrawingCornerForObject } from "../features/drawing-editing/geometry/drawingOperations";
 
 export type CornerPreviewTreatment = "fillet" | "chamfer";
 export type CornerPreviewRequest = {
@@ -7,6 +7,9 @@ export type CornerPreviewRequest = {
   controlId: string;
   treatment: CornerPreviewTreatment;
   distance: number;
+  secondDistance?: number;
+  distanceSpace?: "world";
+  review?: boolean;
 };
 
 /**
@@ -28,5 +31,7 @@ export function resolveCornerPreview(
   if (!object.visible || layer?.visible === false || layer?.locked) return null;
   if (!Number.isFinite(request.distance) || request.distance <= 1e-9) return null;
   if (request.treatment !== "fillet" && request.treatment !== "chamfer") return null;
-  return editDrawingCornerParams(feature.params, request.controlId, request.treatment, request.distance);
+  if (feature.params.sketchId || feature.pattern || feature.construction) return null;
+  try { return editDrawingCornerForObject(object, feature, request.controlId, request.treatment, request.distance, request.secondDistance, request.distanceSpace); }
+  catch { return null; }
 }

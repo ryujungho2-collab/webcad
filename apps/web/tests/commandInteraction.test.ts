@@ -34,4 +34,7 @@ test("precision inputs share unit, angle, relative coordinate, range and incompl
   assert.match(parameterInput("1mm","length",{min:0,minExclusive:true}).hint,/> 0/);
   assert.match(interactionRecovery("Artboard is locked. Unlock it in Artboards.")[0],/Artboards/);
   assert.match(interactionRecovery("The selected intersection (negative) does not exist")[0],/branch/);
+  assert.match(interactionRecovery("D2 consumes the next edge. Reduce the next-edge distance.")[0],/Reduce.*setback/);
+  assert.match(interactionRecovery("nonuniform scale is unsupported")[0],/equal scale/);
+  assert.match(interactionRecovery("Adjacent arcs are unsupported")[0],/two straight edges/);
 });

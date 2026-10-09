@@ -4,9 +4,9 @@
 
 ## 최신 통합 구현·검수 상태
 
-**CAD B2-A1 두 독립 윤곽의 D1/D2 비대칭 모따기를 완료했다.** 사용자의 CAD 공백 보완 요청으로 두 직선 자유 끝부분의 모따기 거리를 따로 지정하고, 단위·거리 교환/대칭 복구·대상 이름·캔버스 거리선을 공통 Curve review에 연결했다. 기존 topology·치수/중점 갱신·atomic plan과 Apply→선택→Join 인계를 유지한다. [실제 범위·workflow·남은 B2-A2](docs/implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md), [마감 증거](docs/verification/B2-A1-CLOSEOUT-2026-10-09.json)를 따른다.
+**CAD B2-A2 내부 코너의 D1/D2 비대칭 모따기를 완료했다.** 이전/다음 변의 단위 입력·Swap/Equal·캔버스 거리선·공통 Review/Apply·오류/잠금 입력 유지·수정 contour 선택과 다음 CAD 작업을 연결했다. 비편집 bulge 원호가 직선으로 바뀌던 문제를 수정했다. 안정된 edge/control ID와 연관 일반 치수·각도·작도·돌출을 한 transaction에서 갱신한다. [실제 범위·workflow·한계](docs/implementation/B2-A2-INTERNAL-CHAMFER-2026-10-09.md), [마감 증거](docs/verification/B2-A2-CLOSEOUT-2026-10-09.json)를 따른다. 직전 [B2-A1 두 독립 윤곽](docs/implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md)은 유지한다.
 
-최종 **667 Node / 54 suites / fail·skip 0**, **41 browser workflows / 877 checks**(신규 모따기 18), 타입·architecture/import·문서 링크 **323 modules**, workspace production build 통과. v14 저장·재로드, preview 원본 불변성·잠금/참조/경합 실패·한 Undo/Redo를 검사했다. 로그는 `output/cad-b2-a1-node-2026-10-09.log`, `output/cad-b2-a1-browser-full-2026-10-09.log`, `output/cad-b2-a1-build-2026-10-09.log`다. main **1,059.15 kB**, viewport **621.03 kB**, WASM **50,305.13 kB**이며 기존 >500 kB 경고는 남는다. 이번 새 대형 문서 benchmark는 없다. 다음 작은 CAD 후보는 **B2-A2 단일 polyline/rectangle 내부 코너의 D1/D2**다. G6-A1 모델 뷰 저장 계약은 별도 미구현이다.
+최종 **677 Node / 54 suites / fail·skip 0**, **42 browser workflows / 895 checks**(신규 내부 코너 18), 타입·architecture/import·문서 링크 **328 modules**, workspace production build 통과. v14 저장·재로드, preview 원본 불변성·거리 소모/교차/잠금/경합 실패·한 Undo/Redo를 검사했다. 로그는 `output-b2-a2-node.log`, `output-b2-a2-browser-full.log`, `output-b2-a2-build.log`(apps/web 기준)다. main **1,062.06 kB**, viewport **630.43 kB**, WASM **50,305.13 kB**이며 기존 >500 kB 경고는 남는다. 이번 새 대형 문서 benchmark는 없다. 다음 요청은 **B0-A 기존 선택/입력/그립/반복 결함 한 종류 검수·수정**이다. G6-A1 모델 뷰 저장 계약은 별도 미구현이다.
 
 ## 직전 G5-B2 구현·검수
 

@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "baseline": "81cf150",
+  "scope": "B2-A2: standalone polyline/rectangle internal straight-corner D1/D2 chamfer with retained reviewed session, canvas guides and atomic downstream refresh",
+  "node": { "tests": 677, "suites": 54, "failed": 0, "skipped": 0, "newTests": 10, "log": "apps/web/output-b2-a2-node.log" },
+  "browser": { "workflows": 42, "checks": 895, "newWorkflowChecks": 18, "log": "apps/web/output-b2-a2-browser-full.log", "focusedLog": "apps/web/output-b2-a2-browser-focused.log", "environment": "Edge headless, native CDP pointer/keyboard hit tests, SwiftShader, real React/Worker", "finalFocusedAssertions": "Independent projected D1/D2 setback ratios strengthened after full runner; same 18 checks pass" },
+  "typecheck": "passed",
+  "architecture": { "passed": true, "modules": 328, "documentationLinks": true },
+  "build": { "workspace": "passed", "mainRawKB": 1062.06, "mainGzipKB": 320.67, "viewportRawKB": 630.43, "viewportGzipKB": 171.74, "kernelWasmRawKB": 50305.13, "kernelWasmGzipKB": 13955.45, "existingLargeChunkWarning": true, "log": "apps/web/output-b2-a2-build.log" },
+  "contract": { "command": "edit-drawing-corner", "D1": "distance on previous contour edge", "D2": "optional secondDistance on next edge; omission preserves symmetry; chamfer only", "units": "distanceSpace world converts world mm by uniform in-plane scale; omitted space preserves legacy model units", "serialization": "v14 unchanged", "unsupported": ["sketch-owned or derived geometry", "adjacent arc corner", "world-space nonuniform in-plane scale", "3D asymmetric Chamfer"] },
+  "evidence": [
+    "Original bytes/history unchanged by previews and rejected commands",
+    "First/closing corners and acute/obtuse cosine-law checks; elevated XY/XZ/YZ rotation/reflection/scale and fixed unaffected world points",
+    "Unaffected arc bulge, analytic center/radius/sweep, topology and curve identities preserved",
+    "Incoming/outgoing edge dimensions and angle references retained; edge-bound midpoint refresh; real solid volume (200-3*7/2)*5 = 947.5 mm3",
+    "Consumed D1/D2, new self-intersection, degenerate/nonplanar input, adjacent arcs, source/downstream locks and stale Apply rejected atomically",
+    "Native browser discover/pick, unit input, Swap/Equal, independent canvas guide ratios, impact review, numeric error recovery, Cancel/focus, lock/input retention and canvas Enter",
+    "Result selected with subsequent CAD actions; one Undo/Redo and exact JSON reload"
+  ],
+  "performance": { "newLatencyBenchmark": "not run", "mainRawKBIncrease": 2.91, "viewportRawKBIncrease": 9.40, "scope": "Build size only; no real GPU, large-document, multi-user or practitioner-time claim" },
+  "remaining": ["B0-A requested follow-up", "B2-B line-arc and B2-C arc-arc corners", "Live corner recipe and sketch-owned corner editing", "3D transient impact mesh", "G6-A1 saved model views"]
+}

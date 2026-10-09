@@ -5,7 +5,7 @@ import type {
   DrawingTopologySegment,
 } from "../../../precision/drawingTopology";
 import { profileBulges, profileIsClosed, profileSegmentCount } from "../../../precision/profileGeometry";
-import { offsetCurvedProfile } from "./curvedOffset";
+import { offsetCurvedProfile, isSimpleCurvedProfile } from "./curvedOffset";
 import type { CadFeature, CadObject } from "@agent-webcad/cad-document";
 import { drawingPlaneOrientation, drawingPlaneScale, getWorldDrawingGeometry } from "../../../precision/worldGeometry";
 import { getObjectTransform } from "../../../precision/objectTransform";
@@ -120,15 +120,19 @@ export function editDrawingCornerParams(
   controlId: string,
   treatment: "fillet" | "chamfer",
   distance: number,
+  secondDistance?: number,
 ): Record<string, unknown> | null {
   const kind = String(source.kind ?? "");
   if (!(kind === "polyline" || kind === "rectangle") || !Number.isFinite(distance) || distance <= EPSILON || !Array.isArray(source.points)) return null;
   const points = source.points as Vec3[];
+  if (secondDistance !== undefined && (treatment !== "chamfer" || !Number.isFinite(secondDistance) || secondDistance <= EPSILON)) return null;
+  if (points.some(p => !Array.isArray(p) || p.length !== 3 || p.some(v => !Number.isFinite(v)))) return null;
   const topology = topologyOf(source);
   const control = topology?.controls.find((entry) => entry.id === controlId);
   if (!topology || control?.role !== "vertex" || control.index === undefined || points.length < 3) return null;
   const closed = profileIsClosed(kind, source);
   const index = control.index;
+  if (!points[index]) return null;
   if (!closed && (index === 0 || index === points.length - 1)) return null;
   const previousIndex = (index + points.length - 1) % points.length;
   const nextIndex = (index + 1) % points.length;
@@ -137,6 +141,8 @@ export function editDrawingCornerParams(
   if (Math.abs(bulges[previousSegmentIndex] ?? 0) > EPSILON || Math.abs(bulges[index] ?? 0) > EPSILON) return null;
 
   const plane = workPlaneId(source.workPlane);
+  const heightIndex = plane === "XZ" ? 1 : plane === "YZ" ? 0 : 2;
+  if (points.some(p => Math.abs(p[heightIndex] - points[index][heightIndex]) > EPSILON)) return null;
   const a = drawingPointToPlane(points[previousIndex], plane);
   const b = drawingPointToPlane(points[index], plane);
   const c = drawingPointToPlane(points[nextIndex], plane);
@@ -152,9 +158,10 @@ export function editDrawingCornerParams(
   const angle = Math.acos(Math.max(-1, Math.min(1, uPrevious[0] * uNext[0] + uPrevious[1] * uNext[1])));
   if (angle <= 1e-6 || Math.PI - angle <= 1e-6) return null;
   const setback = treatment === "fillet" ? distance / Math.tan(angle / 2) : distance;
-  if (!(setback > EPSILON) || setback >= previousLength - EPSILON || setback >= nextLength - EPSILON) return null;
+  const nextSetback = treatment === "chamfer" ? secondDistance ?? distance : setback;
+  if (!(setback > EPSILON) || setback >= previousLength - EPSILON || nextSetback >= nextLength - EPSILON) return null;
   const first2: Vec2 = [b[0] + uPrevious[0] * setback, b[1] + uPrevious[1] * setback];
-  const second2: Vec2 = [b[0] + uNext[0] * setback, b[1] + uNext[1] * setback];
+  const second2: Vec2 = [b[0] + uNext[0] * nextSetback, b[1] + uNext[1] * nextSetback];
   const elevation = plane === "XZ" ? points[index][1] : plane === "YZ" ? points[index][0] : points[index][2];
   const first = drawingPointFromPlane(first2, elevation, plane);
   const second = drawingPointFromPlane(second2, elevation, plane);
@@ -187,13 +194,11 @@ export function editDrawingCornerParams(
       startControlId: start.id,
       endControlId: end.id,
       index: edge,
-      kind: start.id === controlId && end.id === newControlId && treatment === "fillet" ? "arc" : "line",
+      kind: start.id === controlId && end.id === newControlId ? treatment === "fillet" ? "arc" : "line" : existing?.kind ?? "line",
     });
   }
-  const nextBulges = nextSegments.map((segment) => segment.id === cornerSegmentId ? cornerBulge : 0);
-  const projected = nextPoints.map((point) => drawingPointToPlane(point, plane));
-  if (closed && (Math.abs(signedArea(projected)) <= EPSILON || profileSelfIntersects(projected, true))) return null;
-  return {
+  const nextBulges = nextSegments.map((segment) => segment.id === cornerSegmentId ? cornerBulge : bulges[oldSegments.find(s => s.id === segment.id)?.index ?? -1] ?? 0);
+  const result = {
     ...structuredClone(source),
     kind: "polyline",
     points: nextPoints,
@@ -204,11 +209,33 @@ export function editDrawingCornerParams(
       controls: nextControls,
       segments: nextSegments,
       curves: [
-        ...topology.curves.filter((curve) => !oldSegments.some((segment) => segment.id === curve.id)),
+        ...topology.curves,
         ...(treatment === "fillet" ? [{ id: cornerSegmentId, kind: "arc" as const }] : []),
       ],
     },
   };
+  return isSimpleCurvedProfile("polyline", result) ? result : null;
+}
+
+/** The reviewed UI measures mm in world space; legacy commands keep model units. */
+export function editDrawingCornerForObject(object: CadObject, feature: CadFeature, controlId: string, treatment: "fillet" | "chamfer", distance: number, secondDistance?: number, distanceSpace?: "world") {
+  const plane = workPlaneId(feature.params.workPlane);
+  const scale = drawingPlaneScale(getObjectTransform(object, feature).scale, plane);
+  if (distanceSpace === "world" && !scale.uniform) throw new Error("Use uniform in-plane scale before setting world-space corner distances; nonuniform scale is unsupported.");
+  const factor = distanceSpace === "world" ? scale.magnitude : 1;
+  const d1 = distance / factor, d2 = (secondDistance ?? distance) / factor;
+  const points = feature.params.points as Vec3[] | undefined, control = topologyOf(feature.params)?.controls.find(c => c.id === controlId);
+  if (!points || control?.index === undefined || !points[control.index]) throw new Error("Select an internal corner point on a standalone polyline or rectangle.");
+  const i = control.index, count = points.length;
+  const corner = drawingPointToPlane(points[i], plane);
+  const length = (at: number) => Math.hypot(...subtract2(drawingPointToPlane(points[at], plane), corner));
+  if (treatment === "chamfer") {
+    if (d1 >= length((i + count - 1) % count) - EPSILON) throw new Error("D1 consumes the previous edge. Reduce the previous-edge distance.");
+    if (d2 >= length((i + 1) % count) - EPSILON) throw new Error("D2 consumes the next edge. Reduce the next-edge distance.");
+  }
+  const params = editDrawingCornerParams(feature.params, controlId, treatment, d1, secondDistance === undefined ? undefined : d2);
+  if (!params) throw new Error("Corner edit rejected: select a corner between two straight edges and reduce distances to avoid a degenerate or self-intersecting profile. Adjacent arcs are unsupported.");
+  return params;
 }
 
 /** Returns a replacement parameter object, or null for invalid/no-op edits. */

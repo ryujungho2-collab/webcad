@@ -3,7 +3,7 @@ import type { CommandBus, CadCommand } from "@agent-webcad/cad-commands";
 import {
   closeDrawingProfileParams,
   editDrawingControlParams,
-  editDrawingCornerParams,
+  editDrawingCornerForObject,
   editDrawingSegmentParams,
   offsetDrawingForObject,
 } from "../geometry/drawingOperations";
@@ -108,9 +108,9 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
     if (command.type !== "edit-drawing-corner") return;
     const object = editableObject(command.objectId);
     const feature = featureForObject(command.objectId);
-    if (!object?.visible || !feature || feature.type !== "drawing" || feature.params.sketchId) return;
-    const params = editDrawingCornerParams(feature.params, command.controlId, command.treatment, command.distance);
-    if (!params) return;
+    if (!object?.visible || !feature || feature.type !== "drawing") throw new Error("Show and unlock the corner's drawing layer before editing.");
+    if (feature.params.sketchId || feature.pattern || feature.construction) throw new Error("Edit this corner through its owning sketch, pattern source or construction definition.");
+    const params = editDrawingCornerForObject(object, feature, command.controlId, command.treatment, command.distance, command.secondDistance, command.distanceSpace);
     object.transform = drawingTransformAfterEdit(object, feature, params);
     feature.params = params;
     document.revision += 1;

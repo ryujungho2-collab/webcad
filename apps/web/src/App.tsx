@@ -293,6 +293,7 @@ export function App() {
   }
 
   function clearCommandTools(resetSelectionMode = true) {
+    setCornerPreview(null);
     setConstraintReviewReset(v=>v+1);setConstraintReview(undefined);
     setConstructionSession(null);
     setCurveSession(null);
@@ -398,6 +399,14 @@ export function App() {
     setViewAction({ id: viewActionId.current, type, artboardId });
   }
 
+  const clearCommandToolsRef = useRef(clearCommandTools);
+  clearCommandToolsRef.current = clearCommandTools;
+  const handleCornerPreview = useCallback((request: CornerPreviewRequest | null) => {
+    if (request?.review) clearCommandToolsRef.current(false);
+    // Hover cleanup must not cancel a retained, reviewed corner session.
+    setCornerPreview(current => current?.review && !request?.review ? current : request);
+  }, []);
+
   function activateArtboard(id: string | null) {
     if (!id) { setActiveArtboardId(null); return; }
     const board = cadDocument.artboards?.[id];
@@ -453,6 +462,7 @@ export function App() {
   }
 
   function resetWorkspaceSelection() {
+    setCornerPreview(null);
     setActiveSketchId(null);
     lastDuplicate.current = null;
     setSelection({ ids: [], primaryId: null });
@@ -1499,7 +1509,7 @@ export function App() {
       offsetActive={offsetActive}
       onOffsetStart={activateOffsetTool}
       onOffsetCancel={() => setOffsetActive(false)}
-      onCornerPreview={setCornerPreview}
+      onCornerPreview={handleCornerPreview}
       onFilletPreview={setFilletPreview}
       onChamferPreview={setChamferPreview}
     />
@@ -1790,6 +1800,8 @@ export function App() {
           onOffsetCommit={(side) => { setOffsetSide(side); setOffsetActive(false); void commitOffsetFromViewport(side); }}
           onOffsetCancel={() => setOffsetActive(false)}
           cornerPreview={cornerPreview}
+          onCornerClose={() => setCornerPreview(null)}
+          onCornerApplied={ids => { syncRevision(); selectObject(ids[0] ?? null); }}
           filletPreview={filletPreview}
           chamferPreview={chamferPreview}
           copilotPreview={copilotPreviewVisible ? copilotPlan?.ghosts ?? null : null}

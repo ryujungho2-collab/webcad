@@ -29,6 +29,9 @@ export function commandInteraction(input: InteractionInput) {
 export type CommandInteraction = ReturnType<typeof commandInteraction>;
 
 export function interactionRecovery(reason: string): string[] {
+  if (/D[12].*consumes/i.test(reason)) return ["Reduce the named setback distance so part of its assigned edge remains, then review again."];
+  if (/nonuniform.*scale|uniform.*scale/i.test(reason)) return ["Use equal scale magnitudes on both axes of the drawing plane, then review the world distances again."];
+  if (/adjacent arcs/i.test(reason)) return ["Choose a corner between two straight edges. Other arcs in the contour are preserved."];
   if (/locked|unlock/i.test(reason)) return [/artboard/i.test(reason) ? "Unlock the selected board in Artboards, then review again." : "Unlock the named output layer in Layers, then review again."];
   if (/branch|intersection.*exist/i.test(reason)) return ["Choose the result edge containing the saved intersection, or select the other intersection branch."];
   if (/sketch.*conflict|constraint/i.test(reason)) return ["Choose points or edges that preserve the driving value. Inspect the named constraint in Edit Sketch."];
