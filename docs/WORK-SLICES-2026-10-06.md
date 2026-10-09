@@ -1,6 +1,6 @@
 # 작업 범위 분할과 재시작 계약
 
-**현재 실행 순서(2026-10-09):** G5-B2 단일 2D Move 후 **CAD B2-A1 두 윤곽 / B2-A2 내부 코너의 D1/D2 모따기**를 구현했다. [내부 코너의 지원 범위·검수·한계](implementation/B2-A2-INTERNAL-CHAMFER-2026-10-09.md)를 따른다. 사용자의 다음 요청은 **B0-A 기본 선택/입력/그립/반복 결함 한 종류 검수·수정**이다. 동일 모델의 도면 목표는 별도 **G6-A1 모델 뷰 저장 계약**부터 시작한다. 2차는 아트보드·벡터/이미지·프로토타입·슬라이드·LLM 통합이다. 아래 B1 당시 B2 후보는 이력이다. 최신 실행 우선순위는 [NEXT-STEPS](../NEXT-STEPS.md)가 소유한다.
+**현재 실행 순서(2026-10-09):** G5-B2 단일 2D Move 후 **CAD B2-A1 두 윤곽 / B2-A2 내부 코너의 D1/D2 모따기**를 구현했다. [내부 코너의 지원 범위·검수·한계](implementation/B2-A2-INTERNAL-CHAMFER-2026-10-09.md)를 따른다. **B0-A 컨트롤 Enter/Space ownership 결함 한 종류**를 수정했다. [native 조작·숫자 grip·반복/History 검수와 한계](implementation/B0-A-KEYBOARD-ACTIVATION-2026-10-09.md)를 따른다. 다음 조작 후보 B0-B는 별도 요청으로 실행한다. 동일 모델의 도면 목표는 별도 **G6-A1 모델 뷰 저장 계약**부터 시작한다. 2차는 아트보드·벡터/이미지·프로토타입·슬라이드·LLM 통합이다. 아래 B1 당시 B2 후보는 이력이다. 최신 실행 우선순위는 [NEXT-STEPS](../NEXT-STEPS.md)가 소유한다.
 
 **2026-10-09 마감:** G5-B1을 재개해 선택/명시적 target Query·잠금/오류·취소/context·수동 인계와 문서 게시 직후 버전 경합을 검수했다. 새 Node 8개/browser 35 checks 포함 **651 Node / 39 browser·834 checks / 318 module guard / 타입·build** 통과. [B1 구현·지원 경계](implementation/G5-B1-COPILOT-QUERY-2026-10-09.md), [마감 증거](verification/G5-B1-CLOSEOUT-2026-10-09.json)를 따른다. 이전 checkpoint는 중단 당시 기록으로 보존한다. 다음 B2·G6는 시작하지 않았다.
 

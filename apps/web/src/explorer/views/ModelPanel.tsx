@@ -83,6 +83,8 @@ export function ModelPanel({ query, selectedObjectId, selectedObjectIds, onSelec
           className={`tree-row tree-row-model${selectedObjectIds.includes(object.id) ? " tree-row-selected" : ""}${selectedObjectId === object.id ? " tree-row-primary" : ""}${!object.visible || layer?.visible === false ? " tree-row-hidden" : ""}`}
           onClick={(event) => onSelectObject(object.id, event.shiftKey || event.ctrlKey || event.metaKey)}
           onKeyDown={(event) => {
+            // Nested visibility/source buttons own their native activation.
+            if (event.target !== event.currentTarget) return;
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault();
               onSelectObject(object.id, event.shiftKey || event.ctrlKey || event.metaKey);

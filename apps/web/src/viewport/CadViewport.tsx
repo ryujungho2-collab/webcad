@@ -468,7 +468,7 @@ export function CadViewport({
     };
     const dismissOnWheel = () => setContextMenu(null);
     const dismissOnEscape = (event: KeyboardEvent) => {
-      if (isCadKeyboardBlocked(event.target)) return;
+      if (isCadKeyboardBlocked(event.target, event.key)) return;
       if (event.key === "Escape") setContextMenu(null);
     };
     window.addEventListener("pointerdown", dismissOnPointerDown, true);
@@ -1511,7 +1511,7 @@ export function CadViewport({
 
     function handleDirectKeyDown(event: KeyboardEvent) {
       if(event.key==="Tab"&&!event.shiftKey&&!event.ctrlKey&&!event.altKey&&!event.metaKey&&event.target===renderer.domElement&&directSelectModeRef.current&&!directDrag&&!directSessionRef.current&&!targetChoiceRef.current){const first=host?.parentElement?.querySelector<SVGRectElement>('.direct-edit-handles [data-direct-handle][tabindex="0"]');if(first){event.preventDefault();event.stopImmediatePropagation();first.focus();return;}}
-      if (isCadKeyboardBlocked(event.target)) return;
+      if (isCadKeyboardBlocked(event.target, event.key)) return;
       if (!directDrag) return;
       if(event.ctrlKey||event.metaKey||event.altKey)return;
       if (event.key !== "Escape" && event.key !== "Enter" && !/^[0-9.,+\-a-z]$/i.test(event.key) && event.key !== "Backspace") return;
@@ -2756,7 +2756,7 @@ export function CadViewport({
       showCursorTag(e.clientX, e.clientY, `DISTANCE · ${label}`);
     };
     const onDown = (e: PointerEvent) => { if (e.button !== 0) return; const p = worldPoint(e); if (!p) return; const exact = snapPoint(p); if (!first) { first = exact; update(exact); } else { onDistanceMeasure?.(measurePoints(first, exact, activeWorkPlane)); first = null; hover = null; setToolReadout("DISTANCE · measured"); } };
-    const onKey = (e: KeyboardEvent) => { if (isCadKeyboardBlocked(e.target)) return; if (e.key === "Escape") { e.preventDefault(); first = null; setToolReadout("DISTANCE · cancelled"); } };
+    const onKey = (e: KeyboardEvent) => { if (isCadKeyboardBlocked(e.target, e.key)) return; if (e.key === "Escape") { e.preventDefault(); first = null; setToolReadout("DISTANCE · cancelled"); } };
     renderer.domElement.addEventListener("pointermove", onMove); renderer.domElement.addEventListener("pointerdown", onDown); window.addEventListener("keydown", onKey, true);
     return () => { renderer.domElement.removeEventListener("pointermove", onMove); renderer.domElement.removeEventListener("pointerdown", onDown); window.removeEventListener("keydown", onKey, true); scene.remove(line); line.geometry.dispose(); (line.material as THREE.Material).dispose(); controls.enabled = true; hideCursorTag(); };
   }, [measurementTool, activeWorkPlane, snapEnabled, onDistanceMeasure]);
@@ -3036,7 +3036,7 @@ export function CadViewport({
     }
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (isCadKeyboardBlocked(event.target)) return;
+      if (isCadKeyboardBlocked(event.target, event.key)) return;
       if (event.ctrlKey || event.metaKey) return;
       if (event.key === "Alt") { suppressAutomaticConstraints = true; setToolReadout("Auto constraints suppressed · release Alt to restore"); return; }
       if (event.key === "Escape") {
@@ -3563,7 +3563,7 @@ export function CadViewport({
       onOffsetCommit?.(side);
     };
     const onKey = (event: KeyboardEvent) => {
-      if (isCadKeyboardBlocked(event.target)) return;
+      if (isCadKeyboardBlocked(event.target, event.key)) return;
       if (event.key !== "Escape") return;
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -3651,7 +3651,7 @@ export function CadViewport({
       if (hover) onLineEditCommitRef.current?.(lineEditTool, hover.targetId, hover.pickPoint);
     };
     const onKey = (event: KeyboardEvent) => {
-      if (isCadKeyboardBlocked(event.target)) return;
+      if (isCadKeyboardBlocked(event.target, event.key)) return;
       if (event.key !== "Escape") return;
       event.preventDefault();
       event.stopImmediatePropagation();

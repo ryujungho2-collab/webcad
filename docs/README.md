@@ -8,6 +8,7 @@
 
 | 목적 | 문서 |
 | --- | --- |
+| CAD B0-A 키 소유권·반복·숫자 grip | [포커스된 버튼의 native activation·대상별 workflow·제한](implementation/B0-A-KEYBOARD-ACTIVATION-2026-10-09.md), [마감 증거](verification/B0-A-CLOSEOUT-2026-10-09.json) |
 | 1차/2차 제품 목표 | [1차 건축·기계 CAD / 2차 아트보드·제작·LLM](product/ARCHITECTURE-MECHANICAL-MILESTONE.md) |
 | CAD B2-A1/A2 기본 수정 공백 | [두 독립 윤곽의 D1/D2·Join](implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md), [내부 코너 D1/D2·공통 review·원호/참조 보존·관계 갱신](implementation/B2-A2-INTERNAL-CHAMFER-2026-10-09.md), [A2 마감 증거](verification/B2-A2-CLOSEOUT-2026-10-09.json) |
 | 현재 범위 분할·재시작 프롬프트 | [각도 C1–C3·G5-A/B1·B2 첫 범위 / 다음 G6-A1 모델 뷰 계약](WORK-SLICES-2026-10-06.md) |

@@ -145,7 +145,7 @@ export function PointTransformTool(props: Props) {
       else void finish(point, mode === "rotate" ? angleOf(point) : 0);
     };
     const key = (event: KeyboardEvent) => {
-      if (isCadKeyboardBlocked(event.target) || event.ctrlKey || event.metaKey || pending) return;
+      if (isCadKeyboardBlocked(event.target, event.key) || event.ctrlKey || event.metaKey || pending) return;
       if (event.key === "Alt") { event.preventDefault(); suppressed = true; refresh(); return; }
       if (event.altKey) return;
       if (event.key === "Escape") {

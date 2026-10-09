@@ -31,6 +31,7 @@ try {
   pages.push("copilotEdit");
   pages.push("asymmetricChamfer");
   pages.push("internalChamfer");
+  pages.push("keyboardActivation");
   const selected=process.argv.find(value=>value.startsWith("--page="))?.slice(7);
   const sessionCount=process.argv.find(value=>value.startsWith("--session-count="))?.slice(16)??"0";
   if(!["0","1000"].includes(sessionCount)||sessionCount!=="0"&&selected!=="sessionContinuity")throw new Error("Invalid session fixture count");
@@ -49,7 +50,7 @@ try {
     const closeInput = registerBrowserInput(run, profile, targetUrl);
     const child = spawn(executable, ["--headless", "--no-first-run", "--no-default-browser-check", "--disable-background-networking", "--remote-debugging-port=0", "--remote-debugging-address=127.0.0.1",
       ...(executable.toLowerCase().includes("msedge") ? ["--edge-skip-compat-layer-relaunch"] : []),
-      ...(["copilotEdit","asymmetricChamfer","internalChamfer"].includes(page) ? ["--window-size=1440,1000"] : []),
+      ...(["copilotEdit","asymmetricChamfer","internalChamfer","keyboardActivation"].includes(page) ? ["--window-size=1440,1000"] : []),
       ...(["commandExperience","canvasIntent","directEditExperience","constrainedDrag","directTargetExperience","editPerformance","patternsWorkflow","contourWorkflow","basicEditWorkflow","dependencyWorkflow","constructionWorkflow","extendedCadWorkflow","curveWorkflow","contourTrimWorkflow","interactionRelations","angularWorkflow","artboardsWorkflow","componentsWorkflow","imageWorkflow","tiffImportWorkflow","imageSourceWorkflow","artboardPngWorkflow","artboardPdfWorkflow","imageResources","scenesWorkflow","dxfWorkflow","copilotGateway","copilotContext","copilotApply","copilotQuery","sessionContinuity","historySelection"].includes(page) ? ["--window-size=1440,1000"] : []),
       "--use-angle=swiftshader", "--enable-unsafe-swiftshader", `--user-data-dir=${profile}`,
       targetUrl], { stdio: "ignore", windowsHide: true });

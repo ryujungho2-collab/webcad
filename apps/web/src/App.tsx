@@ -1356,7 +1356,7 @@ export function App() {
       action === "undo" ? handleUndo() : handleRedo();
     }
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.defaultPrevented || isCadKeyboardBlocked(event.target)) return;
+      if (event.defaultPrevented || isCadKeyboardBlocked(event.target, event.key)) return;
       if(patternSession){if(event.key==="Escape"){event.preventDefault();setPatternSession(null);}return;}
       if (extrusion) { if(event.key === "Escape") {event.preventDefault();cancelExtrusion();} return; }
       if (event.key === "F3") { event.preventDefault(); setSnapEnabled((value) => !value); return; }

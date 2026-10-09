@@ -92,7 +92,7 @@ export function DirectEditReview({session,project,style,hasSketchOverlay,inspect
   async function apply(){if(!ready||!review)return;setApplying(true);try{const result=await applyCadPlan(review.plan.planId);if(result.ok){onApplied();onClose();}else setError(result.reason??"Edit rejected.");}catch(cause){setError(cause instanceof Error?cause.message:"Edit rejected.");}finally{setApplying(false);}}
   applyRef.current=()=>{void apply();};
   useEffect(()=>{const key=(event:KeyboardEvent)=>{
-    if(session.phase!=="review"||isCadKeyboardBlocked(event.target)||applying||(!["Enter","Escape"].includes(event.key)))return;
+    if(session.phase!=="review"||isCadKeyboardBlocked(event.target,event.key)||applying||(!["Enter","Escape"].includes(event.key)))return;
     event.preventDefault();event.stopImmediatePropagation();if(event.key==="Escape")closeRef.current();else applyRef.current();
   };window.addEventListener("keydown",key,true);return()=>window.removeEventListener("keydown",key,true);},[session.phase,applying]);
   function editCoordinate(index:number,value:string){const next=[...coordinates];next[index]=value;setCoordinates(next);const parsed=next.map(v=>parseLength(v));if(parsed.every((v):v is number=>v!==null))setOverride(adjustDirectRequest(cadDocument,request,parsed[0],parsed[1]));}

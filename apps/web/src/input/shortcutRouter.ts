@@ -13,9 +13,12 @@ export function isTextEditingTarget(target: EventTarget | null): boolean {
 }
 
 /** Modal commands and editors own their keystrokes, even during a CAD tool. */
-export function isCadKeyboardBlocked(target: EventTarget | null): boolean {
+export function isCadKeyboardBlocked(target: EventTarget | null, key?: string): boolean {
   return isTextEditingTarget(target)
-    || (target instanceof Element && Boolean(target.closest('dialog[open], [data-cad-editor], .sketch-overlay')));
+    || (target instanceof Element && (Boolean(target.closest('dialog[open], [data-cad-editor], .sketch-overlay'))
+      // Keep native button/link/disclosure activation and role-button handlers.
+      // Other CAD chords, including save/history, retain their existing scope.
+      || (key === "Enter" || key === " ") && Boolean(target.closest('button, a[href], summary, [role="button"], [role="menuitem"], [role="tab"], [role="checkbox"], [role="switch"]'))));
 }
 
 /** History belongs to the document even when a tool control has focus.

@@ -1,5 +1,7 @@
 # 기본 CAD 기능 기준과 현재 공백
 
+2026-10-09 **B0-A**: 포커스된 Explorer/Ribbon 컨트롤의 Enter/Space가 행 선택·CAD 명령 반복과 충돌하던 결함을 수정했다. 캔버스 반복, 숫자 grip의 정확한 Apply/Cancel·포커스 복원, 문서 Undo/Redo는 유지한다. [대상별 native browser 검수·지원 경계](../implementation/B0-A-KEYBOARD-ACTIVATION-2026-10-09.md). 단위/좌표/drag 일치는 B0-B, 표시·잠금·출력 의미는 B0-C 후속이다.
+
 2026-10-09: **B2-A1 두 독립 윤곽**에 이어 **B2-A2 내부 직선 코너의 두 거리 모따기**를 구현했다. D1/D2 단위·Swap/Equal·거리선·공통 Review/Apply·입력 유지/복구·결과 인계를 제공한다. [내부 코너의 치수/작도/돌출·원호/ID 보존·검수·한계](../implementation/B2-A2-INTERNAL-CHAMFER-2026-10-09.md), [두 윤곽 Join 인계](../implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md)를 따른다. Sketch 소유·인접 호·3D 비대칭 모따기는 남는다.
 
 2026-10-08 구현 갱신: 일반 각도 치수 **B3-C1–C3**의 두 straight edge·명시적 측정 가지·live 참조/Trim·Join 재연결·v14·캔버스 선택/반지름 핸들/검토·DXF/SVG/PDF 출력을 구현했다. [계산 근거](../implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md)와 [실제 workflow·제한](../implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)을 따른다. 기존 **B3-A1/A2 DXF bulge 왕복과 B3-B 일반 지름 치수**는 [지원·browser 근거](../implementation/G4-CAD-BASICS-2026-10-06.md)를 유지한다. B0–B5/X의 나머지 카드는 [CAD 구현 단위 설계](CAD-BASICS-IMPLEMENTATION-PLAN.md)를 따른다.

@@ -38,6 +38,7 @@
 
 | 고치려는 문제 | 우선 수정 위치 | 바뀌는 동작 / 함께 확인할 경계 |
 | --- | --- | --- |
+| 버튼 Enter/Space가 행 선택·CAD 반복으로 흘러감 | `input/shortcutRouter.ts`, `explorer/views/ModelPanel.tsx`, `App.tsx`, `viewport/CadViewport.tsx`, `PointTransformTool.tsx`, `DirectEditReview.tsx` | 키별 native activation ownership, 행 자체 선택, canvas repeat와 numeric form, 별도 History scope. [B0-A 실제 브라우저 회귀](../implementation/B0-A-KEYBOARD-ACTIVATION-2026-10-09.md) |
 | 이미지 import·원본 교체·외부 결과 인계 | `interop/rasterImport.ts`, `integrations/photopea/*`, `state/imageCommands.ts`, `properties/ImageInspector.tsx`, `viewport/imageRenderer.ts` | decoder/MIME/한도 통일, 공유 source 보존·asset GC, detached source preview·Cancel·한 Undo·serialization/export/Scene 연결 |
 | 장면 배치·state/link·원본 선택·SVG pose 출력 | `explorer/views/ScenesPanel.tsx`, `scenes/sceneEvaluation.ts`, `ScenePlayer.tsx`, `state/sceneCommands.ts`, `packages/cad-document/src/Scene.ts` | CAD 원본 identity, draft/baseline·revision, 숨김 layout collapse·target state, 같은 평가 결과의 출력. component variant·원본 transform과 구별 |
 | DXF 입력·원호 정확도·단위·제외·Apply | `interop/dxfParser.ts`, `dxfImport.ts`, `dxfWriter.ts`, `DxfReviewDialog.tsx`, `App.tsx` | ordered vertex/bulge·exact control vertex·selected component closure, detached review·subset 수락·stale·한 Undo·실제 파일 왕복 |

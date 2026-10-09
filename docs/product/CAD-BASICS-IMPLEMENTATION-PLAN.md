@@ -68,7 +68,7 @@
 
 | ID | 한 번에 끝낼 사용자 결과 | 완료 검사 / 경계 |
 | --- | --- | --- |
-| B0-A | 선택→숫자/그립→Enter/Esc→반복→Undo 흐름의 기존 결함을 재현하고 한 종류 수정 | 일반/sketch/pattern/component 대상의 차이, 겹친 선택, 잠금, 입력 focus를 실제 browser에서 확인. 새 전역 UI 재작성 제외 |
+| B0-A | 완료: 포커스된 컨트롤의 Enter/Space를 행 선택·CAD 반복이 가로채던 결함 한 종류 수정 | [실제 21개 native browser 검사](../implementation/B0-A-KEYBOARD-ACTIVATION-2026-10-09.md): 일반/sketch/pattern/component, 겹친 행 선택, 잠금, 숫자 grip 오류/Apply/Cancel, 반복·Undo/Redo. 기본 조작 전체 완료를 의미하지 않음 |
 | B0-B | 길이/각도/상대·극좌표 입력과 drag가 같은 계산 결과를 만들기 | 빈 값·입력 중 부호·단위·범위·반올림, XY/XZ/YZ. 기존 parser 재사용, 적용 전 값 덮어쓰기 금지 |
 | B0-C | 해치·문자·선두께·보조 형상의 보이기/잠금/출력 의미 정리 | Layer와 construction visibility를 혼동하지 않음. 현재 object order/selection/hit-test·출력 과제로 한 결함씩 처리 |
 

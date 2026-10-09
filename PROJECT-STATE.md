@@ -4,6 +4,12 @@
 
 ## 최신 통합 구현·검수 상태
 
+**CAD B0-A의 기존 조작 결함 한 종류를 수정했다.** Explorer 자식 버튼의 Enter/Space가 부모 행 선택과 충돌하고, Ribbon activation이 마지막 CAD 명령 반복으로 흐르던 문제를 native 브라우저에서 재현했다. 공통 키 판정과 행 이벤트 ownership을 수정해 컨트롤 activation·캔버스 반복·숫자 grip의 Enter/Esc·비텍스트 포커스의 문서 Undo/Redo를 유지한다. [실제 workflow·지원 경계](docs/implementation/B0-A-KEYBOARD-ACTIVATION-2026-10-09.md), [검증 증거](docs/verification/B0-A-CLOSEOUT-2026-10-09.json)를 따른다. 단위/좌표/drag 일치 B0-B와 표시/잠금/출력 B0-C는 후속이다.
+
+B0-A만 분리한 검증 복사본에서 **677 Node / 54 suites / fail·skip 0**, architecture **327 modules**, workspace production build가 통과했다. 전체 **43 browser workflows / 916 checks**(신규 native keyboard 21)와 직접 타입 검사가 통과했다. 같은 저장소의 다른 채팅에서 휠/단축키를 변경 중이어서 동시 작업을 이 검증·커밋에 섞지 않는다. serialization **v14 유지**. main **1,062.25 kB / gzip 320.75 kB**, viewport **628.65 kB / gzip 171.17 kB**, WASM **50,305.13 kB**이며 기존 >500 kB 경고 유지. 새 latency benchmark는 없다.
+
+## 직전 B2-A2 내부 코너 구현·검수
+
 **CAD B2-A2 내부 코너의 D1/D2 비대칭 모따기를 완료했다.** 이전/다음 변의 단위 입력·Swap/Equal·캔버스 거리선·공통 Review/Apply·오류/잠금 입력 유지·수정 contour 선택과 다음 CAD 작업을 연결했다. 비편집 bulge 원호가 직선으로 바뀌던 문제를 수정했다. 안정된 edge/control ID와 연관 일반 치수·각도·작도·돌출을 한 transaction에서 갱신한다. [실제 범위·workflow·한계](docs/implementation/B2-A2-INTERNAL-CHAMFER-2026-10-09.md), [마감 증거](docs/verification/B2-A2-CLOSEOUT-2026-10-09.json)를 따른다. 직전 [B2-A1 두 독립 윤곽](docs/implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md)은 유지한다.
 
 최종 **677 Node / 54 suites / fail·skip 0**, **42 browser workflows / 895 checks**(신규 내부 코너 18), 타입·architecture/import·문서 링크 **328 modules**, workspace production build 통과. v14 저장·재로드, preview 원본 불변성·거리 소모/교차/잠금/경합 실패·한 Undo/Redo를 검사했다. 로그는 `output-b2-a2-node.log`, `output-b2-a2-browser-full.log`, `output-b2-a2-build.log`(apps/web 기준)다. main **1,062.06 kB**, viewport **630.43 kB**, WASM **50,305.13 kB**이며 기존 >500 kB 경고는 남는다. 이번 새 대형 문서 benchmark는 없다. 다음 요청은 **B0-A 기존 선택/입력/그립/반복 결함 한 종류 검수·수정**이다. G6-A1 모델 뷰 저장 계약은 별도 미구현이다.

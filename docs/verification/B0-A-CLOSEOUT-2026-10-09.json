@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "baseline": "a57a6ac",
+  "scope": "B0-A: focused control native activation ownership versus CAD repeat and point/grip review",
+  "verificationTree": "HEAD a57a6ac plus only B0-A changes; isolated temporary copy, existing installed dependencies reused; separate Vite cache and fs allow for that dependency location",
+  "node": {
+    "tests": 677,
+    "suites": 54,
+    "passed": 677,
+    "failed": 0,
+    "skipped": 0,
+    "newTests": 0,
+    "log": "output/b0-a-node-2026-10-09.log"
+  },
+  "browser": {
+    "status": "passed",
+    "newWorkflow": "keyboardActivation",
+    "environment": "Edge headless native CDP keyboard/pointer, SwiftShader, real App/React/Worker",
+    "workflows": 43,
+    "checks": 916,
+    "newWorkflowChecks": 21,
+    "log": "output/b0-a-browser-2026-10-09.log",
+    "focusedLog": "output/b0-a-focused-2026-10-09.log"
+  },
+  "architecture": {
+    "passed": true,
+    "modules": 327,
+    "documentationLinks": true,
+    "log": "output/b0-a-architecture-2026-10-09.log"
+  },
+  "typecheck": "passed: pnpm --filter @agent-webcad/web exec tsc -b",
+  "build": {
+    "workspace": "passed",
+    "mainRawKB": 1062.25,
+    "mainGzipKB": 320.75,
+    "viewportRawKB": 628.65,
+    "viewportGzipKB": 171.17,
+    "kernelWasmRawKB": 50305.13,
+    "kernelWasmGzipKB": 13955.45,
+    "existingLargeChunkWarning": true,
+    "log": "output/b0-a-build-2026-10-09.log"
+  },
+  "serialization": "v14 unchanged; no model/schema change",
+  "performance": {
+    "newLatencyBenchmark": "not run",
+    "scope": "Build sizes only; no GPU, large document, multi-user or practitioner performance claim"
+  },
+  "before": "Native Enter on nested Hide button is intercepted by the model row; ribbon activation competes with last command repeat",
+  "evidence": [
+    "Focused control Enter/Space activates that control once; row itself retains keyboard selection",
+    "Canvas Enter repeats precision Move; active Move preserves its base stage when a focused Fit button is activated",
+    "Nontext control Ctrl+Z/Y retains document history ownership",
+    "Drawing/sketch/pattern member/component visibility preserves references and definitions",
+    "Locked layer activation preserves document/history and does not trigger fallback repeat",
+    "Component numeric Move changes placement only",
+    "Invalid grip input plus Enter preserves document/history and exposes error; valid 5 mm radius updates driver exactly once",
+    "Esc cancels a new grip proposal and restores grip focus"
+  ],
+  "remaining": [
+    "B0-B unit/relative/polar/drag consistency",
+    "B0-C visibility/lock/output semantics",
+    "Other concurrent chat's wheel/shortcut changes require its own verification",
+    "All control/input/accessibility combinations are not exhaustively verified"
+  ],
+  "beforeLog": "apps/web/output-b0-a-before.log"
+}
