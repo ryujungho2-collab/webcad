@@ -1,5 +1,7 @@
 # WebCAD 통합 제작 제품 방향
 
+2026-10-09 우선순위: **건축·기계 CAD가 1차 목표**, 이 문서의 **아트보드·벡터/이미지·프로토타입·슬라이드·LLM 통합은 2차 목표**다. [목표·완료 workflow](ARCHITECTURE-MECHANICAL-MILESTONE.md)를 따른다. 이미 구현한 제작 기능을 유지하고 CAD 도면 출력에 필요한 기반은 재사용한다. 아래 장기 설계는 유지하되 실행 순서는 NEXT-STEPS를 따른다.
+
 갱신일: 2026-10-05
 
 문서 역할: 통합 UI와 제작 기능의 목표·설계 원칙을 기록한다. 아래 ToolSession/RasterAsset/ImageNode/Scene/Timeline과 어댑터 도식은 계획을 포함한다. 실제 구현과 검증은 [PROJECT-STATE](../../PROJECT-STATE.md), 실제 수정 위치와 현재/목표 차이는 [CHANGE-GUIDE](../architecture/CHANGE-GUIDE.md), 다음 실행 순서는 [NEXT-STEPS](../../NEXT-STEPS.md)를 따른다.

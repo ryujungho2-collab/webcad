@@ -1,5 +1,15 @@
 # 다음 작업
 
+## 현재 우선순위 — 1차 건축·기계 CAD
+
+2026-10-09 사용자 목표: **1차는 동일 모델의 건축·기계 도면, 지름/길이 수치 편집, 저장 뷰와 분해도**다. **2차는 아트보드·벡터/이미지 편집·프로토타입·슬라이드·LLM 통합**이다. 기존 구현은 유지한다. [목표·기반/공백·구현 분할·완료 workflow](docs/product/ARCHITECTURE-MECHANICAL-MILESTONE.md)를 따른다.
+
+**다음 구현은 G6-A1 모델 뷰 저장 계약**이다. 이어 G6-A2 뷰 UI → 수치 편집 pilot → 부품/분해 표현 → 연관 정투영/건축 단면 → 시트·치수·출력 → 두 분야 전체 검수를 작은 요청으로 진행한다. 외부 환경 없이 현재 CAD에서 시작한다. 사용자가 별도로 요청한 **G5-B2는 단일 2D Move로 구현**했으며 [지원 계약·검수 기록](docs/implementation/G5-B2-COPILOT-MOVE-2026-10-09.md)을 따른다. 그 밖의 편집 command 확대와 실제 LLM 연결은 2차 후속이다. G6-A1은 아직 시작하지 않았다.
+
+## 이전 구현·검수 기록
+
+**2026-10-09: 별도로 요청한 G5-B2 단일 2D Move를 완료했다.** 새 Node 8개와 native browser Move 25 checks를 포함한 전체 **659 Node / 54 suites**, **40 browser workflows / 859 checks**, 타입·architecture **321 modules**·workspace build 통과. [지원 범위·발견/수정·사용자 workflow](docs/implementation/G5-B2-COPILOT-MOVE-2026-10-09.md), [검수 요약](docs/verification/G5-B2-CLOSEOUT-2026-10-09.json)을 따른다. 다른 편집 명령과 실제 provider는 자동 확대하지 않았다. 다음은 위 G6-A1이다.
+
 **2026-10-09: G5-B1 구현·전체 검수를 완료했다.** local Read selection/명시적 Read target, 측정·관계·잠금/오류·취소/context·수동 인계와 문서 게시 직후 재조회 경합을 검수했다. 전체 **651 Node / 54 suites**, **39 browser workflows / 834 checks**, 타입·architecture/import·문서 링크 **318 modules**·workspace build 통과. [B1 구현과 지원 경계](docs/implementation/G5-B1-COPILOT-QUERY-2026-10-09.md), [마감 증거](docs/verification/G5-B1-CLOSEOUT-2026-10-09.json)를 따른다. 다음 후보는 별도 요청의 **G5-B2: 기존 편집 명령 한 종류**다. 현재 allowlist와 실제 provider 연결은 확대하지 않았다.
 
 이전 전체 기준선(2026-10-08): **G5-A1–A3 검수와 일반 각도 치수 B3-C1–C3를 완료했다.** Apply의 게시 전 취소·context 재검증·잠금/부분 실패·만료 복구·결과 인계는 [A3 기록](docs/implementation/G5-A3-COPILOT-APPLY-2026-10-08.md), 두 source/edge 치수와 v14는 [C2/C3 기록](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)을 따른다. 최신 전체 Node **643개**, browser **38 workflows / 799 checks**, 타입·architecture **313 modules**·workspace build가 통과했다. 현재 B1 검수와 후속 B2 편집 명령 한 종류 확대를 구분한다. 실제 provider 연결은 준비되지 않았다. CAD의 다음 확장 후보는 B3-A3 OCS/기울어진 DXF와 B/X 카드다. Pro 한도의 약 15% 단위 분할은 [작업 분할](docs/WORK-SLICES-2026-10-06.md)을 따른다.
@@ -52,7 +62,7 @@ Photopea 관련 요청의 최초 TIFF 도입은 Node 596개·TIFF browser 9개·
 
 ## 이후 순서
 
-G4 첫 범위·CAD DXF/지름·각도 C1–C3와 **G5-A1–A3 및 B1**을 완료했다. 다음 요청에서 **G5-B2**의 편집 후보 한 종류를 조사하고 target/ownership/잠금·단위·Preview/Apply 계약을 먼저 좁힌다. 한 번에 모든 command를 열지 않는다. CAD 확장을 다시 선택하면 B3-A3 OCS/기울어진 DXF와 B/X 카드의 선행 조건을 평가한다. component override/variant·직접 layout handle과 PPTX/GIF, 이미지 I2–I5, G6 및 나머지 CAD B/X는 [통합 계획](docs/product/CREATIVE-REUSE-IMPLEMENTATION-PLAN.md)과 [작업 분할](docs/WORK-SLICES-2026-10-06.md)의 독립 카드로 남긴다.
+G4 첫 범위·CAD DXF/지름·각도 C1–C3와 **G5-A1–A3 및 B1**을 완료했다. 다음 구현은 위 1차 목표의 **G6-A1**이다. G5-B2 편집 명령 한 종류 확대, component override/variant·직접 layout handle과 PPTX/GIF, 이미지 I2–I5는 2차 대기열로 보존한다. CAD B/X는 1차 workflow에 필요한 선행 조건을 조사해 개별 실행한다. 기존 [통합 계획](docs/product/CREATIVE-REUSE-IMPLEMENTATION-PLAN.md)과 [작업 분할](docs/WORK-SLICES-2026-10-06.md)의 ID와 완료 기록을 유지한다.
 
 | 순서 | 작업 | 상세 기준 |
 | --- | --- | --- |

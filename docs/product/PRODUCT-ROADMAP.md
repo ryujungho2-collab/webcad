@@ -4,6 +4,8 @@
 
 ## 공통 기반
 
+2026-10-09 우선순위 결정: **1차 건축·기계 CAD → 2차 아트보드·벡터/이미지·프로토타입·슬라이드·LLM 통합**이다. [1차/2차 목표와 완료 기준](ARCHITECTURE-MECHANICAL-MILESTONE.md)이 아래 도메인별 단계의 실행 우선순위를 구체화한다. 같은 모델의 표준 뷰·수치 수정·분해도·건축 단면·연관 도면을 먼저 끝내고, 기존 제작 기능은 유지·재사용한다. 아래 단계 번호를 실제 구현 순서로 해석하지 않는다.
+
 이 문서는 CAD·작도·3D·BIM·협업의 도메인 확장 단계를 소유한다. 통합 UI·이미지·벡터·슬라이드·Copilot/LLM의 경험 설계는 [통합 제작 제품 방향](UNIFIED-CREATIVE-SUITE-ROADMAP.md)에 둔다. 둘 사이의 실제 실행 순서는 NEXT-STEPS로 결정하고, 구현 여부는 PROJECT-STATE에서 확인한다.
 
 문서의 Geometry/Constraint/Dependency 정의를 원본으로 사용한다. Canvas·노드·AI는 같은 Query/Preview/Apply를 호출한다. 표현용 tessellation, 주석, BIM 의미, editable mesh는 원본과 측정 출처를 구분한다. 관계·단위·잠금·이력·실패 원자성을 지키며 도구 결과를 다음 작업에 인계한다.

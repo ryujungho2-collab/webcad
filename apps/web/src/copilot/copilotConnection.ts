@@ -1,9 +1,10 @@
 import { validateCommand, type CadCommand } from "@agent-webcad/cad-commands";
 import type { CadDocument } from "@agent-webcad/cad-document";
 import type { CopilotPlan, CopilotGhost } from "./copilotPlan";
+import { copilotMoveContract, validateCopilotMove, type CopilotMoveContract } from "./copilotEdit";
 
 export type CopilotConnection={mode:"rules"|"gateway";endpoint:string};
-export const COPILOT_CAPABILITIES=["create-drawing","create-primitive"] as const;
+export const COPILOT_CAPABILITIES=["create-drawing","create-primitive","move-object"] as const;
 const MAX_BYTES=65536;
 const DRAWING_FIELDS:Record<string,string[]>={
   line:["points"],polyline:["points","closed","bulges"],rectangle:["points","closed"],
@@ -34,10 +35,10 @@ export function copilotRequest(prompt:string,document:CadDocument,selection:stri
     const object=document.objects[id],feature=features.get(id);if(!object)return [];
     return [{id,name:object.name.slice(0,200),type:feature?.type,kind:feature?.params.kind,locked:!!document.layers[object.layerId]?.locked,inputs:feature?.inputs.slice(0,50)??[]}];
   });
-  return {version:1,prompt,capabilities:COPILOT_CAPABILITIES,context:{documentId:document.id,revision:document.revision,units:"mm",workPlane,selected,selectionTruncated:selection.length>50}};
+  return {version:1,prompt,capabilities:COPILOT_CAPABILITIES,edit:copilotMoveContract(document,selection,workPlane),context:{documentId:document.id,revision:document.revision,units:"mm",workPlane,selected,selectionTruncated:selection.length>50}};
 }
 
-export function validateCopilotResponse(value:unknown):CopilotPlan {
+export function validateCopilotResponse(value:unknown,edit?:CopilotMoveContract):CopilotPlan {
   if(!record(value))throw new Error("Gateway returned no plan. Return a version 1 command proposal.");
   const response=value as Record<string,unknown>;
   if(response.version!==1||!record(response.command))throw new Error("Gateway returned an invalid version or CAD command. Correct the proposal and Plan again.");
@@ -49,6 +50,13 @@ export function validateCopilotResponse(value:unknown):CopilotPlan {
   // Inspect only one flat batch, so nested commands cannot recurse through validation.
   for(const entry of commands){
     if(!record(entry))throw new Error("Gateway returned an invalid version or CAD command. Correct the proposal and Plan again.");
+    if(entry.type==="move-object"){
+      if(raw.type==="batch"||commands.length!==1)throw new Error("Move supports one selected target in one standalone command. Split creation and editing into separate reviewed steps.");
+      supportedFields(entry,["type","objectId","translation"]);
+      if(!validateCommand(entry))throw new Error("Move requires three finite numeric translation values in mm. Correct the proposal and Plan again.");
+      validateCopilotMove(entry as Extract<CadCommand,{type:"move-object"}>,edit);
+      continue;
+    }
     if(entry.type!=="create-drawing"&&entry.type!=="create-primitive")throw new Error(`Gateway returned an invalid version or CAD command for its creation capabilities (${String(entry.type)}). Nested batches and editing commands are unsupported.`);
     supportedFields(entry,entry.type==="create-drawing"?["type","id","name","drawing","params","layerId"]:["type","id","primitive","params","position","layerId"]);
     const fields=entry.type==="create-drawing"?DRAWING_FIELDS[String(entry.drawing)]:PRIMITIVE_FIELDS[String(entry.primitive)];
@@ -62,13 +70,15 @@ export function validateCopilotResponse(value:unknown):CopilotPlan {
   if(!validateCommand(raw))throw new Error("Gateway returned an invalid version or CAD command. Correct the proposal and Plan again.");
   const command=raw as CadCommand;
   if(!Array.isArray(response.summary)||response.summary.length>20||!response.summary.length||!response.summary.every(s=>typeof s==="string"&&s.length>0&&s.length<=500))throw new Error("Gateway must include 1–20 short review summaries.");
-  const ghosts:CopilotGhost[]=(command.type==="batch"?command.commands:[command]).map((entry,index)=>{
+  const ghosts:CopilotGhost[]=(command.type==="batch"?command.commands:[command]).map((entry,index):CopilotGhost|null=>{
+    if(entry.type==="move-object")return null;
     if(entry.type==="create-primitive")return {kind:"primitive",key:`gateway-${index}`,primitive:entry.primitive,params:entry.params,position:entry.position??[0,0,0]};
     if(entry.type==="create-drawing"&&entry.drawing!=="point"&&entry.drawing!=="infinite-line"&&entry.drawing!=="ray")return {kind:"drawing",key:`gateway-${index}`,drawing:entry.drawing,params:{...entry.params,kind:entry.drawing}};
     throw new Error(`Gateway command ${entry.type} is outside the current creation capabilities. Use manual editing for this operation.`);
-  });
+  }).filter((ghost):ghost is CopilotGhost=>ghost!==null);
   // Ignore any server-supplied ghost/HTML/script fields: preview derives only from validated commands.
-  return structuredClone({command,summary:response.summary as string[],ghosts});
+  const summary=command.type==="move-object"?[`Move ${edit!.target!.name}: translation [${edit!.target!.translation.join(", ")}] → [${command.translation.join(", ")}] mm (${edit!.target!.workPlane}). Connected objects are checked in Impact review.`]:response.summary as string[];
+  return structuredClone({command,summary,ghosts});
 }
 
 export async function requestCopilotPlan(endpoint:string,body:ReturnType<typeof copilotRequest>,options:{signal:AbortSignal;baseUrl:string;fetcher?:typeof fetch;timeoutMs?:number}):Promise<CopilotPlan>{
@@ -96,7 +106,7 @@ export async function requestCopilotPlan(endpoint:string,body:ReturnType<typeof 
     while(true){const chunk=await Promise.race([reader.read(),aborted]);controller.signal.throwIfAborted();if(chunk.done)break;size+=chunk.value.byteLength;if(size>MAX_BYTES)throw new Error("Gateway plan exceeds 64 KiB. Ask for a smaller operation.");text+=decoder.decode(chunk.value,{stream:true});}
     text+=decoder.decode();
     let value:unknown;try{value=JSON.parse(text);}catch{throw new Error("Gateway returned malformed JSON. Correct the response and Plan again.");}
-    return validateCopilotResponse(value);
+    return validateCopilotResponse(value,body.edit);
   }catch(error){if(controller.signal.aborted)throw controller.signal.reason;throw error;}
   finally{
     clearTimeout(timer);options.signal.removeEventListener("abort",abort);controller.signal.removeEventListener("abort",rejectOnAbort);

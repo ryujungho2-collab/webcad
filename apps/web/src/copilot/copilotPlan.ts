@@ -22,6 +22,7 @@ import { planeToWorld, WORK_PLANES, type Vec3, type WorkPlaneId } from "../preci
 export type CopilotPrimitive = "box" | "cylinder" | "sphere" | "cone" | "torus";
 
 export type CopilotGhost =
+  | { kind: "path"; key: string; points: Vec3[]; workPlane: WorkPlaneId; closed: boolean; role: "source" | "result" }
   | {
     kind: "primitive";
     key: string;
@@ -382,6 +383,7 @@ export const ruleCopilotBackend: CopilotBackend = { plan: planCopilotCommand };
  */
 export function withCopilotLayer(command: CadCommand, layerId: string): CadCommand {
   const bind = (entry: CadCommand): CadCommand => {
+    if (entry.type === "move-object") return entry;
     if ("layerId" in entry && entry.layerId !== undefined && entry.layerId !== layerId)
       throw new Error(`The proposal targets layer '${entry.layerId}', outside the reviewed active layer '${layerId}'. Select that layer or correct the proposal, then Plan again.`);
     if (!("layerId" in entry) || (entry as { layerId?: string }).layerId === undefined) {

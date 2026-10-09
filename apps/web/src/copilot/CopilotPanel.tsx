@@ -51,7 +51,7 @@ export function CopilotPanel(props: CopilotPanelProps) {
       <CopilotQueryPanel {...props.query}/>
       <PropertySection title="Connection" meta="Optional gateway">
         <label>Planner<select aria-label="Copilot planner" value={props.connection.mode} onChange={e=>{props.onClear();props.onConnectionChange({...props.connection,mode:e.target.value as CopilotConnection["mode"]});}}><option value="rules">Local rules</option><option value="gateway">LLM gateway</option></select></label>
-        {props.connection.mode==="gateway"&&<><label>Gateway URL<input aria-label="Copilot gateway URL" value={props.connection.endpoint} onChange={e=>{props.onClear();props.onConnectionChange({...props.connection,endpoint:e.target.value});}}/></label><p className="property-hint">Plan sends your prompt, document identity and up to 50 selected object names/types/references to this gateway. Image bytes and API keys are not included. Configure your provider on the server. Current gateway capabilities: finite 2D drawings and solid primitives, up to 20 commands.</p></>}
+        {props.connection.mode==="gateway"&&<><label>Gateway URL<input aria-label="Copilot gateway URL" value={props.connection.endpoint} onChange={e=>{props.onClear();props.onConnectionChange({...props.connection,endpoint:e.target.value});}}/></label><p className="property-hint">Plan sends your prompt, document identity and up to 50 selected object names/types/references to this gateway. For Move it also sends the eligible selected drawing's placement and work plane. Image bytes and API keys are not included. Configure your provider on the server. Create finite drawings/primitives (1–20 commands), or Move one selected independent finite 2D drawing using absolute world translation in mm.</p></>}
       </PropertySection>
       <PropertySection title="Prompt" meta="NL → commands">
         <div className="numeric-control">
@@ -88,18 +88,19 @@ export function CopilotPanel(props: CopilotPanelProps) {
       {props.planning&&!props.plan&&<p role="status">Requesting a command proposal… You can cancel or edit the prompt.</p>}
       {props.interaction&&<CommandReview state={props.interaction}/>}
       {!!props.interaction?.completedIds?.length && <div className="property-hint" aria-label="Copilot result">
-        Created {props.interaction.completedIds.length} object{props.interaction.completedIds.length===1?"":"s"}. The results are selected for the next edit.
+        Completed on {props.interaction.completedIds.length} object{props.interaction.completedIds.length===1?"":"s"}. The results are selected for the next edit.
         <button type="button" onClick={props.onInspectResult}>Inspect result</button>
       </div>}
 
       {props.plan && (
-        <PropertySection title="Plan" meta={`${props.plan.ghosts.length} object${props.plan.ghosts.length === 1 ? "" : "s"}`}>
+        <PropertySection title="Plan" meta={props.plan.command.type==="move-object"?"Move · 1 target":`${props.plan.ghosts.length} object${props.plan.ghosts.length === 1 ? "" : "s"}`}>
+          {props.plan.command.type==="move-object"&&<p className="property-hint">Canvas: amber = source, teal = reviewed result. Translation is an absolute world placement in mm; shape coordinates are preserved. Review affected relationships below.</p>}
           <ul className="copilot-summary">
             {props.plan.summary.map((line) => <li key={line}>{line}</li>)}
           </ul>
           {props.previewFailed > 0 && (
             <p className="property-hint" role="status">
-              {props.previewFailed} of {props.plan.ghosts.length} ghost{props.plan.ghosts.length === 1 ? "" : "s"} failed to preview — Apply will report the kernel reason.
+              {props.previewFailed} of {props.plan.ghosts.length} ghost{props.plan.ghosts.length === 1 ? "" : "s"} failed to preview. Apply is blocked. Correct the request and Plan again.
             </p>
           )}
           <div className="sketch-actions">

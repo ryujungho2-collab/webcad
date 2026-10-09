@@ -36,6 +36,7 @@ export function refreshAssociativeDimensions(document: CadDocument): boolean {
     const sourceFeature = Object.values(document.features).find((entry) => entry.output === sourceId);
     if (!source || !sourceFeature) {
       // Source deleted: freeze as static, drop the dangling link.
+      assertDimensionUnlocked(document,feature);
       delete feature.params.sourceObjectId;
       delete feature.params.sourceSegmentId;
       feature.inputs = feature.inputs.filter(id => id !== sourceId);
@@ -45,6 +46,11 @@ export function refreshAssociativeDimensions(document: CadDocument): boolean {
     if (recomputeDimension(feature, document, sourceId)) refreshed = true;
   }
   return refreshed;
+}
+
+function assertDimensionUnlocked(document:CadDocument,feature:CadFeature){
+  const object=document.objects[feature.output];
+  if(object&&document.layers[object.layerId]?.locked)throw new Error(`Dimension '${object.name}' is on a locked layer. Unlock it before changing its source or references.`);
 }
 
 function recomputeDimension(feature: CadFeature, document: CadDocument, sourceId: string): boolean {
@@ -64,6 +70,7 @@ function recomputeDimension(feature: CadFeature, document: CadDocument, sourceId
   if (kind === "linear" && world.points?.length === 2) {
     const points = world.points.map((point) => worldToPlane(point, frame));
     if (JSON.stringify(feature.params.points) !== JSON.stringify(points)) {
+      assertDimensionUnlocked(document,feature);
       feature.params.points = points;
       return true;
     }
@@ -72,6 +79,7 @@ function recomputeDimension(feature: CadFeature, document: CadDocument, sourceId
   if ((kind === "radius" || kind === "diameter") && world.center && world.radius !== undefined) {
     const center = worldToPlane(world.center, frame);
     if (JSON.stringify(feature.params.center) !== JSON.stringify(center) || feature.params.radius !== world.radius) {
+      assertDimensionUnlocked(document,feature);
       feature.params.center = center;
       feature.params.radius = world.radius;
       return true;

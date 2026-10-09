@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "baseline": "3d1cab9",
+  "scope": "G5-B2: one selected independent finite 2D drawing Move via gateway, using existing atomic CAD execution",
+  "environment": { "node": "24.19.0", "pnpm": "11.26.0", "browser": "Microsoft Edge headless CDP", "renderer": "SwiftShader", "transport": "mock gateway; real React/CAD transactions and native pointer input", "externalLlm": "not connected" },
+  "node": { "tests": 659, "suites": 54, "passed": 659, "failed": 0, "skipped": 0, "newMoveTests": 8, "log": "output/g5-b2-node-2026-10-09.log" },
+  "browser": { "workflows": 40, "checks": 859, "moveChecks": 25, "queryChecks": 35, "gatewayChecks": 13, "contextChecks": 15, "applyChecks": 26, "log": "output/g5-b2-browser-2026-10-09.log", "focusedLog": "output/g5-b2-edit-browser-2026-10-09.log" },
+  "typecheck": "passed",
+  "architecture": { "passed": true, "modules": 321, "documentationLinks": true },
+  "build": { "workspace": "passed", "mainRawKB": 1058.73, "viewportRawKB": 619.05, "kernelWasmRawKB": 50305.13, "kernelWasmGzipKB": 13955.45, "existingLargeChunkWarning": true, "log": "output/g5-b2-build-2026-10-09.log" },
+  "moveContract": { "command": "move-object", "maximumTargets": 1, "units": "mm", "coordinates": "absolute-world-translation", "coordinateLimit": 1000000, "planes": ["XY", "XZ", "YZ"], "normalAxis": "preserve existing translation", "batch": "not permitted", "selectionAuthority": "edit selection; explicit Query target grants no editing authority" },
+  "regressions": [
+    { "before": "Locked linked linear dimension was recomputed during source Move without rejecting the transaction", "failure": "true !== false", "fix": "Check linear/radius/diameter reconciliation and deleted-source freezing locks before changing their references/geometry" },
+    { "before": "Authoritative preview-failure gating exposed a generated midpoint being rendered as a single-vertex polyline ghost", "failure": "39 prior browser workflows passed, Move never reached ready", "fix": "Render one-point paths through the existing point renderer and keep failed previews blocked", "beforeLog": "output/g5-b2-browser-before-point-fix-2026-10-09.log" }
+  ],
+  "evidence": [
+    "Gateway Move target must exactly match one captured eligible edit selection",
+    "Metadata/ownership injection, wrong target, unsupported representation, off-plane/nonfinite/no-op values and mixed/nested batches are refused",
+    "Transient source/result paths derive from the actual detached evaluated plan, never server ghosts",
+    "Native screenshot pixels verify actual result ghost visibility",
+    "Dimension and midpoint regenerate with source geometry in one Apply, preserving exact original parameters and topology",
+    "Manual Move equivalence, independent curve length/area oracles, XY/XZ/YZ placement and nonzero elevation are checked",
+    "Locked downstream rejects the whole operation; unlock and retry recovers without leaving the tool",
+    "Queued Apply cancellation, changed selection, stale document and late response cannot publish geometry/history",
+    "One Undo/Redo and serialization v14 roundtrip preserve source and relationship identities",
+    "Edited source is selected and Inspect result opens existing manual Properties"
+  ],
+  "commands": ["pnpm --filter @agent-webcad/web exec tsc -b", "pnpm --filter @agent-webcad/web test", "pnpm --filter @agent-webcad/web test:browser", "pnpm --filter @agent-webcad/web check:architecture", "pnpm build"],
+  "performance": { "moveBenchmark": "not run", "scope": "No optimization before/after, real-provider latency, multiplayer, large-document heap/GPU claim. Existing full-document preview cloning and build warnings remain." },
+  "remaining": ["Actual provider/server/authentication", "Local natural-language Move parsing", "Multiple targets and other edit commands", "Automatic framing of off-screen results", "Further downstream combination and large-document performance validation", "G6-A1 saved model-view contract has not started"]
+}

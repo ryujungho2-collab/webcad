@@ -8,6 +8,8 @@
 
 ## 결정
 
+2026-10-09 실행 우선순위 변경: [1차 건축·기계 CAD 목표](../product/ARCHITECTURE-MECHANICAL-MILESTONE.md)에 따라 외부 연동 없는 모델 뷰 계약을 G6-A1, UI를 G6-A2로 먼저 진행한다. 아래 Axo first slice는 전체 도달 범위이며 section/crop/출력까지 첫 요청에 구현하지 않는다. RVT/IFC는 별도 후속으로 유지한다.
+
 1. **Axo 뷰는 먼저 구현한다.** Axonometric은 파일 포맷이 아니라 3D 카메라·투영·section/crop·Fit·출력 설정이다. 현재 CAD 솔리드와 향후 BIM 객체 모두에 바로 적용할 수 있다.
 2. **RVT는 직접 parser를 만들지 않는다.** RVT는 Revit의 문서·API 생태계에 묶인 포맷이므로 웹 문서 모델에 원본으로 넣으면 버전·라이선스·변환·참조 손실 위험이 커진다.
 3. **IFC를 첫 BIM 교환 경계로 둔다.** Autodesk Revit API에는 IFC export가 있고, IFC는 RVT를 사용하지 않는 IFC 인증 애플리케이션과 교환하기 위한 경로로 제공된다. [Revit IFC export API](https://help.autodesk.com/cloudhelp/2026/ENU/Revit-API-MainReference/files/html/7efa4eb3-8d94-b8e7-f608-3dbae751331d.htm), [Autodesk IFC 안내](https://help.autodesk.com/cloudhelp/2023/ENU/Revit-DocumentPresent/files/GUID-6EB68CEC-6C17-4B16-A509-30537F666C1F.htm)

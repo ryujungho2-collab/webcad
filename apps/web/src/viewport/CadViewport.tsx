@@ -3429,9 +3429,10 @@ export function CadViewport({
     let cancelled = false;
     void (async () => {
       const settled = await Promise.allSettled(copilotPreview.map(async (ghost): Promise<Exclude<RenderObject, THREE.Group>> => {
-        if (ghost.kind === "drawing") {
+        if (ghost.kind === "drawing" || ghost.kind === "path") {
           // Pure 2D outline, no kernel involved.
-          const outline = createDrawingRenderObject(ghost.key, ghost.params, 0x36d9c5);
+          const outline = createDrawingRenderObject(ghost.key, ghost.kind==="path"?{kind:ghost.points.length===1?"point":"polyline",points:ghost.points,closed:ghost.closed,workPlane:ghost.workPlane}:ghost.params, 0x36d9c5);
+          if(ghost.kind==="path")outline.userData.copilotRole=ghost.role;
           outline.position.fromArray(outline.userData.drawingOrigin as Vec3);
           return outline;
         }
@@ -3467,7 +3468,7 @@ export function CadViewport({
           continue;
         }
         const material = entry.value.material as THREE.MeshStandardMaterial;
-        material.color.setHex(0x36d9c5);
+        material.color.setHex(entry.value.userData.copilotRole==="source"?0xe5ab50:0x36d9c5);
         material.transparent = true;
         material.opacity = 0.55;
         material.depthTest = false;

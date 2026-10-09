@@ -64,6 +64,7 @@
 | SVG/DXF/PDF/STEP 출력이 화면과 다름 | `export/exportModel.ts`, `svgWriter.ts`, `interop/dxfParser.ts`·`dxfImport.ts`·`dxfWriter.ts`, `plot/plotPlan.ts`·`pdfWriter.ts` | 출력 대상·단위·축척·포맷 변환. 형식마다 포함 가능한 객체가 다름 |
 | Copilot이 요청·선택·결과를 잘못 설명함 | `copilot/copilotPlan.ts`, `copilotContext.ts`, `copilotConnection.ts`, `CopilotPanel.tsx`, `App.tsx`, `state/documentQuery.ts`, `documentPlans.ts` | 계획 해석·context 수명·문서 조회·검토·결과 인계. Apply 취소와 owner 재검증은 공통 plan queue 경계에서 실행. 형상 오류라면 공유 명령/기하를 수정 |
 | Copilot의 local 선택/target 읽기·취소·오래된 결과·수동 인계 | `copilot/copilotQuery.ts`, `useCopilotQuery.ts`, `CopilotQueryPanel.tsx`, `state/documentQuery.ts`, `App.tsx` | bounded DTO·단위/관계/잠금·App 소유 context·요청 순간의 authoritative version. explicit read target은 편집 selection과 독립적이다. gateway 전송/편집 명령과 별도 경로. [B1 실제 UI/Worker 및 전체 검수](../implementation/G5-B1-COPILOT-QUERY-2026-10-09.md) |
+| Copilot gateway Move의 대상·좌표·원자성·preview·인계 | `copilot/copilotEdit.ts`, `copilotConnection.ts`, `App.tsx`, `viewport/CadViewport.tsx`, `state/dimensionRefresh.ts` | 편집 selection 한 개·finite 독립 2D·absolute world translation mm. Query read target과 구분, source/결과 ghost는 detached plan에서 생성. locked downstream 치수는 전체 거부. [B2 구현과 실제 workflow](../implementation/G5-B2-COPILOT-MOVE-2026-10-09.md) |
 | LLM·외부 라이브러리 도입 | 현재 `CopilotBackend`와 공개 명령/계획 경계에서 시작; 향후 `integrations` 어댑터 제안 | 네트워크·취소·외부 데이터 변환을 격리. 아직 존재하지 않는 통합 패키지를 선행 생성하지 않음 |
 
 ## 3. 변경을 놓치기 쉬운 연결 지점

@@ -4,6 +4,8 @@
 
 ## 가져올 수 있는 코드
 
+2026-10-09 실행 순서 변경: [1차 건축·기계 CAD / 2차 통합 제작 목표](ARCHITECTURE-MECHANICAL-MILESTONE.md)에 따라 이 문서의 새 제작 기능·LLM 확대는 2차 대기열이다. 기존 구현과 재사용 판단은 유지하며, 현재 CAD에 필요한 공통 기반은 재사용한다. 다음 구현은 NEXT-STEPS의 G6-A1이다.
+
 | 구성요소 | 확인한 근거 | 실제 활용과 현재 상태 | WebCAD가 별도로 해야 할 일 |
 | --- | --- | --- | --- |
 | Photopea [UTIF.js](https://github.com/photopea/UTIF.js) | MIT, TIFF decode/encode | `utif@3.1.0` 채택. 제한된 단일 페이지 8-bit TIFF → PNG Worker import 구현 | 한도·취소·오류·원자성·asset identity·편집 UI·저장 |
@@ -40,7 +42,7 @@ Photopea hosted iframe/API는 별도 선택 adapter 후보다. 소스 재사용�
 | --- | --- | --- |
 | 1 | G3-5A 기존 자원 최적화 마감 | 전체 Node/browser/build/architecture, 새 이름의 resource benchmark, 미실시 외부 평가 기록 |
 | 2 · I1 | native 이미지 원본 교체와 TIFF 공통 decoder | 파일 선택 → source/캔버스 preview → 기존 숫자 편집 → 단일 Apply/Cancel → 원본 공유/Undo/Redo/save/export 확인 |
-| 3 | G4 첫 범위/CAD B3-A1/A2·B·C1–C3와 G5-A/B1 검수 완료 | [장면·DXF·지름](../implementation/G4-CAD-BASICS-2026-10-06.md), [각도 C2/C3](../implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md), [gateway A1–A3](../implementation/G5-A3-COPILOT-APPLY-2026-10-08.md), [B1 local Query·실제 workflow](../implementation/G5-B1-COPILOT-QUERY-2026-10-09.md). 다음 B2 편집 한 종류는 별도 요청, 실제 provider 미연결 표시 유지 |
+| 3 | G4 첫 범위/CAD B3-A1/A2·B·C1–C3와 G5-A/B1·B2 첫 범위 | [장면·DXF·지름](../implementation/G4-CAD-BASICS-2026-10-06.md), [각도 C2/C3](../implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md), [gateway A1–A3](../implementation/G5-A3-COPILOT-APPLY-2026-10-08.md), [B1 local Query](../implementation/G5-B1-COPILOT-QUERY-2026-10-09.md), [B2 단일 2D Move](../implementation/G5-B2-COPILOT-MOVE-2026-10-09.md). 실제 provider 미연결 표시 유지 |
 | 4 · I2 | 한 이미지의 선택 영역/마스크 편집 | 먼저 rectangle/polygon selection + non-destructive mask. 대형 brush/tile engine은 별도 묶음 |
 | 5 · I3/I4 | 필터 한 종류·clipboard를 각각 구현 | 기존 decoder/source replacement/Review/History 소비. pixel/export·실제 browser 검증 |
 | 6 · I5 | 제한된 PSD composite import, 이어서 레이어 mapping | parser의 unsupported metadata/effect와 3 MiB 정책을 먼저 정함. silent flatten 금지 |

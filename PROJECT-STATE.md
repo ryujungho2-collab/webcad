@@ -4,6 +4,14 @@
 
 ## 최신 통합 구현·검수 상태
 
+**G5-B2의 첫 편집 명령 확대를 완료했다.** gateway의 `move-object`를 선택된 독립 finite 2D drawing 한 개에 개방했다. absolute world translation mm·작업면/ownership/선택 권한과 게시 직전 context를 검증하며, 원본/결과 ghost는 detached plan에서 생성한다. 치수·중점 영향과 원본 identity를 보존하고, 편집 결과를 선택해 기존 Properties로 인계한다. 잠긴 연관 일반 치수가 갱신되던 문제와 단일 작도점 ghost 실패를 회귀 검사로 발견·수정했다. [B2 실제 workflow·지원 경계](docs/implementation/G5-B2-COPILOT-MOVE-2026-10-09.md), [마감 증거](docs/verification/G5-B2-CLOSEOUT-2026-10-09.json)를 따른다.
+
+최종 전체 **659 Node / 54 suites / fail·skip 0**, **40 browser workflows / 859 checks**(신규 Move 25), 타입·architecture/import·문서 링크 **321 modules**, workspace build 통과. 원시 로그는 `output/g5-b2-node-2026-10-09.log`, `output/g5-b2-browser-2026-10-09.log`, `output/g5-b2-build-2026-10-09.log`다. main **1,058.73 kB** / viewport **619.05 kB**, 기존 >500 kB 경고 유지. 실제 provider·다중 사용자·Move 성능 benchmark는 실행하지 않았다. v14 유지, 기존 local Query/생성/profile/extrusion은 유지한다. 다중 대상/다른 편집 명령과 local 자연어 Move parser는 미지원이다. 다음은 G6-A1이며 아직 시작하지 않았다.
+
+## 직전 구현·검수 기준선
+
+**2026-10-09 목표 재정리(계획만):** 1차는 건축·기계 CAD의 동일 모델 뷰/치수 기반 수정/분해도/연관 도면, 2차는 아트보드·벡터/이미지 편집·프로토타입·슬라이드·LLM 통합이다. [범위·코드에서 확인한 기반·남은 구현](docs/product/ARCHITECTURE-MECHANICAL-MILESTONE.md)을 기록했다. 표준 카메라 전환과 primitive 수치 편집 기반이 있으나 저장된 모델 연관 도면·3D 분해도·건축 절단 평면의 전체 workflow 완료를 의미하지 않는다. 사용자가 별도로 요청한 B2를 먼저 완료했고 다음 구현은 G6-A1이다. 아래 검수 수치는 이전 G5-B1 기준선이다.
+
 **G5-B1의 local Query 연결과 전체 검수를 완료했다.** Read selection/명시적 Read target에 실측·관계·구속·잠금/오류 설명, Cancel·context 무효화와 수동 편집 인계를 연결했다. 잠금/숨김 객체는 편집 selection을 바꾸지 않고 읽으며, 문서 게시 직후 재조회가 이전 render의 version을 사용하는 경합을 수정했다. 새 Node **8개**, 실제 pointer/Worker Query **35 checks**를 포함해 전체 **651 Node / 54 suites**, **39 browser workflows / 834 checks**, 타입·architecture/import·문서 링크 **318 modules**, workspace build가 통과했다. [B1 구현·실제 workflow·제한](docs/implementation/G5-B1-COPILOT-QUERY-2026-10-09.md), [마감 검증 요약](docs/verification/G5-B1-CLOSEOUT-2026-10-09.json)을 따른다. Query는 local 읽기이며 LLM으로 결과를 보내지 않는다. 다음 B2 편집 command와 실제 provider/G6는 시작하지 않았다.
 
 사용자 요청으로 **G5-A3 Copilot Apply·잠금·경합 검수**를 완료했다. [A3 구현](docs/implementation/G5-A3-COPILOT-APPLY-2026-10-08.md)과 [검증 요약](docs/verification/G5-A3-CLOSEOUT-2026-10-08.json)을 따른다. [A1 응답·취소](docs/implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md), [A2 패널·context 수명](docs/implementation/G5-A2-COPILOT-CONTEXT-2026-10-08.md)을 포함한 **G5-A 검수**를 마친 뒤 B1으로 진행했다. 앞서 구현한 B3-C 일반 각도 치수(v14)는 [C1 계산](docs/implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md), [C2/C3 작업·검증](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)에 기록했다. 기존 [G4·DXF·지름](docs/implementation/G4-CAD-BASICS-2026-10-06.md)을 유지한다. 실제 LLM 연결과 G4–G6/CAD-BASICS 전체 기능 동등성을 달성한 상태는 아니다.

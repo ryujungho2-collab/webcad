@@ -10,11 +10,12 @@ import { cadDocument } from "./state/cadDocument";
 import { dispatchCadCommand } from "./state/dispatchCadCommand";
 import { loadDocumentFromCache, newDocument, openDocumentFile, saveDocumentAsFile, saveDocumentToCache,startDocumentAutosave } from "./state/documentFile";
 import {recoveryStatus,subscribeRecoveryStatus,reportRecoveryStatus} from "./state/documentRecovery";
-import {previewCadCommand,applyCadPlan,discardCadPlan,type CadPlanPreview} from "./state/documentPlans";
+import {previewCadCommand,applyCadPlan,discardCadPlan,getCadPlanDrawingPaths,type CadPlanPreview} from "./state/documentPlans";
 import {documentVersion,sameDocumentVersion,subscribeDocumentChanges} from "./state/documentSession";
 import {copilotRequest,requestCopilotPlan,type CopilotConnection} from "./copilot/copilotConnection";
 import {captureCopilotContext,copilotContextChange,type CopilotContextInputs,type CopilotPlanningContext} from "./copilot/copilotContext";
 import { useCopilotQuery } from "./copilot/useCopilotQuery";
+import { validateCopilotEdit } from "./copilot/copilotEdit";
 import { cadHistory, redoDocument, undoDocument } from "./state/history";
 import type { HistoryStateToken } from "@agent-webcad/cad-history";
 import { reduceSelection, selectAllIds, validSelection, type SelectionState, type TopologySelectionRef } from "./state/selection";
@@ -830,6 +831,7 @@ export function App() {
       if(changed)throw new Error(changed);
       if(!result.ok){setCopilotError(result.reason);return;}
       const planned={...result.plan,command:withCopilotLayer(result.plan.command,context.layerId)};
+      validateCopilotEdit(planned.command,cadDocument,context.selectionIds,context.workPlane);
       setCopilotPlan(planned);
       const preview=await previewCadCommand(planned.command,{signal:controller.signal});
       if(sequence!==copilotSequence.current){discardCadPlan(preview.planId);return;}
@@ -838,6 +840,17 @@ export function App() {
       if(!preview.result.ok||preview.stale){setCopilotError(preview.result.reason??"The document changed; plan again.");discardCadPlan(preview.planId);return;}
       setCopilotValidated(preview);
       setCopilotReviewedKey(JSON.stringify(planned.command));
+      if(planned.command.type==="move-object"){
+        const ghosts:CopilotPlan["ghosts"]=[];
+        for(const change of preview.changes){
+          const paths=getCadPlanDrawingPaths(preview.planId,change.objectId);
+          if(!paths)continue;
+          for(const role of ["source","result"] as const){const points=role==="source"?paths.before:paths.after;
+            if(points?.length)ghosts.push({kind:"path",key:`copilot-move-${change.objectId}-${role}`,points,workPlane:context.workPlane,closed:role==="source"?paths.beforeClosed:paths.afterClosed,role});
+          }
+        }
+        planned.ghosts=ghosts;
+      }
       setCopilotPlan({...planned,summary:[...planned.summary,...preview.changes.filter(change=>change.after?.volume!==undefined).map(change=>`${change.name}: ${change.after!.volume!.toFixed(4)} mm³`)]});
     }catch(error){if(sequence===copilotSequence.current){setCopilotPlan(null);setCopilotError(error instanceof Error?error.message:"Preview failed.");}}
     finally{if(sequence===copilotSequence.current){setCopilotApplying(false);if(copilotAbort.current===controller)copilotAbort.current=null;}}
@@ -864,7 +877,7 @@ export function App() {
   }
 
   const copilotResults=copilotCompletedIds.filter(id=>!!cadDocument.objects[id]);
-  const copilotReviewInput={command:"Copilot",draftKey:JSON.stringify(copilotPlan?.command),reviewedKey:copilotReviewedKey,preview:copilotValidated,targets:copilotRequestContext?.selectionIds??[],completedIds:copilotResults.length?copilotResults:undefined,inputError:copilotContextError??(activeSketchId?"Finish the active sketch first.":activeLayerLocked?"Unlock the active layer first.":copilotError)};
+  const copilotReviewInput={command:"Copilot",draftKey:JSON.stringify(copilotPlan?.command),reviewedKey:copilotReviewedKey,preview:copilotValidated,visualReady:copilotPreviewFailed===0,targets:copilotRequestContext?.selectionIds??[],completedIds:copilotResults.length?copilotResults:undefined,inputError:copilotContextError??(activeSketchId?"Finish the active sketch first.":activeLayerLocked?"Unlock the active layer first.":copilotError)};
   const copilotInteraction=commandInteraction({...copilotReviewInput,pending:copilotApplying});
   const copilotReviewRef=useRef(copilotReviewInput);copilotReviewRef.current=copilotReviewInput;
   async function handleCopilotApply() {
@@ -879,15 +892,17 @@ export function App() {
         if(changed)return changed;
         const review=commandInteraction({...copilotReviewRef.current,pending:false});
         if(!review.canApply||copilotReviewRef.current.preview?.planId!==preview.planId)return review.validationError??"The reviewed proposal changed. Plan again.";
+        if(copilotPlan)try{validateCopilotEdit(copilotPlan.command,cadDocument,context.selectionIds,context.workPlane);}catch(error){return error instanceof Error?error.message:"The edit target changed. Plan again.";}
         // Only suppress invalidation for this synchronous publication, never
         // while Apply waits in the queue. Cancel remains effective until here.
         copilotPublishing.current=true;
       }});
       if(operation.sequence!==copilotSequence.current)return;
       if (result.ok) {
-        const created = result.createdIds.filter((id) => Boolean(cadDocument.objects[id]));
+        const moved=copilotPlan?.command.type==="move-object"?[copilotPlan.command.objectId]:[];
+        const created = [...result.createdIds,...moved].filter((id) => Boolean(cadDocument.objects[id]));
         if (created.length) selectObjects(created);
-        setShortcutReadout(`Copilot: created ${created.length} object${created.length === 1 ? "" : "s"}`);
+        setShortcutReadout(`Copilot: ${moved.length?"moved":"created"} ${created.length} object${created.length === 1 ? "" : "s"}`);
         setCopilotPlan(null);
         setCopilotValidated(null);
         setCopilotRequestContext(null);

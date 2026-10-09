@@ -8,7 +8,9 @@
 
 | 목적 | 문서 |
 | --- | --- |
-| 현재 범위 분할·재시작 프롬프트 | [각도 C1–C3·G5-A/B1 완료 / 다음 G5-B2 한 종류](WORK-SLICES-2026-10-06.md) |
+| 1차/2차 제품 목표 | [1차 건축·기계 CAD / 2차 아트보드·제작·LLM](product/ARCHITECTURE-MECHANICAL-MILESTONE.md) |
+| 현재 범위 분할·재시작 프롬프트 | [각도 C1–C3·G5-A/B1·B2 첫 범위 / 다음 G6-A1 모델 뷰 계약](WORK-SLICES-2026-10-06.md) |
+| G5-B2 gateway 편집 첫 범위 | [단일 2D Move·대상/좌표 계약·관계 갱신·원자성·인계](implementation/G5-B2-COPILOT-MOVE-2026-10-09.md), [659 Node·40 browser/859 checks·build/321 module guard](verification/G5-B2-CLOSEOUT-2026-10-09.json) |
 | G5-B1 local Query 구현·전체 검수 | [선택/명시적 target·잠금/측정·취소·버전 경합·수동 인계](implementation/G5-B1-COPILOT-QUERY-2026-10-09.md), [651 Node·39 browser/834 checks·build/318 module guard](verification/G5-B1-CLOSEOUT-2026-10-09.json) |
 | G5-B1 중단 당시 기록 | [Node/타입까지의 checkpoint](implementation/G5-B1-QUERY-CHECKPOINT-2026-10-09.md), [당시 집중 Node 15개](verification/G5-B1-CHECKPOINT-2026-10-09.json). 최신은 B1 closeout |
 | G5-A3 Apply·잠금·경합 구현/검수 | [게시 전 취소·owner 재검증·새 요청 보호·결과 인계](implementation/G5-A3-COPILOT-APPLY-2026-10-08.md) |
