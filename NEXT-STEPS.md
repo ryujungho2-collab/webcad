@@ -1,6 +1,6 @@
 # 다음 작업
 
-**2026-10-09 재시작 지점: G5-B1 검수부터.** local Read selection UI·읽기 DTO·취소/context 수명과 새 Node 7개까지 구현했다. 타입·architecture/import·문서 링크 317 modules와 집중 Node 15개는 통과했으며 사용자 요청으로 여기서 멈췄다. [B1 checkpoint](docs/implementation/G5-B1-QUERY-CHECKPOINT-2026-10-09.md)의 파일/경계를 읽고 Query browser fixture·runner 등록 → 실제 선택/읽기/취소/재조회/편집 인계 → 전체 회귀·build 순서로 **B1만 마감**한다. B2 allowlist 확대는 별도 요청이다. 아래 2026-10-08 전체 수치는 A3 기준선이다.
+**2026-10-09: G5-B1 구현·전체 검수를 완료했다.** local Read selection/명시적 Read target, 측정·관계·잠금/오류·취소/context·수동 인계와 문서 게시 직후 재조회 경합을 검수했다. 전체 **651 Node / 54 suites**, **39 browser workflows / 834 checks**, 타입·architecture/import·문서 링크 **318 modules**·workspace build 통과. [B1 구현과 지원 경계](docs/implementation/G5-B1-COPILOT-QUERY-2026-10-09.md), [마감 증거](docs/verification/G5-B1-CLOSEOUT-2026-10-09.json)를 따른다. 다음 후보는 별도 요청의 **G5-B2: 기존 편집 명령 한 종류**다. 현재 allowlist와 실제 provider 연결은 확대하지 않았다.
 
 이전 전체 기준선(2026-10-08): **G5-A1–A3 검수와 일반 각도 치수 B3-C1–C3를 완료했다.** Apply의 게시 전 취소·context 재검증·잠금/부분 실패·만료 복구·결과 인계는 [A3 기록](docs/implementation/G5-A3-COPILOT-APPLY-2026-10-08.md), 두 source/edge 치수와 v14는 [C2/C3 기록](docs/implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)을 따른다. 최신 전체 Node **643개**, browser **38 workflows / 799 checks**, 타입·architecture **313 modules**·workspace build가 통과했다. 현재 B1 검수와 후속 B2 편집 명령 한 종류 확대를 구분한다. 실제 provider 연결은 준비되지 않았다. CAD의 다음 확장 후보는 B3-A3 OCS/기울어진 DXF와 B/X 카드다. Pro 한도의 약 15% 단위 분할은 [작업 분할](docs/WORK-SLICES-2026-10-06.md)을 따른다.
 
@@ -52,7 +52,7 @@ Photopea 관련 요청의 최초 TIFF 도입은 Node 596개·TIFF browser 9개·
 
 ## 이후 순서
 
-G4 첫 범위·CAD DXF/지름·각도 C1–C3와 **G5-A1–A3 검수**를 완료했다. 다음 실행 우선순위는 **G5-B**다. Query를 먼저 구분하고 기존 편집 명령 한 종류를 뒤이어 확대하며, 한 번에 모든 command를 열지 않는다. CAD 확장을 다시 선택하면 B3-A3 OCS/기울어진 DXF와 B/X 카드의 선행 조건을 평가한다. component override/variant·직접 layout handle과 PPTX/GIF, 이미지 I2–I5, G6 및 나머지 CAD B/X는 [통합 계획](docs/product/CREATIVE-REUSE-IMPLEMENTATION-PLAN.md)과 [작업 분할](docs/WORK-SLICES-2026-10-06.md)의 독립 카드로 남긴다.
+G4 첫 범위·CAD DXF/지름·각도 C1–C3와 **G5-A1–A3 및 B1**을 완료했다. 다음 요청에서 **G5-B2**의 편집 후보 한 종류를 조사하고 target/ownership/잠금·단위·Preview/Apply 계약을 먼저 좁힌다. 한 번에 모든 command를 열지 않는다. CAD 확장을 다시 선택하면 B3-A3 OCS/기울어진 DXF와 B/X 카드의 선행 조건을 평가한다. component override/variant·직접 layout handle과 PPTX/GIF, 이미지 I2–I5, G6 및 나머지 CAD B/X는 [통합 계획](docs/product/CREATIVE-REUSE-IMPLEMENTATION-PLAN.md)과 [작업 분할](docs/WORK-SLICES-2026-10-06.md)의 독립 카드로 남긴다.
 
 | 순서 | 작업 | 상세 기준 |
 | --- | --- | --- |
@@ -68,7 +68,7 @@ G4 첫 범위·CAD DXF/지름·각도 C1–C3와 **G5-A1–A3 검수**를 완료
 | G3-4b3 완료 | Artboard PDF output | active/all-visible pages, mm MediaBox, DPI/page/pixel/memory/file guards, real multi-page decode |
 | G3-5 / I1 | 자원 공유·재업로드 제거 및 원본 교체 자동 검수 완료. 외부 실무자/실제 GPU 평가는 남음 | [G3-5 전후 측정·마감](docs/verification/G3-5-IMAGE-RESOURCES-2026-10-06.md), [source 교체 검수](docs/verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md) |
 | G4 첫 A/B/C 완료 | Scene source 선택·draft/recovery·finite nested component·Auto Layout/state/time·target state·재생·정지 SVG | [구현 근거](docs/implementation/G4-CAD-BASICS-2026-10-06.md). 직접 layout handle·component override/variant·PPTX/GIF/영상은 후속 |
-| G5-A 완료, B1 진행 중 | A 검수 완료. B1 local Query UI/세션·Node 7개 추가, 타입·집중 15개 통과 | [B1 중간 정리](docs/implementation/G5-B1-QUERY-CHECKPOINT-2026-10-09.md). 다음은 B1 browser와 전체 마감 검수. B2 편집/실제 provider 미착수 |
+| G5-A/B1 완료, B2 대기 | local 선택/명시적 target Query·측정/관계/제한·취소/context·수동 인계. B1 Node 8개·browser 35 checks | [B1 구현·검수](docs/implementation/G5-B1-COPILOT-QUERY-2026-10-09.md). B2 편집 한 종류와 Query→LLM 설명/실제 provider는 후속 |
 | G6 | IFC/RVT·Axo·Manim·Notion/InDesign adapter | 핵심 문서·asset·view 계약 재사용 |
 
 성능은 매 단계에서 같은 과제의 지연·메모리·자원 해제를 측정한다. WebGPU·영속 캐시는 [웹 자원 전략](docs/architecture/WEB-RUNTIME-RESOURCE-STRATEGY.md)에 따라 병목이 확인된 경우 도입하고, 핵심 제작 기능의 선행 조건으로 두지 않는다. 자동 회귀 마감 후에도 외부 실무자의 task time·재시도·복구율과 native GPU/heap/VRAM 평가를 별도로 남긴다.

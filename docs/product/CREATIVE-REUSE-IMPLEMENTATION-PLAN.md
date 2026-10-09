@@ -40,7 +40,7 @@ Photopea hosted iframe/API는 별도 선택 adapter 후보다. 소스 재사용�
 | --- | --- | --- |
 | 1 | G3-5A 기존 자원 최적화 마감 | 전체 Node/browser/build/architecture, 새 이름의 resource benchmark, 미실시 외부 평가 기록 |
 | 2 · I1 | native 이미지 원본 교체와 TIFF 공통 decoder | 파일 선택 → source/캔버스 preview → 기존 숫자 편집 → 단일 Apply/Cancel → 원본 공유/Undo/Redo/save/export 확인 |
-| 3 | G4 첫 범위/CAD B3-A1/A2·B·C1–C3와 G5-A 검수 완료 | [장면·DXF·지름](../implementation/G4-CAD-BASICS-2026-10-06.md), [각도 C2/C3](../implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md), [gateway A1–A3 마감](../implementation/G5-A3-COPILOT-APPLY-2026-10-08.md). 다음 G5-B1 Query/B2 편집 확대는 별도 요청, 실제 provider 미연결 표시 유지 |
+| 3 | G4 첫 범위/CAD B3-A1/A2·B·C1–C3와 G5-A/B1 검수 완료 | [장면·DXF·지름](../implementation/G4-CAD-BASICS-2026-10-06.md), [각도 C2/C3](../implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md), [gateway A1–A3](../implementation/G5-A3-COPILOT-APPLY-2026-10-08.md), [B1 local Query·실제 workflow](../implementation/G5-B1-COPILOT-QUERY-2026-10-09.md). 다음 B2 편집 한 종류는 별도 요청, 실제 provider 미연결 표시 유지 |
 | 4 · I2 | 한 이미지의 선택 영역/마스크 편집 | 먼저 rectangle/polygon selection + non-destructive mask. 대형 brush/tile engine은 별도 묶음 |
 | 5 · I3/I4 | 필터 한 종류·clipboard를 각각 구현 | 기존 decoder/source replacement/Review/History 소비. pixel/export·실제 browser 검증 |
 | 6 · I5 | 제한된 PSD composite import, 이어서 레이어 mapping | parser의 unsupported metadata/effect와 3 MiB 정책을 먼저 정함. silent flatten 금지 |

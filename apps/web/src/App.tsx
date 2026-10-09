@@ -1657,9 +1657,11 @@ export function App() {
       onInsertPavilion={() => void handleInsertPavilion()}
       copilot={{
         query: { state: copilotQuery.state, selectionCount: selectedObjectIds.length,
+          targetId: copilotQuery.targetId, onTargetChange: copilotQuery.setTargetId,
+          onOpenLayers: () => setActiveActivity("layers"),
           onRead: () => void copilotQuery.read(), onCancel: copilotQuery.cancel,
-          onInspect: id => { selectObject(id); setActiveActivity("model"); },
-          onEditSketch: id => { editSketch(id); setActiveActivity("model"); } },
+          onInspect: id => { clearCommandTools(); selectObject(id); setActiveActivity("model"); },
+          onEditSketch: id => { clearCommandTools(); editSketch(id); setActiveActivity("model"); } },
         draft:copilotDraft,
         connection:copilotConnection,
         requestContext:copilotRequestContext,

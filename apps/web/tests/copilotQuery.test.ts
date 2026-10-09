@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
 import { beforeEach, test } from "node:test";
 import type { CadCommand } from "@agent-webcad/cad-commands";
+import { serializeDocument, deserializeDocument } from "@agent-webcad/cad-document";
 import { cadDocument } from "../src/state/cadDocument";
-import { cadHistory } from "../src/state/history";
+import { cadHistory, undoDocument, redoDocument } from "../src/state/history";
 import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
 import { queryCadDocument } from "../src/state/documentQuery";
 import { documentVersion, notifyDocumentChanged } from "../src/state/documentSession";
 import { readCopilotSelection, copilotQueryContextChange, COPILOT_QUERY_LIMITS } from "../src/copilot/copilotQuery";
-import { resetTestDocument } from "./helpers/documentHarness";
+import { resetTestDocument, restoreTestDocument, documentState } from "./helpers/documentHarness";
 import { createConstrainedChain } from "./helpers/constrainedChain";
 
 beforeEach(resetTestDocument);
@@ -124,7 +125,24 @@ test("context ties results to ordered selection and document generation, includi
   const version = documentVersion(), saved = { version, selectionIds: ["a","b"] };
   assert.equal(copilotQueryContextChange(saved, { version, selectionIds: ["a","b"] }), undefined);
   assert.match(copilotQueryContextChange(saved, { version, selectionIds: ["b","a"] })!, /selection changed/);
+  assert.match(copilotQueryContextChange(saved, { version, selectionIds: ["a","b"], targetId: "locked" })!, /read target changed/);
   assert.match(copilotQueryContextChange(saved, { version: {...version,revision:version.revision+1}, selectionIds: ["a","b"] })!, /document changed/);
   notifyDocumentChanged();
   assert.match(copilotQueryContextChange(saved, { version: documentVersion(), selectionIds: ["a","b"] })!, /document changed/);
+});
+
+test("read preserves Undo future and saved relationships across Undo/Redo and v14 reload", async () => {
+  await createConstrainedChain(apply);
+  const before = documentState(), savedQuery = await readCopilotSelection(["ab"]);
+  await apply({ type: "rename-object", objectId: "ab", name: "Changed" });
+  await undoDocument(); assert.deepEqual(documentState(), before);
+  const labels = history(), exact = JSON.stringify(cadDocument);
+  assert.equal(cadHistory.getFutureLabels().length, 1);
+  await readCopilotSelection(["ab"]);
+  assert.equal(history(), labels); assert.equal(JSON.stringify(cadDocument), exact);
+  await redoDocument(); assert.equal(cadDocument.objects.ab.name, "Changed");
+  await undoDocument();
+  const json = serializeDocument(cadDocument); restoreTestDocument(deserializeDocument(json)); notifyDocumentChanged();
+  const restored = await readCopilotSelection(["ab"]);
+  assert.deepEqual(restored.objects, savedQuery.objects); assert.equal(serializeDocument(cadDocument), json);
 });

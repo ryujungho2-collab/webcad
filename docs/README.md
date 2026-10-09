@@ -8,8 +8,9 @@
 
 | 목적 | 문서 |
 | --- | --- |
-| 현재 범위 분할·재시작 프롬프트 | [각도 C1–C3·G5-A 완료 / G5-B1 검수 재시작](WORK-SLICES-2026-10-06.md) |
-| G5-B1 중간 정리·재시작 지점 | [local Query·bounded DTO·취소/context·브라우저 검수 미완료](implementation/G5-B1-QUERY-CHECKPOINT-2026-10-09.md), [집중 Node 15개·전체 미실행](verification/G5-B1-CHECKPOINT-2026-10-09.json) |
+| 현재 범위 분할·재시작 프롬프트 | [각도 C1–C3·G5-A/B1 완료 / 다음 G5-B2 한 종류](WORK-SLICES-2026-10-06.md) |
+| G5-B1 local Query 구현·전체 검수 | [선택/명시적 target·잠금/측정·취소·버전 경합·수동 인계](implementation/G5-B1-COPILOT-QUERY-2026-10-09.md), [651 Node·39 browser/834 checks·build/318 module guard](verification/G5-B1-CLOSEOUT-2026-10-09.json) |
+| G5-B1 중단 당시 기록 | [Node/타입까지의 checkpoint](implementation/G5-B1-QUERY-CHECKPOINT-2026-10-09.md), [당시 집중 Node 15개](verification/G5-B1-CHECKPOINT-2026-10-09.json). 최신은 B1 closeout |
 | G5-A3 Apply·잠금·경합 구현/검수 | [게시 전 취소·owner 재검증·새 요청 보호·결과 인계](implementation/G5-A3-COPILOT-APPLY-2026-10-08.md) |
 | G5-A3 전체 검증 요약 | [643 Node·38 browser/799 checks·타입/build/313 module guard](verification/G5-A3-CLOSEOUT-2026-10-08.json) |
 | G5-A2 패널 draft·요청 context 구현/검수 | [activity 왕복, off-panel 응답, context 변경과 늦은 제안 폐기](implementation/G5-A2-COPILOT-CONTEXT-2026-10-08.md) |

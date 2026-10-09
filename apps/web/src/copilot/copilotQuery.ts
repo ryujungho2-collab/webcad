@@ -17,10 +17,11 @@ export type CopilotQueryObject = {
   solveGroups: { sketchId: string; degreesOfFreedom: number; constraintCount: number; residual: number }[]; solveGroupCount: number;
 };
 export type CopilotQueryResult = { version: DocumentVersion; units: { length: "mm"; area: "mm²"; volume: "mm³"; sketchAngle: "rad"; rotation: "deg" }; objects: CopilotQueryObject[]; byteLength: number; labelsShortened: boolean };
-export type CopilotQueryContext = { version: DocumentVersion; selectionIds: string[] };
+export type CopilotQueryContext = { version: DocumentVersion; selectionIds: string[]; targetId?: string };
 export function copilotQueryContextChange(saved: CopilotQueryContext, current: CopilotQueryContext) {
   if (!sameDocumentVersion(saved.version) || saved.version.documentId!==current.version.documentId || saved.version.revision!==current.version.revision || saved.version.generation!==current.version.generation) return "The document changed. Read selection again.";
   if (saved.selectionIds.length !== current.selectionIds.length || saved.selectionIds.some((id,i)=>id!==current.selectionIds[i])) return "The selection changed. Read selection again.";
+  if (saved.targetId !== current.targetId) return "The read target changed. Read again.";
 }
 
 /** Local, bounded read DTO. No feature params, raster bytes or full graph escape. */

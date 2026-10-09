@@ -1,5 +1,16 @@
 /* Inspector presentation: shared disclosures, precise inputs and contextual tools. */
 .properties-content { padding-bottom: 12px; }
+.copilot-query { min-width: 0; font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.copilot-query > label { display: grid; gap: 3px; margin-top: 8px; color: var(--muted); }
+.copilot-query > label > input, .copilot-query > label > select { min-width: 0; width: 100%; height: 28px; padding: 3px 6px; background: var(--bg-1); color: var(--text); border: 1px solid var(--line); border-radius: var(--radius); }
+.copilot-query article { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 10px; }
+.copilot-query article > strong, .copilot-query small { display: block; }
+.copilot-query ul { padding-left: 16px; }
+.copilot-query li + li { margin-top: 8px; }
+.copilot-query li > button { display: block; margin-top: 3px; }
+.copilot-query p { margin: 6px 0; }
+.copilot-query [role="alert"] { color: var(--danger); }
+.copilot-query summary { cursor: pointer; padding-block: 5px; }
 .inspector-header { height: 36px; padding-inline: 12px; font-size: 10px; letter-spacing: .9px; background: var(--bg-1); }
 .inspector-header small { font-size: 10px; letter-spacing: 0; }
 .inspector-selection-summary { display: flex; align-items: center; gap: 9px; min-height: 63px; padding: 11px 12px; border-bottom: 1px solid var(--line-soft); }

@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "baseline": "df20323",
+  "originalBaseline": "7df88c2",
+  "scope": "G5-B1 local selection/explicit-target Query, cancellation, context races and manual handoff only",
+  "environment": { "node": "24.19.0", "pnpm": "11.26.0", "browser": "Microsoft Edge headless CDP", "renderer": "SwiftShader", "transport": "local Query; mock gateway only for existing Plan/Apply regression", "externalLlm": "not connected" },
+  "node": { "tests": 651, "suites": 54, "passed": 651, "failed": 0, "skipped": 0, "newQueryTests": 8, "log": "output/g5-b1-node-final-2026-10-09.log" },
+  "browser": { "workflows": 39, "checks": 834, "queryChecks": 35, "gatewayChecks": 13, "contextChecks": 15, "applyChecks": 26, "log": "output/g5-b1-browser-final-2026-10-09.log" },
+  "typecheck": "passed",
+  "architecture": { "passed": true, "modules": 318, "documentationLinks": true, "log": "output/g5-b1-architecture-final-2026-10-09.log" },
+  "build": { "workspace": "passed", "mainRawKB": 1053.95, "viewportRawKB": 618.81, "kernelWasmRawKB": 50305.13, "kernelWasmGzipKB": 13955.45, "existingLargeChunkWarning": true, "log": "output/g5-b1-build-final-2026-10-09.log" },
+  "queryLimits": { "selectedObjects": 50, "utf8ResultBytes": 65536, "deadlineMs": 30000, "sourcesPerObject": 20, "affectedPerObject": 20, "solveGroupsPerObject": 10, "displayTextCharacters": 200 },
+  "commands": [
+    "pnpm --filter @agent-webcad/web exec tsc -b",
+    "pnpm --filter @agent-webcad/web test:browser --page=copilotQuery",
+    "pnpm --filter @agent-webcad/web test",
+    "pnpm --filter @agent-webcad/web test:browser",
+    "pnpm --filter @agent-webcad/web check:architecture",
+    "pnpm build"
+  ],
+  "regressionBeforeFix": {
+    "failure": "Read immediately after document publication captured the last rendered version and incorrectly rejected the fresh result as document changed",
+    "fixture": "Native read click capture publishes a geometry correction before React's read handler",
+    "beforeLog": "output/g5-b1-query-version-race-before-2026-10-09.log",
+    "firstFullBrowserLog": "output/g5-b1-browser-before-version-fix-2026-10-09.log",
+    "afterLog": "output/g5-b1-query-version-race-after-2026-10-09.log"
+  },
+  "evidence": [
+    "Exact analytic circle and BRep measurements use the shared Query engine and explicit units",
+    "Read target inspects locked objects without changing edit selection or unlocking their layer",
+    "Missing and unsupported measurements retain target-specific recovery",
+    "Cancel, selection/document generation changes and explicit target changes reject pending readers",
+    "Late actual OCCT Worker completion cannot overwrite a newer read",
+    "Inspect source selects exact geometry; Edit Sketch opens the owning manual editor",
+    "Three-target results scroll within Explorer and existing native Plan/Apply stay hit-testable",
+    "Read requests make zero gateway calls and preserve full document JSON and past/future history",
+    "Read preserves Undo future, Undo/Redo and v14 saved geometry/reference results",
+    "All browser cancellation and context races have zero unhandled rejections"
+  ],
+  "performance": {
+    "fixtureObjects": 7, "targets": 3, "warmSamples": 9,
+    "focusedP95Ms": 1.1, "fullSuiteP95Ms": 0.7, "concurrentRunP95Ms": 32,
+    "scope": "Local warmed Query only; excludes native input/render, provider, large-document benchmark and heap/VRAM. No optimization before/after claim.",
+    "focusedLog": "output/g5-b1-query-version-race-after-2026-10-09.log",
+    "concurrentLog": "output/g5-b1-query-diagnostic-2026-10-09.log"
+  },
+  "remaining": [
+    "B2 existing edit command expansion is not started; gateway allowlist is unchanged",
+    "No actual LLM provider/server/authentication or Query-to-LLM explanation endpoint",
+    "Deeper upstream missing references and per-target variable/binding diagnostics",
+    "Whole-document snapshot/graph cost remains; Cancel/deadline does not interrupt synchronous graph work or a shared Worker/cache task",
+    "Existing >500 kB build warning and practitioner/native GPU performance validation"
+  ]
+}
