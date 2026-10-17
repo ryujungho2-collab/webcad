@@ -1,0 +1,14 @@
+✔ analytic hatch keeps polygon/circular holes empty and handles a closed arc/diameter without sampling (2.1493ms)
+✔ open, branch and self-crossing boundaries warn and never invent filled material (0.2239ms)
+✔ real retained-background geometry, cuts, paper hatch and labels share detached Apply/Undo and sheet outputs (2667.0475ms)
+✔ paper scale changes preserve cut references and physical spacing/weights; locked and stale previews reject (142.9105ms)
+✔ depth/retained side omits below-cut objects; disabling expression retires auxiliaries; schema34 protects ownership (149.5264ms)
+✔ source loss hides all expression outputs; auxiliary edits are owned and cannot be directly moved (203.0745ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4076.5199

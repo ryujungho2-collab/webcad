@@ -13,14 +13,14 @@ Graph를 제품의 공통 기반으로 채택한다. 정밀함과 함께 필요�
 | 영역 | 현재 확인한 기반 | 새로 갖춰야 할 것 |
 | --- | --- | --- |
 | Geometry Kernel | 일반/스케치 선분, 다중선, 사각형, 원, 호. 독립 Point/무한 Line/Ray와 해석적 중점·직선/원 교점. 해석적 길이·면적, bulge 호 윤곽, BRep 솔리드 Worker | Polygon의 명시적 의미, Ellipse, Bezier, Spline과 파생점 계산 API 확장. 현재 `line`은 **유한 선분**이다. `cad-geometry`의 Registry만으로 이 커널이 완성된 것은 아니다. |
-| 수정 명령 | Move/Copy/Rotate/Scale/Mirror, live 2D 패턴, 열린/닫힌 곡선 Offset, 자유 끝부분 Trim/Extend와 닫힌/중간 구간 Trim·직선 재결합·치수/live 솔리드 재연결, 두 객체 직선 Fillet/Chamfer, Split/Join, 3D Boolean. 정점 구성·Lengthen·영역 Stretch와 결과 인계 작업대 | 원호가 참여하는 두 객체 코너, 소유 스케치/작도/패턴/블록 관계 어댑터. 2D 영역 Boolean은 3D Boolean과 별도로 필요 |
-| Constraint | 기존 수치 구속과 전용 평행/수직, 동일 길이/반지름, 동심, 선–원/원–원 접선, 점의 선/원 위, 대칭의 동시 해석·DOF/충돌·캔버스 검토 | 호 접점 범위·호 위 점, 일반 곡선과 대규모 솔버 보강 |
-| Snap | Grid/Endpoint/Midpoint/Center/Intersection/Tangent/Perpendicular/Nearest/Quadrant/Extension, 종류별 설정·격자 간격·픽셀 취득 반경과 커서 기호/원본 | 후보 전환·추적점 획득/해제·복수 추적 교점. 스냅된 좌표와 저장되는 작도/구속 관계를 구분 |
+| 수정 명령 | Move/Copy/Rotate/Scale/Mirror, live 2D 패턴, 열린/닫힌 곡선 Offset, 자유 끝부분 Trim/Extend와 닫힌/중간 구간 Trim·직선 재결합·치수/live 솔리드 재연결, 두 객체 직선/arc–arc Fillet/Chamfer와 line–arc Fillet, 닫힌 line–arc/arc–arc 내부 코너, Split/Join, 3D Boolean. 정점 구성·Lengthen·영역 Stretch와 결과 인계 작업대 | 독립 line–arc Chamfer/열린 mixed arc end, 소유 스케치/작도/패턴/블록 관계 어댑터. 2D 영역 Boolean은 3D Boolean과 별도로 필요 |
+| Constraint | 기존 수치 구속과 전용 평행/수직, 동일 길이/반지름, 동심, 선–원/원–원 및 유한 호 접선, 점의 선/원/호 위, 대칭의 동시 해석·DOF/충돌·캔버스 검토 | 타원/스플라인 등 일반 곡선과 대규모 솔버 보강 |
+| Snap | Grid/Endpoint/Midpoint/Center/Intersection/Tangent/Perpendicular/Nearest/Quadrant/Extension, 종류별 설정·격자 간격·픽셀 취득 반경과 커서 기호/원본. 기본 도형 작성 중 추적점·방향 잠금·복수 교점 후보 전환 | 다른 편집 도구의 추적 UX와 대형 도면 성능. 스냅된 좌표와 저장되는 작도/구속 관계를 구분 |
 | Construction | 보조 형상 점선/프로파일 제외, 독립 보조점/무한선/반직선, 전체 숨김과 저장되는 중점·수직이등분선·직선/원 교점 관계. 원본 드래그의 연쇄 미리보기 | 원–원/일반 곡선 교점, 나침반/자 모드와 수학 연산 확장, 정의 입력 재지정 |
 | Dependency Graph | 피처 입력, 스케치 소유권, 변수/식, 바인딩, live 패턴, 치수/해치 원본, 블록 참조와 타입 있는 작도 연산. 입력 ID·교점 분기 저장, 재생성·Query/Inspector·v4 문서 | 작도 연산 종류 확장과 정의 재편집 UI. 스냅 좌표만으로 작도 관계를 추정하지 않음 |
 | Layer/Group/Component | 레이어 visible/locked/color/line type/width, 단순 블록 정의·삽입, live 패턴 | 레이어 opacity, 명시적 Group, 편집 가능한 Component 정의/매개변수/인스턴스와 중첩·격리 편집 |
 | Dimension/Annotation | 일반 수평/수직/정렬·반지름/연속 치수, 문자/해치. 스케치 거리·각도·반지름·지름은 입력으로 작동 | 일반 지름/각도, 호 길이·면적·좌표·Leader, 공통 스타일/단위/정밀도. 측정 표시와 driving dimension의 역할을 명시 |
-| 좌표/단위 | mm 중심 길이 단위 파싱, 절대/상대 `@` 좌표·극좌표, XY/XZ/YZ 작업면 | 모든 도구의 일관된 단위/정밀도 설정, 사용자 UCS와 원점/높이. 큰 좌표에서도 공차·변환 기준을 보존 |
+| 좌표/단위 | mm 중심 길이 단위 파싱, 절대/상대 `@` 좌표·극좌표, XY/XZ/YZ 작성과 자유/평면 면 연결 작업면 저장·좌표 변환 | 모든 도구의 일관된 단위/정밀도 설정, 사용자 UCS 활성 전환·작업면 위 작성. 큰 좌표에서도 공차·변환 기준을 보존 |
 | 수학 모드 | 기본 기하·변환·스냅 계산 일부 | Compass/Straightedge, 수선·각 이등분선, 접선, 외접원/내접원, Locus/함수/매개곡선/Vector 및 Euclidean 도구 제한 |
 | 노드/파라메트릭 | 단위 변수/식과 피처·스케치 바인딩, 공용 Query/Preview/Apply | 노드 편집 UI, 타입 있는 포트, 같은 객체의 직접 편집 의미와 양방향 표시. 별도 Canvas/Node 기하 원본을 만들지 않음 |
 | 3D/BIM | Extrude/Revolve/Sweep/Loft, BRep 합/차/교차와 일부 엣지 편집 | 면 위 스케치/연관 투영, Cut/Hole/Shell/Section Plane. 이후 Wall/Door/Window/Floor/Column/Beam/Stair/Room을 공통 형상+의미 데이터로 추가 |
@@ -126,7 +126,7 @@ v4 저장·재열기 후 재계산과 전역 보조 형상 숨김을 검수했�
 
 ### SG2. 기본 관계·스냅과 곡선 수정 작업 완결
 
-구속·스냅 첫 묶음 완료: 관계 10종, 전용 평행/수직과 점·축 영구 참조, 선–원/원–원 서명 있는 접선, 원형 드래그, 동일 검토 결과의 한 Apply/Undo를 구현했다. Quadrant/Extension과 브라우저에 저장되는 스냅 종류·격자 간격·취득 반경도 추가했다. 상세 경계는 [EXTENDED-SKETCH-AND-SNAPS-2026-10-04.md](../implementation/EXTENDED-SKETCH-AND-SNAPS-2026-10-04.md)를 따른다. 호 접점 범위·스냅 추적은 남아 있다. 곡선 편집의 최신 상태는 아래를 따른다.
+구속·스냅 첫 묶음 완료: 관계 10종, 전용 평행/수직과 점·축 영구 참조, 선–원/원–원 서명 있는 접선, 원형 드래그, 동일 검토 결과의 한 Apply/Undo를 구현했다. Quadrant/Extension과 브라우저에 저장되는 스냅 종류·격자 간격·취득 반경도 추가했다. 첫 묶음의 상세 경계는 [EXTENDED-SKETCH-AND-SNAPS-2026-10-04.md](../implementation/EXTENDED-SKETCH-AND-SNAPS-2026-10-04.md)를 따른다. 작도 추적은 [B3-D/E/F](../implementation/B3-D-E-F-DIMENSION-TRACKING-2026-10-10.md), 이후 유한 호 접점과 호 위 점은 [B4](../implementation/B4-ARC-CONSTRAINTS-2026-10-10.md)에서 연결했다. 곡선 편집의 최신 상태는 아래를 따른다.
 
 첫 곡선 수정 묶음도 구현했다. [CURVE-WORKFLOW-2026-10-04.md](../implementation/CURVE-WORKFLOW-2026-10-04.md)의
 정확한 Offset·자유 끝부분 Trim/Extend·두 객체 직선 코너와 결과 인계/기존 편집기 연결을 따른다.
@@ -184,3 +184,7 @@ AI 인터페이스는 지금 마련한 Query/Plan 경로를 확장한다. 외접
 격리된 Edge/SwiftShader UI 검수는 실제 GPU 성능이나 전문가 사용성 연구를 대신하지 않는다.
 로그: `tmp/dependency-graph-node.log`, `tmp/dependency-workflow-browser.log`.
 캔버스: [cad-connected-constraints.png](../../output/images/cad-connected-constraints.png).
+
+B2-C는 drawing-editing의 순수 `geometry/arcCorners.ts`와 `geometry/curvedInternalCorner.ts`에서 해석 접점·원호 길이 절단·폐합과 topology를 계산한다. UI는 후보 선택과 공통 command Preview/Apply를 담당하며 기존 owner/재생성 경계를 따른다. [지원 계약](../implementation/B2-C-ARC-CORNERS-2026-10-10.md).
+
+B2-D의 `geometry/blockStretch.ts`는 정의/member/frame을 읽어 순수 envelope 및 포함 판정만 반환한다. command adapter가 instance translation을 갱신하고 기존 proposal/History가 batch를 원자적으로 게시한다. member/정의/sibling은 변경하지 않으며 부분 포함은 명시적 정의 편집/해체로 인계한다. [기하·문자 envelope 경계](../implementation/B2-D-BLOCK-STRETCH-2026-10-10.md).

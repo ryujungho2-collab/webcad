@@ -1,5 +1,7 @@
 # 정밀 측정·공용 계획·문서 복구의 첫 코어 검수
 
+> **현재 기능 설명:** [정밀 작도와 편집](../features/DRAWING-EDITING.md). 이 문서는 날짜별 검증·측정 기록이며, 아래 사용법·제한·수치는 당시 범위다. 후속 지원은 대표 가이드를 따른다.
+
 > 단계 기록: 아래 구현·검수 수치는 해당 시점의 근거다. 최신 지원 범위는 [CAD-BASICS](../product/CAD-BASICS.md), 최근 전체 검수는 [PROJECT-STATE](../../PROJECT-STATE.md), 다음 실행 순서는 [NEXT-STEPS](../../NEXT-STEPS.md)를 따른다.
 
 2026-10-03. PRODUCT-ROADMAP의 첫 구현 묶음을 구현했다. 기존 기계·건축·

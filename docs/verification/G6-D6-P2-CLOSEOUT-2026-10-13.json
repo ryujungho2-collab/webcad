@@ -1,0 +1,174 @@
+{
+  "date": "2026-10-13",
+  "card": "G6-D6-P2",
+  "status": "complete measured first performance hardening scope",
+  "fixture": {
+    "parts": 56,
+    "views": 14,
+    "objects": 3400,
+    "pages": 10
+  },
+  "node": {
+    "tests": 1191,
+    "suites": 54,
+    "fail": 0,
+    "skip": 0
+  },
+  "typecheck": "passed",
+  "architectureModules": 533,
+  "productionBuild": "passed",
+  "native": {
+    "courtyardIssue": 40,
+    "modelSheetLayout": 19,
+    "sectionPresentation": 17,
+    "conicProjection": 22
+  },
+  "nativeTotal": 98,
+  "nativeWorkflows": 4,
+  "layout": {
+    "beforeFirst": 1280.1981999999998,
+    "afterFirst": 157.25029999999992,
+    "warmed": {
+      "n": 5,
+      "p50": 119.83420000000024,
+      "p95": 136.8976,
+      "min": 112.07949999999983,
+      "max": 136.8976,
+      "method": "nearest rank; descriptive small sample, not a population estimate"
+    },
+    "boundsExactlyEqual": true,
+    "sourceKernelTasks": 0
+  },
+  "rawHLR": {
+    "before": [
+      4497.7038,
+      1839.2822000000006
+    ],
+    "after": [
+      4211.2855,
+      726.7867000000006
+    ],
+    "edges": 830,
+    "exactlyEqual": true,
+    "warmSourceBuilds": 0,
+    "retained": {
+      "hits": 112,
+      "builds": 48,
+      "evictions": 0,
+      "entries": 48,
+      "limit": 128
+    }
+  },
+  "nodeSourceReview": [
+    {
+      "run": 1,
+      "kind": "first source Review",
+      "reviewMs": 8154.0306,
+      "applyMs": 106.00640000000021,
+      "undoMs": 97.8819999999996,
+      "changes": 1254
+    },
+    {
+      "run": 2,
+      "kind": "warmed source Review",
+      "reviewMs": 655.9166999999998,
+      "applyMs": 120.23369999999886,
+      "undoMs": 92.91129999999976,
+      "changes": 1254
+    },
+    {
+      "run": 3,
+      "kind": "warmed source Review",
+      "reviewMs": 595.5290999999997,
+      "applyMs": 128.9948999999997,
+      "undoMs": 97.62289999999848,
+      "changes": 1254
+    }
+  ],
+  "nativeSingleRun": {
+    "initialSceneMs": 17332,
+    "sourceReviewMs": 10740,
+    "viewportSync": [
+      {
+        "ms": 8106.5,
+        "detail": {
+          "documentRevision": 2,
+          "documentObjects": 3352,
+          "sceneMeshes": 3344,
+          "remeshedCount": 3344,
+          "removedCount": 0,
+          "transformUpdateCount": 3344,
+          "visibilityUpdateCount": 0
+        }
+      },
+      {
+        "ms": 878.2999999998137,
+        "detail": {
+          "documentRevision": 3,
+          "documentObjects": 3352,
+          "sceneMeshes": 3344,
+          "remeshedCount": 29,
+          "removedCount": 0,
+          "transformUpdateCount": 29,
+          "visibilityUpdateCount": 1228
+        }
+      },
+      {
+        "ms": 934.4000000003725,
+        "detail": {
+          "documentRevision": 4,
+          "documentObjects": 3352,
+          "sceneMeshes": 3344,
+          "remeshedCount": 29,
+          "removedCount": 0,
+          "transformUpdateCount": 29,
+          "visibilityUpdateCount": 1225
+        }
+      }
+    ],
+    "sideReviewMs": 4098
+  },
+  "syntheticScale": {
+    "10": {
+      "firstMs": 2383.3644,
+      "warm": {
+        "n": 5,
+        "p50": 24.073199999999815,
+        "p95": 28.71279999999979,
+        "min": 20.982200000000375,
+        "max": 28.71279999999979,
+        "method": "nearest rank; descriptive small sample, not a population estimate"
+      }
+    },
+    "50": {
+      "firstMs": 161.51140000000032,
+      "warm": {
+        "n": 5,
+        "p50": 126.67380000000048,
+        "p95": 140.15120000000024,
+        "min": 114.09729999999945,
+        "max": 140.15120000000024,
+        "method": "nearest rank; descriptive small sample, not a population estimate"
+      }
+    },
+    "100": {
+      "firstMs": 306.1829000000007,
+      "warm": {
+        "n": 5,
+        "p50": 302.84850000000006,
+        "p95": 318.4517999999998,
+        "min": 280.40400000000045,
+        "max": 318.4517999999998,
+        "method": "nearest rank; descriptive small sample, not a population estimate"
+      }
+    }
+  },
+  "limitations": [
+    "First scene and new source editing still take seconds; no realtime or general architectural 100-part claim.",
+    "128 native shape wrappers bounded by entry count, not a strict WASM byte budget.",
+    "Synthetic separated boxes are not the architectural Boolean/stair fixture.",
+    "10-part first run includes WASM load; later size first runs have warm module.",
+    "Exact global HLR and retained-depth clipping still run for changed source sets; topology loss still requires rebind."
+  ],
+  "next": "G6-D6-P3 retained-slab and cold-source HLR performance"
+}

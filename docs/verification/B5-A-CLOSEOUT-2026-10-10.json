@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-10",
+  "scope": "CAD B5-A1/A2 free and planar BRep face-bound work planes",
+  "node": {"tests": 847, "suites": 54, "passed": 847, "failed": 0, "skipped": 0},
+  "browser": {"b5WorkPlanes": 8, "total": 8},
+  "checks": [
+    "right-handed orthonormal world/local frame and legacy XY/XZ/YZ coordinate round trip",
+    "free and face-bound work plane commands, Preview/Apply, Undo/Redo, document version 18 and reload",
+    "exact BRep face key and source object placement follow; source change or deletion yields missing without automatic face substitution",
+    "explicit face rebind after geometry change; ambiguous key classification and non-planar face rejection",
+    "Inspector creation, actual face selection, missing state and explicit rebind in browser"
+  ],
+  "typecheck": "passed",
+  "architecture": {"result": "passed", "modules": 396},
+  "productionBuild": "passed",
+  "limitations": [
+    "Face keys may change after source geometry edits and require explicit rebind",
+    "Active named UCS switching and authoring sketches on custom planes remain B5-B/X5"
+  ]
+}

@@ -1,0 +1,13 @@
+✔ presentation commands do not recalculate source sections; changed geometry still regenerates (2892.1487ms)
+✔ anchored opening edit preserves section IDs, dimensions, annotations, sheet and Undo; layout keeps correspondence (224.2156ms)
+✔ graph correspondence rejects disconnected moving, reversed and ambiguous branches (0.273ms)
+✔ exact HLR classifies front/back parts and suppresses no source geometry (13.4798ms)
+✔ Boolean opening HLR Review/Apply, hidden style, sheets, schema33 and stale/locked edits remain atomic (228.9394ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4299.2011

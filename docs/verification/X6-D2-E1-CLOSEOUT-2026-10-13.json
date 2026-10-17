@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-13",
+  "card": "X6-D2-E1",
+  "status": "complete",
+  "node": {
+    "tests": 1173,
+    "suites": 54,
+    "fail": 0,
+    "skip": 0
+  },
+  "typecheck": "passed",
+  "architectureModules": 527,
+  "productionBuild": "passed",
+  "native": {
+    "ellipseSection": 18,
+    "courtyardEllipse": 14,
+    "modelDrawing": 32,
+    "sectionPresentation": 17,
+    "ellipse": 24,
+    "total": 105,
+    "fullBrowserSuite": false
+  },
+  "project": {
+    "date": "2026-10-13",
+    "parts": 56,
+    "views": 9,
+    "pages": 6,
+    "schema": 35,
+    "source": "Existing original skylight-study, radius1800 height6000, rotateY30, translation18000/14000/11000",
+    "cutHeight": 13500,
+    "majorRadius": 2078.460969082653,
+    "minorRadius": 1800,
+    "cropRange": [
+      19443.375672974063,
+      11821.539030917347,
+      21621.836642056718,
+      16178.460969082653
+    ],
+    "fullOutputs": 1,
+    "cropOutputs": 1,
+    "existingViewsUnchanged": true,
+    "dxfSkipped": 0,
+    "ms": 9921,
+    "limits": [
+      "Ellipse section only; ellipse HLR/background and ellipse hatch remain unsupported.",
+      "Two added skylight views use the same original model part; original five pages are preserved.",
+      "Design development study; no new code/fire/structure assessment."
+    ]
+  },
+  "nativeProjectMetrics": {
+    "initialSceneMs": 26439,
+    "pdfBudgetDiagnostic": "The PDF would contain 17,814,075 raster pixels; the export limit is 16,000,000. Lower dpi or export fewer/smaller boards.",
+    "pdfDpi": 72,
+    "pdfPages": 6,
+    "pdfBytes": 624201
+  },
+  "pdf": {
+    "pages": 6,
+    "pageSizes": [
+      "A2 landscape",
+      "A2 landscape",
+      "A2 landscape",
+      "A2 landscape",
+      "A2 landscape",
+      "A3 landscape"
+    ],
+    "dpi": 72,
+    "bytes": 624201,
+    "independentInspection": "pdfinfo + pdftoppm; all six pages and A4 pilot inspected"
+  },
+  "contracts": [
+    "Analytic OCCT ellipse/finite ellipse arc extraction",
+    "Finite rectangular crop with tangent and closed-seam interval merge",
+    "Stable read-only derived ownership, live analytic endpoint notes, detached Apply/Undo",
+    "Exact SVG ellipse/A and DXF ELLIPSE; schema35 downgrade protection"
+  ],
+  "limits": [
+    "Ellipse hatch warns and omits affected part; no material inference.",
+    "General ellipse HLR/background unsupported; Review rejects atomically.",
+    "Spline unsupported.",
+    "No ellipse major/minor radius dimension UI.",
+    "Large project source-edit responsiveness remains the H1 P2 task."
+  ],
+  "next": "G6-D6-P2"
+}

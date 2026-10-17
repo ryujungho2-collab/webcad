@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-10",
+  "scope": "CAD B4-A through B4-D bounded arc sketch relationships",
+  "node": {"tests": 843, "suites": 54, "passed": 843, "failed": 0, "skipped": 0},
+  "browser": {"b4ArcWorkflow": 11, "extendedCadWorkflow": 27, "total": 38},
+  "checks": [
+    "point-on-arc directed interval, endpoints, wrap-around and clockwise projection",
+    "finite line-arc and arc-arc/arc-circle shared contact and impossible locked geometry",
+    "selected nearby tangent candidate, detached preview, explicit Apply, Undo and Redo",
+    "arc radius dimension change preserving contact and regenerating live extrude",
+    "dynamic document version 17 and older-version rejection"
+  ],
+  "typecheck": "passed",
+  "architecture": {"result": "passed", "modules": 391},
+  "productionBuild": "passed",
+  "limitations": ["Selected nearby geometry provides suggestions; drawing-time automatic permanent constraints are excluded", "Ellipse/spline and separately pinned contact-parameter constraints are excluded"]
+}

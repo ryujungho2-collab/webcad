@@ -1,0 +1,1039 @@
+{
+  "format": "agent-webcad",
+  "version": 42,
+  "document": {
+    "id": "test-document",
+    "revision": 15,
+    "objects": {
+      "source-prototype": {
+        "id": "source-prototype",
+        "geometryId": "geometry-source-prototype",
+        "name": "Box",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "outline": {
+        "id": "outline",
+        "geometryId": "geometry-outline",
+        "name": "Rectangle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "court": {
+        "id": "court",
+        "geometryId": "geometry-court",
+        "name": "Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "axis": {
+        "id": "axis",
+        "geometryId": "geometry-axis",
+        "name": "Line",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "wall": {
+        "id": "wall",
+        "name": "Wall",
+        "geometryId": "geometry-wall",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "content-8006bcb7-e9d7-44be-bf21-ca13fd990497": {
+        "id": "content-8006bcb7-e9d7-44be-bf21-ca13fd990497",
+        "name": "Door insert",
+        "geometryId": "geometry-content-8006bcb7-e9d7-44be-bf21-ca13fd990497",
+        "visible": true,
+        "layerId": "layer-architecture-fitout",
+        "transform": {
+          "translation": [
+            1060,
+            -95,
+            5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            8.8,
+            4.75,
+            10.45
+          ]
+        }
+      },
+      "slab-07ab37b7-c788-456c-90b4-065c927dd878": {
+        "id": "slab-07ab37b7-c788-456c-90b4-065c927dd878",
+        "name": "Floor",
+        "geometryId": "geometry-slab-07ab37b7-c788-456c-90b4-065c927dd878",
+        "visible": true,
+        "layerId": "layer-architecture-fitout",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "slab-76f97933-f8ae-4839-8e0c-3e28200d9692": {
+        "id": "slab-76f97933-f8ae-4839-8e0c-3e28200d9692",
+        "name": "Ceiling",
+        "geometryId": "geometry-slab-76f97933-f8ae-4839-8e0c-3e28200d9692",
+        "visible": true,
+        "layerId": "layer-architecture-fitout",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    "features": {
+      "feature-source-prototype": {
+        "id": "feature-source-prototype",
+        "type": "primitive",
+        "inputs": [],
+        "output": "source-prototype",
+        "params": {
+          "width": 100,
+          "depth": 40,
+          "height": 200
+        }
+      },
+      "feature-outline": {
+        "id": "feature-outline",
+        "type": "drawing",
+        "inputs": [],
+        "output": "outline",
+        "params": {
+          "points": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              6000,
+              0,
+              0
+            ],
+            [
+              6000,
+              4000,
+              0
+            ],
+            [
+              0,
+              4000,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "rectangle",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-d7907205-50d9-48ca-9bb5-5afef7036ebd",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-f9acf7b7-e633-44a5-8520-feed143392a8",
+                "role": "vertex",
+                "index": 1
+              },
+              {
+                "id": "vertex-bb7b562f-0568-4208-80d4-caef2a910f1f",
+                "role": "vertex",
+                "index": 2
+              },
+              {
+                "id": "vertex-6446eb7f-68b0-4098-ae53-b320b84f00f8",
+                "role": "vertex",
+                "index": 3
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1",
+                "startControlId": "vertex-d7907205-50d9-48ca-9bb5-5afef7036ebd",
+                "endControlId": "vertex-f9acf7b7-e633-44a5-8520-feed143392a8",
+                "index": 0,
+                "kind": "line"
+              },
+              {
+                "id": "segment-c598b2f8-4088-4911-b775-6912b1d0673d",
+                "startControlId": "vertex-f9acf7b7-e633-44a5-8520-feed143392a8",
+                "endControlId": "vertex-bb7b562f-0568-4208-80d4-caef2a910f1f",
+                "index": 1,
+                "kind": "line"
+              },
+              {
+                "id": "segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
+                "startControlId": "vertex-bb7b562f-0568-4208-80d4-caef2a910f1f",
+                "endControlId": "vertex-6446eb7f-68b0-4098-ae53-b320b84f00f8",
+                "index": 2,
+                "kind": "line"
+              },
+              {
+                "id": "segment-fbe1281d-821a-462b-8037-c40b0a72d6d0",
+                "startControlId": "vertex-6446eb7f-68b0-4098-ae53-b320b84f00f8",
+                "endControlId": "vertex-d7907205-50d9-48ca-9bb5-5afef7036ebd",
+                "index": 3,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-court": {
+        "id": "feature-court",
+        "type": "drawing",
+        "inputs": [],
+        "output": "court",
+        "params": {
+          "center": [
+            3000,
+            2000,
+            0
+          ],
+          "radius": 500,
+          "workPlane": "XY",
+          "kind": "circle",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center-75bf0e29-79b1-4573-b476-988676c31580",
+                "role": "center"
+              },
+              {
+                "id": "radius-a260de03-045e-4cb7-b2af-016982f52732",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-axis": {
+        "id": "feature-axis",
+        "type": "drawing",
+        "inputs": [],
+        "output": "axis",
+        "params": {
+          "points": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              6000,
+              0,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-1061f541-7838-47c7-b954-fcee9935cb5c",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-cb151966-50f2-4c4d-9d7d-2a124e89bb74",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-f8601eea-a5f6-433f-ac8e-6afb1af74a8c",
+                "startControlId": "vertex-1061f541-7838-47c7-b954-fcee9935cb5c",
+                "endControlId": "vertex-cb151966-50f2-4c4d-9d7d-2a124e89bb74",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-wall": {
+        "id": "feature-wall",
+        "type": "boolean",
+        "dependencyMode": "live",
+        "inputs": [
+          "axis"
+        ],
+        "output": "wall",
+        "params": {
+          "operation": "cut",
+          "operands": [
+            {
+              "params": {
+                "kind": "extrude",
+                "distance": 2700,
+                "profile": {
+                  "id": "wall:axis",
+                  "normal": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "segments": [
+                    {
+                      "kind": "line",
+                      "start": [
+                        0,
+                        -100,
+                        0
+                      ],
+                      "end": [
+                        6000,
+                        -100,
+                        0
+                      ],
+                      "topologyReference": "wall:axis:0"
+                    },
+                    {
+                      "kind": "line",
+                      "start": [
+                        6000,
+                        -100,
+                        0
+                      ],
+                      "end": [
+                        6000,
+                        100,
+                        0
+                      ],
+                      "topologyReference": "wall:axis:1"
+                    },
+                    {
+                      "kind": "line",
+                      "start": [
+                        6000,
+                        100,
+                        0
+                      ],
+                      "end": [
+                        0,
+                        100,
+                        0
+                      ],
+                      "topologyReference": "wall:axis:2"
+                    },
+                    {
+                      "kind": "line",
+                      "start": [
+                        0,
+                        100,
+                        0
+                      ],
+                      "end": [
+                        0,
+                        -100,
+                        0
+                      ],
+                      "topologyReference": "wall:axis:3"
+                    }
+                  ]
+                }
+              },
+              "transform": {
+                "translation": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            },
+            {
+              "params": {
+                "kind": "extrude",
+                "profile": {
+                  "id": "opening:door",
+                  "normal": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "segments": [
+                    {
+                      "kind": "line",
+                      "start": [
+                        1050,
+                        -100.2,
+                        0
+                      ],
+                      "end": [
+                        1950,
+                        -100.2,
+                        0
+                      ],
+                      "topologyReference": "opening:door:0"
+                    },
+                    {
+                      "kind": "line",
+                      "start": [
+                        1950,
+                        -100.2,
+                        0
+                      ],
+                      "end": [
+                        1950,
+                        100.2,
+                        0
+                      ],
+                      "topologyReference": "opening:door:1"
+                    },
+                    {
+                      "kind": "line",
+                      "start": [
+                        1950,
+                        100.2,
+                        0
+                      ],
+                      "end": [
+                        1050,
+                        100.2,
+                        0
+                      ],
+                      "topologyReference": "opening:door:2"
+                    },
+                    {
+                      "kind": "line",
+                      "start": [
+                        1050,
+                        100.2,
+                        0
+                      ],
+                      "end": [
+                        1050,
+                        -100.2,
+                        0
+                      ],
+                      "topologyReference": "opening:door:3"
+                    }
+                  ]
+                },
+                "distance": 2100
+              },
+              "transform": {
+                "translation": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            }
+          ],
+          "architecturalWall": {
+            "mode": "centerline",
+            "sourceObjectIds": [
+              "axis"
+            ],
+            "height": 2700,
+            "thickness": 200,
+            "baseLevel": 0,
+            "openings": [
+              {
+                "id": "door",
+                "kind": "door",
+                "side": "left",
+                "along": 1500,
+                "width": 900,
+                "height": 2100,
+                "sill": 0
+              }
+            ]
+          },
+          "bounds": {
+            "min": [
+              0,
+              -100,
+              0
+            ],
+            "max": [
+              6000,
+              100,
+              2700
+            ]
+          }
+        }
+      },
+      "feature-content-8006bcb7-e9d7-44be-bf21-ca13fd990497": {
+        "id": "feature-content-8006bcb7-e9d7-44be-bf21-ca13fd990497",
+        "output": "content-8006bcb7-e9d7-44be-bf21-ca13fd990497",
+        "type": "primitive",
+        "dependencyMode": "live",
+        "inputs": [
+          "wall"
+        ],
+        "params": {
+          "width": 100,
+          "depth": 40,
+          "height": 200,
+          "componentContent": {
+            "definitionId": "component-f7a64335-3b60-430c-8b87-3d8c2bc44f85",
+            "slot": {
+              "kind": "opening",
+              "hostId": "wall",
+              "openingId": "door",
+              "padding": [
+                10,
+                5,
+                5
+              ],
+              "minimum": [
+                0,
+                0,
+                0
+              ],
+              "fit": "fill"
+            },
+            "materialOverride": {
+              "name": "Glass",
+              "color": "#91b9c9",
+              "roughness": 0.1,
+              "metalness": 0,
+              "opacity": 0.35
+            }
+          },
+          "solidFinish": {
+            "name": "Glass",
+            "color": "#91b9c9",
+            "roughness": 0.1,
+            "metalness": 0,
+            "opacity": 0.35
+          }
+        }
+      },
+      "feature-slab-07ab37b7-c788-456c-90b4-065c927dd878": {
+        "id": "feature-slab-07ab37b7-c788-456c-90b4-065c927dd878",
+        "output": "slab-07ab37b7-c788-456c-90b4-065c927dd878",
+        "type": "extrude",
+        "dependencyMode": "live",
+        "inputs": [
+          "outline",
+          "court"
+        ],
+        "params": {
+          "kind": "extrude",
+          "distance": -150,
+          "profile": {
+            "id": "loop:outline/segment-c598b2f8-4088-4911-b775-6912b1d0673d|outline/segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1|outline/segment-fbe1281d-821a-462b-8037-c40b0a72d6d0|outline/segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
+            "workPlane": "XY",
+            "normal": [
+              0,
+              0,
+              1
+            ],
+            "segments": [
+              {
+                "kind": "line",
+                "topologyReference": "outline/segment-c598b2f8-4088-4911-b775-6912b1d0673d",
+                "start": [
+                  6000,
+                  0,
+                  0
+                ],
+                "end": [
+                  6000,
+                  4000,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "outline/segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
+                "start": [
+                  6000,
+                  4000,
+                  0
+                ],
+                "end": [
+                  0,
+                  4000,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "outline/segment-fbe1281d-821a-462b-8037-c40b0a72d6d0",
+                "start": [
+                  0,
+                  4000,
+                  0
+                ],
+                "end": [
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "outline/segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1",
+                "start": [
+                  0,
+                  0,
+                  0
+                ],
+                "end": [
+                  6000,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "sourceObjectIds": [
+              "outline",
+              "court"
+            ],
+            "sourceTopologyIds": [
+              "outline/segment-c598b2f8-4088-4911-b775-6912b1d0673d",
+              "outline/segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
+              "outline/segment-fbe1281d-821a-462b-8037-c40b0a72d6d0",
+              "outline/segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1",
+              "court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e"
+            ],
+            "holes": [
+              {
+                "id": "loop:court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "court"
+                ],
+                "sourceTopologyIds": [
+                  "court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e",
+                    "center": [
+                      3000,
+                      2000,
+                      0
+                    ],
+                    "radius": 500,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "architecturalSlab": {
+            "kind": "floor",
+            "sourceObjectIds": [
+              "outline",
+              "court"
+            ],
+            "level": 0,
+            "thickness": 150
+          },
+          "bounds": {
+            "min": [
+              0,
+              0,
+              -150
+            ],
+            "max": [
+              6000,
+              4000,
+              0
+            ]
+          },
+          "solidFinish": {
+            "name": "Concrete",
+            "color": "#b3b1aa",
+            "roughness": 0.9,
+            "metalness": 0,
+            "opacity": 1
+          }
+        }
+      },
+      "feature-slab-76f97933-f8ae-4839-8e0c-3e28200d9692": {
+        "id": "feature-slab-76f97933-f8ae-4839-8e0c-3e28200d9692",
+        "output": "slab-76f97933-f8ae-4839-8e0c-3e28200d9692",
+        "type": "extrude",
+        "dependencyMode": "live",
+        "inputs": [
+          "outline",
+          "court"
+        ],
+        "params": {
+          "kind": "extrude",
+          "distance": 100,
+          "profile": {
+            "id": "loop:outline/segment-c598b2f8-4088-4911-b775-6912b1d0673d|outline/segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1|outline/segment-fbe1281d-821a-462b-8037-c40b0a72d6d0|outline/segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
+            "workPlane": "XY",
+            "normal": [
+              0,
+              0,
+              1
+            ],
+            "segments": [
+              {
+                "kind": "line",
+                "topologyReference": "outline/segment-c598b2f8-4088-4911-b775-6912b1d0673d",
+                "start": [
+                  6000,
+                  0,
+                  2700
+                ],
+                "end": [
+                  6000,
+                  4000,
+                  2700
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "outline/segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
+                "start": [
+                  6000,
+                  4000,
+                  2700
+                ],
+                "end": [
+                  0,
+                  4000,
+                  2700
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "outline/segment-fbe1281d-821a-462b-8037-c40b0a72d6d0",
+                "start": [
+                  0,
+                  4000,
+                  2700
+                ],
+                "end": [
+                  0,
+                  0,
+                  2700
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "outline/segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1",
+                "start": [
+                  0,
+                  0,
+                  2700
+                ],
+                "end": [
+                  6000,
+                  0,
+                  2700
+                ]
+              }
+            ],
+            "sourceObjectIds": [
+              "outline",
+              "court"
+            ],
+            "sourceTopologyIds": [
+              "outline/segment-c598b2f8-4088-4911-b775-6912b1d0673d",
+              "outline/segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
+              "outline/segment-fbe1281d-821a-462b-8037-c40b0a72d6d0",
+              "outline/segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1",
+              "court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e"
+            ],
+            "holes": [
+              {
+                "id": "loop:court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "court"
+                ],
+                "sourceTopologyIds": [
+                  "court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e",
+                    "center": [
+                      3000,
+                      2000,
+                      2700
+                    ],
+                    "radius": 500,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "architecturalSlab": {
+            "kind": "ceiling",
+            "sourceObjectIds": [
+              "outline",
+              "court"
+            ],
+            "level": 2700,
+            "thickness": 100
+          },
+          "bounds": {
+            "min": [
+              0,
+              0,
+              2700
+            ],
+            "max": [
+              6000,
+              4000,
+              2800
+            ]
+          },
+          "solidFinish": {
+            "name": "Concrete",
+            "color": "#b3b1aa",
+            "roughness": 0.9,
+            "metalness": 0,
+            "opacity": 1
+          }
+        }
+      }
+    },
+    "sketches": {},
+    "layers": {
+      "layer-default": {
+        "id": "layer-default",
+        "name": "Default",
+        "visible": true,
+        "locked": false,
+        "objectIds": [
+          "source-prototype",
+          "outline",
+          "court",
+          "axis",
+          "wall"
+        ]
+      },
+      "layer-architecture-fitout": {
+        "id": "layer-architecture-fitout",
+        "name": "Architecture fitout",
+        "visible": true,
+        "locked": false,
+        "objectIds": [
+          "content-8006bcb7-e9d7-44be-bf21-ca13fd990497",
+          "slab-07ab37b7-c788-456c-90b4-065c927dd878",
+          "slab-76f97933-f8ae-4839-8e0c-3e28200d9692"
+        ]
+      }
+    },
+    "rootObjects": [
+      "source-prototype",
+      "outline",
+      "court",
+      "axis",
+      "wall",
+      "content-8006bcb7-e9d7-44be-bf21-ca13fd990497",
+      "slab-07ab37b7-c788-456c-90b4-065c927dd878",
+      "slab-76f97933-f8ae-4839-8e0c-3e28200d9692"
+    ],
+    "rootLayers": [
+      "layer-default",
+      "layer-architecture-fitout"
+    ],
+    "componentLibrary": {
+      "component-f7a64335-3b60-430c-8b87-3d8c2bc44f85": {
+        "id": "component-f7a64335-3b60-430c-8b87-3d8c2bc44f85",
+        "name": "Door insert",
+        "domain": "model",
+        "type": "primitive",
+        "params": {
+          "width": 100,
+          "depth": 40,
+          "height": 200
+        },
+        "min": [
+          0,
+          0,
+          0
+        ],
+        "size": [
+          100,
+          40,
+          200
+        ]
+      }
+    }
+  }
+}

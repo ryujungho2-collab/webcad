@@ -1,3 +1,6 @@
+import {validSpline} from "@agent-webcad/cad-document";
+import {validEllipse} from "@agent-webcad/cad-document";
+import {ellipseClosed} from "../../../precision/ellipseGeometry";
 import type { CadDocument } from "@agent-webcad/cad-document";
 import type { CommandBus, CadCommand } from "@agent-webcad/cad-commands";
 import {
@@ -26,6 +29,8 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
     return object && layer?.visible && !layer.locked ? object : undefined;
   };
 
+  commandBus.registerHandler("update-spline",c=>{if(c.type!=="update-spline")return;const o=editableObject(c.objectId),f=featureForObject(c.objectId);if(!o?.visible||!f||!validSpline(f.params)||f.pattern||f.construction||f.params.sketchId)throw Error("Choose a visible unlocked standalone spline.");if(f.params.controlPoints.length!==c.spline.controlPoints.length||f.params.degree!==c.spline.degree||JSON.stringify(f.params.knots)!==JSON.stringify(c.spline.knots))throw Error("Keep degree, knot structure and pole count for reference-preserving edits; create a new spline to change its structure.");const params={...f.params,...structuredClone(c.spline)};if(JSON.stringify(params)===JSON.stringify(f.params))return; o.transform=drawingTransformAfterEdit(o,f,params);f.params=params;document.revision++;});
+  commandBus.registerHandler("update-ellipse",command=>{if(command.type!=="update-ellipse")return;const object=editableObject(command.objectId),feature=featureForObject(command.objectId);if(!object?.visible||!feature||!validEllipse(feature.params)||feature.pattern||feature.construction||feature.params.sketchId)throw Error("Choose a visible unlocked standalone ellipse.");const params={...feature.params,...structuredClone(command.ellipse),kind:ellipseClosed(command.ellipse)?"ellipse":"elliptic-arc",closed:ellipseClosed(command.ellipse)};object.transform=drawingTransformAfterEdit(object,feature,params);feature.params=params;const topology=feature.params.topology as import("../../../precision/drawingTopology").DrawingTopology;const next=createDrawingTopology(params.kind,params,feature.id);next.controls=next.controls.map(c=>topology.controls.find(old=>old.role===c.role)??c);next.curves[0].id=topology.curves[0].id;feature.params.topology=next;document.revision++;});
   commandBus.registerHandler("create-drawing", async (command: CadCommand) => {
     if (command.type !== "create-drawing") return;
     const layerId = command.layerId ?? "layer-default";
@@ -85,6 +90,7 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
 
   commandBus.registerHandler("connect-drawings", (command: CadCommand) => {
     if (command.type !== "connect-drawings") return;
+    if (command.firstId === command.secondId) throw new Error("Choose two distinct open contours to connect.");
     const sources = [command.firstId, command.secondId].map(id => {
       const object = editableObject(id), feature = featureForObject(id);
       if (!object?.visible || !feature || feature.type !== "drawing") throw new Error("Show and unlock two drawing contours to connect.");
@@ -93,7 +99,7 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
     });
     const construction = Boolean(sources[0].feature.params.construction);
     if (sources.some(s => s.object.layerId !== sources[0].object.layerId || Boolean(s.feature.params.construction) !== construction)) throw new Error("Use the same layer and construction purpose for a connected contour.");
-    const edit = connectDrawings(sources[0], sources[1], command.firstPoint, command.secondPoint, command.treatment, command.distance, command.secondDistance);
+    const edit = connectDrawings(sources[0], sources[1], command.firstPoint, command.secondPoint, command.treatment, command.distance, command.secondDistance, command.solutionIndex);
     const id = command.id ?? `${command.treatment}-${crypto.randomUUID()}`, featureId = `feature-${id}`;
     if (document.objects[id] || document.features[featureId]) throw new Error("The connector ID already exists.");
     sources.forEach((s, i) => { s.object.transform = drawingTransformAfterEdit(s.object, s.feature, edit.replacements[i]); s.feature.params = edit.replacements[i]; });
@@ -110,7 +116,7 @@ export function registerDrawingCommandHandlers(commandBus: CommandBus, document:
     const feature = featureForObject(command.objectId);
     if (!object?.visible || !feature || feature.type !== "drawing") throw new Error("Show and unlock the corner's drawing layer before editing.");
     if (feature.params.sketchId || feature.pattern || feature.construction) throw new Error("Edit this corner through its owning sketch, pattern source or construction definition.");
-    const params = editDrawingCornerForObject(object, feature, command.controlId, command.treatment, command.distance, command.secondDistance, command.distanceSpace);
+    const params = editDrawingCornerForObject(object, feature, command.controlId, command.treatment, command.distance, command.secondDistance, command.distanceSpace, command.solutionIndex);
     object.transform = drawingTransformAfterEdit(object, feature, params);
     feature.params = params;
     document.revision += 1;

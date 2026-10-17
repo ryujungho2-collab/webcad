@@ -3,8 +3,8 @@ import { evaluateExpression, evaluateVariables, type CadDocument, type SketchCon
 import { liveFeatureInputs } from "./featureRegeneration";
 import { constructionExpression } from "@agent-webcad/cad-document";
 
-export type DependencyNode = { id: string; kind: "object" | "sketch" | "geometry" | "variable" | "binding" | "block"; sourceId: string; label: string; operation?: string; missing?: boolean };
-export type DependencyEdge = { from: string; to: string; relation: "live-input" | "snapshot-source" | "annotation-source" | "sketch-owner" | "parameter-binding" | "variable-reference" | "block-instance" };
+export type DependencyNode = { id: string; kind: "object" | "sketch" | "geometry" | "variable" | "binding" | "block" | "component"; sourceId: string; label: string; operation?: string; missing?: boolean };
+export type DependencyEdge = { from: string; to: string; relation: "live-input" | "snapshot-source" | "annotation-source" | "sketch-owner" | "parameter-binding" | "variable-reference" | "block-instance" | "component-content" };
 export type ConstraintGroup = { sketchId: string; members: string[]; constraints: { id: string; kind: SketchConstraint["kind"]; members: string[]; definition: SketchConstraint; value?: number | [number, number] }[]; degreesOfFreedom: number; residual: number };
 export type CadDependencyGraph = { nodes: DependencyNode[]; edges: DependencyEdge[]; solveGroups: ConstraintGroup[]; diagnostics: string[] };
 export const dependencyNodeId = (kind: DependencyNode["kind"], ...parts: string[]) => JSON.stringify([kind, ...parts]);
@@ -22,6 +22,7 @@ export function buildDependencyGraph(document: CadDocument): CadDependencyGraph 
     return key;
   };
   for (const object of Object.values(document.objects)) objectNode(object.id);
+  for(const def of Object.values(document.componentLibrary??{}))add({id:dependencyNodeId("component",def.id),kind:"component",sourceId:def.id,label:def.name});
   for (const block of Object.values(document.blocks ?? {})) add({ id: dependencyNodeId("block", block.id), kind: "block", sourceId: block.id, label: block.name });
   for (const sketch of Object.values(document.sketches ?? {})) {
     const sketchKey = dependencyNodeId("sketch", sketch.id);
@@ -43,6 +44,8 @@ export function buildDependencyGraph(document: CadDocument): CadDependencyGraph 
     const annotations = new Set<string>((feature.type === "dimension" || feature.type === "drafting" && feature.params.kind === "hatch")
       ? [...(typeof feature.params.sourceObjectId === "string" ? [feature.params.sourceObjectId] : []), ...(Array.isArray(feature.params.sourceObjectIds) ? feature.params.sourceObjectIds.filter((v): v is string => typeof v === "string") : [])] : []);
     for (const id of new Set([...feature.inputs, ...annotations])) edge(objectNode(id), output, annotations.has(id) ? "annotation-source" : live.has(id) ? "live-input" : "snapshot-source");
+    const content=feature.params.componentContent as import("@agent-webcad/cad-document").ComponentContent|undefined;
+    if(content)for(const id of new Set([content.definitionId,content.overrideDefinitionId].filter((s):s is string=>!!s))){const key=dependencyNodeId("component",id);if(!nodes.has(key))add({id:key,kind:"component",sourceId:id,label:id,missing:true});edge(key,output,"component-content");}
     if (typeof feature.params.blockId === "string") {
       const id = feature.params.blockId, key = dependencyNodeId("block", id);
       if (!nodes.has(key)) add({ id: key, kind: "block", sourceId: id, label: id, missing: true });
@@ -94,3 +97,4 @@ export function createDependencyExplainer(graph: CadDependencyGraph) {
   };
 }
 export const explainObjectDependencies = (graph: CadDependencyGraph, objectId: string) => createDependencyExplainer(graph)(objectId);
+

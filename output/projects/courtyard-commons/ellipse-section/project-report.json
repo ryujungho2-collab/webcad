@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-13",
+  "parts": 56,
+  "views": 9,
+  "pages": 6,
+  "schema": 35,
+  "source": "Existing original skylight-study, radius1800 height6000, rotateY30, translation18000/14000/11000",
+  "cutHeight": 13500,
+  "majorRadius": 2078.460969082653,
+  "minorRadius": 1800,
+  "cropRange": [
+    19443.375672974063,
+    11821.539030917347,
+    21621.836642056718,
+    16178.460969082653
+  ],
+  "fullOutputs": 1,
+  "cropOutputs": 1,
+  "existingViewsUnchanged": true,
+  "dxfSkipped": 0,
+  "ms": 9921,
+  "limits": [
+    "Ellipse section only; ellipse HLR/background and ellipse hatch remain unsupported.",
+    "Two added skylight views use the same original model part; original five pages are preserved.",
+    "Design development study; no new code/fire/structure assessment."
+  ]
+}

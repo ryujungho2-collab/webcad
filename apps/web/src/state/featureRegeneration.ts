@@ -1,8 +1,9 @@
+import {rebuildContent,rebuildSlab} from "./architectureContentCommands";
 import type { CadDocument, CadFeature } from "@agent-webcad/cad-document";
 import type { SerializedOperand } from "../cad/kernelProtocol";
 import {
   buildBooleanMesh, buildChamferMesh, buildExtrudeMesh, buildFilletMesh,
-  buildLoftMesh, buildRevolveMesh, buildSweepMesh, meshPositionsBounds,
+  buildLoftMesh, buildShellMesh, buildRevolveMesh, buildSweepMesh, inspectSolid, meshPositionsBounds,
 } from "../cad/kernelGeometryService";
 import { extractSketchLoops, extrusionProfileParams } from "../precision/sketchProfiles";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
@@ -10,8 +11,14 @@ import { WORK_PLANES } from "../precision/workPlane";
 import { getObjectTransform } from "../precision/objectTransform";
 import {buildPatternDrawingParams} from "../precision/patternGeometry";
 import { evaluateConstruction } from "../precision/constructionGeometry";
+import { faceSketchExtrusionProfile } from "../precision/faceSketchProfile";
+import { faceCutParams, type FaceCutDefinition } from "./faceCutCommands";
+import {faceHoleParams,type FaceHoleDefinition} from "./faceHoleCommands";
+import {resolveStoredWorkPlane} from "./attachedWorkPlane";
+import {shellFaceStatus,shellParams} from "./shellCommands";
+import {architectureWallParams} from "./architectureWallCommands";
 
-const DERIVED_TYPES = new Set(["extrude", "revolve", "sweep", "loft", "boolean", "fillet", "chamfer"]);
+const DERIVED_TYPES = new Set(["extrude", "revolve", "sweep", "loft", "shell", "boolean", "fillet", "chamfer"]);
 
 export class FeatureRegenerationError extends Error {
   constructor(message: string, public geometryIds: string[]) { super(message); }
@@ -20,6 +27,7 @@ export class FeatureRegenerationError extends Error {
 /** Legacy consumed operands are snapshots: missing history cannot be invented.
  * Legacy profile features with intact sources can still regenerate. */
 export function liveFeatureInputs(feature: CadFeature, document: CadDocument, before = document): string[] {
+  if(feature.params.componentContent)return feature.inputs;
   if(feature.pattern || feature.construction)return feature.inputs;
   if (!DERIVED_TYPES.has(feature.type) || feature.dependencyMode === "snapshot") return [];
   if (feature.dependencyMode === "live") return feature.inputs;
@@ -30,7 +38,7 @@ export function liveFeatureInputs(feature: CadFeature, document: CadDocument, be
 
 function geometrySignature(document: CadDocument, feature: CadFeature) {
   const object = document.objects[feature.output];
-  const { bounds: _, ...params } = feature.params;
+  const { bounds: _,solidFinish: __,componentContent: ___, ...params } = feature.params;
   return JSON.stringify([feature.type, params, object && getObjectTransform(object, feature)]);
 }
 
@@ -67,7 +75,9 @@ export async function regenerateDependentFeatures(document: CadDocument, before:
   for (const feature of ordered) {
     const old = previous.get(feature.output);
     const sources = inputs.get(feature.output)!;
-    if (old && (sources.some(id => dirty.has(id)) || rebuildObjectIds.has(feature.output))) {
+    const hole=feature.params.faceHole as FaceHoleDefinition|undefined;
+    const planeChanged=hole&&JSON.stringify(before.workPlanes?.[hole.planeId])!==JSON.stringify(document.workPlanes?.[hole.planeId]);
+    if (old && (sources.some(id => dirty.has(id)) || rebuildObjectIds.has(feature.output) || planeChanged)) {
       const object = document.objects[feature.output];
       if (!object || !document.layers[object.layerId]) throw new Error(`Missing output object or layer: ${feature.output}`);
       if (document.layers[object.layerId].locked) throw new FeatureRegenerationError(`Cannot regenerate ${feature.output}: output layer is locked.`,[feature.output,...sources]);
@@ -84,6 +94,9 @@ export async function regenerateDependentFeatures(document: CadDocument, before:
 }
 
 async function rebuildParams(document: CadDocument, feature: CadFeature, features: Map<string, CadFeature>, refreshInputs=true): Promise<Record<string, unknown>> {
+  if(feature.params.componentContent)return rebuildContent(document,feature);
+  if(feature.params.architecturalSlab)return rebuildSlab(document,feature.params.architecturalSlab as import("@agent-webcad/cad-document").ArchitecturalSlab,feature.params.solidFinish);
+  if(feature.params.architecturalWall){const definition=feature.params.architecturalWall as import("@agent-webcad/cad-document").ArchitectureWall;feature.type=definition.openings.length?"boolean":"extrude";return {...await architectureWallParams(document,definition),...feature.params.solidFinish?{solidFinish:feature.params.solidFinish}:{}};}
   if (feature.construction) return { ...feature.params, ...evaluateConstruction(document, feature.construction, feature.params.workPlane as import("../precision/workPlane").WorkPlaneId, features) };
   if(feature.pattern)return buildPatternDrawingParams(document,feature.pattern,feature.output,features);
   let params = structuredClone(feature.params);
@@ -102,10 +115,19 @@ async function rebuildParams(document: CadDocument, feature: CadFeature, feature
     return { params: structuredClone(source.params), transform: structuredClone(transform) };
   };
   if (refreshInputs && feature.type === "extrude") {
-    const result = extractSketchLoops(document, feature.inputs, { forRegeneration: true });
-    if (!result.ok) throw new Error(result.reason);
-    delete params.profile; delete params.profiles;
-    Object.assign(params, extrusionProfileParams(result.loops));
+    if(typeof params.faceSketchId==="string"){
+      const sketch=document.sketches?.[params.faceSketchId],result=sketch&&faceSketchExtrusionProfile(sketch);
+      if(!result)throw Error(`Face sketch ${params.faceSketchId} is unresolved or has no single closed profile.`);
+      if(JSON.stringify(result.sourceObjectIds.sort())!==JSON.stringify([...feature.inputs].sort()))throw Error("Face sketch profile ownership changed; recreate the extrusion.");
+      params.profile=result.profile;delete params.profiles;
+    }else{
+      const result = extractSketchLoops(document, feature.inputs, { forRegeneration: true });
+      if (!result.ok) throw new Error(result.reason);
+      delete params.profile; delete params.profiles;
+      const ids=params.profileRegionIds as string[]|undefined,loops=ids?result.loops.filter(loop=>ids.includes(loop.id)):result.loops;
+      if(!loops.length||ids?.some(id=>!loops.some(loop=>loop.id===id)))throw Error("Extrusion region ownership changed. Recreate the affected extrusion.");
+      Object.assign(params, extrusionProfileParams(loops));
+    }
   } else if (refreshInputs && feature.type === "revolve") {
     const loop = profile(feature.inputs);
     params.profile = loop;
@@ -129,19 +151,48 @@ async function rebuildParams(document: CadDocument, feature: CadFeature, feature
     if (feature.inputs.length < 2) throw new Error("Loft requires at least two sections.");
     params.profiles = feature.inputs.map(id => profile([id]));
   } else if (refreshInputs && feature.type === "boolean") {
-    if (feature.inputs.length !== 2) throw new Error("Boolean requires two source solids.");
-    params.operands = feature.inputs.map(operand);
+    if(params.faceHole){
+      const hole=params.faceHole as FaceHoleDefinition,plane=document.workPlanes?.[hole.planeId];
+      if(hole.targetId!==feature.inputs[0]||!plane?.source||plane.source.objectId!==hole.targetId)throw Error("Hole source ownership changed.");
+      const resolution=await resolveStoredWorkPlane(document,plane);
+      if(resolution.status!=="resolved")return {...params,faceHoleStatus:resolution.status};
+      params=await faceHoleParams(document,hole,features.get(hole.targetId)!);
+    }else if(params.faceCut){
+      const cut=params.faceCut as FaceCutDefinition,sketch=document.sketches?.[cut.sketchId];
+      if(cut.targetId!==feature.inputs[0])throw Error("Face cut source ownership changed.");
+      // Preserve the last reviewable shape until the user explicitly rebinds the face.
+      if(sketch?.faceStatus!=="resolved")return params;
+      const profile=faceSketchExtrusionProfile(sketch);
+      if(!profile||JSON.stringify(profile.sourceObjectIds.sort())!==JSON.stringify(feature.inputs.slice(1).sort()))throw Error("Face cut profile ownership changed; recreate the cut.");
+      params=await faceCutParams(document,cut,features.get(cut.targetId)!);
+    }else{
+      if (feature.inputs.length !== 2) throw new Error("Boolean requires two source solids.");
+      params.operands = feature.inputs.map(operand);
+    }
+  } else if(refreshInputs && feature.type==="shell") {
+    if(feature.inputs.length!==1)throw Error("Shell requires one source solid.");
+    const source=features.get(feature.inputs[0])!,keys=params.faceKeys as string[];
+    const status=await shellFaceStatus(source,keys);
+    if(status!=="resolved")return {...params,referenceStatus:status};
+    return shellParams(document,source,Number(params.thickness),keys);
   } else if(refreshInputs) {
     if (feature.inputs.length !== 1) throw new Error("Edge treatment requires one source solid.");
     params.source = operand(feature.inputs[0]);
   }
   const build = {
     extrude: buildExtrudeMesh, revolve: buildRevolveMesh, sweep: buildSweepMesh,
-    loft: buildLoftMesh, boolean: buildBooleanMesh, fillet: buildFilletMesh, chamfer: buildChamferMesh,
-  }[feature.type as "extrude" | "revolve" | "sweep" | "loft" | "boolean" | "fillet" | "chamfer"];
+    shell: buildShellMesh, loft: buildLoftMesh, boolean: buildBooleanMesh, fillet: buildFilletMesh, chamfer: buildChamferMesh,
+  }[feature.type as "shell" | "extrude" | "revolve" | "sweep" | "loft" | "boolean" | "fillet" | "chamfer"];
   const mesh = await build(params, true);
+  if(feature.type==="boolean"&&(params.faceCut||params.faceHole)){
+    const operands=params.operands as SerializedOperand[];
+    const [source,result]=await Promise.all([inspectSolid(operands[0]),inspectSolid({params})]);
+    if(source.volume===undefined||result.volume===undefined||result.validity==="invalid"||result.volume<=1e-9||result.volume>=source.volume-Math.max(1e-6,source.volume*1e-8))throw Error("Face cut no longer removes a measurable volume or leaves a valid solid.");
+  }
   const bounds = meshPositionsBounds(mesh.positions);
   if (!bounds || !mesh.indices.length) throw new Error("Regenerated solid is empty or has invalid bounds.");
   params = { ...params, bounds };
   return params;
 }
+
+

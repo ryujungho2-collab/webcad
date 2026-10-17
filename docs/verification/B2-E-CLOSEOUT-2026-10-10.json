@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-10",
+  "status": "passed",
+  "scope": "B2-E sketch Stretch: preserve constraints/driving dimensions, reject conflicts atomically, recover by input revision and regenerate live dependents",
+  "node": {
+    "tests": 819,
+    "suites": 54,
+    "failed": 0,
+    "skipped": 0,
+    "newSketchStretchTests": 10,
+    "log": "output-b2-e-tests.log",
+    "targetedLog": "output-b2-e-target.log"
+  },
+  "browser": {
+    "workflows": 3,
+    "checks": 61,
+    "scope": "Targeted native Edge/CDP real App/Worker; full browser suite not rerun",
+    "results": [
+      {
+        "workflow": "sketchStretch",
+        "checks": 19,
+        "log": "output-b2-e-browser.log"
+      },
+      {
+        "workflow": "blockStretch",
+        "checks": 18,
+        "log": "output-b2-e-browser-block.log"
+      },
+      {
+        "workflow": "basicEditWorkflow",
+        "checks": 24,
+        "log": "output-b2-e-browser-basic.log"
+      }
+    ]
+  },
+  "architecture": {
+    "passed": true,
+    "modules": 384,
+    "log": "output-b2-e-architecture.log"
+  },
+  "build": {
+    "passed": true,
+    "typecheck": "passed",
+    "mainRawKB": 1143.83,
+    "mainGzipKB": 346.08,
+    "viewportRawKB": 655.54,
+    "viewportGzipKB": 178.04,
+    "existingLargeChunkWarning": true,
+    "log": "output-b2-e-build.log"
+  },
+  "preservation": "Stable sketch entity/point/segment IDs and constraints/driving values. Temporary target pins removed. Solved neighbor projections, construction and live extrusion in one transaction/History/JSON roundtrip. Locks and stale reviews reject publication.",
+  "solverPolicy": "Requested contained controls move exactly; connected free geometry may follow constraints outside the area. No automatic constraint deletion or driving-value changes. Rectangle shear rejects explicitly.",
+  "serialization": "Existing stretch-drawings, sketch and History contracts; no schema change",
+  "remaining": [
+    "Finish active sketch before entering Stretch",
+    "Placement-transformed projections and pattern/construction owners need explicit owner editing/reset/detach",
+    "Rectangle shear/configuration change and mixed bulge sketch configurations",
+    "Arbitrary UCS/tilted sketch plane and standalone annotation Stretch",
+    "Sketch Lengthen; full browser suite/large-sketch latency/GPU benchmarks not rerun"
+  ]
+}

@@ -1,3 +1,4 @@
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../app/projectActivity";
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import * as THREE from "three";
 import type { CadImageCrop, CadImageNodeParams, CadRasterAsset } from "@agent-webcad/cad-document";

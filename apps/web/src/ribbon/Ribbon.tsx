@@ -3,17 +3,28 @@ import type { DrawingTool, MeasurementTool, TransformMode, ViewportActionType, P
 import type { WorkPlaneId } from "../precision/workPlane";
 import type { WorkspaceMode } from "../viewport/workspaceTransition";
 import { ToolIcon } from "../ui/ToolIcon";
+import { ToolDisclosure } from "../ui/ToolDisclosure";
 import { interactionTools } from "../commands/interactionTools";
 
 type RibbonProps = {
+  onAssembly?:()=>void;
+  onModelViews?: () => void;
   onCurveWorkflow?: () => void;
   canCurveWorkflow?: boolean;
+  onCadPilot?: (mode:import("../viewport/CadPilotTool").CadPilotMode)=>void;
+  activeUcsName?:string;
+  onEndpointRadiusArc?: () => void;
+  onRegularPolygon?: () => void;
+  onSpline?:()=>void;
+  onEllipse?:()=>void;
   onConstruction?: () => void;
   onAngularDimension?: () => void;
   constructionVisible?: boolean;
   onToggleConstruction?: () => void;
   canContour?: Partial<Record<import("../features/drawing-editing/contracts").ContourMode, boolean>>;
   onContour?: (mode: import("../features/drawing-editing/contracts").ContourMode) => void;
+  canDisbandBlock?: boolean;
+  onDisbandBlock?: () => void;
   canPattern?:boolean;
   onPattern?:(kind:"linear"|"radial"|"mirror")=>void;
   canUndo: boolean;
@@ -108,7 +119,8 @@ const toolTabs: { id: ToolTab; label: string }[] = [
   { id: "modify", label: "Modify" }, { id: "view", label: "View" },
 ];
 
-function ToolGroup({ label, children }: { label: string; children: ReactNode }) {
+function ToolGroup({ label, children, compact = false }: { label: string; children: ReactNode; compact?: boolean }) {
+  if (compact) return <div className="ribbon-group ribbon-group-disclosure"><ToolDisclosure label={label} closeOnAction>{children}</ToolDisclosure></div>;
   return <div className="ribbon-group"><div className="ribbon-commands">{children}</div><span className="ribbon-group-label">{label}</span></div>;
 }
 
@@ -163,10 +175,24 @@ export function Ribbon(props: RibbonProps) {
             <RibbonButton icon="▭" label="Rectangle" title="Draw rectangle (R) · selection does not change the shortcut" active={props.drawingTool === "rectangle"} disabled={!props.canCreateBox} onClick={() => props.onDrawingTool("rectangle")} />
             <RibbonButton icon="○" label="Circle" title="Draw circle (C)" active={props.drawingTool === "circle"} disabled={!props.canCreateBox} onClick={() => props.onDrawingTool("circle")} />
             <RibbonButton icon="⌒" label="Arc" title="Draw arc (A)" active={props.drawingTool === "arc"} disabled={!props.canCreateBox} onClick={() => props.onDrawingTool("arc")} />
+          </ToolGroup>
+          <ToolGroup label="More curves" compact>
+            <RibbonButton icon="○" label="3-Point Circle" title="Circle through three points" active={props.drawingTool === "circle-3point"} disabled={!props.canCreateBox} onClick={() => props.onDrawingTool("circle-3point")} />
+            <RibbonButton icon="⌒" label="3-Point Arc" title="Arc: start, through, end" active={props.drawingTool === "arc-3point"} disabled={!props.canCreateBox} onClick={() => props.onDrawingTool("arc-3point")} />
+            <RibbonButton icon="◜" label="Start Tangent Arc" disabled={!props.canCreateBox} onClick={()=>props.onCadPilot?.("tangent-arc")}/>
+            <RibbonButton icon="○" label="Two Line Tangent Circle" disabled={!props.canCreateBox} onClick={()=>props.onCadPilot?.("tangent-circle")}/>
+            <RibbonButton icon="◜" label="Endpoint Radius Arc" title="Two endpoints, radius, centre side and CW / CCW direction" disabled={!props.canCreateBox} onClick={() => props.onEndpointRadiusArc?.()} />
+            <RibbonButton icon="∿" label="Spline / NURBS" title="Create or edit exact finite spline/NURBS" disabled={!props.canCreateBox} onClick={()=>props.onSpline?.()}/>
+            <RibbonButton icon="⬭" label="Ellipse / Arc" title="Create or numerically edit the selected ellipse" disabled={!props.canCreateBox} onClick={()=>props.onEllipse?.()}/>
+            <RibbonButton icon="⬡" label="Regular Polygon" title="Centre, sides, inscribed / circumscribed radius and rotation" disabled={!props.canCreateBox} onClick={() => props.onRegularPolygon?.()} />
+          </ToolGroup>
+          <ToolGroup label="Construct" compact>
+            <RibbonButton icon="⎘" label="Base Point Copy/Paste" onClick={()=>props.onCadPilot?.("clipboard")}/>
+            <RibbonButton icon="⌖" label="UCS Pilot" title={`Active coordinates: ${props.activeUcsName??"WCS"}`} onClick={()=>props.onCadPilot?.("ucs")}/>
             <RibbonButton icon="⊥" label="Construction" title="Points, infinite lines, rays and saved construction relationships" disabled={!props.canCreateBox || Boolean(props.activeSketchId)} onClick={() => props.onConstruction?.()} />
             <RibbonButton icon="◉" label={props.constructionVisible === false ? "Show construction" : "Hide construction"} title="Toggle construction geometry in the canvas without changing the document" active={props.constructionVisible !== false} onClick={() => props.onToggleConstruction?.()} />
           </ToolGroup>
-          <ToolGroup label="Measure">
+          <ToolGroup label="Measure" compact>
             <RibbonButton icon="↔" label="Distance" title="Measure between two points (I)" active={props.measurementTool === "distance"} onClick={props.onMeasurementTool} />
             <RibbonButton icon="∠" label="Angular Dimension" title="Choose two straight edges, angle region and arc radius" disabled={!props.canCreateBox || Boolean(props.activeSketchId)} onClick={() => props.onAngularDimension?.()} />
           </ToolGroup>
@@ -189,28 +215,30 @@ export function Ribbon(props: RibbonProps) {
             <RibbonButton icon="↻" label="Rotate" title="Rotate selection with gizmo · Shift+R uses a chosen centre in 2D" active={props.transformMode === "rotate"} disabled={!props.canTransform} onClick={() => props.onTransformMode("rotate")} />
             <RibbonButton icon="⤢" label="Scale" title="Scale selection (S)" active={props.transformMode === "scale"} disabled={!props.canTransform} onClick={() => props.onTransformMode("scale")} />
           </ToolGroup>
-          <ToolGroup label="Edit">
+          <ToolGroup label="Edit" compact>
             <RibbonButton icon="⌁" label="Curve workflow" title="Connected Offset, Trim/Extend, Fillet/Chamfer and Join with exact previews and next actions" disabled={!props.canCurveWorkflow} onClick={() => props.onCurveWorkflow?.()} />
             <RibbonButton icon="⤳" label="Join" title="Join connected lines, arcs and open polylines; preview before replacing" disabled={!props.canContour?.join} onClick={() => props.onContour?.("join")} />
             <RibbonButton icon="⋈" label="Explode" title="Separate polylines and rectangles into exact lines and arcs" disabled={!props.canContour?.explode} onClick={() => props.onContour?.("explode")} />
             <RibbonButton icon="✂" label="Break" title="Split at one exact point or remove a gap between two points" disabled={!props.canContour?.break} onClick={() => props.onContour?.("break")} />
-            <RibbonButton icon="⋯" label="Edit polyline" title="Insert/delete vertices or open/close a polyline with a canvas preview" disabled={!props.canContour?.polyline} onClick={() => props.onContour?.("polyline")} />
-            <RibbonButton icon="↔" label="Lengthen" title="Set total, delta or percentage length; pick or drag an endpoint" disabled={!props.canContour?.lengthen} onClick={() => props.onContour?.("lengthen")} />
-            <RibbonButton icon="⤢" label="Stretch" title="Move vertices inside a crossing area. With no selection, use visible unlocked drawings on the active plane" disabled={!props.canContour?.stretch} onClick={() => props.onContour?.("stretch")} />
+            <RibbonButton icon="⇄" label="Convert" title="Convert one edge between straight and arc; junctions stay fixed" disabled={!props.canContour?.convert} onClick={() => props.onContour?.("convert")} />
+            <RibbonButton icon="◫" label="Disband" title="Disband the selected block instance into standalone drawings and text; the definition stays intact" disabled={!props.canDisbandBlock} onClick={() => props.onDisbandBlock?.()} />
+            <RibbonButton icon="⋯" label="Edit polyline" title="Insert/delete vertices, open/close contours, or convert line/arc edges with a canvas preview" disabled={!props.canContour?.polyline} onClick={() => props.onContour?.("polyline")} />
+            <RibbonButton icon="↔" label="Lengthen" title="Set total, delta or percentage length, or a standalone arc's included angle; pick or drag an endpoint" disabled={!props.canContour?.lengthen} onClick={() => props.onContour?.("lengthen")} />
+            <RibbonButton icon="⤢" label="Stretch" title="Move vertices inside a crossing area and solve sketch constraints. Finish the active sketch first. With no selection, use visible unlocked drawings on the active plane" disabled={!props.canContour?.stretch} onClick={() => props.onContour?.("stretch")} />
             <RibbonButton icon="⧉" label="Duplicate" title="Duplicate (Ctrl+D) · move the copy, then repeat its spacing" disabled={!props.canDuplicate} onClick={props.onDuplicate} />
             <RibbonButton icon="⌫" label="Delete" title="Delete selection (Delete)" disabled={!props.canDelete} danger onClick={props.onDelete} />
           </ToolGroup>
-          <ToolGroup label="Patterns">
+          <ToolGroup label="Patterns" compact>
             {interactionTools.filter(tool=>tool.id.startsWith("pattern-")).map(tool=><RibbonButton key={tool.id} icon={tool.icon} label={tool.label} title={tool.hint} disabled={!props.canPattern} onClick={()=>props.onPattern?.(tool.id.slice(8) as "linear"|"radial"|"mirror")} />)}
           </ToolGroup>
           {(props.workspaceMode === "2d" || props.canTrim || props.lineEditTool) && <ToolGroup label="Drawing edits">
-            <RibbonButton icon="✂" label="Trim" title="Select a drawing boundary, then click a line portion to remove (T)" disabled={!props.canTrim} active={props.lineEditTool === "trim"} onClick={() => props.onLineEditTool?.("trim")} />
-            <RibbonButton icon="↦" label="Extend" title="Select a drawing boundary, then click a line endpoint to extend" disabled={!props.canTrim} active={props.lineEditTool === "extend"} onClick={() => props.onLineEditTool?.("extend")} />
+            <RibbonButton icon="✂" label="Trim" title="Select a drawing boundary, then click a line portion to remove (X)" disabled={!props.canTrim} active={props.lineEditTool === "trim"} onClick={() => props.onLineEditTool?.("trim")} />
+            <RibbonButton icon="↦" label="Extend" title="Select a drawing boundary, then click a line endpoint to extend (Shift+X)" disabled={!props.canTrim} active={props.lineEditTool === "extend"} onClick={() => props.onLineEditTool?.("extend")} />
           </ToolGroup>}
-          {props.canArrange && <ToolGroup label={`Align · ${props.activeWorkPlane}`}>
+          {props.canArrange && <ToolGroup label={`Align · ${props.activeWorkPlane}`} compact>
             {([["left", "Align L", "⇤"], ["center-x", "Center X", "↔"], ["right", "Align R", "⇥"], ["top", "Align T", "⇑"], ["center-y", "Center Y", "⇕"], ["bottom", "Align B", "⇓"]] as const).map(([mode, label, icon]) => <RibbonButton key={mode} icon={icon} label={label} disabled={!props.onAlign} onClick={() => props.onAlign?.(mode)} />)}
           </ToolGroup>}
-          {props.canArrange && <ToolGroup label="Distribute">
+          {props.canArrange && <ToolGroup label="Distribute" compact>
             <RibbonButton icon="⇅" label="Dist H" title="Distribute horizontally with equal spacing" disabled={!props.canDistribute || !props.onDistribute} onClick={() => props.onDistribute?.("horizontal")} />
             <RibbonButton icon="⇳" label="Dist V" title="Distribute vertically with equal spacing" disabled={!props.canDistribute || !props.onDistribute} onClick={() => props.onDistribute?.("vertical")} />
           </ToolGroup>}
@@ -219,18 +247,20 @@ export function Ribbon(props: RibbonProps) {
         {tab === "view" && <>
           <ToolGroup label="Frame">
             <RibbonButton icon="□" label="Fit" title="Fit all visible objects" onClick={() => props.onViewAction("fit-all")} />
+            <RibbonButton icon="▱" label="Assembly and drawings" onClick={()=>props.onAssembly?.()}/>
+            <RibbonButton icon="◈" label="Model views" title="Save, recall and rename model views" onClick={() => props.onModelViews?.()} disabled={!props.onModelViews} />
             <RibbonButton icon="▣" label="Selection" title="Fit complete selection" disabled={!props.hasSelection} onClick={() => props.onViewAction("fit-selection")} />
           </ToolGroup>
-          <ToolGroup label="Orientation">
+          <ToolGroup label="Orientation" compact>
             {([["top", "Top", "T"], ["front", "Front", "F"], ["right", "Right", "R"], ["isometric", "Iso", "◇"]] as const).map(([action, label, icon]) => <RibbonButton key={action} icon={icon} label={label} disabled={props.workspaceMode === "2d"} title={props.workspaceMode === "2d" ? "2D view follows the active work plane · switch to 3D for other views" : `${label} view`} onClick={() => props.onViewAction(action)} />)}
             <RibbonButton icon={props.projectionMode === "perspective" ? "P" : "O"} label={props.projectionMode === "perspective" ? "Perspective" : "Orthographic"} title={props.workspaceMode === "2d" ? "2D drafting uses orthographic projection" : "Toggle perspective / orthographic projection"} disabled={props.workspaceMode === "2d"} onClick={props.onToggleProjection} />
           </ToolGroup>
-          <ToolGroup label="Visibility">
+          <ToolGroup label="Visibility" compact>
             <RibbonButton icon="◌" label="Hide" title="Hide selection" disabled={!props.hasSelection} onClick={props.onHide} />
             <RibbonButton icon="◎" label={props.isolationActive ? "Exit Isolation" : "Isolate"} title={props.isolationActive ? "Restore visibility before isolation" : "Show only selected objects"} disabled={!props.hasSelection && !props.isolationActive} onClick={props.onIsolate} />
             <RibbonButton icon="◉" label="Show All" title="Show all document objects" onClick={props.onShowAll} />
           </ToolGroup>
-          <ToolGroup label="Measure"><RibbonButton icon="↔" label="Distance" title="Measure between two points (I)" active={props.measurementTool === "distance"} onClick={props.onMeasurementTool} /><RibbonButton icon="∠" label="Angular Dimension" title="Choose two straight edges, angle region and arc radius" disabled={!props.canCreateBox || Boolean(props.activeSketchId)} onClick={() => props.onAngularDimension?.()} /></ToolGroup>
+          <ToolGroup label="Measure" compact><RibbonButton icon="↔" label="Distance" title="Measure between two points (I)" active={props.measurementTool === "distance"} onClick={props.onMeasurementTool} /><RibbonButton icon="∠" label="Angular Dimension" title="Choose two straight edges, angle region and arc radius" disabled={!props.canCreateBox || Boolean(props.activeSketchId)} onClick={() => props.onAngularDimension?.()} /></ToolGroup>
         </>}
 
         <div className="ribbon-context" title="New objects are created on this layer">

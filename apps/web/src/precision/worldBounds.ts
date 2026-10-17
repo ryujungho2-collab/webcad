@@ -134,7 +134,7 @@ export function getObjectWorldBounds(document: CadDocument, objectId: string, fe
     return finiteWorldBounds(bounds);
   }
 
-  if (feature.type === "extrude" || feature.type === "boolean" || feature.type === "fillet" || feature.type === "chamfer" || feature.type === "revolve" || feature.type === "sweep" || feature.type === "loft") {
+  if (feature.type === "extrude" || feature.type === "boolean" || feature.type === "fillet" || feature.type === "chamfer" || feature.type === "revolve" || feature.type === "sweep" || feature.type === "loft" || feature.type === "shell") {
     // Composed solids store exact kernel bounds at creation. Legacy features
     // predate stored bounds and fall through to the stub estimate below.
     const stored = feature.params.bounds as { min?: [number, number, number]; max?: [number, number, number] } | undefined;

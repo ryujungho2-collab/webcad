@@ -109,11 +109,13 @@ test("closed constrained sketch → remap → projection → live extrusion → 
   await apply({type:"set-sketch-dimension",sketchId:"sketch",constraintId:"width",value:120}); assert.ok(meshVolume(await buildExtrudeMesh(feature("plate").params))>47500); assert.ok(solveSketch(cadDocument.sketches!.sketch).ok);
 });
 
-test("mixed ownership, unsupported mixed curves, pattern identity collapse and locked descendants are atomic",async()=>{
+test("mixed ownership and pattern/lock guards stay atomic while same-owner mixed curves join",async()=>{
   await sketch([sketchLine("source",[0,0],[100,0])]); await line("other",[100,0,0],[100,30,0]);
   await reject({type:"join-drawings",objectIds:["source","other"],referenceRoutes:[]},/Ownership/);
   await apply({type:"add-sketch-geometry",sketchId:"sketch",geometry:{id:"arc",kind:"arc",center:[100,10],radius:10,startAngle:-Math.PI/2,endAngle:0,centerId:"ac",startId:"as",endId:"ae",curveId:"curve"}});
-  await reject({type:"join-drawings",objectIds:["source","arc"],referenceRoutes:[]},/mixed line\/arc/);
+  const beforeJoin=documentState();
+  const joined=await apply({type:"join-drawings",id:"mixed",objectIds:["source","arc"],referenceRoutes:[]});
+  assert.ok(joined.ok);const path=exactDrawingContour(cadDocument.objects.mixed,feature("mixed"));assert.deepEqual(path.segments.map(s=>s.kind),["line","arc"]);near(path.segments[1].radius!,10);historyRoundtrip(beforeJoin);
   resetTestDocument(); await line("source",[0,0,0],[100,0,0]); await line("other",[100,0,0],[100,30,0]); await boundary();
   const pattern=await apply({type:"create-pattern",id:"p",sourceObjectIds:["source","other"],spec:{kind:"linear",workPlane:"XY",columns:2,rows:1,spacing:[200,0]}});
   await reject({type:"join-drawings",objectIds:["source","other"],referenceRoutes:routesFor(["source","other"],()=>({}))},/merge instance identities/);

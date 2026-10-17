@@ -12,6 +12,7 @@ import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
 import { applyCadPlan, getCadPlanSketchPreview, previewCadCommand } from "../src/state/documentPlans";
 import { documentState, resetTestDocument } from "./helpers/documentHarness";
 import { buildDependencyGraph, dependencyNodeId } from "../src/state/dependencyGraph";
+import { lineArcContact } from "../src/precision/sketchArcRelations";
 
 type Line=Extract<SketchGeometry,{kind:"line"}>;type Circle=Extract<SketchGeometry,{kind:"circle"}>;
 const line=(id:string,start:SketchPoint,end:SketchPoint):Line=>({id,kind:"line",start,end,startId:`${id}:a`,endId:`${id}:b`,segmentId:`${id}:edge`});
@@ -104,12 +105,12 @@ test("relation preview is detached, applying once preserves IDs, duplication rem
   await apply({type:"remove-sketch-geometry",sketchId:"s",geometryId:"a"});assert.equal(cadDocument.sketches!.s.constraints.length,1);assert.equal(cadDocument.sketches!.s.constraints[0].id,copy.id);
 });
 
-test("invalid stable edges, unsupported arc tangency, malformed payloads and equal-radius internal contact fail atomically",async()=>{
+test("invalid stable edges, bounded arc tangency, malformed payloads and equal-radius internal contact are resolved atomically",async()=>{
   const a=line("a",[0,0],[100,0]);await seed([a,circle("c1",[0,20],20),circle("c2",[40,20],20)]);
   assert.equal(validateCommand({type:"add-sketch-constraint",sketchId:"s",constraint:{id:"bad",kind:"tangent-line",line:edge("a"),curveId:"c1",side:0}}),false);
   const before=documentState(),past=cadHistory.getPastLabels().length;const bad=await dispatchCadCommand({type:"add-sketch-constraint",sketchId:"s",constraint:{id:"bad-edge",kind:"parallel",firstSegment:edge("a"),secondSegment:{geometryId:"c1",segmentId:"missing"}}});assert.equal(bad.ok,false);assert.deepEqual(documentState(),before);assert.equal(cadHistory.getPastLabels().length,past);
   const c1=circle("c1",[0,0],20),c2=circle("c2",[0,0],20);const equal=solveSketch(input([c1,c2],[{id:"internal",kind:"tangent-circles",firstCurveId:"c1",secondCurveId:"c2",contact:"internal"}]));assert.equal(equal.ok,false);if(!equal.ok)assert.match(equal.reason,/distinct/);
-  const arc:SketchGeometry={id:"arc",kind:"arc",center:[0,20],radius:20,centerId:"o",startId:"s",endId:"e",curveId:"curve",startAngle:0,endAngle:Math.PI/2};assert.equal(solveSketch(input([a,arc],[{id:"tangent",kind:"tangent-line",line:edge("a"),curveId:"arc",side:1}])).ok,false);
+  const arc:SketchGeometry={id:"arc",kind:"arc",center:[0,20],radius:20,centerId:"o",startId:"s",endId:"e",curveId:"curve",startAngle:0,endAngle:Math.PI/2};const bounded=solveSketch(input([a,arc],[{id:"tangent",kind:"tangent-line",line:edge("a"),curveId:"arc",side:1}]));assert.ok(bounded.ok,bounded.ok?"":bounded.reason);if(bounded.ok){const curve=bounded.sketch.geometry.find(g=>g.id==="arc") as Extract<SketchGeometry,{kind:"arc"}>,line=bounded.sketch.geometry.find(g=>g.id==="a") as Line,contact=lineArcContact([line.start,line.end],curve,1)!;near(contact.distanceError,0);near(contact.segmentError,0);near(contact.arcError,0);}
   const file=JSON.parse(serializeDocument(cadDocument));file.document.sketches.s.constraints=[{id:"unknown",kind:"future-unsafe"}];assert.throws(()=>deserializeDocument(JSON.stringify(file)),/sketch relation/);
 });
 

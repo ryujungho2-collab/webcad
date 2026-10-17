@@ -1,3 +1,4 @@
+import { sketchCircularGeometry } from "@agent-webcad/cad-document";
 import type { CadDocument, Sketch, SketchGeometry, SketchPointRef } from "@agent-webcad/cad-document";
 import { CommandBus, type CadCommand } from "@agent-webcad/cad-commands";
 import { SKETCH_TOLERANCE, solveSketch, sketchPoint } from "../precision/sketchSolver";
@@ -6,15 +7,25 @@ import { constraintGeometryIds, geometryPointIds, transformSketchGeometry } from
 import { editSketchPointGeometry, editSketchSegmentGeometry } from "../precision/sketchGripEditing";
 import { offsetDrawingParams } from "../features/drawing-editing/geometry/drawingOperations";
 import { resolveLineEdit } from "../features/drawing-editing/geometry/lineEditing";
+import { resolveStoredWorkPlane } from "./attachedWorkPlane";
 
 /** All sketch edits solve a detached proposal before touching the live document. */
 export function registerSketchCommandHandlers(bus: CommandBus, document: CadDocument) {
-  const edit = (sketchId: string, propose: (sketch: Sketch) => boolean | string, pinGeometryIds: string[] = [], pinPoints: SketchPointRef[] = []) => {
+  const edit = async(sketchId: string, propose: (sketch: Sketch) => boolean | string, pinGeometryIds: string[] = [], pinPoints: SketchPointRef[] = [], pinCurvature = false) => {
     const current = document.sketches?.[sketchId];
     if (!current) return { accepted: false, reason: "Sketch not found." };
+    let resolvedFrame:Sketch["faceFrame"];
+    if(current.facePlaneId){
+      const plane=document.workPlanes?.[current.facePlaneId];
+      if(!plane?.source)return {accepted:false,reason:"The source face work plane is missing."};
+      const resolution=await resolveStoredWorkPlane(document,plane);
+      if(resolution.status!=="resolved")return {accepted:false,reason:`The source face is ${resolution.status}. Select the intended face and rebind its work plane first.`};
+      resolvedFrame=resolution.frame;
+    }
     const layer = document.layers[current.layerId];
     if (!layer?.visible || layer.locked) return { accepted: false, reason: "Sketch layer is hidden or locked." };
     const proposed = structuredClone(current);
+    if(resolvedFrame){proposed.faceFrame=resolvedFrame;proposed.faceStatus="resolved";}
     const proposal = propose(proposed);
     if (proposal !== true) return { accepted: false, reason: typeof proposal === "string" ? proposal : "No change or invalid sketch edit." };
     // Temporary targets prevent the solver from silently undoing a requested
@@ -27,6 +38,10 @@ export function registerSketchCommandHandlers(bus: CommandBus, document: CadDocu
     } });
     for (const geometry of proposed.geometry.filter((entry) => pinGeometryIds.includes(entry.id))) {
       for (const pointId of geometryPointIds(geometry)) proposed.constraints.push({ id: `edit-target:${geometry.id}:${pointId}`, kind: "fixed-point", point: { geometryId: geometry.id, pointId }, value: sketchPoint(geometry, pointId)! });
+    }
+    if(pinCurvature)for(const geometry of proposed.geometry.filter(g=>pinGeometryIds.includes(g.id))){
+      if(geometry.kind!=="polyline")continue;
+      for(const segmentId of geometry.segmentIds){const arc=sketchCircularGeometry(geometry,segmentId);if(arc)proposed.constraints.push({id:`edit-radius:${geometry.id}:${segmentId}`,kind:"radius",geometryId:geometry.id,segmentId,value:arc.radius});}
     }
     for (const point of pinPoints) {
       const geometry = proposed.geometry.find(g => g.id === point.geometryId), value = geometry && sketchPoint(geometry, point.pointId);
@@ -53,7 +68,8 @@ export function registerSketchCommandHandlers(bus: CommandBus, document: CadDocu
       if (!previousIds.has(id) && (document.objects[id] || document.features[`feature-${id}`]))
         return { accepted: false, reason: `Object ID ${id} already exists.` };
     }
-    const projections = solved.sketch.geometry.map((geometry) => ({ geometry, params: sketchGeometryToDrawingParams(solved.sketch, geometry) }));
+    const existingProjections = new Map(Object.values(document.features).map(f=>[f.output,f]));
+    const projections = solved.sketch.geometry.map((geometry) => ({ geometry, params: sketchGeometryToDrawingParams(solved.sketch, geometry, existingProjections.get(geometry.id)?.params) }));
     for (const id of previousIds) if (!nextIds.has(id)) {
       delete document.objects[id];
       delete document.features[`feature-${id}`];
@@ -92,6 +108,18 @@ export function registerSketchCommandHandlers(bus: CommandBus, document: CadDocu
     document.sketches[command.id] = sketch;
     document.revision += 1;
     return { accepted: true, sketch };
+  });
+
+  bus.registerHandler("create-face-sketch", async(command:CadCommand)=>{
+    if(command.type!=="create-face-sketch")return;
+    if(document.sketches?.[command.id])return {accepted:false,reason:"Sketch ID already exists."};
+    const plane=document.workPlanes?.[command.planeId],layerId=command.layerId??"layer-default",layer=document.layers[layerId];
+    if(!plane?.source||!layer?.visible||layer.locked)return {accepted:false,reason:"Select an attached face work plane and an unlocked visible layer."};
+    const resolved=await resolveStoredWorkPlane(document,plane);
+    if(resolved.status!=="resolved")return {accepted:false,reason:resolved.reason};
+    const sketch:Sketch={id:command.id,workPlane:"XY",facePlaneId:plane.id,faceFrame:resolved.frame,faceStatus:"resolved",layerId,geometry:[],constraints:[],dimensions:[],solveState:{status:"fully-constrained",degreesOfFreedom:0,rank:0,residual:0,tolerance:SKETCH_TOLERANCE}};
+    document.sketches??={};document.sketches[sketch.id]=sketch;document.revision++;
+    return {accepted:true,sketch};
   });
 
   bus.registerHandler("add-sketch-geometry", async (command: CadCommand) => {
@@ -192,12 +220,13 @@ export function registerSketchCommandHandlers(bus: CommandBus, document: CadDocu
       if (!command.translation.some((value) => Math.abs(value) > SKETCH_TOLERANCE) && Math.abs(command.angle) < 1e-12 && Math.abs(command.scale - 1) < 1e-12) return false;
       sketch.geometry = sketch.geometry.map((entry) => command.geometryIds.includes(entry.id) ? transformSketchGeometry(entry, command.translation, command.center, command.angle, command.scale) : entry);
       return true;
-    }, command.geometryIds);
+    }, command.geometryIds, [], true);
   });
 
   bus.registerHandler("duplicate-sketch-geometry", async (command: CadCommand) => {
     if (command.type !== "duplicate-sketch-geometry") return;
-    return edit(command.sketchId, (sketch) => {
+    const appearances=new Map<string,unknown>();
+    const result=await edit(command.sketchId, (sketch) => {
       if (!command.geometryIds.every((id) => sketch.geometry.some((entry) => entry.id === id))) return "Select geometry in this sketch.";
       const ids = new Map<string, string>();
       const remap = (id: string) => { if (!ids.has(id)) ids.set(id, `copy-${crypto.randomUUID()}`); return ids.get(id)!; };
@@ -209,6 +238,8 @@ export function registerSketchCommandHandlers(bus: CommandBus, document: CadDocu
       };
       const copies = sketch.geometry.filter((entry) => command.geometryIds.includes(entry.id)).map((entry) => {
         const copy = mapIds(transformSketchGeometry(entry, command.offset, [0, 0], 0, 1)) as SketchGeometry;
+        const style=Object.values(document.features).find(f=>f.output===entry.id)?.params.vectorStyle;
+        if(style!==undefined)appearances.set(copy.id,structuredClone(style));
         // Circle radius handles are implicit, but can be referenced by constraints.
         if (entry.kind === "circle") ids.set(`${entry.id}:radius:0`, `${copy.id}:radius:0`);
         return copy;
@@ -222,11 +253,14 @@ export function registerSketchCommandHandlers(bus: CommandBus, document: CadDocu
       sketch.geometry.push(...copies); sketch.constraints.push(...constraints); sketch.dimensions.push(...dimensions);
       return true;
     });
+    if(result.accepted)for(const [id,style] of appearances){const feature=Object.values(document.features).find(f=>f.output===id);if(feature)feature.params.vectorStyle=style;}
+    return result;
   });
 
   bus.registerHandler("offset-sketch-geometry", async (command: CadCommand) => {
     if (command.type !== "offset-sketch-geometry") return;
     return edit(command.sketchId, (sketch) => {
+      if(sketch.facePlaneId)return "Offset on a face sketch is not available yet.";
       const entity = sketch.geometry.find((entry) => entry.id === command.geometryId);
       if (!entity) return false;
       const params = offsetDrawingParams(entity.kind, sketchGeometryToDrawingParams(sketch, entity), command.distance * (command.side === "right" ? -1 : 1));
@@ -240,6 +274,7 @@ export function registerSketchCommandHandlers(bus: CommandBus, document: CadDocu
   for (const mode of ["trim", "extend"] as const) bus.registerHandler(`${mode}-sketch-geometry`, async (command: CadCommand) => {
     if (command.type !== "trim-sketch-geometry" && command.type !== "extend-sketch-geometry") return;
     return edit(command.sketchId, (sketch) => {
+      if(sketch.facePlaneId)return "Trim and Extend on a face sketch are not available yet.";
       if (![command.targetId, command.cutterId].every((id) => sketch.geometry.some((entry) => entry.id === id))) return "Select a target and boundary in the same sketch.";
       const target = document.objects[command.targetId], cutter = document.objects[command.cutterId];
       const targetFeature = Object.values(document.features).find((entry) => entry.output === target.id)!;

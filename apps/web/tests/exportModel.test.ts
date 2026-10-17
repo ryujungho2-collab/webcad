@@ -82,7 +82,9 @@ describe("export facade", () => {
 
   function restore(snapshot: CadDocument) {
     delete cadDocument.artboards;
+    delete cadDocument.blocks;
     delete cadDocument.rasterAssets;
+    if(snapshot.blocks)cadDocument.blocks=structuredClone(snapshot.blocks);
     if(snapshot.rasterAssets)cadDocument.rasterAssets=structuredClone(snapshot.rasterAssets);
     cadDocument.id = snapshot.id;
     cadDocument.revision = snapshot.revision;
@@ -181,14 +183,16 @@ describe("export facade", () => {
     assert.deepEqual(items.map(item=>item.type),["image","polyline"]);
   });
 
-  test("artboard composition refuses visible dimensions with a useful recovery reason", async () => {
+  test("artboard composition includes visible dimension linework and text", async () => {
     assert.ok((await dispatchCadCommand({type:"create-artboard",id:"dimension-board",workPlane:"XY",origin:[0,0],size:[100,80]})).ok);
     assert.ok((await dispatchCadCommand({type:"create-dimension",id:"unsupported-dimension",dimension:"linear",params:{workPlane:"XY",points:[[0,0],[20,0]],offset:5}})).ok);
-    assert.throws(()=>collectArtboardExportItems("dimension-board"),/dimensions are not included.*Convert it to drawing geometry/);
+    const items=collectArtboardExportItems("dimension-board");
+    assert.ok(items.some(item=>item.type==="polyline"));
+    assert.ok(items.some(item=>item.type==="text"&&item.text.text.includes("20")));
   });
 
   test("component SVG export keeps source vector style and instance transform", async () => {
-    const style = { stroke: "#164f42", fill: "#d9f4ea", opacity: 0.65, strokeWidth: 1.2 };
+    const style = { stroke: "#164f42", fill: "#d9f4ea", fillGradient: null, opacity: 0.65, strokeWidth: 1.2 };
     assert.ok((await dispatchCadCommand({ type: "create-drawing", id: "source", drawing: "rectangle", params: {
       workPlane: "XY", points: [[0, 0, 0], [20, 0, 0], [20, 10, 0], [0, 10, 0]], vectorStyle: style,
     } })).ok);
@@ -200,5 +204,17 @@ describe("export facade", () => {
     assert.ok(instance);
     assert.deepEqual([instance.color, instance.fill, instance.opacity, instance.lineWeight], ["#164f42", "#d9f4ea", 0.65, 1.2]);
     assert.ok(instance.points.every(([x, y]) => x >= 100 - 1e-6 && x <= 120 + 1e-6 && y >= 50 - 1e-6 && y <= 60 + 1e-6));
+  });
+
+  test("component member override reaches artboard SVG export", async () => {
+    assert.ok((await dispatchCadCommand({ type: "create-drawing", id: "plain", drawing: "rectangle", params: { workPlane: "XY", points: [[0, 0, 0], [20, 0, 0], [20, 10, 0], [0, 10, 0]] } })).ok);
+    assert.ok((await dispatchCadCommand({ type: "define-block", id: "symbol", name: "Symbol", objectIds: ["plain"], base: [0, 0, 0] })).ok);
+    assert.ok((await dispatchCadCommand({ type: "insert-block", id: "instance", blockId: "symbol", position: [50, 50, 0] })).ok);
+    assert.ok((await dispatchCadCommand({ type: "create-artboard", id: "board", workPlane: "XY", origin: [40, 40], size: [50, 40] })).ok);
+    const style = { stroke: "#ff0000", fill: "#00ff00", fillGradient: null, opacity: 0.8, strokeWidth: 2 };
+    assert.ok((await dispatchCadCommand({ type: "set-block-override", blockId: "symbol", objectId: "plain", vectorStyle: style })).ok);
+    const lines = collectArtboardExportDrawings("board").filter(line => line.objectId === "instance");
+    assert.equal(lines.length, 1);
+    assert.deepEqual([lines[0].color, lines[0].fill, lines[0].opacity, lines[0].lineWeight], ["#ff0000", "#00ff00", 0.8, 2]);
   });
 });

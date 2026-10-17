@@ -2,7 +2,7 @@ import type { CadDocument } from "@agent-webcad/cad-document";
 import type { ExtrudeProfile, ExtrudeProfileSegment } from "@agent-webcad/cad-kernel";
 import { getWorldDrawingGeometry, type WorldProfileSegment } from "./worldGeometry";
 import { planeToWorld, worldToPlane, WORK_PLANES, type Vec3, type WorkPlaneId } from "./workPlane";
-import { profileBoundaryPoints, profileContainsPoint, profilesTouch } from "./profileRegions";
+import { profileBoundaryPoints, profileContainsPoint, profilesTouch,profileSelfCrosses } from "./profileRegions";
 
 export type SketchLoop = ExtrudeProfile & {
   workPlane: WorkPlaneId;
@@ -74,34 +74,9 @@ function signedArea(edges: LoopEdge[], plane: WorkPlaneId) {
   const points = edges.flatMap((edge, index) => sampledEdge(edge, plane).slice(index ? 1 : 0));
   if (points.length > 1 && !samePoint(planeToWorld(points[0], WORK_PLANES[plane]), planeToWorld(points.at(-1)!, WORK_PLANES[plane]))) points.push(points[0]);
   let area = 0;
-  for (let index = 0; index < points.length - 1; index += 1) area += points[index][0] * points[index + 1][1] - points[index + 1][0] * points[index][1];
+  const origin=points[0];
+  for (let index = 0; index < points.length - 1; index += 1) area += (points[index][0]-origin[0]) * (points[index + 1][1]-origin[1]) - (points[index + 1][0]-origin[0]) * (points[index][1]-origin[1]);
   return area / 2;
-}
-
-function cross(a: [number, number], b: [number, number], c: [number, number]) {
-  return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
-}
-
-function strictIntersection(a: [number, number], b: [number, number], c: [number, number], d: [number, number]) {
-  const abC = cross(a, b, c);
-  const abD = cross(a, b, d);
-  const cdA = cross(c, d, a);
-  const cdB = cross(c, d, b);
-  return abC * abD < -TOLERANCE && cdA * cdB < -TOLERANCE;
-}
-
-function selfIntersects(edges: LoopEdge[], plane: WorkPlaneId) {
-  const sampled = edges.flatMap((edge) => {
-    const points = sampledEdge(edge, plane);
-    return points.slice(0, -1).map((start, index) => [start, points[index + 1]] as const);
-  });
-  for (let first = 0; first < sampled.length; first += 1) {
-    for (let second = first + 1; second < sampled.length; second += 1) {
-      const adjacent = second === first + 1 || (first === 0 && second === sampled.length - 1);
-      if (!adjacent && strictIntersection(sampled[first][0], sampled[first][1], sampled[second][0], sampled[second][1])) return true;
-    }
-  }
-  return false;
 }
 
 function orientLoop(edges: LoopEdge[], plane: WorkPlaneId) {
@@ -126,9 +101,9 @@ function makeLoop(edges: LoopEdge[], plane: WorkPlaneId): SketchLoopResult {
 
   const normalized = orientLoop(ordered, plane);
   if (Math.abs(signedArea(normalized, plane)) <= TOLERANCE * TOLERANCE) return { ok: false, reason: "Profile has zero area." };
-  if (selfIntersects(normalized, plane)) return { ok: false, reason: "Profile self-intersects." };
   const segments = normalized.map((edge) => kernelSegment(edge, plane));
   if (segments.some((segment) => !segment)) return { ok: false, reason: "Profile contains an unsupported curve." };
+  if(profileSelfCrosses({id:"check",normal:[...WORK_PLANES[plane].normal],segments:segments as ExtrudeProfileSegment[]},plane))return {ok:false,reason:"Profile self-intersects (exact line/arc boundaries)."};
   const sourceTopologyIds = normalized.map((edge) => `${edge.objectId}/${edge.topologyReference}`);
   return {
     ok: true,
@@ -149,6 +124,14 @@ function makeLoop(edges: LoopEdge[], plane: WorkPlaneId): SketchLoopResult {
  * and islands. Crossing/touching boundaries are rejected before kernel work.
  */
 export function extractSketchLoops(document: CadDocument, objectIds: readonly string[], options?: { forRegeneration?: boolean }): SketchLoopResult {
+  const faces=objectIds.map(id=>Object.values(document.features).find(f=>f.output===id&&f.type==="drafting"&&f.params.kind==="face"));
+  if(faces.some(Boolean)){
+    if(!faces.every(Boolean))return {ok:false,reason:"Select planar faces or boundary drawings separately."};
+    if(!options?.forRegeneration&&objectIds.some(id=>{const o=document.objects[id],l=o&&document.layers[o.layerId];return !o?.visible||!l?.visible||l.locked;}))return {ok:false,reason:"Selected face must be visible and unlocked."};
+    const result=extractSketchLoops(document,[...new Set(faces.flatMap(f=>f!.params.sourceObjectIds as string[]))],{forRegeneration:true});
+    return result.ok?{ok:true,loops:result.loops.map(loop=>({...loop,sourceObjectIds:[...objectIds]}))}:result;
+  }
+  if(objectIds.some(id=>Object.values(document.features).some(feature=>feature.output===id&&feature.params.facePlaneId)))return {ok:false,reason:"Use Face sketch extrude for geometry attached to a BRep face."};
   objectIds = objectIds.filter((id) => !Object.values(document.features).some((entry) => entry.output === id && (entry.params.construction === true || ["point", "infinite-line", "ray"].includes(String(entry.params.kind)))));
   if (!objectIds.length) return { ok: false, reason: "Select a closed drawing profile." };
   const geometries = objectIds.map((objectId) => {

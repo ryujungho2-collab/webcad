@@ -1,0 +1,101 @@
+{
+  "id": "G2-F2",
+  "date": "2026-10-11",
+  "status": "complete within same-presentation-plane rooted frame relation scope",
+  "node": {
+    "tests": 1116,
+    "suites": 54,
+    "passed": 1116,
+    "failed": 0,
+    "skipped": 0,
+    "newFrameLinkTests": 18
+  },
+  "nativeBrowser": {
+    "workflows": 7,
+    "checks": 186,
+    "results": {
+      "frameLinks": 36,
+      "workspaceSections": 25,
+      "drawingFrames": 26,
+      "modelSheetSet": 24,
+      "historySelection": 23,
+      "artboardPdfWorkflow": 21,
+      "artboardsWorkflow": 31
+    },
+    "entireBrowserSuiteRerun": false,
+    "finalFrameLinksRun": "passed after final code and output changes",
+    "regressions": "Six existing targeted workflows passed; final label/role/guide/wheel changes confined to linked frames"
+  },
+  "initialFailure": {
+    "stage": "native frameLinks DXF download",
+    "passedBeforeFailure": 25,
+    "reason": "Detail number near source-frame edge hit conservative DXF text clipping guard, preventing a new download",
+    "fix": "Paper-mm label sizing uses actual horizontal/vertical clearance; target reference name and scale rendered on separate lines; minimum1mm text or explicit crop/number diagnostic",
+    "verification": "near-edge Node regression and final native SVG/DXF/PDF downloads passed"
+  },
+  "typecheck": "passed",
+  "architecture": {
+    "status": "passed",
+    "modules": 498
+  },
+  "productionBuild": "passed; existing large-chunk warning remains",
+  "schema": {
+    "frameLinkVersion": 30,
+    "reader": "v1-v30",
+    "existingMinimumVersions": "preserved; frame-only v28, sections-only v29",
+    "downgradeTo29": "rejected"
+  },
+  "implemented": [
+    "Orthographic front/top/right relations, paper gap and shared model-axis alignment accounting for independent crop origins",
+    "Existing section references with source cut line, look-direction arrows, number and model basis/height validation",
+    "Detail references derived from target crop, enlargement and common source identity",
+    "Assembly/part references with stable source object and registered view part membership validation",
+    "Explicit root/dependent tree, one parent, conflicting role/cycle/duplicate reference/overlap diagnostics",
+    "Connected group movement across work areas, explicit reflow after frame bounds changes and detach preserving frames/source",
+    "Fixed/locked member guards shared by linked movement, direct frame movement and work-area movement",
+    "Detached Review shows exact proposed frames and proposed connection guides; Apply records one Undo",
+    "Shared frame viewport/SVG/PNG/PDF/flattened DXF reference annotation scene; collapsed areas suppress screen guides only",
+    "v30 actual reload, History root removal/restoration, stale/Cancel and failed batch rollback",
+    "Ctrl-wheel over interactive connection labels forwards to viewport camera without document mutation"
+  ],
+  "independentOracles": [
+    "Different model crop origins shift top frame by10 paper mm at1:2 while preserving common X coordinates",
+    "30mm X/40mm Y group move translates root and descendants exactly once without changing model or section ownership",
+    "Root height grows from80 to90mm; top frame shifts only after explicit reflow Review/Apply",
+    "50mm model line is25 paper mm at1:2 and50 paper mm at1:1 detail",
+    "Real model box front/top, actual section height50 and assembly/part view source identity verified separately in Node",
+    "Native PDF still contains five pages when all dependent frames are collapsed"
+  ],
+  "pdf": {
+    "pages": 5,
+    "firstPageSizePoints": [
+      283.465,
+      255.118
+    ],
+    "firstPageSizeMillimetres": [
+      100,
+      90
+    ],
+    "detailPageSizeMillimetres": [
+      40,
+      30
+    ],
+    "bytes": 29647,
+    "validation": "native Download followed by independent pdfinfo/pdftoppm and source/detail page visual inspection"
+  },
+  "artifacts": [
+    "output/pdf/frame-links.pdf",
+    "output/pdf/frame-links.svg",
+    "output/pdf/frame-links.dxf",
+    "output/pdf/frame-links-preview.png",
+    "output/pdf/frame-links-detail-preview.png"
+  ],
+  "limitations": [
+    "Same XY/XZ/YZ presentation plane; rooted tree/forest, one relation edited at a time",
+    "References use existing drawings/views; no new HLR, section geometry, crop expansion, automatic numbering or multi-parent solver",
+    "Collision checks cover connected component; global packing and page placement belong to G6-D5-F1",
+    "Existing F1 sampled-curve/text DXF flattening loss remains; screen connector guides are not exported",
+    "Unresolved source/changed section-height/crop conditions require explicit rebind or detach"
+  ],
+  "next": "G6-D5-F1 automatic sheets for frames/work areas, then G2-F3 continuous drawings; X6-D2-E1 remains separate CAD geometry queue"
+}

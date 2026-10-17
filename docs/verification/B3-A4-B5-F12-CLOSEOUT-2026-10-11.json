@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-11",
+  "cards": [
+    "B3-A4",
+    "B5-F1",
+    "B5-F2"
+  ],
+  "status": "complete-with-documented-scope",
+  "implementation": [
+    "docs/implementation/B3-A4-DXF-PLACEMENT-2026-10-11.md",
+    "docs/implementation/B5-F12-NUMERIC-PILOT-2026-10-11.md"
+  ],
+  "node": {
+    "command": "npx tsx --test tests/**/*.test.ts",
+    "tests": 997,
+    "suites": 54,
+    "passed": 997,
+    "failed": 0,
+    "skipped": 0,
+    "new_tests": 14
+  },
+  "native_browser": {
+    "runner": "Edge/CDP scripts/browserChecks.mjs",
+    "input": "physical click/key/text/file through CDP",
+    "full_suite_rerun": false,
+    "workflows": {
+      "dxfPlacement": 15,
+      "numericPilot": 21,
+      "dxfOcs": 18,
+      "dxfWorkflow": 18,
+      "variablesWorkflow": 20
+    },
+    "total_checks": 92
+  },
+  "other_checks": {
+    "typescript": "npx tsc -b: passed",
+    "architecture": "447 modules passed",
+    "production_build": "npm run build: passed; existing large bundle warning",
+    "diff_check": "passed; LF/CRLF notices"
+  },
+  "initial_failures_and_repairs": [
+    {
+      "check": "dxfPlacement Node",
+      "reason": "signed INSERT scale rejected by generic scale-object and portable transform validation",
+      "repair": "optional signed scale on insert-block, narrowly accepted for component placements"
+    },
+    {
+      "check": "dxfPlacement Node",
+      "reason": "zero/repeated placement child commands rejected the atomic import batch",
+      "repair": "emit placement updates only when they change state"
+    },
+    {
+      "check": "dxfPlacement portable JSON",
+      "reason": "Euler negative zero differs after JSON roundtrip",
+      "repair": "normalize Euler zero values"
+    },
+    {
+      "check": "dxfPlacement native first attempt",
+      "reason": "file fixture name outside browser test allowlist",
+      "repair": "use existing drawing-test.dxf fixture convention"
+    },
+    {
+      "check": "dxfPlacement native reimport",
+      "reason": "imported layer ID aliased top INSERT ID, duplicate selection caused duplicate actual exported INSERT",
+      "repair": "select unique visible import objects and deduplicate exporter scope; 15 native checks passed afterward"
+    }
+  ],
+  "coverage": [
+    "OCS TEXT anchors/axes/elevation/units/center",
+    "forward nested BLOCK order, off-plane base, signed INSERT scales",
+    "independently calculated AAA nested world location",
+    "import preview including nested labels, exclusion boundary",
+    "real DXF download/reimport, atomic Undo/Redo, portable JSON",
+    "primitive diameter/radius mode, length units, draft recovery/stale invalidation",
+    "Worker before/after volumes and dependent Boolean regeneration",
+    "independent copy preserved, locked dependent rejects atomically",
+    "R/diameter sketch input preserving driver identity and live extrusion",
+    "bound variable handoff and variable UI regression",
+    "negative extrusion distance, actual STEP bytes, browser reload"
+  ],
+  "limits": [
+    "documented restricted TEXT semantics and finite INSERT hierarchy; no DWG",
+    "single-cylinder numeric pilot and existing sketch/variable/extrusion drivers; no arbitrary BRep dimension editing",
+    "numeric solid preview is values/volume/impact; existing sketch canvas displays solved geometry",
+    "full registered browser suite not rerun"
+  ],
+  "next": "X1-B2"
+}

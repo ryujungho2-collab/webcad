@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="80000 -297 420 297" stroke="black" stroke-width="0.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<defs><clipPath id="artboard-crop"><rect x="80000" y="-297" width="420" height="297" /></clipPath></defs>
+<g clip-path="url(#artboard-crop)">
+<rect x="80000" y="-297" width="420" height="297" fill="#ffffff" stroke="none" />
+<text x="80005" y="-5" font-family="system-ui, sans-serif" font-size="3.5" fill="#4f8cff" stroke="none">Skylight exact ellipse study · 1:50</text>
+<ellipse cx="80085" cy="-150" rx="41.569219382" ry="36" transform="rotate(0 80085 -150)" stroke="#202020" stroke-width="0.5" />
+<path d="M 80073.452994616 -186 A 41.569219382 36 0 1 0 80073.452994616 -114" stroke="#202020" stroke-width="0.18" />
+<polyline points="80073.453,-114 80085,-114" stroke="#202020" stroke-width="0.18" />
+<polyline points="80073.453,-186 80085,-186" stroke="#202020" stroke-width="0.18" />
+<text x="80031.884" y="-107" font-family="system-ui, sans-serif" font-size="2.5" fill="#202020" stroke="none">A301 Inclined skylight · horizontal cut · 1:50</text>
+<path d="M 80265 -114 A 41.569219382 36 0 1 0 80265 -186" stroke="#202020" stroke-width="0.5" />
+<text x="80265" y="-107" font-family="system-ui, sans-serif" font-size="2.5" fill="#202020" stroke="none">A302 Skylight · finite half cut · 1:50</text>
+<polyline points="80085,-150 80113,-220 80120,-220" stroke="#202020" stroke-width="0.25" />
+<polyline points="80084.838,-151.95 80085,-150 80086.462,-151.3" stroke="#202020" stroke-width="0.25" />
+<text x="80120" y="-220" font-family="system-ui, sans-serif" font-size="3.5" fill="#202020" stroke="none">Original inclined skylight / 30 deg</text>
+<polyline points="80265,-186 80303,-220 80310,-220" stroke="#202020" stroke-width="0.25" />
+<polyline points="80265.721,-187.819 80265,-186 80266.888,-186.515" stroke="#202020" stroke-width="0.25" />
+<text x="80310" y="-220" font-family="system-ui, sans-serif" font-size="3.5" fill="#202020" stroke="none">Finite analytic domain endpoint</text>
+</g>
+</svg>

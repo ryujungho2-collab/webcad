@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-10",
+  "status": "passed",
+  "scope": "CAD B2-B bounded line–arc Fillet: independent finite arc and straight free-end segment, exact tangent contacts/G1 retained branches, explicit multiple solution review and atomic Apply",
+  "node": {
+    "tests": 782,
+    "suites": 54,
+    "failed": 0,
+    "skipped": 0,
+    "newLineArcTests": 7,
+    "log": "output-b2-b-node.log",
+    "targetedLog": "output-b2-b-targeted.log"
+  },
+  "browser": {
+    "passed": true,
+    "workflows": 3,
+    "checks": 55,
+    "scope": "Targeted native Edge/CDP, real App/React/Worker; full browser suite not rerun",
+    "results": [
+      {
+        "workflow": "lineArcFillet",
+        "checks": 17,
+        "new": true,
+        "log": "output-b2-b-browser.log"
+      },
+      {
+        "workflow": "curveWorkflow",
+        "checks": 20,
+        "log": "output-b2-b-browser-curves.log"
+      },
+      {
+        "workflow": "asymmetricChamfer",
+        "checks": 18,
+        "log": "output-b2-b-browser-chamfer.log"
+      }
+    ],
+    "oracle": "Trusted native branch picks/select/Enter; independently calculated sqrt(80) contact/center/radius, detached state/history equality, one Undo/Redo, topology and portable JSON retained"
+  },
+  "architecture": {
+    "passed": true,
+    "modules": 370,
+    "log": "output-b2-b-architecture.log"
+  },
+  "build": {
+    "passed": true,
+    "typecheck": "passed",
+    "mainRawKB": 1119.81,
+    "mainGzipKB": 338.44,
+    "viewportRawKB": 652.92,
+    "viewportGzipKB": 177.21,
+    "existingLargeChunkWarning": true,
+    "log": "output-b2-b-build.log"
+  },
+  "geometry": "Offset-line/circle locus intersections at R+r and signed R-r, strict bounded contacts and retained pick portions, G1 directional filtering, stable candidate order, double-root semicircle direction, nonfinite derived value rejection",
+  "preservation": "Source IDs/topology and retained endpoints preserved; exact source model frame inverted under uniform scale/rotation/reflection; common dimension regeneration/stale checks/lock rollback/History/serialization",
+  "serialization": "Existing arc geometry and topology contracts; no new file version",
+  "remaining": [
+    "B2-C arc–arc Fillet/Chamfer and closed contours",
+    "Line–arc Chamfer and internal arc corners",
+    "Sketch/pattern/construction owners and mixed-contour arc ends",
+    "Tilted planes and elliptic/nonuniform transformed arcs",
+    "Live corner recipe and automatic connector adoption by existing profile owners",
+    "No new practitioner/GPU/large-document benchmark"
+  ]
+}

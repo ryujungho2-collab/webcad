@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "scope": "B0-C: root drafting visibility/lock/output, active-plane SVG text, dimension layer stroke, finite construction dash and selection context",
+  "node": {"tests": 701, "suites": 54, "newTests": 7, "failed": 0, "skipped": 0, "log": "output-b0-c-node.log"},
+  "browser": {"fullStatus": "passed", "workflows": 47, "checks": 972, "newWorkflow": "draftingVisibility", "newWorkflowChecks": 17, "environment": "Edge headless native CDP key/pointer; real App/React/Worker; SwiftShader", "log": "output-b0-c-browser.log"},
+  "typecheck": "passed",
+  "architecture": {"passed": true, "modules": 337, "log": "output-b0-c-architecture.log"},
+  "build": {"workspace": "passed", "mainRawKB": 1070.75, "mainGzipKB": 323.86, "viewportRawKB": 630.92, "viewportGzipKB": 171.80, "existingLargeChunkWarning": true, "log": "output-b0-c-build.log"},
+  "serialization": "v14 unchanged",
+  "performance": "No new latency, practitioner or GPU/VRAM benchmark",
+  "limits": ["Artboard text/dimension export unchanged", "Nested member layer/purpose visibility unchanged", "No finite output adapter for point/ray/infinite-line", "SVG text bounds are conservative font estimates"]
+}

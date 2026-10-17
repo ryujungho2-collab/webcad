@@ -29,7 +29,12 @@ agent-webcad/
 │  ├─ cad-geometry/              # registry/ID·TopologyMap 골격; 실제 solver는 웹 precision
 │  ├─ cad-kernel/                # 솔리드 연산·메쉬·커널 런타임
 │  └─ cad-history/               # 이력 계약
+├─ docs/README.md               # 목적별 진입점과 분류 안내
+├─ docs/features/               # 현재 기능 설명의 대표 문서·범위 소유권
 ├─ docs/{product,architecture,implementation,verification,reviews}/
+│                               # 폴더별 README 전체 색인
+├─ docs/history/                # 분리한 상태·실행 큐·문서 안내 이력
+├─ docs/fixtures/               # 문서용 재현 입력
 ├─ output/                      # 이미지·PDF 등 검토 결과물
 ├─ artifacts/                   # 기존 측정 데이터
 └─ tmp/                         # 무시되는 임시 로그·작업 파일

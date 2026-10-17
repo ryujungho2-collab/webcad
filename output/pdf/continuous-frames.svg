@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="370 -30 60 30" stroke="black" stroke-width="0.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<defs><clipPath id="artboard-crop"><rect x="370" y="-30" width="60" height="30" /></clipPath></defs>
+<g clip-path="url(#artboard-crop)">
+<rect x="370" y="-30" width="60" height="30" fill="#ffffff" stroke="none" />
+<defs><clipPath id="item-clip-0" clipPathUnits="userSpaceOnUse"><polygon points="370,0 400,0 400,-30 370,-30"/></clipPath></defs><g clip-path="url(#item-clip-0)"><polyline points="370,-5 400,-5" stroke="#4f8cff" stroke-width="0.25" /></g>
+<defs><clipPath id="item-clip-1" clipPathUnits="userSpaceOnUse"><polygon points="370,0 400,0 400,-30 370,-30"/></clipPath></defs><g clip-path="url(#item-clip-1)"><polyline points="400,-25 370,-25 370,-5" stroke="#4f8cff" stroke-width="0.25" /></g>
+<defs><clipPath id="item-clip-2" clipPathUnits="userSpaceOnUse"><polygon points="370,0 400,0 400,-30 370,-30"/></clipPath></defs><g clip-path="url(#item-clip-2)"><ellipse cx="400" cy="-15" rx="6" ry="4" transform="rotate(0 400 -15)" stroke="#4f8cff" stroke-width="0.25" /></g>
+<defs><clipPath id="item-clip-3" clipPathUnits="userSpaceOnUse"><polygon points="400,0 430,0 430,-30 400,-30"/></clipPath></defs><g clip-path="url(#item-clip-3)"><polyline points="400,-5 430,-5" stroke="#4f8cff" stroke-width="0.25" /></g>
+<defs><clipPath id="item-clip-4" clipPathUnits="userSpaceOnUse"><polygon points="400,0 430,0 430,-30 400,-30"/></clipPath></defs><g clip-path="url(#item-clip-4)"><polyline points="400,-5 430,-5 430,-25 400,-25" stroke="#4f8cff" stroke-width="0.25" /></g>
+<defs><clipPath id="item-clip-5" clipPathUnits="userSpaceOnUse"><polygon points="400,0 430,0 430,-30 400,-30"/></clipPath></defs><g clip-path="url(#item-clip-5)"><ellipse cx="400" cy="-15" rx="6" ry="4" transform="rotate(0 400 -15)" stroke="#4f8cff" stroke-width="0.25" /></g>
+</g>
+</svg>

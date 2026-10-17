@@ -8,6 +8,7 @@ export interface CadFeature {
     | "extrude"
     | "sweep"
     | "loft"
+    | "shell"
     | "transform"
     | "boolean"
     | "fillet"

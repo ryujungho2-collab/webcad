@@ -65,6 +65,15 @@ button.onclick = async () => {
     await click("Line"); await keys(..."400,0", "Enter", ..."100<0");
     document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", altKey: true, bubbles: true, cancelable: true })); await waitFor(() => !isDocumentCommandPending()); await keys("Escape");
     check(sketch().constraints.length === count, "Alt temporarily suppresses inferred constraints for the current creation");
+    const trackingBefore=state();await click("Line");
+    canvas.dispatchEvent(new PointerEvent("pointermove", {clientX:rect.left+endpoint.x,clientY:rect.top+endpoint.y,pointerId:20,pointerType:"mouse",isPrimary:true,bubbles:true,cancelable:true}));await pause();
+    document.body.dispatchEvent(new KeyboardEvent("keydown",{key:"A",shiftKey:true,bubbles:true,cancelable:true}));await pause();
+    check(document.querySelector(".cad-tool-readout")?.textContent?.includes("Tracking point acquired"),"Shift+A acquires a visible endpoint as transient tracking state");
+    document.body.dispatchEvent(new KeyboardEvent("keydown",{key:"L",shiftKey:true,bubbles:true,cancelable:true}));await pause();
+    check(document.querySelector(".cad-tool-readout")?.textContent?.includes("Tracking direction horizontal"),"Shift+L locks the tracking direction");
+    document.body.dispatchEvent(new KeyboardEvent("keydown",{key:"R",shiftKey:true,bubbles:true,cancelable:true}));await pause();
+    check(document.querySelector(".cad-tool-readout")?.textContent?.includes("Tracking points released")&&state()===trackingBefore,"Shift+R releases tracking without modifying the document");
+    await keys("Escape");
     output.textContent = `${lines.join("\n")}\nALL ${lines.length} CHECKS PASSED`;
   } catch (error) { output.textContent = `${lines.join("\n")}\nFAIL: ${error instanceof Error ? error.message : error}`; }
 };

@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "scope": "G6-A1 named model-view document/command/camera contract; UI wiring remains G6-A2",
+  "node": { "tests": 764, "suites": 54, "failed": 0, "skipped": 0, "newTests": 9, "log": "output-g6-a1-node.log", "targetLog": "output-g6-a1-target.log" },
+  "browser": {
+    "scope": "Existing native viewport navigation and session regression; saved-view UI is not implemented and full browser suite was not rerun",
+    "workflows": 2, "checks": 35, "passed": true,
+    "results": [
+      { "workflow": "wheelNavigation", "checks": 11, "log": "output-g6-a1-browser-navigation.log" },
+      { "workflow": "sessionContinuity", "checks": 24, "log": "output-g6-a1-browser-session.log" }
+    ]
+  },
+  "architecture": { "passed": true, "modules": 360, "log": "output-g6-a1-architecture.log" },
+  "build": { "passed": true, "typecheck": "passed", "mainRawKB": 1096.17, "mainGzipKB": 330.51, "viewportRawKB": 649.18, "viewportGzipKB": 175.97, "existingLargeChunkWarning": true, "log": "output-g6-a1-build.log" },
+  "serialization": { "modelViews": "v15", "olderFiles": "v1-v14 remain readable without adding a collection; lower-version modelViews rejected", "noViews": "existing minimum-version selection retained" },
+  "cameraVerification": "Actual Three perspective and orthographic world-to-NDC equality, asymmetric frustum, zoom, roll, large world coordinates, clipping and vertical-framing preservation at a new aspect",
+  "remaining": ["G6-A2 Ribbon/search/save/recall/rename UI and active OrbitControls integration", "Section/crop/visibility presets", "Assembly/exploded views and model-linked drawings", "RVT/IFC and external adapters", "No new latency/practitioner/GPU benchmark"]
+}

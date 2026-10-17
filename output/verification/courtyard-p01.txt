@@ -1,0 +1,15 @@
+BEGIN annotation edit without kernel recomputation
+{"label":"annotation edit without kernel recomputation","ms":46,"sectionTasks":0,"projectionTasks":0}
+BEGIN cold five-view sheet Review
+{"label":"cold five-view sheet Review","ms":6558,"sectionTasks":164,"projectionTasks":0}
+BEGIN warm five-view sheet Review
+{"label":"warm five-view sheet Review","ms":551,"sectionTasks":0,"projectionTasks":0}
+BEGIN five-view sheet Apply
+{"label":"five-view sheet Apply","ms":550,"sectionTasks":0,"projectionTasks":0}
+BEGIN elevation-front
+{"label":"elevation-front","ms":1736,"sectionTasks":0,"projectionTasks":1}
+BEGIN elevation-right
+{"label":"elevation-right","ms":1662,"sectionTasks":0,"projectionTasks":1}
+BEGIN seven-view sheet Apply
+{"label":"seven-view sheet Apply","ms":7398,"sectionTasks":0,"projectionTasks":0}
+SAVED C:\Users\thefi\OneDrive\Desktop\agent-webcad\output\projects\courtyard-commons\p01-fixed: 5 pages

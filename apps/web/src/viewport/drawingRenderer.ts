@@ -1,3 +1,8 @@
+import {validSpline} from "@agent-webcad/cad-document";
+import {sampleSpline,splineClosed} from "../precision/splineGeometry";
+import {modelDrawingStyle} from "../precision/layerStyle";
+import {validEllipse} from "@agent-webcad/cad-document";
+import {sampleEllipse,ellipseClosed} from "../precision/ellipseGeometry";
 import * as THREE from "three";
 import { planeToWorld, WORK_PLANES, worldToPlane, type Vec3, type WorkPlaneId } from "../precision/workPlane";
 import { sampleProfile } from "../precision/profileGeometry";
@@ -6,7 +11,9 @@ import { Line2 } from "three/examples/jsm/lines/Line2.js";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import type { CadVectorStyle, LayerStyle } from "@agent-webcad/cad-document";
+import { validWorkPlaneFrame } from "@agent-webcad/cad-document";
 import { applyCenterPattern } from "./lineStyle";
+import { drawingLineType, DEFAULT_LAYER_STYLE } from "../precision/layerStyle";
 
 export type DrawingRenderObject =
   | Line2
@@ -15,7 +22,10 @@ export type DrawingRenderObject =
   | THREE.LineLoop<THREE.BufferGeometry, THREE.LineBasicMaterial>;
 
 export function drawingRenderPoints(params: Record<string, unknown>, planeId: WorkPlaneId): Vec3[] {
+  const frame=validWorkPlaneFrame(params.faceFrame)?{id:String(params.facePlaneId),...params.faceFrame}:WORK_PLANES[planeId];
   const kind = String(params.kind ?? "");
+  if(validSpline(params))return sampleSpline(params);
+  if(validEllipse(params))return sampleEllipse(params);
   if (["point", "infinite-line", "ray"].includes(kind) && Array.isArray(params.points)) return params.points as Vec3[];
   if ((kind === "line" || kind === "polyline" || kind === "rectangle") && Array.isArray(params.points)) {
     return sampleProfile(kind, params);
@@ -25,16 +35,16 @@ export function drawingRenderPoints(params: Record<string, unknown>, planeId: Wo
     const radius = Number(params.radius);
     const start = kind === "arc" ? Number(params.startAngle) : 0;
     const end = kind === "arc" ? Number(params.endAngle) : Math.PI * 2;
-    const center2d = worldToPlane(center, WORK_PLANES[planeId]);
+    const center2d = worldToPlane(center, frame);
     const count = kind === "circle" ? 64 : Math.max(12, Math.ceil(Math.abs(end - start) / (Math.PI / 32)));
     return Array.from({ length: count + 1 }, (_, index) => {
       const angle = start + (end - start) * index / count;
       const point = planeToWorld([
         center2d[0] + Math.cos(angle) * radius,
         center2d[1] + Math.sin(angle) * radius,
-      ], WORK_PLANES[planeId]);
-      const h = center.reduce((sum, v, i) => sum + v * WORK_PLANES[planeId].normal[i], 0);
-      return point.map((v, i) => v + h * WORK_PLANES[planeId].normal[i]) as Vec3;
+      ], frame);
+      const h = center.reduce((sum, v, i) => sum + (v-frame.origin[i]) * frame.normal[i], 0);
+      return point.map((v, i) => v + h * frame.normal[i]) as Vec3;
     });
   }
   return [];
@@ -50,6 +60,8 @@ export function createDrawingRenderObject(
   color = 0x4f8cff,
   style?: LayerStyle,
 ): DrawingRenderObject {
+  style=modelDrawingStyle(params,style??DEFAULT_LAYER_STYLE);
+  style=modelDrawingStyle(params,style??DEFAULT_LAYER_STYLE);
   const planeId = (params.workPlane === "XZ" || params.workPlane === "YZ" ? params.workPlane : "XY") as WorkPlaneId;
   const points = drawingRenderPoints(params, planeId);
   const origin = drawingRenderOrigin(params, planeId);
@@ -63,15 +75,17 @@ export function createDrawingRenderObject(
     object.userData.cadObjectId = objectId; object.userData.drawingOrigin = origin;
     return object;
   }
-  const closed=params.kind === "rectangle" || params.kind === "circle" || params.closed === true;
+  const closed=params.kind === "rectangle" || params.kind === "circle" || validSpline(params)&&splineClosed(params) || validEllipse(params)&&ellipseClosed(params) || params.closed === true;
   if(closed && local.length)local.push(local[0]);
   const geometry=new LineGeometry().setPositions(local.flatMap(point=>point.toArray()));
-  const dashed=Boolean(params.construction || style?.lineType!==undefined && style.lineType!=="continuous");
-  const material=new LineMaterial({color:params.construction?0x8aa7b0:vectorStyle?.stroke??style?.color??color,linewidth:Math.max(1,(vectorStyle?.strokeWidth??style?.lineWeight??0.25)*96/25.4),dashed,dashSize:style?.lineType==="center"?6:3,gapSize:1.5});
+  const lineType=drawingLineType(params.construction,style??DEFAULT_LAYER_STYLE),dashed=lineType!=="continuous";
+  const material=new LineMaterial({color:params.construction?0x8aa7b0:vectorStyle?.stroke??style?.color??color,linewidth:Math.max(1,(vectorStyle?.strokeWidth??style?.lineWeight??0.25)*96/25.4),dashed,dashSize:lineType==="center"?6:3,gapSize:1.5});
+  if(params.facePlaneId)material.depthTest=false;
   material.transparent = (vectorStyle?.opacity ?? 1) < 1;
   material.opacity = vectorStyle?.opacity ?? 1;
   const renderObject=new Line2(geometry,material);
-  applyCenterPattern(material,style?.lineType);
+  if(params.facePlaneId)renderObject.renderOrder=6;
+  applyCenterPattern(material,lineType);
   (renderObject as THREE.Object3D).onBeforeRender=(renderer,_scene,camera)=>{
     material.resolution.copy(renderer.getSize(new THREE.Vector2()));
     if (["infinite-line", "ray"].includes(String(params.kind))) {
@@ -102,26 +116,31 @@ export function createDrawingRenderObject(
 export function createDrawingSceneObject(objectId: string, params: Record<string, unknown>, color = 0x4f8cff, style?: LayerStyle): DrawingRenderObject | THREE.Group {
   const vectorStyle = params.vectorStyle && typeof params.vectorStyle === "object" ? params.vectorStyle as Partial<CadVectorStyle> : undefined;
   const line = createDrawingRenderObject(objectId, params, color, style);
-  const closed = params.kind === "rectangle" || params.kind === "circle" || params.closed === true;
-  if (!closed || typeof vectorStyle?.fill !== "string" || !/^#[0-9a-f]{6}$/i.test(vectorStyle.fill)) return line;
+  const closed = params.kind === "rectangle" || params.kind === "circle" || validSpline(params)&&splineClosed(params) || validEllipse(params)&&ellipseClosed(params) || params.closed === true;
+  const hasSolidFill = typeof vectorStyle?.fill === "string" && /^#[0-9a-f]{6}$/i.test(vectorStyle.fill);
+  const hasGradient = vectorStyle?.fillGradient !== null && vectorStyle?.fillGradient !== undefined;
+  if (!closed || (!hasSolidFill && !hasGradient)) return line;
+  style=modelDrawingStyle(params,style??DEFAULT_LAYER_STYLE);
   const planeId = (params.workPlane === "XZ" || params.workPlane === "YZ" ? params.workPlane : "XY") as WorkPlaneId;
   const world = drawingRenderPoints(params, planeId);
   const origin = drawingRenderOrigin(params, planeId);
   if (world.length < 3) return line;
-  const points = world.map(point => worldToPlane(point, WORK_PLANES[planeId]));
+  const frame=validWorkPlaneFrame(params.faceFrame)?{id:String(params.facePlaneId),...params.faceFrame}:WORK_PLANES[planeId];
+  const points = world.map(point => worldToPlane(point, frame));
   if (close(points[0], points[points.length - 1])) points.pop();
   if (points.length < 3) return line;
   const contour = points.map(point => new THREE.Vector2(point[0], point[1]));
   const triangles = THREE.ShapeUtils.triangulateShape(contour, []);
   if (!triangles.length) return line;
-  const normal = WORK_PLANES[planeId].normal;
-  const planeOffset = world[0].reduce((sum, value, index) => sum + value * normal[index], 0);
-  const positions = points.flatMap(([x, y]) => planeToWorld([x, y], WORK_PLANES[planeId]).map((value, index) => value + normal[index] * planeOffset - origin[index]));
+  const normal = frame.normal;
+  const planeOffset = world[0].reduce((sum, value, index) => sum + (value-frame.origin[index]) * normal[index], 0);
+  const positions = points.flatMap(([x, y]) => planeToWorld([x, y], frame).map((value, index) => value + normal[index] * planeOffset - origin[index]));
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geometry.setIndex(triangles.flat());
   geometry.computeVertexNormals();
-  const fill = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: vectorStyle.fill, transparent: (vectorStyle.opacity ?? 1) < 1, opacity: vectorStyle.opacity ?? 1, side: THREE.DoubleSide, depthWrite: false }));
+  const fillColor = hasSolidFill ? vectorStyle.fill! : (vectorStyle.fillGradient?.stops[0]?.color ?? "#808080");
+  const fill = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: fillColor, transparent: (vectorStyle.opacity ?? 1) < 1, opacity: vectorStyle.opacity ?? 1, side: THREE.DoubleSide, depthWrite: false }));
   fill.name = `Vector fill · ${objectId}`;
   fill.userData.cadObjectId = objectId;
   fill.renderOrder = -1;

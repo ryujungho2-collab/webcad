@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-13",
+  "node": {
+    "tests": 1204,
+    "suites": 54,
+    "fail": 0,
+    "skip": 0
+  },
+  "typecheck": "passed",
+  "architectureModules": 539,
+  "productionBuild": "passed",
+  "nativeShared": {
+    "courtyardIssue": 40,
+    "spline": 19,
+    "ellipseSection": 18,
+    "sectionPresentation": 17,
+    "conicProjection": 22,
+    "frameStitches": 25,
+    "modelSheetLayout": 19
+  },
+  "nativeSharedTotal": 160,
+  "nativeSharedWorkflows": 7,
+  "cards": [
+    "X2-C1",
+    "X2-C2",
+    "X6-D2-S1",
+    "G6-D5-E1"
+  ],
+  "status": "complete bounded nonperiodic spline output pilot",
+  "source": {
+    "degree": [
+      1,
+      8
+    ],
+    "maxPoles": 256,
+    "weights": "positive 1e-9–1e9",
+    "expandedKnots": true,
+    "finiteDomain": true,
+    "schema": 39
+  },
+  "exactOutput": [
+    "source NURBS data",
+    "DXF SPLINE/ELLIPSE finite-domain entities"
+  ],
+  "rendering": {
+    "paperChordToleranceMm": 0.02,
+    "cropBoundaryToleranceMm": 1e-07,
+    "nativeSection": "OCCT fitted spline; kernel solver tolerance retained",
+    "PDF": "raster Worker output"
+  },
+  "pdfVisualQA": {
+    "pages": 1,
+    "tool": "Poppler pdfinfo/pdftoppm",
+    "KoreanVisible": true,
+    "inspected": true
+  },
+  "artifacts": "../../output/projects/spline-pilot/",
+  "limits": [
+    "Periodic/fit-only DXF input warns/skips in import Review.",
+    "General spline intersections/tangent solver/offset/fillet and spline extrusion are not included.",
+    "Ellipse/spline hatch warns/omits.",
+    "Parabola/hyperbola and native curves beyond degree8/256-pole budget reject whole result.",
+    "Frame DXF remains explicit sampled presentation; no analytic polygon seam crop contract.",
+    "SVG uses installed system fonts; no font embedding or arbitrary font portability claim."
+  ]
+}

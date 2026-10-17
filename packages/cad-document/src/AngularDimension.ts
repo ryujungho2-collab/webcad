@@ -1,5 +1,6 @@
 import type { SketchWorkPlane } from "./Sketch";
 import type { CadDocument } from "./CadDocument";
+import { validDimensionStyle, type CadDimensionStyle } from "./DimensionStyle";
 
 export type AngularDimensionReference = { objectId: string; segmentId: string };
 export type AngularDimensionBranch = { firstRay: 1 | -1; secondRay: 1 | -1; sweep: "ccw" | "cw" };
@@ -9,6 +10,7 @@ export type AngularDimensionDefinition = {
   branch: AngularDimensionBranch;
   radius: number;
   text?: string | null;
+  style?: CadDimensionStyle;
 };
 export type AngularDimensionLine = { kind: "line" | "arc"; workPlane: SketchWorkPlane; start: [number, number, number]; end: [number, number, number] };
 /** World-space snapshots are refreshed from both stable references in the same transaction. */
@@ -25,7 +27,8 @@ export function validAngularDefinition(v: unknown): v is AngularDimensionDefinit
   return record(v) && validAngularReference(v.first) && validAngularReference(v.second)
     && (v.first.objectId !== v.second.objectId || v.first.segmentId !== v.second.segmentId)
     && validAngularBranch(v.branch) && typeof v.radius === "number" && Number.isFinite(v.radius) && v.radius > 0
-    && (v.text === undefined || v.text === null || typeof v.text === "string");
+    && (v.text === undefined || v.text === null || typeof v.text === "string")
+    && (v.style === undefined || validDimensionStyle(v.style));
 }
 export function validAngularParams(v: unknown): v is AngularDimensionParams {
   if (!record(v) || v.kind !== "angular" || !["XY", "XZ", "YZ"].includes(String(v.workPlane)) || !Array.isArray(v.lines) || v.lines.length !== 2) return false;

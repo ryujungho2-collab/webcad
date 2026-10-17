@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "checks": 22,
+  "message": "PASS HLR ellipse Review is detached\nPASS Native editor explains sharp/silhouette and seam policy\nPASS HLR Apply commits one Undo\nPASS Fixed policy is persisted on the model view\nPASS Actual Worker produces full cap, finite elliptic arcs and two silhouettes\nPASS Analytic conics keep axes and domain without sampled source points\nPASS Visible and hidden conics reach the actual Three.js scene\nPASS Actual hidden elliptic arc uses a dashed Three.js material\nPASS Native Undo restores original model\nPASS Native Redo restores HLR and output identities\nPASS Native center note attaches to ellipse output\nPASS Native source edit commits one Undo\nPASS Conic output identity survives proven radius change\nPASS Native source Undo restores conics and note\nPASS SVG uses exact full and finite elliptic syntax\nPASS SVG preserves hidden-line dash\nPASS DXF uses exact ELLIPSE entities\nPASS Actual PDF Worker renders conic HLR and note\nPASS Downloaded PDF contains the physical sheet\nPASS Conic HLR serializes in schema36\nPASS Real cache reload preserves conic HLR policy, domains, IDs and live notes\nPASS Reopen starts clean history\nALL 22 CHECKS PASSED",
+  "artifacts": [
+    "conic-projection.svg",
+    "conic-projection.dxf",
+    "conic-projection.pdf"
+  ]
+}

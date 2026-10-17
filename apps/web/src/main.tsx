@@ -1,6 +1,8 @@
-﻿import React from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
-import { App } from "./App";
+import { DocumentRecoveryGate } from "./app/DocumentRecoveryGate";
+import { ProjectWorkspace } from "./app/ProjectWorkspace";
+import { embeddedProjectId } from "./app/projectSession";
 import "./styles.css";
 import "./ui/tokens.css";
 import "./ui/workstation.css";
@@ -15,7 +17,7 @@ ReactDOM.createRoot(
   document.getElementById("root")!
 ).render(
   <React.StrictMode>
-    <App />
+    {embeddedProjectId() ? <DocumentRecoveryGate /> : <ProjectWorkspace />}
   </React.StrictMode>
 );
 

@@ -15,5 +15,7 @@ export function installBrowserChecks(button: HTMLButtonElement, output: HTMLElem
     });
   };
   new MutationObserver(report).observe(output, { childList: true, subtree: true, characterData: true });
+  window.addEventListener("error",event=>{output.textContent=`${output.textContent}\nFAIL: Uncaught browser error: ${event.message}`;});
+  window.addEventListener("unhandledrejection",event=>{output.textContent=`${output.textContent}\nFAIL: Unhandled browser rejection: ${String(event.reason)}`;});
   if (query.get("auto") === "1") setTimeout(() => button.click(), 100);
 }

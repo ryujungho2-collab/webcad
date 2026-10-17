@@ -162,3 +162,31 @@ test("cancellation is distinguishable from kernel failures", () => {
   assert.equal(isKernelCancelled(new Error("Invalid solid")), false);
   assert.equal(isKernelCancelled(null), false);
 });
+
+test("idle release retains active and queued operations and restarts with fresh task IDs", async()=>{
+ const workers:FakeWorker[]=[];const client=new KernelWorkerClient(()=>{const w=new FakeWorker();workers.push(w);return w;});
+ const a=client.request('primitive',{}),b=client.request('primitive',{});assert.equal(client.releaseIfIdle(),false);
+ workers[0].emit({type:'result',taskId:workers[0].requests[0].taskId,result:mesh()});await a;assert.equal(client.releaseIfIdle(),false);
+ const oldId=workers[0].requests[1].taskId;workers[0].emit({type:'result',taskId:oldId,result:mesh()});await b;
+ assert.equal(client.releaseIfIdle(),true);assert.equal(workers[0].terminated,true);assert.equal(client.releaseIfIdle(),false);
+ const c=client.request('primitive',{});assert.equal(workers.length,2);assert.ok(workers[1].requests[0].taskId>oldId);
+ workers[1].emit({type:'result',taskId:workers[1].requests[0].taskId,result:mesh()});await c;
+});
+
+test('aborting a view cannot cancel an active document task; queued view is dropped',async()=>{
+ const worker=new FakeWorker(),client=new KernelWorkerClient(()=>worker),scope=new AbortController();
+ const doc=client.request('primitive',{}),view=client.request('primitive',{}, {signal:scope.signal});const rejected=assert.rejects(view,KernelCancelledError);scope.abort();await rejected;assert.equal(worker.terminated,false);
+ worker.emit({type:'result',taskId:worker.requests[0].taskId,result:mesh()});await doc;assert.equal(worker.requests.length,1);
+});
+test('aborting an active view restarts the queued document task; stale worker results are ignored',async()=>{
+ const workers:FakeWorker[]=[],client=new KernelWorkerClient(()=>{const w=new FakeWorker();workers.push(w);return w;}),scope=new AbortController();
+ const view=client.request('primitive',{}, {signal:scope.signal}),doc=client.request('primitive',{}),rejected=assert.rejects(view,KernelCancelledError);scope.abort();await rejected;assert.equal(workers[0].terminated,true);assert.equal(workers.length,2);
+ workers[0].emit({type:'result',taskId:1,result:mesh()});workers[1].emit({type:'result',taskId:workers[1].requests[0].taskId,result:mesh()});await doc;
+});
+
+test('one scope abort drops the full queued view burst without spawning throwaway Workers',async()=>{
+ const workers:FakeWorker[]=[],client=new KernelWorkerClient(()=>{const w=new FakeWorker();workers.push(w);return w;}),scope=new AbortController();
+ const views=Array.from({length:8},()=>assert.rejects(client.request('primitive',{}, {signal:scope.signal}),KernelCancelledError));
+ const doc=client.request('primitive',{});scope.abort();await Promise.all(views);assert.equal(workers.length,2);
+ workers[1].emit({type:'result',taskId:workers[1].requests[0].taskId,result:mesh()});await doc;
+});

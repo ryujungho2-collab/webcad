@@ -1,3 +1,10 @@
+import type {SplineSession} from "./viewport/SplineTool";
+import type {EllipseSession} from "./viewport/EllipseTool";
+import {hasExplodedDisplay} from "./precision/modelPresentation";
+import {ModelPresentationDialog} from "./viewport/ModelPresentationDialog";
+import type {CadPilotSession,CadPilotMode} from "./viewport/CadPilotTool";
+import { planFixtureImport, encodeFixture, fixtureReceiptDetails } from "./interop/fixtureAdapter";
+import { MAX_FIXTURE_BYTES } from "@agent-webcad/cad-document";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppShell } from "./app/AppShell";
 import type { ActivityId } from "./activity/ActivityBar";
@@ -8,7 +15,8 @@ import { SketchInspector } from "./properties/SketchInspector";
 import { DependencyNotice } from "./properties/DependencyNotice";
 import { cadDocument } from "./state/cadDocument";
 import { dispatchCadCommand } from "./state/dispatchCadCommand";
-import { loadDocumentFromCache, newDocument, openDocumentFile, saveDocumentAsFile, saveDocumentToCache,startDocumentAutosave } from "./state/documentFile";
+import { documentExportSnapshot, documentFingerprint, loadDocumentFromCache, newDocument, openDocumentFile, saveDocumentAsFile, saveDocumentRecovery,startDocumentAutosave } from "./state/documentFile";
+import { embeddedProjectId, notifyProjectHost, projectErrorMessage, projectSessionGeneration, PROJECT_CHANNEL } from "./app/projectSession";
 import {recoveryStatus,subscribeRecoveryStatus,reportRecoveryStatus} from "./state/documentRecovery";
 import {previewCadCommand,applyCadPlan,discardCadPlan,getCadPlanDrawingPaths,type CadPlanPreview} from "./state/documentPlans";
 import {documentVersion,sameDocumentVersion,subscribeDocumentChanges} from "./state/documentSession";
@@ -18,7 +26,7 @@ import { useCopilotQuery } from "./copilot/useCopilotQuery";
 import { validateCopilotEdit } from "./copilot/copilotEdit";
 import { cadHistory, redoDocument, undoDocument } from "./state/history";
 import type { HistoryStateToken } from "@agent-webcad/cad-history";
-import { reduceSelection, selectAllIds, validSelection, type SelectionState, type TopologySelectionRef } from "./state/selection";
+import { reduceSelection, selectAllIds, validSelection as validDocumentSelection, type SelectionState, type TopologySelectionRef } from "./state/selection";
 import type { CornerPreviewRequest } from "./viewport/cornerPreview";
 import { planPrecisionTransform } from "./state/precisionTransformCommands";
 import { repeatDuplicateOffset, type DuplicateSeries } from "./state/duplicateWorkflow";
@@ -46,13 +54,17 @@ import { ArtboardPngDialog } from "./export/ArtboardPngDialog";
 import type { ArtboardPngScene } from "./export/artboardPng";
 import { ArtboardPdfDialog, type ArtboardPdfBoard } from "./export/ArtboardPdfDialog";
 import { encodeDxf } from "./interop/dxfWriter";
-import { planDxfImport } from "./interop/dxfImport";
+import { planParsedDxfImport } from "./interop/dxfImport";
+import { parseDxf } from "./interop/dxfParser";
+import { DxfPreparationDialog, type DxfPreparationSource } from "./interop/DxfPreparationDialog";
+import {FloorPlanTaskPanel} from "./interop/FloorPlanTaskPanel";
+import {getWorldDrawingGeometry} from "./precision/worldGeometry";
 import { DxfReviewDialog, type DxfReview } from "./interop/DxfReviewDialog";
 import { PlotDialog } from "./plot/PlotDialog";
 import { DraftingPanel } from "./properties/DraftingPanel";
 import { isKernelCancelled } from "./cad/kernelGeometryService";
 import { extractSketchLoops, extrusionProfileParams, type SketchLoop } from "./precision/sketchProfiles";
-import { drawingToSketchGeometry } from "./precision/sketchAdapter";
+import { drawingToSketchGeometry, sketchPlane } from "./precision/sketchAdapter";
 import { WORK_PLANES, planeToWorld, worldToPlane } from "./precision/workPlane";
 import { importRasterFile, RASTER_FILE_ACCEPT } from "./interop/rasterImport";
 import { resolveActiveArtboardId } from "./viewport/artboardCanvas";
@@ -61,21 +73,21 @@ import { subscribeCommandResults } from "./state/commandFeedback";
 import { planPointTransform, type PointTransformMode } from "./state/pointTransformCommands";
 import type {CadPatternSpec} from "@agent-webcad/cad-document";
 import type {PatternSession} from "./viewport/PatternTool";
-import type { ContourSession, ContourMode, CurveSession } from "./features/drawing-editing/contracts";
+import type { ContourSession, ContourMode, CurveSession, BlockSession } from "./features/drawing-editing/contracts";
+import type {EndpointRadiusArcSession} from "./viewport/EndpointRadiusArcTool";
+import type { RegularPolygonSession } from "./viewport/RegularPolygonTool";
 import type { ConstructionSession } from "./viewport/ConstructionTool";
 import type { PointTransformSession } from "./viewport/PointTransformTool";
 import { inferSketchConstraints, type SketchSnapBinding } from "./precision/automaticSketchConstraints";
 import "./styles.css";
+import { ModelViewsDialog } from "./viewport/ModelViewsDialog";
+import type { ModelViewBridge, ModelViewRequest } from "./viewport/CadViewport";
+import type { CadModelView } from "@agent-webcad/cad-document";
 
 const CadViewport = lazy(async () => {
   const module = await import("./viewport/CadViewport");
   return { default: module.CadViewport };
 });
-
-function documentFingerprint() {
-  const { revision: _revision, ...documentState } = cadDocument;
-  return JSON.stringify(documentState);
-}
 
 type PrecisionTransformSession = {
   mode: TransformMode;
@@ -87,7 +99,23 @@ function axisLabel(axis: 0 | 1 | 2 | null) {
   return axis === null ? "" : ["X", "Y", "Z"][axis];
 }
 
-export function App() {
+export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
+  const [assemblyOpen,setAssemblyOpen]=useState(false);
+  const [modelViewsOpen, setModelViewsOpen] = useState(false);
+  const [modelViewRequest, setModelViewRequest] = useState<ModelViewRequest | null>(null);
+  const [modelViewError, setModelViewError] = useState("");
+  const modelViewBridge = useRef<ModelViewBridge | null>(null);
+  const modelViewRequestId = useRef(0);
+  const receiveModelViewBridge = useCallback((bridge: ModelViewBridge | null) => { modelViewBridge.current = bridge; }, []);
+  function captureModelView() {
+    if (!modelViewBridge.current) throw new Error("The viewport is still loading. Try saving the view again.");
+    return modelViewBridge.current.capture();
+  }
+  function recallModelView(view: CadModelView) {
+    if (activeSketchId) { setModelViewError("Finish the active sketch before recalling a model view."); return; }
+    clearCommandTools(); setModelViewError(""); setWorkspaceMode("3d"); setProjectionMode(view.camera.projection);
+    setModelViewRequest({ id: ++modelViewRequestId.current, camera: structuredClone(view.camera) });
+  }
   const [activeActivity, setActiveActivity] = useState<ActivityId>("model");
   const [activeSketchId, setActiveSketchId] = useState<string | null>(null);
   const [selectedSketchConstraintId, setSelectedSketchConstraintId] = useState<string | null>(null);
@@ -104,13 +132,17 @@ export function App() {
   // history entry.
   const [isolatedObjectIds, setIsolatedObjectIds] = useState<string[] | null>(null);
   const [documentRevision, setDocumentRevision] = useState(() => {
-    try{loadDocumentFromCache();}catch(error){reportRecoveryStatus({state:"failed",message:error instanceof Error?error.message:"Document recovery failed."});}
+    try{if(!recoveryReady)loadDocumentFromCache();}catch(error){reportRecoveryStatus({state:"failed",message:error instanceof Error?error.message:"Document recovery failed."});}
     return cadDocument.revision;
   });
   const [recovery,setRecovery]=useState(recoveryStatus);
-  useEffect(()=>{const stop=subscribeRecoveryStatus(setRecovery),autosave=startDocumentAutosave();return ()=>{stop();autosave();};},[]);
-  const [savedFingerprint, setSavedFingerprint] = useState(documentFingerprint);
+  const [savedFingerprint, setSavedFingerprint] = useState<string | null>(() => recoveryStatus().fingerprint ?? null);
+  const [downloadedFingerprint, setDownloadedFingerprint] = useState<string | null>(null);
+  const pendingFileExport=useRef<{requestId:string;fingerprint:string}|null>(null);
+  useEffect(()=>{const stop=subscribeRecoveryStatus(value => { setRecovery(value); if(value.fingerprint && (value.state === "saved" || value.state === "recovered")) setSavedFingerprint(value.fingerprint); }),autosave=startDocumentAutosave();return ()=>{stop();autosave();};},[]);
   const [activeArtboardId, setActiveArtboardId] = useState<string | null>(null);
+  const artboardMemory = useRef(new WeakMap<HistoryStateToken, string | null>());
+  useEffect(() => { artboardMemory.current.set(selectionStateToken, activeArtboardId); }, [activeArtboardId, selectionStateToken]);
   const [artboardPngScene, setArtboardPngScene] = useState<ArtboardPngScene | null>(null);
   const [artboardPdfExport, setArtboardPdfExport] = useState<{ boards: ArtboardPdfBoard[]; activeBoardId: string | null; documentId: string } | null>(null);
   const [projectionMode, setProjectionMode] = useState<"perspective" | "orthographic">("perspective");
@@ -127,14 +159,22 @@ export function App() {
   const [pointTransform, setPointTransform] = useState<PointTransformSession | null>(null);
   const [patternSession,setPatternSession]=useState<PatternSession|null>(null);
   const [contourSession, setContourSession] = useState<ContourSession | null>(null);
+  const [blockSession, setBlockSession] = useState<BlockSession | null>(null);
   const [curveSession, setCurveSession] = useState<CurveSession | null>(null);
   const [angularSession, setAngularSession] = useState<AngularDimensionSession | null>(null);
+  const [cadPilotSession,setCadPilotSession]=useState<CadPilotSession|null>(null),[activeUcsId,setActiveUcsId]=useState("WCS");
+  const [endpointRadiusArcSession,setEndpointRadiusArcSession]=useState<EndpointRadiusArcSession|null>(null);
+  const [splineSession,setSplineSession]=useState<SplineSession|null>(null);
+  const [ellipseSession,setEllipseSession]=useState<EllipseSession|null>(null);
+  const [regularPolygonSession,setRegularPolygonSession]=useState<RegularPolygonSession|null>(null);
   const [constructionSession, setConstructionSession] = useState<ConstructionSession | null>(null);
   const [constructionVisible, setConstructionVisible] = useState(true);
+  function validSelection(state: SelectionState) { return validDocumentSelection(state,{constructionVisible}); }
   const pointCommitPending = useRef(false);
   const [extrusion, setExtrusion] = useState<{loops:SketchLoop[]; chosen:string[]; distance:string; layerId:string; revision:number; previousMode:WorkspaceMode} | null>(null);
   const [extrusionStatus, setExtrusionStatus] = useState("Preparing preview…");
   const [draftingOpen,setDraftingOpen]=useState(false);
+  const [addingText,setAddingText]=useState(false);
   const [draftingInitialBlockId,setDraftingInitialBlockId]=useState<string|null>(null);
   const pointSequence = useRef(0);
   const lastCommand = useRef<{ kind: "drawing"; tool: DrawingTool } | { kind: "points"; mode: PointTransformMode } | { kind: "precision"; mode: TransformMode } | { kind: "offset" } | { kind: "line-edit"; mode: "trim" | "extend" } | { kind: "contour"; mode: ContourMode } | null>(null);
@@ -174,8 +214,13 @@ export function App() {
   const lastDuplicate = useRef<DuplicateSeries | null>(null);
   const precisionTransformRef = useRef<PrecisionTransformSession | null>(null);
   const openFileInput = useRef<HTMLInputElement>(null);
+  const fixtureFileInput = useRef<HTMLInputElement>(null);
+  const [fixtureReview,setFixtureReview]=useState<DxfReview|null>(null);
   const dxfFileInput = useRef<HTMLInputElement>(null);
   const [dxfReview,setDxfReview]=useState<DxfReview|null>(null);
+  const [dxfPreparation,setDxfPreparation]=useState<DxfPreparationSource|null>(null);
+  const [floorTasks,setFloorTasks]=useState(false);
+  const [wallPreview,setWallPreview]=useState<import("./copilot/copilotPlan").CopilotGhost[]|null>(null);
   const imageFileInput = useRef<HTMLInputElement>(null);
   const [imageCropPreview, setImageCropPreview] = useState<{ objectId: string; crop: import("@agent-webcad/cad-document").CadImageCrop; mask: import("@agent-webcad/cad-document").CadImageMask; opacity: number; adjustments: import("@agent-webcad/cad-document").CadImageAdjustments; revealSource: boolean; asset?: import("@agent-webcad/cad-document").CadRasterAsset } | null>(null);
   const [imageCropEditingId, setImageCropEditingId] = useState<string | null>(null);
@@ -232,6 +277,33 @@ export function App() {
     [documentRevision, selectedObjectIds.join("\0")],
   );
   const isModified = currentFingerprint !== savedFingerprint;
+  const localSaveStatus = recovery.state === "failed" ? "Local recovery failed" : isModified ? "Local changes pending" : "Saved locally";
+  const fileDownloadStatus = downloadedFingerprint === null ? "File download not started in this session" : downloadedFingerprint === currentFingerprint ? "File download started · completion unverified" : "Changed since last file download";
+  useEffect(() => { notifyProjectHost("ready"); }, []);
+  useEffect(() => { notifyProjectHost("status", { modified: isModified, localSaveStatus, fileDownloadStatus, recoveryFailed: recovery.state === "failed" }); }, [isModified, localSaveStatus, fileDownloadStatus]);
+  useEffect(() => {
+    const receive = async (event: MessageEvent) => {
+      if (event.source !== window.parent || event.origin !== location.origin || event.data?.channel !== PROJECT_CHANNEL
+        || event.data.id !== embeddedProjectId() || event.data.generation !== projectSessionGeneration()
+        || typeof event.data.requestId !== "string") return;
+      const requestId = event.data.requestId;
+      if(event.data.type==="export-started"){
+        const pendingExport=pendingFileExport.current;
+        if(pendingExport&&pendingExport.requestId===requestId){setDownloadedFingerprint(pendingExport.fingerprint);pendingFileExport.current=null;}
+        return;
+      }
+      if(event.data.type!=="checkpoint")return;
+      if(event.data.intent==="export"){
+        try{const exported=documentExportSnapshot();pendingFileExport.current={requestId,fingerprint:exported.fingerprint};notifyProjectHost("checkpoint-result",{requestId,ok:true,version:exported.version,exportText:exported.data});}
+        catch(error){notifyProjectHost("checkpoint-result",{requestId,ok:false,error:projectErrorMessage(error,"File export failed.")});}
+        return;
+      }
+      try { const version = await saveDocumentRecovery(); notifyProjectHost("checkpoint-result", { requestId, ok: true, version }); }
+      catch (error) { notifyProjectHost("checkpoint-result", { requestId, ok: false, error: projectErrorMessage(error,"Recovery checkpoint failed.") }); }
+    };
+    window.addEventListener("message", receive);
+    return () => window.removeEventListener("message", receive);
+  }, []);
   const extrusionPreview = useMemo(() => {
     if (!extrusion) return null;
     const distance = parseLength(extrusion.distance), loops = extrusion.loops.filter(loop => extrusion.chosen.includes(loop.id));
@@ -264,7 +336,7 @@ export function App() {
     setActiveSketchId((current) => current && cadDocument.sketches?.[current] ? current : null);
     setSelectedLayerId((current) => cadDocument.layers[current] ? current : (cadDocument.rootLayers[0] ?? "layer-default"));
     setActiveArtboardId(current => resolveActiveArtboardId(current, Object.values(cadDocument.artboards ?? {})));
-  }, [documentRevision]);
+  }, [documentRevision, constructionVisible]);
 
   // 2D drafting always uses an orthographic camera. Keep the React state in
   // sync as well as the viewport's defensive camera invariant so stale view
@@ -295,10 +367,16 @@ export function App() {
   function clearCommandTools(resetSelectionMode = true) {
     setCornerPreview(null);
     setConstraintReviewReset(v=>v+1);setConstraintReview(undefined);
+    setCadPilotSession(null);
+    setEndpointRadiusArcSession(null);
+    setSplineSession(null);
+    setEllipseSession(null);
+    setRegularPolygonSession(null);
     setConstructionSession(null);
     setCurveSession(null);
     setAngularSession(null);
     setContourSession(null);
+    setBlockSession(null);
     setPatternSession(null);
     clearPrecisionTransform();
     setPointTransform(null);
@@ -375,9 +453,11 @@ export function App() {
   function handleUndo() {
     if (documentBusy()) return;
     selectionMemory.current.set(cadHistory.getStateToken(), structuredClone(selection));
+    artboardMemory.current.set(cadHistory.getStateToken(), activeArtboardId);
     if (!undoDocument()) return;
     clearCommandTools(false);
     setSelection(validSelection(selectionMemory.current.get(cadHistory.getStateToken()) ?? selection));
+    restoreHistoryArtboard();
     issueViewAction("reset-interaction");
     setShortcutReadout("Undo · previous geometry and selection restored · choose the next tool");
     syncRevision();
@@ -386,15 +466,28 @@ export function App() {
   function handleRedo() {
     if (documentBusy()) return;
     selectionMemory.current.set(cadHistory.getStateToken(), structuredClone(selection));
+    artboardMemory.current.set(cadHistory.getStateToken(), activeArtboardId);
     if (!redoDocument()) return;
     clearCommandTools(false);
     setSelection(validSelection(selectionMemory.current.get(cadHistory.getStateToken()) ?? selection));
+    restoreHistoryArtboard();
     issueViewAction("reset-interaction");
     setShortcutReadout("Redo · result geometry and selection restored · choose the next tool");
     syncRevision();
   }
 
+  function restoreHistoryArtboard() {
+    const remembered = artboardMemory.current.get(cadHistory.getStateToken());
+    const id = resolveActiveArtboardId(remembered === undefined ? activeArtboardId : remembered, Object.values(cadDocument.artboards ?? {}));
+    setActiveArtboardId(id);
+    if (workspaceMode === "2d" && id !== activeArtboardId) {
+      const board = id ? cadDocument.artboards?.[id] : undefined;
+      if (board) setActiveWorkPlane(board.workPlane);
+    }
+  }
+
   function issueViewAction(type: ViewportActionType, artboardId?: string) {
+    if (["top", "front", "right"].includes(type) && workspaceMode === "3d") setProjectionMode("orthographic");
     viewActionId.current += 1;
     setViewAction({ id: viewActionId.current, type, artboardId });
   }
@@ -429,7 +522,8 @@ export function App() {
   async function commitViewportTransform(objectId: string, mode: TransformMode, transform: ObjectTransformValue) {
     if (precisionTransformRef.current) clearPrecisionTransform();
     if (activeSketchSelection && activeSketch) {
-      const plane = WORK_PLANES[activeSketch.workPlane], normal = plane.normal.findIndex((value) => value !== 0);
+      if(activeSketch.facePlaneId&&mode==="rotate"){setShortcutReadout("Rotate face sketch geometry with the sketch editor after its planar rotation control is available.");return;}
+      const plane = sketchPlane(activeSketch), normal = plane.normal.findIndex((value) => value !== 0);
       const bounds = getSelectionWorldBounds(cadDocument, selectedObjectIds);
       if (!bounds) return;
       const pivot = boundsCenter(bounds);
@@ -437,7 +531,7 @@ export function App() {
       if (mode === "scale" && transform.scale.some((value) => Math.abs(value - transform.scale[0]) > 1e-6)) { setShortcutReadout("Sketch scale must be uniform. Use S and enter a scale."); return; }
       const delta = single ? transform.translation : transform.translation.map((value, index) => value - pivot[index]) as [number, number, number];
       await dispatchViewportCommand({ type: "transform-sketch-geometry", sketchId: activeSketch.id, geometryIds: selectedObjectIds,
-        translation: mode === "translate" ? worldToPlane(delta, plane) : [0, 0],
+        translation: mode === "translate" ? [delta.reduce((sum,v,i)=>sum+v*plane.xAxis[i],0),delta.reduce((sum,v,i)=>sum+v*plane.yAxis[i],0)] : [0, 0],
         center: worldToPlane(pivot, plane), angle: mode === "rotate" ? transform.rotation[normal] * plane.normal[normal] * Math.PI / 180 : 0,
         scale: mode === "scale" ? transform.scale[0] : 1 });
       syncRevision(); return;
@@ -538,23 +632,23 @@ export function App() {
 
   function handleNewDocument() {
     if (documentBusy()) return;
+    if (notifyProjectHost("new")) return;
     newDocument();
     resetWorkspaceSelection();
-    setSavedFingerprint(documentFingerprint());
+    setDownloadedFingerprint(null);
     syncRevision();
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (documentBusy()) return;
-    try{saveDocumentToCache();}catch(error){setShortcutReadout(error instanceof Error?error.message:"Save failed");return;}
-    setSavedFingerprint(currentFingerprint);
+    try{await saveDocumentRecovery();}catch(error){setShortcutReadout(error instanceof Error?error.message:"Save failed");return;}
   }
 
-  function handleSaveAs() {
+  async function handleSaveAs() {
     if (documentBusy()) return;
-    saveDocumentAsFile();
-    try{saveDocumentToCache();}catch(error){setShortcutReadout(error instanceof Error?error.message:"Recovery save failed");return;}
-    setSavedFingerprint(currentFingerprint);
+    try { const download = saveDocumentAsFile(); setDownloadedFingerprint(download.fingerprint); }
+    catch(error){setShortcutReadout(error instanceof Error?error.message:"File download could not start");return;}
+    try{await saveDocumentRecovery();}catch(error){setShortcutReadout(error instanceof Error?error.message:"Recovery save failed");return;}
   }
 
   async function handleExportStl() {
@@ -579,12 +673,12 @@ export function App() {
     const annotations = collectExportAnnotations(activeWorkPlane);
     const lines = [...collectExportDrawings(activeWorkPlane),...annotations.lines];
     const images = collectExportImages(activeWorkPlane);
-    if (!lines.length && !images.length) {
-      setShortcutReadout(`Nothing to export: no visible drawings on ${activeWorkPlane}`);
+    if (!lines.length && !images.length && !annotations.texts.length) {
+      setShortcutReadout(`Nothing to export: no visible drawings, text or images on ${activeWorkPlane}`);
       return;
     }
     downloadFile(encodeSvg(lines, { images, texts:annotations.texts }), `${cadDocument.id}-${activeWorkPlane.toLowerCase()}.svg`, "image/svg+xml");
-    setShortcutReadout(`Exported ${lines.length} drawing${lines.length === 1 ? "" : "s"} and ${images.length} image${images.length === 1 ? "" : "s"} from ${activeWorkPlane} to SVG`);
+    setShortcutReadout(`Exported ${lines.length} drawing${lines.length === 1 ? "" : "s"}, ${annotations.texts.length} text label${annotations.texts.length === 1 ? "" : "s"} and ${images.length} image${images.length === 1 ? "" : "s"} from ${activeWorkPlane} to SVG`);
   }
 
   function handleExportArtboardSvg() {
@@ -595,8 +689,8 @@ export function App() {
       const items = collectArtboardExportItems(board.id);
       const name = board.name.trim().replace(/[^a-z0-9._-]+/gi, "-").replace(/^-+|-+$/g, "") || board.id;
       downloadFile(encodeSvg([], { items, viewBox: { origin: board.origin, size: board.size }, background: board.background }), `${cadDocument.id}-${name}.svg`, "image/svg+xml");
-      const drawings = items.filter(item => item.type === "polyline").length, images = items.filter(item => item.type === "image").length;
-      setShortcutReadout(`Exported ${drawings} drawing${drawings === 1 ? "" : "s"} and ${images} image${images === 1 ? "" : "s"} from ${board.name} to SVG`);
+      const drawings = items.filter(item => item.type === "polyline").length, images = items.filter(item => item.type === "image").length, texts = items.filter(item => item.type === "text").length;
+      setShortcutReadout(`Exported ${drawings} drawing${drawings === 1 ? "" : "s"} ${images} image${images === 1 ? "" : "s"} and ${texts} label${texts === 1 ? "" : "s"} from ${board.name} to SVG`);
     } catch (error) {
       setShortcutReadout(error instanceof Error ? error.message : "Artboard SVG export failed");
     }
@@ -622,11 +716,13 @@ export function App() {
     const visibleBoards = Object.values(cadDocument.artboards ?? {}).filter(board => board.visible);
     if (!visibleBoards.length) { setShortcutReadout("Create or show an artboard before exporting an artboard PDF"); return; }
     const boards: ArtboardPdfBoard[] = visibleBoards.map(board => {
+      const publication=Object.values(cadDocument.modelPresentation?.sheets??{}).find(s=>s.artboardId===board.id)?.publication;
+      const sheetSet=board.frameSheet?{id:board.frameSheet.setId,page:board.frameSheet.page,pageCount:board.frameSheet.pageCount,name:board.frameSheet.fields.drawingName}:publication?{id:`model:${publication.setId}`,page:publication.page,pageCount:publication.pageCount,name:publication.fields.drawingName}:undefined;
       const metadata = { id: board.id, name: board.name, origin: [...board.origin] as [number, number], size: [...board.size] as [number, number], workPlane: board.workPlane, background: board.background };
       try {
-        return { board: metadata, scene: { board: metadata, items: collectArtboardExportItems(board.id) } };
+        return { sheetSet, board: metadata, scene: { board: metadata, items: collectArtboardExportItems(board.id) } };
       } catch (error) {
-        return { board: metadata, error: error instanceof Error ? error.message : `Could not prepare “${board.name}” for PDF output.` };
+        return { sheetSet, board: metadata, error: error instanceof Error ? error.message : `Could not prepare “${board.name}” for PDF output.` };
       }
     });
     setArtboardPdfExport({ boards, activeBoardId: activeArtboardId, documentId: cadDocument.id });
@@ -662,6 +758,28 @@ export function App() {
     }
   }
 
+  async function handleImportFixtureFile(file: File | undefined) {
+    if (!file || documentBusy()) return;
+    const baseVersion = documentVersion();
+    try {
+      if (file.size > MAX_FIXTURE_BYTES) throw new Error("Exchange fixture exceeds the 2 MiB limit.");
+      const bytes = await file.arrayBuffer();
+      const text = new TextDecoder("utf-8", {fatal:true}).decode(bytes);
+      if (!sameDocumentVersion(baseVersion)) throw new Error("Document changed while reading the fixture. Choose it again.");
+      const layerId = selectedLayerId ?? cadDocument.rootLayers[0];
+      const planned = planFixtureImport(text, layerId);
+      setFixtureReview({mode:"import",name:file.name,command:planned.command,stats:planned.stats,details:fixtureReceiptDetails(planned.receipt),baseVersion});
+    } catch (error) { setShortcutReadout(error instanceof Error ? error.message : "Could not import the exchange fixture."); }
+  }
+  function handleExportFixture() {
+    if (documentBusy()) return;
+    try {
+      const exported = encodeFixture(cadDocument,selectedObjectIds.length ? selectedObjectIds : undefined);
+      if (!exported.entities) throw new Error("No supported independent lines or rectangles to export.");
+      setFixtureReview({mode:"export",name:`${cadDocument.id}.fixture.json`,...exported,baseVersion:documentVersion()});
+    } catch (error) { setShortcutReadout(error instanceof Error ? error.message : "Could not export the exchange fixture."); }
+  }
+
   function handleImportDxf() {
     if (documentBusy()) return;
     dxfFileInput.current?.click();
@@ -678,12 +796,13 @@ export function App() {
         Object.values(cadDocument.layers).map((layer) => [layer.name, layer.id] as const),
       );
       const tag = crypto.randomUUID().slice(0, 8);
-      const planned = planDxfImport(text, layerByName, tag);
+      const parsed = parseDxf(text);
+      const planned = planParsedDxfImport(parsed, layerByName, tag, { usedOnly: true,sourceName:file.name });
       if (!planned.ok) {
         setShortcutReadout(planned.reason);
         return;
       }
-      setDxfReview({mode:"import",name:file.name,command:planned.command,stats:planned.stats,baseVersion});
+      setDxfPreparation({parsed,layerByName,tag,review:{mode:"import",name:file.name,command:planned.command,stats:planned.stats,baseVersion}});
     } catch (error) {
       setShortcutReadout(error instanceof Error?error.message:"Could not import this DXF file.");
     }
@@ -698,9 +817,10 @@ export function App() {
     if (!file) return;
     if (documentBusy()) return;
     try {
+      if (embeddedProjectId()) { notifyProjectHost("open", { text: await file.text(), name: file.name }); return; }
       await openDocumentFile(file);
       resetWorkspaceSelection();
-      setSavedFingerprint(documentFingerprint());
+      setDownloadedFingerprint(null);
       syncRevision();
     } catch (error) {
       console.error("Failed to open CAD document:", error);
@@ -995,6 +1115,7 @@ export function App() {
     const result = await dispatchCadCommand({
       type: "create-extrude",
       profileObjectIds: [...new Set(extrusion.loops.filter(loop=>extrusion.chosen.includes(loop.id)).flatMap(loop=>loop.sourceObjectIds))],
+      profileRegionIds:extrusion.chosen.length<extrusion.loops.length&&extrusion.loops.some(loop=>loop.sourceObjectIds.some(id=>Object.values(cadDocument.features).some(f=>f.output===id&&f.params.kind==="face")))?extrusion.chosen:undefined,
       distance: extrusionPreview.distance,
       layerId: extrusion.layerId,
     });
@@ -1076,6 +1197,7 @@ export function App() {
   }
 
   function activateMeasurementTool() {
+    if(hasExplodedDisplay(cadDocument)){setShortcutReadout("Exploded display uses visual offsets. Return to assembled display for pointer measurements; Properties reports model measurements.");return;}
     const next = measurementTool === "distance" ? null : "distance";
     clearCommandTools();
     setPointTransform(null);
@@ -1113,6 +1235,11 @@ export function App() {
   }
 
   async function handleDrawingCommit(drawing: DrawingTool, params: Record<string, unknown>) {
+    if(drawing==="circle-3point"||drawing==="arc-3point"){
+      const result=await dispatchCadCommand({type:"create-three-point-curve",drawing:drawing==="circle-3point"?"circle":"arc",points:params.threePointInputs as [[number,number,number],[number,number,number],[number,number,number]],workPlane:activeWorkPlane,sketchId:activeSketch?.id,layerId:selectedLayerId});
+      if(result.ok&&result.createdIds[0])selectObject(result.createdIds[0]);else if(!result.ok)setShortcutReadout(result.reason??"Three-point curve rejected");
+      syncRevision();return;
+    }
     if (activeSketch) {
       const id = `sketch-${drawing}-${crypto.randomUUID()}`;
       const geometry = drawingToSketchGeometry(activeSketch, drawing, params, id);
@@ -1143,7 +1270,7 @@ export function App() {
     const sketch = cadDocument.sketches?.[id];
     if (!sketch) return;
     setActiveSketchId(id); setSelectedLayerId(sketch.layerId); setActiveWorkPlane(sketch.workPlane);
-    setDrawingTool(null); setTransformMode(null); setSelection({ ids: [], primaryId: null }); changeWorkspace("2d");
+    setDrawingTool(null); setTransformMode(null); setSelection({ ids: [], primaryId: null }); changeWorkspace(sketch.facePlaneId?"3d":"2d");
   }
 
   async function handleDeleteObject() {
@@ -1182,16 +1309,23 @@ export function App() {
   }
   const selectedDrawings = selectedObjectIds.map(id => Object.values(cadDocument.features).find(f => f.output === id));
   const standaloneCurves = selectionEditable && !activeSketch && selectedDrawings.every(f => f?.type === "drawing" && !f.params.sketchId && !f.pattern && !f.construction && !["point", "infinite-line", "ray"].includes(String(f.params.kind)));
-  const stretchIds = selectedObjectIds.length ? standaloneCurves && selectedDrawings.every(f => (f?.params.workPlane ?? "XY") === (selectedDrawings[0]?.params.workPlane ?? "XY")) ? [...selectedObjectIds] : [] : !activeSketch ? Object.values(cadDocument.features).filter(f => {
-    const object = cadDocument.objects[f.output], layer = object && cadDocument.layers[object.layerId];
-    return f.type === "drawing" && !f.params.sketchId && !f.pattern && !f.construction && !["point", "infinite-line", "ray"].includes(String(f.params.kind)) && (constructionVisible || !f.params.construction) && (f.params.workPlane ?? "XY") === activeWorkPlane && object?.visible && layer?.visible && !layer.locked;
-  }).map(f => f.output) : [];
+  const stretchEligible = (f: typeof selectedDrawings[number]) => !!f && !f.pattern && !f.construction && (f.type === "drawing" && !["point","infinite-line","ray"].includes(String(f.params.kind)) || f.type === "drafting" && f.params.kind === "block");
+  const stretchIds = selectedObjectIds.length ? selectionEditable && !activeSketch && selectedDrawings.every(stretchEligible) && selectedDrawings.every(f=>(f!.params.workPlane??"XY")===(selectedDrawings[0]!.params.workPlane??"XY")) ? [...selectedObjectIds] : [] : !activeSketch ? Object.values(cadDocument.features).filter(f => {
+    const object=cadDocument.objects[f.output],layer=object&&cadDocument.layers[object.layerId];
+    return stretchEligible(f) && (constructionVisible||!f.params.construction) && (f.params.workPlane??"XY")===activeWorkPlane && object?.visible && layer?.visible && !layer.locked;
+  }).map(f=>f.output) : [];
   const canContour = {
     join: standaloneCurves && selectedObjectIds.length >= 2 && selectedDrawings.every(f => !f!.params.closed && ["line", "arc", "polyline"].includes(String(f!.params.kind))),
     explode: standaloneCurves && selectedDrawings.every(f => ["polyline", "rectangle"].includes(String(f!.params.kind))),
     break: standaloneCurves && selectedObjectIds.length === 1,
-    polyline: standaloneCurves && selectedObjectIds.length === 1 && ["polyline", "rectangle"].includes(String(selectedDrawings[0]?.params.kind)),
-    lengthen: standaloneCurves && selectedObjectIds.length === 1 && !selectedDrawings[0]?.params.closed && ["line", "arc", "polyline"].includes(String(selectedDrawings[0]?.params.kind)),
+    convert: standaloneCurves && selectedObjectIds.length === 1,
+    polyline: selectedObjectIds.length === 1 && selectionEditable && !activeSketch && (() => {
+      const f = selectedDrawings[0];
+      if (f?.type !== "drawing" || f.pattern || f.construction || !["polyline", "rectangle", "arc"].includes(String(f?.params.kind))) return false;
+      if (!f.params.sketchId) return standaloneCurves;
+      return true;
+    })(),
+    lengthen: selectedObjectIds.length === 1 && selectionEditable && !activeSketch && !selectedDrawings[0]?.params.closed && (standaloneCurves && ["line", "arc", "polyline"].includes(String(selectedDrawings[0]?.params.kind)) || !!selectedDrawings[0]?.params.sketchId && !selectedDrawings[0]?.params.facePlaneId && !selectedDrawings[0]?.pattern && ["line", "arc"].includes(String(selectedDrawings[0]?.params.kind))),
     stretch: stretchIds.length > 0 && stretchIds.length <= 4096,
   };
   function beginContour(mode: ContourMode) {
@@ -1201,6 +1335,16 @@ export function App() {
     lastCommand.current = { kind: "contour", mode };
     setContourSession({ id: `contour-${crypto.randomUUID()}`, mode, objectIds: ids });
   }
+  const canDisbandBlock = selectedObjectIds.length === 1 && (() => {
+    const id = selectedObjectIds[0], object = cadDocument.objects[id], layer = object && cadDocument.layers[object.layerId];
+    const feature = Object.values(cadDocument.features).find(f => f.output === id);
+    return !!object?.visible && !!layer?.visible && !layer.locked && feature?.type === "drafting" && feature.params.kind === "block" && !feature.pattern;
+  })();
+  function beginBlockDisband() {
+    if (documentBusy() || !canDisbandBlock) return;
+    clearCommandTools(); changeWorkspace("2d");
+    setBlockSession({ id: `block-${crypto.randomUUID()}`, objectId: selectedObjectIds[0] });
+  }
 
   function beginCurveWorkflow() {
     if (documentBusy() || activeSketch) return;
@@ -1208,6 +1352,24 @@ export function App() {
     const plane = (Object.values(cadDocument.features).find(f => f.output === ids[0])?.params.workPlane ?? activeWorkPlane) as WorkPlaneId;
     clearCommandTools(); changeWorkspace("2d"); setActiveWorkPlane(plane);
     setCurveSession({ id: `curve-workflow-${crypto.randomUUID()}`, objectIds: ids });
+  }
+
+  function beginCadPilot(mode:CadPilotMode){
+    if(documentBusy())return;
+    clearCommandTools();changeWorkspace("2d");
+    if(mode==="tangent-arc"){setEndpointRadiusArcSession({id:`tangent-arc-${crypto.randomUUID()}`,mode:"tangent",workPlane:activeWorkPlane,layerId:selectedLayerId,sketchId:activeSketchId??undefined});return;}
+    setCadPilotSession({id:`pilot-${crypto.randomUUID()}`,mode,objectIds:[...selectedObjectIds],workPlane:activeWorkPlane,layerId:selectedLayerId,sketchId:mode==="tangent-circle"?activeSketchId??undefined:undefined});
+  }
+  function beginEndpointRadiusArc(){
+    if(documentBusy()||activeLayerLocked)return;
+    clearCommandTools();changeWorkspace("2d");
+    setEndpointRadiusArcSession({id:`endpoint-arc-${crypto.randomUUID()}`,workPlane:activeWorkPlane,layerId:selectedLayerId,sketchId:activeSketchId??undefined});
+  }
+
+  function beginRegularPolygon(){
+    if(documentBusy()||activeLayerLocked)return;
+    clearCommandTools();changeWorkspace("2d");
+    setRegularPolygonSession({id:`polygon-${crypto.randomUUID()}`,workPlane:activeWorkPlane,layerId:selectedLayerId,sketchId:activeSketchId??undefined});
   }
 
   function beginConstruction() {
@@ -1356,12 +1518,16 @@ export function App() {
       action === "undo" ? handleUndo() : handleRedo();
     }
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.defaultPrevented || isCadKeyboardBlocked(event.target, event.key)) return;
+      if (event.defaultPrevented || event.isComposing || isCadKeyboardBlocked(event.target, event.key)) return;
+      if(cadPilotSession){if(event.key==="Escape"){event.preventDefault();setCadPilotSession(null);}return;}
+      if(endpointRadiusArcSession){if(event.key==="Escape"){event.preventDefault();setEndpointRadiusArcSession(null);}return;}
+      if(regularPolygonSession){if(event.key==="Escape"){event.preventDefault();setRegularPolygonSession(null);}return;}
       if(patternSession){if(event.key==="Escape"){event.preventDefault();setPatternSession(null);}return;}
       if (extrusion) { if(event.key === "Escape") {event.preventDefault();cancelExtrusion();} return; }
       if (event.key === "F3") { event.preventDefault(); setSnapEnabled((value) => !value); return; }
       if (event.key === "F8") { event.preventDefault(); setOrthoEnabled((value) => !value); return; }
       if (contourSession) { if (event.key === "Escape") { event.preventDefault(); setContourSession(null); } return; }
+      if (blockSession) { if (event.key === "Escape") { event.preventDefault(); setBlockSession(null); } return; }
       if (curveSession && !event.ctrlKey && !event.metaKey) return;
       if (pointTransform) {
         if (event.ctrlKey || event.metaKey) {
@@ -1457,7 +1623,9 @@ export function App() {
           else if ((action === "move" || action === "rotate") && workspaceMode === "2d") beginPointTransform(action);
           else if (action === "move" || action === "rotate" || action === "scale") beginPrecisionTransform(action === "move" ? "translate" : action);
           else if (action === "offset") activateOffsetTool();
-          else if (action === "trim") activateLineEditTool("trim");
+          else if (action === "trim" || action === "extend") activateLineEditTool(action);
+          else if (action === "select") { clearCommandTools(); setDirectSelectMode(false); }
+          else if (action === "text" && !activeSketch) { clearCommandTools(); setDraftingInitialBlockId(null); setAddingText(true); setDraftingOpen(true); }
           else if (action === "measure") activateMeasurementTool();
           else if (action === "extrude") void handleExtrude();
           else if (action === "fit") issueViewAction(selectedObjectIds.length ? "fit-selection" : "fit-all");
@@ -1468,7 +1636,7 @@ export function App() {
       const modifier = event.ctrlKey || event.metaKey;
       if (!modifier) return;
       const key = event.key.toLowerCase();
-      if (key === "a") { event.preventDefault(); selectObjects(selectAllIds(cadDocument, activeSketchId)); }
+      if (key === "a") { event.preventDefault(); selectObjects(selectAllIds(cadDocument, activeSketchId,{constructionVisible})); }
       else if (key === "s") { event.preventDefault(); event.shiftKey ? handleSaveAs() : handleSave(); }
       else if (key === "d") { event.preventDefault(); void handleDuplicateObject(); }
       else if (key === "o") { event.preventDefault(); handleOpen(); }
@@ -1477,10 +1645,11 @@ export function App() {
     window.addEventListener("keydown", handleHistoryKeyDown, true);
     window.addEventListener("keydown", handleKeyDown);
     return () => { window.removeEventListener("keydown", handleHistoryKeyDown, true); window.removeEventListener("keydown", handleKeyDown); };
-  }, [currentFingerprint, selectedObjectId, selectedObjectIds, selectedFeature, selectedLayerLocked, selectionEditable, selectedSketchOwned, activeSketchId, activeLayerLocked, extrudeProfile.ok, drawingTool, measurementTool, transformMode, directSelectMode, lineEditTool, offsetActive, workspaceMode, pointTransform, extrusion,patternSession,contourSession,curveSession]);
+  }, [currentFingerprint, selectedObjectId, selectedObjectIds, selectedFeature, selectedLayerLocked, selectionEditable, selectedSketchOwned, activeSketchId, activeLayerLocked, extrudeProfile.ok, drawingTool, measurementTool, transformMode, directSelectMode, lineEditTool, offsetActive, workspaceMode, pointTransform, extrusion,cadPilotSession,endpointRadiusArcSession,regularPolygonSession,patternSession,contourSession,blockSession,curveSession,constructionVisible,activeArtboardId]);
 
-  const properties = activeSketch ? <SketchInspector reviewResetKey={constraintReviewReset} onConstraintReview={setConstraintReview} onVariables={()=>setActiveActivity("variables")} selectedConstraintId={selectedSketchConstraintId} onSelectConstraint={setSelectedSketchConstraintId} diagnostic={sketchDiagnostic} offsetDistance={offsetDistance} onOffsetDistanceChange={setOffsetDistance} offsetSide={offsetSide} onOffsetSideChange={setOffsetSide} onOffset={() => void commitOffsetFromViewport()} sketch={activeSketch} selectedObjectIds={selectedObjectIds} selectedSubObjects={selection.subObjects ?? []} onDocumentChange={syncRevision} /> : selectedFeature?.params.sketchId ? <div className="properties-content"><section className="property-section"><h3>Sketch geometry</h3><div className="property-row"><span>Entity</span><strong>{selectedObject?.name}</strong></div><div className="property-row"><span>Owner</span><strong>{String(selectedFeature.params.sketchId)}</strong></div><button type="button" className="sketch-edit-button" onClick={() => editSketch(String(selectedFeature.params.sketchId))}>Edit Sketch</button></section>{selectedObjectId && <DependencyNotice objectId={selectedObjectId} revision={documentRevision}/>}</div> : (
+  const properties = activeSketch ? <SketchInspector reviewResetKey={constraintReviewReset} onConstraintReview={setConstraintReview} onVariables={()=>setActiveActivity("variables")} onFaceExtruded={id=>{setActiveSketchId(null);selectObject(id);changeWorkspace("3d");}} selectedConstraintId={selectedSketchConstraintId} onSelectConstraint={setSelectedSketchConstraintId} diagnostic={sketchDiagnostic} offsetDistance={offsetDistance} onOffsetDistanceChange={setOffsetDistance} offsetSide={offsetSide} onOffsetSideChange={setOffsetSide} onOffset={() => void commitOffsetFromViewport()} sketch={activeSketch} selectedObjectIds={selectedObjectIds} selectedSubObjects={selection.subObjects ?? []} onDocumentChange={syncRevision} /> : selectedFeature?.params.sketchId ? <div className="properties-content"><section className="property-section"><h3>Sketch geometry</h3><div className="property-row"><span>Entity</span><strong>{selectedObject?.name}</strong></div><div className="property-row"><span>Owner</span><strong>{String(selectedFeature.params.sketchId)}</strong></div><button type="button" className="sketch-edit-button" onClick={() => editSketch(String(selectedFeature.params.sketchId))}>Edit Sketch</button></section>{selectedObjectId && <DependencyNotice objectId={selectedObjectId} revision={documentRevision}/>}</div> : (
     <PropertiesPanel
+      onFaceSketchCreated={editSketch}
       onEditAngularDimension={id=>beginAngularDimension(id)}
       onEditPattern={id=>beginPattern(Object.values(cadDocument.features).find(f=>f.pattern?.id===id)!.pattern!.spec.kind,id)}
       onImageCropPreview={setImageCropPreview}
@@ -1537,7 +1706,11 @@ export function App() {
         onClose={() => setArtboardPdfExport(null)}
         onExported={message => setShortcutReadout(message)}
       />}
-      {dxfReview&&<DxfReviewDialog source={dxfReview} revision={documentRevision} onClose={()=>setDxfReview(null)} onApplied={ids=>{syncRevision();selectObjects(ids.filter(id=>!!cadDocument.objects[id]));setShortcutReadout("Imported reviewed DXF. Edit the selected geometry or save WebCAD JSON to keep its relationships.");}}/>}
+      {fixtureReview&&<DxfReviewDialog format="Exchange fixture" source={fixtureReview} revision={documentRevision} onClose={()=>setFixtureReview(null)} onApplied={ids=>{syncRevision();selectObjects(ids.filter(id=>!!cadDocument.objects[id]));setShortcutReadout("Imported exchange fixture with source receipt. Save WebCAD JSON to preserve provenance.");}}/>}
+      <input ref={fixtureFileInput} type="file" accept=".fixture.json,.json" aria-label="Import exchange fixture file" tabIndex={-1} style={{display:"none"}} onChange={event=>{const file=event.currentTarget.files?.[0];event.currentTarget.value="";void handleImportFixtureFile(file);}}/>
+      {dxfReview&&<DxfReviewDialog source={dxfReview} revision={documentRevision} onClose={()=>setDxfReview(null)} onApplied={ids=>{syncRevision();selectObjects([...new Set(ids)].filter(id=>cadDocument.objects[id]?.visible));setShortcutReadout("Imported reviewed DXF. Edit the selected geometry or save WebCAD JSON to keep its relationships.");}}/>}
+      {dxfPreparation&&<DxfPreparationDialog initial={dxfPreparation} revision={documentRevision} onClose={()=>setDxfPreparation(null)} onApplied={ids=>{syncRevision();selectObjects([...new Set(ids)].filter(id=>cadDocument.objects[id]?.visible));setShortcutReadout("Imported prepared DXF. CAD reference layers can be shown, hidden or unlocked in Layers. Save WebCAD JSON to retain the preparation.");}}/>}
+      {floorTasks&&<FloorPlanTaskPanel onWallPreview={setWallPreview} selectedIds={selectedObjectIds} layerId={selectedLayerId} revision={documentRevision} onClose={()=>setFloorTasks(false)} onImport={handleImportDxf} onApplied={ids=>{syncRevision();if(ids.length)selectObjects(ids.filter(id=>!id.startsWith("floor-bridge-")));}} onInspect={(ids,point)=>{const o=cadDocument.objects[ids[0]],f=o&&Object.values(cadDocument.features).find(f=>f.output===o.id),world=o&&f?getWorldDrawingGeometry(o,f):null,p=point??world?.points?.[0]??world?.center;if(p){viewActionId.current++;setViewAction({id:viewActionId.current,type:"inspect-point",point:p});}else issueViewAction("fit-selection");}} onExtrude={()=>{setFloorTasks(false);void handleExtrude();}}/>}
       <input
         ref={openFileInput}
         type="file"
@@ -1567,10 +1740,11 @@ export function App() {
       />
       <input ref={imageFileInput} type="file" accept={RASTER_FILE_ACCEPT} aria-label="Import image file" tabIndex={-1} style={{ display: "none" }} onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ""; void handleImportImageFile(file); }} />
       <AppShell
-      onConstruction={beginConstruction} constructionVisible={constructionVisible} onToggleConstruction={toggleConstruction}
+      onCadPilot={beginCadPilot} activeUcsName={cadDocument.workPlanes?.[activeUcsId]?.name??activeUcsId} onEndpointRadiusArc={beginEndpointRadiusArc} onSpline={()=>{clearCommandTools();setSplineSession({id:`spline-${crypto.randomUUID()}`,objectId:selectedFeature?.params.kind==="spline"?selectedObjectId??undefined:undefined,workPlane:activeWorkPlane,layerId:selectedLayerId});}} onEllipse={()=>{clearCommandTools();setEllipseSession({id:`ellipse-${crypto.randomUUID()}`,objectId:selectedFeature&&["ellipse","elliptic-arc"].includes(String(selectedFeature.params.kind))?selectedObjectId??undefined:undefined,workPlane:activeWorkPlane,layerId:selectedLayerId});}} onRegularPolygon={beginRegularPolygon} onConstruction={beginConstruction} constructionVisible={constructionVisible} onToggleConstruction={toggleConstruction}
       onAngularDimension={()=>beginAngularDimension()}
       onCurveWorkflow={beginCurveWorkflow} canCurveWorkflow={!activeSketch}
       canContour={canContour} onContour={beginContour}
+      canDisbandBlock={canDisbandBlock} onDisbandBlock={beginBlockDisband}
       activeActivity={activeActivity}
       activeArtboardId={activeArtboardId}
       activeArtboardName={activeArtboardId ? cadDocument.artboards?.[activeArtboardId]?.name : undefined}
@@ -1579,7 +1753,9 @@ export function App() {
       onExportArtboardPdf={handleExportArtboardPdf}
       hasVisibleArtboards={Object.values(cadDocument.artboards ?? {}).some(board => board.visible)}
       onActivateArtboard={activateArtboard}
-      onInsertComponent={(blockId) => { setDraftingInitialBlockId(blockId); setDraftingOpen(true); }}
+      onInsertComponent={(blockId) => { setAddingText(false); setDraftingInitialBlockId(blockId); setDraftingOpen(true); }}
+      onAddText={() => { clearCommandTools(); setDraftingInitialBlockId(null); setAddingText(true); setDraftingOpen(true); }}
+      onDrafting={() => { clearCommandTools(); setAddingText(false); setDraftingInitialBlockId(null); setDraftingOpen(true); }}
       documentId={cadDocument.id}
       documentRevision={documentRevision}
       selectedLayerId={selectedLayerId}
@@ -1611,6 +1787,8 @@ export function App() {
       onOffset={activateOffsetTool}
       lineEditTool={lineEditTool}
       isModified={isModified}
+      saveStatus={localSaveStatus}
+      fileStatus={fileDownloadStatus}
       projectionMode={projectionMode}
       gridVisible={gridVisible}
       transformMode={transformMode}
@@ -1650,6 +1828,9 @@ export function App() {
       onPattern={kind=>beginPattern(kind)}
       onTransformMode={(mode) => { const next = transformMode === mode ? null : mode; clearCommandTools(); setTransformMode(next); }}
       onViewAction={issueViewAction}
+      onAssembly={()=>{clearCommandTools();setAssemblyOpen(true);}}
+      onModelViews={() => { setModelViewError(""); setModelViewsOpen(true); }}
+      onRecallModelView={id => { const view = cadDocument.modelViews?.[id]; if (view) recallModelView(view); }}
       onToggleProjection={() => {
         // A 2D workspace is always orthographic; projection toggles are a
         // 3D view concern and must not detach the camera from the work plane.
@@ -1671,7 +1852,10 @@ export function App() {
       onExportSvg={handleExportSvg}
       onExportDxf={handleExportDxf}
       onExportStep={() => void handleExportStep()}
+      onImportFixture={()=>{if(!documentBusy())fixtureFileInput.current?.click();}}
+      onExportFixture={handleExportFixture}
       onImportDxf={handleImportDxf}
+      onFloorTasks={()=>{if(!documentBusy()){clearCommandTools();setFloorTasks(true);}}}
       onImportImage={handleImportImage}
       onPlot={() => {
         if (documentBusy()) return;
@@ -1704,6 +1888,8 @@ export function App() {
             ? "Unlock the active layer first."
             : copilotValidated&&!sameDocumentVersion(copilotValidated.baseVersion)?"The document changed; plan again.":undefined),
         onSubmit: handleCopilotSubmit,
+        onPrepareFloorPlan:()=>{if(documentBusy())return;clearCopilot();handleImportDxf();},
+        onFloorTasks:()=>{if(documentBusy())return;clearCopilot();clearCommandTools();setFloorTasks(true);},
         onDraftChange:setCopilotDraft,
         onConnectionChange:setCopilotConnection,
         onTogglePreview: () => setCopilotPreviewVisible((value) => !value),
@@ -1721,6 +1907,10 @@ export function App() {
           onImageCropDraftChange={updateImageCropDraft}
           onSelectArtboard={activateArtboard}
           activeLayerId={selectedLayerId}
+          cadPilotSession={cadPilotSession} activeUcsId={activeUcsId} onUcsChange={setActiveUcsId} onCadPilotClose={()=>setCadPilotSession(null)} onCadPilotApplied={ids=>{syncRevision();if(ids.length)setSelection({ids,primaryId:ids[0]??null});}}
+          endpointRadiusArcSession={endpointRadiusArcSession} onEndpointRadiusArcClose={()=>setEndpointRadiusArcSession(null)} onEndpointRadiusArcApplied={ids=>{syncRevision();setSelection({ids,primaryId:ids[0]??null});}}
+          splineSession={splineSession} onSplineClose={()=>setSplineSession(null)} onSplineApplied={ids=>{syncRevision();setSelection({ids,primaryId:ids[0]??null});}} ellipseSession={ellipseSession} onEllipseClose={()=>setEllipseSession(null)} onEllipseApplied={ids=>{syncRevision();setSelection({ids,primaryId:ids[0]??null});}}
+          regularPolygonSession={regularPolygonSession} onRegularPolygonClose={()=>setRegularPolygonSession(null)} onRegularPolygonApplied={ids=>{syncRevision();setSelection({ids,primaryId:ids[0]??null});}}
           constructionSession={constructionSession} constructionVisible={constructionVisible}
           onConstructionClose={() => setConstructionSession(null)}
           onConstructionApplied={ids => { syncRevision(); setSelection({ ids, primaryId: ids[0] ?? null }); }}
@@ -1744,6 +1934,7 @@ export function App() {
             ...Object.values(cadDocument.features).filter(f=>f.pattern&&f.pattern.sourceObjectIds.some(id=>selectedObjectIds.includes(id))).slice(0,1).map(f=>({label:"Edit Pattern",run:()=>{clearCommandTools();beginPattern(f.pattern!.spec.kind,f.pattern!.id);}})),
             ...(canContour.polyline ? [{ label: "Edit result vertices", run: () => beginContour("polyline") }] : []),
             ...(canContour.break ? [{ label: "Split result", run: () => beginContour("break") }] : []),
+            ...(canContour.convert ? [{ label: "Convert edge", run: () => beginContour("convert") }] : []),
             ...(dimensionCommand ? [{ label: "Dimension result", run: () => { clearCommandTools(); void handleDimensionFromSelection(); } }] : []),
             ...(standaloneCurves && selectedObjectIds.length ? [{ label: "Pattern result", run: () => beginPattern("linear") }] : []),
             ...(extrudeProfile.ok && selectionEditable && !activeSketch ? [{ label: "Extrude result", run: () => { clearCommandTools(); void handleExtrude(); } }] : []),
@@ -1752,6 +1943,9 @@ export function App() {
           onCurveApplied={ids => { syncRevision(); setSelection({ ids, primaryId: ids[0] ?? null }); }}
           onContourClose={() => setContourSession(null)}
           onContourApplied={ids => { syncRevision(); setSelection({ ids, primaryId: ids[0] ?? null }); }}
+          blockSession={blockSession}
+          onBlockClose={() => setBlockSession(null)}
+          onBlockApplied={ids => { syncRevision(); setSelection({ ids, primaryId: ids[0] ?? null }); }}
       onPatternClose={()=>{setPatternSession(null);issueViewAction("focus");}}
           onPatternApplied={ids=>{syncRevision();if(ids.length)setSelection({ids,primaryId:ids[0]});}}
           onPointTransformCommit={commitPointTransform}
@@ -1771,6 +1965,9 @@ export function App() {
           projectionMode={projectionMode}
           gridVisible={gridVisible}
           viewAction={viewAction}
+          onModelViewBridge={receiveModelViewBridge}
+          modelViewRequest={modelViewRequest}
+          onModelViewRestored={error => setModelViewError(error ?? "")}
           transformMode={transformMode}
           drawingTool={drawingTool}
           measurementTool={measurementTool}
@@ -1804,7 +2001,7 @@ export function App() {
           onCornerApplied={ids => { syncRevision(); selectObject(ids[0] ?? null); }}
           filletPreview={filletPreview}
           chamferPreview={chamferPreview}
-          copilotPreview={copilotPreviewVisible ? copilotPlan?.ghosts ?? null : null}
+          copilotPreview={wallPreview??(copilotPreviewVisible ? copilotPlan?.ghosts ?? null : null)}
           onCopilotPreviewStatus={(failed) => setCopilotPreviewFailed(failed)}
           onKernelStatus={setKernelStatus}
           onTransformCommit={(objectId, mode, transform) => void commitViewportTransform(objectId, mode, transform)}
@@ -1832,8 +2029,8 @@ export function App() {
           onDirectSelectSubObject={(ref, additive) => selectSubObject(ref, additive)}
         />
       </Suspense>
-      {draftingOpen && <DraftingPanel key={draftingInitialBlockId ?? "default"} ids={selectedObjectIds} layerId={selectedLayerId} plane={activeWorkPlane} initialBlockId={draftingInitialBlockId ?? undefined} onChange={syncRevision} onSelect={selectObject} onClose={()=>{setDraftingOpen(false);setDraftingInitialBlockId(null);}}/>}
-      {(recovery.state==="failed"||recovery.state==="recovered")&&<div className="recovery-notice" role={recovery.state==="failed"?"alert":"status"}>{recovery.state==="failed"?"Recovery save failed: ":""}{recovery.message}</div>}
+      {draftingOpen && <DraftingPanel key={addingText ? "add-text" : draftingInitialBlockId ?? "default"} ids={addingText ? [] : selectedObjectIds} layerId={selectedLayerId} plane={activeWorkPlane} initialBlockId={draftingInitialBlockId ?? undefined} onChange={syncRevision} onSelect={selectObject} onClose={()=>{setDraftingOpen(false);setDraftingInitialBlockId(null);setAddingText(false);}}/>}
+      {(recovery.state==="failed"||recovery.state==="recovered")&&<div className="recovery-notice" role={recovery.state==="failed"?"alert":"status"}>{recovery.state==="failed"?"Recovery save failed: ":""}{recovery.message}{recovery.state==="failed"&&<button onClick={async()=>{try{await saveDocumentRecovery();}catch{/* Status retains the failure and a retry path. */}}}>Retry recovery save</button>}</div>}
       {extrusion && <form className="extrusion-session" data-cad-editor onSubmit={(event)=>{event.preventDefault();void applyExtrusion();}} onKeyDown={(event)=>{if(event.key==="Escape"){event.preventDefault();event.stopPropagation();cancelExtrusion();}}}>
         <strong>Extrusion preview</strong><span>Click a shaded region to include or exclude it.</span>
         {extrusion.loops.map((loop,i)=><label key={loop.id}><input type="checkbox" aria-label={`Extrude region ${i+1}`} checked={extrusion.chosen.includes(loop.id)} onChange={()=>{setExtrusionStatus("Preparing preview…");setExtrusion(value=>value&&{...value,chosen:value.chosen.includes(loop.id)?value.chosen.filter(id=>id!==loop.id):[...value.chosen,loop.id]});}}/>Region {i+1} · {loop.holes?.length??0} holes</label>)}
@@ -1842,7 +2039,7 @@ export function App() {
         <div><button type="submit" disabled={!extrusionPreview || extrusionStatus!=="Preview ready"}>Apply extrusion</button><button type="button" onClick={cancelExtrusion}>Cancel extrusion</button></div>
       </form>}
       {workspaceMode === "2d" && <div className="point-operations" data-cad-editor>
-        <button type="button" disabled={Boolean(activeSketch)||activeLayerLocked} onClick={()=>{clearCommandTools();setDraftingOpen(true);}}>Drafting</button>
+        <button type="button" disabled={Boolean(activeSketch)||activeLayerLocked} onClick={()=>{clearCommandTools();setAddingText(false);setDraftingOpen(true);}}>Drafting</button>
         <button type="button" title="Move by base and target points (M or G)" disabled={!selectionEditable || !canModifySelection} onClick={() => beginPointTransform("move")}>Move by points</button>
         <button type="button" title="Place multiple copies from one base point (Shift+C)" disabled={!selectionEditable || !canModifySelection} onClick={() => beginPointTransform("copy")}>Copy by points</button>
         <button type="button" title="Rotate around a chosen centre (Shift+R)" disabled={!selectionEditable || !canModifySelection} onClick={() => beginPointTransform("rotate")}>Rotate about point</button>
@@ -1850,6 +2047,11 @@ export function App() {
         {activeSketch && <label><input type="checkbox" aria-label="Automatic sketch constraints" checked={automaticConstraints} onChange={(event) => setAutomaticConstraints(event.target.checked)} />Auto constraints · Alt suppress</label>}
       </div>}
       </AppShell>
+      {modelViewError && !modelViewsOpen && <div className="recovery-notice" role="alert">{modelViewError}<button type="button" onClick={() => setModelViewError("")}>Dismiss view error</button></div>}
+      {assemblyOpen&&<ModelPresentationDialog revision={documentRevision} selectedIds={selectedObjectIds} onChanged={syncRevision} onClose={()=>setAssemblyOpen(false)} onSelect={id=>setSelection({ids:[id],primaryId:id})}/>}
+      {modelViewsOpen && <ModelViewsDialog revision={documentRevision} capture={captureModelView} recall={recallModelView}
+        onViewAction={action => { setWorkspaceMode("3d"); if (["top", "front", "right"].includes(action)) setProjectionMode("orthographic"); issueViewAction(action); }}
+        onChanged={syncRevision} onClose={() => setModelViewsOpen(false)} recallReason={activeSketchId ? "Finish the active sketch before changing model views." : undefined} error={modelViewError} />}
     </>
   );
 }

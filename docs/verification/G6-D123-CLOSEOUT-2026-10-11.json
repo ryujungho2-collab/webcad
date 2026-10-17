@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-11",
+  "cards": {
+    "G6-D1": "complete: stable parts and explicit model placement",
+    "G6-D2": "complete: saved nondestructive display offsets",
+    "G6-D3": "first exact principal-axis box/cylinder outline adapter complete; general BRep and HLR pending"
+  },
+  "node": {
+    "command": "npx tsx --test tests/**/*.test.ts",
+    "tests": 1026,
+    "suites": 54,
+    "pass": 1026,
+    "fail": 0,
+    "skip": 0,
+    "newTests": 10
+  },
+  "browser": {
+    "fullSuiteRerun": false,
+    "nativeInput": "Edge/CDP physical keyboard and hit-tested pointer; real location.reload",
+    "workflows": {
+      "modelPresentation": 24,
+      "modelViews": 24,
+      "numericPilot": 21,
+      "cadPilots": 30,
+      "dxfWorkflow": 18,
+      "artboardsWorkflow": 31,
+      "basicEditWorkflow": 31,
+      "historySelection": 23
+    },
+    "checks": 202,
+    "status": "passed"
+  },
+  "typecheck": "npx tsc -b passed",
+  "architecture": {
+    "modules": 457,
+    "status": "passed"
+  },
+  "build": {
+    "command": "npm run build",
+    "status": "passed",
+    "mainKB": 1308.23,
+    "mainGzipKB": 391.97,
+    "viewportKB": 679.77,
+    "viewportGzipKB": 185.08,
+    "warning": "Existing large chunk warning remains"
+  },
+  "verified": [
+    "Detached Review/Cancel, atomic failure and stale rejection, one Undo/Redo for placement",
+    "Three solid parts, actual mesh offset rendering and stable whole-object physical picking",
+    "Zero amount/assembled display restores model placement; model TRS/measurement and STEP inputs unchanged; Worker STEP exports are nonempty; that historical test did not compare bytes",
+    "Source Properties dimensions update projection output IDs/topology and exact outline geometry",
+    "Source deletion or changed analytic edge correspondence marks unresolved; hidden stale outputs reject measurement and export; explicit rebind restores",
+    "CAD JSON v24 file/History/recovery restore; malformed view reference and projection output mapping rejection",
+    "Associated outputs feed existing artboard SVG/DXF drawing pipelines"
+  ],
+  "resolvedFindings": [
+    "create-box implicit box kind handled by projection adapter",
+    "cad-document explicit named exports preserve tsx runtime exports",
+    "Identical activate-exploded-view child no longer cancels amount update batch",
+    "Reload oracle canonicalizes object keys while preserving array order",
+    "Zero actual display offsets do not block direct tools; unresolved projected geometry cannot be measured"
+  ],
+  "remaining": [
+    "General BRep projection adapter, arbitrary orientations, hidden lines and mutual occlusion",
+    "Mate solver, animation and face/direct pointer editing in nonzero exploded display",
+    "G6-D5 paper scale, view layout, associated dimension sheets and integrated PDF validation",
+    "Large assembly/performance benchmark and full browser suite rerun"
+  ],
+  "next": "X6-D1 → X6-D2 → G6-D4"
+}

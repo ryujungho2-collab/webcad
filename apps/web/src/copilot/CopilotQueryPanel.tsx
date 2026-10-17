@@ -6,7 +6,7 @@ import { COPILOT_QUERY_LIMITS } from "./copilotQuery";
 import type { CopilotQueryState } from "./useCopilotQuery";
 
 export type CopilotQueryPanelProps = { state: CopilotQueryState; selectionCount: number; targetId?:string; onTargetChange:(id?:string)=>void; onRead: () => void; onCancel: () => void; onInspect: (id: string) => void; onEditSketch: (id: string) => void; onOpenLayers:()=>void };
-const labels: Record<NonNullable<CopilotQueryRelation["relation"]>,string> = { "live-input":"Live source", "snapshot-source":"Independent snapshot of", "annotation-source":"Measures / references", "sketch-owner":"Solved by sketch", "parameter-binding":"Driven by expression", "variable-reference":"Variable input", "block-instance":"Instance of definition" };
+const labels: Record<NonNullable<CopilotQueryRelation["relation"]>,string> = { "live-input":"Live source", "snapshot-source":"Independent snapshot of", "annotation-source":"Measures / references", "sketch-owner":"Solved by sketch", "parameter-binding":"Driven by expression", "variable-reference":"Variable input", "component-content":"Component content definition", "block-instance":"Instance of definition" };
 const number=(value:number)=>Number(value.toPrecision(10)).toString();
 
 export function CopilotQueryPanel({state,selectionCount,targetId,onTargetChange,onRead,onCancel,onInspect,onEditSketch,onOpenLayers}:CopilotQueryPanelProps) {
@@ -71,3 +71,4 @@ export function CopilotQueryPanel({state,selectionCount,targetId,onTargetChange,
     </section>
   </PropertySection>;
 }
+

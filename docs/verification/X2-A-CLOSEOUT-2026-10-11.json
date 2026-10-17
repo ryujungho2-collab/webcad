@@ -1,0 +1,97 @@
+{
+  "id": "X2-A",
+  "date": "2026-10-11",
+  "status": "complete within standalone exact ellipse/elliptic arc scope",
+  "node": {
+    "tests": 1075,
+    "suites": 54,
+    "passed": 1075,
+    "failed": 0,
+    "skipped": 0,
+    "newEllipseTests": 15
+  },
+  "nativeBrowser": {
+    "workflows": 10,
+    "checks": 225,
+    "results": {
+      "ellipse": 24,
+      "draftingWorkflow": 16,
+      "directTargetExperience": 28,
+      "patternsWorkflow": 22,
+      "dxfWorkflow": 18,
+      "dxfOcs": 18,
+      "artboardsWorkflow": 31,
+      "artboardPdfWorkflow": 21,
+      "historySelection": 23,
+      "modelSheetSet": 24
+    },
+    "entireBrowserSuiteRerun": false,
+    "finalRun": "passed sequentially after final source changes"
+  },
+  "typecheck": "passed",
+  "architecture": {
+    "status": "passed",
+    "modules": 483
+  },
+  "productionBuild": "passed; existing large-chunk warning remains",
+  "schema": {
+    "ellipseVersion": 27,
+    "reader": "v1-v27",
+    "minimumVersionForExistingDocuments": "preserved",
+    "downgradeEllipseTo26": "rejected"
+  },
+  "independentOracles": [
+    "Ellipse a=40,b=20 perimeter 193.7689644109535 mm; circle/quarter arc and pi*800 area",
+    "Coordinate extrema and chord error <=.02 mm; exact source has no samples",
+    "Affine principal axis phase and CW/reflection DXF endpoint identity",
+    "WCS tilted ELLIPSE inch center [25.4,50.8,76.2] and axis V [0,20.32,-15.24]",
+    "Finite nearest at .001 radians from both endpoints",
+    "Actual native Direct axis precision edit, one Undo, stale/Cancel/lock and v27 cache reload"
+  ],
+  "artifacts": [
+    "output/pdf/ellipse.pdf",
+    "output/pdf/ellipse.svg",
+    "output/pdf/ellipse.dxf",
+    "output/pdf/ellipse-preview.png"
+  ],
+  "pdf": {
+    "pages": 1,
+    "sizePoints": [
+      538.583,
+      396.85
+    ],
+    "sizeMillimetres": [
+      190,
+      140
+    ],
+    "bytes": 8420,
+    "validation": "actual UI Download followed by independent pdfinfo/pdftoppm and visual inspection; finite open ellipse arc"
+  },
+  "boundaries": [
+    "Standalone ellipse and elliptic arc source; no sketch ellipse solver/constraints or extrusion",
+    "No ellipse intersections/tangent/perpendicular snaps; sampled chords excluded from intersections",
+    "No general ellipse Trim/Offset/Chamfer/Fillet or clipboard pilot expansion",
+    "No automatic nonuniform circle-to-ellipse conversion",
+    "Viewport/PNG/existing PDF use bounded .02mm model-space sampling, max16384 segments; SVG and DXF preserve analytic source",
+    "Nearest bounded numeric minimization on finite analytic domain; length adaptive integration absolute target1e-7mm",
+    "Actual OCCT ellipse section adapter remains next X6-D2-E1; general BRep/HLR/spline not expanded"
+  ],
+  "failuresAndReruns": [
+    "Initial Node named validEllipse import failed with export-star CJS detection; repaired explicit export",
+    "Test harness import corrected to public planDxfImport",
+    "Native lock check initially attempted disabled Ellipse button; changed test to disabled-button oracle and waited for React render",
+    "Final nearest optimization included endpoint-adjacent basins and independent on-curve endpoint-near checks",
+    "Final 1075 Node and 10 native browser workflows passed after source changes"
+  ],
+  "commands": [
+    "npx tsx --test tests/**/*.test.ts",
+    "npx tsx --test tests/ellipse.test.ts",
+    "npx tsc -b",
+    "npm run check:architecture",
+    "npm run build (root)",
+    "node scripts/browserChecks.mjs --page=<10 workflow names> --artifacts",
+    "pdfinfo output/pdf/ellipse.pdf",
+    "pdftoppm -scale-to 1400 -png -singlefile output/pdf/ellipse.pdf output/pdf/ellipse-preview"
+  ],
+  "next": "X6-D2-E1"
+}

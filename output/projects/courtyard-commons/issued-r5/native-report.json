@@ -1,0 +1,39 @@
+{
+  "status": "passed",
+  "checks": 35,
+  "message": "PASS 56 revised architectural parts reach actual Three.js scene\nPASS Issued model has four facades, three plans, two main sections and study views\nPASS All 14 issued views load resolved\nPASS Actual rendered upper stair reaches revised 9000 mm storey\nPASS Live extrusion preserves revised 1600 mm flight width\nPASS North and west retain real opposite observers\nPASS Architectural facades retain visible silhouettes without hidden-line clutter\nPASS Twelve program notes use separate named sources\nPASS Native saved facade loads observer and hidden-display fields\nPASS Observer-side Review is detached\nPASS Native observer-side change commits one Undo\nPASS Native Undo restores side, geometry IDs, publication and references exactly\nPASS Room-name Review is detached from original BRep\nPASS Room label also updates its readable object name\nPASS Room-label Undo preserves source geometry and publication\nPASS Background-dimension Review is detached\nPASS Native background dimension retains model mm at 1:100\nPASS Native dimension Undo restores offset and association\nPASS File PDF exposes the actual CAD publication volume issue-plans\nPASS Combined ten-page output has an explicit budget diagnostic\nPASS issue-plans preview includes every numbered page in order\nPASS issue-plans native PDF contains 4 physical pages\nPASS File PDF exposes the actual CAD publication volume issue-elevations\nPASS issue-elevations preview includes every numbered page in order\nPASS issue-elevations native PDF contains 4 physical pages\nPASS File PDF exposes the actual CAD publication volume issue-entry\nPASS issue-entry preview includes every numbered page in order\nPASS issue-entry native PDF contains 1 physical pages\nPASS File PDF exposes the actual CAD publication volume issue-skylight\nPASS issue-skylight preview includes every numbered page in order\nPASS issue-skylight native PDF contains 1 physical pages\nPASS Explicit single-page printing does not disguise a complete publication set\nPASS Issued opposite facades and hidden-display semantics persist in schema38\nPASS Real cache reload preserves R5 model, named notes, four publication volumes and source references\nPASS Reload starts clean history\nALL 35 CHECKS PASSED",
+  "artifacts": [
+    "axonometric.png",
+    "issue-plans.pdf",
+    "issue-elevations.pdf",
+    "issue-entry.pdf",
+    "issue-skylight.pdf"
+  ],
+  "metrics": {
+    "initialSceneMs": 41324,
+    "sideReviewMs": 8573,
+    "combinedPdfDiagnostic": "The PDF would contain 17,814,075 raster pixels; the export limit is 16,000,000. Lower dpi or export fewer/smaller boards.",
+    "pdfVolumes": {
+      "issue-plans": {
+        "pages": 4,
+        "bytes": 731609,
+        "dpi": 96
+      },
+      "issue-elevations": {
+        "pages": 4,
+        "bytes": 339704,
+        "dpi": 96
+      },
+      "issue-entry": {
+        "pages": 1,
+        "bytes": 49372,
+        "dpi": 96
+      },
+      "issue-skylight": {
+        "pages": 1,
+        "bytes": 77814,
+        "dpi": 96
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-12",
+  "status": "audit complete; architectural delivery incomplete",
+  "project": "output/projects/courtyard-commons/courtyard-commons.webcad.json",
+  "parts": 56,
+  "floorAreaM2": 2425.76,
+  "views": 5,
+  "pages": 4,
+  "nativeWorkflows": 9,
+  "nativeChecks": 240,
+  "courtyardAuditChecks": 14,
+  "warning": "14 audit assertions include observing saved-section Review rejection; not all capabilities passed",
+  "nodeSuite": "not rerun; previous G2-F3 baseline is separate",
+  "typecheck": "passed",
+  "architectureModules": 512,
+  "productionBuild": "passed after toolbar fixes, before adding audit fixture",
+  "visualInspection": "all 4 PDF pages inspected; cut-only plans and shared annotation anchor unsuitable for final architectural delivery",
+  "fixed": [
+    "inactive frame/workspace toolbars intercepting direct-edit Review controls"
+  ],
+  "open": [
+    "all-section recomputation on annotations and layout",
+    "saved-section UI resets custom layer",
+    "geometric correspondence invalidation after edits",
+    "Boolean/extrusion elevations unsupported",
+    "ellipse sections unsupported",
+    "cut-only views lack architectural background/line hierarchy"
+  ],
+  "next": [
+    "G6-D6-P1",
+    "G6-D4-R1",
+    "G6-D3-B1/B2",
+    "G6-D4-H1",
+    "X6-D2-E1",
+    "G6-D6-W1"
+  ]
+}

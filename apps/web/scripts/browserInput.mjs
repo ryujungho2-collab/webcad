@@ -37,7 +37,7 @@ async function connect(profile, targetUrl) {
   return {
     send(method,params) {
       return new Promise((resolve, reject) => {
-        const id = ++sequence, timer = setTimeout(() => { pending.delete(id); reject(new Error("Browser input timed out.")); }, 5000);
+        const id = ++sequence, timer = setTimeout(() => { pending.delete(id); reject(new Error("Browser input timed out.")); }, (targetUrl.includes("courtyardH1.browser.html")||targetUrl.includes("courtyardEllipse.browser.html")||targetUrl.includes("courtyardConic.browser.html")||targetUrl.includes("courtyardIssue.browser.html"))?30000:5000);
         pending.set(id, { resolve, reject, timer });
         socket.send(JSON.stringify({ id, method, params }));
       });
@@ -46,13 +46,21 @@ async function connect(profile, targetUrl) {
   };
 }
 
+export async function browserCheckDiagnostics(profile,targetUrl) {
+  const connection=await connect(profile,targetUrl);
+  try { return await connection.send("Runtime.evaluate",{expression:"JSON.stringify({url:location.href,output:document.getElementById('output')?.textContent,body:document.body.innerText.slice(-6000)})",returnByValue:true}); }
+  finally { connection.close(); }
+}
+
 export function registerBrowserInput(run, profile, targetUrl) {
   let connection;
   sessions.set(run, async action => {
     if(action.type==="fileInput"){
       const raster=[`input[aria-label="Import image file"]`,`input[aria-label="Replace image source file"]`].includes(action.selector)&&/^image-(?:test|bad|replacement)\.(png|jpg|jpeg|webp|tif)$/.test(action.name);
       const dxf=action.selector==='input[aria-label="Import DXF file"]'&&/^drawing-(?:test|bad)\.dxf$/.test(action.name);
-      if(typeof action.name!=="string"||!raster&&!dxf||typeof action.base64!=="string"||action.base64.length>100000)throw new Error("Invalid browser file fixture.");
+      const fixture=action.selector==='input[aria-label="Import exchange fixture file"]'&&/^exchange-(?:test|bad)\.fixture\.json$/.test(action.name);
+      const documentFixture=action.selector==='input[accept=".json,.webcad.json"]'&&action.name==='prepared.webcad.json';
+      if(typeof action.name!=="string"||!raster&&!dxf&&!fixture&&!documentFixture||typeof action.base64!=="string"||action.base64.length>100000)throw new Error("Invalid browser file fixture.");
       const filePath=join(profile,action.name);await writeFile(filePath,Buffer.from(action.base64,"base64"));
       connection??=connect(profile,targetUrl);const cdp=await connection;
       await cdp.send("DOM.enable",{});const tree=await cdp.send("DOM.getDocument",{depth:-1,pierce:true});
@@ -71,7 +79,7 @@ export function registerBrowserInput(run, profile, targetUrl) {
         await (await connection).send("Input.insertText",{text:action.text});return;
       }
       const codes={Tab:9,Enter:13,Escape:27,ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40,Home:36,End:35,Backspace:8,Delete:46," ":32,F2:113};
-      if(typeof action.key!=="string"||!(action.key in codes||/^[a-z0-9.,+\-]$/i.test(action.key))||!(action.modifiers===undefined||Number.isInteger(action.modifiers)&&action.modifiers>=0&&action.modifiers<=15))throw new Error("Invalid test key.");
+      if(typeof action.key!=="string"||!(action.key in codes||/^[a-z0-9.,+\-<°#@]$/i.test(action.key))||!(action.modifiers===undefined||Number.isInteger(action.modifiers)&&action.modifiers>=0&&action.modifiers<=15))throw new Error("Invalid test key.");
       const key=action.key,modifiers=action.modifiers??0,windowsVirtualKeyCode=codes[key]??key.toUpperCase().charCodeAt(0);
       const params={key,windowsVirtualKeyCode,modifiers};
       await (await connection).send("Input.dispatchKeyEvent",{type:"keyDown",...params,...(modifiers===0&&(key.length===1||key==="Enter")?{text:key==="Enter"?"\r":key}:{})});

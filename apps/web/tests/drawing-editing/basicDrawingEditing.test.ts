@@ -22,14 +22,54 @@ const pointNear = (a: Vec3, b: Vec3) => a.forEach((v, i) => near(v, b[i]));
 async function apply(command: CadCommand) { const r = await dispatchCadCommand(command); assert.ok(r.ok, r.reason); return r; }
 async function drawing(id: string, kind: "line" | "arc" | "circle" | "polyline" | "rectangle", params: Record<string, unknown>, plane: WorkPlaneId = "XY") { await apply({ type: "create-drawing", id, drawing: kind, params: { workPlane: plane, ...params } }); }
 const line = (id: string, a: Vec3, b: Vec3) => drawing(id, "line", { points: [a, b] });
-const lengthen = (id: string, value: number, mode: "total" | "delta" | "percent" = "total", endpoint: "start" | "end" = "end") => apply({ type: "lengthen-drawing", objectId: id, endpoint, mode, value });
+const lengthen = (id: string, value: number, mode: "total" | "delta" | "percent" | "angle" = "total", endpoint: "start" | "end" = "end") => apply({ type: "lengthen-drawing", objectId: id, endpoint, mode, value });
 const stretch = (ids: string[], first: Vec3, second: Vec3, delta: Vec3, workPlane: WorkPlaneId = "XY") => apply({ type: "stretch-drawings", objectIds: ids, workPlane, first, second, delta });
 async function rejected(command: CadCommand, match: RegExp) { const before = documentState(), h = cadHistory.getPastLabels().length, r = await dispatchCadCommand(command); assert.equal(r.ok, false); assert.match(r.reason!, match); assert.deepEqual(documentState(), before); assert.equal(cadHistory.getPastLabels().length, h); }
 const rectangle = (id: string) => drawing(id, "rectangle", { points: [[0, 0, 0], [100, 0, 0], [100, 60, 0], [0, 60, 0]] });
 
 test("basic edit payloads require valid operation references, unique sources and finite values", () => {
-  for (const payload of [{ type: "edit-polyline", objectId: "p", operation: "insert", segmentId: "s", point: [1, 2, 0] }, { type: "edit-polyline", objectId: "p", operation: "open" }, { type: "lengthen-drawing", objectId: "l", endpoint: "start", mode: "delta", value: -10 }, { type: "stretch-drawings", objectIds: ["l"], workPlane: "XY", first: [0, 0, 0], second: [10, 10, 0], delta: [1, 0, 0] }]) assert.ok(validateCommand(payload));
-  for (const payload of [{ type: "edit-polyline", objectId: "p", operation: "insert", point: [1, 2, 0] }, { type: "edit-polyline", objectId: "p", operation: "delete" }, { type: "lengthen-drawing", objectId: "l", endpoint: "both", mode: "total", value: 10 }, { type: "lengthen-drawing", objectId: "l", endpoint: "start", mode: "percent", value: 0 }, { type: "lengthen-drawing", objectId: "l", endpoint: "end", mode: "delta", value: Infinity }, { type: "stretch-drawings", objectIds: ["l", "l"], workPlane: "XY", first: [0, 0, 0], second: [10, 10, 0], delta: [1, 0, 0] }]) assert.equal(validateCommand(payload), false);
+  for (const payload of [{ type: "edit-polyline", objectId: "p", operation: "insert", segmentId: "s", point: [1, 2, 0] }, { type: "edit-polyline", objectId: "p", operation: "open" }, { type: "lengthen-drawing", objectId: "l", endpoint: "start", mode: "delta", value: -10 }, { type: "lengthen-drawing", objectId: "a", endpoint: "end", mode: "angle", value: 180 }, { type: "stretch-drawings", objectIds: ["l"], workPlane: "XY", first: [0, 0, 0], second: [10, 10, 0], delta: [1, 0, 0] }]) assert.ok(validateCommand(payload));
+  for (const payload of [{ type: "edit-polyline", objectId: "p", operation: "insert", point: [1, 2, 0] }, { type: "edit-polyline", objectId: "p", operation: "delete" }, { type: "lengthen-drawing", objectId: "l", endpoint: "both", mode: "total", value: 10 }, { type: "lengthen-drawing", objectId: "l", endpoint: "start", mode: "percent", value: 0 }, { type: "lengthen-drawing", objectId: "a", endpoint: "end", mode: "angle", value: 0 }, { type: "lengthen-drawing", objectId: "l", endpoint: "end", mode: "delta", value: Infinity }, { type: "stretch-drawings", objectIds: ["l", "l"], workPlane: "XY", first: [0, 0, 0], second: [10, 10, 0], delta: [1, 0, 0] }]) assert.equal(validateCommand(payload), false);
+});
+test("Arc angle and target length produce the same measured sweep with stable radius, references and Undo", async () => {
+  await drawing("a", "arc", { center: [12, 8, 0], radius: 20, startAngle: 0, endAngle: Math.PI / 2 });
+  const before = documentState(), originalTop = structuredClone(top("a")), fixed = path("a").segments[0].start;
+  const preview = await previewCadCommand({ type: "lengthen-drawing", objectId: "a", endpoint: "end", mode: "angle", value: 180 });
+  assert.ok(preview.result.ok, preview.result.reason); assert.deepEqual(documentState(), before);
+  assert.equal((await applyCadPlan(preview.planId)).ok, true);
+  near(path("a").segments[0].sweep!, Math.PI); near(path("a").segments[0].radius!, 20);
+  near((await measureDocumentObject(cadDocument, "a")).length!, 20 * Math.PI);
+  pointNear(path("a").segments[0].start, fixed); assert.deepEqual(top("a"), originalTop);
+  const angled = documentState(); await undoDocument(); assert.deepEqual(documentState(), before); await redoDocument(); assert.deepEqual(documentState(), angled);
+  await lengthen("a", 20 * Math.PI / 3, "total", "start");
+  near(Math.abs(path("a").segments[0].sweep!), Math.PI / 3);
+  near((await measureDocumentObject(cadDocument, "a")).length!, 20 * Math.PI / 3);
+  near(path("a").segments[0].radius!, 20); assert.deepEqual(top("a"), originalTop);
+  assert.deepEqual(deserializeDocument(serializeDocument(cadDocument)), cadDocument);
+});
+test("Clockwise included-angle Lengthen keeps sweep direction and fixed endpoint", async () => {
+  await drawing("a", "arc", { center: [20, 30, 4], radius: 10, startAngle: Math.PI / 2, endAngle: 0 });
+  const fixedEnd = path("a").segments[0].end;
+  await lengthen("a", 135, "angle", "start");
+  const s = path("a").segments[0]; near(s.sweep!, -3 * Math.PI / 4); near(s.radius!, 10);
+  pointNear(s.end, fixedEnd); near((await measureDocumentObject(cadDocument, "a")).length!, 10 * 3 * Math.PI / 4);
+});
+for (const plane of ["XY", "XZ", "YZ"] as const) test(`Included-angle Lengthen measures the reflected ${plane} arc in world units`, async () => {
+  const frame = WORK_PLANES[plane], center = planeToWorld([10, 20], frame).map((v, i) => v + frame.normal[i] * 7) as Vec3;
+  await drawing("a", "arc", { center, radius: 10, startAngle: 0, endAngle: Math.PI / 2 }, plane);
+  cadDocument.objects.a.transform = { translation: [5, 8, 3], rotation: frame.normal.map(v => v * 30) as Vec3, scale: [-2, 2, 2] };
+  const before = path("a").segments[0], fixed = before.start;
+  await lengthen("a", 150, "angle");
+  const after = path("a").segments[0]; near(after.radius!, 20); near(Math.abs(after.sweep!), 5 * Math.PI / 6);
+  assert.equal(Math.sign(after.sweep!), Math.sign(before.sweep!)); pointNear(after.start, fixed);
+  near((await measureDocumentObject(cadDocument, "a")).length!, 20 * 5 * Math.PI / 6);
+});
+test("Angle Lengthen rejects non-arcs, zero and full turns without changing history", async () => {
+  await line("l", [0, 0, 0], [10, 0, 0]);
+  await drawing("a", "arc", { center: [0, 0, 0], radius: 10, startAngle: 0, endAngle: Math.PI / 2 });
+  await rejected({ type: "lengthen-drawing", objectId: "l", endpoint: "end", mode: "angle", value: 90 }, /standalone circular arc/);
+  for (const angle of [360, 450]) await rejected({ type: "lengthen-drawing", objectId: "a", endpoint: "end", mode: "angle", value: angle }, /full circle/);
+  assert.equal(validateCommand({ type: "lengthen-drawing", objectId: "a", endpoint: "end", mode: "angle", value: 0 }), false);
 });
 test("Lengthen total/delta/percent keeps the fixed endpoint, direction, identity and live dimension", async () => {
   await line("l", [0, 0, 0], [30, 40, 0]);

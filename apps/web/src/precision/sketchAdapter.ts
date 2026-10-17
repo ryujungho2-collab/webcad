@@ -5,13 +5,14 @@ import { SKETCH_TOLERANCE, solveSketch, sketchPoint } from "./sketchSolver";
 import type { DrawingTopology } from "./drawingTopology";
 
 /** The sole projection boundary for parametric sketch-local points. */
+export function sketchPlane(sketch: Sketch) { return sketch.faceFrame ? { id: sketch.facePlaneId!, ...sketch.faceFrame } : WORK_PLANES[sketch.workPlane]; }
 export function sketchPointToWorld(sketch: Sketch, point: SketchPoint): Vec3 {
-  return planeToWorld(point, WORK_PLANES[sketch.workPlane]);
+  return planeToWorld(point, sketchPlane(sketch));
 }
 
 /** Converts a committed drawing-tool result into one sketch-owned entity. */
 export function drawingToSketchGeometry(sketch: Sketch, kind: string, params: Record<string, unknown>, id: string): SketchGeometry | null {
-  const plane = WORK_PLANES[sketch.workPlane];
+  const plane = sketchPlane(sketch);
   const project = (value: unknown): SketchPoint | null => {
     if (!Array.isArray(value) || value.length !== 3 || !value.every((part) => typeof part === "number" && Number.isFinite(part))) return null;
     const point = value as Vec3;
@@ -26,7 +27,7 @@ export function drawingToSketchGeometry(sketch: Sketch, kind: string, params: Re
     if (points.some((point) => !point)) return null;
     const local = points as SketchPoint[];
     if (kind === "line" && local.length === 2) return { id, kind, startId: pointId("vertex", 0), endId: pointId("vertex", 1), segmentId: pointId("segment", 0), start: local[0], end: local[1] };
-    if (kind === "polyline" && local.length >= 2) return { id, kind, vertices: local.map((point, index) => ({ id: pointId("vertex", index), point })), segmentIds: Array.from({ length: local.length - (params.closed === true ? 0 : 1) }, (_, index) => pointId("segment", index)), closed: params.closed === true };
+    if (kind === "polyline" && local.length >= 2) return { id, kind, vertices: local.map((point, index) => ({ id: pointId("vertex", index), point })), segmentIds: Array.from({ length: local.length - (params.closed === true ? 0 : 1) }, (_, index) => pointId("segment", index)), closed: params.closed === true, ...(Array.isArray(params.bulges)?{bulges:params.bulges.map(Number)}:{}) };
     if (kind === "rectangle" && local.length === 4) {
       const corners = [...local];
       const cross = (corners[1][0] - corners[0][0]) * (corners[3][1] - corners[0][1]) - (corners[1][1] - corners[0][1]) * (corners[3][0] - corners[0][0]);
@@ -49,19 +50,22 @@ export function drawingToSketchGeometry(sketch: Sketch, kind: string, params: Re
 }
 
 /** Derived drawing cache. Stable topology IDs come from sketch geometry, never viewport indices. */
-export function sketchGeometryToDrawingParams(sketch: Sketch, geometry: SketchGeometry): Record<string, unknown> {
+export function sketchGeometryToDrawingParams(sketch: Sketch, geometry: SketchGeometry, previous?: Record<string, unknown>): Record<string, unknown> {
   const world = (point: SketchPoint) => sketchPointToWorld(sketch, point);
   const topology: DrawingTopology = { version: 1, controls: [], segments: [], curves: [] };
   const params: Record<string, unknown> = { kind: geometry.kind, workPlane: sketch.workPlane, sketchId: sketch.id };
+  // Appearance belongs to the drawing; rebuilding geometry must not reset it.
+  if (previous?.vectorStyle !== undefined) params.vectorStyle = structuredClone(previous.vectorStyle);
+  if(sketch.facePlaneId){params.facePlaneId=sketch.facePlaneId;params.faceFrame=structuredClone(sketch.faceFrame);}
   if (geometry.construction) params.construction = true;
   if (geometry.kind === "line" || geometry.kind === "polyline" || geometry.kind === "rectangle") {
     const points: SketchPoint[] = geometry.kind === "line" ? [geometry.start, geometry.end] : geometry.kind === "polyline" ? geometry.vertices.map((vertex) => vertex.point) : geometry.cornerIds.map((id) => sketchPoint(geometry, id)!);
     const ids = geometry.kind === "line" ? [geometry.startId, geometry.endId] : geometry.kind === "polyline" ? geometry.vertices.map((vertex) => vertex.id) : geometry.cornerIds;
     const segments = geometry.kind === "line" ? [geometry.segmentId] : geometry.kind === "polyline" ? geometry.segmentIds : geometry.edgeIds;
     params.points = points.map(world);
-    if (geometry.kind === "polyline") params.closed = geometry.closed;
+    if (geometry.kind === "polyline") {params.closed = geometry.closed;if(geometry.bulges)params.bulges=[...geometry.bulges];}
     topology.controls = ids.map((id, index) => ({ id, role: "vertex", index }));
-    topology.segments = segments.map((id, index) => ({ id, index, startControlId: ids[index], endControlId: ids[(index + 1) % ids.length], kind: "line" }));
+    topology.segments = segments.map((id, index) => ({ id, index, startControlId: ids[index], endControlId: ids[(index + 1) % ids.length], kind: geometry.kind === "polyline" && geometry.bulges?.[index] ? "arc" : "line" }));
   } else {
     params.center = world(geometry.center); params.radius = geometry.radius;
     if (geometry.kind === "arc") { params.startAngle = geometry.startAngle; params.endAngle = geometry.endAngle; }

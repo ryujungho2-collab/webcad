@@ -1,3 +1,4 @@
+import {sketchCircularGeometry} from "@agent-webcad/cad-document";
 import type { CadDocument, CadFeature, CadObject, Sketch, SketchConstraint, SketchGeometry } from "@agent-webcad/cad-document";
 import type { ContourReferenceRoute } from "@agent-webcad/cad-commands";
 import { drawingToSketchGeometry, sketchGeometryToDrawingParams } from "../../../precision/sketchAdapter";
@@ -20,7 +21,6 @@ export function sketchContourRequirements(document: CadDocument, sourceIds: stri
 }
 
 function geometryWithTopology(sketch: Sketch, object: CadObject, feature: CadFeature): SketchGeometry {
-  if (Array.isArray(feature.params.bulges) && feature.params.bulges.some(b => Math.abs(Number(b)) > 1e-9)) throw new Error("A sketch keeps straight polylines and separate analytic arcs. Split mixed line/arc contours into sketch entities before joining them.");
   let g = drawingToSketchGeometry(sketch, String(feature.params.kind), feature.params, object.id);
   if (!g) throw new Error("This contour cannot be represented exactly on the owning sketch plane.");
   const t = feature.params.topology as DrawingTopology;
@@ -60,21 +60,29 @@ export function prepareSketchContourReplacement(document: CadDocument, sourceIds
       if (r.elementKind === "line") { c[r.slot] = target.id; c[r.slot === "firstLineId" ? "firstSegmentId" : "secondSegmentId"] = edge.id; }
       else c[r.slot] = { geometryId: target.id, segmentId: edge.id };
     } else {
-      if (route.pointIndex !== undefined || route.segmentIndex !== undefined || !["circle", "arc"].includes(target.kind)) throw new Error(`Choose a whole circular entity for ${r.name}.`);
+      const segmentId=route.segmentIndex===undefined?undefined:t.segments[route.segmentIndex]?.id;
+      if (route.pointIndex !== undefined || !sketchCircularGeometry(target,segmentId)) throw new Error(`Choose a circular entity or an arc edge for ${r.name}.`);
+      const key=r.slot==="geometryId"?"segmentId":r.slot==="firstCurveId"?"firstCurveSegmentId":r.slot==="secondCurveId"?"secondCurveSegmentId":"curveSegmentId";
+      if(segmentId)c[key]=segmentId;else delete c[key];
       c[r.slot] = target.id;
     }
   }
   sketch.geometry = [...sketch.geometry.filter(g => !selected.has(g.id)), ...replacements];
   const constraints = structuredClone(sketch.constraints);
   for (const g of replacements) for (const pointId of geometryPointIds(g)) sketch.constraints.push({ id: `contour-target:${g.id}:${pointId}`, kind: "fixed-point", point: { geometryId: g.id, pointId }, value: sketchPoint(g, pointId)! });
+  for(const g of replacements)if(g.kind==="polyline")for(const segmentId of g.segmentIds){const arc=sketchCircularGeometry(g,segmentId);if(arc)sketch.constraints.push({id:`contour-radius:${g.id}:${segmentId}`,kind:"radius",geometryId:g.id,segmentId,value:arc.radius});}
   let solved = solveSketch(sketch);
   if (!solved.ok) { const conflict = solved; throw new Error(`Sketch reconnection conflicts with the reviewed contour: ${conflict.reason} Check ${constraints.filter(c => conflict.conflictingConstraintIds.includes(c.id)).map(c => `${c.kind} (${c.id})`).join(", ")}.`); }
+  for(const g of replacements)if(g.kind==="polyline"){
+    const actual=solved.sketch.geometry.find(e=>e.id===g.id);
+    if(actual?.kind!=="polyline" || g.bulges?.some((b,i)=>Math.abs(b-(actual.bulges?.[i]??0))>1e-6))throw new Error("Sketch reconnection conflicts with the reviewed arc sweep.");
+  }
   solved.sketch.constraints = constraints; solved = solveSketch(solved.sketch);
   if (!solved.ok) throw new Error(`Sketch reconnection failed: ${solved.reason}`);
   const features = solved.sketch.geometry.map(g => {
     const output = outputs.find(o => o.object.id === g.id), existing = Object.values(document.features).find(f => f.output === g.id);
     const f = output?.feature ?? structuredClone(existing!); if (!f) throw new Error("Missing sketch projection.");
-    f.params = sketchGeometryToDrawingParams(solved.sketch, g); return f;
+    f.params = sketchGeometryToDrawingParams(solved.sketch, g, f.params); return f;
   });
   return { sketches: [solved.sketch], features };
 }

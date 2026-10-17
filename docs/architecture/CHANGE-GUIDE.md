@@ -26,6 +26,9 @@
 | 공유 기하 패키지 | `packages/cad-geometry`에는 GeometryRegistry/GeometryId와 비어 있는 TopologyMap 골격이 있다 | 실제 2D 계산·solver가 모두 이 패키지에 있다고 가정하지 않는다 |
 | 2D 계산·solver | `apps/web/src/precision`과 `features/drawing-editing/geometry` | 이곳의 계산부터 수정하고, 별도 엔진 추출은 검증을 동반한 후속 작업으로 한다 |
 | 명령 패키지 | `packages/cad-commands`는 명령 타입·검증·결과·버스를 제공 | 실제 명령 구현·재생성·Preview는 웹의 `state`와 도면 편집 모듈에 있다 |
+| 저장 모델 뷰 | `packages/cad-document/src/ModelView.ts`, `state/modelViewCommands.ts`, `viewport/modelViewCamera.ts`의 camera snapshot·CRUD·복원 adapter와 `ModelViewsDialog`/Ribbon/검색 | view-only 명령은 형상을 재생성하지 않는다. optional field의 History/File/Publish 삭제 처리를 함께 유지한다. v15와 G6-A2의 active camera/OrbitControls 연결, 전환 취소·관성 제거도 검증한다 |
+| 오프라인 교환 fixture | `packages/cad-document/src/ExchangeFixture.ts`, `interop/fixtureAdapter.ts`, `state/exchangeCommands.ts`, File 메뉴·공유 review UI | 변환은 detached batch로 계획한다. `exchangeImports` optional field의 v16·History/File/Publish/recovery 보존과 삭제를 유지한다. receipt는 삭제 객체도 기록하는 이력이며 asset bytes·외부 포맷 연결과 구분한다 |
+| 두 객체 Fillet/Chamfer | `features/drawing-editing/geometry/connectDrawings.ts`, `lineArcFillet.ts`, `commands/registerDrawingCommandHandlers.ts`, `ui/CurveWorkbench.tsx` | B2-B는 bounded line–arc 해석 접점·G1 가지·solutionIndex 검토를 담당한다. 해 선택 변경은 Preview effect 의존성에 포함하고, 값/가지/대상 변경은 선택을 초기화한다. 모델 프레임·stable topology·관계 재생성·atomic History를 검증한다 |
 | 3D 커널 | `packages/cad-kernel`이 OpenCascade에 의존하고 웹 `cad`가 Worker 호출을 연결 | 목표는 의존성 제거가 아니라 커널 구현과 선택적 제작 기능의 경계를 유지하는 것 |
 | Copilot | 규칙 planner·gateway의 공통 detached Review/Apply, draft/context 수명, queued Apply 취소·게시 직전 검증·결과 인계. [G5-A 검수](../implementation/G5-A3-COPILOT-APPLY-2026-10-08.md) | 실제 LLM 공급자/서버와 인증 연결은 없고 mock 검증 범위다 |
 | 아트보드 | G2 frame/Fit/vector/component 및 G3 SVG/PNG/PDF output 구현 | 전체 illustration/editor/publishing 기능 동등성과 구분한다 |
@@ -108,12 +111,14 @@
 | 문서 | 답하는 질문 | 갱신할 때 |
 | --- | --- | --- |
 | [README](../../README.md) | 어떻게 설치·실행·검증하는가? | 실행 방법·환경·검증 명령 변경 |
-| [PROJECT-STATE](../../PROJECT-STATE.md) | 지금 무엇이 구현됐고 어디까지 검증됐는가? | 구현 범위·실행 결과·현재 제한 변경. 통과 날짜와 미실행을 분리 |
-| [NEXT-STEPS](../../NEXT-STEPS.md) | 다음에 무엇을 어떤 순서로 하는가? | 우선순위·선행 조건·완료 기준 변경. 완료한 일의 상세 이력을 쌓지 않음 |
-| [IMPLEMENTATION-READINESS](../IMPLEMENTATION-READINESS-2026-10-05.md) | 다음 구현의 상세 범위·선행 조건·완료 기준은? | G0–G6 상세 인계와 다음 담당 프롬프트 변경. NEXT-STEPS는 이 문서의 짧은 실행 큐 |
-| [docs/README](../README.md) | 관련 문서는 어디에 있는가? | 문서 추가·이동·삭제·역할 변경 |
-| [CAD-BASICS](../product/CAD-BASICS.md) | CAD 사용자가 어떤 객체/조합을 사용할 수 있는가? | 기능별 지원·미지원·작업 범위 변경 |
-| [CAD-BASICS-IMPLEMENTATION-PLAN](../product/CAD-BASICS-IMPLEMENTATION-PLAN.md) | CAD 확대를 어떤 단위로 구현하고 어디까지 검증하는가? | B/X 카드·선행 조건·소유권/참조·출력 경계 변경. 실제 지원표는 CAD-BASICS에 유지 |
+| [기능별 가이드](../features/README.md) | 이 기능을 어떻게 쓰고 무엇을 지원하는가? | 해당 대표 문서에서 사용법·지원/미지원·근거를 함께 갱신. 다른 기능의 설명은 링크 |
+| [PROJECT-STATE](../../PROJECT-STATE.md) | 어느 단계가 완료됐고 어디까지 검증됐는가? | 진행 상태·최신 실행 결과와 대표 가이드 링크만 갱신. 기능 설명/한도 표를 복제하지 않음 |
+| [NEXT-STEPS](../../NEXT-STEPS.md) | 어떤 문서를 읽고 다음에 무엇을 하는가? | 대표 가이드↔계획 연결과 실행 순서·선행·완료 조건 관리. 기능 설명·완료 이력은 소유 문서로 연결 |
+| [IMPLEMENTATION-READINESS](../IMPLEMENTATION-READINESS-2026-10-05.md) | 초기 G0–G6 설계·검증 계약은? | 당시 인계 이력 보존. 최신 카드 범위는 NEXT-STEPS에서 연결한 개별 계획이 소유 |
+| [docs/README](../README.md) | 관련 문서는 어디에 있는가? | 분류·대표 진입점 변경. 문서 추가·이동·삭제 시 해당 폴더 README 색인 갱신 |
+| [history](../history/README.md) | 이전 상태·전체 카드·인계 기록은? | 누적 문서를 분리할 때 본문과 상대 링크 보존. 새 구현 결과는 implementation/verification에 기록 |
+| [CAD-BASICS](../product/CAD-BASICS.md) | 이전 기능표의 설명은 어디로 갔는가? | 대표 가이드와 보존본으로 연결하는 호환 경로. 별도 기능표는 작성하지 않음 |
+| [CAD-BASICS-IMPLEMENTATION-PLAN](../product/CAD-BASICS-IMPLEMENTATION-PLAN.md) | CAD 확대를 어떤 단위로 구현하고 어디까지 검증하는가? | 후속 B/X 카드·선행·완료 조건 변경. 현재 지원 설명은 대표 가이드로 연결 |
 | [PRODUCT-ROADMAP](../product/PRODUCT-ROADMAP.md) | CAD·작도·3D·BIM·협업의 장기 도메인 단계는? | 도메인별 목표·통과 기준 변경 |
 | [UNIFIED-CREATIVE-SUITE-ROADMAP](../product/UNIFIED-CREATIVE-SUITE-ROADMAP.md) | 통합 UI·이미지·벡터·발표·AI를 어떤 경험으로 연결하는가? | 제품 원칙·제작 영역 설계 변경. 현재 구현 근거로 사용하지 않음 |
 | [DIRECTORY-STRUCTURE](DIRECTORY-STRUCTURE.md) | 코드를 어디에 두고 무엇을 import할 수 있는가? | 실제 경계·폴더·의존 검사 규칙 변경 |
@@ -122,7 +127,7 @@
 | [PARAMETRIC-SKETCH](PARAMETRIC-SKETCH.md), [PARAMETRIC-REGENERATION](PARAMETRIC-REGENERATION.md) | 스케치 구속·투영·솔리드 재생성은 어떻게 연결되는가? | solver 연계·소유권·재생성 정책 변경 |
 | [LIVE-PATTERNS](LIVE-PATTERNS.md), [VARIABLES-AND-EXPRESSIONS](VARIABLES-AND-EXPRESSIONS.md) | 패턴 identity와 변수/수식은 어떻게 유지되는가? | recipe/slot·바인딩·단위 정책 변경 |
 | [OPEN-SOURCE-CREATIVE-INTEGRATION](OPEN-SOURCE-CREATIVE-INTEGRATION-2026-10-05.md) | 외부 후보를 왜 선택하고 어느 경계로 붙이는가? | 후보·실제 채택·버전·어댑터 경계 결정. 조사/설치/통합/검증 상태를 분리 |
-| `docs/implementation/*` | 해당 기능을 실제로 어떻게 구현했고 무엇이 남았는가? | 기능 구현·정책·지원 경계 변경. 새 검증에는 날짜를 붙임 |
+| `docs/implementation/*` | 당시 어떤 변경을 왜 구현했는가? | 날짜별 구현·기술 계약·실패/검증 근거 보존. 현재 사용자 설명은 features에서 통합 |
 | `docs/verification/*` | 어떤 환경·과제로 어떤 결과를 측정했는가? | 검증/벤치마크 실행. 과거 수치를 최신 결과로 덮어쓰지 않음 |
 | `docs/reviews/*` | 어떤 문제를 발견했고 무엇을 해결했는가? | 감사·코드 리뷰·후속 상태 갱신. 관찰·추정·재현 결과를 구분 |
 
@@ -135,5 +140,5 @@
 3. 관련 구현 문서와 기존 테스트에서 원래 의도를 확인한다. 실패 원인이 표시/입력/계산/관계/게시/저장 중 어디인지 구분한다.
 4. 가장 작은 책임 범위를 고치고 위·아래 연결 지점에 누락이 없는지 확인한다.
 5. 변경에 해당하는 검사와 필수 구조 검사를 실행한다. UX는 실제 브라우저, 성능은 동일 과제의 측정으로 확인한다.
-6. 구현 문서에 실제 결과와 한계를, PROJECT-STATE에 요약을, NEXT-STEPS에 남은 순서를 기록한다.
-7. 새 문서를 만들거나 옮겼다면 docs/README와 로컬 링크를 검사한다. 미실행 검사는 통과 수치에 합산하지 않는다.
+6. 날짜별 구현/검증 문서에 실제 결과와 한계를 남기고 해당 기능의 대표 가이드를 갱신한다. PROJECT-STATE에는 상태/근거만, NEXT-STEPS에는 남은 순서만 기록한다. 같은 사용법·한도 표를 여러 문서에 복사하지 않는다.
+7. 새 문서를 만들거나 옮겼다면 해당 폴더 README 색인과 로컬 링크·제목 앵커를 검사한다. 문서 분류가 바뀌면 docs/README도 갱신한다. 미실행 검사는 통과 수치에 합산하지 않는다.

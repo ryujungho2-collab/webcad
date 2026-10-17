@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-11",
+  "card": "B1-E2",
+  "status": "complete-with-documented-scope",
+  "implementation": "../implementation/B1-E2-MIXED-SKETCH-EDITING-2026-10-11.md",
+  "actualChanges": [
+    "Persist signed arc bulges in sketch geometry",
+    "Solve mixed arc edge radius and finite B4 relations by stable segment IDs",
+    "Split/merge analytic arc vertices and convert selected line/arc edges",
+    "Enable actual editor and mixed-edge constraint inspector",
+    "Keep reviewed curvature during atomic reference reconnection",
+    "Save mixed sketches and curve references as version 23"
+  ],
+  "verification": {
+    "node": {
+      "tests": 961,
+      "suites": 54,
+      "pass": 961,
+      "fail": 0,
+      "skipped": 0,
+      "newTests": 6
+    },
+    "browser": {
+      "editSketchVertices": 22,
+      "b4ArcWorkflow": 11,
+      "totalChecks": 33,
+      "input": "Chromium physical CDP keyboard/mouse"
+    },
+    "typescript": "passed",
+    "architecture": {
+      "modules": 438,
+      "status": "passed"
+    },
+    "productionBuild": "passed"
+  },
+  "boundaries": [
+    "No ellipse/spline or full-turn single bulge",
+    "No implicit flattening or constraint deletion",
+    "Independent arc center references need explicit valid point remapping",
+    "Pattern/Scene configuration guards retained",
+    "Sketch Lengthen remains B2-F2"
+  ]
+}

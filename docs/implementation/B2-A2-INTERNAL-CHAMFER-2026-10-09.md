@@ -1,5 +1,7 @@
 # B2-A2 — 내부 코너 두 거리 모따기
 
+> **현재 기능 설명:** [정밀 작도와 편집](../features/DRAWING-EDITING.md). 이 문서는 날짜별 구현·설계 기록이며, 아래 사용법·제한·수치는 당시 범위다. 후속 지원은 대표 가이드를 따른다.
+
 2026-10-09. 대상은 **독립 polyline/rectangle의 두 직선이 만나는 내부 코너**다. 두 독립 윤곽의 자유 끝부분을 잇는 [B2-A1](B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md)과 구별한다. 최신 전체 검수는 [PROJECT-STATE](../../PROJECT-STATE.md), 실행 큐는 [NEXT-STEPS](../../NEXT-STEPS.md)가 소유한다.
 
 ## 이전 문제 → 변경

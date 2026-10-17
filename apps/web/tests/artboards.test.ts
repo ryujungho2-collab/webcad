@@ -18,11 +18,15 @@ const boardById = (id: string) => cadDocument.artboards?.[id];
 describe("artboard documents", () => {
   test("creates, edits, locks, and deletes an artboard through CAD commands", async () => {
     resetTestDocument();
-    const created = await dispatchCadCommand({ type: "create-artboard", id: "board-a", name: "Sheet A", workPlane: "XY", origin: [10, 20], size: [420, 297] });
+    const created = await dispatchCadCommand({ type: "create-artboard", id: "board-a", name: "Sheet A", workPlane: "XY", origin: [10, 20], size: [420, 297], backgroundOpacity: 0.8, showGrid: true });
     assert.equal(created.ok, true);
     assert.deepEqual(cadDocument.artboards?.["board-a"].size, [420, 297]);
-    assert.equal((await dispatchCadCommand({ type: "update-artboard", artboardId: "board-a", name: "Sheet A revised", origin: [5, 6], size: [500, 300], background: "#f0f0f0" })).ok, true);
+    assert.equal(cadDocument.artboards?.["board-a"].backgroundOpacity, 0.8);
+    assert.equal(cadDocument.artboards?.["board-a"].showGrid, true);
+    assert.equal((await dispatchCadCommand({ type: "update-artboard", artboardId: "board-a", name: "Sheet A revised", origin: [5, 6], size: [500, 300], background: "#f0f0f0", backgroundOpacity: 0.5, showGrid: false })).ok, true);
     assert.equal(cadDocument.artboards?.["board-a"].name, "Sheet A revised");
+    assert.equal(cadDocument.artboards?.["board-a"].backgroundOpacity, 0.5);
+    assert.equal(cadDocument.artboards?.["board-a"].showGrid, false);
     assert.equal((await dispatchCadCommand({ type: "update-artboard", artboardId: "board-a", locked: true })).ok, true);
     const beforeLockedEdit = documentState();
     assert.equal((await dispatchCadCommand({ type: "update-artboard", artboardId: "board-a", size: [1, 1] })).ok, false);
@@ -38,7 +42,7 @@ describe("artboard documents", () => {
     assert.equal((await dispatchCadCommand({ type: "create-drawing", id: "vector", drawing: "rectangle", params: { workPlane: "XY", points: [[0, 0, 0], [100, 0, 0], [100, 60, 0], [0, 60, 0]] } })).ok, true);
     cadHistory.clear();
     const before = documentState();
-    const style = { stroke: "#164f42", fill: "#d9f4ea", opacity: 0.65, strokeWidth: 1.2 };
+    const style = { stroke: "#164f42", fill: "#d9f4ea", fillGradient: null, opacity: 0.65, strokeWidth: 1.2 };
     const review = await previewCadCommand({ type: "set-vector-style", objectId: "vector", style });
     assert.equal(review.result.ok, true);
     assert.deepEqual(documentState(), before);
@@ -54,7 +58,7 @@ describe("artboard documents", () => {
 
   test("round-trips format v7 and restores artboards through undo/redo", async () => {
     resetTestDocument();
-    await dispatchCadCommand({ type: "create-artboard", id: "board-b", name: "Presentation", workPlane: "XZ", origin: [-50, 10], size: [800, 600], background: "#112233" });
+    await dispatchCadCommand({ type: "create-artboard", id: "board-b", name: "Presentation", workPlane: "XZ", origin: [-50, 10], size: [800, 600], background: "#112233", backgroundOpacity: 0.5, showGrid: true });
     const snapshot = documentState();
     const encoded = serializeDocument(cadDocument);
     assert.equal(JSON.parse(encoded).version, 7);
@@ -65,6 +69,20 @@ describe("artboard documents", () => {
     assert.deepEqual(documentState(), snapshot);
     assertDocumentIdle();
     cadHistory.clear();
+  });
+
+  test("backgroundOpacity and showGrid round-trip through serialization", async () => {
+    resetTestDocument();
+    await dispatchCadCommand({ type: "create-artboard", id: "board-op", name: "Opacity Board", workPlane: "XY", origin: [0, 0], size: [200, 150], background: "#ffffff", backgroundOpacity: 0.3, showGrid: true });
+    assert.equal(cadDocument.artboards?.["board-op"].backgroundOpacity, 0.3);
+    assert.equal(cadDocument.artboards?.["board-op"].showGrid, true);
+    const saved = serializeDocument(cadDocument);
+    const restored = deserializeDocument(saved);
+    assert.equal(restored.artboards?.["board-op"].backgroundOpacity, 0.3);
+    assert.equal(restored.artboards?.["board-op"].showGrid, true);
+    await dispatchCadCommand({ type: "update-artboard", artboardId: "board-op", backgroundOpacity: 0.9, showGrid: false });
+    assert.equal(cadDocument.artboards?.["board-op"].backgroundOpacity, 0.9);
+    assert.equal(cadDocument.artboards?.["board-op"].showGrid, false);
   });
 
   test("reviewed artboard edits report impact and publish optional collection deletion atomically", async () => {

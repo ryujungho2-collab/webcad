@@ -1,0 +1,13 @@
+✔ spline source Review/Apply, rational weights, pole identity, live endpoints and exact Undo (53.7976ms)
+✔ invalid structure edits, locked sources, stale and aborted Review never publish (21.0731ms)
+✔ affine-transformed NURBS measures native curve length and exports exact finite DXF SPLINE (16.7584ms)
+✔ homogeneous polynomial roots crop finite rational domains without joining gaps or tangent splits (0.624ms)
+✔ real oblique torus sections preserve native rational splines, crop, live endpoints, sheet scale and hatch omission (3130.0297ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4212.6413

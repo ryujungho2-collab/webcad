@@ -53,7 +53,7 @@ export function registerDimensionCommandHandlers(commandBus: CommandBus, documen
     if (!object?.visible || !feature || feature.type !== "dimension") return;
     const patch = command.params;
     if (feature.params.kind === "angular") {
-      if (Object.keys(patch).some(k => !["first", "second", "branch", "radius", "text"].includes(k))) throw new Error("Edit the angular dimension's references, angle region, radius or text.");
+      if (Object.keys(patch).some(k => !["first", "second", "branch", "radius", "text", "style"].includes(k))) throw new Error("Edit the angular dimension's references, angle region, radius, text or style.");
       const next = resolveAngularSources(document, { ...feature.params, ...patch } as AngularDimensionDefinition, true);
       if (JSON.stringify(next) === JSON.stringify(feature.params)) return;
       feature.params = next;
@@ -64,7 +64,7 @@ export function registerDimensionCommandHandlers(commandBus: CommandBus, documen
     if (Object.keys(patch).some(k => ["first", "second", "branch", "radius"].includes(k))) throw new Error("These parameters require an angular dimension.");
     const next = { ...feature.params };
     let changed = false;
-    for (const key of ["orientation", "offset", "angle", "text"] as const) {
+    for (const key of ["orientation", "offset", "angle", "text", "style"] as const) {
       if (!(key in patch)) continue;
       const value = key === "text" && patch[key] === "" ? null : patch[key];
       if (JSON.stringify(next[key]) !== JSON.stringify(value)) {

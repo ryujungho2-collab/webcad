@@ -1,0 +1,66 @@
+.project-workspace { height: 100%; display: flex; flex-direction: column; color: var(--text); background: var(--bg-0); font: 12px var(--font-ui); }
+.project-strip { flex: 0 0 36px; display: flex; align-items: stretch; gap: 4px; min-width: 0; border-bottom: 1px solid var(--line); }
+.project-strip button,.project-strip select { background: transparent; color: var(--muted); border: 0; padding: 0 10px; cursor: pointer; font: inherit; }
+.project-strip select { max-width: 155px; background: var(--bg-0); }
+.project-strip button:hover { background: var(--bg-3); color: var(--text); }
+.project-tabs { min-width: 0; flex: 1; display: flex; overflow-x: auto; scrollbar-width: thin; }
+.project-tab { display: flex; flex-shrink: 0; border-right: 1px solid var(--line-soft); min-width: 130px; max-width: 250px; }
+.project-tab [role=tab] { min-width: 0; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: left; }
+.project-tab-active { background: var(--bg-2); box-shadow: inset 0 2px var(--accent); }
+.project-tab-active [role=tab] { color: var(--text); }
+.project-dirty { margin-right: 6px; color: var(--warning); font-size: 8px; }
+.project-editors { position: relative; flex: 1; min-height: 0; }
+.project-editors > section { width: 100%; height: 100%; }
+.project-editors iframe { width: 100%; height: 100%; border: 0; display: block; }
+.project-error { padding: 8px 12px; color: var(--warning); border-bottom: 1px solid var(--line); }
+.project-error button { margin-left: 12px; }
+.project-save-status { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 18px; min-height: 24px; padding: 2px 12px; color: var(--muted); border-bottom: 1px solid var(--line-soft); font-size: 10px; }
+.project-save-status button,.project-error button,.project-recovery button { color: var(--text); background: var(--bg-2); border: 1px solid var(--line); padding: 4px 8px; cursor: pointer; }
+.project-strip button:disabled { opacity: .5; cursor: default; }
+.project-recovery { flex: 1; overflow: auto; padding: 8vh 8vw; max-width: 960px; }
+.project-recovery h1 { font-size: 24px; font-weight: 500; }
+.project-recovery p { color: var(--muted); line-height: 1.6; }
+.project-recovery button { margin: 4px 8px 4px 0; padding: 8px 12px; }
+.project-recovery ul { max-height: 220px; overflow: auto; }
+.project-empty { padding: 12vh 8vw; text-align: center; }
+.project-empty h1 { font-size: 24px; font-weight: 500; }
+.project-empty button,.project-rename button { padding: 8px 14px; margin: 6px; background: var(--bg-2); color: var(--text); border: 1px solid var(--line); }
+.project-rename { padding: 0; color: var(--text); border: 0; background: var(--bg-2); }
+.project-rename::backdrop { background: #0008; }
+.project-rename form { padding: 24px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px; }
+.project-rename label { display: grid; gap: 10px; }
+.project-rename input { width: 280px; padding: 8px; color: var(--text); background: var(--bg-0); border: 1px solid var(--line); }
+.project-storage-check { padding: 12px; color: var(--warning); }
+.project-manager { width: min(960px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 0; color: var(--text); background: var(--bg-1); border: 1px solid var(--line); border-radius: 8px; overflow: auto; font: 12px var(--font-ui); }
+.project-manager::backdrop { background: #0009; }
+.project-manager header,.project-manager footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.project-manager h1 { margin: 0 0 6px; font-size: 20px; font-weight: 500; }
+.project-manager h2 { margin: 0; font-size: 16px; font-weight: 500; overflow-wrap: anywhere; }
+.project-manager h3 { font-size: 13px; font-weight: 600; }
+.project-manager p { line-height: 1.6; }
+.project-manager header p { margin: 0; color: var(--muted); }
+.project-manager button,.project-manager input,.project-manager select { color: var(--text); background: var(--bg-2); border: 1px solid var(--line); padding: 7px 10px; border-radius: 4px; font: inherit; }
+.project-manager button { cursor: pointer; }
+.project-manager button:disabled { opacity: .45; cursor: default; }
+.project-manager button:hover:not(:disabled) { border-color: var(--accent); }
+.project-manager-tools { display: flex; gap: 8px; padding: 12px 20px; }
+.project-manager-tools input { flex: 1; min-width: 100px; background: var(--bg-0); }
+.project-manager-capacity { display: grid; gap: 6px; padding: 0 20px 12px; color: var(--muted); }
+.project-manager-capacity small { line-height: 1.5; }
+.project-manager-content { display: grid; grid-template-columns: minmax(220px, 40%) minmax(0, 1fr); min-height: 300px; border-top: 1px solid var(--line); }
+.project-manager-list { overflow: auto; max-height: 430px; border-right: 1px solid var(--line); padding: 8px; }
+.project-manager-list > button { display: grid; gap: 6px; width: 100%; text-align: left; padding: 12px; margin-bottom: 4px; background: transparent; border-color: transparent; }
+.project-manager-list > button[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); }
+.project-manager-list strong { font-weight: 500; overflow-wrap: anywhere; }
+.project-manager-list span,.project-manager-list small { color: var(--muted); }
+.project-manager-detail { padding: 20px; min-width: 0; }
+.project-manager-id { overflow-wrap: anywhere; color: var(--muted); font-size: 10px; }
+.project-manager-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.project-manager-confirm { margin-top: 16px; padding: 12px; background: var(--bg-2); border: 1px solid var(--warning); border-radius: 4px; }
+.project-manager-confirm label { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; line-height: 1.5; }
+.project-manager-confirm button { margin-right: 8px; }
+.project-manager footer { border-top: 1px solid var(--line); border-bottom: 0; color: var(--muted); }
+.project-manager-error { color: var(--warning); padding: 0 20px; }
+.project-manager-detail .project-manager-error { padding: 0; }
+.project-manager-message { padding: 0 20px; color: var(--accent); }
+@media(max-width: 650px) { .project-manager-content { grid-template-columns: 1fr; }.project-manager-list { max-height: 160px; border-right: 0; border-bottom: 1px solid var(--line); }.project-manager-tools { flex-wrap: wrap; }.project-manager footer { flex-wrap: wrap; } }

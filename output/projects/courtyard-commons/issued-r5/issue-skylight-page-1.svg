@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="65000 -297 420 297" stroke="black" stroke-width="0.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<defs><clipPath id="artboard-crop"><rect x="65000" y="-297" width="420" height="297" /></clipPath></defs>
+<g clip-path="url(#artboard-crop)">
+<rect x="65000" y="-297" width="420" height="297" fill="#ffffff" stroke="none" />
+<text x="65015" y="-37" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">R5 Skylight study</text>
+<polygon points="65012,-12 65408,-12 65408,-285 65012,-285" stroke="#4f8cff" stroke-width="0.25" />
+<polygon points="65012,-12 65408,-12 65408,-44 65012,-44" stroke="#4f8cff" stroke-width="0.25" />
+<text x="65015" y="-29" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">Author: CAD capability study</text>
+<text x="65015" y="-22" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">Revision: R5 / 2026-10-13</text>
+<text x="65015" y="-15" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">Scale 1:50 | Page 1/1</text>
+<path d="M 65203.666224765 -52.25 A 41.569219382 36 0 1 0 65203.666224765 -124.25" stroke="#202020" stroke-width="0.5" />
+<text x="65203.666" y="-45.25" font-family="system-ui, sans-serif" font-size="2.5" fill="#202020" stroke="none">A302 Skylight · finite half cut · 1:50</text>
+<ellipse cx="65065.366224765" cy="-88.25" rx="41.569219382" ry="36" transform="rotate(0 65065.366224765 -88.25)" stroke="#202020" stroke-width="0.5" />
+<path d="M 65053.819219382 -124.25 A 41.569219382 36 0 1 0 65053.819219382 -52.25" stroke="#202020" stroke-width="0.18" />
+<polyline points="65053.819,-52.25 65065.366,-52.25" stroke="#202020" stroke-width="0.18" />
+<polyline points="65053.819,-124.25 65065.366,-124.25" stroke="#202020" stroke-width="0.18" />
+<text x="65012.25" y="-45.25" font-family="system-ui, sans-serif" font-size="2.5" fill="#202020" stroke="none">A301 Inclined skylight · horizontal cut · 1:50</text>
+<ellipse cx="65048.25" cy="-258.673048454" rx="36" ry="18" transform="rotate(0 65048.25 -258.673048454)" stroke="#202020" stroke-width="0.25" />
+<path d="M 65012.25 -154.75 A 36 18 0 0 0 65084.25 -154.75" stroke="#202020" stroke-width="0.25" />
+<polyline points="65012.25,-154.75 65012.25,-258.673" stroke="#202020" stroke-width="0.25" />
+<polyline points="65084.25,-154.75 65084.25,-258.673" stroke="#202020" stroke-width="0.25" />
+<path d="M 65084.25 -154.75 A 36 18 0 0 0 65012.25 -154.75" stroke="#202020" stroke-width="0.18" stroke-dasharray="3 1.5" />
+<ellipse cx="65187.926914536" cy="-173.013489947" rx="36" ry="31.176914536" transform="rotate(-90 65187.926914536 -173.013489947)" stroke="#202020" stroke-width="0.25" />
+<path d="M 65127.926914536 -209.013489947 A 36 31.176914536 -90 0 0 65127.926914536 -137.013489947" stroke="#202020" stroke-width="0.25" />
+<polyline points="65127.927,-137.013 65187.927,-137.013" stroke="#202020" stroke-width="0.25" />
+<polyline points="65127.927,-209.013 65187.927,-209.013" stroke="#202020" stroke-width="0.25" />
+<path d="M 65127.926914536 -137.013489947 A 36 31.176914536 -90 0 0 65127.926914536 -209.013489947" stroke="#202020" stroke-width="0.18" stroke-dasharray="3 1.5" />
+<polyline points="65065.366,-88.25 65084.366,-118.25 65090.366,-118.25" stroke="#202020" stroke-width="0.25" />
+<polyline points="65065.535,-89.919 65065.366,-88.25 65066.802,-89.116" stroke="#202020" stroke-width="0.25" />
+<text x="65090.366" y="-118.25" font-family="system-ui, sans-serif" font-size="3" fill="#202020" stroke="none">Inclined skylight study / R5</text>
+<polyline points="65203.666,-124.25 65222.666,-118.25 65228.666,-118.25" stroke="#202020" stroke-width="0.25" />
+<polyline points="65205.322,-124.513 65203.666,-124.25 65204.871,-123.083" stroke="#202020" stroke-width="0.25" />
+<text x="65228.666" y="-118.25" font-family="system-ui, sans-serif" font-size="3" fill="#202020" stroke="none">Finite analytic cut endpoint</text>
+</g>
+</svg>

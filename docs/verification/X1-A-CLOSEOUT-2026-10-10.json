@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-10",
+  "scope": "CAD X1-A three-point circle and start-through-end arc",
+  "node": {"tests": 877, "suites": 54, "passed": 877, "failed": 0, "skipped": 0},
+  "targetNodeTests": 10,
+  "browser": {"x1ThreePoint": 10, "precisionInputRegression": 15, "total": 25},
+  "checks": [
+    "translated normalized circumcenter and radius independently checked at local and 1e9 mm coordinates",
+    "CW/CCW, semicircle and major arc preserve the ordered through point",
+    "duplicate, collinear, ill-conditioned and non-finite points reject; UI retains invalid third-point draft",
+    "existing circle/arc source, unique editable identities, explicit radius constraints and live extrusion regeneration",
+    "XY/XZ/YZ and resolved face-sketch frames, locks and off-plane rejection",
+    "numeric units/relative points, pointer confirmation, Cancel, Preview/Apply and one-entry Undo/Redo",
+    "existing document serialization and exact DXF major clockwise arc round-trip"
+  ],
+  "typecheck": "passed",
+  "architecture": {"result": "passed", "modules": 416},
+  "productionBuild": "passed",
+  "limitations": [
+    "Three acquired points define creation-time circle/arc values, not permanent live point references",
+    "Automatic sketch constraint inference is omitted to avoid mapping circumference picks to the centre",
+    "Arbitrary standalone UCS creation is X5; tangent construction and regular polygon creation remain X1-B/C"
+  ]
+}

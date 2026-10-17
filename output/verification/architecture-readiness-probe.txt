@@ -1,0 +1,27 @@
+{
+  "target": "C:\\Users\\thefi\\OneDrive\\Desktop\\agent-webcad\\output\\projects\\architecture-readiness",
+  "checks": {
+    "initialWallVolumeMm3": 15467999999.999996,
+    "independentWallVolumeMm3": 15468000000,
+    "updatedWallVolumeMm3": 15383999999.99998,
+    "planEdges": 24,
+    "sectionEdges": 16,
+    "projectionRejectedAtomically": "External walls · entry + window: outline adapter supports box/cylinder primitives; other BRep kinds need a new adapter.",
+    "statusAfterOpeningChange": {
+      "plan": {
+        "status": "unresolved",
+        "reason": "Section topology/crop correspondence changed. Review and rebind this section."
+      },
+      "section": {
+        "status": "resolved"
+      }
+    },
+    "unresolvedExportBlocked": true,
+    "explicitRebind": true,
+    "undoRedo": true,
+    "serializationRoundtrip": true,
+    "dxfSkipped": 0
+  },
+  "commands": 28,
+  "maxCommandMs": 2310
+}

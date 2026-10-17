@@ -1,0 +1,18 @@
+✔ large model recovery compresses current and backup, survives reload and corrupt data falls back (60.785ms)
+✔ recovery falls back from a damaged latest copy to the last valid checkpoint (0.3949ms)
+✔ storage failures retain a readable checkpoint and do not report successful writes (0.625ms)
+✔ document loading rejects damaged collections, transforms and parameter values before mutation (0.7783ms)
+✔ legacy scalar scales migrate without changing geometry or topology on the next reopen (0.5749ms)
+✔ presentation commands do not recalculate source sections; changed geometry still regenerates (2887.6664ms)
+✔ anchored opening edit preserves section IDs, dimensions, annotations, sheet and Undo; layout keeps correspondence (226.7068ms)
+✔ graph correspondence rejects disconnected moving, reversed and ambiguous branches (0.3468ms)
+✔ exact HLR classifies front/back parts and suppresses no source geometry (14.5697ms)
+✔ Boolean opening HLR Review/Apply, hidden style, sheets, schema33 and stale/locked edits remain atomic (218.2991ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4241.1372

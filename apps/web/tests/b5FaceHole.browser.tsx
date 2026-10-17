@@ -1,0 +1,34 @@
+import {createRoot} from "react-dom/client";
+import {App} from "../src/App";
+import "../src/styles.css";import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+import {buildPrimitiveMesh} from "../src/cad/kernelGeometryService";
+import {cadDocument} from "../src/state/cadDocument";
+import {cadHistory} from "../src/state/history";
+import {dispatchCadCommand} from "../src/state/dispatchCadCommand";
+import {saveDocumentToCache} from "../src/state/documentFile";
+import {resetTestDocument} from "./helpers/documentHarness";
+import {installBrowserChecks} from "./helpers/browserChecks";
+import {click,physical,text,waitFor} from "./helpers/physicalInput";
+
+resetTestDocument();
+let result=await dispatchCadCommand({type:"create-primitive",id:"body",primitive:"box",params:{width:20,depth:16,height:10}});if(!result.ok)throw Error(result.reason);
+const mesh=await buildPrimitiveMesh(cadDocument.features["feature-body"].params),top=mesh.faces!.find(face=>face.key.split("|")[0].endsWith(",10.000000"))!;
+result=await dispatchCadCommand({type:"attach-work-plane-face",id:"top",name:"Top",source:{kind:"brep-face",objectId:"body",topologyId:top.key}});if(!result.ok)throw Error(result.reason);
+saveDocumentToCache();createRoot(document.getElementById("root")!).render(<App/>);
+const button=document.getElementById("run-b5-hole") as HTMLButtonElement,output=document.getElementById("b5-hole-result")!;
+button.onclick=async()=>{button.disabled=true;const lines:string[]=[],check=(condition:unknown,label:string)=>{if(!condition)throw Error(label);lines.push(`PASS: ${label}`);output.textContent=lines.join("\n");};try{
+  await waitFor(()=>Boolean(document.querySelector("#root canvas")));
+  const section=Array.from(document.querySelectorAll<HTMLElement>(".property-section")).find(element=>element.querySelector(".property-section-title")?.textContent==="Hole")!;
+  await physical(section.querySelector(".property-section-trigger")!);
+  await text("Hole X","2 mm");await text("Hole Y","-1 mm");await text("Hole diameter","4 mm");await text("Hole depth","4 mm");
+  const past=cadHistory.getPastLabels().length;await click("Review Hole");await waitFor(()=>Boolean(Array.from(document.querySelectorAll("button")).find(entry=>entry.textContent==="Apply Hole"&&!entry.disabled)));
+  check(!Object.values(cadDocument.features).some(feature=>feature.params.faceHole)&&cadHistory.getPastLabels().length===past&&Boolean(document.querySelector('[data-testid="hole-volume"]')),"Hole Review shows volume without changing the document");
+  await click("Apply Hole");await waitFor(()=>Boolean(Object.values(cadDocument.features).find(feature=>feature.params.faceHole)));
+  const hole=Object.values(cadDocument.features).find(feature=>feature.params.faceHole)!;
+  check(hole.inputs[0]==="body"&&cadDocument.objects.body.visible===false&&cadHistory.getPastLabels().length===past+1,"Apply creates one owned Hole result and one Undo entry");
+  await waitFor(()=>Boolean(document.querySelector('[aria-label="Hole diameter"]')));await text("Hole diameter","6 mm");
+  await physical(document.querySelector('[aria-label="Hole through all"]')!);await click("Review Hole edit");await waitFor(()=>Boolean(Array.from(document.querySelectorAll("button")).find(entry=>entry.textContent==="Apply Hole edit"&&!entry.disabled)));
+  await click("Apply Hole edit");await waitFor(()=>((cadDocument.features[hole.id].params.faceHole as {diameter:number;through:boolean}).diameter===6));
+  check((cadDocument.features[hole.id].params.faceHole as {through:boolean}).through&&cadHistory.getPastLabels().length===past+2,"Inspector edits Hole diameter and through condition in one reviewed transaction");
+  output.textContent=lines.join("\n")+`\nALL ${lines.length} CHECKS PASSED`;
+}catch(cause){output.textContent=lines.join("\n")+`\nFAIL: ${cause instanceof Error?cause.stack:cause}`;}};installBrowserChecks(button,output);

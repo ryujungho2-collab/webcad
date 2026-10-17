@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-10",
+  "scope": ["B3-G1 snap intersection precision", "B3-D3 PDF dimension style sizing"],
+  "node": {"tests": 946, "suites": 54, "passed": 946, "failed": 0, "skipped": 0},
+  "targetNodeTests": {"b3SnapPrecision": 10, "b3PdfStyle": 8, "total": 18},
+  "browser": {"precisionInput": 15, "angularWorkflow": 24, "draftingWorkflow": 16, "x1EndpointRadiusArc": 15, "total": 70},
+  "browserRetry": "Initial precisionInput run timed out in browser input delivery after six checks; isolated rerun passed all 15 checks.",
+  "typecheck": "passed",
+  "architecture": {"result": "passed", "modules": 435},
+  "productionBuild": "passed",
+  "reproductionsFixed": [
+    "Line [0,0] to [1e9,0], circle [5e8,0] radius 5: roots 499999995 and 500000005 with radial residual <= 1e-6 mm",
+    "Circle radii 5, centre distance 10 +/- 1e-8: shared tangent classification and one physical snap location",
+    "Dimension textHeight 6, paperScale 2: PDF text 12 mm at 1:1, 1.2 mm at 1:10 matching SVG model height times output ratio"
+  ],
+  "contracts": [
+    "Shared stable construction intersection helpers; finite line/ray/arc domains and spatial deduplication",
+    "Snap priorities, pixel tolerance and source metadata retained",
+    "Signed construction branches retained without schema migration",
+    "All model annotation text scaled exactly once by plot ratio; title remains 5 paper mm",
+    "Output planning leaves document and history unchanged; style Undo/Redo and serialization preserve geometry"
+  ],
+  "limitations": ["B0-C1 artboard annotations pending", "No full browser suite or large drawing benchmark", "No external PDF viewer visual inspection"],
+  "nextRecommended": "B0-C1 artboard annotation rendering and export"
+}

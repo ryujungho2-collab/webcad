@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "scope": "B1-E straight sketch polyline/rectangle vertex insert/delete/open/close with constraints, driving dimensions and live extrusion in one transaction",
+  "findings": [
+    "Existing implementation passed the supported straight-sketch scope; no production code fix was needed",
+    "Added direct regression coverage for locked source/dependent and solver conflicts; failed edits preserve the entire document and History",
+    "Corrected stale NEXT-STEPS wording that listed all B1-E work as pending"
+  ],
+  "node": {
+    "log": "output-b1-e-recheck-node.log",
+    "tests": 746,
+    "suites": 54,
+    "failed": 0,
+    "skipped": 0,
+    "newRegressionTests": 2,
+    "targetTests": 8,
+    "note": "Final integrated tree includes five concurrently added hatch-reconnection tests in addition to the two new B1-E regression tests. An intermediate integrated run failed three hatch tests; the final run after concurrent changes passed all 746. B1-E production code was not changed by this verification.",
+    "targetLog": "output-b1-e-recheck-target.log"
+  },
+  "browser": {
+    "status": "passed",
+    "workflow": "editSketchVertices",
+    "workflows": 1,
+    "checks": 16,
+    "log": "output-b1-e-recheck-browser.log",
+    "environment": "Native Edge/CDP key and pointer; real App/React/Worker",
+    "scope": "Targeted B1-E rerun; full 52-workflow browser suite was not rerun",
+    "previousFullSuite": { "workflows": 52, "checks": 1054, "evidence": "B1-E-CLOSEOUT-2026-10-09.json" }
+  },
+  "architecture": { "status": "passed", "modules": 353, "log": "output-b1-e-recheck-architecture.log" },
+  "build": {
+    "status": "passed",
+    "log": "output-b1-e-recheck-build.log",
+    "mainRawKB": 1090.17,
+    "mainGzipKB": 329.07,
+    "viewportRawKB": 649.18,
+    "viewportGzipKB": 175.97,
+    "existingLargeChunkWarning": true
+  },
+  "typecheck": "passed",
+  "serialization": "v14 unchanged",
+  "remaining": [
+    "Arc and mixed-bulge sketch vertex editing and sketch-owned line/arc edge conversion remain follow-ups",
+    "Pattern and scene relationships must be released before sketch vertex editing",
+    "Sketch Lengthen and Stretch remain B2-E/B2-F",
+    "No new large-document latency, practitioner or GPU benchmark"
+  ]
+}

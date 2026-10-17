@@ -1,0 +1,7 @@
+export type WallOpening={id:string;kind:"door"|"window";side:"left"|"right";along:number;width:number;height:number;sill:number};
+export type ArchitectureWall={mode:"centerline"|"footprint";sourceObjectIds:string[];height:number;thickness:number;baseLevel:number;openings:WallOpening[]};
+const record=(v:unknown):v is Record<string,any>=>!!v&&typeof v==="object"&&!Array.isArray(v);
+const id=(v:unknown)=>typeof v==="string"&&v.length>0&&v.length<=200&&!['__proto__','constructor','prototype'].includes(v);
+const finite=(v:unknown)=>typeof v==="number"&&Number.isFinite(v)&&Math.abs(v)<=1e9;
+export function validWallOpening(v:unknown):v is WallOpening{return record(v)&&id(v.id)&&["door","window"].includes(v.kind)&&["left","right"].includes(v.side)&&[v.along,v.width,v.height,v.sill].every(finite)&&v.along>=0&&v.width>1e-6&&v.height>1e-6&&v.sill>=0&&(v.kind!=="door"||v.sill===0);}
+export function validArchitectureWall(v:unknown):v is ArchitectureWall{return record(v)&&["centerline","footprint"].includes(v.mode)&&Array.isArray(v.sourceObjectIds)&&v.sourceObjectIds.length>0&&v.sourceObjectIds.length<=2000&&v.sourceObjectIds.every(id)&&new Set(v.sourceObjectIds).size===v.sourceObjectIds.length&&[v.height,v.thickness,v.baseLevel].every(finite)&&Math.abs(v.height)>1e-6&&v.thickness>1e-6&&Array.isArray(v.openings)&&v.openings.length<=100&&v.openings.every(validWallOpening)&&new Set(v.openings.map((o:WallOpening)=>o.id)).size===v.openings.length;}

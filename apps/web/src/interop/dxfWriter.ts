@@ -1,7 +1,13 @@
+import {cropSectionGeometry} from "../precision/modelSection";
+import {trimSpline,splineClosed,cropSpline} from "../precision/splineGeometry";
+import {principalEllipse,ellipseClosed} from "../precision/ellipseGeometry";
+import {assertProjectionExport} from "../precision/modelPresentation";
+import {dxfInsertCoordinates,dxfTextCoordinates} from "./dxfOcs";
+import {dxfPlanarDrawing} from "./dxfOcs";
 import type { CadDocument, CadFeature, CadObject, LayerStyle } from "@agent-webcad/cad-document";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 import { worldDraftingGeometry } from "../precision/draftingGeometry";
-import { layerStyle } from "../precision/layerStyle";
+import { drawingLineType, layerStyle,modelDrawingStyle } from "../precision/layerStyle";
 import { getObjectTransform } from "../precision/objectTransform";
 import { resolveDimension } from "../precision/dimensionGeometry";
 
@@ -13,7 +19,8 @@ const styled=(style:LayerStyle)=>[6,types[style.lineType],370,Math.round(style.l
 
 /** R2007 UTF-8 DXF with layer styles, editable TEXT and BLOCK/INSERT.
  * Chain dimensions and hatching export as vector linework with text. */
-export function encodeDxf(document:CadDocument,objectIds?:string[]):{text:string;entities:number;skipped:number;warnings:string[]} {
+export function encodeDxf(document:CadDocument,objectIds?:string[],options:{paperBounds?:[number,number,number,number]}={}):{text:string;entities:number;skipped:number;warnings:string[]} {
+  assertProjectionExport(document,objectIds);
   const body:(string|number)[]=[],blocks:(string|number)[]=[],layers=new Map<string,LayerStyle>();
   let entities=0,skipped=0;
   const warnings:string[]=[];
@@ -25,35 +32,28 @@ export function encodeDxf(document:CadDocument,objectIds?:string[]):{text:string
     target.push(0,"SEQEND",100,"AcDbEntity",8,name);
   };
   const write=(target:(string|number)[],object:CadObject,feature:CadFeature,count:boolean)=>{
-    const name=layer(object.layerId),style=layerStyle(document.layers[object.layerId]),common=[100,"AcDbEntity",8,name,...styled(style)];
+    const name=layer(object.layerId),baseStyle=modelDrawingStyle(feature.params,layerStyle(document.layers[object.layerId])),style={...baseStyle,lineType:feature.type==="drawing"?drawingLineType(feature.params.construction,baseStyle):baseStyle.lineType},common=[100,"AcDbEntity",8,name,...styled(style)];
     const reject=(reason:string)=>{if(!count)throw new Error(`Cannot export component ${object.name}: ${reason}.`);skipped++;warnings.push(`${object.name}: ${reason}.`);};
     if(feature.type==="drawing"){
       const world=getWorldDrawingGeometry(object,feature);if(!world){reject("no supported drawing geometry");return;}
       if (["point", "infinite-line", "ray"].includes(world.kind)) { reject("point and unbounded construction geometry need a separate DXF adapter");return; }
+      if(world.spline){const pieces=options.paperBounds&&count?cropSpline(world.spline,options.paperBounds):[world.spline];for(const piece of pieces){const n=trimSpline(piece);target.push(0,"SPLINE",...common,100,"AcDbSpline",70,(splineClosed(n)?1:0)|(n.weights?.some(w=>Math.abs(w-1)>1e-12)?4:0),71,n.degree,72,n.knots.length,73,n.controlPoints.length,74,0,...n.knots.flatMap(k=>[40,format(k)]),...(n.weights??[]).flatMap(w=>[41,format(w)]),...n.controlPoints.flatMap(p=>point(p)));if(count)entities++;}return;}
+      if(world.ellipse){const pieces=options.paperBounds&&count?cropSectionGeometry({kind:ellipseClosed(world.ellipse)?"ellipse":"elliptic-arc",params:world.ellipse},options.paperBounds).map(p=>p.params as import("@agent-webcad/cad-document").CadEllipse):[world.ellipse];for(const piece of pieces){const e=principalEllipse(piece),u=e.axisU,v=e.sweep<0?e.axisV.map(x=>-x):e.axisV,normal=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],nl=Math.hypot(...normal),tau=2*Math.PI,start=ellipseClosed(e)?0:(((e.sweep<0?-e.startParam:e.startParam)%tau)+tau)%tau,end=ellipseClosed(e)?tau:(start+Math.abs(e.sweep))%tau;target.push(0,"ELLIPSE",...common,100,"AcDbEllipse",...point(e.center),...point(u,11),40,format(Math.hypot(...v)/Math.hypot(...u)),41,format(start),42,format(end),210,format(normal[0]/nl),220,format(normal[1]/nl),230,format(normal[2]/nl));if(count)entities++;}return;}
       if(world.kind==="line"&&world.points?.length===2)target.push(0,"LINE",...common,100,"AcDbLine",...point(world.points[0]),...point(world.points[1],11));
-      else if((world.kind==="circle"||world.kind==="arc") && world.workPlane==="XY" && world.planeAligned && world.uniformScale && world.center && world.radius){
-        target.push(0,world.kind==="circle"?"CIRCLE":"ARC",...common,100,"AcDbCircle",...point(world.center),40,format(world.radius));
-        if(world.kind==="arc"){
-          let start=world.startAngle!,end=world.endAngle!;if(end<start)[start,end]=[end,start];
-          target.push(100,"AcDbArc",50,format(start*180/Math.PI),51,format(end*180/Math.PI));
-        }
-      }else if(world.kind==="circle"||world.kind==="arc"){reject("analytic circles/arcs require a uniform, XY-aligned transform; non-default OCS is unsupported");return;}
-      else if(world.profileSegments?.length){
-        const segments=world.profileSegments,curved=Array.isArray(feature.params.bulges)&&feature.params.bulges.some(b=>Number(b)!==0);
-        if(curved&&(!world.planeAligned||!world.uniformScale||world.workPlane!=="XY")){reject("bulge contours require a uniform, XY-aligned transform; non-default OCS is unsupported");return;}
-        const points=segments.map(s=>s.start);if(!world.closed)points.push(segments.at(-1)!.end);
-        if(world.workPlane==="XY"&&world.planeAligned){
-          target.push(0,"LWPOLYLINE",...common,100,"AcDbPolyline",90,points.length,70,world.closed?1:0,38,format(points[0][2]));
-          points.forEach((p,i)=>{const s=segments[i],bulge=s?.kind==="arc"?Math.tan((s.endAngle!-s.startAngle!)/4):0;target.push(10,format(p[0]),20,format(p[1]),...(bulge!==0?[42,format(bulge)]:[]));});
-        }else poly(target,points,world.closed,name,style);
-      }else if(Array.isArray(feature.params.bulges)&&feature.params.bulges.some(b=>Number(b)!==0)){reject("curved contour cannot be represented exactly after this transform");return;}
+      else if(["circle","arc","polyline","rectangle"].includes(world.kind)){
+        let geometry;try{geometry=dxfPlanarDrawing(object,feature);}catch(e){if(world.kind!=="circle"&&world.kind!=="arc"&&!(feature.params.bulges as number[]|undefined)?.some(b=>b!==0)&&world.points?.length){poly(target,world.points,world.closed,name,style);if(count)entities++;return;}reject(e instanceof Error?e.message:"unsupported OCS drawing");return;}
+        const normal=[210,format(geometry.normal[0]),220,format(geometry.normal[1]),230,format(geometry.normal[2])];
+        if(geometry.center){target.push(0,world.kind==="circle"?"CIRCLE":"ARC",...common,100,"AcDbCircle",...point(geometry.center),40,format(geometry.radius!),...normal);if(world.kind==="arc")target.push(100,"AcDbArc",50,format(geometry.startAngle!*180/Math.PI),51,format(geometry.endAngle!*180/Math.PI));}
+        else{const points=geometry.points!;target.push(0,"LWPOLYLINE",...common,100,"AcDbPolyline",90,points.length,70,geometry.closed?1:0,38,format(points[0][2]),...normal);points.forEach((p,i)=>{const bulge=geometry.bulges?.[i]??0;target.push(10,format(p[0]),20,format(p[1]),...(bulge!==0?[42,format(bulge)]:[]));});}
+      }
       else if(world.points?.length)poly(target,world.points,world.closed,name,style);
       else{reject("no supported finite drawing representation");return;}if(count)entities++;return;
     }
     if(feature.type==="drafting" && feature.params.kind==="block"){
       const block=document.blocks?.[String(feature.params.blockId)],transform=getObjectTransform(object,feature);
-      if(!block||block.workPlane!=="XY"||transform.rotation[0]||transform.rotation[1]){reject("component needs an existing definition and XY-aligned placement");return;}
-      target.push(0,"INSERT",...common,100,"AcDbBlockReference",2,clean(block.id),...point(transform.translation),41,format(transform.scale[0]),42,format(transform.scale[1]),43,format(transform.scale[2]),50,format(transform.rotation[2]));if(count)entities++;return;
+      if(!block){reject("component needs an existing definition");return;}
+      const placement=dxfInsertCoordinates(transform);
+      target.push(0,"INSERT",...common,100,"AcDbBlockReference",2,clean(block.id),...point(placement.position),41,format(placement.scale[0]),42,format(placement.scale[1]),43,format(placement.scale[2]),50,format(placement.angle),210,format(placement.normal[0]),220,format(placement.normal[1]),230,format(placement.normal[2]));if(count)entities++;return;
     }
     if(feature.type==="drafting"||feature.type==="dimension"){
       let data=worldDraftingGeometry(document,object,feature);
@@ -61,14 +61,18 @@ export function encodeDxf(document:CadDocument,objectIds?:string[]):{text:string
         const dimension=resolveDimension(feature.params);if(!dimension){reject("invalid annotation parameters");return;}
         data={lines:dimension.segments.map(points=>({points,closed:false,style})),texts:[{point:dimension.textPosition,text:dimension.text,height:3.5,angle:0,style}]};
       }
-      for(const line of data.lines){poly(target,line.points,line.closed,name,line.style);if(count)entities++;}
-      for(const text of data.texts){target.push(0,"TEXT",...common,100,"AcDbText",...point(text.point),40,format(text.height),1,clean(text.text),50,format(text.angle),7,"STANDARD",...(text.align==="center"?[72,1,...point(text.point,11)]:[]),100,"AcDbText");if(count)entities++;}
+      for(const line of data.lines)for(const ring of [line.points,...(line.holes??[])]){poly(target,ring,line.closed,name,line.style);if(count)entities++;}
+      if(feature.params.kind==="face")warnings.push(`${object.name}: planar face exported as boundary polylines (0.02 mm curve display tolerance); fill/association remain in WebCAD JSON.`);
+      for(const text of data.texts){
+        let placement;try{placement=dxfTextCoordinates(text);}catch(cause){reject(cause instanceof Error?cause.message:"invalid TEXT plane");continue;}
+        target.push(0,"TEXT",...common,100,"AcDbText",...point(placement.point),40,format(placement.height),1,clean(text.text),50,format(placement.angle),210,format(placement.normal[0]),220,format(placement.normal[1]),230,format(placement.normal[2]),7,"STANDARD",...(text.align==="center"?[72,1,...point(placement.point,11)]:[]),100,"AcDbText");if(count)entities++;
+      }
       return;
     }
     reject(`${feature.type} has no supported DXF representation`);
   };
   const featureByObject=new Map(Object.values(document.features).map(f=>[f.output,f]));
-  const roots=(objectIds?.length?objectIds:document.rootObjects).filter(id=>{
+  const roots=[...new Set(objectIds?.length?objectIds:document.rootObjects)].filter(id=>{
     const object=document.objects[id];return object?.visible&&featureByObject.has(id)&&document.layers[object.layerId]?.visible;
   });
   const includedBlocks=new Set<string>(),visiting=new Set<string>();

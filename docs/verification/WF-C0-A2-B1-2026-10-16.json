@@ -1,0 +1,13 @@
+{
+  "cards": ["WF-C0", "WF-A2", "WF-B1"],
+  "date": "2026-10-16",
+  "status": "passed-supported-scope",
+  "node": {"checks":1256,"suites":54,"passed":true,"concurrency":4,"log":"output/verification/wf-c0-a2-b1-node-final.log","finalCodeFullSuiteRerun":true},
+  "nativeBrowser": {"floorTasks":18,"dxfPreparation":25,"regionWorkflow":8,"artboardPdfWorkflow":21,"total":72,"uncaughtErrorsFailHarness":true},
+  "typecheck": "passed",
+  "architecture": {"passed":true,"modules":579},
+  "productionBuild": {"passed":true,"modules":419,"existingLargeChunkWarning":true},
+  "contracts": ["one Undo per Apply", "stale generation/revision refusal", "abort before publish", "locked references read only", "exact line/arc area and holed extrusion", "v40 portable reopen", "SVG evenodd and frame hole transforms", "DXF boundary loss review"],
+  "limits": ["local guided intents, not arbitrary natural language", "principal-plane line/arc/circle and at most 2000 selected drawings/edges", "explicit unique endpoint bridges only; no automatic deletion, flattening or T-junction split", "XY preview picks, numeric Z", "analytic region, not independent BRep face", "new face rasterization checked; existing PDF workflow regression separately checked", "source receipt without original file bytes/hash or reimport remap", "no large/long-duration benchmark"],
+  "next": ["WF-B2", "WF-B3"]
+}

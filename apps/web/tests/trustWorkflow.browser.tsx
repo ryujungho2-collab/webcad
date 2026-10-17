@@ -54,7 +54,7 @@ button.onclick=async()=>{
     try{
       Storage.prototype.setItem=function(key:string,value:string){if(key===DOCUMENT_CACHE_KEY)throw new DOMException("Quota exceeded","QuotaExceededError");originalWrite.call(this,key,value);};
       await click("Save document");
-      check(Boolean(document.querySelector(".document-modified-label"))&&document.querySelector('.recovery-notice[role="alert"]')?.textContent?.includes("Quota"),"A failed save keeps the Modified state and displays the storage failure");
+      check(document.querySelector('.document-title')?.getAttribute('title')?.includes('Local recovery failed')&&document.querySelector('.recovery-notice[role="alert"]')?.textContent?.includes("Quota"),"A failed local save displays its storage failure without claiming file-save completion");
       check(localStorage.getItem(DOCUMENT_CACHE_KEY)===savedSolid,"A storage failure preserves the last readable checkpoint");
     }finally{Storage.prototype.setItem=originalWrite;}
     await click("Save document");

@@ -15,7 +15,7 @@ export function registerImageCommandHandlers(bus: CommandBus, document: CadDocum
     const prior = document.rasterAssets?.[command.asset.id];
     if (prior && (prior.contentHash !== command.asset.contentHash || prior.mimeType !== command.asset.mimeType || prior.width !== command.asset.width || prior.height !== command.asset.height || prior.byteLength !== command.asset.byteLength || prior.dataUrl !== command.asset.dataUrl)) return { accepted: false, reason: "An asset with this content identity has conflicting source data." };
     if (oldId === command.asset.id) return { accepted: false, reason: "This is already the current source. Choose a different image." };
-    const keepOld = Object.values(document.features).some(entry => entry !== feature && entry.type === "image" && entry.params.assetId === oldId);
+    const keepOld = Object.values(document.componentLibrary??{}).some(d=>d.type==="image"&&d.params.assetId===oldId)||Object.values(document.features).some(entry => entry !== feature && entry.type === "image" && entry.params.assetId === oldId);
     const retained = Object.values(document.rasterAssets ?? {}).reduce((sum, asset) => sum + asset.byteLength, 0);
     if (retained - (keepOld ? 0 : old.byteLength) + (prior ? 0 : command.asset.byteLength) > MAX_DOCUMENT_RASTER_BYTES) return { accepted: false, reason: "The document image limit is 3 MiB. Use a smaller replacement or remove other image placements." };
     document.rasterAssets![command.asset.id] = prior ?? structuredClone(command.asset);
@@ -63,3 +63,4 @@ export function registerImageCommandHandlers(bus: CommandBus, document: CadDocum
     document.revision++;
   });
 }
+

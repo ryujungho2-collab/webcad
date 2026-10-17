@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "checks": 19,
+  "message": "PASS Polynomial B-spline native Review remains detached\nPASS C1 polynomial source commits one Undo with exact knot data\nPASS C1 Undo removes source and topology\nPASS Rational curve reports known quarter-circle length\nPASS NURBS reaches actual Three.js scene\nPASS NURBS weight Review remains detached\nPASS Rational edit preserves pole and curve topology\nPASS NURBS edit Undo restores exact rational source\nPASS DXF uses editable SPLINE with exact degree/knots/weights\nPASS Native DXF import retains rational spline source\nPASS Actual Worker creates native finite spline section and HLR\nPASS Native spline section reaches actual viewport\nPASS Live section note uses exact finite-domain endpoint\nPASS SVG preserves paper tolerance and Korean labels\nPASS PDF review explicitly reports spline approximation and raster loss\nPASS Actual Worker PDF contains one spline drawing page\nPASS Spline and owned outputs select schema39\nPASS Actual reload preserves schema39 poles/knots/weights/domains, native spline views and Korean notes\nPASS Reload starts fresh history\nALL 19 CHECKS PASSED",
+  "artifacts": [
+    "spline.pdf",
+    "spline.svg",
+    "spline.dxf",
+    "spline.webcad.json"
+  ]
+}

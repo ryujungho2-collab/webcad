@@ -1,0 +1,47 @@
+✔ clipping Review/Apply changes only saved display state and respects both half spaces (2880.9922ms)
+✔ mechanical diameter20→25 length80→100 regenerates section, live note, sheet and preserves Undo/source IDs (115.5498ms)
+✔ exact cropped circle produces arcs; line finite domains and source units remain analytic (2.2504ms)
+✔ plane misses and ellipse/spline sections reject atomically, without sampled replacement (21.9829ms)
+✔ topology loss marks associated note unresolved until explicit source rebind (14.104ms)
+✔ section output ownership and locked layers protect source regeneration; unrelated rename still works (6.1644ms)
+✔ sheet scale/placement is owned, locked board and stale Review reject atomically (6.9166ms)
+✔ DXF sheet crossing paper bounds rejects rather than silently cropping exact curves (1.5585ms)
+✔ v25 rejects downgrade, corrupted output mapping and sheet refs; sheet deletion preserves model/views (3.0989ms)
+✔ architectural Boolean wall/window section is real BRep; opening width/height edit and rebind roundtrip (1675.3941ms)
+✔ overlapping model sheets isolate owned output in the generic artboard pipeline (2.8616ms)
+✔ associated model dimensions hide on source loss, preserve attachment, and explicitly rebind (3.2193ms)
+✔ automatic scale selection is deterministic, detached, non-overlapping and saved with stable view IDs (2923.954ms)
+✔ live and snapshot leaders move with groups while model dimensions and paper glyph heights remain unchanged (25.8807ms)
+✔ fixed groups retain placement and common scale while remaining groups pack around their full envelope (5.4962ms)
+✔ all candidate overflows and fixed out-of-bounds reject atomically with actionable diagnostics (5.2121ms)
+✔ Cancel, stale Review, locked board and locked annotation reject without partial layout (14.9539ms)
+✔ paper rotation presets and nonzero origin work; heuristic packing respects fixed obstacles (3.3708ms)
+✔ raw model-part notes require explicit derived-view ownership; invalid candidate inputs reject (4.0931ms)
+✔ associated chain annotations are reconciled before packing and the footer title stays inside margin (5.6711ms)
+✔ a large dimension offset participates in overflow instead of being silently clipped (5.7247ms)
+✔ three oversized view groups become three framed pages in one detached Apply/Undo and exact ordered output (3003.5525ms)
+✔ fewer pages wins among candidate scales and retains view/annotation model values (24.0894ms)
+✔ repartition shrinks pages atomically while stable source/output and retained frame identities survive (16.6049ms)
+✔ orthographic front/top/right remain on one page with common X/Z alignment (16.3238ms)
+✔ duplicate alignment bases and page limits reject instead of splitting view bundles (6.0131ms)
+✔ fixed groups keep their saved page and absolute placement; mixed aligned pins reject (16.2067ms)
+✔ locked pages, stale Review and Cancel protect the entire set; direct frame/page surgery rejects (34.2073ms)
+✔ v26 downgrade, frame corruption and duplicate page indices reject (13.152ms)
+✔ deleting the set removes boards/frame annotations and preserves source views/models (10.8413ms)
+✔ owned views cannot be stolen by another set and long frame fields reject before mutation (21.144ms)
+✔ repeated frame edits retain topology through save/load and expanding pages retains source identities (13.4565ms)
+✔ generated page identities cannot replace an unrelated sheet (6.6176ms)
+✔ presentation commands do not recalculate source sections; changed geometry still regenerates (3823.1703ms)
+✔ anchored opening edit preserves section IDs, dimensions, annotations, sheet and Undo; layout keeps correspondence (290.7404ms)
+✔ graph correspondence rejects disconnected moving, reversed and ambiguous branches (0.3669ms)
+✔ an affected view reuses unchanged part curves instead of querying their kernel cache (311.3961ms)
+✔ exact HLR classifies front/back parts and suppresses no source geometry (17.8642ms)
+✔ Boolean opening HLR Review/Apply, hidden style, sheets, schema33 and stale/locked edits remain atomic (273.6881ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5944.5409

@@ -1,0 +1,27 @@
+✔ conic seams merge only continuous same-source same-visibility domains; gaps and nearby loci remain separate (1.0978ms)
+✔ canonical ellipse axes preserve reflected finite domains and full curves ignore parameter seam phase (0.3212ms)
+✔ actual tilted-cylinder HLR preserves elliptical cap axes, hidden domain and silhouettes without an interior seam (2516.0929ms)
+✔ edge-on conic reconstructs four exact line boundaries only with a proven collinear degree-one control polygon (53.5833ms)
+✔ assembly occlusion keeps separated visible elliptic arcs and does not merge across the hidden strip (10.3603ms)
+✔ HLR ellipse Review/Undo, read-only ownership, exact sheet output and schema36 persist fixed edge policy (30.1699ms)
+✔ rotating a periodic cylinder about its own axis preserves seam-free circle outputs and references (12.7642ms)
+✔ stale/locked conic edits reject atomically; source loss hides outputs and invalidates the live note (11.1175ms)
+✔ oblique torus unsupported spline rejects the complete HLR result without a sampled replacement (51.9002ms)
+✔ stable part registration/placement Review and one Undo preserve solid identity and exact measurements (2631.7051ms)
+✔ exploded display is persisted, normalized and exactly reversible; STEP and measurements ignore offsets (11.8516ms)
+✔ part references survive source deletion and require explicit rebind; referenced part removal rejects (16.0744ms)
+✔ XY exact box/cylinder silhouettes follow assembled placement and sheet scale (15.9096ms)
+✔ XZ exact box/cylinder silhouettes follow assembled placement and sheet scale (4.1984ms)
+✔ YZ exact box/cylinder silhouettes follow assembled placement and sheet scale (4.0357ms)
+✔ dimension edits regenerate existing projection output IDs/topology, artboard SVG and DXF (12.386ms)
+✔ changed source edge correspondence freezes and hides stale output until explicit rebind (13.9766ms)
+✔ conic fallback, output ownership, locks and stale Review are atomic (81.4264ms)
+✔ v24 guards malformed payloads and older files; no duplicate part/source or dangling view references (3.2686ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3797.9638

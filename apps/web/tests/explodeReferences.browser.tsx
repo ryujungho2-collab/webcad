@@ -1,0 +1,40 @@
+import {createRoot} from "react-dom/client";
+import {App} from "../src/App";
+import "../src/styles.css";import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+import {cadDocument} from "../src/state/cadDocument";
+import {cadHistory} from "../src/state/history";
+import {dispatchCadCommand} from "../src/state/dispatchCadCommand";
+import {saveDocumentToCache} from "../src/state/documentFile";
+import {isDocumentCommandPending} from "../src/state/documentCommandQueue";
+import {newScene} from "../src/state/sceneCommands";
+import {contourReferenceRequirements} from "../src/features/drawing-editing/commands/contourReferences";
+import {exactDrawingContour} from "../src/features/drawing-editing/geometry/contourEditing";
+import {serializeDocument,deserializeDocument} from "@agent-webcad/cad-document";
+import {resetTestDocument} from "./helpers/documentHarness";
+import {installBrowserChecks} from "./helpers/browserChecks";
+import {click,physical,choose,input,waitFor,pause,find} from "./helpers/physicalInput";
+resetTestDocument();
+async function apply(c:Parameters<typeof dispatchCadCommand>[0]){const r=await dispatchCadCommand(c);if(!r.ok)throw new Error(r.reason);}
+const feature=(id:string)=>Object.values(cadDocument.features).find(f=>f.output===id)!,topology=(id:string)=>feature(id).params.topology as any;
+await apply({type:"create-drawing",id:"source",drawing:"polyline",params:{workPlane:"XY",points:[[0,0,0],[80,0,0],[100,20,0],[100,60,0],[0,60,0]],bulges:[0,Math.tan(Math.PI/8),0,0,0],closed:true}});
+await apply({type:"create-dimension",id:"D",dimension:"linear",params:{workPlane:"XY",points:[[0,0],[80,0]],sourceObjectId:"source",sourceSegmentId:topology("source").segments[0].id,offset:10}});
+await apply({type:"create-dimension",id:"R",dimension:"radius",params:{workPlane:"XY",center:[80,20],radius:20,sourceObjectId:"source",sourceSegmentId:topology("source").segments[1].id,offset:10}});
+await apply({type:"create-construction",id:"M",workPlane:"XY",definition:{operation:"midpoint",segmentId:"source",elements:{segment:{topologyId:topology("source").segments[0].id}}}});
+await apply({type:"create-extrude",id:"E",profileObjectIds:["source"],distance:10});
+await apply({type:"create-artboard",id:"board",workPlane:"XY",origin:[-50,-50],size:[300,200]});const scene=newScene("board",["source"]);scene.id="S";scene.tracks=[{objectId:"source",startMs:0,endMs:1000,from:[0,0,1],to:[10,20,.5],easing:"linear"}];await apply({type:"upsert-scene",scene});
+saveDocumentToCache();createRoot(document.getElementById("root")!).render(<App/>);
+const editor=()=>document.querySelector<HTMLFormElement>('[aria-label="Contour editor"]'),canvas=()=>document.querySelector<HTMLCanvasElement>("#root canvas")!;
+const state=()=>{const {revision:_,...d}=cadDocument;return JSON.stringify(d);},past=()=>cadHistory.getPastLabels().length;
+const ready=()=>waitFor(()=>!!editor()&&!find("Apply contour edit").disabled);
+async function explodeRoutes(){for(const [id,result,portion] of [["D",1,2],["R",2,1],["M",1,1]] as const){await choose(`Reference result ${id} source`,result);await choose(`Reference portion ${id} source`,portion);}await choose("Reference result E source",6);await choose("Reference result scene-reference:S source",6);await ready();}
+async function keys(value:string){for(const key of value)await input({type:"key",key});await pause();}
+const button=document.getElementById("run-explode") as HTMLButtonElement,output=document.getElementById("explode-result")!;
+button.onclick=async()=>{button.disabled=true;button.style.pointerEvents="none";const lines:string[]=[],check=(ok:unknown,label:string)=>{if(!ok)throw new Error(label);lines.push(`PASS: ${label}`);};try{
+ await waitFor(()=>!!canvas());await click("2D");await physical(document.querySelector('[data-model-object-id="source"]')!);await physical(document.getElementById("tools-tab-modify")!);await click("Explode");const before=state(),h=past();await waitFor(()=>document.querySelectorAll('[data-contour-result]').length===5);
+ check(find("Apply contour edit").disabled&&state()===before&&past()===h,"Five numbered exact pieces appear while unresolved references block Apply");await explodeRoutes();check(editor()!.textContent!.includes("80.00 mm → 80.00 mm")&&editor()!.textContent!.includes("20.00 mm → 20.00 mm"),"Linear and radius dimensions keep their reviewed measurements");check(document.querySelectorAll('[data-break-reference]').length===3,"Chosen line, arc and span references are highlighted");await click("Cancel contour edit");await waitFor(()=>!editor());check(state()===before&&past()===h,"Cancel leaves profile, scene, relationships and history intact");
+ await click("Explode");await explodeRoutes();await click("Apply contour edit");await waitFor(()=>!editor()&&!isDocumentCommandPending());const ids=feature("E").inputs,exploded=state();check(ids.length===5&&!cadDocument.objects.source,"Explode keeps all five live extrusion input curves");check(exactDrawingContour(cadDocument.objects[ids[1]],feature(ids[1])).segments[0].radius===20,"Arc curvature stays analytic after Explode");check(cadDocument.scenes!.S.objectIds.length===5&&cadDocument.scenes!.S.tracks.length===5,"Scene artwork and motion tracks expand to all reviewed pieces");check(past()===h+1,"Explode and all reference remaps share one Undo entry");await click("Undo");check(state()===before,"Explode Undo restores original IDs, scene and solid inputs");await click("Redo");check(state()===exploded,"Explode Redo restores exact reviewed piece identities");
+ await click("Move by points");canvas().focus();await keys("0,0");await input({type:"key",key:"Enter"});await keys("1cm,2cm");await input({type:"key",key:"Enter"});await waitFor(()=>!document.querySelector('[data-point-mode]')&&!isDocumentCommandPending());const moved=state();check(JSON.stringify(feature("M").params.points)==="[[50,20,0]]","Moving the exploded selection regenerates the midpoint on the translated line");check(feature("E").inputs.length===5&&feature("E").dependencyMode==="live","Group editing preserves the closed profile and live extrusion");
+ await click("Join");const refs=contourReferenceRequirements(cadDocument,ids);for(const r of refs){const slot="referenceSlot" in r&&r.referenceSlot?` ${r.referenceSlot}`:"";await choose(`Reference result ${r.dependentId} ${r.sourceId}${slot}`,1);if(r.kind==="dimension"||r.kind==="construction")await choose(`Reference portion ${r.dependentId} ${r.sourceId}${slot}`,1);}await ready();check(state()===moved,"Join reference review remains detached from the edited pieces");canvas().focus();await input({type:"key",key:"Enter"});await waitFor(()=>!editor()&&!isDocumentCommandPending());const joined=String(feature("D").params.sourceObjectId),after=state();check(feature("E").inputs.length===1&&feature("E").inputs[0]===joined&&exactDrawingContour(cadDocument.objects[joined],feature(joined)).closed,"Join restores one exact closed solid profile input");check(cadDocument.scenes!.S.objectIds.length===1&&cadDocument.scenes!.S.tracks.length===1&&cadDocument.scenes!.S.objectIds[0]===joined,"Join restores one Scene member and its unchanged motion track");check(feature("R").params.radius===20&&JSON.stringify(feature("M").params.points)==="[[50,20,0]]","Rejoined geometry keeps live radius and construction relationships");await click("Undo");check(state()===moved,"Join Undo restores all edited pieces and expanded relationships");await click("Redo");check(state()===after,"Join Redo restores reviewed joined IDs and dependencies");check(JSON.stringify(deserializeDocument(serializeDocument(cadDocument)))===JSON.stringify(cadDocument),"Final exact geometry, solid inputs and Scene behaviors survive native serialization");
+ output.textContent=lines.join("\n")+`\nALL ${lines.length} CHECKS PASSED`;
+}catch(e){output.textContent=lines.join("\n")+`\nFAIL: ${e instanceof Error?e.message:String(e)}`;}finally{button.disabled=false;button.style.pointerEvents="";}};
+installBrowserChecks(button,output);

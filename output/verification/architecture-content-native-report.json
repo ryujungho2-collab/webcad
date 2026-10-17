@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "checks": 16,
+  "message": "PASS Library capture is detached and reviews definition changes\nPASS Definition capture is one Undo\nPASS Opening insertion ghost renders without committing geometry\nPASS Canceled content insertion preserves wall and document\nPASS Actual Worker fills opening with padding and exact solid volume\nPASS New content belongs to a dedicated architectural work layer\nPASS Insufficient slot space blocks Apply\nPASS Instance slot edit recomputes fitted content\nPASS Viewport receives actual 3D glass material, not a vector color\nPASS Detach preserves a standalone solid\nPASS Detach Undo restores host and definition relationship\nPASS Floor keeps exact courtyard hole and downward thickness\nPASS Created floor renders in the real viewport\nPASS Ceiling uses explicit bottom level and upward thickness\nPASS Portable v42 reopen preserves definitions, slots, finishes and both surfaces\nPASS Copilot shares the same content/surface workflow\nALL 16 CHECKS PASSED",
+  "artifacts": [
+    "fitout.webcad.json"
+  ]
+}

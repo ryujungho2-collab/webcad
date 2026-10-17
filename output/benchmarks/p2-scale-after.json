@@ -1,0 +1,257 @@
+{
+  "fixture": "spaced boxes; not architectural complexity",
+  "records": [
+    {
+      "count": 10,
+      "run": 1,
+      "kind": "first source build (module may be warm)",
+      "ms": 2383.3644,
+      "edges": 80,
+      "retained": {
+        "hits": 0,
+        "builds": 10,
+        "evictions": 0,
+        "entries": 10,
+        "limit": 128
+      }
+    },
+    {
+      "count": 10,
+      "run": 2,
+      "kind": "warmed raw HLR",
+      "ms": 28.71279999999979,
+      "edges": 80,
+      "retained": {
+        "hits": 10,
+        "builds": 10,
+        "evictions": 0,
+        "entries": 10,
+        "limit": 128
+      }
+    },
+    {
+      "count": 10,
+      "run": 3,
+      "kind": "warmed raw HLR",
+      "ms": 24.742699999999786,
+      "edges": 80,
+      "retained": {
+        "hits": 20,
+        "builds": 10,
+        "evictions": 0,
+        "entries": 10,
+        "limit": 128
+      }
+    },
+    {
+      "count": 10,
+      "run": 4,
+      "kind": "warmed raw HLR",
+      "ms": 24.073199999999815,
+      "edges": 80,
+      "retained": {
+        "hits": 30,
+        "builds": 10,
+        "evictions": 0,
+        "entries": 10,
+        "limit": 128
+      }
+    },
+    {
+      "count": 10,
+      "run": 5,
+      "kind": "warmed raw HLR",
+      "ms": 23.94979999999987,
+      "edges": 80,
+      "retained": {
+        "hits": 40,
+        "builds": 10,
+        "evictions": 0,
+        "entries": 10,
+        "limit": 128
+      }
+    },
+    {
+      "count": 10,
+      "run": 6,
+      "kind": "warmed raw HLR",
+      "ms": 20.982200000000375,
+      "edges": 80,
+      "retained": {
+        "hits": 50,
+        "builds": 10,
+        "evictions": 0,
+        "entries": 10,
+        "limit": 128
+      }
+    },
+    {
+      "count": 50,
+      "run": 1,
+      "kind": "first source build (module may be warm)",
+      "ms": 161.51140000000032,
+      "edges": 400,
+      "retained": {
+        "hits": 0,
+        "builds": 50,
+        "evictions": 0,
+        "entries": 50,
+        "limit": 128
+      }
+    },
+    {
+      "count": 50,
+      "run": 2,
+      "kind": "warmed raw HLR",
+      "ms": 125.94340000000011,
+      "edges": 400,
+      "retained": {
+        "hits": 50,
+        "builds": 50,
+        "evictions": 0,
+        "entries": 50,
+        "limit": 128
+      }
+    },
+    {
+      "count": 50,
+      "run": 3,
+      "kind": "warmed raw HLR",
+      "ms": 131.86419999999998,
+      "edges": 400,
+      "retained": {
+        "hits": 100,
+        "builds": 50,
+        "evictions": 0,
+        "entries": 50,
+        "limit": 128
+      }
+    },
+    {
+      "count": 50,
+      "run": 4,
+      "kind": "warmed raw HLR",
+      "ms": 126.67380000000048,
+      "edges": 400,
+      "retained": {
+        "hits": 150,
+        "builds": 50,
+        "evictions": 0,
+        "entries": 50,
+        "limit": 128
+      }
+    },
+    {
+      "count": 50,
+      "run": 5,
+      "kind": "warmed raw HLR",
+      "ms": 114.09729999999945,
+      "edges": 400,
+      "retained": {
+        "hits": 200,
+        "builds": 50,
+        "evictions": 0,
+        "entries": 50,
+        "limit": 128
+      }
+    },
+    {
+      "count": 50,
+      "run": 6,
+      "kind": "warmed raw HLR",
+      "ms": 140.15120000000024,
+      "edges": 400,
+      "retained": {
+        "hits": 250,
+        "builds": 50,
+        "evictions": 0,
+        "entries": 50,
+        "limit": 128
+      }
+    },
+    {
+      "count": 100,
+      "run": 1,
+      "kind": "first source build (module may be warm)",
+      "ms": 306.1829000000007,
+      "edges": 800,
+      "retained": {
+        "hits": 0,
+        "builds": 100,
+        "evictions": 0,
+        "entries": 100,
+        "limit": 128
+      }
+    },
+    {
+      "count": 100,
+      "run": 2,
+      "kind": "warmed raw HLR",
+      "ms": 295.4246000000003,
+      "edges": 800,
+      "retained": {
+        "hits": 100,
+        "builds": 100,
+        "evictions": 0,
+        "entries": 100,
+        "limit": 128
+      }
+    },
+    {
+      "count": 100,
+      "run": 3,
+      "kind": "warmed raw HLR",
+      "ms": 302.84850000000006,
+      "edges": 800,
+      "retained": {
+        "hits": 200,
+        "builds": 100,
+        "evictions": 0,
+        "entries": 100,
+        "limit": 128
+      }
+    },
+    {
+      "count": 100,
+      "run": 4,
+      "kind": "warmed raw HLR",
+      "ms": 315.3026,
+      "edges": 800,
+      "retained": {
+        "hits": 300,
+        "builds": 100,
+        "evictions": 0,
+        "entries": 100,
+        "limit": 128
+      }
+    },
+    {
+      "count": 100,
+      "run": 5,
+      "kind": "warmed raw HLR",
+      "ms": 280.40400000000045,
+      "edges": 800,
+      "retained": {
+        "hits": 400,
+        "builds": 100,
+        "evictions": 0,
+        "entries": 100,
+        "limit": 128
+      }
+    },
+    {
+      "count": 100,
+      "run": 6,
+      "kind": "warmed raw HLR",
+      "ms": 318.4517999999998,
+      "edges": 800,
+      "retained": {
+        "hits": 500,
+        "builds": 100,
+        "evictions": 0,
+        "entries": 100,
+        "limit": 128
+      }
+    }
+  ]
+}

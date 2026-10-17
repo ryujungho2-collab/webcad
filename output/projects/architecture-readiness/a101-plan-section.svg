@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -297 420 297" stroke="black" stroke-width="0.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<defs><clipPath id="artboard-crop"><rect x="0" y="-297" width="420" height="297" /></clipPath></defs>
+<g clip-path="url(#artboard-crop)">
+<rect x="0" y="-297" width="420" height="297" fill="#ffffff" stroke="none" />
+<text x="5" y="-5" font-family="system-ui, sans-serif" font-size="3.5" fill="#4f8cff" stroke="none">48m2 feasibility · plan + section · 1:50</text>
+<polyline points="20,-170 20,-50" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="20,-50 40,-50" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="20,-170 84,-170" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="24,-166 24,-54" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="24,-54 40,-54" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="24,-166 84,-166" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="40,-54 40,-50" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="64,-54 64,-50" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="64,-54 176,-54" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="64,-50 180,-50" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="84,-170 84,-166" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="120,-170 120,-166" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="120,-166 176,-166" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="120,-170 180,-170" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="176,-166 176,-54" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="180,-170 180,-50" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="100,-74 100,-54" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="100,-74 103,-74" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="100,-166 100,-92" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="100,-92 103,-92" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="100,-54 103,-54" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="100,-166 103,-166" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="103,-74 103,-54" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="103,-166 103,-92" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="220,-50 220,-110" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="224,-50 220,-50" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="224,-110 220,-110" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="224,-50 224,-110" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="376,-50 376,-110" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="380,-50 376,-50" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="380,-110 376,-110" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="380,-50 380,-110" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="300,-50 300,-110" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="303,-50 300,-50" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="303,-110 300,-110" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="303,-50 303,-110" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="220,-47 220,-50" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="380,-47 220,-47" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="380,-50 220,-50" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="380,-47 380,-50" stroke="#4f8cff" stroke-width="0.25" />
+</g>
+</svg>

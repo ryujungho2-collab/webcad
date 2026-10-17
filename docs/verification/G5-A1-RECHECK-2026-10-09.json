@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-09",
+  "status": "scope-passed-integrated-tests-failed",
+  "scope": "G5-A1 gateway response validation, UTF-8 decoding, cancellation, timeout and late-response cleanup",
+  "fixes": [
+    "Require exact application/json media type, with case-insensitive comparison and parameter support",
+    "Reject invalid UTF-8 instead of accepting replacement characters in a proposed plan",
+    "Restore bindingRequirements lookup for a temporarily undefined bindings reference in shared contour code"
+  ],
+  "targetNode": { "passed": 24, "failed": 0, "connectionTests": 10, "newRegressionTests": 2, "log": "output-g5-a1-recheck-target.log" },
+  "browser": { "passed": true, "workflows": 1, "checks": 13, "workflow": "copilotGateway", "transport": "mock", "ui": "real React/Worker with native CDP pointer", "log": "output-g5-a1-recheck-browser.log" },
+  "integratedNode": {
+    "tests": 751, "passed": 749, "failed": 2, "suites": 54, "skipped": 0,
+    "log": "output-g5-a1-recheck-node.log",
+    "failures": ["chainReconnection.test.ts: F3 rejection message expectation", "hatchReconnection.test.ts: F3 rejection message expectation"],
+    "note": "Concurrent F3 binding implementation changes the rejection message from driven by an expression to Reconnect every dependent reference. These two tests still reject atomically but their old message expectations fail. No unrelated test expectation was weakened."
+  },
+  "build": { "passed": true, "typecheck": "passed", "mainRawKB": 1092.21, "mainGzipKB": 329.54, "viewportRawKB": 649.18, "viewportGzipKB": 175.97, "log": "output-g5-a1-recheck-build.log" },
+  "architecture": { "passed": true, "modules": 356, "log": "output-g5-a1-recheck-architecture.log" },
+  "serialization": "v14 unchanged",
+  "remaining": ["Real LLM provider/server/authentication integration remains unverified", "Natural-language Move parser, multiple targets and additional edit capabilities remain G5-B2 follow-ups", "Full browser suite was not rerun"]
+}

@@ -1,8 +1,10 @@
+import { sketchCircularGeometry } from "@agent-webcad/cad-document";
 import type { Sketch, SketchConstraint, SketchPoint } from "@agent-webcad/cad-document";
 import { constraintGeometryIds, geometryPointIds } from "./sketchEditing";
 import { sketchPoint } from "./sketchSolver";
 import { formatLength, parseAngle, parseLength } from "./units";
 import { sketchSegment, sketchAngleEdge } from "./sketchRelations";
+import { curveCurveContact, lineArcContact } from "./sketchArcRelations";
 
 export type SketchAnnotation = {
   constraintId: string; dimensionId?: string; geometryIds: string[];
@@ -19,11 +21,20 @@ export function sketchDimensionName(sketch: Sketch, constraint: SketchConstraint
       if ([[0, 3], [1, 2]].some((pair) => pair.includes(a) && pair.includes(b) && a !== b)) return "Height";
     }
   }
-  const names: Partial<Record<SketchConstraint["kind"],string>> = { parallel:"Parallel", perpendicular:"Perpendicular", "equal-length":"Equal length", "equal-radius":"Equal radius", concentric:"Concentric", "tangent-line":"Tangent", "tangent-circles":constraint.kind === "tangent-circles" && constraint.contact === "internal" ? "Internal tangent" : "External tangent", "point-on-line":"Point on line", "point-on-circle":"Point on circle", symmetric:"Symmetric" };
+  const names: Partial<Record<SketchConstraint["kind"],string>> = { parallel:"Parallel", perpendicular:"Perpendicular", "equal-length":"Equal length", "equal-radius":"Equal radius", concentric:"Concentric", "tangent-line":"Tangent", "tangent-circles":constraint.kind === "tangent-circles" && constraint.contact === "internal" ? "Internal tangent" : "External tangent", "point-on-line":"Point on line", "point-on-circle":"Point on circle", "point-on-arc":"Point on arc", symmetric:"Symmetric" };
   return names[constraint.kind] ?? (constraint.kind === "distance" ? "Distance" : constraint.kind === "radius" ? "Radius" : constraint.kind === "diameter" ? "Diameter" : constraint.kind === "angle" ? "Angle" : constraint.kind.replaceAll("-", " "));
 }
 
 export function parseSketchDimension(constraint: SketchConstraint, text: string): number | null {
+  // An explicit R/Ø prefix changes the input convention, not the driver kind.
+  const prefix=text.trim().match(/^(ø|Ø|⌀|r)\s*(.*)$/i);
+  if(prefix){
+    if(constraint.kind!=="radius"&&constraint.kind!=="diameter")return null;
+    const raw=parseLength(prefix[2]);if(raw===null||raw<=1e-6)return null;
+    const diameter=prefix[1].toLowerCase()!=="r";
+    const value=raw*(constraint.kind==="radius"&&diameter?.5:constraint.kind==="diameter"&&!diameter?2:1);
+    return value>1e-6?value:null;
+  }
   const parsed = constraint.kind === "angle" ? parseAngle(text) : parseLength(text);
   if (parsed === null) return null;
   const value = constraint.kind === "angle" ? parsed * Math.PI / 180 : parsed;
@@ -41,7 +52,7 @@ export function sketchAnnotations(sketch: Sketch): SketchAnnotation[] {
     const geometryIds = [...new Set(constraintGeometryIds(constraint))];
     if (geometryIds.some((id) => !sketch.geometry.some((entry) => entry.id === id))) return [];
     let points: SketchPoint[] = [];
-    let text = ({ coincident: "●", horizontal: "H", vertical: "V", "fixed-point": "⚓", parallel:"∥", perpendicular:"⊥", "equal-length":"=", "equal-radius":"R =", concentric:"◎", "tangent-line":"T", "tangent-circles":"T", "point-on-line":"●∈L", "point-on-circle":"●∈○", symmetric:"↔" } as Record<string, string>)[constraint.kind] ?? "";
+    let text = ({ coincident: "●", horizontal: "H", vertical: "V", "fixed-point": "⚓", parallel:"∥", perpendicular:"⊥", "equal-length":"=", "equal-radius":"R =", concentric:"◎", "tangent-line":"T", "tangent-circles":"T", "point-on-line":"●∈L", "point-on-circle":"●∈○", "point-on-arc":"●∈⌒", symmetric:"↔" } as Record<string, string>)[constraint.kind] ?? "";
     const value = "value" in constraint && typeof constraint.value === "number" ? constraint.value : undefined;
     if ("first" in constraint) {
       const a = point(constraint.first), b = point(constraint.second);
@@ -50,8 +61,8 @@ export function sketchAnnotations(sketch: Sketch): SketchAnnotation[] {
     } else if (constraint.kind === "fixed-point") {
       const p = point(constraint.point); if (!p) return []; points = [p];
     } else if (constraint.kind === "radius" || constraint.kind === "diameter") {
-      const entity = sketch.geometry.find((entry) => entry.id === constraint.geometryId);
-      if (!entity || !(entity.kind === "circle" || entity.kind === "arc")) return [];
+      const entity = sketchCircularGeometry(sketch.geometry.find((entry) => entry.id === constraint.geometryId), constraint.segmentId);
+      if (!entity) return [];
       const angle = entity.kind === "arc" ? (entity.startAngle + entity.endAngle) / 2 : Math.PI / 4;
       const rim: SketchPoint = [entity.center[0] + entity.radius * Math.cos(angle), entity.center[1] + entity.radius * Math.sin(angle)];
       points = constraint.kind === "radius" ? [entity.center, rim] : [[2 * entity.center[0] - rim[0], 2 * entity.center[1] - rim[1]], rim];
@@ -63,11 +74,16 @@ export function sketchAnnotations(sketch: Sketch): SketchAnnotation[] {
       const a = sketchSegment(sketch.geometry.find(g=>g.id===constraint.firstSegment.geometryId),constraint.firstSegment), b = sketchSegment(sketch.geometry.find(g=>g.id===constraint.secondSegment.geometryId),constraint.secondSegment);
       if(a&&b)points=[...a,...b];
     } else if ("firstCurveId" in constraint) {
-      points = [constraint.firstCurveId,constraint.secondCurveId].flatMap(id=>{const g=sketch.geometry.find(g=>g.id===id);return g&&(g.kind==="circle"||g.kind==="arc")?[g.center]:[];});
+      const first=sketchCircularGeometry(sketch.geometry.find(g=>g.id===constraint.firstCurveId),constraint.firstCurveSegmentId), second=sketchCircularGeometry(sketch.geometry.find(g=>g.id===constraint.secondCurveId),constraint.secondCurveSegmentId);
+      points = [first,second].flatMap(g=>g?[g.center]:[]);
+      if(constraint.kind==="tangent-circles"){
+        if(first&&(first.kind==="circle"||first.kind==="arc")&&second&&(second.kind==="circle"||second.kind==="arc")){const contact=curveCurveContact(first,second,constraint.contact);if(contact)points.push(contact.point);}
+      }
     } else if (constraint.kind === "tangent-line") {
-      const g=sketch.geometry.find(g=>g.id===constraint.curveId),line=sketchSegment(sketch.geometry.find(g=>g.id===constraint.line.geometryId),constraint.line);
+      const g=sketchCircularGeometry(sketch.geometry.find(g=>g.id===constraint.curveId),constraint.curveSegmentId),line=sketchSegment(sketch.geometry.find(g=>g.id===constraint.line.geometryId),constraint.line);
       if(g?.kind==="circle"&&line)points=[g.center,...line];
-    } else if (constraint.kind === "point-on-line" || constraint.kind === "point-on-circle") {
+      if(g?.kind==="arc"&&line){const contact=lineArcContact(line,g,constraint.side);if(contact)points=[contact.point,g.center,...line];}
+    } else if (constraint.kind === "point-on-line" || constraint.kind === "point-on-circle" || constraint.kind === "point-on-arc") {
       const p=point(constraint.point);if(p)points=[p];
     }
     if (!points.length) return [];
@@ -90,6 +106,17 @@ export function sketchEntityPath(entity: Sketch["geometry"][number]): SketchPoin
       const angle = start + (end - start) * index / 64;
       return [entity.center[0] + entity.radius * Math.cos(angle), entity.center[1] + entity.radius * Math.sin(angle)];
     });
+  }
+  if (entity.kind === "polyline" && entity.bulges?.some(Boolean)) {
+    const points: SketchPoint[] = [];
+    entity.segmentIds.forEach((id,i) => {
+      const arc = sketchCircularGeometry(entity,id);
+      if (arc?.kind === "arc") {
+        for(let n=0;n<32;n++){const a=arc.startAngle+(arc.endAngle-arc.startAngle)*n/32;points.push([arc.center[0]+arc.radius*Math.cos(a),arc.center[1]+arc.radius*Math.sin(a)]);}
+      } else points.push(entity.vertices[i].point);
+    });
+    points.push(entity.closed ? entity.vertices[0].point : entity.vertices.at(-1)!.point);
+    return points;
   }
   const points = geometryPointIds(entity).map((id) => sketchPoint(entity, id)!).filter(Boolean);
   return entity.kind === "rectangle" || entity.kind === "polyline" && entity.closed ? [...points, points[0]] : points;

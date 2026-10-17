@@ -1,4 +1,4 @@
-import { constructionInputs, type CadDocument, type CadFeature, type CadObject, type CadPatternInstance } from "@agent-webcad/cad-document";
+import { constructionInputs, type CadDocument, type CadFeature, type CadObject, type CadPatternInstance, type CadParameterBinding, parameterTargets, parameterTargetKey } from "@agent-webcad/cad-document";
 import type { ContourReferenceRoute } from "@agent-webcad/cad-commands";
 import type { DrawingTopology } from "../../../precision/drawingTopology";
 import { dimensionSourceGeometry } from "../../../precision/dimensionSource";
@@ -7,15 +7,20 @@ import type { AngularDimensionDefinition } from "@agent-webcad/cad-document";
 import { resolveDimension } from "../../../precision/dimensionGeometry";
 import { WORK_PLANES, worldToPlane } from "../../../precision/workPlane";
 import { buildPatternDrawingParams } from "../../../precision/patternGeometry";
+import { extractSketchLoops } from "../../../precision/sketchProfiles";
+import { hatchLines, validDraftingParams } from "../../../precision/draftingGeometry";
+import { getWorldDrawingGeometry } from "../../../precision/worldGeometry";
 import { prepareSketchContourReplacement, sketchContourRequirements, type SketchContourRequirement } from "./sketchContourReferences";
+
+import { sceneContourRequirements, reconnectContourScenes, type SceneContourRequirement } from "./contourSceneReferences";
 
 type PatternOrigin = { rootSourceId: string; rootDependentId: string; patternPath: CadPatternInstance[] };
 export type ContourReferenceRequirement = {
   dependentId: string; sourceId: string; name: string; referenceSlot?: "first" | "second";
-  kind: "dimension" | "profile" | "construction" | "pattern" | "unsupported";
-  dimensionKind?: string; elementKind?: "point" | "segment" | "intersection";
+  kind: "dimension" | "profile" | "construction" | "pattern" | "hatch" | "chain" | "binding" | "unsupported";
+  dimensionKind?: string; elementKind?: "point" | "segment" | "intersection"; parameter?: string;
   patternId?: string; throughPattern?: PatternOrigin;
-} | SketchContourRequirement;
+} | SketchContourRequirement | SceneContourRequirement;
 const patternKey = (id: string) => `pattern-reference:${id}`;
 
 /** Generated identities stay stable, including nested patterns. */
@@ -51,12 +56,21 @@ export function contourReferenceRequirements(document: CadDocument, sourceIds: s
     const ids = [...f.inputs, String(f.params.sourceObjectId ?? ""), ...(Array.isArray(f.params.sourceObjectIds) ? f.params.sourceObjectIds.map(String) : [])];
     const refs = new Set(ids.filter(id => selected.has(id) || affected.has(id) && (f.type === "dimension" || !!f.construction)));
     return [...refs].map(sourceId => ({ dependentId: f.output, sourceId, name: `${document.objects[f.output]?.name ?? f.output}${affected.has(sourceId) ? ` · ${document.objects[sourceId]?.name ?? sourceId}` : ""}`,
-      kind: f.construction ? "construction" as const : f.type === "dimension" && f.params.sourceObjectId === sourceId && ["linear", "radius", "diameter"].includes(String(f.params.kind)) ? "dimension" as const : ["extrude", "revolve", "loft", "sweep"].includes(f.type) && f.dependencyMode !== "snapshot" ? "profile" as const : "unsupported" as const,
+      kind: f.construction ? "construction" as const : f.type === "dimension" && f.params.sourceObjectId === sourceId && ["linear", "radius", "diameter"].includes(String(f.params.kind)) ? "dimension" as const : ["extrude", "revolve", "loft", "sweep"].includes(f.type) && f.dependencyMode !== "snapshot" ? "profile" as const : f.type === "drafting" && String(f.params.kind) === "hatch" && Array.isArray(f.params.sourceObjectIds) ? "hatch" as const : f.type === "drafting" && String(f.params.kind) === "chain" && typeof f.params.sourceObjectId === "string" ? "chain" as const : "unsupported" as const,
       dimensionKind: f.type === "dimension" ? String(f.params.kind) : undefined,
       elementKind: f.construction ? ["midpoint", "perpendicular-bisector"].includes(f.construction.operation) ? "segment" as const : f.construction.operation === "intersection" ? "intersection" as const : "point" as const : undefined,
       throughPattern: affected.get(sourceId) }));
   });
-  return [...features, ...pattern, ...sketchContourRequirements(document, sourceIds)];
+  const bindings = bindingRequirements(document, sourceIds);
+  return [...features, ...pattern, ...bindings, ...sketchContourRequirements(document, sourceIds), ...sceneContourRequirements(document,sourceIds)];
+}
+
+function bindingRequirements(document: CadDocument, sourceIds: string[]): ContourReferenceRequirement[] {
+  const selected = new Set(sourceIds);
+  return Object.values(document.parameterBindings ?? {}).flatMap((b): ContourReferenceRequirement[] => {
+    if (b.target.kind !== "feature" || !selected.has(b.target.objectId)) return [];
+    return [{ dependentId: b.id, sourceId: b.target.objectId, name: `${document.objects[b.target.objectId]?.name ?? b.target.objectId} · ${b.target.parameter} (${b.id})`, kind: "binding" as const, parameter: b.target.parameter }];
+  });
 }
 
 /** Stage owner/group metadata and explicit element references before replacement. */
@@ -73,6 +87,7 @@ export function reconnectContourReferences(document: CadDocument, sourceIds: str
   const stage = { ...document, features: { ...document.features }, objects: { ...document.objects } }, removed = new Set(sourceIds);
   for (const f of Object.values(stage.features)) if (removed.has(f.output)) { delete stage.features[f.id]; delete stage.objects[f.output]; }
   for (const output of outputs) { stage.objects[output.object.id] = output.object; stage.features[output.feature.id] = output.feature; }
+  stage.rootObjects = [...document.rootObjects.filter(id=>!removed.has(id)), ...outputs.map(o=>o.object.id)];
   for (const f of owned.features) stage.features[f.id] = f;
   const routeFor = (r: { dependentId: string; sourceId: string; referenceSlot?: "first" | "second" }) => routes.find(route => route.dependentId === r.dependentId && route.sourceId === r.sourceId && route.referenceSlot === r.referenceSlot)!;
   const targetsFor = (route: ContourReferenceRoute) => {
@@ -81,6 +96,8 @@ export function reconnectContourReferences(document: CadDocument, sourceIds: str
     return targets;
   };
   const checkedGroups = new Set<string>();
+  const hatchDependents = new Map<string, { name: string; feature: CadFeature }>();
+  const bindingEdits: Record<string, CadParameterBinding> = {};
   for (const r of requirements) if (r.kind === "pattern" && !checkedGroups.has(r.patternId!)) {
     const members = Object.values(document.features).filter(f => f.pattern?.id === r.patternId), recipe = members[0].pattern!, groupRoutes = requirements.filter(q => q.kind === "pattern" && q.patternId === r.patternId);
     const replacements = new Map<string, string>();
@@ -108,8 +125,23 @@ export function reconnectContourReferences(document: CadDocument, sourceIds: str
   };
   for (const id of affected.keys()) evaluatePattern(id);
   for (const r of requirements) {
-    if (r.kind === "sketch" || r.kind === "pattern") continue;
+    if (r.kind === "sketch" || r.kind === "pattern" || r.kind === "scene") continue;
     if (r.kind === "unsupported") throw new Error(`'${r.name}' references this contour through an unsupported relationship. Detach or edit that relationship before replacing the contour.`);
+    if (r.kind === "binding") {
+      const route = routeFor(r);
+      if (route.pointIndex !== undefined || route.segmentIndex !== undefined || route.branch !== undefined) throw new Error("Reconnect each variable binding to exactly one result.");
+      const targets = targetsFor(route);
+      if (targets.length !== 1) throw new Error("Reconnect each variable binding to exactly one result.");
+      const t = targets[0], next = { kind: "feature" as const, objectId: t.object.id, parameter: r.parameter! };
+      // The reviewed result must provide the same bindable parameter; a changed
+      // meaning needs explicit reassignment outside this replacement.
+      const bindable = parameterTargets(stage).some(info => parameterTargetKey(info.target) === parameterTargetKey(next));
+      if (!bindable) throw new Error(`'${r.name}' drives '${r.parameter}', which the reviewed result no longer provides. Remove or reassign that binding before replacing the contour.`);
+      const original = document.parameterBindings?.[r.dependentId];
+      if (!original) throw new Error(`The variable binding '${r.dependentId}' no longer exists. Review the references again.`);
+      bindingEdits[r.dependentId] = { ...structuredClone(original), target: next };
+      continue;
+    }
     const route = routeFor(r), original = Object.values(document.features).find(f => f.output === r.dependentId)!;
     if (document.layers[document.objects[original.output].layerId]?.locked) throw new Error(`Unlock '${r.name}' before reconnecting its reference.`);
     let targets = targetsFor(route);
@@ -151,6 +183,19 @@ export function reconnectContourReferences(document: CadDocument, sourceIds: str
       if ("firstId" in before && before.firstId === r.sourceId) { (definition as typeof before).firstId = t.object.id; definition.elements.first = element; }
       if ("secondId" in before && before.secondId === r.sourceId) { (definition as typeof before).secondId = t.object.id; definition.elements.second = element; }
       f.inputs = constructionInputs(definition);
+    } else if (r.kind === "hatch") {
+      if (route.pointIndex !== undefined || route.segmentIndex !== undefined || route.branch !== undefined) throw new Error("Reconnect each hatch to whole result objects.");
+      // One hatch can reference several replaced sources; regions regenerate
+      // after every route for it is applied, never on a partial mapping.
+      f.params.sourceObjectIds = [...new Set((f.params.sourceObjectIds as string[]).flatMap((id: string) => id === r.sourceId ? targets.map(t => t.object.id) : [id]))];
+      hatchDependents.set(r.dependentId, { name: r.name, feature: f });
+    } else if (r.kind === "chain") {
+      if (targets.length !== 1 || route.pointIndex !== undefined || route.segmentIndex !== undefined || route.branch !== undefined) throw new Error("Reconnect each continuous dimension to exactly one result.");
+      const t = targets[0], world = getWorldDrawingGeometry(t.object, t.feature);
+      if (!world?.points || world.points.length < 2) throw new Error("A continuous dimension needs a result with measurable points.");
+      f.params.sourceObjectId = t.object.id;
+      f.params.points = world.points;
+      if (!validDraftingParams(f.params)) throw new Error("A continuous dimension cannot follow this result.");
     } else {
       if (route.segmentIndex !== undefined || route.pointIndex !== undefined || original.type !== "extrude" && targets.length !== 1) throw new Error("Reconnect this solid to one complete profile/path; element mappings apply to geometric relationships.");
       if (f.params.sourceObjectId === route.sourceId) f.params.sourceObjectId = targets[0].object.id;
@@ -158,6 +203,14 @@ export function reconnectContourReferences(document: CadDocument, sourceIds: str
     }
     if (r.kind !== "construction") f.inputs = [...new Set(f.inputs.flatMap(id => id === route.sourceId ? targets.map(t => t.object.id) : [id]))];
   }
+  for (const { name, feature } of hatchDependents.values()) {
+    const sources = feature.params.sourceObjectIds as string[];
+    const loops = extractSketchLoops(stage, sources, { forRegeneration: true });
+    if (!loops.ok) throw new Error(`'${name}' cannot hatch the reviewed results: ${loops.reason}`);
+    feature.params.regions = loops.loops;
+    hatchLines(loops.loops, Number(feature.params.spacing), Number(feature.params.angle));
+    stage.features[feature.id] = feature;
+  }
   for (const f of edits.values()) if (f.type === "dimension" && f.params.kind === "angular") f.params = resolveAngularSources(stage, f.params as AngularDimensionDefinition);
-  return { features: [...edits.values()], sketches: owned.sketches };
+  return { features: [...edits.values()], sketches: owned.sketches, scenes: reconnectContourScenes(document,stage,sourceIds,outputs.map(o=>o.object.id),routes), bindings: bindingEdits };
 }

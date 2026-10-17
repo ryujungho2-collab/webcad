@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { deserializeDocument, serializeDocument, type CadScene } from "@agent-webcad/cad-document";
+import { DEFAULT_VECTOR_STYLE, deserializeDocument, serializeDocument, type CadScene } from "@agent-webcad/cad-document";
 import { cadDocument } from "../src/state/cadDocument";
 import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
 import { applyCadPlan, previewCadCommand } from "../src/state/documentPlans";
 import { cadHistory, undoDocument, redoDocument } from "../src/state/history";
 import { newScene } from "../src/state/sceneCommands";
 import { evaluateScene } from "../src/scenes/sceneEvaluation";
+import { encodeOfflineScenePlayer } from "../src/scenes/offlinePlayer";
 import { resetTestDocument, documentState } from "./helpers/documentHarness";
 
 async function fixture() {
@@ -100,6 +101,10 @@ test("Scene component instances resolve nested definitions and follow their upda
  await dispatchCadCommand({type:"create-drawing",id:"wide",drawing:"rectangle",params:{workPlane:"XY",points:[[0,0,0],[30,0,0],[30,10,0],[0,10,0]]}});
  assert.equal((await dispatchCadCommand({type:"update-block",blockId:"card",objectIds:["wide"],base:[0,0,0]})).ok,true);
  assert.equal(evaluateScene(cadDocument,scene).frames[0].width,30);assert.deepEqual(cadDocument.objects.placement,source);
+ assert.equal((await dispatchCadCommand({type:"set-block-override",blockId:"card",objectId:"wide",vectorStyle:{...DEFAULT_VECTOR_STYLE,stroke:"#aabbcc",fill:"#ddeeff",opacity:0.6}})).ok,true);
+ assert.match(evaluateScene(cadDocument,scene).svg,/stroke="#aabbcc"/);
+ assert.match(evaluateScene(cadDocument,scene).svg,/fill="#ddeeff"/);
+ assert.match(encodeOfflineScenePlayer(cadDocument,scene.id),/aabbcc/);
  const restored=deserializeDocument(serializeDocument(cadDocument));assert.equal(evaluateScene(restored,restored.scenes!.scene).svg,evaluateScene(cadDocument,scene).svg);
 });
 
@@ -108,4 +113,23 @@ test("Components with unsupported text are rejected as a whole instead of partia
  assert.equal((await dispatchCadCommand({type:"define-block",id:"mixed",name:"Mixed",objectIds:["one","label"],base:[0,0,0]})).ok,true);
  assert.equal((await dispatchCadCommand({type:"insert-block",id:"mixed-placement",blockId:"mixed",position:[0,0,0]})).ok,true);
  scene.objectIds=["mixed-placement"];const before=snapshot();const result=await dispatchCadCommand({type:"upsert-scene",scene});assert.equal(result.ok,false);assert.match(result.reason!,/unsupported component/);assert.equal(snapshot(),before);
+});
+
+test("Offline prototype freezes linked scenes, states and animation without changing CAD",async()=>{
+ const first=await fixture(),second={...first,id:"second",name:"Detail",states:[{id:"alternate",name:"Alternative",hiddenObjectIds:["two"]}]};
+ first.name="Overview </script><script>bad()</script>";
+ first.links=[{objectId:"one",targetSceneId:"second",targetStateId:"alternate"}];
+ first.tracks=[{objectId:"one",startMs:0,endMs:1000,from:[-10,0,0],to:[0,0,1],easing:"linear"}];
+ assert.equal((await dispatchCadCommand({type:"upsert-scene",scene:second})).ok,true);
+ assert.equal((await dispatchCadCommand({type:"upsert-scene",scene:first})).ok,true);
+ const before=snapshot(),html=encodeOfflineScenePlayer(cadDocument,first.id);
+ const payload=JSON.parse(html.match(/const data=(.*);\nconst byId=/)![1]);
+ assert.equal(payload.initialSceneId,first.id);assert.equal(payload.scenes.length,2);
+ const exportedFirst=payload.scenes.find((scene:CadScene)=>scene.id===first.id),exportedSecond=payload.scenes.find((scene:CadScene)=>scene.id===second.id);
+ assert.deepEqual(exportedFirst.links,first.links);assert.deepEqual(exportedFirst.tracks,first.tracks);
+ assert.equal(exportedFirst.variants.length,1);assert.equal(exportedSecond.variants.length,2);
+ assert.equal(exportedFirst.variants[0].frames[0].x,15);
+ assert.match(exportedFirst.variants[0].frames[0].svg,/viewBox="10 -100 100 80"/);
+ assert.equal(html.includes("<script>bad()"),false);assert.equal(snapshot(),before);
+ assert.throws(()=>encodeOfflineScenePlayer(cadDocument,"missing"),/saved scene/);
 });

@@ -1,0 +1,60 @@
+import {createRoot} from "react-dom/client";
+import {App} from "../src/App";
+import "../src/styles.css";import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+import {cadDocument} from "../src/state/cadDocument";
+import {cadHistory} from "../src/state/history";
+import {dispatchCadCommand} from "../src/state/dispatchCadCommand";
+import {saveDocumentToCache} from "../src/state/documentFile";
+import {isDocumentCommandPending} from "../src/state/documentCommandQueue";
+import {exactDrawingContour} from "../src/features/drawing-editing/geometry/contourEditing";
+import {serializeDocument,deserializeDocument} from "@agent-webcad/cad-document";
+import {resetTestDocument} from "./helpers/documentHarness";
+import {installBrowserChecks} from "./helpers/browserChecks";
+import {click,physical,choose,input,waitFor,pause,find} from "./helpers/physicalInput";
+resetTestDocument();
+async function apply(c:Parameters<typeof dispatchCadCommand>[0]){const r=await dispatchCadCommand(c);if(!r.ok)throw new Error(r.reason);return r;}
+const feature=(id:string)=>Object.values(cadDocument.features).find(f=>f.output===id)!,topology=(id:string)=>feature(id).params.topology as any;
+await apply({type:"create-drawing",id:"corner",drawing:"polyline",params:{workPlane:"XY",points:[[0,0,0],[100,0,0],[100,60,0]],bulges:[0,0]}});
+await apply({type:"create-dimension",id:"width",dimension:"linear",params:{workPlane:"XY",points:[[0,0],[100,0]],sourceObjectId:"corner",sourceSegmentId:topology("corner").segments[0].id,offset:10}});
+await apply({type:"create-drawing",id:"plain",drawing:"polyline",params:{workPlane:"XY",points:[[200,0,0],[280,0,0],[280,40,0],[200,40,0]],bulges:[0,0,0]}});
+saveDocumentToCache();createRoot(document.getElementById("root")!).render(<App/>);
+const editor=()=>document.querySelector<HTMLFormElement>('[aria-label="Contour editor"]'),canvas=()=>document.querySelector<HTMLCanvasElement>("#root canvas")!;
+const state=()=>{const {revision:_,...d}=cadDocument;return JSON.stringify(d);},past=()=>cadHistory.getPastLabels().length;
+async function select(id:string){await physical(document.querySelector(`[data-model-object-id="${id}"] .tree-label`)!);}
+async function field(label:string,value:string){const el=editor()?.querySelector<HTMLInputElement>(`[aria-label="${label}"]`);if(!el)throw new Error("Missing field "+label);await physical(el);await key("a",2);await input({type:"text",text:value});await pause();}
+async function key(key:string,modifiers=0){await input({type:"key",key,modifiers});await pause();await waitFor(()=>!isDocumentCommandPending());}
+const button=document.getElementById("run-convert") as HTMLButtonElement,output=document.getElementById("convert-result")!;
+button.onclick=async()=>{button.disabled=true;button.style.pointerEvents="none";const lines:string[]=[],check=(ok:unknown,label:string)=>{if(!ok)throw new Error(label);lines.push(`PASS: ${label}`);};try{
+ await waitFor(()=>!!canvas());await click("2D");await select("corner");await physical(document.getElementById("tools-tab-modify")!);
+ check(!find("Convert")?.disabled,"Selecting one standalone polyline enables Convert");
+ const before=state(),h=past();await click("Convert");await waitFor(()=>!!editor());
+ check(state()===before&&past()===h,"Convert opens its editor without mutating the source or history");
+ check(find("Apply contour edit")?.disabled&&!!editor()?.querySelector('[aria-label="Reconnect Convert references"]'),"A linked dimension blocks Apply until its edge is explicitly rerouted");
+ await field("Convert radius","100mm");await pause();
+ await waitFor(()=>document.querySelector('[data-contour-preview-count="1"]'));
+ check(state()===before&&past()===h,"Convert previews one exact contour without mutating the source or history");
+ check(find("Apply contour edit")?.disabled,"Radius alone does not resolve the dimension reference");
+ await choose("Reference result width corner",1);await choose("Reference portion width corner",1);
+ await waitFor(()=>!find("Apply contour edit")?.disabled);
+ check(true,"Endpoint-span rerouting unblocks the reviewed conversion");
+ await click("Apply contour edit");await waitFor(()=>!editor()&&!isDocumentCommandPending());
+ const converted=cadDocument.rootObjects.find(id=>!["corner","width","plain"].includes(id))!,rerouted=state();
+ check(!!converted&&!cadDocument.objects.corner,"Apply replaces the reviewed contour with one converted curve");
+ check(feature("width").params.sourceObjectId===converted,"The linear dimension follows the converted contour through its endpoint span");
+ check(exactDrawingContour(cadDocument.objects[converted],feature(converted)).segments[0].kind==="arc"&&Number(feature(converted).params.bulges[0])!==0,"The first edge curves while junctions stay connected");
+ check(past()===h+1,"Conversion and reference remaps share one Undo entry");
+ await click("Undo");check(state()===before,"Undo restores the straight contour and its dimension");await click("Redo");check(state()===rerouted,"Redo restores the reviewed conversion");
+ await select("plain");await click("Convert");await waitFor(()=>!!editor());
+ await choose("Convert edge",2);
+ check(!!document.querySelector("[data-convert-edge]"),"Choosing an edge highlights it on the canvas");
+ await field("Convert radius","5cm");
+ await waitFor(()=>!find("Apply contour edit")?.disabled);
+ await click("Apply contour edit");await waitFor(()=>!editor()&&!isDocumentCommandPending());
+ const second=cadDocument.rootObjects.find(id=>!["corner","width","plain",converted].includes(id))!;
+ check(Number(feature(second).params.bulges[2])!==0&&feature(second).params.bulges.filter((b:number)=>b!==0).length===1,"Only the picked edge curves; neighbours stay straight");
+ await click("Undo");
+ check(JSON.stringify(deserializeDocument(serializeDocument(cadDocument)))===JSON.stringify(cadDocument),"Exact curves and topology survive native document serialization");
+ await key("k",2);await input({type:"text",text:"Convert edge"});await pause();check(document.querySelector("dialog[open]")?.textContent?.includes("Convert edge"),"Command palette exposes the same conversion");await key("Escape");
+ output.textContent=lines.join("\n")+`\nALL ${lines.length} CHECKS PASSED`;
+}catch(e){output.textContent=lines.join("\n")+`\nFAIL: ${e instanceof Error?e.message:String(e)}`;}finally{button.disabled=false;button.style.pointerEvents="";}};
+installBrowserChecks(button,output);

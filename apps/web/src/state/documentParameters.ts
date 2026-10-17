@@ -1,12 +1,11 @@
 import { parameterTargets,parameterTargetKey,resolveParameterBindings,validateFeatureParameters,type CadDocument,type ParameterTarget } from "@agent-webcad/cad-document";
-import { CommandBus,type CadCommand,type CommandDiagnostic } from "@agent-webcad/cad-commands";
+import { CommandBus,type CadCommand } from "@agent-webcad/cad-commands";
 import { solveSketch } from "../precision/sketchSolver";
 import { sketchGeometryToDrawingParams } from "../precision/sketchAdapter";
 import { constraintGeometryIds } from "../precision/sketchEditing";
 
-export class SketchParameterConflictError extends Error {
-  constructor(message:string,public diagnostic:CommandDiagnostic){super(message);}
-}
+import { SketchParameterConflictError } from "../precision/sketchConflict";
+export { SketchParameterConflictError } from "../precision/sketchConflict";
 
 export function registerParameterCommandHandlers(bus:CommandBus,document:CadDocument) {
   bus.registerHandler("set-variable",async (command:CadCommand)=>{
@@ -79,7 +78,7 @@ export function refreshParameterBindings(document:CadDocument,before:CadDocument
     for (const geometry of solved.sketch.geometry) {
       const projection = Object.values(document.features).find(feature=>feature.output === geometry.id);
       if (!projection || projection.params.sketchId !== id) throw new Error(`Missing sketch projection: ${geometry.id}.`);
-      projection.params = sketchGeometryToDrawingParams(solved.sketch,geometry);
+      projection.params = sketchGeometryToDrawingParams(solved.sketch,geometry,projection.params);
     }
   }
   return rebuild;

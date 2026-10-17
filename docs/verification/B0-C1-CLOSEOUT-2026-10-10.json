@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-10",
+  "scope": "B0-C1 artboard annotation SVG PNG PDF output",
+  "node": {"tests": 955, "suites": 54, "passed": 955, "failed": 0, "skipped": 0},
+  "targetNodeTests": 9,
+  "browser": {"artboardAnnotations": 12, "artboardPngWorkflow": 25, "artboardPdfWorkflow": 21, "draftingVisibility": 17, "total": 75},
+  "typecheck": "passed",
+  "architecture": {"result": "passed", "modules": 437},
+  "productionBuild": "passed",
+  "checks": [
+    "Visible styled dimensions and drafting text join board scene in root object order",
+    "Unicode escaping, angle, centre alignment, text-only boards and edge clipping",
+    "XY XZ YZ moved rotated scaled text axes and nonuniform glyph transform",
+    "Dimension object placement applies to linework and labels without changing measurement",
+    "Object/layer hide, lock, source styles and finite board bounds",
+    "Actual SVG menu download; PNG 2x raster pixels; PDF embedded JPEG annotation pixels and 72pt square page",
+    "Output preview/download leave document and History unchanged; style Undo/Redo and CAD serialization",
+    "Existing raster vector mask background stacking and multi-page PDF regression"
+  ],
+  "testFixtureRepairs": [
+    "Artboard PNG/PDF vector style payloads updated with required fillGradient:null",
+    "draftingVisibility PDF default-height expectation updated from obsolete 3.5mm to 2mm at 1:2 under B3-D3"
+  ],
+  "limitations": [
+    "Point/infinite-line/ray output still rejects explicitly",
+    "Tilted text outside the work plane rejects explicitly",
+    "Artboard PDF remains raster pages rather than searchable vector text",
+    "System fonts are not embedded; Scene annotation layout/animation is separate",
+    "No full browser suite, external PDF viewer inspection or large-drawing benchmark"
+  ],
+  "nextRecommended": "B1-E2 arc/mixed sketch structure editing"
+}

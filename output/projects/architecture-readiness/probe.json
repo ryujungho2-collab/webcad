@@ -1,0 +1,147 @@
+{
+  "date": "2026-10-12",
+  "decision": "supplement canvas integration and implement general BRep elevation before full architecture acceptance",
+  "scope": "48m2 rectangular studio, 200mm walls, 3000mm height, entry, window, internal partition/door, slab; scripted public commands, not manual authoring",
+  "checks": {
+    "initialWallVolumeMm3": 15467999999.999996,
+    "independentWallVolumeMm3": 15468000000,
+    "updatedWallVolumeMm3": 15383999999.99998,
+    "planEdges": 24,
+    "sectionEdges": 16,
+    "projectionRejectedAtomically": "External walls · entry + window: outline adapter supports box/cylinder primitives; other BRep kinds need a new adapter.",
+    "statusAfterOpeningChange": {
+      "plan": {
+        "status": "unresolved",
+        "reason": "Section topology/crop correspondence changed. Review and rebind this section."
+      },
+      "section": {
+        "status": "resolved"
+      }
+    },
+    "unresolvedExportBlocked": true,
+    "explicitRebind": true,
+    "undoRedo": true,
+    "serializationRoundtrip": true,
+    "dxfSkipped": 0
+  },
+  "timings": [
+    {
+      "command": "create-box",
+      "ms": 2310
+    },
+    {
+      "command": "create-box",
+      "ms": 6
+    },
+    {
+      "command": "move-object",
+      "ms": 11
+    },
+    {
+      "command": "boolean-operation",
+      "ms": 86
+    },
+    {
+      "command": "create-box",
+      "ms": 8
+    },
+    {
+      "command": "move-object",
+      "ms": 7
+    },
+    {
+      "command": "boolean-operation",
+      "ms": 135
+    },
+    {
+      "command": "create-box",
+      "ms": 4
+    },
+    {
+      "command": "move-object",
+      "ms": 6
+    },
+    {
+      "command": "boolean-operation",
+      "ms": 198
+    },
+    {
+      "command": "create-box",
+      "ms": 4
+    },
+    {
+      "command": "move-object",
+      "ms": 6
+    },
+    {
+      "command": "create-box",
+      "ms": 4
+    },
+    {
+      "command": "move-object",
+      "ms": 6
+    },
+    {
+      "command": "boolean-operation",
+      "ms": 79
+    },
+    {
+      "command": "create-box",
+      "ms": 4
+    },
+    {
+      "command": "move-object",
+      "ms": 6
+    },
+    {
+      "command": "register-model-part",
+      "ms": 1
+    },
+    {
+      "command": "register-model-part",
+      "ms": 1
+    },
+    {
+      "command": "register-model-part",
+      "ms": 1
+    },
+    {
+      "command": "upsert-model-section",
+      "ms": 146
+    },
+    {
+      "command": "upsert-model-section",
+      "ms": 138
+    },
+    {
+      "command": "upsert-model-sheet",
+      "ms": 5
+    },
+    {
+      "command": "set-object-visible",
+      "ms": 3
+    },
+    {
+      "command": "update-primitive",
+      "ms": 483
+    },
+    {
+      "command": "upsert-model-section",
+      "ms": 4
+    },
+    {
+      "command": "upsert-model-section",
+      "ms": 3
+    },
+    {
+      "command": "set-object-visible",
+      "ms": 3
+    }
+  ],
+  "limits": [
+    "Plan/section only; no elevation, hidden-line or construction-document completeness.",
+    "No room/door/window BIM semantics; boolean solids and source references.",
+    "Opening edits require explicit section rebind with current geometric correspondence.",
+    "Timing is one local Node/OCCT sample; not browser latency or a performance benchmark."
+  ]
+}

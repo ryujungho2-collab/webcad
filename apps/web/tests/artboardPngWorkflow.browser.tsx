@@ -54,7 +54,7 @@ button.onclick = async () => {
     check((await dispatchCadCommand({type:"update-image",objectId:"png-image",crop:{x:.25,y:.25,width:.5,height:.5},mask:"ellipse",opacity:.5,adjustments:{brightness:0,contrast:0,saturation:100}})).ok,"Crop, ellipse mask, opacity, and color adjustment remain placement properties");
     const vectorResult=await dispatchCadCommand({type:"create-drawing",id:"png-vector-top",name:"Green overlay",drawing:"rectangle",params:{workPlane:"XY",points:[[8,13,0],[19,13,0],[19,20,0],[8,20,0]]}});
     check(vectorResult.ok,`A later vector object is added above the raster in document order${vectorResult.ok?"":`: ${vectorResult.reason}`}`);
-    check((await dispatchCadCommand({type:"set-vector-style",objectId:"png-vector-top",style:{stroke:"#00ff00",fill:"#00ff00",opacity:1,strokeWidth:.25}})).ok,"The later vector fill is styled without replacing its CAD geometry");
+    check((await dispatchCadCommand({type:"set-vector-style",objectId:"png-vector-top",style:{stroke:"#00ff00",fill:"#00ff00",fillGradient:null,opacity:1,strokeWidth:.25}})).ok,"The later vector fill is styled without replacing its CAD geometry");
     const svgScene={board:{id:board.id,name:board.name,origin:board.origin,size:board.size,workPlane:board.workPlane,background:board.background},items:collectArtboardExportItems(board.id)};
     const svgUrl=URL.createObjectURL(new Blob([artboardPngSvg(svgScene,{width:96,height:96})],{type:"image/svg+xml;charset=utf-8"})),svgImage=new Image();svgImage.src=svgUrl;
     let svgDecoded=false;try{await svgImage.decode();svgDecoded=svgImage.naturalWidth===96&&svgImage.naturalHeight===96;}catch{}URL.revokeObjectURL(svgUrl);

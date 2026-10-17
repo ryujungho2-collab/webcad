@@ -1,3 +1,7 @@
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../../../app/projectActivity";
+import { curveCornerSolutions } from "../geometry/arcCorners";
+import { closedCornerSolutions } from "../geometry/curvedInternalCorner";
+import type { DrawingTopology } from "../../../precision/drawingTopology";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { CadCommand, ContourBridge, ContourReferenceRoute } from "@agent-webcad/cad-commands";
@@ -29,8 +33,11 @@ const labels: Record<Mode, string> = { offset: "Offset", trim: "Trim", extend: "
 export function CurveWorkbench(props: CurveWorkbenchProps) {
   const [mode, setMode] = useState<Mode>("offset"), [firstId, setFirstId] = useState(props.session.objectIds[0] ?? ""), [secondId, setSecondId] = useState(props.session.objectIds[1] ?? "");
   const [value, setValue] = useState("10mm"), [side, setSide] = useState<"left" | "right">("left"), [points, setPoints] = useState<(Vec3 | null)[]>([null, null]);
+  const [cornerMode,setCornerMode]=useState(false),[cornerControl,setCornerControl]=useState("");
+  const internal=cornerMode && ["fillet","chamfer"].includes(mode);
+  const [solutionIndex,setSolutionIndex]=useState("");
   const [secondValue, setSecondValue] = useState<string | null>(null);
-  const [setbackMarks, setSetbackMarks] = useState<{ from: number[]; to: number[]; label: string }[]>([]);
+  const [setbackMarks, setSetbackMarks] = useState<{ from: number[]; to: number[]; trace?: string; label: string }[]>([]);
   const [pick, setPick] = useState<0 | 1 | null>(null), [revision, setRevision] = useState(cadDocument.revision), [preview, setPreview] = useState<CadPlanPreview | null>(null), [message, setMessage] = useState("Choose a curve and an operation."), [pending, setPending] = useState(false);
   const [outcome, setOutcome] = useState<{ mode: Mode; ids: string[] } | null>(null), [joinIds, setJoinIds] = useState<string[]>(props.session.objectIds);
   const [trimScope, setTrimScope] = useState<"ends" | "interval">("ends"), [rejoin, setRejoin] = useState(false), [bridges, setBridges] = useState<ContourBridge[]>([]), [choices, setChoices] = useState<Record<string, ReferenceChoice>>({});
@@ -45,10 +52,10 @@ export function CurveWorkbench(props: CurveWorkbenchProps) {
     return f.type === "drawing" && ["line", "arc", "circle", "polyline", "rectangle"].includes(String(f.params.kind)) && !f.pattern && !f.construction && (props.constructionVisible || !f.params.construction) && o?.visible && l?.visible && !l.locked;
   }).map(f => ({ object: cadDocument.objects[f.output], feature: f })), [revision, props.constructionVisible]);
   const entry = (id: string) => { if (!id) throw new Error("Choose a target and, when needed, a second curve or boundary."); const s = candidates.find(s => s.object.id === id); if (!s) throw new Error("Show and unlock a drawing or finished sketch curve. Pattern instances and derived constructions are edited through their sources."); return s; };
-  const sourceGhosts = useMemo(() => (mode === "join" ? joinIds : mode === "offset" ? [firstId] : [firstId, secondId]).flatMap<Ghost>(id => {
+  const sourceGhosts = useMemo(() => (mode === "join" ? joinIds : mode === "offset" || internal ? [firstId] : [firstId, secondId]).flatMap<Ghost>(id => {
     const s = candidates.find(s => s.object.id === id), world = s && getWorldDrawingGeometry(s.object, s.feature);
     return world?.points?.length ? [{ points: world.points, closed: world.closed || world.kind === "circle", before: true }] : [];
-  }), [candidates, firstId, secondId, mode, joinIds]);
+  }), [candidates, firstId, secondId, mode, joinIds, internal]);
   const sourceGhostsRef = useRef(sourceGhosts); sourceGhostsRef.current = sourceGhosts;
   const targetFeature = candidates.find(s => s.object.id === firstId)?.feature;
   const owned = Boolean(mode === "join" ? candidates.find(s => s.object.id === joinIds[0])?.feature.params.sketchId : targetFeature?.params.sketchId);
@@ -70,7 +77,7 @@ export function CurveWorkbench(props: CurveWorkbenchProps) {
   })] : [];
   const accentsRef = useRef(accents); accentsRef.current = accents;
   const draftGhostsRef = useRef<Ghost[]>([]); draftGhostsRef.current = draft ? [...sourceGhosts, ...draft.pieces.map(p => pathGhost(p))] : [];
-  const choose = (index: 0 | 1, id: string) => { (index === 0 ? setFirstId : setSecondId)(id); setChoices({}); setPoints(p => p.map((v, i) => i === index ? null : v)); setOutcome(null); };
+  const choose = (index: 0 | 1, id: string) => { (index === 0 ? setFirstId : setSecondId)(id); if(index===0)setCornerControl(""); setChoices({}); setPoints(p => p.map((v, i) => i === index ? null : v)); setOutcome(null); };
   useEffect(() => {
     if (mode === "trim") setTrimScope(closedSource || owned ? "interval" : "ends");
     setChoices({}); setRejoin(false);
@@ -82,23 +89,45 @@ export function CurveWorkbench(props: CurveWorkbenchProps) {
     return segmentPoint(path.segments[0], .35, path.workPlane);
   };
   const close = () => { if (!busy.current) { latest.current.onClose(); requestAnimationFrame(() => latest.current.getCanvas()?.focus()); } };
-  const draftKey = JSON.stringify([mode,firstId,secondId,value,secondValue,side,points,revision,outcome,joinIds,trimScope,rejoin,bridges,choices]);
+  useEffect(()=>setSolutionIndex(""),[firstId,secondId,value,points,revision,cornerMode,cornerControl,mode,secondValue]);
+  const cornerVertices=(targetFeature?.params.topology as DrawingTopology|undefined)?.controls.filter(c=>c.role === "vertex")??[];
+  const controlId=cornerControl || cornerVertices[0]?.id || "";
+  const filletSolutions=useMemo(()=>{
+    if(!["fillet","chamfer"].includes(mode)||outcome)return [];
+    try { const radius=parseLength(value),d2=parseLength(secondValue??value);if(radius===null||d2===null)return [];const a=entry(firstId);
+      return internal ? closedCornerSolutions(a.object,a.feature,controlId,mode as "fillet"|"chamfer",radius,d2) : curveCornerSolutions(a,entry(secondId),picked(firstId,0),picked(secondId,1),mode as "fillet"|"chamfer",radius,d2);
+    }catch{return [];}
+  },[mode,outcome,candidates,firstId,secondId,value,secondValue,points,internal,controlId]);
+  const draftKey = JSON.stringify([mode,firstId,secondId,value,secondValue,side,points,revision,outcome,joinIds,trimScope,rejoin,bridges,choices,solutionIndex,internal,controlId]);
   const interaction = commandInteraction({ command: labels[mode], draftKey, reviewedKey, preview, pending,
-    targets: mode === "join" ? joinIds : [firstId,...(mode === "offset" ? [] : [secondId])].filter(Boolean), numericParameters:mode === "chamfer" ? { D1:value,D2:secondValue??value } : {distance:value},
-    missing: mode === "join" ? joinIds.length < 2 && !bridges.length ? ["Choose two or more curves to Join."] : [] : !firstId ? ["Choose a target curve."] : mode !== "offset" && !secondId ? ["Choose a boundary or second curve."] : [],
+    targets: mode === "join" ? joinIds : [firstId,...(mode === "offset" || internal ? [] : [secondId])].filter(Boolean), numericParameters:mode === "chamfer" ? { D1:value,D2:secondValue??value } : {distance:value},
+    missing: mode === "join" ? joinIds.length < 2 && !bridges.length ? ["Choose two or more curves to Join."] : [] : !firstId ? ["Choose a target curve."] : mode !== "offset" && !internal && !secondId ? ["Choose a boundary or second curve."] : [],
     selecting:pick !== null, inputError:reviewedKey === draftKey ? inputError : undefined,
     visualReady: projectedPlan === preview?.planId && paths.some(p=>!p.before), completedIds:outcome?.ids,
     references:references.map(r=>({name:r.name,kind:r.kind,objectId:r.sourceId,status:choices[referenceKey(r)]?.result && (!needsPortion(r)||choices[referenceKey(r)].edge) ? "remapped" : "unresolved"})) });
   // Use the command's exact geometry routine for the distance guides as well.
   const setbackGuides = useMemo(() => {
-    if (mode !== "chamfer" || outcome || reviewedKey !== draftKey || !preview?.result.ok) return [];
+    if (!["chamfer","fillet"].includes(mode) || outcome || reviewedKey !== draftKey || !preview?.result.ok) return [];
     try {
       const d1 = parseLength(value), d2 = parseLength(secondValue ?? value);
       if (d1 === null || d2 === null) return [];
-      const result = connectDrawings(entry(firstId), entry(secondId), picked(firstId, 0), picked(secondId, 1), "chamfer", d1, d2);
-      return result.contacts.map((to, i) => ({ from:result.corner,to,label:`D${i+1} · ${i === 0 ? value : secondValue ?? value}` }));
+      const result = internal ? filletSolutions[Number(solutionIndex || 0)] : connectDrawings(entry(firstId), entry(secondId), picked(firstId, 0), picked(secondId, 1), mode as "chamfer"|"fillet", d1, mode === "chamfer" ? d2 : undefined, solutionIndex !== "" ? Number(solutionIndex) : undefined);
+      if(!result)return [];
+      return result.contacts.map((to, i) => {
+        const from=mode === "fillet" ? result.connector.center as Vec3 : result.corner;
+        let trace:Vec3[]|undefined;
+        if(mode==="chamfer"&&!internal){
+          const source=entry(i===0?firstId:secondId),path=exactDrawingContour(source.object,source.feature);
+          const segment=path.segments[locateOnContour(path,picked(i===0?firstId:secondId,i)).segment];
+          if(segment.kind==="arc"){
+            const local={...path,segments:[segment]},a=locateOnContour(local,from).parameter,b=locateOnContour(local,to).parameter;
+            trace=Array.from({length:33},(_,n)=>segmentPoint(segment,a+(b-a)*n/32,path.workPlane));
+          }
+        }
+        return {from,to,trace,label:mode === "fillet" ? `T${i+1} · R ${value}` : `D${i+1} · ${i === 0 ? value : secondValue ?? value}${trace?" · arc length":""}`};
+      });
     } catch { return []; }
-  }, [mode,outcome,reviewedKey,draftKey,preview,candidates,firstId,secondId,points,value,secondValue]);
+  }, [mode,outcome,reviewedKey,draftKey,preview,candidates,firstId,secondId,points,value,secondValue,solutionIndex,internal,filletSolutions]);
   const setbackGuidesRef = useRef(setbackGuides); setbackGuidesRef.current = setbackGuides;
   useEffect(() => subscribeDocumentChanges(() => {
     if (plan.current) discardCadPlan(plan.current); plan.current = null; setPreview(null);
@@ -121,7 +150,8 @@ export function CurveWorkbench(props: CurveWorkbenchProps) {
       if (["offset", "fillet", "chamfer"].includes(mode) && (distance === null || distance <= 0)) throw new Error("Enter a positive distance with units, such as 5mm or 0.25in.");
       const secondDistance = mode === "chamfer" ? parseLength(secondValue ?? value) : null;
       if (mode === "chamfer" && (secondDistance === null || secondDistance <= 0)) throw new Error("D2 on the second curve needs a positive distance with units, such as 5mm or 0.25in.");
-      if (mode === "join") { if (joinIds.length < 2 && !bridges.length) throw new Error("Select a connected chain, or reconnect the gap of a Trim result."); joinIds.forEach(entry); command = { type: "join-drawings", objectIds: joinIds, bridges, referenceRoutes }; }
+      if(internal)command={type:"edit-drawing-corner",objectId:firstId,controlId,treatment:mode as "fillet"|"chamfer",distance:distance!,...(mode === "chamfer" ? {secondDistance:secondDistance!}:{}),distanceSpace:"world",...(solutionIndex !== "" ? {solutionIndex:Number(solutionIndex)}:{})};
+      else if (mode === "join") { if (joinIds.length < 2 && !bridges.length) throw new Error("Select a connected chain, or reconnect the gap of a Trim result."); joinIds.forEach(entry); command = { type: "join-drawings", objectIds: joinIds, bridges, referenceRoutes }; }
       else {
         entry(firstId);
         if (mode === "offset") command = { type: "offset-drawing", objectId: firstId, distance: distance!, side };
@@ -130,7 +160,7 @@ export function CurveWorkbench(props: CurveWorkbenchProps) {
           if (mode === "trim" || mode === "extend") {
             if (!points[0]) throw new Error(mode === "trim" ? trimScope === "interval" ? "Pick the interval to remove between bounded boundary crossings." : "Pick the exposed target portion to remove. A circle keeps the picked portion." : "Pick the target end to extend towards the boundary.");
             command = mode === "trim" && trimScope === "interval" ? { type: "trim-contour", objectId: firstId, cutterIds: [secondId], pickPoint: points[0], rejoin, referenceRoutes } : { type: mode === "trim" ? "trim-drawing" : "extend-drawing", targetId: firstId, cutterId: secondId, pickPoint: points[0] };
-          } else command = { type: "connect-drawings", firstId, secondId, firstPoint: picked(firstId, 0), secondPoint: picked(secondId, 1), treatment: mode, distance: distance!, ...(mode === "chamfer" ? {secondDistance:secondDistance!} : {}) };
+          } else command = { type: "connect-drawings", firstId, secondId, firstPoint: picked(firstId, 0), secondPoint: picked(secondId, 1), treatment: mode, distance: distance!, ...(mode === "chamfer" ? {secondDistance:secondDistance!} : {}), ...(solutionIndex !== "" ? {solutionIndex:Number(solutionIndex)} : {}) };
         }
       }
     } catch (e) { const error=e instanceof Error ? e.message : String(e); setMessage(error); setInputError(error); setReviewedKey(draftKey); return; }
@@ -145,12 +175,12 @@ export function CurveWorkbench(props: CurveWorkbenchProps) {
       }) : [];
     }).catch(e => { if (!controller.signal.aborted) setMessage(e instanceof Error ? e.message : String(e)); }); }, 100);
     return () => { clearTimeout(timer); controller.abort(); if (localPlan) discardCadPlan(localPlan); };
-  }, [mode, firstId, secondId, value, secondValue, side, points, revision, outcome, joinIds, trimScope, rejoin, bridges, choices, references, draft]);
+  }, [mode, firstId, secondId, value, secondValue, side, points, revision, outcome, joinIds, trimScope, rejoin, bridges, choices, references, draft, solutionIndex, internal, controlId]);
   useEffect(() => {
     let frame: number, previous = "";
     const draw = () => {
       const p = [...(ghosts.current.length ? ghosts.current : draftGhostsRef.current.length ? draftGhostsRef.current : sourceGhostsRef.current), ...accentsRef.current].map(g => ({ before: g.before, closed: g.closed, accent: g.accent, points: (g.closed ? [...g.points, g.points[0]] : g.points).map(p => latest.current.project(p).join(",")).join(" ") })), m = points.filter((p): p is Vec3 => !!p).map(p => latest.current.project(p));
-      const guides = setbackGuidesRef.current.map(g => ({ from:latest.current.project(g.from),to:latest.current.project(g.to),label:g.label }));
+      const guides = setbackGuidesRef.current.map(g => ({ from:latest.current.project(g.from),to:latest.current.project(g.to),trace:g.trace?.map(p=>latest.current.project(p).slice(0,2).join(",")).join(" "),label:g.label }));
       const signature = JSON.stringify([p, m, guides, plan.current]); if (signature !== previous) { previous = signature; setPaths(p); setMarks(m); setSetbackMarks(guides); setProjectedPlan(plan.current); }
       frame = requestAnimationFrame(draw);
     }; draw(); return () => cancelAnimationFrame(frame);
@@ -161,7 +191,7 @@ export function CurveWorkbench(props: CurveWorkbenchProps) {
     try {
       const result = await applyCadPlan(preview.planId);
       if (!result.ok) { setMessage(result.reason ?? "Edit rejected."); setRevision(v => v + 1); return; }
-      const ids = mode === "fillet" || mode === "chamfer" ? [firstId, secondId, ...result.createdIds] : result.createdIds.length ? result.createdIds : [firstId];
+      const ids = internal ? [firstId] : mode === "fillet" || mode === "chamfer" ? [firstId, secondId, ...result.createdIds] : result.createdIds.length ? result.createdIds : [firstId];
       setResultBridges(mode === "trim" && trimScope === "interval" && !rejoin && (closedSource || ids.length === 2) ? [{ fromId: ids[0], fromEnd: "end", toId: ids.at(-1)!, toEnd: "start" }] : []);
       setOutcome({ mode, ids }); setJoinIds(ids); setPreview(null); setMessage(`${labels[mode]} applied. Choose the next operation on the result, or another target.`);
       latest.current.onApplied(ids);
@@ -184,7 +214,7 @@ export function CurveWorkbench(props: CurveWorkbenchProps) {
         return gap <= 12 ? [{ id: s.object.id, point: hit.point, gap }] : [];
       } catch { return []; } }).sort((a, b) => a.gap - b.gap || (a.id === (pick === 0 ? firstId : secondId) ? -1 : 1));
       if (!hits.length) { setMessage("Pick a visible curve within 12 pixels; pan or zoom to reach the desired branch."); return; }
-      const hit = hits[0]; (pick === 0 ? setFirstId : setSecondId)(hit.id); setChoices({}); setPoints(p => p.map((v, i) => i === pick ? hit.point : v)); setPick(null); setOutcome(null); canvas.focus();
+      const hit = hits[0]; (pick === 0 ? setFirstId : setSecondId)(hit.id); if(pick===0)setCornerControl(""); setChoices({}); setPoints(p => p.map((v, i) => i === pick ? hit.point : v)); setPick(null); setOutcome(null); canvas.focus();
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof Element && e.target.closest("input,select,textarea,button,[role=dialog]")) return;
@@ -197,7 +227,7 @@ export function CurveWorkbench(props: CurveWorkbenchProps) {
   const next = (nextMode: Mode, reconnect = false) => { if (outcome) { setFirstId(outcome.ids[0]); setPoints([null, null]); } setBridges(reconnect ? resultBridges : []); setChoices({}); setMode(nextMode); setOutcome(null); setPick(null); };
   const targetSelect = (index: 0 | 1) => <label>{index === 0 ? "Target" : mode === "trim" || mode === "extend" ? "Boundary" : "Second curve"}<select aria-label={index === 0 ? "Workflow target" : "Workflow second curve"} value={index === 0 ? firstId : secondId} disabled={pending} onChange={e => choose(index, e.target.value)}><option value="">Choose a curve</option>{candidates.map((s, ordinal) => <option key={s.object.id} value={s.object.id}>{s.object.name} ({ordinal + 1})</option>)}</select></label>;
   return <>
-    <svg className="cad-contour-ghosts" aria-hidden="true" data-chamfer-setbacks="true">{setbackMarks.map((g,i)=><g key={i} data-chamfer-distance={i+1}><line x1={g.from[0]} y1={g.from[1]} x2={g.to[0]} y2={g.to[1]} stroke="#b9a1ff" strokeWidth={2} strokeDasharray="4 3"/><text x={(g.from[0]+g.to[0])/2+8} y={(g.from[1]+g.to[1])/2-8} fill="#d6c6ff" stroke="#172533" strokeWidth={3} paintOrder="stroke" fontSize={13}>{g.label}</text></g>)}</svg>
+    <svg className="cad-contour-ghosts" aria-hidden="true" data-chamfer-setbacks="true">{setbackMarks.map((g,i)=><g key={i} data-chamfer-distance={i+1}>{g.trace?<polyline data-arc-setback="true" points={g.trace} fill="none" stroke="#b9a1ff" strokeWidth={2} strokeDasharray="4 3"/>:<line x1={g.from[0]} y1={g.from[1]} x2={g.to[0]} y2={g.to[1]} stroke="#b9a1ff" strokeWidth={2} strokeDasharray="4 3"/>}<text x={(g.from[0]+g.to[0])/2+8} y={(g.from[1]+g.to[1])/2-8} fill="#d6c6ff" stroke="#172533" strokeWidth={3} paintOrder="stroke" fontSize={13}>{g.label}</text></g>)}</svg>
     <svg className="cad-contour-ghosts" aria-hidden="true" data-curve-workflow-preview="true">{paths.map((p, i) => p.points && !p.points.includes(" ") ? <circle key={i} cx={p.points.split(",")[0]} cy={p.points.split(",")[1]} r={6} fill="none" stroke={p.accent === "reference" ? "#6cb9ff" : p.before ? "#e7b369" : "#70dfb2"} strokeWidth={3}/> : <polyline key={i} points={p.points} fill={p.accent === "removed" && p.closed ? "#ff787825" : "none"} stroke={p.accent === "removed" ? "#ff7878" : p.accent === "reference" ? "#6cb9ff" : p.before ? "#e7b369" : "#70dfb2"} strokeWidth={p.accent ? 4 : p.before ? 2 : 3} strokeDasharray={p.before ? "7 5" : undefined} />)}{marks.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r={5} fill="#70dfb2" stroke="#172533" />)}</svg>
     <form className="cad-contour-tool cad-curve-workbench" data-cad-editor="true" aria-label="Curve workflow" onSubmit={e => { e.preventDefault(); void apply(); }} onKeyDown={e => { e.stopPropagation(); if (e.key === "Escape") { e.preventDefault(); close(); } }}>
       <div className="cad-tool-body">
@@ -205,17 +235,20 @@ export function CurveWorkbench(props: CurveWorkbenchProps) {
       <div className="cad-workflow-actions">{(Object.keys(labels) as Mode[]).map(m => <button type="button" key={m} aria-pressed={mode === m} disabled={pending} onClick={() => next(m)}>{labels[m]}</button>)}</div>
       {!outcome && <>
         {mode === "join" ? <><small>Join {joinIds.length} result curves into one exact editable contour.</small><select multiple aria-label="Workflow Join curves" value={joinIds} disabled={pending} onChange={e=>{setJoinIds(Array.from(e.target.selectedOptions,o=>o.value));setChoices({});setBridges([]);}}>{candidates.map(s=><option key={s.object.id} value={s.object.id}>{s.object.name}</option>)}</select></> : targetSelect(0)}
-        {!["offset", "join"].includes(mode) && targetSelect(1)}
+        {["fillet","chamfer"].includes(mode) && <label><input type="checkbox" aria-label="Closed contour corner" checked={cornerMode} disabled={pending} onChange={e=>{setCornerMode(e.target.checked);setCornerControl("");}}/>Closed contour corner</label>}
+        {internal && <label>Corner<select aria-label="Workflow corner" value={controlId} disabled={pending} onChange={e=>setCornerControl(e.target.value)}>{cornerVertices.map(c=><option key={c.id} value={c.id}>Vertex {(c.index??0)+1}</option>)}</select><small>D1/D2 follow adjacent curves by arc length; the contour stays closed.</small></label>}
+        {!["offset", "join"].includes(mode) && !internal && targetSelect(1)}
         {mode === "trim" && <><label>Trim scope<select aria-label="Workflow trim scope" value={trimScope} disabled={pending} onChange={e => { setTrimScope(e.target.value as "ends" | "interval"); setChoices({}); }}><option value="ends">Free ends / supporting boundary</option><option value="interval">Picked interval / bounded boundary</option></select></label>{trimScope === "interval" && closedSource && <label><input type="checkbox" aria-label="Reconnect trimmed ends" checked={rejoin} disabled={pending} onChange={e => { setRejoin(e.target.checked); setChoices({}); }} />Reconnect a closed source with a straight edge in this edit</label>}</>}
         {["offset", "fillet", "chamfer"].includes(mode) && <PrecisionField label={mode === "fillet" ? "Radius" : mode === "chamfer" ? "D1 · Target setback" : "Distance"} aria-label="Workflow distance" value={value} disabled={pending} min={0.000001} onChange={setValue} />}
-        {mode === "chamfer" && <><PrecisionField label="D2 · Second curve setback" aria-label="Workflow second distance" value={secondValue??value} disabled={pending} min={0.000001} onChange={setSecondValue}/><div><button type="button" disabled={pending} onClick={()=>{setValue(secondValue??value);setSecondValue(value);}}>Swap D1 / D2</button><button type="button" disabled={pending} onClick={()=>setSecondValue(null)}>Use equal distances</button></div><small>D1: {cadDocument.objects[firstId]?.name??"Choose target"} · D2: {cadDocument.objects[secondId]?.name??"Choose second curve"}. Purple guides measure from the supporting-line intersection to each result endpoint.</small></>}
+        {["fillet","chamfer"].includes(mode) && filletSolutions.length > 0 && <label>{mode==="chamfer"?"Corner solution":"Tangent solution"}<select aria-label="Fillet solution" value={filletSolutions.length === 1 ? "0" : solutionIndex} disabled={pending} onChange={e=>setSolutionIndex(e.target.value)}>{filletSolutions.length > 1 && <option value="">Choose contact points</option>}{filletSolutions.map((s,i)=><option key={i} value={String(i)}>Solution {i+1} · T1 {s.contacts[0].map(n=>n.toFixed(2)).join(", ")} · T2 {s.contacts[1].map(n=>n.toFixed(2)).join(", ")}</option>)}</select><small>Bounded contacts; retained portions remain. Fillet guides show radii; Chamfer guides show each assigned setback. No source extension. On mixed contours only a free end changes; shared vertices stay fixed.</small></label>}
+        {mode === "chamfer" && <><PrecisionField label="D2 · Second curve setback" aria-label="Workflow second distance" value={secondValue??value} disabled={pending} min={0.000001} onChange={setSecondValue}/><div><button type="button" disabled={pending} onClick={()=>{setValue(secondValue??value);setSecondValue(value);}}>Swap D1 / D2</button><button type="button" disabled={pending} onClick={()=>setSecondValue(null)}>Use equal distances</button></div><small>D1: {internal ? "Incoming segment" : cadDocument.objects[firstId]?.name??"Choose target"} · D2: {internal ? "Outgoing segment" : cadDocument.objects[secondId]?.name??"Choose second curve"}. Purple guides show the assigned contact points. On arcs, D1/D2 measure length along the source curve.</small></>}
         {mode === "offset" && <label>Side<select aria-label="Workflow offset side" value={side} disabled={pending} onChange={e => setSide(e.target.value as "left" | "right")}><option value="left">Left / circle outward</option><option value="right">Right / circle inward</option></select></label>}
-        {["trim", "extend", "fillet", "chamfer"].includes(mode) && <div><button type="button" aria-pressed={pick === 0} disabled={pending} onClick={() => { setPick(0); props.getCanvas()?.focus(); }}>Pick target branch</button>{["fillet", "chamfer"].includes(mode) && <button type="button" aria-pressed={pick === 1} disabled={pending} onClick={() => { setPick(1); props.getCanvas()?.focus(); }}>Pick second branch</button>}</div>}
+        {["trim", "extend", "fillet", "chamfer"].includes(mode) && !internal && <div><button type="button" aria-pressed={pick === 0} disabled={pending} onClick={() => { setPick(0); props.getCanvas()?.focus(); }}>Pick target branch</button>{["fillet", "chamfer"].includes(mode) && <button type="button" aria-pressed={pick === 1} disabled={pending} onClick={() => { setPick(1); props.getCanvas()?.focus(); }}>Pick second branch</button>}</div>}
       </>}
       {!outcome && references.length > 0 && <fieldset aria-label="Reconnect contour references" disabled={pending}><legend>Reconnect references</legend>{references.map(r => {
         const slotLabel = "referenceSlot" in r && r.referenceSlot ? ` ${r.referenceSlot}` : ""; const key = referenceKey(r), c = choices[key] ?? { result: "", edge: "" }, p = c.result === "" ? undefined : draft?.pieces[Number(c.result)];
         const change = (patch: Partial<ReferenceChoice>) => setChoices(old => ({ ...old, [key]: { ...c, ...patch } }));
-        return <div key={key}><small>{r.name} · {r.kind} · {cadDocument.objects[r.sourceId]?.name}</small>{r.kind === "unsupported" ? <small>Edit or detach this relationship first.</small> : <><select aria-label={`Reference result ${r.dependentId} ${r.sourceId}${slotLabel}`} value={c.result} onChange={e => change({ result: e.target.value, edge: "" })}><option value="">Choose new result</option>{draft?.pieces.map((_, i) => <option key={i} value={i}>Result {i + 1}</option>)}</select>{needsPortion(r) && <select aria-label={`Reference portion ${r.dependentId} ${r.sourceId}${slotLabel}`} value={c.edge} onChange={e => change({ edge: e.target.value })}><option value="">Choose reference portion</option>{p && referencePortions(r,p,owned).map(o=><option key={o.value} value={o.value}>{o.label}</option>)}</select>}{r.kind === "construction" && r.elementKind === "intersection" && <select aria-label={`Reference branch ${r.dependentId} ${r.sourceId}`} value={c.branch ?? ""} onChange={e=>change({branch:e.target.value === "" ? undefined : e.target.value as "positive"|"negative"})}><option value="">Keep saved branch</option><option value="positive">Positive along line</option><option value="negative">Negative along line</option></select>}</>}</div>;
+        return <div key={key}><small>{r.name} · {r.kind} · {cadDocument.objects[r.sourceId]?.name}</small>{r.kind === "unsupported" ? <small>Edit or detach this relationship first.</small> : <><select aria-label={`Reference result ${r.dependentId} ${r.sourceId}${slotLabel}`} value={c.result} onChange={e => change({ result: e.target.value, edge: "" })}><option value="">Choose new result</option>{draft?.pieces.map((_, i) => <option key={i} value={i}>Result {i + 1}</option>)}{r.kind === "hatch" && (draft?.pieces.length ?? 0) > 1 && <option value={draft!.pieces.map((_, i) => i).join(",")}>All results</option>}</select>{needsPortion(r) && <select aria-label={`Reference portion ${r.dependentId} ${r.sourceId}${slotLabel}`} value={c.edge} onChange={e => change({ edge: e.target.value })}><option value="">Choose reference portion</option>{p && referencePortions(r,p,owned).map(o=><option key={o.value} value={o.value}>{o.label}</option>)}</select>}{r.kind === "construction" && r.elementKind === "intersection" && <select aria-label={`Reference branch ${r.dependentId} ${r.sourceId}`} value={c.branch ?? ""} onChange={e=>change({branch:e.target.value === "" ? undefined : e.target.value as "positive"|"negative"})}><option value="">Keep saved branch</option><option value="positive">Positive along line</option><option value="negative">Negative along line</option></select>}</>}</div>;
       })}</fieldset>}
       {!outcome && preview?.result.ok && <div aria-label="Contour reference impact">{references.filter(r => r.kind === "dimension").map(r => {
         const params = getCadPlanDimensionParams(preview.planId, r.dependentId), before = params?.before && resolveDimension(params.before), after = params?.after && resolveDimension(params.after);

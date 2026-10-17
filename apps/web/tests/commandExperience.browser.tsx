@@ -101,9 +101,9 @@ button.onclick = async () => {
 
     const navState = state(), navHistory = history(), pathBefore = previewPoints();
     const length = (p: number[][]) => Math.hypot(p[1][0] - p[0][0], p[1][1] - p[0][1]);
-    await mouse("mouseWheel", canvas().clientWidth / 2, canvas().clientHeight / 2, { deltaY: -120 });
+    await mouse("mouseWheel", canvas().clientWidth / 2, canvas().clientHeight / 2, { deltaY: -120, modifiers: 2 });
     await waitFor(() => Math.abs(length(previewPoints()) - length(pathBefore)) > .5);
-    check(state() === navState && history() === navHistory && status()?.dataset.pointStage === "target", "Wheel zoom remains active and reprojects the copy preview without committing it");
+    check(state() === navState && history() === navHistory && status()?.dataset.pointStage === "target", "Ctrl+wheel zoom remains active and reprojects the copy preview without committing it");
     const baseBefore = baseScreen(), x = canvas().clientWidth / 2, y = canvas().clientHeight / 2;
     await mouse("mousePressed", x, y, { button: "middle", buttons: 4 });
     await mouse("mouseMoved", x + 70, y + 40, { button: "middle", buttons: 4 });

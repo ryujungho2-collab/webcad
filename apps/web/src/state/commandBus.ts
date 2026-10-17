@@ -1,4 +1,26 @@
+import {registerArchitectureContentCommands} from "./architectureContentCommands";
+import {registerFloorPlanCommands} from "./floorPlanCommands";
+import {registerArchitectureWallCommands} from "./architectureWallCommands";
+import {registerFrameStitchCommands} from "./frameStitchCommands";
+import {registerFrameSheetCommands} from "./frameSheetCommands";
+import {registerFrameLinkCommands} from "./frameLinkCommands";
+import {registerWorkspaceSectionCommands} from "./workspaceSectionCommands";
+import {registerModelSheetSetCommands} from "./modelSheetSetCommands";
+import {registerModelSheetCommands} from "./modelSheetCommands";
+import {registerModelNoteCommands} from "./modelNoteCommands";
+import {registerModelDrawingCommands} from "./modelDrawingCommands";
+import {explodedDisplayOffset,hasExplodedDisplay} from "../precision/modelPresentation";
+import {registerModelPresentationCommands} from "./modelPresentationCommands";
+import {registerCadPilotCommands} from "./cadPilotCommands";
+import { registerExchangeCommands } from "./exchangeCommands";
 import { registerSceneCommands } from "./sceneCommands";
+import { registerModelViewCommands, isModelViewOnlyCommand } from "./modelViewCommands";
+import { registerWorkPlaneCommands } from "./workPlaneCommands";
+import { registerFaceSketchCommands } from "./faceSketchCommands";
+import { registerFaceCutCommands } from "./faceCutCommands";
+import {registerShellCommands} from "./shellCommands";
+import { registerFaceHoleCommands } from "./faceHoleCommands";
+import { refreshFaceSketches } from "./faceSketchRefresh";
 import { validateSceneGraph } from "@agent-webcad/cad-document";
 import {
   CommandBus,
@@ -10,6 +32,9 @@ import {validatePatternGroups, validateConstructionGraph} from "@agent-webcad/ca
 import {registerPatternCommandHandlers} from "./patternCommands";
 import { registerDrawingEditingCommands } from "../features/drawing-editing/registerCommands";
 import { registerConstructionCommands } from "./constructionCommands";
+import {registerRegularPolygonCommands} from "./regularPolygonCommands";
+import {registerEndpointRadiusArcCommands} from "./endpointRadiusArcCommands";
+import {registerThreePointCurveCommands} from "./threePointCurveCommands";
 import { FeatureRegenerationError, regenerateDependentFeatures } from "./featureRegeneration";
 import { getObjectTransform } from "../precision/objectTransform";
 import { registerDimensionCommandHandlers } from "./registerDimensionCommandHandlers";
@@ -29,26 +54,62 @@ import { registerImageCommandHandlers } from "./imageCommands";
 /** Handlers bind to a transaction-owned document, never the live UI document. */
 export function createDocumentCommandExecutor(cadDocument: CadDocument) {
 const commandBus = new CommandBus();
+registerFloorPlanCommands(commandBus,cadDocument);
+registerArchitectureWallCommands(commandBus,cadDocument);
+registerArchitectureContentCommands(commandBus,cadDocument);
 registerDraftingCommandHandlers(commandBus,cadDocument);
 registerParameterCommandHandlers(commandBus,cadDocument);
 registerPatternCommandHandlers(commandBus,cadDocument);
 registerDrawingEditingCommands(commandBus,cadDocument);
 registerDimensionCommandHandlers(commandBus,cadDocument);
 registerConstructionCommands(commandBus,cadDocument);
+registerThreePointCurveCommands(commandBus,cadDocument);
+registerEndpointRadiusArcCommands(commandBus,cadDocument);
+registerCadPilotCommands(commandBus,cadDocument);
+registerRegularPolygonCommands(commandBus,cadDocument);
 registerArtboardCommandHandlers(commandBus,cadDocument);
+registerWorkspaceSectionCommands(commandBus,cadDocument);
+registerFrameLinkCommands(commandBus,cadDocument);
+registerFrameSheetCommands(commandBus,cadDocument);
+registerFrameStitchCommands(commandBus,cadDocument);
 registerSceneCommands(commandBus,cadDocument);
+registerModelViewCommands(commandBus,cadDocument);
+registerModelPresentationCommands(commandBus,cadDocument);
+  registerModelDrawingCommands(commandBus,cadDocument);
+  registerModelNoteCommands(commandBus,cadDocument);
+  registerModelSheetCommands(commandBus,cadDocument);
+  registerModelSheetSetCommands(commandBus,cadDocument);
+registerWorkPlaneCommands(commandBus,cadDocument);
+registerFaceSketchCommands(commandBus,cadDocument);
+registerFaceCutCommands(commandBus,cadDocument);
+registerFaceHoleCommands(commandBus,cadDocument);
+registerShellCommands(commandBus,cadDocument);
+registerExchangeCommands(commandBus,cadDocument);
 registerVectorCommandHandlers(commandBus,cadDocument);
 registerImageCommandHandlers(commandBus,cadDocument);
 
-async function dispatchWithRegeneration(command: CadCommand): Promise<unknown> {
+function assertEditableCommandTargets(command: CadCommand) {
   const fields=command as unknown as Record<string,unknown>;
+  const modelIds=[fields.objectId,fields.targetId,...(Array.isArray(fields.objectIds)?fields.objectIds:[])].filter((id):id is string=>typeof id==="string");
+  if(modelIds.some(id=>Object.values(cadDocument.features).some(f=>f.output===id&&f.params.componentContent))&&!["rename-object","set-object-visible","move-object-to-layer","delete-object","update-component-content","detach-component-content","set-solid-finish","define-component-content","register-model-part","create-dimension","create-drafting"].includes(command.type))throw Error("Edit content through its slot or detach it before direct geometry edits.");
+  if(modelIds.some(id=>Object.values(cadDocument.features).some(f=>f.output===id&&f.params.architecturalSlab))&&["update-extrude","scale-object","duplicate-object"].includes(command.type))throw Error("Edit floor/ceiling level and thickness through Architectural surfaces.");
+  if(["update-extrude","scale-object","duplicate-object"].includes(command.type)&&modelIds.some(id=>Object.values(cadDocument.features).some(f=>f.output===id&&f.params.architecturalWall)))throw Error("Edit architectural walls through Wall dimensions; copy their source to make another independent host.");
+  if(!["rename-object","set-object-visible","move-object-to-layer","delete-object","create-drafting","create-dimension"].includes(command.type)&&modelIds.some(id=>Object.values(cadDocument.features).some(f=>f.output===id&&f.params.kind==="face")))throw Error("Planar faces follow their boundary sources. Edit the sources to transform the face.");
+  if(hasExplodedDisplay(cadDocument)&&["move-object","rotate-object","scale-object"].includes(command.type)&&modelIds.some(id=>explodedDisplayOffset(cadDocument,id).some(v=>v!==0)))throw Error("Assemble the display before direct transforms, or use explicit part placement in Assembly and drawings.");
+  if(!["rename-object","create-dimension","create-drafting"].includes(command.type)&&modelIds.some(id=>Object.values(cadDocument.features).some(f=>f.output===id&&(f.params.modelProjection||f.params.modelSection||f.params.modelSectionPresentation))))throw Error("This is a model-associated outline. Edit/rebind its derived view or its source part.");
+  if(command.type!=="rename-object"&&modelIds.some(id=>Object.values(cadDocument.features).some(f=>f.output===id&&typeof f.params.modelSheet==="string"&&cadDocument.modelPresentation?.sheets?.[f.params.modelSheet]?.publication)))throw Error("Edit owned frame fields/geometry through the published sheet set.");
+  if(command.type==="update-artboard"&&["origin","size","workPlane"].some(k=>fields[k]!==undefined)&&Object.values(cadDocument.modelPresentation?.sheets??{}).some(s=>s.artboardId===fields.artboardId&&s.publication))throw Error("Edit published paper bounds through the sheet set.");
   const ids=[fields.objectId,fields.targetId].filter((v):v is string=>typeof v==="string");
   if(!["rename-object","set-object-visible","move-object-to-layer","duplicate-object","create-dimension","create-drafting"].includes(command.type)&&ids.some(id=>Object.values(cadDocument.features).some(f=>f.output===id&&f.pattern)))throw new Error("Edit the pattern or its source, or detach the pattern before editing an individual instance.");
-  if (!['rename-object','set-object-visible','move-object-to-layer','delete-object'].includes(command.type) && [...ids, ...(Array.isArray(fields.objectIds) ? fields.objectIds : [])].some(id => Object.values(cadDocument.features).some(f => f.output === id && f.construction))) throw new Error("This object is defined by a construction. Edit its sources; its derived coordinates cannot be overwritten.");
+  if (!['rename-object','set-object-visible','move-object-to-layer','delete-object','update-construction'].includes(command.type) && [...ids, ...(Array.isArray(fields.objectIds) ? fields.objectIds : [])].some(id => Object.values(cadDocument.features).some(f => f.output === id && f.construction))) throw new Error("This object is defined by a construction. Edit its sources; its derived coordinates cannot be overwritten.");
+}
+
+async function dispatchWithRegeneration(command: CadCommand): Promise<unknown> {
+  assertEditableCommandTargets(command);
   const before = structuredClone(cadDocument);
   const raw = await commandBus.dispatch(command);
-  if (command.type !== "batch" && cadDocument.revision !== before.revision) {
-    try { validateSceneGraph(cadDocument); validatePatternGroups(cadDocument); validateConstructionGraph(cadDocument); const rebuild=refreshParameterBindings(cadDocument,before); refreshDrafting(cadDocument,before); await regenerateDependentFeatures(cadDocument, before,rebuild); refreshDrafting(cadDocument,before); }
+  if (command.type !== "batch" && !isModelViewOnlyCommand(command) && cadDocument.revision !== before.revision) {
+    try { validateSceneGraph(cadDocument); validatePatternGroups(cadDocument); validateConstructionGraph(cadDocument); const rebuild=refreshParameterBindings(cadDocument,before); await refreshFaceSketches(cadDocument,before); refreshDrafting(cadDocument,before); await regenerateDependentFeatures(cadDocument, before,rebuild); if(await refreshFaceSketches(cadDocument,before))await regenerateDependentFeatures(cadDocument,before); refreshDrafting(cadDocument,before); }
     catch (error) { if(error instanceof SketchParameterConflictError || error instanceof FeatureRegenerationError)throw error;
       throw new FeatureRegenerationError(error instanceof Error ? error.message : "Regeneration failed.",
       Object.values(cadDocument.features).filter((feature) => JSON.stringify(feature) !== JSON.stringify(before.features[feature.id])).map((feature) => feature.output)); }
@@ -61,11 +122,18 @@ function restoreDocumentSnapshot(snapshot: typeof cadDocument) {
   cadDocument.objects = structuredClone(snapshot.objects);
   cadDocument.features = structuredClone(snapshot.features);
   cadDocument.sketches = structuredClone(snapshot.sketches);
+  if(snapshot.componentLibrary)cadDocument.componentLibrary=structuredClone(snapshot.componentLibrary);else delete cadDocument.componentLibrary;
   if(snapshot.blocks) cadDocument.blocks = structuredClone(snapshot.blocks); else delete cadDocument.blocks;
   if(snapshot.variables) cadDocument.variables = structuredClone(snapshot.variables); else delete cadDocument.variables;
   if(snapshot.parameterBindings) cadDocument.parameterBindings = structuredClone(snapshot.parameterBindings); else delete cadDocument.parameterBindings;
+  if(snapshot.frameLinks) cadDocument.frameLinks = structuredClone(snapshot.frameLinks); else delete cadDocument.frameLinks;
+  if(snapshot.workspaceSections) cadDocument.workspaceSections = structuredClone(snapshot.workspaceSections); else delete cadDocument.workspaceSections;
   if(snapshot.artboards) cadDocument.artboards = structuredClone(snapshot.artboards); else delete cadDocument.artboards;
   if(snapshot.scenes) cadDocument.scenes = structuredClone(snapshot.scenes); else delete cadDocument.scenes;
+  if(snapshot.exchangeImports) cadDocument.exchangeImports = structuredClone(snapshot.exchangeImports); else delete cadDocument.exchangeImports;
+  if(snapshot.modelViews) cadDocument.modelViews = structuredClone(snapshot.modelViews); else delete cadDocument.modelViews;
+  if(snapshot.modelPresentation) cadDocument.modelPresentation=structuredClone(snapshot.modelPresentation); else delete cadDocument.modelPresentation;
+  if(snapshot.workPlanes) cadDocument.workPlanes = structuredClone(snapshot.workPlanes); else delete cadDocument.workPlanes;
   if(snapshot.rasterAssets) cadDocument.rasterAssets = structuredClone(snapshot.rasterAssets); else delete cadDocument.rasterAssets;
   cadDocument.layers = structuredClone(snapshot.layers);
   cadDocument.rootObjects = [...snapshot.rootObjects];
@@ -84,11 +152,15 @@ commandBus.registerHandler("batch", async (command: CadCommand) => {
   const results: unknown[] = [];
   // Coupled driver edits must solve/rebuild the final values together. An
   // intermediate width/height can invalidate a profile that the final pair preserves.
-  const coupledDrivers=command.commands.every(entry=>["set-variable","remove-variable","set-parameter-binding","remove-parameter-binding","set-sketch-dimension","remove-sketch-constraint"].includes(entry.type));
+    const coupledDrivers=command.commands.every(entry=>["set-variable","remove-variable","set-parameter-binding","remove-parameter-binding","set-sketch-dimension","remove-sketch-constraint"].includes(entry.type));
+    // Exploded profile edges can share an endpoint. Review the final geometry
+    // together, rather than rejecting a temporarily open loop mid-transaction.
+    const coupledGeometry=command.commands.length>1&&command.commands.every(entry=>["edit-drawing-control","move-object","rotate-object","scale-object","update-primitive","update-extrude","set-object-visible"].includes(entry.type));
   try {
     for (const entry of command.commands) {
       const beforeRevision = cadDocument.revision;
-      const result = await (coupledDrivers?commandBus.dispatch(entry):dispatchWithRegeneration(entry));
+        if(coupledGeometry)assertEditableCommandTargets(entry);
+        const result = await (coupledDrivers||coupledGeometry?commandBus.dispatch(entry):dispatchWithRegeneration(entry));
       // Handlers signal a rejected/no-op command by leaving revision intact.
       // A batch containing one such child must not leak earlier mutations.
       if (cadDocument.revision === beforeRevision) {
@@ -97,7 +169,8 @@ commandBus.registerHandler("batch", async (command: CadCommand) => {
       }
       results.push(result);
     }
-    if(coupledDrivers){const rebuild=refreshParameterBindings(cadDocument,snapshot);refreshDrafting(cadDocument,snapshot);await regenerateDependentFeatures(cadDocument,snapshot,rebuild);}
+      if(coupledDrivers){const rebuild=refreshParameterBindings(cadDocument,snapshot);await refreshFaceSketches(cadDocument,snapshot);refreshDrafting(cadDocument,snapshot);await regenerateDependentFeatures(cadDocument,snapshot,rebuild);if(await refreshFaceSketches(cadDocument,snapshot))await regenerateDependentFeatures(cadDocument,snapshot);}
+      if(coupledGeometry){validateSceneGraph(cadDocument);validatePatternGroups(cadDocument);validateConstructionGraph(cadDocument);const rebuild=refreshParameterBindings(cadDocument,snapshot);await refreshFaceSketches(cadDocument,snapshot);refreshDrafting(cadDocument,snapshot);await regenerateDependentFeatures(cadDocument,snapshot,rebuild);if(await refreshFaceSketches(cadDocument,snapshot))await regenerateDependentFeatures(cadDocument,snapshot);refreshDrafting(cadDocument,snapshot);}
   } catch (error) {
     restoreDocumentSnapshot(snapshot);
     return { accepted: false, reason: error instanceof Error ? error.message : "Batch rejected.", diagnostic: error instanceof SketchParameterConflictError ? error.diagnostic : error instanceof FeatureRegenerationError ? { kind: "regeneration-failed", constraintIds: [], geometryIds: error.geometryIds } : undefined };
@@ -453,13 +526,14 @@ commandBus.registerHandler("create-extrude", async (command: CadCommand) => {
   if (command.type !== "create-extrude") return;
   const loopResult = extractSketchLoops(cadDocument, command.profileObjectIds);
   if (!loopResult.ok || !loopResult.loops.length) return;
-  const profiles = loopResult.loops;
+  const profiles = command.profileRegionIds?loopResult.loops.filter(loop=>command.profileRegionIds!.includes(loop.id)):loopResult.loops;
+  if(!profiles.length||command.profileRegionIds?.some(id=>!profiles.some(loop=>loop.id===id)))throw Error("Selected profile region changed. Review again.");
   const layerId = command.layerId ?? cadDocument.objects[command.profileObjectIds[0]]?.layerId ?? "layer-default";
   const layer = cadDocument.layers[layerId];
   const id = command.id ?? `extrude-${crypto.randomUUID()}`;
   const featureId = `feature-${id}`;
   if (!layer || layer.locked || cadDocument.objects[id] || cadDocument.features[featureId]) return;
-  const params:Record<string,unknown> = { kind: "extrude", distance: command.distance, ...extrusionProfileParams(profiles) };
+  const params:Record<string,unknown> = { kind: "extrude", distance: command.distance, ...extrusionProfileParams(profiles),...(command.profileRegionIds?{profileRegionIds:command.profileRegionIds}:{}) };
   try {
     await validateExtrudeOperation(params);
     params.bounds = meshPositionsBounds((await buildExtrudeMesh(params)).positions);
@@ -946,7 +1020,7 @@ commandBus.registerHandler(
       object.id
     ];
 
-    if (releasedAssetId && !Object.values(cadDocument.features).some(feature => feature.type === "image" && feature.params.assetId === releasedAssetId)) {
+    if (releasedAssetId && !Object.values(cadDocument.componentLibrary??{}).some(d=>d.type==="image"&&d.params.assetId===releasedAssetId) && !Object.values(cadDocument.features).some(feature => feature.type === "image" && feature.params.assetId === releasedAssetId)) {
       delete cadDocument.rasterAssets?.[releasedAssetId];
       if (cadDocument.rasterAssets && !Object.keys(cadDocument.rasterAssets).length) delete cadDocument.rasterAssets;
     }
@@ -1083,7 +1157,7 @@ commandBus.registerHandler(
     // Booleans compose over primitives, extrusions, and prior boolean results.
     // Drawings and sketches have no solid volume and are rejected here, before
     // any kernel work starts.
-    const solidKinds = ["primitive", "extrude", "boolean", "fillet", "chamfer", "revolve", "sweep", "loft"];
+    const solidKinds = ["primitive", "extrude", "boolean", "fillet", "chamfer", "revolve", "sweep", "loft","shell"];
     if (!target || !tool || !targetFeature || !toolFeature || !solidKinds.includes(targetFeature.type) || !solidKinds.includes(toolFeature.type) || targetLayer?.locked || toolLayer?.locked) return;
     // Operand placement applies translation and rotation only: a scaled
     // operand would silently cut the wrong shape, so reject scaled operands
@@ -1129,7 +1203,7 @@ commandBus.registerHandler(
     // Selective fillet consumes one solid (primitive, extrusion, prior
     // boolean or prior fillet) and produces a new filleted body. Drawings
     // have no solid volume and are rejected before any kernel work starts.
-    const solidKinds = ["primitive", "extrude", "boolean", "fillet", "chamfer", "revolve", "sweep", "loft"];
+    const solidKinds = ["primitive", "extrude", "boolean", "fillet", "chamfer", "revolve", "sweep", "loft","shell"];
     if (!target || !targetFeature || !solidKinds.includes(targetFeature.type) || !target.visible || !targetLayer?.visible || targetLayer?.locked) return;
     if (!Array.isArray(command.edges) || !command.edges.length) return;
     if (!Number.isFinite(command.radius) || command.radius <= 0) return;
@@ -1170,7 +1244,7 @@ commandBus.registerHandler(
     // in (primitive, extrusion, prior boolean, fillet or chamfer), one new
     // chamfered body out. Drawings have no solid volume and are rejected
     // before any kernel work starts.
-    const solidKinds = ["primitive", "extrude", "boolean", "fillet", "chamfer", "revolve", "sweep", "loft"];
+    const solidKinds = ["primitive", "extrude", "boolean", "fillet", "chamfer", "revolve", "sweep", "loft","shell"];
     if (!target || !targetFeature || !solidKinds.includes(targetFeature.type) || !target.visible || !targetLayer?.visible || targetLayer?.locked) return;
     if (!Array.isArray(command.edges) || !command.edges.length) return;
     if (!Number.isFinite(command.distance) || command.distance <= 0) return;
@@ -1207,3 +1281,5 @@ function retainSource(id: string) {
 
 return dispatchWithRegeneration;
 }
+
+

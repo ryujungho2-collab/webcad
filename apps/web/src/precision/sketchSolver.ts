@@ -1,6 +1,7 @@
 import type { Sketch, SketchConstraint, SketchGeometry, SketchPoint, SketchPointRef, SketchSolveState } from "@agent-webcad/cad-document";
-import { CAD_PRECISION, linearToleranceAt, sketchConstraintGeometryIds as constraintGeometryIds, validSketchConstraint } from "@agent-webcad/cad-document";
+import { CAD_PRECISION, sketchCircularGeometry, linearToleranceAt, sketchConstraintGeometryIds as constraintGeometryIds, validSketchConstraint } from "@agent-webcad/cad-document";
 import { relationAngleTargets, sketchSegment, sketchAngleEdge } from "./sketchRelations";
+import { arcIntervalError, curveCurveContact, lineArcContact } from "./sketchArcRelations";
 
 export const SKETCH_TOLERANCE = CAD_PRECISION.linearTolerance;
 export const SKETCH_ANGULAR_TOLERANCE = CAD_PRECISION.angularTolerance;
@@ -27,7 +28,7 @@ function translateGeometry(geometry: SketchGeometry, delta: SketchPoint): Sketch
 function geometryVariables(geometry: SketchGeometry): number[] {
   switch (geometry.kind) {
     case "line": return [...geometry.start, ...geometry.end];
-    case "polyline": return geometry.vertices.flatMap((vertex) => vertex.point);
+    case "polyline": return [...geometry.vertices.flatMap((vertex) => vertex.point),...(geometry.bulges??[]).filter(b=>b!==0)];
     case "rectangle": return [...geometry.origin, geometry.width, geometry.height];
     case "circle": return [...geometry.center, geometry.radius];
     case "arc": return [...geometry.center, geometry.radius, geometry.startAngle, geometry.endAngle];
@@ -37,7 +38,7 @@ function geometryVariables(geometry: SketchGeometry): number[] {
 function withVariables(geometry: SketchGeometry, values: number[]): SketchGeometry {
   switch (geometry.kind) {
     case "line": return { ...geometry, start: [values[0], values[1]], end: [values[2], values[3]] };
-    case "polyline": return { ...geometry, vertices: geometry.vertices.map((vertex, index) => ({ ...vertex, point: [values[index * 2], values[index * 2 + 1]] })) };
+    case "polyline": {let cursor=geometry.vertices.length*2;return { ...geometry, vertices: geometry.vertices.map((vertex, index) => ({ ...vertex, point: [values[index * 2], values[index * 2 + 1]] })),...(geometry.bulges?{bulges:geometry.bulges.map(b=>b===0?0:values[cursor++])}:{}) };}
     case "rectangle": return { ...geometry, origin: [values[0], values[1]], width: values[2], height: values[3] };
     case "circle": return { ...geometry, center: [values[0], values[1]], radius: values[2] };
     case "arc": return { ...geometry, center: [values[0], values[1]], radius: values[2], startAngle: values[3], endAngle: values[4] };
@@ -64,7 +65,7 @@ export function sketchPoint(geometry: SketchGeometry, pointId: string): SketchPo
 function validateGeometry(geometry: SketchGeometry): boolean {
   if (!geometry.id || !geometryVariables(geometry).every(Number.isFinite) || (geometry.kind === "rectangle" && !Number.isFinite(geometry.angle ?? 0))) return false;
   if (geometry.kind === "line") return Boolean(geometry.startId && geometry.endId && geometry.segmentId && geometry.startId !== geometry.endId && finitePoint(geometry.start) && finitePoint(geometry.end) && Math.hypot(geometry.end[0] - geometry.start[0], geometry.end[1] - geometry.start[1]) > SKETCH_TOLERANCE);
-  if (geometry.kind === "polyline") return geometry.vertices.length >= (geometry.closed ? 3 : 2) && new Set(geometry.vertices.map((vertex) => vertex.id)).size === geometry.vertices.length && geometry.vertices.every((vertex) => Boolean(vertex.id) && finitePoint(vertex.point)) && geometry.segmentIds.length === geometry.vertices.length - (geometry.closed ? 0 : 1) && new Set(geometry.segmentIds).size === geometry.segmentIds.length && geometry.vertices.every((vertex, index) => index === 0 && !geometry.closed || Math.hypot(vertex.point[0] - geometry.vertices[(index - 1 + geometry.vertices.length) % geometry.vertices.length].point[0], vertex.point[1] - geometry.vertices[(index - 1 + geometry.vertices.length) % geometry.vertices.length].point[1]) > SKETCH_TOLERANCE);
+  if (geometry.kind === "polyline") return (geometry.bulges===undefined||Array.isArray(geometry.bulges)&&geometry.bulges.length===geometry.segmentIds.length&&geometry.bulges.every((b,i)=>Number.isFinite(b)&&Math.abs(b)<1e6&&(b===0||sketchCircularGeometry(geometry,geometry.segmentIds[i])!==null))) && geometry.vertices.length >= (geometry.closed ? 3 : 2) && new Set(geometry.vertices.map((vertex) => vertex.id)).size === geometry.vertices.length && geometry.vertices.every((vertex) => Boolean(vertex.id) && finitePoint(vertex.point)) && geometry.segmentIds.length === geometry.vertices.length - (geometry.closed ? 0 : 1) && new Set(geometry.segmentIds).size === geometry.segmentIds.length && geometry.vertices.every((vertex, index) => index === 0 && !geometry.closed || Math.hypot(vertex.point[0] - geometry.vertices[(index - 1 + geometry.vertices.length) % geometry.vertices.length].point[0], vertex.point[1] - geometry.vertices[(index - 1 + geometry.vertices.length) % geometry.vertices.length].point[1]) > SKETCH_TOLERANCE);
   if (geometry.kind === "rectangle") return geometry.cornerIds.length === 4 && new Set(geometry.cornerIds).size === 4 && geometry.edgeIds.length === 4 && new Set(geometry.edgeIds).size === 4 && geometry.width > SKETCH_TOLERANCE && geometry.height > SKETCH_TOLERANCE;
   if (geometry.kind === "arc") return Boolean(geometry.centerId && geometry.startId && geometry.endId && geometry.curveId && geometry.radius > SKETCH_TOLERANCE && Math.abs(geometry.endAngle - geometry.startAngle) > SKETCH_ANGULAR_TOLERANCE);
   return geometry.centerId.length > 0 && geometry.curveId.length > 0 && geometry.radius > SKETCH_TOLERANCE;
@@ -76,7 +77,7 @@ function constraintResidual(constraint: SketchConstraint, geometry: Map<string, 
     return entity ? sketchPoint(entity, reference.pointId) : null;
   };
   const segment = (ref: import("@agent-webcad/cad-document").SketchSegmentRef) => sketchSegment(geometry.get(ref.geometryId), ref);
-  const circle = (id: string, full = false) => { const g = geometry.get(id); return g?.kind === "circle" || !full && g?.kind === "arc" ? g as Extract<SketchGeometry, {kind:"circle"|"arc"}> : null; };
+  const circle = (id: string, full = false, segmentId?:string) => {const c=sketchCircularGeometry(geometry.get(id),segmentId);return full&&c?.kind!=="circle"?null:c;};
   const signedDistance = (p: SketchPoint, edge: [SketchPoint, SketchPoint]) => { const dx = edge[1][0] - edge[0][0], dy = edge[1][1] - edge[0][1]; return (dx * (p[1] - edge[0][1]) - dy * (p[0] - edge[0][0])) / Math.max(SKETCH_TOLERANCE, Math.hypot(dx, dy)); };
   if ("firstSegment" in constraint) {
     const a = segment(constraint.firstSegment), b = segment(constraint.secondSegment); if (!a || !b) return null;
@@ -86,23 +87,26 @@ function constraintResidual(constraint: SketchConstraint, geometry: Map<string, 
     return [Math.atan2(Math.sin(delta), Math.cos(delta))];
   }
   if ("firstCurveId" in constraint) {
-    const a = circle(constraint.firstCurveId, constraint.kind === "tangent-circles"), b = circle(constraint.secondCurveId, constraint.kind === "tangent-circles"); if (!a || !b) return null;
+    const a = circle(constraint.firstCurveId,false,constraint.firstCurveSegmentId), b = circle(constraint.secondCurveId,false,constraint.secondCurveSegmentId); if (!a || !b) return null;
     if (constraint.kind === "concentric") return [b.center[0] - a.center[0], b.center[1] - a.center[1]];
     if (constraint.kind === "equal-radius") return [a.radius - b.radius];
     if (constraint.kind !== "tangent-circles") return null;
     const contact = constraint.contact === "external" ? a.radius + b.radius : Math.abs(a.radius - b.radius);
-    return [Math.hypot(b.center[0] - a.center[0], b.center[1] - a.center[1]) - contact];
+    if(a.kind==="circle"&&b.kind==="circle")return [Math.hypot(b.center[0] - a.center[0], b.center[1] - a.center[1]) - contact];
+    const bounded=curveCurveContact(a,b,constraint.contact);
+    return bounded?[bounded.distanceError,bounded.firstError,bounded.secondError]:[-contact,0,0];
   }
-  if (constraint.kind === "tangent-line") { const line = segment(constraint.line), c = circle(constraint.curveId, true); return line && c ? [signedDistance(c.center, line) - constraint.side * c.radius] : null; }
+  if (constraint.kind === "tangent-line") { const line = segment(constraint.line), c = circle(constraint.curveId,false,constraint.curveSegmentId); if(!line||!c)return null; if(c.kind==="circle")return [signedDistance(c.center,line)-constraint.side*c.radius];const contact=lineArcContact(line,c,constraint.side);return contact?[contact.distanceError,contact.segmentError,contact.arcError]:null; }
   if (constraint.kind === "point-on-line") { const p = point(constraint.point), line = segment(constraint.line); return p && line ? [signedDistance(p, line)] : null; }
   if (constraint.kind === "point-on-circle") { const p = point(constraint.point), c = circle(constraint.curveId, true); return p && c ? [Math.hypot(p[0] - c.center[0], p[1] - c.center[1]) - c.radius] : null; }
+  if (constraint.kind === "point-on-arc") { const p=point(constraint.point),c=circle(constraint.curveId,false,constraint.curveSegmentId);return p&&c?.kind==="arc"?[Math.hypot(p[0]-c.center[0],p[1]-c.center[1])-c.radius,arcIntervalError(c,p)]:null; }
   if (constraint.kind === "symmetric") {
     const a = point(constraint.first), b = point(constraint.second), axis = segment(constraint.axis); if (!a || !b || !axis) return null;
     const dx = axis[1][0] - axis[0][0], dy = axis[1][1] - axis[0][1], length = Math.max(SKETCH_TOLERANCE, Math.hypot(dx, dy));
     return [signedDistance([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], axis), ((b[0] - a[0]) * dx + (b[1] - a[1]) * dy) / length];
   }
   if (constraint.kind === "radius" || constraint.kind === "diameter") {
-    const circle = geometry.get(constraint.geometryId);
+    const circle = sketchCircularGeometry(geometry.get(constraint.geometryId),constraint.segmentId);
     return circle && (circle.kind === "circle" || circle.kind === "arc") ? [(constraint.kind === "diameter" ? 2 : 1) * circle.radius - constraint.value] : null;
   }
   if (constraint.kind === "angle") {
@@ -147,7 +151,9 @@ function validateSketch(sketch: Sketch): string | null {
     if (!validSketchConstraint(constraint)) return "Invalid constraint definition.";
     if (!constraint.id || !constraintGeometryIds(constraint).every((id) => geometry.has(id))) return `Invalid constraint ${constraint.id}.`;
     if ("value" in constraint && (typeof constraint.value === "number" ? !Number.isFinite(constraint.value) || (constraint.kind === "angle" ? Math.abs(constraint.value) > Math.PI : constraint.value <= SKETCH_TOLERANCE) : !finitePoint(constraint.value))) return `Invalid value for ${constraint.id}.`;
-    if (!constraintResidual(constraint, geometry)) return `Invalid topology reference in ${constraint.id}.`;
+    const residual=constraintResidual(constraint,geometry);
+    if (!residual) return `Invalid topology reference in ${constraint.id}.`;
+    if(residual.some(value=>!Number.isFinite(value)))return `A finite arc sweep is required for ${constraint.id}.`;
     if ("first" in constraint && pointKey(constraint.first) === pointKey(constraint.second)) return `Constraint ${constraint.id} references one point twice.`;
   }
   return null;
@@ -287,7 +293,10 @@ export function solveSketch(input: Sketch, motion?: SketchMotionRestriction): Sk
     let values = initial.slice();
     let residual = evaluate(values);
     let damping = 1e-4;
-    for (let iteration = 0; iteration < MAX_ITERATIONS && Math.max(...residual.map(Math.abs)) > tolerance; iteration += 1) {
+    // Refine accepted sketch residuals below the solid kernel's sewing tolerance.
+    // Otherwise a visually closed constrained loop can leave sub-micron gaps in a BRep.
+    const convergenceTolerance = Math.min(tolerance, 1e-8);
+    for (let iteration = 0; iteration < MAX_ITERATIONS && Math.max(...residual.map(Math.abs)) > convergenceTolerance; iteration += 1) {
       const rows = jacobian(values, residual);
       const normal = values.map((_, row) => values.map((__, column) =>
         rows.reduce((sum, equation) => sum + equation[row] * equation[column], row === column ? damping : 0)));
@@ -321,7 +330,7 @@ export function solveSketch(input: Sketch, motion?: SketchMotionRestriction): Sk
       offset += lengths[index];
     });
     if ([...solved.values()].some((entry) => !validateGeometry(entry))) return { ok: false, reason: "Solved geometry is degenerate.", conflictingConstraintIds: constraints.map((entry) => entry.id) };
-    const collapsedContacts = constraints.filter(c=>c.kind === "tangent-circles" && c.contact === "internal" && Math.abs((solved.get(c.firstCurveId) as {radius:number}).radius - (solved.get(c.secondCurveId) as {radius:number}).radius) <= tolerance);
+    const collapsedContacts = constraints.filter(c=>c.kind === "tangent-circles" && c.contact === "internal" && Math.abs(sketchCircularGeometry(solved.get(c.firstCurveId),c.firstCurveSegmentId)!.radius - sketchCircularGeometry(solved.get(c.secondCurveId),c.secondCurveSegmentId)!.radius) <= tolerance);
     if (collapsedContacts.length) return { ok: false, reason: "Internal tangency requires distinct circle radii.", conflictingConstraintIds: collapsedContacts.map(c=>c.id) };
     rank += matrixRank(jacobian(values, residual), values.length);
     sketch.geometry = sketch.geometry.map((entry) => solved.get(entry.id) ?? entry);

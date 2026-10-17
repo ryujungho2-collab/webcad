@@ -1,0 +1,37 @@
+{
+  "card": "WF-A1",
+  "date": "2026-10-14",
+  "status": "passed",
+  "scope": "DXF floor plan preparation and Copilot guided entry",
+  "node": {
+    "command": "node node_modules/tsx/dist/cli.mjs --test tests/dxfPreparation.test.ts tests/dxfPlacement.test.ts tests/dxfOcs.test.ts tests/dxfBulge.test.ts",
+    "status": "passed",
+    "checks": 31
+  },
+  "browser": {
+    "dxfPreparation": 17,
+    "dxfPlacement": 15,
+    "dxfWorkflow": 18,
+    "copilotApply": 26,
+    "total": 76,
+    "status": "passed",
+    "input": "isolated Chromium CDP physical input and real file chooser"
+  },
+  "typecheck": "passed",
+  "architecture": "passed: 563 modules",
+  "productionBuild": "passed: 408 modules",
+  "fullCadSuiteRerun": false,
+  "artifacts": [
+    "output/images/floor-plan-preparation-2026-10-14.png",
+    "output/verification/floor-plan-preparation-native-report.json"
+  ],
+  "limits": [
+    "Guided Copilot entry, not general natural language workflow implementation",
+    "Import-only unused definition omission, not existing document PURGE",
+    "Nested block contents retained as a whole",
+    "No DWG/SKP/3D Warehouse support",
+    "No general Flex, slot, hover distance or automatic face/wall workflow yet",
+    "No large-project performance claim"
+  ],
+  "finalValidationDate": "2026-10-15"
+}

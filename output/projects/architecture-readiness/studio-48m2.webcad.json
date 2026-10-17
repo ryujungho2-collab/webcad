@@ -1,0 +1,4293 @@
+{
+  "format": "agent-webcad",
+  "version": 25,
+  "document": {
+    "id": "architecture-readiness-studio-48m2",
+    "revision": 78,
+    "objects": {
+      "outer": {
+        "id": "outer",
+        "geometryId": "geometry-outer",
+        "name": "Box",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "inner": {
+        "id": "inner",
+        "geometryId": "geometry-inner",
+        "name": "Box",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            200,
+            200,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "wall-ring": {
+        "id": "wall-ring",
+        "geometryId": "geometry-wall-ring",
+        "name": "Cut",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "entry-opening": {
+        "id": "entry-opening",
+        "geometryId": "geometry-entry-opening",
+        "name": "Box",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            1000,
+            -100,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "door-walls": {
+        "id": "door-walls",
+        "geometryId": "geometry-door-walls",
+        "name": "Cut",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "window-opening": {
+        "id": "window-opening",
+        "geometryId": "geometry-window-opening",
+        "name": "Box",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            3200,
+            5700,
+            900
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "walls": {
+        "id": "walls",
+        "geometryId": "geometry-walls",
+        "name": "Cut",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "partition-source": {
+        "id": "partition-source",
+        "geometryId": "geometry-partition-source",
+        "name": "Box",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            4000,
+            200,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "internal-door": {
+        "id": "internal-door",
+        "geometryId": "geometry-internal-door",
+        "name": "Box",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            3900,
+            1200,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "partition": {
+        "id": "partition",
+        "geometryId": "geometry-partition",
+        "name": "Cut",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "floor": {
+        "id": "floor",
+        "geometryId": "geometry-floor",
+        "name": "Box",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            -150
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-cc5ecfcc-83dc-4057-a883-e202533a0193": {
+        "id": "section-cc5ecfcc-83dc-4057-a883-e202533a0193",
+        "geometryId": "geometry-section-cc5ecfcc-83dc-4057-a883-e202533a0193",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-56c9af53-327e-43b7-9792-4bfaa3677b02": {
+        "id": "section-56c9af53-327e-43b7-9792-4bfaa3677b02",
+        "geometryId": "geometry-section-56c9af53-327e-43b7-9792-4bfaa3677b02",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-f0c670ba-42f1-44da-a87f-5865eed9ef2c": {
+        "id": "section-f0c670ba-42f1-44da-a87f-5865eed9ef2c",
+        "geometryId": "geometry-section-f0c670ba-42f1-44da-a87f-5865eed9ef2c",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-f6bae577-144e-4f15-bd16-ebefb76f50e2": {
+        "id": "section-f6bae577-144e-4f15-bd16-ebefb76f50e2",
+        "geometryId": "geometry-section-f6bae577-144e-4f15-bd16-ebefb76f50e2",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-b7d827e6-7fd8-46ea-9731-0b52d579123c": {
+        "id": "section-b7d827e6-7fd8-46ea-9731-0b52d579123c",
+        "geometryId": "geometry-section-b7d827e6-7fd8-46ea-9731-0b52d579123c",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-a3d95e1d-152f-4499-a2f8-0eac409130fb": {
+        "id": "section-a3d95e1d-152f-4499-a2f8-0eac409130fb",
+        "geometryId": "geometry-section-a3d95e1d-152f-4499-a2f8-0eac409130fb",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-a4db4d69-ebd4-4048-9a58-6fc19b33fe3e": {
+        "id": "section-a4db4d69-ebd4-4048-9a58-6fc19b33fe3e",
+        "geometryId": "geometry-section-a4db4d69-ebd4-4048-9a58-6fc19b33fe3e",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-89fe1363-43f7-4814-b930-0f66c7e11ffc": {
+        "id": "section-89fe1363-43f7-4814-b930-0f66c7e11ffc",
+        "geometryId": "geometry-section-89fe1363-43f7-4814-b930-0f66c7e11ffc",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-fe0c7fb9-f49a-4d18-bcaf-ae4dd0298960": {
+        "id": "section-fe0c7fb9-f49a-4d18-bcaf-ae4dd0298960",
+        "geometryId": "geometry-section-fe0c7fb9-f49a-4d18-bcaf-ae4dd0298960",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-ac8538ab-ff4c-4e0c-b6cf-c7e58d58dbbb": {
+        "id": "section-ac8538ab-ff4c-4e0c-b6cf-c7e58d58dbbb",
+        "geometryId": "geometry-section-ac8538ab-ff4c-4e0c-b6cf-c7e58d58dbbb",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-f9d3cfb3-cd5b-4f11-919a-94688e9c06ac": {
+        "id": "section-f9d3cfb3-cd5b-4f11-919a-94688e9c06ac",
+        "geometryId": "geometry-section-f9d3cfb3-cd5b-4f11-919a-94688e9c06ac",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-2ff1f8ba-8a29-4a08-b1f0-cbc596337cc0": {
+        "id": "section-2ff1f8ba-8a29-4a08-b1f0-cbc596337cc0",
+        "geometryId": "geometry-section-2ff1f8ba-8a29-4a08-b1f0-cbc596337cc0",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-85cf793a-9360-4edf-9cec-87a833c9a2f5": {
+        "id": "section-85cf793a-9360-4edf-9cec-87a833c9a2f5",
+        "geometryId": "geometry-section-85cf793a-9360-4edf-9cec-87a833c9a2f5",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-a63923fb-fc39-4fe5-a91a-f2be073afff4": {
+        "id": "section-a63923fb-fc39-4fe5-a91a-f2be073afff4",
+        "geometryId": "geometry-section-a63923fb-fc39-4fe5-a91a-f2be073afff4",
+        "name": "Plan at1200 · Partition · internal door",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-696dcbbe-95a8-4540-9a73-fc023c4d9972": {
+        "id": "section-696dcbbe-95a8-4540-9a73-fc023c4d9972",
+        "geometryId": "geometry-section-696dcbbe-95a8-4540-9a73-fc023c4d9972",
+        "name": "Plan at1200 · Partition · internal door",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-1d1d3e8d-10c4-42dc-b197-c04584ff3bc2": {
+        "id": "section-1d1d3e8d-10c4-42dc-b197-c04584ff3bc2",
+        "geometryId": "geometry-section-1d1d3e8d-10c4-42dc-b197-c04584ff3bc2",
+        "name": "Plan at1200 · Partition · internal door",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-23fe4066-2d9b-4121-bcda-fb7572829fcc": {
+        "id": "section-23fe4066-2d9b-4121-bcda-fb7572829fcc",
+        "geometryId": "geometry-section-23fe4066-2d9b-4121-bcda-fb7572829fcc",
+        "name": "Plan at1200 · Partition · internal door",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-919254c2-882f-410b-990b-dc16fc3e1873": {
+        "id": "section-919254c2-882f-410b-990b-dc16fc3e1873",
+        "geometryId": "geometry-section-919254c2-882f-410b-990b-dc16fc3e1873",
+        "name": "Plan at1200 · Partition · internal door",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-31bc7aec-a1d4-417e-9231-3d9850a79812": {
+        "id": "section-31bc7aec-a1d4-417e-9231-3d9850a79812",
+        "geometryId": "geometry-section-31bc7aec-a1d4-417e-9231-3d9850a79812",
+        "name": "Plan at1200 · Partition · internal door",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-cdcbb0a6-c16f-48e0-8d21-c26ce0127cae": {
+        "id": "section-cdcbb0a6-c16f-48e0-8d21-c26ce0127cae",
+        "geometryId": "geometry-section-cdcbb0a6-c16f-48e0-8d21-c26ce0127cae",
+        "name": "Plan at1200 · Partition · internal door",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-68cb34f5-0974-42ac-8a33-33bfe80a2d51": {
+        "id": "section-68cb34f5-0974-42ac-8a33-33bfe80a2d51",
+        "geometryId": "geometry-section-68cb34f5-0974-42ac-8a33-33bfe80a2d51",
+        "name": "Plan at1200 · Partition · internal door",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-68a9e452-7d1e-43ff-9005-3cd98e794780": {
+        "id": "section-68a9e452-7d1e-43ff-9005-3cd98e794780",
+        "geometryId": "geometry-section-68a9e452-7d1e-43ff-9005-3cd98e794780",
+        "name": "Section A-A at Y3000 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-fb80d252-a1e4-4f87-9f7f-02dee32c4e1c": {
+        "id": "section-fb80d252-a1e4-4f87-9f7f-02dee32c4e1c",
+        "geometryId": "geometry-section-fb80d252-a1e4-4f87-9f7f-02dee32c4e1c",
+        "name": "Section A-A at Y3000 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-2a5c7a0c-6696-4279-bba7-4de1ce650c2b": {
+        "id": "section-2a5c7a0c-6696-4279-bba7-4de1ce650c2b",
+        "geometryId": "geometry-section-2a5c7a0c-6696-4279-bba7-4de1ce650c2b",
+        "name": "Section A-A at Y3000 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-5980c311-a1a9-462d-86d6-bc5e0e7e11e5": {
+        "id": "section-5980c311-a1a9-462d-86d6-bc5e0e7e11e5",
+        "geometryId": "geometry-section-5980c311-a1a9-462d-86d6-bc5e0e7e11e5",
+        "name": "Section A-A at Y3000 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-082ec51e-89d9-4159-928f-a8572e190a4d": {
+        "id": "section-082ec51e-89d9-4159-928f-a8572e190a4d",
+        "geometryId": "geometry-section-082ec51e-89d9-4159-928f-a8572e190a4d",
+        "name": "Section A-A at Y3000 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-3717f60e-9a65-4aee-acbc-74724448e37c": {
+        "id": "section-3717f60e-9a65-4aee-acbc-74724448e37c",
+        "geometryId": "geometry-section-3717f60e-9a65-4aee-acbc-74724448e37c",
+        "name": "Section A-A at Y3000 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-06fe84ee-319e-4e94-873f-3039e1fd09f7": {
+        "id": "section-06fe84ee-319e-4e94-873f-3039e1fd09f7",
+        "geometryId": "geometry-section-06fe84ee-319e-4e94-873f-3039e1fd09f7",
+        "name": "Section A-A at Y3000 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-3bf32111-9cca-4a94-b5c4-039ab82e58d1": {
+        "id": "section-3bf32111-9cca-4a94-b5c4-039ab82e58d1",
+        "geometryId": "geometry-section-3bf32111-9cca-4a94-b5c4-039ab82e58d1",
+        "name": "Section A-A at Y3000 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-2225b1db-c2f4-489a-95b1-6d3e3ef1f63a": {
+        "id": "section-2225b1db-c2f4-489a-95b1-6d3e3ef1f63a",
+        "geometryId": "geometry-section-2225b1db-c2f4-489a-95b1-6d3e3ef1f63a",
+        "name": "Section A-A at Y3000 · Partition · internal door",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-1ad074e8-139d-4e7b-a5fa-6f86d4623e6a": {
+        "id": "section-1ad074e8-139d-4e7b-a5fa-6f86d4623e6a",
+        "geometryId": "geometry-section-1ad074e8-139d-4e7b-a5fa-6f86d4623e6a",
+        "name": "Section A-A at Y3000 · Partition · internal door",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-3e912134-cc47-4e6e-bd58-00b767f3ea68": {
+        "id": "section-3e912134-cc47-4e6e-bd58-00b767f3ea68",
+        "geometryId": "geometry-section-3e912134-cc47-4e6e-bd58-00b767f3ea68",
+        "name": "Section A-A at Y3000 · Partition · internal door",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-a1ecf25c-b94b-4e6f-a947-be3cda0c2ca0": {
+        "id": "section-a1ecf25c-b94b-4e6f-a947-be3cda0c2ca0",
+        "geometryId": "geometry-section-a1ecf25c-b94b-4e6f-a947-be3cda0c2ca0",
+        "name": "Section A-A at Y3000 · Partition · internal door",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-30f93e68-1358-414c-817c-fd6902d08620": {
+        "id": "section-30f93e68-1358-414c-817c-fd6902d08620",
+        "geometryId": "geometry-section-30f93e68-1358-414c-817c-fd6902d08620",
+        "name": "Section A-A at Y3000 · Floor slab",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-a654c331-a656-4ca3-be3e-b7ea9fd5089e": {
+        "id": "section-a654c331-a656-4ca3-be3e-b7ea9fd5089e",
+        "geometryId": "geometry-section-a654c331-a656-4ca3-be3e-b7ea9fd5089e",
+        "name": "Section A-A at Y3000 · Floor slab",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-80942f2b-7188-42c2-92ef-76dc257bbb93": {
+        "id": "section-80942f2b-7188-42c2-92ef-76dc257bbb93",
+        "geometryId": "geometry-section-80942f2b-7188-42c2-92ef-76dc257bbb93",
+        "name": "Section A-A at Y3000 · Floor slab",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-0c71e3b2-dbd1-477c-a9f7-97eee76aeea9": {
+        "id": "section-0c71e3b2-dbd1-477c-a9f7-97eee76aeea9",
+        "geometryId": "geometry-section-0c71e3b2-dbd1-477c-a9f7-97eee76aeea9",
+        "name": "Section A-A at Y3000 · Floor slab",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "sheet-title-851ab6c4-f959-46f6-9c30-5c97c7825abe": {
+        "id": "sheet-title-851ab6c4-f959-46f6-9c30-5c97c7825abe",
+        "name": "text",
+        "geometryId": "geometry-sheet-title-851ab6c4-f959-46f6-9c30-5c97c7825abe",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-af55f2f4-4ceb-423e-b9cf-813d8645b1bd": {
+        "id": "section-af55f2f4-4ceb-423e-b9cf-813d8645b1bd",
+        "geometryId": "geometry-section-af55f2f4-4ceb-423e-b9cf-813d8645b1bd",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-d08be806-49a6-481e-94a7-42fe8aaa1e2d": {
+        "id": "section-d08be806-49a6-481e-94a7-42fe8aaa1e2d",
+        "geometryId": "geometry-section-d08be806-49a6-481e-94a7-42fe8aaa1e2d",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section-a07c5170-7ead-4aa4-b212-9bdd585bd387": {
+        "id": "section-a07c5170-7ead-4aa4-b212-9bdd585bd387",
+        "geometryId": "geometry-section-a07c5170-7ead-4aa4-b212-9bdd585bd387",
+        "name": "Plan at1200 · External walls · entry + window",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    "features": {
+      "feature-outer": {
+        "id": "feature-outer",
+        "type": "primitive",
+        "inputs": [],
+        "output": "outer",
+        "params": {
+          "width": 8000,
+          "depth": 6000,
+          "height": 3000
+        }
+      },
+      "feature-inner": {
+        "id": "feature-inner",
+        "type": "primitive",
+        "inputs": [],
+        "output": "inner",
+        "params": {
+          "width": 7600,
+          "depth": 5600,
+          "height": 3000
+        }
+      },
+      "feature-wall-ring": {
+        "id": "feature-wall-ring",
+        "type": "boolean",
+        "dependencyMode": "live",
+        "inputs": [
+          "outer",
+          "inner"
+        ],
+        "output": "wall-ring",
+        "params": {
+          "operation": "cut",
+          "operands": [
+            {
+              "params": {
+                "width": 8000,
+                "depth": 6000,
+                "height": 3000
+              },
+              "transform": {
+                "translation": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            },
+            {
+              "params": {
+                "width": 7600,
+                "depth": 5600,
+                "height": 3000
+              },
+              "transform": {
+                "translation": [
+                  200,
+                  200,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            }
+          ],
+          "bounds": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              8000,
+              6000,
+              3000
+            ]
+          }
+        }
+      },
+      "feature-entry-opening": {
+        "id": "feature-entry-opening",
+        "type": "primitive",
+        "inputs": [],
+        "output": "entry-opening",
+        "params": {
+          "kind": "box",
+          "width": 1200,
+          "depth": 400,
+          "height": 2100
+        }
+      },
+      "feature-door-walls": {
+        "id": "feature-door-walls",
+        "type": "boolean",
+        "dependencyMode": "live",
+        "inputs": [
+          "wall-ring",
+          "entry-opening"
+        ],
+        "output": "door-walls",
+        "params": {
+          "operation": "cut",
+          "operands": [
+            {
+              "params": {
+                "operation": "cut",
+                "operands": [
+                  {
+                    "params": {
+                      "width": 8000,
+                      "depth": 6000,
+                      "height": 3000
+                    },
+                    "transform": {
+                      "translation": [
+                        0,
+                        0,
+                        0
+                      ],
+                      "rotation": [
+                        0,
+                        0,
+                        0
+                      ],
+                      "scale": [
+                        1,
+                        1,
+                        1
+                      ]
+                    }
+                  },
+                  {
+                    "params": {
+                      "width": 7600,
+                      "depth": 5600,
+                      "height": 3000
+                    },
+                    "transform": {
+                      "translation": [
+                        200,
+                        200,
+                        0
+                      ],
+                      "rotation": [
+                        0,
+                        0,
+                        0
+                      ],
+                      "scale": [
+                        1,
+                        1,
+                        1
+                      ]
+                    }
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "max": [
+                    8000,
+                    6000,
+                    3000
+                  ]
+                }
+              },
+              "transform": {
+                "translation": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            },
+            {
+              "params": {
+                "kind": "box",
+                "width": 1200,
+                "depth": 400,
+                "height": 2100
+              },
+              "transform": {
+                "translation": [
+                  1000,
+                  -100,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            }
+          ],
+          "bounds": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              8000,
+              6000,
+              3000
+            ]
+          }
+        }
+      },
+      "feature-window-opening": {
+        "id": "feature-window-opening",
+        "type": "primitive",
+        "inputs": [],
+        "output": "window-opening",
+        "params": {
+          "width": 1800,
+          "depth": 400,
+          "height": 1200
+        }
+      },
+      "feature-walls": {
+        "id": "feature-walls",
+        "type": "boolean",
+        "dependencyMode": "live",
+        "inputs": [
+          "door-walls",
+          "window-opening"
+        ],
+        "output": "walls",
+        "params": {
+          "operation": "cut",
+          "operands": [
+            {
+              "params": {
+                "operation": "cut",
+                "operands": [
+                  {
+                    "params": {
+                      "operation": "cut",
+                      "operands": [
+                        {
+                          "params": {
+                            "width": 8000,
+                            "depth": 6000,
+                            "height": 3000
+                          },
+                          "transform": {
+                            "translation": [
+                              0,
+                              0,
+                              0
+                            ],
+                            "rotation": [
+                              0,
+                              0,
+                              0
+                            ],
+                            "scale": [
+                              1,
+                              1,
+                              1
+                            ]
+                          }
+                        },
+                        {
+                          "params": {
+                            "width": 7600,
+                            "depth": 5600,
+                            "height": 3000
+                          },
+                          "transform": {
+                            "translation": [
+                              200,
+                              200,
+                              0
+                            ],
+                            "rotation": [
+                              0,
+                              0,
+                              0
+                            ],
+                            "scale": [
+                              1,
+                              1,
+                              1
+                            ]
+                          }
+                        }
+                      ],
+                      "bounds": {
+                        "min": [
+                          0,
+                          0,
+                          0
+                        ],
+                        "max": [
+                          8000,
+                          6000,
+                          3000
+                        ]
+                      }
+                    },
+                    "transform": {
+                      "translation": [
+                        0,
+                        0,
+                        0
+                      ],
+                      "rotation": [
+                        0,
+                        0,
+                        0
+                      ],
+                      "scale": [
+                        1,
+                        1,
+                        1
+                      ]
+                    }
+                  },
+                  {
+                    "params": {
+                      "kind": "box",
+                      "width": 1200,
+                      "depth": 400,
+                      "height": 2100
+                    },
+                    "transform": {
+                      "translation": [
+                        1000,
+                        -100,
+                        0
+                      ],
+                      "rotation": [
+                        0,
+                        0,
+                        0
+                      ],
+                      "scale": [
+                        1,
+                        1,
+                        1
+                      ]
+                    }
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "max": [
+                    8000,
+                    6000,
+                    3000
+                  ]
+                }
+              },
+              "transform": {
+                "translation": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            },
+            {
+              "params": {
+                "width": 1800,
+                "depth": 400,
+                "height": 1200
+              },
+              "transform": {
+                "translation": [
+                  3200,
+                  5700,
+                  900
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            }
+          ],
+          "bounds": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              8000,
+              6000,
+              3000
+            ]
+          }
+        }
+      },
+      "feature-partition-source": {
+        "id": "feature-partition-source",
+        "type": "primitive",
+        "inputs": [],
+        "output": "partition-source",
+        "params": {
+          "width": 150,
+          "depth": 5600,
+          "height": 3000
+        }
+      },
+      "feature-internal-door": {
+        "id": "feature-internal-door",
+        "type": "primitive",
+        "inputs": [],
+        "output": "internal-door",
+        "params": {
+          "width": 350,
+          "depth": 900,
+          "height": 2100
+        }
+      },
+      "feature-partition": {
+        "id": "feature-partition",
+        "type": "boolean",
+        "dependencyMode": "live",
+        "inputs": [
+          "partition-source",
+          "internal-door"
+        ],
+        "output": "partition",
+        "params": {
+          "operation": "cut",
+          "operands": [
+            {
+              "params": {
+                "width": 150,
+                "depth": 5600,
+                "height": 3000
+              },
+              "transform": {
+                "translation": [
+                  4000,
+                  200,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            },
+            {
+              "params": {
+                "width": 350,
+                "depth": 900,
+                "height": 2100
+              },
+              "transform": {
+                "translation": [
+                  3900,
+                  1200,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            }
+          ],
+          "bounds": {
+            "min": [
+              4000,
+              200,
+              0
+            ],
+            "max": [
+              4150,
+              5800,
+              3000
+            ]
+          }
+        }
+      },
+      "feature-floor": {
+        "id": "feature-floor",
+        "type": "primitive",
+        "inputs": [],
+        "output": "floor",
+        "params": {
+          "width": 8000,
+          "depth": 6000,
+          "height": 150
+        }
+      },
+      "feature-section-cc5ecfcc-83dc-4057-a883-e202533a0193": {
+        "id": "feature-section-cc5ecfcc-83dc-4057-a883-e202533a0193",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-cc5ecfcc-83dc-4057-a883-e202533a0193",
+        "params": {
+          "points": [
+            [
+              20,
+              170,
+              0
+            ],
+            [
+              20,
+              50,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0,0],[0,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-9769d57d-8716-42c6-b245-4ffb794f711c",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-5f032021-833a-40d5-ad2c-fe5c5bb2366a",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-5bf47660-0cae-46e7-a109-34af97ccd0c7",
+                "startControlId": "vertex-9769d57d-8716-42c6-b245-4ffb794f711c",
+                "endControlId": "vertex-5f032021-833a-40d5-ad2c-fe5c5bb2366a",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-56c9af53-327e-43b7-9792-4bfaa3677b02": {
+        "id": "feature-section-56c9af53-327e-43b7-9792-4bfaa3677b02",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-56c9af53-327e-43b7-9792-4bfaa3677b02",
+        "params": {
+          "points": [
+            [
+              20,
+              50,
+              0
+            ],
+            [
+              40,
+              50,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0,0],[0.125,0]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-0a02b3e1-8fb8-4922-afdf-77bb44200c22",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-d62682bc-a9c2-4393-b98e-1dc112b278de",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-ee779f62-ca73-45d4-8e08-479d93590b37",
+                "startControlId": "vertex-0a02b3e1-8fb8-4922-afdf-77bb44200c22",
+                "endControlId": "vertex-d62682bc-a9c2-4393-b98e-1dc112b278de",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-f0c670ba-42f1-44da-a87f-5865eed9ef2c": {
+        "id": "feature-section-f0c670ba-42f1-44da-a87f-5865eed9ef2c",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-f0c670ba-42f1-44da-a87f-5865eed9ef2c",
+        "params": {
+          "points": [
+            [
+              20,
+              170,
+              0
+            ],
+            [
+              84,
+              170,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0,1],[0.4,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-930f8a55-080d-48b5-8230-3e1b82870205",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-64b4c44a-f629-4ac6-a3db-58a52b4a3779",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-e96080ec-1e66-4ac7-87ee-8726d10573d3",
+                "startControlId": "vertex-930f8a55-080d-48b5-8230-3e1b82870205",
+                "endControlId": "vertex-64b4c44a-f629-4ac6-a3db-58a52b4a3779",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-f6bae577-144e-4f15-bd16-ebefb76f50e2": {
+        "id": "feature-section-f6bae577-144e-4f15-bd16-ebefb76f50e2",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-f6bae577-144e-4f15-bd16-ebefb76f50e2",
+        "params": {
+          "points": [
+            [
+              24,
+              166,
+              0
+            ],
+            [
+              24,
+              54,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.025,0.033333],[0.025,0.966667]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-70546857-77a6-4f1b-a642-db584b60ffc8",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-22194b3b-4b24-45d5-9fd3-3149a9319327",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-e87141a2-8933-4c8d-8dfa-fdecafddce66",
+                "startControlId": "vertex-70546857-77a6-4f1b-a642-db584b60ffc8",
+                "endControlId": "vertex-22194b3b-4b24-45d5-9fd3-3149a9319327",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-b7d827e6-7fd8-46ea-9731-0b52d579123c": {
+        "id": "feature-section-b7d827e6-7fd8-46ea-9731-0b52d579123c",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-b7d827e6-7fd8-46ea-9731-0b52d579123c",
+        "params": {
+          "points": [
+            [
+              24,
+              54,
+              0
+            ],
+            [
+              40,
+              54,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.025,0.033333],[0.125,0.033333]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-f7af8c0c-d601-4907-894b-d44b8c3e420a",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-58e7d256-2e03-4dd7-8889-a1710beb9e02",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-3fe63013-ce65-4c81-a64a-bad96fba703a",
+                "startControlId": "vertex-f7af8c0c-d601-4907-894b-d44b8c3e420a",
+                "endControlId": "vertex-58e7d256-2e03-4dd7-8889-a1710beb9e02",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-a3d95e1d-152f-4499-a2f8-0eac409130fb": {
+        "id": "feature-section-a3d95e1d-152f-4499-a2f8-0eac409130fb",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-a3d95e1d-152f-4499-a2f8-0eac409130fb",
+        "params": {
+          "points": [
+            [
+              24,
+              166,
+              0
+            ],
+            [
+              84,
+              166,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.025,0.966667],[0.4,0.966667]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-b208fa71-adb6-4838-b659-80dbcc9a4757",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-8817f4d6-47ea-405b-89ba-59e515df042b",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-4cfaf5ef-66c2-4709-9513-4da950828cd8",
+                "startControlId": "vertex-b208fa71-adb6-4838-b659-80dbcc9a4757",
+                "endControlId": "vertex-8817f4d6-47ea-405b-89ba-59e515df042b",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-a4db4d69-ebd4-4048-9a58-6fc19b33fe3e": {
+        "id": "feature-section-a4db4d69-ebd4-4048-9a58-6fc19b33fe3e",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-a4db4d69-ebd4-4048-9a58-6fc19b33fe3e",
+        "params": {
+          "points": [
+            [
+              40,
+              54,
+              0
+            ],
+            [
+              40,
+              50,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.125,0.033333],[0.125,0]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-ef7eafce-baa2-449e-adab-047184f1c939",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-76d510c6-aa37-4909-851a-21df87c778ff",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-f91517f8-b743-4f71-8335-ef4e1670b7dd",
+                "startControlId": "vertex-ef7eafce-baa2-449e-adab-047184f1c939",
+                "endControlId": "vertex-76d510c6-aa37-4909-851a-21df87c778ff",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-89fe1363-43f7-4814-b930-0f66c7e11ffc": {
+        "id": "feature-section-89fe1363-43f7-4814-b930-0f66c7e11ffc",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-89fe1363-43f7-4814-b930-0f66c7e11ffc",
+        "params": {
+          "points": [
+            [
+              84,
+              170,
+              0
+            ],
+            [
+              84,
+              166,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.4,0.966667],[0.4,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-ef57e021-af03-40fa-9005-69719468f39e",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-43ad3a1b-386a-4b44-8ea5-a8a90e177128",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-f483949d-a6f6-451e-b2aa-c684446bcf88",
+                "startControlId": "vertex-ef57e021-af03-40fa-9005-69719468f39e",
+                "endControlId": "vertex-43ad3a1b-386a-4b44-8ea5-a8a90e177128",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-fe0c7fb9-f49a-4d18-bcaf-ae4dd0298960": {
+        "id": "feature-section-fe0c7fb9-f49a-4d18-bcaf-ae4dd0298960",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-fe0c7fb9-f49a-4d18-bcaf-ae4dd0298960",
+        "params": {
+          "points": [
+            [
+              120,
+              170,
+              0
+            ],
+            [
+              120,
+              166,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.625,0.966667],[0.625,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-7d926d23-ef35-44ff-9720-bfc44ffa4747",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-089b5837-70e8-46e2-82c7-345a30759d89",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-71e41b90-d92c-4f7d-9a04-502dc50f6368",
+                "startControlId": "vertex-7d926d23-ef35-44ff-9720-bfc44ffa4747",
+                "endControlId": "vertex-089b5837-70e8-46e2-82c7-345a30759d89",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-ac8538ab-ff4c-4e0c-b6cf-c7e58d58dbbb": {
+        "id": "feature-section-ac8538ab-ff4c-4e0c-b6cf-c7e58d58dbbb",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-ac8538ab-ff4c-4e0c-b6cf-c7e58d58dbbb",
+        "params": {
+          "points": [
+            [
+              120,
+              166,
+              0
+            ],
+            [
+              176,
+              166,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.625,0.966667],[0.975,0.966667]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-5cf13e44-e0a9-415c-b852-931469bd7136",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-f3989bd7-07e2-4a54-9153-34362884dcbe",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-e8376c6b-aebd-42d3-b905-d33491ff5078",
+                "startControlId": "vertex-5cf13e44-e0a9-415c-b852-931469bd7136",
+                "endControlId": "vertex-f3989bd7-07e2-4a54-9153-34362884dcbe",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-f9d3cfb3-cd5b-4f11-919a-94688e9c06ac": {
+        "id": "feature-section-f9d3cfb3-cd5b-4f11-919a-94688e9c06ac",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-f9d3cfb3-cd5b-4f11-919a-94688e9c06ac",
+        "params": {
+          "points": [
+            [
+              120,
+              170,
+              0
+            ],
+            [
+              180,
+              170,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.625,1],[1,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-de2ff71f-5be4-437e-a20d-cc81ae26c0a8",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-4dd3005c-c824-4621-824a-d9d62ddc9a81",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-ae32fea4-96ac-42c9-828f-f3d0e04c3ed6",
+                "startControlId": "vertex-de2ff71f-5be4-437e-a20d-cc81ae26c0a8",
+                "endControlId": "vertex-4dd3005c-c824-4621-824a-d9d62ddc9a81",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-2ff1f8ba-8a29-4a08-b1f0-cbc596337cc0": {
+        "id": "feature-section-2ff1f8ba-8a29-4a08-b1f0-cbc596337cc0",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-2ff1f8ba-8a29-4a08-b1f0-cbc596337cc0",
+        "params": {
+          "points": [
+            [
+              176,
+              166,
+              0
+            ],
+            [
+              176,
+              54,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.975,0.033333],[0.975,0.966667]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-a34cd908-3337-434b-8690-81f59c49d13a",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-337a04e0-e0bb-4cf3-8ba9-fbaa56bea299",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-a60855fb-cb80-4c2e-a5f4-dde5704ece64",
+                "startControlId": "vertex-a34cd908-3337-434b-8690-81f59c49d13a",
+                "endControlId": "vertex-337a04e0-e0bb-4cf3-8ba9-fbaa56bea299",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-85cf793a-9360-4edf-9cec-87a833c9a2f5": {
+        "id": "feature-section-85cf793a-9360-4edf-9cec-87a833c9a2f5",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-85cf793a-9360-4edf-9cec-87a833c9a2f5",
+        "params": {
+          "points": [
+            [
+              180,
+              170,
+              0
+            ],
+            [
+              180,
+              50,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[1,0],[1,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-9ad0a804-f9ae-48ae-85e1-ca306cfc7c9f",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-00e16cf2-85b8-49c1-8c75-c6633fa22997",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-6e1d44ea-8a1d-4245-bbf0-6a1cef3954d1",
+                "startControlId": "vertex-9ad0a804-f9ae-48ae-85e1-ca306cfc7c9f",
+                "endControlId": "vertex-00e16cf2-85b8-49c1-8c75-c6633fa22997",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-a63923fb-fc39-4fe5-a91a-f2be073afff4": {
+        "id": "feature-section-a63923fb-fc39-4fe5-a91a-f2be073afff4",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-a63923fb-fc39-4fe5-a91a-f2be073afff4",
+        "params": {
+          "points": [
+            [
+              100,
+              74,
+              0
+            ],
+            [
+              100,
+              54,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "partition-part",
+          "sourceKey": "partition-part:line:[[0,0.178571],[0,0]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-11bfcde4-d1ff-49c2-832d-6693736f0086",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-55ad8f79-3ffa-4769-8100-fb3bc9ded7ee",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-9a74c29d-a18c-4da4-b216-b54e682dcee6",
+                "startControlId": "vertex-11bfcde4-d1ff-49c2-832d-6693736f0086",
+                "endControlId": "vertex-55ad8f79-3ffa-4769-8100-fb3bc9ded7ee",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-696dcbbe-95a8-4540-9a73-fc023c4d9972": {
+        "id": "feature-section-696dcbbe-95a8-4540-9a73-fc023c4d9972",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-696dcbbe-95a8-4540-9a73-fc023c4d9972",
+        "params": {
+          "points": [
+            [
+              100,
+              74,
+              0
+            ],
+            [
+              103,
+              74,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "partition-part",
+          "sourceKey": "partition-part:line:[[0,0.178571],[1,0.178571]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-a6b0879e-baae-41bd-ad3f-37e55ed541d6",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-491a4b33-b02b-4578-870d-9991ae868ada",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-db1beb08-31fe-4dad-bb48-edf6fe5cc9a7",
+                "startControlId": "vertex-a6b0879e-baae-41bd-ad3f-37e55ed541d6",
+                "endControlId": "vertex-491a4b33-b02b-4578-870d-9991ae868ada",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-1d1d3e8d-10c4-42dc-b197-c04584ff3bc2": {
+        "id": "feature-section-1d1d3e8d-10c4-42dc-b197-c04584ff3bc2",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-1d1d3e8d-10c4-42dc-b197-c04584ff3bc2",
+        "params": {
+          "points": [
+            [
+              100,
+              166,
+              0
+            ],
+            [
+              100,
+              92,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "partition-part",
+          "sourceKey": "partition-part:line:[[0,0.339286],[0,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-3883a7ec-4c85-4adf-9039-8beacae4b00b",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-1908cb08-d51c-4a0f-8a58-53849c2f70c8",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-04119cf6-5020-485b-bac8-8e032303bf8d",
+                "startControlId": "vertex-3883a7ec-4c85-4adf-9039-8beacae4b00b",
+                "endControlId": "vertex-1908cb08-d51c-4a0f-8a58-53849c2f70c8",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-23fe4066-2d9b-4121-bcda-fb7572829fcc": {
+        "id": "feature-section-23fe4066-2d9b-4121-bcda-fb7572829fcc",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-23fe4066-2d9b-4121-bcda-fb7572829fcc",
+        "params": {
+          "points": [
+            [
+              100,
+              92,
+              0
+            ],
+            [
+              103,
+              92,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "partition-part",
+          "sourceKey": "partition-part:line:[[0,0.339286],[1,0.339286]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-bc0c0555-bb95-4440-b861-3374751d5fe3",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-a063585e-4c43-46fc-8573-8c1caae74a0f",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-a56fb76f-432b-4e7c-b85b-81dbf84c6878",
+                "startControlId": "vertex-bc0c0555-bb95-4440-b861-3374751d5fe3",
+                "endControlId": "vertex-a063585e-4c43-46fc-8573-8c1caae74a0f",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-919254c2-882f-410b-990b-dc16fc3e1873": {
+        "id": "feature-section-919254c2-882f-410b-990b-dc16fc3e1873",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-919254c2-882f-410b-990b-dc16fc3e1873",
+        "params": {
+          "points": [
+            [
+              100,
+              54,
+              0
+            ],
+            [
+              103,
+              54,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "partition-part",
+          "sourceKey": "partition-part:line:[[0,0],[1,0]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-9214641b-334c-4c94-b458-b375adb74efb",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-def42dc6-19fa-4470-9b63-7b3a68e5cc89",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-59af0052-f94a-4860-8563-a56a555dc855",
+                "startControlId": "vertex-9214641b-334c-4c94-b458-b375adb74efb",
+                "endControlId": "vertex-def42dc6-19fa-4470-9b63-7b3a68e5cc89",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-31bc7aec-a1d4-417e-9231-3d9850a79812": {
+        "id": "feature-section-31bc7aec-a1d4-417e-9231-3d9850a79812",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-31bc7aec-a1d4-417e-9231-3d9850a79812",
+        "params": {
+          "points": [
+            [
+              100,
+              166,
+              0
+            ],
+            [
+              103,
+              166,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "partition-part",
+          "sourceKey": "partition-part:line:[[0,1],[1,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-a2835ca0-f429-462e-9f36-ec4af6065bdb",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-85cb0fc9-97cf-4518-8859-6d5b7d6cde80",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-08326c1f-94e8-4102-a3cb-1cbb18342ba4",
+                "startControlId": "vertex-a2835ca0-f429-462e-9f36-ec4af6065bdb",
+                "endControlId": "vertex-85cb0fc9-97cf-4518-8859-6d5b7d6cde80",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-cdcbb0a6-c16f-48e0-8d21-c26ce0127cae": {
+        "id": "feature-section-cdcbb0a6-c16f-48e0-8d21-c26ce0127cae",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-cdcbb0a6-c16f-48e0-8d21-c26ce0127cae",
+        "params": {
+          "points": [
+            [
+              103,
+              74,
+              0
+            ],
+            [
+              103,
+              54,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "partition-part",
+          "sourceKey": "partition-part:line:[[1,0.178571],[1,0]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-e9bbe6ec-f490-47ba-b5e9-c806d71cca5b",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-fa655187-e4e4-4edc-bd2d-537e99c5b52f",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-d8b9075f-d6d0-43a1-88e7-d7ba64677445",
+                "startControlId": "vertex-e9bbe6ec-f490-47ba-b5e9-c806d71cca5b",
+                "endControlId": "vertex-fa655187-e4e4-4edc-bd2d-537e99c5b52f",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-68cb34f5-0974-42ac-8a33-33bfe80a2d51": {
+        "id": "feature-section-68cb34f5-0974-42ac-8a33-33bfe80a2d51",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-68cb34f5-0974-42ac-8a33-33bfe80a2d51",
+        "params": {
+          "points": [
+            [
+              103,
+              166,
+              0
+            ],
+            [
+              103,
+              92,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "partition-part",
+          "sourceKey": "partition-part:line:[[1,0.339286],[1,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-caf560c7-2103-4081-93a0-4f82d42e25fd",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-9b335deb-91f7-42c6-895d-36e969ff55e2",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-02814929-185a-46a3-8d72-51166e028399",
+                "startControlId": "vertex-caf560c7-2103-4081-93a0-4f82d42e25fd",
+                "endControlId": "vertex-9b335deb-91f7-42c6-895d-36e969ff55e2",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-68a9e452-7d1e-43ff-9005-3cd98e794780": {
+        "id": "feature-section-68a9e452-7d1e-43ff-9005-3cd98e794780",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-68a9e452-7d1e-43ff-9005-3cd98e794780",
+        "params": {
+          "points": [
+            [
+              220,
+              50,
+              0
+            ],
+            [
+              220,
+              110,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0,0],[0,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-2bb77cc3-a473-47b5-a174-048524b2da65",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-ca771613-01c7-4077-bf95-af8f773965e5",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-c91fa127-6233-4301-8411-e858327721e2",
+                "startControlId": "vertex-2bb77cc3-a473-47b5-a174-048524b2da65",
+                "endControlId": "vertex-ca771613-01c7-4077-bf95-af8f773965e5",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-fb80d252-a1e4-4f87-9f7f-02dee32c4e1c": {
+        "id": "feature-section-fb80d252-a1e4-4f87-9f7f-02dee32c4e1c",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-fb80d252-a1e4-4f87-9f7f-02dee32c4e1c",
+        "params": {
+          "points": [
+            [
+              224,
+              50,
+              0
+            ],
+            [
+              220,
+              50,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0,0],[0.025,0]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-59a22829-9be0-4325-9ab3-17de4255c42c",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-6598cdb4-7877-41fb-8ff8-928fd7cf4e2f",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-771da547-b493-40b4-a3bc-728abacfa1e4",
+                "startControlId": "vertex-59a22829-9be0-4325-9ab3-17de4255c42c",
+                "endControlId": "vertex-6598cdb4-7877-41fb-8ff8-928fd7cf4e2f",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-2a5c7a0c-6696-4279-bba7-4de1ce650c2b": {
+        "id": "feature-section-2a5c7a0c-6696-4279-bba7-4de1ce650c2b",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-2a5c7a0c-6696-4279-bba7-4de1ce650c2b",
+        "params": {
+          "points": [
+            [
+              224,
+              110,
+              0
+            ],
+            [
+              220,
+              110,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0,1],[0.025,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-f0f29faf-34fa-4fb2-87af-ca6da32a7c2d",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-89b38a84-760f-459a-a7cc-531c9f53ee8f",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-03956439-1a8c-4c86-bec2-04f63b49034c",
+                "startControlId": "vertex-f0f29faf-34fa-4fb2-87af-ca6da32a7c2d",
+                "endControlId": "vertex-89b38a84-760f-459a-a7cc-531c9f53ee8f",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-5980c311-a1a9-462d-86d6-bc5e0e7e11e5": {
+        "id": "feature-section-5980c311-a1a9-462d-86d6-bc5e0e7e11e5",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-5980c311-a1a9-462d-86d6-bc5e0e7e11e5",
+        "params": {
+          "points": [
+            [
+              224,
+              50,
+              0
+            ],
+            [
+              224,
+              110,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.025,0],[0.025,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-1296427c-f35a-48a6-8b73-a19a92e772c0",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-cded432a-2679-4fc0-ad70-8313bb71583f",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-ab33aadd-62b7-4112-8696-7eb061f61be6",
+                "startControlId": "vertex-1296427c-f35a-48a6-8b73-a19a92e772c0",
+                "endControlId": "vertex-cded432a-2679-4fc0-ad70-8313bb71583f",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-082ec51e-89d9-4159-928f-a8572e190a4d": {
+        "id": "feature-section-082ec51e-89d9-4159-928f-a8572e190a4d",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-082ec51e-89d9-4159-928f-a8572e190a4d",
+        "params": {
+          "points": [
+            [
+              376,
+              50,
+              0
+            ],
+            [
+              376,
+              110,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.975,0],[0.975,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-7d9b31ce-7cef-4989-a732-b04202473f52",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-dd53eeaa-b5e2-4298-9d07-f7acce5871c4",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-59ab9083-2110-41f8-9457-8e1fe889fff3",
+                "startControlId": "vertex-7d9b31ce-7cef-4989-a732-b04202473f52",
+                "endControlId": "vertex-dd53eeaa-b5e2-4298-9d07-f7acce5871c4",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-3717f60e-9a65-4aee-acbc-74724448e37c": {
+        "id": "feature-section-3717f60e-9a65-4aee-acbc-74724448e37c",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-3717f60e-9a65-4aee-acbc-74724448e37c",
+        "params": {
+          "points": [
+            [
+              380,
+              50,
+              0
+            ],
+            [
+              376,
+              50,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.975,0],[1,0]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-e19b4b7c-9578-426d-8c08-30642da94bdf",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-0970bcd6-d317-4a4f-8c47-d167b33274d0",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-19c5fc57-aeeb-4e03-9b56-c6ac82528f90",
+                "startControlId": "vertex-e19b4b7c-9578-426d-8c08-30642da94bdf",
+                "endControlId": "vertex-0970bcd6-d317-4a4f-8c47-d167b33274d0",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-06fe84ee-319e-4e94-873f-3039e1fd09f7": {
+        "id": "feature-section-06fe84ee-319e-4e94-873f-3039e1fd09f7",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-06fe84ee-319e-4e94-873f-3039e1fd09f7",
+        "params": {
+          "points": [
+            [
+              380,
+              110,
+              0
+            ],
+            [
+              376,
+              110,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.975,1],[1,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-3061e606-d983-4848-9fc2-a1fd10ace281",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-ef43d7ab-44ae-439c-a10c-e6136a53f3ce",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-27f2388a-b527-4775-8c72-41528e6a0ce7",
+                "startControlId": "vertex-3061e606-d983-4848-9fc2-a1fd10ace281",
+                "endControlId": "vertex-ef43d7ab-44ae-439c-a10c-e6136a53f3ce",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-3bf32111-9cca-4a94-b5c4-039ab82e58d1": {
+        "id": "feature-section-3bf32111-9cca-4a94-b5c4-039ab82e58d1",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-3bf32111-9cca-4a94-b5c4-039ab82e58d1",
+        "params": {
+          "points": [
+            [
+              380,
+              50,
+              0
+            ],
+            [
+              380,
+              110,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[1,0],[1,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-ede4167d-49d8-4441-b422-a1ee837d7275",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-cafa858b-725f-4b6a-b5bf-ed3cfda47496",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-8ce23c1d-4248-4878-8d81-5f94310fc0fd",
+                "startControlId": "vertex-ede4167d-49d8-4441-b422-a1ee837d7275",
+                "endControlId": "vertex-cafa858b-725f-4b6a-b5bf-ed3cfda47496",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-2225b1db-c2f4-489a-95b1-6d3e3ef1f63a": {
+        "id": "feature-section-2225b1db-c2f4-489a-95b1-6d3e3ef1f63a",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-2225b1db-c2f4-489a-95b1-6d3e3ef1f63a",
+        "params": {
+          "points": [
+            [
+              300,
+              50,
+              0
+            ],
+            [
+              300,
+              110,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "partition-part",
+          "sourceKey": "partition-part:line:[[0,0],[0,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-e7b4576a-3828-4dd9-8254-68c5341261ce",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-465ec0ef-86bc-4f10-a065-110d769b0216",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-ba63fe0a-8fcf-4de8-a71f-4c06d170f634",
+                "startControlId": "vertex-e7b4576a-3828-4dd9-8254-68c5341261ce",
+                "endControlId": "vertex-465ec0ef-86bc-4f10-a065-110d769b0216",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-1ad074e8-139d-4e7b-a5fa-6f86d4623e6a": {
+        "id": "feature-section-1ad074e8-139d-4e7b-a5fa-6f86d4623e6a",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-1ad074e8-139d-4e7b-a5fa-6f86d4623e6a",
+        "params": {
+          "points": [
+            [
+              303,
+              50,
+              0
+            ],
+            [
+              300,
+              50,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "partition-part",
+          "sourceKey": "partition-part:line:[[0,0],[1,0]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-bf0ba16c-58d2-41f2-8446-a8fa3ad75843",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-a79b4b34-b9f7-4d96-9b6b-bbedb11459bc",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-e43b1870-7ed1-4bd6-9d26-fa7e42d6be2a",
+                "startControlId": "vertex-bf0ba16c-58d2-41f2-8446-a8fa3ad75843",
+                "endControlId": "vertex-a79b4b34-b9f7-4d96-9b6b-bbedb11459bc",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-3e912134-cc47-4e6e-bd58-00b767f3ea68": {
+        "id": "feature-section-3e912134-cc47-4e6e-bd58-00b767f3ea68",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-3e912134-cc47-4e6e-bd58-00b767f3ea68",
+        "params": {
+          "points": [
+            [
+              303,
+              110,
+              0
+            ],
+            [
+              300,
+              110,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "partition-part",
+          "sourceKey": "partition-part:line:[[0,1],[1,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-e94a8980-84ad-43f2-a022-563e53b51e1e",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-7391bf2c-ffb5-4d3a-93f4-4ae3e5f65439",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-75030682-9d99-4c84-8b7f-08a5a10c0990",
+                "startControlId": "vertex-e94a8980-84ad-43f2-a022-563e53b51e1e",
+                "endControlId": "vertex-7391bf2c-ffb5-4d3a-93f4-4ae3e5f65439",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-a1ecf25c-b94b-4e6f-a947-be3cda0c2ca0": {
+        "id": "feature-section-a1ecf25c-b94b-4e6f-a947-be3cda0c2ca0",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-a1ecf25c-b94b-4e6f-a947-be3cda0c2ca0",
+        "params": {
+          "points": [
+            [
+              303,
+              50,
+              0
+            ],
+            [
+              303,
+              110,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "partition-part",
+          "sourceKey": "partition-part:line:[[1,0],[1,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-10cc336e-8947-49e7-93d2-3fe93202366a",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-2f62c514-68ab-4529-9b25-24c5415d9eda",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-344a004e-fea1-4547-9832-c9cef186eb46",
+                "startControlId": "vertex-10cc336e-8947-49e7-93d2-3fe93202366a",
+                "endControlId": "vertex-2f62c514-68ab-4529-9b25-24c5415d9eda",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-30f93e68-1358-414c-817c-fd6902d08620": {
+        "id": "feature-section-30f93e68-1358-414c-817c-fd6902d08620",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-30f93e68-1358-414c-817c-fd6902d08620",
+        "params": {
+          "points": [
+            [
+              220,
+              47,
+              0
+            ],
+            [
+              220,
+              50,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "floor-part",
+          "sourceKey": "floor-part:line:[[0,0],[0,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-c6ae0be1-a6b7-4c93-a7b4-4314f4cf6f21",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-1d06bfb6-40b0-4d3c-bbe3-9b0049e1cfcb",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-1cb3e7cc-498f-4b83-88af-6fe10061d986",
+                "startControlId": "vertex-c6ae0be1-a6b7-4c93-a7b4-4314f4cf6f21",
+                "endControlId": "vertex-1d06bfb6-40b0-4d3c-bbe3-9b0049e1cfcb",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-a654c331-a656-4ca3-be3e-b7ea9fd5089e": {
+        "id": "feature-section-a654c331-a656-4ca3-be3e-b7ea9fd5089e",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-a654c331-a656-4ca3-be3e-b7ea9fd5089e",
+        "params": {
+          "points": [
+            [
+              380,
+              47,
+              0
+            ],
+            [
+              220,
+              47,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "floor-part",
+          "sourceKey": "floor-part:line:[[0,0],[1,0]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-c2d66d3a-5e6a-447c-bc4b-8e29c21982f2",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-d6786203-c3a1-4551-b91b-23eb7ce546cb",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-4c2b3a9b-554c-4afd-984f-ecacb684e5c6",
+                "startControlId": "vertex-c2d66d3a-5e6a-447c-bc4b-8e29c21982f2",
+                "endControlId": "vertex-d6786203-c3a1-4551-b91b-23eb7ce546cb",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-80942f2b-7188-42c2-92ef-76dc257bbb93": {
+        "id": "feature-section-80942f2b-7188-42c2-92ef-76dc257bbb93",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-80942f2b-7188-42c2-92ef-76dc257bbb93",
+        "params": {
+          "points": [
+            [
+              380,
+              50,
+              0
+            ],
+            [
+              220,
+              50,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "floor-part",
+          "sourceKey": "floor-part:line:[[0,1],[1,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-21b94efe-6d17-4272-bdf9-439b333f528f",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-63c88a65-4038-485b-b32f-277a5fc39e1d",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-e5fc01a3-156e-480c-b6be-2d63fcc5fd35",
+                "startControlId": "vertex-21b94efe-6d17-4272-bdf9-439b333f528f",
+                "endControlId": "vertex-63c88a65-4038-485b-b32f-277a5fc39e1d",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-0c71e3b2-dbd1-477c-a9f7-97eee76aeea9": {
+        "id": "feature-section-0c71e3b2-dbd1-477c-a9f7-97eee76aeea9",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-0c71e3b2-dbd1-477c-a9f7-97eee76aeea9",
+        "params": {
+          "points": [
+            [
+              380,
+              47,
+              0
+            ],
+            [
+              380,
+              50,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "section",
+          "sourcePartId": "floor-part",
+          "sourceKey": "floor-part:line:[[1,0],[1,1]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-a7c9c007-d9d2-4674-8a8a-0bfc6e8e2190",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-2dedb658-396e-4dea-8a8f-82e987ce0b78",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-ee19fb15-c9fb-4f5b-850d-64833eb3cb55",
+                "startControlId": "vertex-a7c9c007-d9d2-4674-8a8a-0bfc6e8e2190",
+                "endControlId": "vertex-2dedb658-396e-4dea-8a8f-82e987ce0b78",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-sheet-title-851ab6c4-f959-46f6-9c30-5c97c7825abe": {
+        "id": "feature-sheet-title-851ab6c4-f959-46f6-9c30-5c97c7825abe",
+        "type": "drafting",
+        "inputs": [],
+        "output": "sheet-title-851ab6c4-f959-46f6-9c30-5c97c7825abe",
+        "params": {
+          "kind": "text",
+          "workPlane": "XY",
+          "point": [
+            5,
+            5,
+            0
+          ],
+          "height": 3.5,
+          "text": "48m2 feasibility · plan + section · 1:50",
+          "modelSheet": "a101"
+        }
+      },
+      "feature-section-af55f2f4-4ceb-423e-b9cf-813d8645b1bd": {
+        "id": "feature-section-af55f2f4-4ceb-423e-b9cf-813d8645b1bd",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-af55f2f4-4ceb-423e-b9cf-813d8645b1bd",
+        "params": {
+          "points": [
+            [
+              64,
+              54,
+              0
+            ],
+            [
+              64,
+              50,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.275,0.033333],[0.275,0]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-c2046458-7b50-4a1d-b625-a98a337f1bd7",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-d4efdcce-4d87-430b-920b-2bfaf00f4d74",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-eca51149-08bf-4f09-9dc0-2efe56100e99",
+                "startControlId": "vertex-c2046458-7b50-4a1d-b625-a98a337f1bd7",
+                "endControlId": "vertex-d4efdcce-4d87-430b-920b-2bfaf00f4d74",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-d08be806-49a6-481e-94a7-42fe8aaa1e2d": {
+        "id": "feature-section-d08be806-49a6-481e-94a7-42fe8aaa1e2d",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-d08be806-49a6-481e-94a7-42fe8aaa1e2d",
+        "params": {
+          "points": [
+            [
+              64,
+              54,
+              0
+            ],
+            [
+              176,
+              54,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.275,0.033333],[0.975,0.033333]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-12b9a133-8f0a-4be7-978a-42fd0edbebdc",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-16670f99-0ce7-485f-9096-47b62d386d24",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-9ab29789-cec3-4cce-ad87-a28d7b507e14",
+                "startControlId": "vertex-12b9a133-8f0a-4be7-978a-42fd0edbebdc",
+                "endControlId": "vertex-16670f99-0ce7-485f-9096-47b62d386d24",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-section-a07c5170-7ead-4aa4-b212-9bdd585bd387": {
+        "id": "feature-section-a07c5170-7ead-4aa4-b212-9bdd585bd387",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section-a07c5170-7ead-4aa4-b212-9bdd585bd387",
+        "params": {
+          "points": [
+            [
+              64,
+              50,
+              0
+            ],
+            [
+              180,
+              50,
+              0
+            ]
+          ],
+          "workPlane": "XY",
+          "kind": "line",
+          "modelSection": "plan",
+          "sourcePartId": "walls-part",
+          "sourceKey": "walls-part:line:[[0.275,0],[1,0]]:crop:0:line",
+          "projectionStatus": "resolved",
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "vertex-ddd71f61-a34f-42e3-91d4-947a9f24631e",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "vertex-d93794df-2ff7-4d98-b522-1071eafd1e7a",
+                "role": "vertex",
+                "index": 1
+              }
+            ],
+            "segments": [
+              {
+                "id": "segment-46bba375-df91-4be1-805c-476b9b3a5d5b",
+                "startControlId": "vertex-ddd71f61-a34f-42e3-91d4-947a9f24631e",
+                "endControlId": "vertex-d93794df-2ff7-4d98-b522-1071eafd1e7a",
+                "index": 0,
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      }
+    },
+    "sketches": {},
+    "layers": {
+      "layer-default": {
+        "id": "layer-default",
+        "name": "Default",
+        "visible": true,
+        "locked": false,
+        "objectIds": [
+          "outer",
+          "inner",
+          "wall-ring",
+          "entry-opening",
+          "door-walls",
+          "window-opening",
+          "walls",
+          "partition-source",
+          "internal-door",
+          "partition",
+          "floor",
+          "section-cc5ecfcc-83dc-4057-a883-e202533a0193",
+          "section-56c9af53-327e-43b7-9792-4bfaa3677b02",
+          "section-f0c670ba-42f1-44da-a87f-5865eed9ef2c",
+          "section-f6bae577-144e-4f15-bd16-ebefb76f50e2",
+          "section-b7d827e6-7fd8-46ea-9731-0b52d579123c",
+          "section-a3d95e1d-152f-4499-a2f8-0eac409130fb",
+          "section-a4db4d69-ebd4-4048-9a58-6fc19b33fe3e",
+          "section-89fe1363-43f7-4814-b930-0f66c7e11ffc",
+          "section-fe0c7fb9-f49a-4d18-bcaf-ae4dd0298960",
+          "section-ac8538ab-ff4c-4e0c-b6cf-c7e58d58dbbb",
+          "section-f9d3cfb3-cd5b-4f11-919a-94688e9c06ac",
+          "section-2ff1f8ba-8a29-4a08-b1f0-cbc596337cc0",
+          "section-85cf793a-9360-4edf-9cec-87a833c9a2f5",
+          "section-a63923fb-fc39-4fe5-a91a-f2be073afff4",
+          "section-696dcbbe-95a8-4540-9a73-fc023c4d9972",
+          "section-1d1d3e8d-10c4-42dc-b197-c04584ff3bc2",
+          "section-23fe4066-2d9b-4121-bcda-fb7572829fcc",
+          "section-919254c2-882f-410b-990b-dc16fc3e1873",
+          "section-31bc7aec-a1d4-417e-9231-3d9850a79812",
+          "section-cdcbb0a6-c16f-48e0-8d21-c26ce0127cae",
+          "section-68cb34f5-0974-42ac-8a33-33bfe80a2d51",
+          "section-68a9e452-7d1e-43ff-9005-3cd98e794780",
+          "section-fb80d252-a1e4-4f87-9f7f-02dee32c4e1c",
+          "section-2a5c7a0c-6696-4279-bba7-4de1ce650c2b",
+          "section-5980c311-a1a9-462d-86d6-bc5e0e7e11e5",
+          "section-082ec51e-89d9-4159-928f-a8572e190a4d",
+          "section-3717f60e-9a65-4aee-acbc-74724448e37c",
+          "section-06fe84ee-319e-4e94-873f-3039e1fd09f7",
+          "section-3bf32111-9cca-4a94-b5c4-039ab82e58d1",
+          "section-2225b1db-c2f4-489a-95b1-6d3e3ef1f63a",
+          "section-1ad074e8-139d-4e7b-a5fa-6f86d4623e6a",
+          "section-3e912134-cc47-4e6e-bd58-00b767f3ea68",
+          "section-a1ecf25c-b94b-4e6f-a947-be3cda0c2ca0",
+          "section-30f93e68-1358-414c-817c-fd6902d08620",
+          "section-a654c331-a656-4ca3-be3e-b7ea9fd5089e",
+          "section-80942f2b-7188-42c2-92ef-76dc257bbb93",
+          "section-0c71e3b2-dbd1-477c-a9f7-97eee76aeea9",
+          "sheet-title-851ab6c4-f959-46f6-9c30-5c97c7825abe",
+          "section-af55f2f4-4ceb-423e-b9cf-813d8645b1bd",
+          "section-d08be806-49a6-481e-94a7-42fe8aaa1e2d",
+          "section-a07c5170-7ead-4aa4-b212-9bdd585bd387"
+        ]
+      }
+    },
+    "rootObjects": [
+      "walls",
+      "partition",
+      "floor",
+      "section-cc5ecfcc-83dc-4057-a883-e202533a0193",
+      "section-56c9af53-327e-43b7-9792-4bfaa3677b02",
+      "section-f0c670ba-42f1-44da-a87f-5865eed9ef2c",
+      "section-f6bae577-144e-4f15-bd16-ebefb76f50e2",
+      "section-b7d827e6-7fd8-46ea-9731-0b52d579123c",
+      "section-a3d95e1d-152f-4499-a2f8-0eac409130fb",
+      "section-a4db4d69-ebd4-4048-9a58-6fc19b33fe3e",
+      "section-89fe1363-43f7-4814-b930-0f66c7e11ffc",
+      "section-fe0c7fb9-f49a-4d18-bcaf-ae4dd0298960",
+      "section-ac8538ab-ff4c-4e0c-b6cf-c7e58d58dbbb",
+      "section-f9d3cfb3-cd5b-4f11-919a-94688e9c06ac",
+      "section-2ff1f8ba-8a29-4a08-b1f0-cbc596337cc0",
+      "section-85cf793a-9360-4edf-9cec-87a833c9a2f5",
+      "section-a63923fb-fc39-4fe5-a91a-f2be073afff4",
+      "section-696dcbbe-95a8-4540-9a73-fc023c4d9972",
+      "section-1d1d3e8d-10c4-42dc-b197-c04584ff3bc2",
+      "section-23fe4066-2d9b-4121-bcda-fb7572829fcc",
+      "section-919254c2-882f-410b-990b-dc16fc3e1873",
+      "section-31bc7aec-a1d4-417e-9231-3d9850a79812",
+      "section-cdcbb0a6-c16f-48e0-8d21-c26ce0127cae",
+      "section-68cb34f5-0974-42ac-8a33-33bfe80a2d51",
+      "section-68a9e452-7d1e-43ff-9005-3cd98e794780",
+      "section-fb80d252-a1e4-4f87-9f7f-02dee32c4e1c",
+      "section-2a5c7a0c-6696-4279-bba7-4de1ce650c2b",
+      "section-5980c311-a1a9-462d-86d6-bc5e0e7e11e5",
+      "section-082ec51e-89d9-4159-928f-a8572e190a4d",
+      "section-3717f60e-9a65-4aee-acbc-74724448e37c",
+      "section-06fe84ee-319e-4e94-873f-3039e1fd09f7",
+      "section-3bf32111-9cca-4a94-b5c4-039ab82e58d1",
+      "section-2225b1db-c2f4-489a-95b1-6d3e3ef1f63a",
+      "section-1ad074e8-139d-4e7b-a5fa-6f86d4623e6a",
+      "section-3e912134-cc47-4e6e-bd58-00b767f3ea68",
+      "section-a1ecf25c-b94b-4e6f-a947-be3cda0c2ca0",
+      "section-30f93e68-1358-414c-817c-fd6902d08620",
+      "section-a654c331-a656-4ca3-be3e-b7ea9fd5089e",
+      "section-80942f2b-7188-42c2-92ef-76dc257bbb93",
+      "section-0c71e3b2-dbd1-477c-a9f7-97eee76aeea9",
+      "sheet-title-851ab6c4-f959-46f6-9c30-5c97c7825abe",
+      "section-af55f2f4-4ceb-423e-b9cf-813d8645b1bd",
+      "section-d08be806-49a6-481e-94a7-42fe8aaa1e2d",
+      "section-a07c5170-7ead-4aa4-b212-9bdd585bd387"
+    ],
+    "rootLayers": [
+      "layer-default"
+    ],
+    "modelPresentation": {
+      "parts": {
+        "walls-part": {
+          "id": "walls-part",
+          "name": "External walls · entry + window",
+          "objectId": "walls"
+        },
+        "partition-part": {
+          "id": "partition-part",
+          "name": "Partition · internal door",
+          "objectId": "partition"
+        },
+        "floor-part": {
+          "id": "floor-part",
+          "name": "Floor slab",
+          "objectId": "floor"
+        }
+      },
+      "explosions": {},
+      "projections": {},
+      "activeExplosionId": null,
+      "sections": {
+        "plan": {
+          "id": "plan",
+          "name": "Plan at1200",
+          "partIds": [
+            "walls-part",
+            "partition-part",
+            "floor-part"
+          ],
+          "basis": "XY",
+          "height": 1200,
+          "origin": [
+            20,
+            50
+          ],
+          "scale": 0.02,
+          "layerId": "layer-default",
+          "status": "resolved",
+          "outputs": {
+            "walls-part:line:[[0,0],[0,1]]:crop:0:line": {
+              "objectId": "section-cc5ecfcc-83dc-4057-a883-e202533a0193",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0,0],[0,1]]:crop:0:line"
+            },
+            "walls-part:line:[[0,0],[0.125,0]]:crop:0:line": {
+              "objectId": "section-56c9af53-327e-43b7-9792-4bfaa3677b02",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0,0],[0.125,0]]:crop:0:line"
+            },
+            "walls-part:line:[[0,1],[0.4,1]]:crop:0:line": {
+              "objectId": "section-f0c670ba-42f1-44da-a87f-5865eed9ef2c",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0,1],[0.4,1]]:crop:0:line"
+            },
+            "walls-part:line:[[0.025,0.033333],[0.025,0.966667]]:crop:0:line": {
+              "objectId": "section-f6bae577-144e-4f15-bd16-ebefb76f50e2",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.025,0.033333],[0.025,0.966667]]:crop:0:line"
+            },
+            "walls-part:line:[[0.025,0.033333],[0.125,0.033333]]:crop:0:line": {
+              "objectId": "section-b7d827e6-7fd8-46ea-9731-0b52d579123c",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.025,0.033333],[0.125,0.033333]]:crop:0:line"
+            },
+            "walls-part:line:[[0.025,0.966667],[0.4,0.966667]]:crop:0:line": {
+              "objectId": "section-a3d95e1d-152f-4499-a2f8-0eac409130fb",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.025,0.966667],[0.4,0.966667]]:crop:0:line"
+            },
+            "walls-part:line:[[0.125,0.033333],[0.125,0]]:crop:0:line": {
+              "objectId": "section-a4db4d69-ebd4-4048-9a58-6fc19b33fe3e",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.125,0.033333],[0.125,0]]:crop:0:line"
+            },
+            "walls-part:line:[[0.275,0.033333],[0.275,0]]:crop:0:line": {
+              "objectId": "section-af55f2f4-4ceb-423e-b9cf-813d8645b1bd",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.275,0.033333],[0.275,0]]:crop:0:line"
+            },
+            "walls-part:line:[[0.275,0.033333],[0.975,0.033333]]:crop:0:line": {
+              "objectId": "section-d08be806-49a6-481e-94a7-42fe8aaa1e2d",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.275,0.033333],[0.975,0.033333]]:crop:0:line"
+            },
+            "walls-part:line:[[0.275,0],[1,0]]:crop:0:line": {
+              "objectId": "section-a07c5170-7ead-4aa4-b212-9bdd585bd387",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.275,0],[1,0]]:crop:0:line"
+            },
+            "walls-part:line:[[0.4,0.966667],[0.4,1]]:crop:0:line": {
+              "objectId": "section-89fe1363-43f7-4814-b930-0f66c7e11ffc",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.4,0.966667],[0.4,1]]:crop:0:line"
+            },
+            "walls-part:line:[[0.625,0.966667],[0.625,1]]:crop:0:line": {
+              "objectId": "section-fe0c7fb9-f49a-4d18-bcaf-ae4dd0298960",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.625,0.966667],[0.625,1]]:crop:0:line"
+            },
+            "walls-part:line:[[0.625,0.966667],[0.975,0.966667]]:crop:0:line": {
+              "objectId": "section-ac8538ab-ff4c-4e0c-b6cf-c7e58d58dbbb",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.625,0.966667],[0.975,0.966667]]:crop:0:line"
+            },
+            "walls-part:line:[[0.625,1],[1,1]]:crop:0:line": {
+              "objectId": "section-f9d3cfb3-cd5b-4f11-919a-94688e9c06ac",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.625,1],[1,1]]:crop:0:line"
+            },
+            "walls-part:line:[[0.975,0.033333],[0.975,0.966667]]:crop:0:line": {
+              "objectId": "section-2ff1f8ba-8a29-4a08-b1f0-cbc596337cc0",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.975,0.033333],[0.975,0.966667]]:crop:0:line"
+            },
+            "walls-part:line:[[1,0],[1,1]]:crop:0:line": {
+              "objectId": "section-85cf793a-9360-4edf-9cec-87a833c9a2f5",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[1,0],[1,1]]:crop:0:line"
+            },
+            "partition-part:line:[[0,0.178571],[0,0]]:crop:0:line": {
+              "objectId": "section-a63923fb-fc39-4fe5-a91a-f2be073afff4",
+              "kind": "line",
+              "sourceKey": "partition-part:line:[[0,0.178571],[0,0]]:crop:0:line"
+            },
+            "partition-part:line:[[0,0.178571],[1,0.178571]]:crop:0:line": {
+              "objectId": "section-696dcbbe-95a8-4540-9a73-fc023c4d9972",
+              "kind": "line",
+              "sourceKey": "partition-part:line:[[0,0.178571],[1,0.178571]]:crop:0:line"
+            },
+            "partition-part:line:[[0,0.339286],[0,1]]:crop:0:line": {
+              "objectId": "section-1d1d3e8d-10c4-42dc-b197-c04584ff3bc2",
+              "kind": "line",
+              "sourceKey": "partition-part:line:[[0,0.339286],[0,1]]:crop:0:line"
+            },
+            "partition-part:line:[[0,0.339286],[1,0.339286]]:crop:0:line": {
+              "objectId": "section-23fe4066-2d9b-4121-bcda-fb7572829fcc",
+              "kind": "line",
+              "sourceKey": "partition-part:line:[[0,0.339286],[1,0.339286]]:crop:0:line"
+            },
+            "partition-part:line:[[0,0],[1,0]]:crop:0:line": {
+              "objectId": "section-919254c2-882f-410b-990b-dc16fc3e1873",
+              "kind": "line",
+              "sourceKey": "partition-part:line:[[0,0],[1,0]]:crop:0:line"
+            },
+            "partition-part:line:[[0,1],[1,1]]:crop:0:line": {
+              "objectId": "section-31bc7aec-a1d4-417e-9231-3d9850a79812",
+              "kind": "line",
+              "sourceKey": "partition-part:line:[[0,1],[1,1]]:crop:0:line"
+            },
+            "partition-part:line:[[1,0.178571],[1,0]]:crop:0:line": {
+              "objectId": "section-cdcbb0a6-c16f-48e0-8d21-c26ce0127cae",
+              "kind": "line",
+              "sourceKey": "partition-part:line:[[1,0.178571],[1,0]]:crop:0:line"
+            },
+            "partition-part:line:[[1,0.339286],[1,1]]:crop:0:line": {
+              "objectId": "section-68cb34f5-0974-42ac-8a33-33bfe80a2d51",
+              "kind": "line",
+              "sourceKey": "partition-part:line:[[1,0.339286],[1,1]]:crop:0:line"
+            }
+          }
+        },
+        "section": {
+          "id": "section",
+          "name": "Section A-A at Y3000",
+          "partIds": [
+            "walls-part",
+            "partition-part",
+            "floor-part"
+          ],
+          "basis": "XZ",
+          "height": 3000,
+          "origin": [
+            220,
+            50
+          ],
+          "scale": 0.02,
+          "layerId": "layer-default",
+          "status": "resolved",
+          "outputs": {
+            "walls-part:line:[[0,0],[0,1]]:crop:0:line": {
+              "objectId": "section-68a9e452-7d1e-43ff-9005-3cd98e794780",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0,0],[0,1]]:crop:0:line"
+            },
+            "walls-part:line:[[0,0],[0.025,0]]:crop:0:line": {
+              "objectId": "section-fb80d252-a1e4-4f87-9f7f-02dee32c4e1c",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0,0],[0.025,0]]:crop:0:line"
+            },
+            "walls-part:line:[[0,1],[0.025,1]]:crop:0:line": {
+              "objectId": "section-2a5c7a0c-6696-4279-bba7-4de1ce650c2b",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0,1],[0.025,1]]:crop:0:line"
+            },
+            "walls-part:line:[[0.025,0],[0.025,1]]:crop:0:line": {
+              "objectId": "section-5980c311-a1a9-462d-86d6-bc5e0e7e11e5",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.025,0],[0.025,1]]:crop:0:line"
+            },
+            "walls-part:line:[[0.975,0],[0.975,1]]:crop:0:line": {
+              "objectId": "section-082ec51e-89d9-4159-928f-a8572e190a4d",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.975,0],[0.975,1]]:crop:0:line"
+            },
+            "walls-part:line:[[0.975,0],[1,0]]:crop:0:line": {
+              "objectId": "section-3717f60e-9a65-4aee-acbc-74724448e37c",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.975,0],[1,0]]:crop:0:line"
+            },
+            "walls-part:line:[[0.975,1],[1,1]]:crop:0:line": {
+              "objectId": "section-06fe84ee-319e-4e94-873f-3039e1fd09f7",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[0.975,1],[1,1]]:crop:0:line"
+            },
+            "walls-part:line:[[1,0],[1,1]]:crop:0:line": {
+              "objectId": "section-3bf32111-9cca-4a94-b5c4-039ab82e58d1",
+              "kind": "line",
+              "sourceKey": "walls-part:line:[[1,0],[1,1]]:crop:0:line"
+            },
+            "partition-part:line:[[0,0],[0,1]]:crop:0:line": {
+              "objectId": "section-2225b1db-c2f4-489a-95b1-6d3e3ef1f63a",
+              "kind": "line",
+              "sourceKey": "partition-part:line:[[0,0],[0,1]]:crop:0:line"
+            },
+            "partition-part:line:[[0,0],[1,0]]:crop:0:line": {
+              "objectId": "section-1ad074e8-139d-4e7b-a5fa-6f86d4623e6a",
+              "kind": "line",
+              "sourceKey": "partition-part:line:[[0,0],[1,0]]:crop:0:line"
+            },
+            "partition-part:line:[[0,1],[1,1]]:crop:0:line": {
+              "objectId": "section-3e912134-cc47-4e6e-bd58-00b767f3ea68",
+              "kind": "line",
+              "sourceKey": "partition-part:line:[[0,1],[1,1]]:crop:0:line"
+            },
+            "partition-part:line:[[1,0],[1,1]]:crop:0:line": {
+              "objectId": "section-a1ecf25c-b94b-4e6f-a947-be3cda0c2ca0",
+              "kind": "line",
+              "sourceKey": "partition-part:line:[[1,0],[1,1]]:crop:0:line"
+            },
+            "floor-part:line:[[0,0],[0,1]]:crop:0:line": {
+              "objectId": "section-30f93e68-1358-414c-817c-fd6902d08620",
+              "kind": "line",
+              "sourceKey": "floor-part:line:[[0,0],[0,1]]:crop:0:line"
+            },
+            "floor-part:line:[[0,0],[1,0]]:crop:0:line": {
+              "objectId": "section-a654c331-a656-4ca3-be3e-b7ea9fd5089e",
+              "kind": "line",
+              "sourceKey": "floor-part:line:[[0,0],[1,0]]:crop:0:line"
+            },
+            "floor-part:line:[[0,1],[1,1]]:crop:0:line": {
+              "objectId": "section-80942f2b-7188-42c2-92ef-76dc257bbb93",
+              "kind": "line",
+              "sourceKey": "floor-part:line:[[0,1],[1,1]]:crop:0:line"
+            },
+            "floor-part:line:[[1,0],[1,1]]:crop:0:line": {
+              "objectId": "section-0c71e3b2-dbd1-477c-a9f7-97eee76aeea9",
+              "kind": "line",
+              "sourceKey": "floor-part:line:[[1,0],[1,1]]:crop:0:line"
+            }
+          }
+        }
+      },
+      "sheets": {
+        "a101": {
+          "id": "a101",
+          "name": "48m2 feasibility · plan + section",
+          "artboardId": "a101-board",
+          "denominator": 50,
+          "placements": {
+            "plan": [
+              20,
+              50
+            ],
+            "section": [
+              220,
+              50
+            ]
+          },
+          "titleId": "sheet-title-851ab6c4-f959-46f6-9c30-5c97c7825abe"
+        }
+      }
+    },
+    "artboards": {
+      "a101-board": {
+        "id": "a101-board",
+        "name": "48m2 feasibility · plan + section",
+        "workPlane": "XY",
+        "origin": [
+          0,
+          0
+        ],
+        "size": [
+          420,
+          297
+        ],
+        "background": "#ffffff",
+        "backgroundOpacity": 1,
+        "showGrid": false,
+        "visible": true,
+        "locked": false
+      }
+    }
+  }
+}

@@ -41,7 +41,7 @@ button.onclick=async()=>{button.disabled=true;const lines:string[]=[];const chec
   const hatch=Object.values(cadDocument.features).find(f=>f.params.kind==="hatch")!;
   check(hatch.inputs.includes(source)&&worldDraftingGeometry(cadDocument,cadDocument.objects[hatch.output],hatch).lines.length>0,"Hatch UI creates clipped linework with a live boundary reference");
   await click("Model");const row=Array.from(document.querySelectorAll<HTMLElement>(".tree-row-model")).find(entry=>entry.textContent?.includes("Rectangle"))!;row.click();await pause();
-  await click("Drafting");await select("Drafting operation","chain");await input("Drafting text height","40");await select("Dimension chain direction","aligned");await click("Apply drafting");
+  await click("Drafting");await select("Drafting operation","chain");await input("Drafting text height","40");await select("Dimension chain direction","aligned");await waitFor(()=>!document.querySelector<HTMLButtonElement>(".drafting-panel button[type=submit]")?.disabled);check(document.querySelector<HTMLFormElement>(".drafting-panel")?.checkValidity(),"Default chain arrow size and paper scale satisfy native form validation");await click("Apply drafting");
   check(Object.values(cadDocument.features).some(f=>f.params.kind==="chain"&&f.params.sourceObjectId===source),"Continuous dimension UI retains its source instead of duplicating measured values");
   row.click();await pause();await click("Drafting");await select("Drafting operation","define-block");await input("Block name","Window symbol");await click("Apply drafting");
   check(Object.keys(cadDocument.blocks??{}).length===1,"Selection defines a reusable block in the document");

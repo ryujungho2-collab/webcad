@@ -1,0 +1,23 @@
+✔ four architectural sides use exact reversed observer/axis basis with vertical up and real occlusion (2527.6476ms)
+✔ explicit view-side change retires original edge IDs and requires note rebind; Review and Undo are atomic (21.9322ms)
+✔ locked facade outputs reject view-side changes before deleting any owned geometry (5.1151ms)
+✔ architectural background dimensions report model length after sheet scale and reject paper hatch sources (147.324ms)
+✔ mixed architectural geometry batch regenerates a temporarily invalid moved loop and extrusion only at its final valid state (61.6027ms)
+✔ architectural hidden-edge display retains visible IDs, retires hidden references and persists schema38 (5.942ms)
+✔ conic seams merge only continuous same-source same-visibility domains; gaps and nearby loci remain separate (1.1098ms)
+✔ canonical ellipse axes preserve reflected finite domains and full curves ignore parameter seam phase (0.3055ms)
+✔ actual tilted-cylinder HLR preserves elliptical cap axes, hidden domain and silhouettes without an interior seam (2394.6977ms)
+✔ edge-on conic reconstructs four exact line boundaries only with a proven collinear degree-one control polygon (53.167ms)
+✔ assembly occlusion keeps separated visible elliptic arcs and does not merge across the hidden strip (11.3592ms)
+✔ HLR ellipse Review/Undo, read-only ownership, exact sheet output and schema36 persist fixed edge policy (29.8755ms)
+✔ rotating a periodic cylinder about its own axis preserves seam-free circle outputs and references (13.1022ms)
+✔ stale/locked conic edits reject atomically; source loss hides outputs and invalidates the live note (11.08ms)
+✔ oblique torus unsupported spline rejects the complete HLR result without a sampled replacement (51.0161ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3777.9586

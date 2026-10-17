@@ -1,0 +1,33 @@
+✔ presentation commands do not recalculate source sections; changed geometry still regenerates (4415.4273ms)
+✔ anchored opening edit preserves section IDs, dimensions, annotations, sheet and Undo; layout keeps correspondence (406.8344ms)
+✔ graph correspondence rejects disconnected moving, reversed and ambiguous branches (0.7421ms)
+✖ an affected view reuses unchanged part curves instead of querying their kernel cache (59.7227ms)
+✔ exact HLR classifies front/back parts and suppresses no source geometry (21.627ms)
+✔ Boolean opening HLR Review/Apply, hidden style, sheets, schema33 and stale/locked edits remain atomic (312.4411ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6345.0315
+
+✖ failing tests:
+
+test at tests\p01ModelIntegration.test.ts:47:1
+✖ an affected view reuses unchanged part curves instead of querying their kernel cache (59.7227ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  8 !== 7
+  
+      at TestContext.<anonymous> (C:\Users\thefi\OneDrive\Desktop\agent-webcad\apps\web\tests\p01ModelIntegration.test.ts:51:192)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 8,
+    expected: 7,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-10",
+  "scope": "CAD B3-D1/D2/E/F",
+  "node": { "tests": 837, "suites": 54, "passed": 837, "failed": 0, "skipped": 0 },
+  "browser": {
+    "basicEditWorkflow": 31,
+    "angularWorkflow": 24,
+    "draftingWorkflow": 16,
+    "pointWorkflow": 18,
+    "totalChecks": 89
+  },
+  "typescript": "passed",
+  "architecture": { "modules": 388, "status": "passed" },
+  "productionBuild": "passed",
+  "coverage": [
+    "Shared style formatting for linear, radius, diameter, angular and chain dimensions",
+    "Display changes preserve model measurements and source geometry",
+    "Command validation, JSON round-trip, Undo/Redo and active-plane SVG annotation text size",
+    "Multiple tracking points, intersection priority, screen-pixel radius and axis lock",
+    "Canvas Shift+A/L/R controls and transient document invariance"
+  ],
+  "limits": [
+    "Target browser workflows only; full browser suite was not rerun",
+    "No named global style preset or DXF associative dimension round-trip",
+    "Tracking UI is currently integrated into basic drawing creation tools",
+    "No large drawing performance or external CAD application validation"
+  ]
+}

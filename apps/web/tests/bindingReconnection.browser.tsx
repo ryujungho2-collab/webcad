@@ -1,0 +1,53 @@
+import {createRoot} from "react-dom/client";
+import {App} from "../src/App";
+import "../src/styles.css";import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+import {cadDocument} from "../src/state/cadDocument";
+import {cadHistory} from "../src/state/history";
+import {dispatchCadCommand} from "../src/state/dispatchCadCommand";
+import {saveDocumentToCache} from "../src/state/documentFile";
+import {isDocumentCommandPending} from "../src/state/documentCommandQueue";
+import {serializeDocument,deserializeDocument} from "@agent-webcad/cad-document";
+import {resetTestDocument} from "./helpers/documentHarness";
+import {installBrowserChecks} from "./helpers/browserChecks";
+import {click,physical,choose,input,waitFor,pause,find} from "./helpers/physicalInput";
+resetTestDocument();
+async function apply(c:Parameters<typeof dispatchCadCommand>[0]){const r=await dispatchCadCommand(c);if(!r.ok)throw new Error(r.reason);return r;}
+const feature=(id:string)=>Object.values(cadDocument.features).find(f=>f.output===id)!;
+await apply({type:"create-drawing",id:"arc",drawing:"arc",params:{workPlane:"XY",center:[0,0,0],radius:3,startAngle:0,endAngle:Math.PI}});
+await apply({type:"set-variable",name:"d",quantity:"length",expression:"5mm"});
+await apply({type:"set-parameter-binding",target:{kind:"feature",objectId:"arc",parameter:"radius"},expression:"d * 2"});
+saveDocumentToCache();createRoot(document.getElementById("root")!).render(<App/>);
+const editor=()=>document.querySelector<HTMLFormElement>('[aria-label="Contour editor"]'),canvas=()=>document.querySelector<HTMLCanvasElement>("#root canvas")!;
+const state=()=>{const {revision:_,...d}=cadDocument;return JSON.stringify(d);},past=()=>cadHistory.getPastLabels().length;
+async function key(key:string,modifiers=0){await input({type:"key",key,modifiers});await pause();await waitFor(()=>!isDocumentCommandPending());}
+async function field(label:string,value:string){const el=editor()?.querySelector<HTMLInputElement>(`[aria-label="${label}"]`);if(!el)throw new Error("Missing field "+label);await physical(el);await key("a",2);await input({type:"text",text:value});await pause();}
+const bindingId=()=>Object.keys(cadDocument.parameterBindings ?? {})[0];
+const button=document.getElementById("run-binding") as HTMLButtonElement,output=document.getElementById("binding-result")!;
+button.onclick=async()=>{button.disabled=true;button.style.pointerEvents="none";const lines:string[]=[],check=(ok:unknown,label:string)=>{if(!ok)throw new Error(label);lines.push(`PASS: ${label}`);};try{
+ await waitFor(()=>!!canvas());await click("2D");await physical(document.querySelector(`[data-model-object-id="arc"] .tree-label`)!);await physical(document.getElementById("tools-tab-modify")!);
+ check(!find("Break")?.disabled,"Selecting a radius-driven arc enables Break");
+ const before=state(),h=past(),bid=bindingId();
+ await click("Break");await waitFor(()=>!!editor());
+ await field("First break point","0,10");
+ check(find("Apply contour edit")?.disabled&&!!editor()?.querySelector('[aria-label="Reconnect Break references"]'),"The variable binding blocks Apply until its reviewed piece is chosen");
+ await choose(`Reference result ${bid} arc`,1);
+ await waitFor(()=>!find("Apply contour edit")?.disabled);
+ check(true,"Routing the binding to one reviewed piece unblocks Apply");
+ await click("Apply contour edit");await waitFor(()=>!editor()&&!isDocumentCommandPending());
+ const pieces=cadDocument.rootObjects.filter(id=>id!==bid&&feature(id)?.params?.kind==="arc"),splitState=state();
+ check(pieces.length===2,"Break splits the driven arc into two reviewed pieces");
+ check((cadDocument.parameterBindings![bindingId()].target as {objectId:string}).objectId===pieces[0],"The binding follows the reviewed piece");
+ check(Number(feature(pieces[0]).params.radius)===10,"The expression keeps driving the radius after replacement");
+ check(past()===h+1,"Break and binding reconnection share one Undo entry");
+ await click("Undo");check(state()===before,"Undo restores the arc and its binding");await click("Redo");check(state()===splitState,"Redo restores the reviewed split");
+ await physical(document.querySelector(`[data-model-object-id="${pieces[0]}"] .tree-label`)!);await click("Convert");
+ await waitFor(()=>!!editor());
+ await choose(`Reference result ${bindingId()} ${pieces[0]}`,1);
+ await waitFor(()=>!!editor()?.textContent?.includes("no longer provides"));
+ check(find("Apply contour edit")?.disabled,"A straightened edge cannot keep its radius binding; reassignment stays explicit");
+ await click("Cancel contour edit");await waitFor(()=>!editor());check(state()===splitState,"Cancel leaves the split arcs and binding intact");
+ check(JSON.stringify(deserializeDocument(serializeDocument(cadDocument)))===JSON.stringify(cadDocument),"Exact geometry, bindings and history survive native document serialization");
+ await key("k",2);await input({type:"text",text:"Break contour"});await pause();check(document.querySelector("dialog[open]")?.textContent?.includes("Break contour"),"Command palette exposes the same operation");await key("Escape");
+ output.textContent=lines.join("\n")+`\nALL ${lines.length} CHECKS PASSED`;
+}catch(e){output.textContent=lines.join("\n")+`\nFAIL: ${e instanceof Error?e.message:String(e)}`;}finally{button.disabled=false;button.style.pointerEvents="";}};
+installBrowserChecks(button,output);

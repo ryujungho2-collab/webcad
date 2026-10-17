@@ -1,3 +1,4 @@
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../app/projectActivity";
 import { useEffect, useState } from "react";
 import type { SketchLoop } from "../precision/sketchProfiles";
 import { profileBoundaryPoints } from "../precision/profileRegions";

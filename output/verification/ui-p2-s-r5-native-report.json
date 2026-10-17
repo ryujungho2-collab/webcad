@@ -1,0 +1,60 @@
+{
+  "status": "passed",
+  "checks": 19,
+  "message": "PASS: Both independent R5 projects render all 56 real model parts\nPASS: Inactive R5 runs zero scheduled viewport/tool callbacks during observation\nPASS: Active R5 continues rendering\nPASS: Metadata edit remains session-local while inactive\nPASS: Each mounted R5 keeps its independent Undo\nPASS: Each R5 exports a portable complete document from the durable checkpoint\nPASS: Each R5 exports its associative projection with no skipped output\nPASS: Metadata edit remains session-local while inactive\nPASS: Each mounted R5 keeps its independent Undo\nPASS: Each R5 exports a portable complete document from the durable checkpoint\nPASS: Each R5 exports its associative projection with no skipped output\nPASS: Switching, saving and output preserve both documents\nPASS: Idle heap release interrupts no document operation\nPASS: Geometry work restarts successfully after inactive Worker release\nPASS: Worker restart preserves original R5 Undo and source state\nPASS: Large project closes only after its IndexedDB checkpoint completes\nPASS: Closed large project reopens its durable source with fresh history\nPASS: Actual page reload restores both full R5 documents from IndexedDB\nPASS: Recovered documents start fresh Undo sessions\nALL 19 CHECKS PASSED",
+  "metrics": {
+    "fixture": "R5: 56 parts, 14 views, 10 sheets per project",
+    "coldSceneMs": [
+      11823.200000000186,
+      9386.600000000093
+    ],
+    "warmSwitchMs": [
+      198,
+      175.39999999990687,
+      183.29999999981374,
+      179.5
+    ],
+    "environment": "isolated Chromium / SwiftShader",
+    "samples": 4,
+    "checkpoints": [
+      "saved",
+      "saved"
+    ],
+    "beforeIdle": {
+      "a": {
+        "activeTasks": 0,
+        "submittedTasks": 23,
+        "idleWorkerReleases": 0,
+        "meshCacheEntries": 23,
+        "topologyCacheEntries": 0,
+        "measurementCacheEntries": 0
+      },
+      "b": {
+        "activeTasks": 0,
+        "submittedTasks": 23,
+        "idleWorkerReleases": 0,
+        "meshCacheEntries": 23,
+        "topologyCacheEntries": 0,
+        "measurementCacheEntries": 0
+      }
+    },
+    "afterIdle": {
+      "a": {
+        "activeTasks": 0,
+        "submittedTasks": 24,
+        "idleWorkerReleases": 1,
+        "meshCacheEntries": 23,
+        "topologyCacheEntries": 0,
+        "measurementCacheEntries": 1
+      },
+      "b": {
+        "activeTasks": 0,
+        "submittedTasks": 23,
+        "idleWorkerReleases": 0,
+        "meshCacheEntries": 23,
+        "topologyCacheEntries": 0,
+        "measurementCacheEntries": 0
+      }
+    }
+  }
+}

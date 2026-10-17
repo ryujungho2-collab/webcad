@@ -1,3 +1,4 @@
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../app/projectActivity";
 import { useEffect, useState } from "react";
 import type { SketchPoint } from "@agent-webcad/cad-document";
 import type { SketchGripMotion } from "../precision/sketchGripMotion";

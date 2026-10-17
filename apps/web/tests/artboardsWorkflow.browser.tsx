@@ -162,6 +162,10 @@ button.onclick = async () => {
     await physical(Array.from(panel().querySelectorAll<HTMLElement>('[role="option"]')).find(value => value.textContent?.includes("Icon B"))!);
     await click("Delete artboard");
     check(!cadDocument.artboards?.[second] && field("Artboard name").value === "Drawing A", "Deleting one board selects the remaining board without losing it");
+    await click("Undo"); await waitFor(() => field("Artboard name")?.value === "Icon B");
+    check(Boolean(cadDocument.artboards?.[second]) && document.querySelector('[aria-label="Active artboard Icon B"]') !== null, "Undo restores the deleted board and its active selection");
+    await click("Redo"); await waitFor(() => field("Artboard name")?.value === "Drawing A");
+    check(!cadDocument.artboards?.[second] && document.querySelector('[aria-label="Active artboard Drawing A"]') !== null, "Redo restores the remaining board as active");
     const beforeLastDelete = state(); await click("Delete artboard");
     check(cadDocument.artboards === undefined && panel().textContent?.includes("No artboards yet") && JSON.parse(serializeDocument(cadDocument)).version === 1, "Deleting the last board removes the optional collection and returns to the legacy file format");
     await click("Undo"); check(state() === beforeLastDelete && field("Artboard name").value === "Drawing A", "Undo of last deletion restores the board and panel selection");

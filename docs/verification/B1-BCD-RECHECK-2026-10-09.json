@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "scope": [
+    "B1-B standalone Explode/edit/Join relationship restoration",
+    "B1-C single-instance shallow/recursive disband with exact placement checks",
+    "B1-D standalone line/arc edge conversion"
+  ],
+  "fixes": [
+    "B1-C: reject equal-axis-length shear for circular/annotation baking",
+    "B1-C: reject lossy TRS decomposition of sheared shallow nested placements; recursive straight-member baking remains exact",
+    "Remove stale B1-C and Explode pending statements from current project summary"
+  ],
+  "node": {
+    "log": "output-b1-bcd-recheck-node.log",
+    "tests": 733,
+    "suites": 54,
+    "failed": 0,
+    "skipped": 0,
+    "newRegressionTests": 2
+  },
+  "browser": {
+    "scope": "Three targeted native workflows, full 51-workflow suite was not rerun",
+    "logs": [
+      "output-b1-b-recheck-browser.log",
+      "output-b1-c-recheck-browser.log",
+      "output-b1-d-recheck-browser.log"
+    ],
+    "status": "passed",
+    "workflows": 3,
+    "checks": 50,
+    "results": {
+      "B1-B": {
+        "status": "passed",
+        "workflow": "explodeReferences",
+        "checks": 19,
+        "log": "output-b1-b-recheck-browser.log"
+      },
+      "B1-C": {
+        "status": "passed",
+        "workflow": "explodeBlock",
+        "checks": 15,
+        "log": "output-b1-c-recheck-browser.log"
+      },
+      "B1-D": {
+        "status": "passed",
+        "workflow": "convertEdge",
+        "checks": 16,
+        "log": "output-b1-d-recheck-browser.log"
+      }
+    },
+    "previousFullSuite": {
+      "workflows": 51,
+      "checks": 1038,
+      "evidence": "B1-D-CLOSEOUT-2026-10-09.json"
+    }
+  },
+  "architecture": {
+    "log": "output-b1-bcd-recheck-architecture.log",
+    "status": "passed",
+    "modules": 349
+  },
+  "build": {
+    "log": "output-b1-bcd-recheck-build.log",
+    "status": "passed",
+    "mainRawKB": 1087.62,
+    "mainGzipKB": 328.52,
+    "viewportRawKB": 645.81,
+    "viewportGzipKB": 175.22,
+    "existingLargeChunkWarning": true
+  },
+  "serialization": "v14 unchanged",
+  "typecheck": "passed",
+  "remaining": {
+    "B1-B": "Sketch/pattern ownership adapters and unsupported consumers remain follow-ups",
+    "B1-C": "Referenced instances require release; definition isolation/override remains G4-B",
+    "B1-D": "Sketch-owned edge conversion remains B1-E"
+  }
+}

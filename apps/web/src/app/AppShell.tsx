@@ -15,14 +15,27 @@ import type { KernelStatus } from "../cad/kernelGeometryService";
 import { ToolIcon } from "../ui/ToolIcon";
 
 export type AppShellProps = {
+  onAssembly?:()=>void;
+  onModelViews?: () => void;
+  onRecallModelView?: (viewId: string) => void;
+  onAddText?: () => void;
+  onDrafting?: () => void;
   onCurveWorkflow?: () => void;
   canCurveWorkflow?: boolean;
+  onCadPilot?: (mode:import("../viewport/CadPilotTool").CadPilotMode)=>void;
+  activeUcsName?:string;
+  onEndpointRadiusArc?: () => void;
+  onRegularPolygon?: () => void;
+  onSpline?:()=>void;
+  onEllipse?:()=>void;
   onConstruction?: () => void;
   onAngularDimension?: () => void;
   constructionVisible?: boolean;
   onToggleConstruction?: () => void;
   canContour?: Partial<Record<import("../features/drawing-editing/contracts").ContourMode, boolean>>;
   onContour?: (mode: import("../features/drawing-editing/contracts").ContourMode) => void;
+  canDisbandBlock?: boolean;
+  onDisbandBlock?: () => void;
   canPattern?:boolean;
   onPattern?:(kind:"linear"|"radial"|"mirror")=>void;
   activeActivity: ActivityId;
@@ -62,6 +75,8 @@ export type AppShellProps = {
   onOffset: () => void;
   lineEditTool?: "trim" | "extend" | null;
   isModified: boolean;
+  saveStatus?: string;
+  fileStatus?: string;
   projectionMode: "perspective" | "orthographic";
   gridVisible: boolean;
   transformMode: TransformMode | null;
@@ -118,7 +133,10 @@ export type AppShellProps = {
   onExportArtboardPdf?: () => void;
   onExportDxf?: () => void;
   onExportStep?: () => void;
+  onImportFixture?: () => void;
+  onExportFixture?: () => void;
   onImportDxf?: () => void;
+  onFloorTasks?:()=>void;
   onImportImage?: () => void;
   onPlot?: () => void;
   canDimension?: boolean;
@@ -149,6 +167,7 @@ export function AppShell(props: AppShellProps) {
   const paletteCommands = createPaletteCommands(props, {
     toggleExplorer: () => setExplorerCollapsed((value) => !value),
     toggleProperties: () => setPropertiesCollapsed((value) => !value),
+    openActivity: (activity) => { setExplorerCollapsed(false); props.onChangeActivity(activity); },
   });
 
   function changeActivity(activity: ActivityId) {
@@ -168,6 +187,8 @@ export function AppShell(props: AppShellProps) {
         canUndo={props.canUndo}
         canRedo={props.canRedo}
         isModified={props.isModified}
+        saveStatus={props.saveStatus}
+        fileStatus={props.fileStatus}
         onNew={props.onNew}
         onOpen={props.onOpen}
         onSave={props.onSave}
@@ -179,7 +200,10 @@ export function AppShell(props: AppShellProps) {
         onExportArtboardPdf={() => props.onExportArtboardPdf?.()}
         activeArtboardName={props.activeArtboardName}
         hasVisibleArtboards={props.hasVisibleArtboards}
+        onImportFixture={()=>props.onImportFixture?.()}
+        onExportFixture={()=>props.onExportFixture?.()}
         onImportDxf={() => props.onImportDxf?.()}
+        onFloorTasks={props.onFloorTasks}
         onImportImage={() => props.onImportImage?.()}
         onExportDxf={() => props.onExportDxf?.()}
         onExportStep={() => props.onExportStep?.()}
@@ -194,9 +218,11 @@ export function AppShell(props: AppShellProps) {
       />
 
       <Ribbon
+        onAssembly={props.onAssembly} onModelViews={props.onModelViews}
         onCurveWorkflow={props.onCurveWorkflow} canCurveWorkflow={props.canCurveWorkflow}
-        onConstruction={props.onConstruction} onAngularDimension={props.onAngularDimension} constructionVisible={props.constructionVisible} onToggleConstruction={props.onToggleConstruction}
+        onCadPilot={props.onCadPilot} activeUcsName={props.activeUcsName} onEndpointRadiusArc={props.onEndpointRadiusArc} onSpline={props.onSpline} onEllipse={props.onEllipse} onRegularPolygon={props.onRegularPolygon} onConstruction={props.onConstruction} onAngularDimension={props.onAngularDimension} constructionVisible={props.constructionVisible} onToggleConstruction={props.onToggleConstruction}
         canContour={props.canContour} onContour={props.onContour}
+        canDisbandBlock={props.canDisbandBlock} onDisbandBlock={props.onDisbandBlock}
         canPattern={props.canPattern} onPattern={props.onPattern}
         canUndo={props.canUndo}
         canRedo={props.canRedo}
@@ -290,7 +316,7 @@ export function AppShell(props: AppShellProps) {
           </div>
           {props.activeArtboardName && <div className="viewport-artboard-label" aria-label={`Active artboard ${props.activeArtboardName}`}>Canvas · {props.activeArtboardName}</div>}
           {props.isolationActive && <div className="viewport-isolation">Isolated view <button type="button" onClick={props.onIsolate}>Exit isolation</button></div>}
-          <div className="navigation-hint"><span>LMB</span> Select <b>·</b> <span>MMB</span> Pan {props.workspaceMode === "3d" && <><b>·</b> <span>Shift MMB</span> Orbit </>}<b>·</b> <span>Wheel</span> Zoom</div>
+          <div className="navigation-hint"><span>Wheel</span> Up/down <b>·</b> <span>Shift Wheel</span> Left/right <b>·</b> <span>Ctrl Wheel</span> Zoom <b>·</b> <span>Alt Wheel</span> Rotate <b>·</b> <span>MMB</span> Pan <b>·</b> <span>Ctrl K</span> Commands / Shortcuts</div>
         </section>
 
         <aside className="workbench-properties">{props.properties}</aside>

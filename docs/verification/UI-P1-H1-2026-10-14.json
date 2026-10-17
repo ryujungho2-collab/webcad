@@ -1,0 +1,33 @@
+{
+  "card": "UI-P1-H1",
+  "date": "2026-10-14",
+  "status": "passed",
+  "scope": "project-list recovery, local/download save state, exact save snapshot, correlated checkpoint close",
+  "node": {
+    "command": "node node_modules/tsx/dist/cli.mjs --test tests/documentRecovery.test.ts tests/projectSession.test.ts tests/projectWorkspaceStore.test.ts",
+    "checks": 14,
+    "fail": 0,
+    "skip": 0
+  },
+  "browser": [
+    { "command": "node scripts/browserChecks.mjs --page=projectRecovery", "checks": 24, "status": "passed" },
+    { "command": "node scripts/browserChecks.mjs --page=projectTabs", "checks": 19, "status": "passed" },
+    { "command": "node scripts/browserChecks.mjs --page=trustWorkflow", "checks": 15, "status": "passed" }
+  ],
+  "browserTotal": 58,
+  "typecheck": "passed",
+  "architecture": { "modules": 549, "status": "passed" },
+  "productionBuild": { "modules": 402, "status": "passed", "existingLargeChunkWarning": true },
+  "testMethod": {
+    "projectWorkflows": "physical CDP pointer input and hit testing; Storage/command queue fault fixtures in the actual editor realm",
+    "lateAcknowledgements": "CheckpointGate Node tests with explicit deadline advancement and request/session mismatch",
+    "trustWorkflow": "existing standalone App workflow; not counted as a physical-input-only workflow"
+  },
+  "remaining": [
+    "UI-P1-H2 project search/export/delete, orphan and asset cleanup, 200-project capacity management",
+    "raw recovery archive import UI and IndexedDB migration",
+    "UI-P2 inactive render/Worker and memory budget",
+    "UI-P3 split comparison"
+  ],
+  "fullCadSuiteRerun": false
+}

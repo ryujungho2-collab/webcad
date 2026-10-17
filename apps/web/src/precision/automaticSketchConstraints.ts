@@ -1,7 +1,8 @@
 import type { Sketch, SketchConstraint, SketchGeometry, SketchPoint, SketchPointRef } from "@agent-webcad/cad-document";
 import { geometryPointIds } from "./sketchEditing";
 import { sketchPoint } from "./sketchSolver";
-import { worldToPlane, WORK_PLANES } from "./workPlane";
+import { worldToPlane } from "./workPlane";
+import { sketchPlane } from "./sketchAdapter";
 import type { SnapResult } from "./snapEngine";
 
 export type SketchSnapBinding = { point: SketchPoint; target: SketchPointRef };
@@ -10,7 +11,7 @@ export function sketchSnapBinding(sketch: Sketch, snap: SnapResult | null): Sket
   if (!snap?.objectId || !["endpoint", "center"].includes(snap.type)) return null;
   const geometry = sketch.geometry.find((entry) => entry.id === snap.objectId);
   if (!geometry) return null;
-  const local = worldToPlane(snap.point, WORK_PLANES[sketch.workPlane]);
+  const local = worldToPlane(snap.point, sketchPlane(sketch));
   const pointId = geometryPointIds(geometry).find((id) => {
     if (snap.type === "center" && (!("centerId" in geometry) || id !== geometry.centerId)) return false;
     const p = sketchPoint(geometry, id); return p && Math.hypot(p[0] - local[0], p[1] - local[1]) <= 1e-6;

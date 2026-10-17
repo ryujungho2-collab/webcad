@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-10",
+  "scope": "CAD B5-E inward Shell with removed faces and uniform thickness",
+  "node": {"tests": 867, "suites": 54, "passed": 867, "failed": 0, "skipped": 0},
+  "browser": {"b5Shell": 6, "b5FaceHoleRegression": 3, "total": 9},
+  "checks": [
+    "box wall and bottom: independently derived volume 1664 mm3 and area 1808 mm2",
+    "cylinder: independently derived volume 848*pi mm3 and area 888*pi mm2",
+    "multiple removed faces, valid single solid, impossible thickness and exact face identity rejection",
+    "source movement/rotation, missing face status, explicit rebind and downstream Boolean regeneration",
+    "Review/Apply, stale review invalidation, one-entry Undo/Redo and independent copies",
+    "document v21 validation/reload, actual STEP bytes and STL mesh; unresolved downstream export blocked"
+  ],
+  "typecheck": "passed",
+  "architecture": {"result": "passed", "modules": 412},
+  "productionBuild": "passed",
+  "limitations": [
+    "One or more removed faces, inward uniform thickness and one resulting solid",
+    "No closed hollow body, outward/variable wall thickness, automatic topology substitution or scaled source",
+    "Complex offset failure is rejected; arbitrary concave BRep offset success is not guaranteed",
+    "Independent copied Shell retains its snapshot; create a new Shell to choose faces on that copy"
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-13",
+  "parts": 56,
+  "views": 7,
+  "pages": 5,
+  "schema": 34,
+  "metrics": [
+    {
+      "id": "plan-1",
+      "ms": 4348,
+      "cuts": 70,
+      "background": 86,
+      "hatch": 272,
+      "warnings": [
+        "l1-west-flight-1:part: open/ambiguous cut boundary; hatch omitted.",
+        "l1-east-flight-1:part: open/ambiguous cut boundary; hatch omitted."
+      ]
+    },
+    {
+      "id": "plan-2",
+      "ms": 1987,
+      "cuts": 70,
+      "background": 82,
+      "hatch": 272,
+      "warnings": [
+        "l2-west-flight-1:part: open/ambiguous cut boundary; hatch omitted.",
+        "l2-east-flight-1:part: open/ambiguous cut boundary; hatch omitted."
+      ]
+    },
+    {
+      "id": "plan-3",
+      "ms": 1585,
+      "cuts": 56,
+      "background": 28,
+      "hatch": 272,
+      "warnings": []
+    },
+    {
+      "id": "section-aa",
+      "ms": 4215,
+      "cuts": 128,
+      "background": 59,
+      "hatch": 672,
+      "warnings": []
+    },
+    {
+      "id": "section-bb",
+      "ms": 4314,
+      "cuts": 130,
+      "background": 24,
+      "hatch": 541,
+      "warnings": []
+    }
+  ],
+  "layoutMs": 43985,
+  "limits": [
+    "Retained depth is explicit; no inferred architectural floor semantics.",
+    "No material inference, window/door/stair symbols or filled surface hatch.",
+    "Program-note anchors remain the earlier study placement.",
+    "Ellipse/spline rejects the whole unsupported background; no sampled export."
+  ]
+}

@@ -1,6 +1,6 @@
 /* Task-oriented command chrome. The existing command callbacks remain authoritative. */
 .app-shell { grid-template-rows: var(--chrome-menu) var(--chrome-tools) minmax(0, 1fr) var(--chrome-status); }
-.ribbon { grid-template-rows: 34px 60px; }
+.ribbon { grid-template-rows: 32px 40px; }
 .ribbon-tabs { gap: 18px; padding: 0 12px; background: var(--bg-0); }
 .workspace-switch { flex: 0 0 auto; margin: 0; height: 26px; border-color: var(--line); }
 .workspace-switch button { padding: 0 10px; font-size: 11px; background: transparent; color: var(--muted); border-color: var(--line); }
@@ -15,17 +15,43 @@
 .workspace-context .workspace-mode-badge { color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
 .workspace-plane { border-left: 1px solid var(--line); padding-left: 10px; font: 10px var(--font-numeric); }
 .ribbon-body { padding: 3px 10px 2px; scrollbar-width: thin; scrollbar-color: var(--line) var(--bg-1); }
-.ribbon-group { padding: 0 10px; border-color: var(--line-soft); grid-template-rows: minmax(0, 1fr) 12px; }
-.ribbon-command { width: auto; min-width: 49px; padding: 1px 7px; height: 39px; grid-template-rows: 21px 13px; gap: 1px; font-size: 10px; color: var(--text); }
+.ribbon-group { padding: 0 8px; border-color: var(--line-soft); display: flex; align-items: center; }
+.ribbon-command { width: auto; min-width: 0; padding: 0 8px; height: 30px; display: flex; align-items: center; gap: 6px; font-size: 11px; white-space: nowrap; color: var(--text); }
 .ribbon-command-icon { display: grid; place-items: center; color: inherit; }
 .ribbon-command-icon svg { width: 18px; height: 18px; }
 .ribbon-command:disabled, .ribbon-command:disabled .ribbon-command-icon { color: var(--muted); opacity: .45; }
 .ribbon-command:hover:not(:disabled) { border-color: var(--line); background: var(--bg-3); }
 .ribbon-command-active:not(:disabled) { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
-.ribbon-group-label { color: var(--muted); font-size: 8px; letter-spacing: .7px; }
+.ribbon-group-label { display: none; }
 .ribbon-context { min-width: 95px; padding-right: 4px; font-size: 9px; color: var(--muted); }
 .ribbon-context strong { color: var(--text); }
 .ribbon-context small { color: var(--warning); font-size: 9px; }
+
+/* Compact tool families keep exact CAD commands discoverable without a long ribbon. */
+.tool-disclosure-trigger { height: 30px; display: inline-flex; align-items: center; gap: 9px; padding: 0 10px; border: 1px solid transparent; background: transparent; color: var(--text); font-size: 11px; white-space: nowrap; cursor: pointer; }
+.tool-disclosure-trigger:hover:not(:disabled), .tool-disclosure-trigger[aria-expanded="true"] { background: var(--bg-3); border-color: var(--line); }
+.tool-disclosure-trigger:disabled { opacity: .45; cursor: default; }
+.tool-disclosure-trigger > span { color: var(--muted); }
+.tool-disclosure-panel { position: fixed; inset: auto; margin: 0; width: 304px; max-width: calc(100vw - 16px); max-height: min(540px, calc(100dvh - 130px)); overflow: auto; padding: 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-2); color: var(--text); box-shadow: 0 12px 36px #0006; font: 12px var(--font-ui); }
+.tool-disclosure-panel::backdrop { background: transparent; }
+.tool-disclosure-title { padding: 6px 8px 10px; color: var(--muted); font-size: 11px; font-weight: 600; }
+.tool-disclosure-panel .ribbon-command { display: flex; width: 100%; height: auto; min-height: 34px; padding: 7px 10px; text-align: left; white-space: normal; }
+.tool-disclosure-panel .ribbon-command-icon { flex: 0 0 20px; }
+.frame-tool-dock { position: absolute; top: 52px; left: 12px; z-index: 12; border: 1px solid var(--line); border-radius: 5px; background: var(--bg-1); }
+.frame-tool-dock[hidden] { display: none; }
+.frame-tool-intro { margin: 0 8px 10px; color: var(--muted); line-height: 1.5; }
+.frame-tool-actions { display: flex; flex-direction: column; }
+.frame-tool-section { padding: 10px 8px; border-top: 1px solid var(--line-soft); }
+.frame-tool-section h3 { margin: 0 0 8px; font-size: 11px; font-weight: 600; color: var(--muted); }
+.frame-tool-section > div:not([hidden]) { display: flex; flex-wrap: wrap; gap: 6px; }
+.frame-tool-section button, .frame-tool-section select { min-height: 30px; min-width: 0; max-width: 100%; padding: 4px 8px; color: var(--text); background: var(--bg-1); border: 1px solid var(--line); border-radius: 4px; font: 11px var(--font-ui); }
+.frame-tool-section select { width: 100%; }
+.frame-tool-section button { cursor: pointer; }
+.frame-tool-section button:hover:not(:disabled) { background: var(--bg-3); border-color: var(--muted); }
+.frame-tool-section button:disabled { opacity: .4; cursor: default; }
+.frame-tool-section [role="alert"] { color: var(--danger); line-height: 1.4; }
+.point-operations { max-width: calc(100% - 100px); overflow-x: auto; flex-wrap: nowrap; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.point-operations > button { flex: 0 0 auto; white-space: nowrap; }
 
 /* The canvas is never resized by transient tools or selection feedback. */
 .workbench { grid-template-columns: var(--rail-width) var(--panel-explorer) minmax(0, 1fr) var(--panel-inspector); }
@@ -33,7 +59,7 @@
 .workbench.properties-collapsed { grid-template-columns: var(--rail-width) var(--panel-explorer) minmax(0, 1fr) 0; }
 .workbench.explorer-collapsed.properties-collapsed { grid-template-columns: var(--rail-width) 0 minmax(0, 1fr) 0; }
 .activity-button { width: var(--rail-width); }
-.viewport-label { top: 10px; left: 12px; padding: 6px 8px; color: var(--muted); background: var(--bg-0); border-color: var(--line-soft); }
+.viewport-label { top: auto; bottom: 42px; left: 12px; padding: 6px 8px; color: var(--muted); background: var(--bg-0); border-color: var(--line-soft); }
 .viewport-label strong { font-size: 10px; color: var(--text); }
 .viewport-label span { border-color: var(--line); }
 .viewport-frame-actions { position: absolute; right: 12px; top: 10px; z-index: 3; display: flex; border: 1px solid var(--line-soft); border-radius: var(--radius); background: var(--bg-0); }
@@ -111,6 +137,9 @@
 .cad-contour-tool button:disabled{opacity:.45;cursor:default}
 .cad-contour-tool button[aria-pressed=true]{border-color:#72e3b3;background:#305749}
 .cad-contour-tool button[type=submit]{background:#295e49}
+.cad-contour-tool:not(.cad-curve-workbench):not(.cad-construction-tool){max-height:calc(100% - 36px);overflow-y:auto;box-sizing:border-box}
+.cad-contour-tool fieldset{min-width:0;display:grid;gap:8px;border:1px solid #45605b}
+.cad-contour-tool fieldset>div{display:grid;gap:5px}
 .cad-construction-tool{max-height:calc(100% - 36px);overflow:auto}
 .cad-construction-tool input[type=checkbox]{width:auto;justify-self:start}
 .construction-impact p{color:#b5dbca;overflow-wrap:anywhere;line-height:1.5}

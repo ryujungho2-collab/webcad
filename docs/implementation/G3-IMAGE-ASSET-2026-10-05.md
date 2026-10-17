@@ -1,5 +1,7 @@
 # G3-1 이미지 자산 vertical slice (단계 기록)
 
+> **현재 기능 설명:** [이미지와 장면](../features/IMAGES-SCENES.md). 이 문서는 날짜별 구현·설계 기록이며, 아래 사용법·제한·수치는 당시 범위다. 후속 지원은 대표 가이드를 따른다.
+
 실행일: 2026-10-05. G3-1 시점의 구현 기록이며 현재 이미지 기능 상태를 단독으로 나타내지 않는다. 이후 placement 복제/변환/align, ellipse mask, opacity는 [G3-2..4a 누적 구현](G3-2-4-IMAGE-EDITING-2026-10-05.md), 최신 검수는 [G3-2..4a 검수](../verification/G3-2-4-IMAGE-EDITING-2026-10-05.md)를 따른다. 실행 순서는 [NEXT-STEPS](../../NEXT-STEPS.md), 전체 현황은 [PROJECT-STATE](../../PROJECT-STATE.md)가 소유한다.
 
 ## 완료한 사용자 workflow

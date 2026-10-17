@@ -3,6 +3,10 @@ import { cadHistory } from "../../state/history";
 type HistoryPanelProps = { query: string };
 
 const labels: Record<string, string> = {
+  "create-endpoint-radius-arc":"Create endpoint / radius arc",
+  "create-three-point-curve":"Create three-point circle / arc",
+  "create-shell":"Shell solid",
+  "update-shell":"Edit Shell thickness and faces",
   "set-variable":"Edit document variable",
   "remove-variable":"Remove document variable",
   "set-parameter-binding":"Drive parameter by expression",

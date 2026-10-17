@@ -1,0 +1,104 @@
+{
+  "id": "G2-F1",
+  "date": "2026-10-11",
+  "status": "complete within 2D drawing frame scope",
+  "node": {
+    "tests": 1087,
+    "suites": 54,
+    "passed": 1087,
+    "failed": 0,
+    "skipped": 0,
+    "newFrameTests": 12
+  },
+  "nativeBrowser": {
+    "workflows": 7,
+    "checks": 165,
+    "results": {
+      "drawingFrames": 26,
+      "artboardsWorkflow": 31,
+      "artboardPdfWorkflow": 21,
+      "modelSheetSet": 24,
+      "historySelection": 23,
+      "ellipse": 24,
+      "draftingWorkflow": 16
+    },
+    "entireBrowserSuiteRerun": false,
+    "finalRun": "passed sequentially after final product changes"
+  },
+  "typecheck": "passed",
+  "architecture": {
+    "status": "passed",
+    "modules": 488
+  },
+  "productionBuild": "passed; existing large-chunk warning remains",
+  "schema": {
+    "frameVersion": 28,
+    "reader": "v1-v28",
+    "existingMinimumVersions": "preserved",
+    "downgradeTo27": "rejected"
+  },
+  "implemented": [
+    "Empty drag and selected-source frame creation, explicit member add/remove and padding fit",
+    "Frame label drag movement and corner crop resize with detached Review/Apply",
+    "Frame coordinates and explicit1:N scale preserve source objects, geometry, measurements and IDs",
+    "Model view origin/scale normalization prevents double scaling and follows source view relocation",
+    "Same source can appear in independent frames; missing sources diagnosed, member reassignment supported",
+    "Input changes invalidate Review before blur; external revision/lock/document changes invalidate stale sessions",
+    "Frame viewport, SVG and artboard PNG/PDF share scoped presentation scene; wheel navigation over frame content",
+    "Explicit flattened sampled-curve DXF with text-alignment preservation and unsupported text crop rejection"
+  ],
+  "artifacts": [
+    "output/pdf/drawing-frame.pdf",
+    "output/pdf/drawing-frame.svg",
+    "output/pdf/drawing-frame.dxf",
+    "output/pdf/drawing-frame-preview.png"
+  ],
+  "pdf": {
+    "pages": 1,
+    "sizePoints": [
+      198.425,
+      141.732
+    ],
+    "sizeMillimetres": [
+      70,
+      50
+    ],
+    "bytes": 3292,
+    "validation": "actual native Download followed by independent pdfinfo/pdftoppm and visual inspection; 100x60 model rectangle at1:2 becomes50x30 with10mm padding"
+  },
+  "independentOracles": [
+    "100mm source length maps to50mm at1:2 with source params/transforms unchanged",
+    "Moving/cropping frame and reusing source in another frame do not change source geometry",
+    "Existing model view scale0.1/origin500,300 then scale0.2/origin1000,600 yields unchanged frame artwork at1:2",
+    "DXF reparse uses paper-space coordinates and keeps centered text alignment",
+    "Native drag/wheel/checkbox/numeric entry/Undo/PDF/reload workflows"
+  ],
+  "boundaries": [
+    "2D principal-plane finite drawing/drafting/dimension and existing model view outputs; solids/sketch containers/images/unbounded sources rejected",
+    "Frame content rendering/editing is2D; 3D content rendering and editing geometry inside frame not included",
+    "One model-view coordinate basis per frame; frame connections and detailed-view linking remainG2-F2",
+    "Annotations are explicit members; same-source frame copies retain separate crop/placement/scale",
+    "DXF flattens sampled curves and labels, loses associative meaning/fills/dashes/colors; rotated/partially clipped text rejects with SVG/PDF alternative",
+    "Sections/workspace groups G2-S1, linked frames G2-F2, automatic sheet handoff G6-D5-F1 and stitching G2-F3 remain pending",
+    "Existing F=fit retained; dedicated2D buttons start frame creation"
+  ],
+  "failuresAndReruns": [
+    "First Node test used nonexistent set-object-visibility command; corrected test to set-object-visible",
+    "First native19 checks passed but artifact writer rejected unregistered filenames; registered the three frame artifacts",
+    "Additional native test attempted Review/Apply without any edit; unchanged command correctly rejected; test now edits name before Review",
+    "Full Node architecture test initially found the closeout link before JSON was created; created record, final1087 passed",
+    "Hardened numeric input invalidation, live lock/delete session handling, source view normalization, centered DXF text and wheel routing; final26 native checks passed"
+  ],
+  "commands": [
+    "npx tsx --test tests/drawingFrames.test.ts",
+    "npx tsx --test tests/**/*.test.ts",
+    "npx tsc -b",
+    "npm run check:architecture",
+    "npm run build (root)",
+    "node scripts/browserChecks.mjs --page=<seven workflows> --artifacts",
+    "pdfinfo output/pdf/drawing-frame.pdf",
+    "pdftoppm -scale-to1200 -png -singlefile output/pdf/drawing-frame.pdf output/pdf/drawing-frame-preview"
+  ],
+  "nextFrameCard": "G2-S1",
+  "nextGeometryCard": "X6-D2-E1"
+}

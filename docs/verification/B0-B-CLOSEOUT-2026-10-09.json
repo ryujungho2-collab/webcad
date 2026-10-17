@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "scope": "B0-B: basic drawing and point Move/Copy/Rotate numeric preview, keyboard and pointer confirmation; XY/XZ/YZ",
+  "node": {"tests": 694, "suites": 54, "failed": 0, "skipped": 0, "newTests": 8, "log": "output-b0-b-node.log"},
+  "browser": {"newWorkflow": "precisionInput", "newWorkflowChecks": 15, "environment": "Edge headless native CDP keys/pointer; real App/React/Worker; SwiftShader", "fullStatus": "passed", "workflows": 46, "checks": 955, "log": "output-b0-b-browser-final.log"},
+  "typecheck": "passed",
+  "architecture": {"passed": true, "modules": 335, "log": "output-b0-b-architecture.log"},
+  "build": {"workspace": "passed", "log": "output-b0-b-build.log", "mainRawKB": 1069.43, "mainGzipKB": 323.43, "viewportRawKB": 630.59, "viewportGzipKB": 171.71, "kernelWasmRawKB": 50305.13, "existingLargeChunkWarning": true},
+  "serialization": "v14 unchanged",
+  "firstFullBrowserAttempt": {"log": "output-b0-b-browser.log", "failure": "interactionRelations UI timeout after line-circle tangent", "isolatedRerun": "passed: 17 checks"},
+  "performance": "No new latency, practitioner, GPU/VRAM benchmark"
+}

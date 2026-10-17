@@ -1,3 +1,4 @@
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../app/projectActivity";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type { Sketch } from "@agent-webcad/cad-document";
 import { cadDocument } from "../state/cadDocument";

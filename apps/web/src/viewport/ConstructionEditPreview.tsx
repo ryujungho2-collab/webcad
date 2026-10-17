@@ -1,3 +1,4 @@
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../app/projectActivity";
 import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import { constructionExpression } from "@agent-webcad/cad-document";

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="230 -230 100 90" stroke="black" stroke-width="0.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<defs><clipPath id="artboard-crop"><rect x="230" y="-230" width="100" height="90" /></clipPath></defs>
+<g clip-path="url(#artboard-crop)">
+<rect x="230" y="-230" width="100" height="90" fill="#ffffff" stroke="none" />
+<polygon points="235,-145 285,-145 285,-175 235,-175" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="240,-150 260,-165" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="255,-185 305,-185" stroke="#303030" stroke-dasharray="4 2" />
+<polyline points="255,-185 255,-181 254,-182.5 255,-181 256,-182.5" stroke="#303030" />
+<polyline points="305,-185 305,-181 304,-182.5 305,-181 306,-182.5" stroke="#303030" />
+<polygon points="240,-150 260,-150 260,-165 240,-165" stroke="#303030" stroke-dasharray="2 1" />
+<text x="280" y="-225" font-family="system-ui, sans-serif" font-size="2.5" text-anchor="middle" fill="#303030" stroke="none">front / 1:2</text>
+<text x="280" y="-178" font-family="system-ui, sans-serif" font-size="2.5" text-anchor="middle" fill="#303030" stroke="none">B-B</text>
+<text x="250" y="-169" font-family="system-ui, sans-serif" font-size="1.979" text-anchor="middle" fill="#303030" stroke="none">Detail 1</text>
+<text x="280" y="-145" font-family="system-ui, sans-serif" font-size="2.5" text-anchor="middle" fill="#303030" stroke="none">Part P1</text>
+</g>
+</svg>

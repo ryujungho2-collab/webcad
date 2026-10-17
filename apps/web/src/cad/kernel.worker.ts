@@ -1,4 +1,4 @@
-import { executeKernelOperation } from "./kernelRuntime";
+import { executeKernelOperation,retainedShapeStatistics } from "./kernelRuntime";
 import { meshTransferList, type KernelRequest, type KernelResponse } from "./kernelProtocol";
 
 // Local interface avoids combining conflicting DOM and WebWorker lib globals.
@@ -14,7 +14,8 @@ scope.onmessage = ({ data }) => {
       const result = await executeKernelOperation(data.operation, data.params, (phase) => {
         scope.postMessage({ type: "progress", taskId: data.taskId, phase });
       });
-      scope.postMessage({ type: "result", taskId: data.taskId, result }, meshTransferList(result));
+      const stats=retainedShapeStatistics();
+      scope.postMessage({ type: "result", taskId: data.taskId, result,memory:{capacityBytes:stats.heapCapacityBytes??null,retainedSources:stats.entries,retainedSlabs:stats.slabs.entries} }, meshTransferList(result));
     } catch (error) {
       scope.postMessage({ type: "error", taskId: data.taskId, message: error instanceof Error ? error.message : String(error) });
     }

@@ -1,0 +1,83 @@
+{
+  "task": "G2-F3",
+  "date": "2026-10-12",
+  "status": "complete-first-scope",
+  "node": {
+    "tests": 1151,
+    "suites": 54,
+    "fail": 0,
+    "skip": 0,
+    "newFrameStitchTests": 19,
+    "log": "output/verification/frame-stitches-node.txt"
+  },
+  "typecheck": "passed",
+  "architecture": {
+    "status": "passed",
+    "modules": 511
+  },
+  "build": {
+    "status": "passed",
+    "warning": "Existing >500kB chunks warning"
+  },
+  "native": {
+    "scope": "targeted regression, not full browser suite",
+    "workflows": {
+      "frameStitches": 25,
+      "drawingFrames": 26,
+      "frameLinks": 36,
+      "workspaceSections": 25,
+      "frameSheets": 24,
+      "modelSheetSet": 24,
+      "artboardPdfWorkflow": 21,
+      "historySelection": 23
+    },
+    "totalChecks": 204
+  },
+  "output": {
+    "pdf": "output/pdf/continuous-frames.pdf",
+    "svg": "output/pdf/continuous-frames.svg",
+    "dxf": "output/pdf/continuous-frames.dxf",
+    "preview": "output/pdf/continuous-frames-preview.png",
+    "pdfPages": 1,
+    "paper": "A4 landscape",
+    "pageSizePt": [
+      841.89,
+      595.276
+    ],
+    "pdfBytes": 19595,
+    "independentRenderer": "Poppler pdfinfo/pdftoppm; page visually inspected",
+    "sourceLengthMm": 120,
+    "paperLengthAt1to2Mm": 60,
+    "paperLengthAtDivisor2Mm": 30,
+    "seamHalfAtDivisor2Mm": 15
+  },
+  "verified": [
+    "Non-destructive common-coordinate and proper two-point rigid alignment; same-view source scale/origin normalization.",
+    "Coincident points, mismatched distances, mirror/collinear/residual orientation witnesses, different projections/planes, cycles/nested sources and empty seams reject.",
+    "Review ghost, input invalidation, Cancel, single Apply Undo/Redo, detach preview, stale plans and batch rollback.",
+    "Source workspace movement leaves aggregate fixed; live model changes update graphics; changed crop requires explicit refresh.",
+    "Polygon seam SVG, analytic ellipse and sampled clipped DXF; unsafe seam text fails explicitly.",
+    "Work-area membership and independent automatic-sheet publication including original and aggregate sources at a second scale divisor.",
+    "Schema v32 actual browser cache reload and invalid references/downgrade/degenerate rigid data guards."
+  ],
+  "fixesDuringVerification": [
+    "Closed-path duplicate comparison accepts reversed winding.",
+    "Convex segment clipping tolerates floating roundoff at rotated boundary edges.",
+    "Stored rigid reference distance and witness guards reject invalid reopen data.",
+    "Sheet collector receives original source document so virtual paper placement never invalidates stitch snapshots.",
+    "Per-source polygon clip survives paper-sheet collection."
+  ],
+  "initialNativeFixtureFailures": [
+    "Expected overlap corrected from2000 to2400 model mm² for the fixture crop height60.",
+    "Reflection witness corrected from collinear Y=-10 to mirrored Y=-20 relative to origin Y=-10.",
+    "Analytic ellipse assertion now uses exact ellipse source; legacy circle retains sampled export contract."
+  ],
+  "limitations": [
+    "2–16 original sources, same presentation plane and source scale; independent2D or one common model-view ID.",
+    "Numeric reference input; no automatic reference recognition, seam search, canvas point picking or nested stitches.",
+    "Two points select proper rotation only; a third orientation witness is needed to diagnose reflection.",
+    "Exact duplicate graphics policy; partial overlaps require user-selected complementary seam crops, no geometric union.",
+    "DXF is sampled paper-coordinate presentation without styles/fills/associativity; clipped/rotated/basis text rejects with SVG/PDF guidance."
+  ],
+  "next": "X6-D2-E1"
+}

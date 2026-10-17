@@ -1,0 +1,169 @@
+{
+  "records": [
+    {
+      "run": 1,
+      "kind": "first source Review",
+      "reviewMs": 7838.3861,
+      "applyMs": 101.12169999999969,
+      "undoMs": 100.46389999999883,
+      "changes": 1254,
+      "retained": {
+        "heapCapacityBytes": 104857600,
+        "hits": 287,
+        "builds": 49,
+        "evictions": 0,
+        "entries": 49,
+        "limit": 128,
+        "slabs": {
+          "hits": 0,
+          "builds": 15,
+          "inside": 0,
+          "outside": 42,
+          "evictions": 0,
+          "entries": 15,
+          "limit": 128
+        }
+      }
+    },
+    {
+      "run": 2,
+      "kind": "warmed source Review",
+      "reviewMs": 559.6915000000008,
+      "applyMs": 143.97849999999926,
+      "undoMs": 95.24539999999979,
+      "changes": 1254,
+      "retained": {
+        "heapCapacityBytes": 104857600,
+        "hits": 287,
+        "builds": 49,
+        "evictions": 0,
+        "entries": 49,
+        "limit": 128,
+        "slabs": {
+          "hits": 0,
+          "builds": 15,
+          "inside": 0,
+          "outside": 42,
+          "evictions": 0,
+          "entries": 15,
+          "limit": 128
+        }
+      }
+    },
+    {
+      "run": 3,
+      "kind": "warmed source Review",
+      "reviewMs": 497.41150000000016,
+      "applyMs": 132.4224000000013,
+      "undoMs": 131.9442999999992,
+      "changes": 1254,
+      "retained": {
+        "heapCapacityBytes": 104857600,
+        "hits": 287,
+        "builds": 49,
+        "evictions": 0,
+        "entries": 49,
+        "limit": 128,
+        "slabs": {
+          "hits": 0,
+          "builds": 15,
+          "inside": 0,
+          "outside": 42,
+          "evictions": 0,
+          "entries": 15,
+          "limit": 128
+        }
+      }
+    }
+  ],
+  "phases": [
+    {
+      "name": "agent-webcad:preview-compare",
+      "ms": 21.556399999908535
+    },
+    {
+      "name": "agent-webcad:preview-compare",
+      "ms": 30.071000000087224
+    },
+    {
+      "name": "agent-webcad:preview-compare",
+      "ms": 19.798600000031
+    },
+    {
+      "name": "agent-webcad:preview-prepare",
+      "ms": 7745.585099999999
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 2394.2171999999996
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 4.258699999999408
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 1954.6841999999997
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 675.5310000000009
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 623.5587999999998
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 604.5592999999999
+    },
+    {
+      "name": "agent-webcad:kernel-task:section",
+      "ms": 12.237299999998868
+    },
+    {
+      "name": "agent-webcad:kernel-task:section",
+      "ms": 1.3400000000001455
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 869.473
+    },
+    {
+      "name": "agent-webcad:kernel-task:section",
+      "ms": 5.344599999998536
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 87.84319999999934
+    },
+    {
+      "name": "agent-webcad:kernel-task:inspect",
+      "ms": 11.23359999999957
+    },
+    {
+      "name": "agent-webcad:preview-diff",
+      "ms": 63.11620000000039
+    },
+    {
+      "name": "agent-webcad:kernel-task:inspect",
+      "ms": 5.486699999999473
+    },
+    {
+      "name": "agent-webcad:preview-prepare",
+      "ms": 463.97949999999946
+    },
+    {
+      "name": "agent-webcad:preview-diff",
+      "ms": 56.73769999999968
+    },
+    {
+      "name": "agent-webcad:preview-prepare",
+      "ms": 429.5722999999998
+    },
+    {
+      "name": "agent-webcad:preview-diff",
+      "ms": 44.22699999999895
+    }
+  ]
+}

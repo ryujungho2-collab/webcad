@@ -1,8 +1,8 @@
 # 다음 구현 전 최종 기획과 인계
 
-갱신일: 2026-10-06. G3-4b3까지 전체 검증했다. G3-5 자원 최적화·측정과 G4/G5 첫 코드가 작업 트리에 있으며, 사용자의 요청으로 범위를 분할했다. **다음은 G3-5A 마감만**이다. [작업 분할·진행 중 상태·다음 프롬프트](WORK-SLICES-2026-10-06.md)를 우선하고 아래 큰 단계는 제품 범위로 유지한다. 실제 검증은 [PROJECT-STATE](../PROJECT-STATE.md)와 [G3-5 증거](verification/G3-5-IMAGE-RESOURCES-2026-10-06.md)를 따른다.
+정합성 갱신: 2026-10-17. 현재 실행 기준은 [NEXT-STEPS 현재 실행 큐](../NEXT-STEPS.md#현재-실행-큐)의 **WF-Q1**이다. 이 문서의 G0–G6 단계·모델 배분·G3-5A 인계는 2026-10-05~06 당시 설계와 이력이다. G3-5A 회귀는 [후속 증거](verification/G3-5-IMAGE-RESOURCES-2026-10-06.md)에 완료 기록이 있으며 현재 대기 작업이 아니다. 최신 구현·검증은 [PROJECT-STATE](../PROJECT-STATE.md)를 따른다.
 
-이 문서는 다음 구현의 범위·선행 조건·완료 기준을 소유한다. 짧은 실행 큐는 [NEXT-STEPS](../NEXT-STEPS.md), 현재 사실과 검증 날짜는 [PROJECT-STATE](../PROJECT-STATE.md), 수정 위치는 [CHANGE-GUIDE](architecture/CHANGE-GUIDE.md)를 따른다. 기획 정리 이후 사용자 요청으로 G0와 G1 세션 개선·History 후속 검수를 실행했다. 이 문서는 모델 설정을 변경하거나 후속 작업을 자동 시작하지 않는다.
+이 문서는 G0–G6의 공통 설계·검증 계약을 보존한다. 최신 카드의 범위·선행·완료 조건은 NEXT-STEPS에서 연결한 개별 계획과 구현 기록이 소유한다. 수정 위치는 [CHANGE-GUIDE](architecture/CHANGE-GUIDE.md)를 따른다. 아래 과거 실행 순서와 프롬프트는 현재 요청을 제한하거나 모델 설정을 변경하지 않는다.
 
 ## 최상위 목표
 
@@ -144,6 +144,6 @@ Axo view는 기존 CAD 솔리드에도 적용할 수 있으므로 관련 3D 과�
 
 G2와 G3-4b3 slice는 구현·검증했다. G3-1..4b3의 상세 evidence는 [구현](implementation/G3-2-4-IMAGE-EDITING-2026-10-05.md)과 [검수](verification/G3-2-4-IMAGE-EDITING-2026-10-05.md)를 따른다. G3-5에서 texture 중복과 재업로드 병목을 측정·수정했으며 다음 작은 단계는 회귀 마감이다. 여러 cache/storage/render primitive를 한꺼번에 도입하거나 document storage를 재설계하게 되면 Astra xhigh 크기로 다시 나눈다. OpenAI Docs의 [모델 선택](https://developers.openai.com/api/docs/guides/model-selection)과 [reasoning 안내](https://developers.openai.com/api/docs/guides/reasoning)를 참고했다.
 
-## 다음 담당에게 전달할 프롬프트
+## 당시 인계 프롬프트 — 현재 실행 지시 아님
 
-[작업 분할 문서의 G3-5A 마감 프롬프트](WORK-SLICES-2026-10-06.md)를 사용한다. 기존 자원 최적화와 시작된 G4/G5 변경을 보존하고, 전체 회귀와 기록까지만 수행한다. 다음 기능은 자동 시작하지 않는다.
+2026-10-06에는 [작업 분할 문서의 G3-5A 마감 프롬프트](WORK-SLICES-2026-10-06.md)로 회귀 마감을 인계했다. 현재는 [NEXT-STEPS](../NEXT-STEPS.md#현재-실행-큐)의 카드와 연결된 완료 조건을 사용한다.

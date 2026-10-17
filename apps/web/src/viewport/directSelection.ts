@@ -1,3 +1,6 @@
+import {validSpline} from "@agent-webcad/cad-document";
+import {validEllipse} from "@agent-webcad/cad-document";
+import {ellipsePoint} from "../precision/ellipseGeometry";
 import type { CadDocument } from "@agent-webcad/cad-document";
 import * as THREE from "three";
 import type { DrawingTopology } from "../precision/drawingTopology";
@@ -40,12 +43,14 @@ export function drawingControlModelPoint(
   role: string,
   index?: number,
 ): Vec3 | null {
+  if(validSpline(params)&&role==="pole"&&index!==undefined)return params.controlPoints[index]??null;
   if (role === "vertex" && typeof index === "number" && Array.isArray(params.points)) {
     return (params.points as Vec3[])[index] ?? null;
   }
   if (!Array.isArray(params.center)) return null;
   const center = params.center as Vec3;
   if (role === "center") return center;
+  if(validEllipse(params)){if(role==="axis-u"||role==="axis-v")return center.map((v,i)=>v+(role==="axis-u"?params.axisU:params.axisV)[i]) as Vec3;if(role==="start"||role==="end")return ellipsePoint(params,params.startParam+(role==="end"?params.sweep:0));return null;}
   const planeId = (params.workPlane === "XZ" || params.workPlane === "YZ" ? params.workPlane : "XY") as WorkPlaneId;
   const plane = WORK_PLANES[planeId];
   const center2 = worldToPlane(center, plane);

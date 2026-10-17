@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="460 -297 210 297" stroke="black" stroke-width="0.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<defs><clipPath id="artboard-crop"><rect x="460" y="-297" width="210" height="297" /></clipPath></defs>
+<g clip-path="url(#artboard-crop)">
+<rect x="460" y="-297" width="210" height="297" fill="#ffffff" stroke="none" />
+<text x="473" y="-35" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">Housing</text>
+<polygon points="470,-10 660,-10 660,-287 470,-287" stroke="#4f8cff" stroke-width="0.25" />
+<polygon points="470,-10 660,-10 660,-42 470,-42" stroke="#4f8cff" stroke-width="0.25" />
+<text x="473" y="-27" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">Author: Engineer</text>
+<text x="473" y="-20" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">Revision: A</text>
+<text x="473" y="-13" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">Scale 1:1 | Page 3/3</text>
+<polygon points="470.25,-42.25 630.25,-42.25 630.25,-232.25 470.25,-232.25" stroke="#4f8cff" stroke-width="0.25" />
+</g>
+</svg>

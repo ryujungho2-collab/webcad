@@ -1,3 +1,4 @@
+import {NumericModelEdit} from "./NumericModelEdit";
 
 import { useEffect, useRef, useState } from "react";
 import { cadDocument } from "../state/cadDocument";
@@ -22,13 +23,18 @@ import { loftReady, sweepReady } from "../state/profileSelection";
 import { WORK_PLANES, type WorkPlaneId } from "../precision/workPlane";
 import { ExactMeasurements } from "./ExactMeasurements";
 import {ParameterBindingsNotice} from "./ParameterBindingsNotice";
+import {ConstructionDefinitionPanel} from "./ConstructionDefinitionPanel";
 import { DependencyNotice } from "./DependencyNotice";
 import { VectorStyleEditor } from "./VectorStyleEditor";
 import { DEFAULT_VECTOR_STYLE, type CadVectorStyle } from "@agent-webcad/cad-document";
 import type { CadImageCrop, CadImageNodeParams } from "@agent-webcad/cad-document";
 import { ImageInspector } from "./ImageInspector";
+import { WorkPlanePanel } from "./WorkPlanePanel";
+import {FaceHolePanel} from "./FaceHolePanel";
+import {ShellPanel} from "./ShellPanel";
 
 type PropertiesPanelProps = {
+  onFaceSketchCreated?:(id:string)=>void;
   onEditAngularDimension?: (id:string)=>void;
   onEditPattern?:(id:string)=>void;
   onVariables?:()=>void;
@@ -94,6 +100,9 @@ export function PropertiesPanel(props: PropertiesPanelProps) {
   const [diameterSource, setDiameterSource] = useState<string | null>(null);
   return <>
     <PropertiesContent {...props} onDiameterDimension={setDiameterSource}/>
+    <WorkPlanePanel revision={props.documentRevision} selection={props.selectedSubObjects??[]} layerId={props.selectedLayerId} onDocumentChange={props.onDocumentChange} onSketchCreated={props.onFaceSketchCreated}/>
+    <FaceHolePanel revision={props.documentRevision} selectedObjectId={props.selectedObjectId} onDocumentChange={props.onDocumentChange} onCreated={props.onBooleanCreated}/>
+    <ShellPanel revision={props.documentRevision} selectedObjectId={props.selectedObjectId} selection={props.selectedSubObjects??[]} onDocumentChange={props.onDocumentChange} onCreated={props.onBooleanCreated}/>
     {diameterSource && <DiameterDimensionReview objectId={diameterSource} layerId={props.selectedLayerId} revision={props.documentRevision} onClose={() => setDiameterSource(null)} onApplied={id => { props.onBooleanCreated(id); props.onDocumentChange(); }}/>}
   </>;
 }
@@ -149,7 +158,7 @@ function PropertiesContent({
     ? Object.values(cadDocument.features).find((entry) => entry.output === object.id)
     : undefined;
   const isPrimitive = feature?.type === "primitive";
-  const isSolid = feature?.type === "primitive" || feature?.type === "extrude" || feature?.type === "boolean" || feature?.type === "fillet" || feature?.type === "chamfer" || feature?.type === "revolve" || feature?.type === "sweep" || feature?.type === "loft";
+  const isSolid = feature?.type === "primitive" || feature?.type === "extrude" || feature?.type === "boolean" || feature?.type === "fillet" || feature?.type === "chamfer" || feature?.type === "revolve" || feature?.type === "sweep" || feature?.type === "shell" || feature?.type === "loft";
   const isDrawing = feature?.type === "drawing";
   const isImage = feature?.type === "image";
   const isDimension = feature?.type === "dimension";
@@ -165,7 +174,7 @@ function PropertiesContent({
     ? (() => {
       const world = getWorldDrawingGeometry(object, feature);
       if (!world) return {};
-      return measureDrawing({ kind: world.kind, workPlane: world.workPlane, points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle, closed: world.closed, profileSegments: world.profileSegments });
+      return measureDrawing({ ellipse:world.ellipse,kind: world.kind, workPlane: world.workPlane, points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle, closed: world.closed, profileSegments: world.profileSegments });
     })()
     : {};
   const primitiveKind = isPrimitive && typeof feature.params.kind === "string" ? feature.params.kind : "box";
@@ -271,7 +280,7 @@ function PropertiesContent({
     return () => onCornerPreview?.(null);
   }, [object, isLocked, previewTreatment, selectedObjects.length, selectedSubObjects, cornerDistance, onCornerPreview]);
 
-  const isFilletable = feature?.type === "primitive" || feature?.type === "extrude" || feature?.type === "boolean" || feature?.type === "fillet" || feature?.type === "chamfer" || feature?.type === "revolve" || feature?.type === "sweep" || feature?.type === "loft";
+  const isFilletable = feature?.type === "primitive" || feature?.type === "extrude" || feature?.type === "boolean" || feature?.type === "fillet" || feature?.type === "chamfer" || feature?.type === "revolve" || feature?.type === "sweep" || feature?.type === "shell" || feature?.type === "loft";
   const isRevolve = feature?.type === "revolve";
   const isChamferable = isFilletable;
   const filletEdgeKeys = object
@@ -440,7 +449,7 @@ function PropertiesContent({
     if (!object || !feature || !isSolid || isLocked || !booleanToolId) return;
     const tool = cadDocument.objects[booleanToolId];
     const toolFeature = tool && Object.values(cadDocument.features).find((entry) => entry.output === tool.id);
-    if (!tool || !toolFeature || (toolFeature.type !== "primitive" && toolFeature.type !== "extrude" && toolFeature.type !== "boolean" && toolFeature.type !== "fillet" && toolFeature.type !== "chamfer" && toolFeature.type !== "revolve" && toolFeature.type !== "sweep" && toolFeature.type !== "loft")) return;
+    if (!tool || !toolFeature || (toolFeature.type !== "primitive" && toolFeature.type !== "extrude" && toolFeature.type !== "boolean" && toolFeature.type !== "fillet" && toolFeature.type !== "chamfer" && toolFeature.type !== "revolve" && toolFeature.type !== "sweep" && toolFeature.type !== "loft" && toolFeature.type !== "shell")) return;
     const params = { operation, operands: [
       { params: structuredClone(feature.params), transform: structuredClone(getObjectTransform(object, feature)) },
       { params: structuredClone(toolFeature.params), transform: structuredClone(getObjectTransform(tool, toolFeature)) },
@@ -696,7 +705,7 @@ function PropertiesContent({
       <div className="inspector-header"><span>Inspector</span><small>{selectedObjects.length} selected</small></div>
       <div className="inspector-selection-summary">
         <span className="inspector-selection-mark" aria-hidden="true">◇</span>
-        <div><strong title={object.name}>{object.name}</strong><span>{selectedObjects.length > 1 ? `Primary · ${selectedObjects.length} objects selected` : isImage ? "Image · raster" : isPrimitive ? `Primitive · ${primitiveKind}` : isDrawing ? `Drawing · ${String(feature.params.kind)}` : isDimension ? `Dimension · ${dimensionLabel}` : isExtrude ? "Extrude" : feature?.type === "boolean" ? "Boolean result" : feature?.type === "fillet" ? "Fillet" : feature?.type === "chamfer" ? "Chamfer" : feature?.type === "revolve" ? "Revolve" : feature?.type === "sweep" ? "Sweep" : feature?.type === "loft" ? "Loft" : "BRep body"}</span></div>
+        <div><strong title={object.name}>{object.name}</strong><span>{selectedObjects.length > 1 ? `Primary · ${selectedObjects.length} objects selected` : isImage ? "Image · raster" : isPrimitive ? `Primitive · ${primitiveKind}` : isDrawing ? `Drawing · ${String(feature.params.kind)}` : isDimension ? `Dimension · ${dimensionLabel}` : isExtrude ? "Extrude" : feature?.params.faceHole ? "Hole" : feature?.type === "boolean" ? "Boolean result" : feature?.type === "fillet" ? "Fillet" : feature?.type === "chamfer" ? "Chamfer" : feature?.type === "revolve" ? "Revolve" : feature?.type === "sweep" ? "Sweep" : feature?.type === "shell" ? "Shell" : feature?.type === "loft" ? "Loft" : "BRep body"}</span></div>
         {isLocked && <span className="inspector-state-badge">Locked</span>}
       </div>
 
@@ -705,7 +714,7 @@ function PropertiesContent({
       <PropertySection title="Identity" meta={selectedObjects.length > 1 ? "Multiple" : "Name / ID"} defaultOpen={false}>
         {selectedObjects.length === 1 ? <>
           <label className="property-row"><span>Name</span><input disabled={isLocked} value={name} onChange={(event) => setName(event.target.value)} onBlur={() => void commitName()} onKeyDown={(event) => event.key === "Enter" && event.currentTarget.blur()} /></label>
-          <div className="property-row"><span>Type</span><strong>{isImage ? "Image / Raster" : isPrimitive ? `Primitive / ${primitiveKind[0].toUpperCase()}${primitiveKind.slice(1)}` : isDrawing ? `Drawing / ${String(feature.params.kind)}` : isDimension ? `Dimension / ${dimensionLabel}` : isExtrude ? "Feature / Extrude" : feature?.type === "boolean" ? "Feature / Boolean" : feature?.type === "fillet" ? "Feature / Fillet" : feature?.type === "chamfer" ? "Feature / Chamfer" : feature?.type === "revolve" ? "Feature / Revolve" : feature?.type === "sweep" ? "Feature / Sweep" : feature?.type === "loft" ? "Feature / Loft" : "BRep body"}</strong></div>
+          <div className="property-row"><span>Type</span><strong>{isImage ? "Image / Raster" : isPrimitive ? `Primitive / ${primitiveKind[0].toUpperCase()}${primitiveKind.slice(1)}` : isDrawing ? `Drawing / ${String(feature.params.kind)}` : isDimension ? `Dimension / ${dimensionLabel}` : isExtrude ? "Feature / Extrude" : feature?.params.faceHole ? "Feature / Hole" : feature?.type === "boolean" ? "Feature / Boolean" : feature?.type === "fillet" ? "Feature / Fillet" : feature?.type === "chamfer" ? "Feature / Chamfer" : feature?.type === "revolve" ? "Feature / Revolve" : feature?.type === "sweep" ? "Feature / Sweep" : feature?.type === "shell" ? "Feature / Shell" : feature?.type === "loft" ? "Feature / Loft" : "BRep body"}</strong></div>
           <div className="property-row" title={object.id}><span>ID</span><code>{object.id}</code></div>
         </> : <>
           <div className="property-row"><span>Selection</span><strong>{selectedObjects.length} objects</strong></div>
@@ -748,7 +757,7 @@ function PropertiesContent({
       )}
 
       {selectedObjects.length===1&&<DependencyNotice objectId={object.id} revision={documentRevision}/>}
-      {constructionOwned && <p className="property-hint">Defined by construction. Edit the live sources in Dependencies; derived coordinates follow automatically.</p>}
+      {constructionOwned && selectedObjects.length===1 && <ConstructionDefinitionPanel key={`construction-${object.id}`} objectId={object.id} revision={documentRevision} onDocumentChange={onDocumentChange}/>}
       <PropertySection title="General" meta={mixedLayer || mixedVisible ? "Mixed" : undefined}>
         <label className="property-row"><span>Layer</span><select disabled={generalEditDisabled} value={mixedLayer ? "__mixed__" : object.layerId} onChange={(event) => void changeLayer(event.target.value)}><option value="__mixed__" disabled>Mixed</option>{cadDocument.rootLayers.map((layerId) => {
           const layer = cadDocument.layers[layerId];
@@ -757,7 +766,8 @@ function PropertiesContent({
         <label className="property-row"><span>Visible</span><input ref={visibilityInputRef} className={mixedVisible ? "property-toggle property-toggle-mixed" : "property-toggle"} type="checkbox" disabled={generalEditDisabled} checked={allVisible} onChange={(event) => void setVisibility(event.target.checked)} /></label>
       </PropertySection>
 
-      {((isPrimitive && selectedObjects.length === 1) || multiPrimitiveKind) && (
+      {selectedObjects.length===1&&!feature?.params.architecturalWall&&!feature?.params.architecturalSlab&&!feature?.params.componentContent&&(isPrimitive&&primitiveKind==="cylinder"||isExtrude)&&<NumericModelEdit key={object.id} objectId={object.id} revision={documentRevision} disabled={isLocked} onDocumentChange={onDocumentChange} onVariables={onVariables}/>}
+      {((isPrimitive && primitiveKind!=="cylinder" && selectedObjects.length === 1) || multiPrimitiveKind) && (
         <PropertySection title="Dimensions" meta={multiPrimitiveKind ? `${selectedObjects.length} · ${multiPrimitiveKind}` : "mm"}>
           {fields.map(({ key, label }) => (
             <NumericField key={key} label={label} context="Dimensions" unit="mm" disabled={bulkEditDisabled} min="0.001" step="0.1" mixed={primitiveFieldMixed(key)} value={primitiveDraft[key] ?? ""} onChange={(value) => setPrimitiveDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitPrimitive()} />
@@ -803,6 +813,11 @@ function PropertiesContent({
             }} />
           )}
           {dimensionKind !== "angular" && <label className="property-row"><span>Text</span><input disabled={isLocked} placeholder="Auto" value={dimensionText} onChange={(event) => setDimensionText(event.target.value)} onBlur={() => void commitDimensionEdit({ text: dimensionText })} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /></label>}
+          <div key={`${selectedObjectId}-${documentRevision}`}>
+            <label className="property-row"><span>Length unit</span><select aria-label="Dimension length unit" disabled={isLocked} defaultValue={String((feature.params.style as Record<string, unknown> | undefined)?.lengthUnit ?? "mm")} onChange={event=>void commitDimensionEdit({style:{...feature.params.style as object,lengthUnit:event.target.value}})}>{["mm","cm","m","in","ft"].map(unit=><option key={unit} value={unit}>{unit}</option>)}</select></label>
+            <label className="property-row"><span>Angle unit</span><select aria-label="Dimension angle unit" disabled={isLocked} defaultValue={String((feature.params.style as Record<string, unknown> | undefined)?.angleUnit ?? "deg")} onChange={event=>void commitDimensionEdit({style:{...feature.params.style as object,angleUnit:event.target.value}})}><option value="deg">Degrees</option><option value="rad">Radians</option></select></label>
+            {([['precision','Decimals',2,0,6,1],['textHeight','Text height',4,0.01,10000,0.5],['arrowSize','Arrow size',3,0.01,10000,0.5],['textGap','Text gap',2.5,0,10000,0.5],['paperScale','Paper scale',1,0.001,10000,0.1]] as const).map(([field,label,fallback,min,max,step])=><label className="property-row" key={field}><span>{label}</span><input aria-label={`Dimension ${label.toLowerCase()}`} type="number" min={min} max={max} step={step} disabled={isLocked} defaultValue={Number((feature.params.style as Record<string,unknown>|undefined)?.[field] ?? fallback)} onKeyDown={event=>{if(event.key==="Enter")event.currentTarget.blur();}} onBlur={event=>{const value=Number(event.currentTarget.value);if(Number.isFinite(value)&&value>=min&&value<=max&&(field!=="precision"||Number.isInteger(value)))void commitDimensionEdit({style:{...feature.params.style as object,[field]:value}});}}/></label>)}
+          </div>
           <p className="property-hint">Linked annotation follows source edits in the same Undo step. {dimensionKind === "angular" ? "Edit references, rays, radius and text in the reviewed tool." : "Empty text shows the measured value."}</p>
         </PropertySection>
       )}
@@ -835,7 +850,7 @@ function PropertiesContent({
         {selectedObjects.length > 1 && <p className="property-hint">Edits apply to the selection. Mixed axes retain each object&apos;s value.</p>}
       </PropertySection>
 
-      {((selectedObjects.length === 1 && isExtrude) || (selectedObjects.length > 0 && selectedObjects.every((entry) => Object.values(cadDocument.features).some((candidate) => candidate.output === entry.id && candidate.type === "drawing")))) && (
+      {(selectedObjects.length > 0 && selectedObjects.every((entry) => Object.values(cadDocument.features).some((candidate) => candidate.output === entry.id && candidate.type === "drawing"))) && (
         <PropertySection title="Extrude" meta={isExtrude ? "Feature" : profileResult.ok ? "Ready" : "Needs closed profile"} defaultOpen={isExtrude || profileResult.ok} active={isExtrude}>
           <NumericField label="Distance" context="Extrude" unit="mm" disabled={isLocked || (!isExtrude && !profileResult.ok)} step="0.1" value={extrudeDistance} onChange={setExtrudeDistance} onCommit={() => isExtrude && void commitExtrude()} />
           {!isExtrude && <div className="property-row"><span>Profile</span><strong>{profileResult.ok ? "Closed · Ready" : "Invalid"}</strong></div>}
@@ -893,7 +908,7 @@ function PropertiesContent({
         <PropertySection title="Boolean" meta="Combine solids" defaultOpen={false}>
           <label className="property-row"><span>Tool</span><select disabled={isLocked} value={booleanToolId} onChange={(event) => setBooleanToolId(event.target.value)}><option value="">Choose solid…</option>{cadDocument.rootObjects.filter((id) => id !== object.id).map((id) => {
             const candidate = cadDocument.objects[id]; const candidateFeature = candidate && Object.values(cadDocument.features).find((entry) => entry.output === id); const candidateLayer = candidate && cadDocument.layers[candidate.layerId];
-            return candidate && (candidateFeature?.type === "primitive" || candidateFeature?.type === "extrude" || candidateFeature?.type === "boolean" || candidateFeature?.type === "fillet" || candidateFeature?.type === "chamfer" || candidateFeature?.type === "revolve" || candidateFeature?.type === "sweep" || candidateFeature?.type === "loft") && !candidateLayer?.locked ? <option key={id} value={id}>{candidate.name}</option> : null;
+            return candidate && (candidateFeature?.type === "primitive" || candidateFeature?.type === "extrude" || candidateFeature?.type === "boolean" || candidateFeature?.type === "fillet" || candidateFeature?.type === "chamfer" || candidateFeature?.type === "revolve" || candidateFeature?.type === "sweep" || candidateFeature?.type === "shell" || candidateFeature?.type === "loft") && !candidateLayer?.locked ? <option key={id} value={id}>{candidate.name}</option> : null;
           })}</select></label>
           <div className="property-actions property-boolean-actions"><button type="button" disabled={isLocked || !booleanToolId} onClick={() => void runBoolean("union")}>Union</button><button type="button" disabled={isLocked || !booleanToolId} onClick={() => void runBoolean("cut")}>Cut</button><button type="button" disabled={isLocked || !booleanToolId} onClick={() => void runBoolean("intersect")}>Intersect</button></div>
           {booleanError && <p className="boolean-error" role="status">{booleanError}</p>}
@@ -954,3 +969,6 @@ function PropertiesContent({
     </div>
   );
 }
+
+
+

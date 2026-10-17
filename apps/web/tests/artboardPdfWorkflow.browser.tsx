@@ -91,7 +91,7 @@ button.onclick = async () => {
     check((await dispatchCadCommand({ type: "insert-image", id: "pdf-image", asset: await makeAsset(), workPlane: "XY", center: [12.7, 12.7, 0], width: 10, height: 10 })).ok, "Shared raster artwork is present in both visible board page scenes");
     check((await dispatchCadCommand({ type: "update-image", objectId: "pdf-image", mask: "ellipse", opacity: 1 })).ok, "A transparent ellipse-mask corner exercises PDF white-page alpha flattening");
     check((await dispatchCadCommand({ type: "create-drawing", id: "pdf-vector", name: "Green vector patch", drawing: "rectangle", params: { workPlane: "XY", points: [[2, 2, 0], [10, 2, 0], [10, 10, 0], [2, 10, 0]] } })).ok, "A vector drawing is included in the rasterized PDF page content");
-    check((await dispatchCadCommand({ type: "set-vector-style", objectId: "pdf-vector", style: { stroke: "#00ff00", fill: "#00ff00", opacity: 1, strokeWidth: 0.25 } })).ok, "The vector fill style is applied without replacing CAD geometry");
+    check((await dispatchCadCommand({ type: "set-vector-style", objectId: "pdf-vector", style: { stroke: "#00ff00", fill: "#00ff00", fillGradient: null, opacity: 1, strokeWidth: 0.25 } })).ok, "The vector fill style is applied without replacing CAD geometry");
     const before = state();
 
     await openPdf();

@@ -26,6 +26,7 @@ export function clipSvgPolylinesToArtboard(lines: SvgPolyline[], bounds: Artboar
   const maxX = minX + bounds.size[0], maxY = minY + bounds.size[1];
   const output: SvgPolyline[] = [];
   for (const line of lines) {
+    if(line.spline||line.ellipse||line.holes?.length){output.push(line);continue;}
     if (line.points.length < 2) continue;
     const inside = (point: Point2) => point[0] >= minX - EPSILON && point[0] <= maxX + EPSILON && point[1] >= minY - EPSILON && point[1] <= maxY + EPSILON;
     if (line.points.every(inside)) { output.push({ ...line, points: line.points.map(point => [...point] as Point2) }); continue; }

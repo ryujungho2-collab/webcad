@@ -3,10 +3,11 @@ import { geometryPointIds } from "./sketchEditing";
 import { editSketchPointGeometry, editSketchSegmentGeometry } from "./sketchGripEditing";
 import { sketchDimensionName } from "./sketchAnnotations";
 import { sketchGripFreedom, sketchPoint, solveSketch, type SketchMotionRestriction } from "./sketchSolver";
+import { projectPointToArc } from "./sketchArcRelations";
 
 export type SketchGripTarget={kind:"control"|"segment";id:string};
 export type SketchGripMotion={dof:0|1|2;kind:"locked"|"line"|"orbit"|"free"|"local";origin:SketchPoint;direction:SketchPoint;
-  point:SketchPoint;projected:boolean;unchanged:boolean;driverIds:string[];constraintIds:string[];orbit?:{center:SketchPoint;radius:number};geometry?:SketchGeometry};
+  point:SketchPoint;projected:boolean;unchanged:boolean;driverIds:string[];constraintIds:string[];orbit?:{center:SketchPoint;radius:number;arc?:Extract<SketchGeometry,{kind:"arc"}>};geometry?:SketchGeometry};
 const tolerance=CAD_PRECISION.linearTolerance;
 const subtract=(a:SketchPoint,b:SketchPoint):SketchPoint=>[a[0]-b[0],a[1]-b[1]];
 const distance=(a:SketchPoint,b:SketchPoint)=>Math.hypot(...subtract(a,b));
@@ -75,22 +76,22 @@ export function controlSketchGrip(sketch:Sketch,g:SketchGeometry,target:SketchGr
       if(fixed&&center){orbit={center,radius:c.value};break;}
     }
     if(!orbit)for(const c of analysis.constraints){
-      const curveId=c.kind==="point-on-circle"&&c.point.geometryId===g.id&&c.point.pointId===target.id?c.curveId
+      const curveId=(c.kind==="point-on-circle"||c.kind==="point-on-arc")&&c.point.geometryId===g.id&&c.point.pointId===target.id?c.curveId
         :c.kind==="tangent-circles"&&g.kind==="circle"&&target.id===g.centerId?(c.firstCurveId===g.id?c.secondCurveId:c.secondCurveId===g.id?c.firstCurveId:undefined):undefined;
       const curve=analysis.geometry.find(e=>e.id===curveId);
-      if(curve?.kind!=="circle")continue;
+      if(curve?.kind!=="circle"&&curve?.kind!=="arc")continue;
       const centerFixed=analysis.constraints.some(a=>a.kind==="fixed-point"&&a.point.geometryId===curve.id&&a.point.pointId===curve.centerId);
-      const radiusFixed=analysis.constraints.some(a=>(a.kind==="radius"||a.kind==="diameter")&&a.geometryId===curve.id);
-      if(centerFixed&&radiusFixed){const radius=c.kind==="tangent-circles"&&g.kind==="circle"?(c.contact==="external"?curve.radius+g.radius:Math.abs(curve.radius-g.radius)):curve.radius;orbit={center:curve.center,radius};break;}
+      const radiusFixed=analysis.constraints.some(a=>(a.kind==="radius"||a.kind==="diameter")&&a.geometryId===curve.id)||curve.kind==="arc"&&[curve.startId,curve.endId].every(pointId=>analysis.constraints.some(a=>a.kind==="fixed-point"&&a.point.geometryId===curve.id&&a.point.pointId===pointId));
+      if(centerFixed&&radiusFixed){const radius=c.kind==="tangent-circles"&&g.kind==="circle"?(c.contact==="external"?curve.radius+g.radius:Math.abs(curve.radius-g.radius)):curve.radius;orbit={center:curve.center,radius,...(c.kind==="point-on-arc"&&curve.kind==="arc"?{arc:curve}:{})};break;}
     }
   }
   // A nonlocal distance/angle relation may curve. Its line is explicitly a local tangent.
-  const nonlinear=analysis.constraints.some(c=>freedom.constraintIds.includes(c.id)&&["distance","angle","radius","diameter","equal-length","point-on-circle","tangent-circles","tangent-line","parallel","perpendicular","symmetric"].includes(c.kind));
+  const nonlinear=analysis.constraints.some(c=>freedom.constraintIds.includes(c.id)&&["distance","angle","radius","diameter","equal-length","point-on-circle","point-on-arc","tangent-circles","tangent-line","parallel","perpendicular","symmetric"].includes(c.kind));
   const kind:SketchGripMotion["kind"]=freedom.dof===0?"locked":freedom.dof===2?"free":orbit?"orbit":nonlinear&&g.kind!=="rectangle"&&!(g.kind==="circle"&&target.id!==g.centerId)?"local":"line";
   const motion:SketchGripMotion={...freedom,kind,origin,point:origin,projected:distance(desired,origin)>tolerance,unchanged:true,driverIds,orbit};
   if(freedom.dof===0)return motion;
   let point=desired;
-  if(orbit){const delta=subtract(desired,orbit.center),length=Math.hypot(...delta);point=length>tolerance?[orbit.center[0]+delta[0]*orbit.radius/length,orbit.center[1]+delta[1]*orbit.radius/length]:origin;}
+  if(orbit){const delta=subtract(desired,orbit.center),length=Math.hypot(...delta);point=length>tolerance?[orbit.center[0]+delta[0]*orbit.radius/length,orbit.center[1]+delta[1]*orbit.radius/length]:origin;if(orbit.arc)point=projectPointToArc(orbit.arc,point);}
   else if(freedom.dof===1){const delta=subtract(desired,origin),along=delta[0]*freedom.direction[0]+delta[1]*freedom.direction[1];point=[origin[0]+along*freedom.direction[0],origin[1]+along*freedom.direction[1]];}
   const make=(position:SketchPoint)=>target.kind==="control"?editSketchPointGeometry(g,target.id,position):editSketchSegmentGeometry(g,target.id,subtract(position,origin));
   if(g.kind==="circle"&&target.id===`${g.id}:radius:0`&&point[0]<=g.center[0]+tolerance)throw new Error("The radius handle must stay on the positive radial direction.");
@@ -107,5 +108,5 @@ export function controlSketchGrip(sketch:Sketch,g:SketchGeometry,target:SketchGr
   if(!solved.ok)return motion;
   const actual=solved.sketch.geometry.find(entity=>entity.id===g.id)!,controlled=exactTarget?point:pointOf(actual),represented=make(controlled);
   if(!represented||!followConnected&&geometryPointIds(g).some(id=>distance(sketchPoint(represented,id)!,sketchPoint(actual,id)!)>tolerance))return motion;
-  return {...motion,point:controlled,geometry:followConnected?actual:represented,projected:distance(desired,controlled)>tolerance,unchanged:distance(origin,controlled)<=tolerance};
+  return {...motion,point:controlled,geometry:followConnected||actual.kind==="polyline"?actual:represented,projected:distance(desired,controlled)>tolerance,unchanged:distance(origin,controlled)<=tolerance};
 }

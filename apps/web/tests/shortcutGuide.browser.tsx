@@ -1,0 +1,61 @@
+import { createRoot } from "react-dom/client";
+import { App } from "../src/App";
+import "../src/ui/tokens.css"; import "../src/ui/workstation.css"; import "../src/ui/commands.css";
+import "../src/ui/menu.css"; import "../src/ui/explorer.css"; import "../src/ui/inspector.css";
+import { cadDocument } from "../src/state/cadDocument";
+import { installBrowserChecks } from "./helpers/browserChecks";
+import { click, input, physical, text, waitFor } from "./helpers/physicalInput";
+window.addEventListener("error", event => { document.getElementById("guide-result")!.textContent += `\nFAIL: ${event.message}`; });
+window.addEventListener("unhandledrejection", event => { document.getElementById("guide-result")!.textContent += `\nFAIL: ${String(event.reason)}`; });
+createRoot(document.getElementById("root")!).render(<App />);
+const button = document.getElementById("run-guide") as HTMLButtonElement, output = document.getElementById("guide-result")!;
+const dialog = () => document.querySelector<HTMLDialogElement>(".command-palette[open]");
+const row = (id: string) => document.getElementById(`palette-${id}`);
+async function open() {
+  document.querySelector<HTMLCanvasElement>("#root canvas")!.focus();
+  await input({ type: "key", key: "k", modifiers: 2 });
+  await waitFor(() => Boolean(dialog()));
+}
+button.onclick = async () => {
+  const lines: string[] = [];
+  const check = (condition: unknown, label: string) => { if (!condition) throw new Error(label); lines.push(`PASS: ${label}`); output.textContent = lines.join("\n"); };
+  try {
+    await waitFor(() => Boolean(document.querySelector("#root canvas")));
+    await click("New document"); await click("2D");
+    const before = JSON.stringify(cadDocument);
+    await open();
+    check(document.activeElement?.getAttribute("aria-label") === "Search commands", "Ctrl+K opens and focuses command search");
+    check(row("import-image") && row("export-artboard-png") && row("panel-scenes"), "Palette exposes image, artboard exports, and scene functions");
+    check(row("add-text")?.querySelector("kbd")?.textContent === "T" && row("trim")?.querySelector("kbd")?.textContent === "X", "Text and Trim show their actual keyboard shortcuts");
+    await text("Search commands", "Ctrl+Shift+Z");
+    check(row("redo"), "Search matches a shortcut chord as well as a function name");
+    await text("Search commands", ""); await click("Shortcuts · 단축키");
+    await text("Search commands", "Ctrl+Wheel");
+    check(row("wheel-zoom")?.textContent?.includes("cursor"), "Shortcuts view explains cursor-focused zoom");
+    await input({ type: "key", key: "Enter" });
+    check(dialog() && JSON.stringify(cadDocument) === before, "Reading a gesture does not close palette or change geometry");
+    await text("Search commands", "Ctrl+Tab");
+    check(row("tab-browser")?.textContent?.includes("Reserved for the browser"), "Ctrl+Tab reservation is searchable");
+    const ctrlTab = new KeyboardEvent("keydown", { key: "Tab", ctrlKey: true, cancelable: true, bubbles: true });
+    document.activeElement!.dispatchEvent(ctrlTab);
+    check(!ctrlTab.defaultPrevented, "Palette leaves browser Ctrl+Tab unclaimed");
+    const focused = document.activeElement;
+    await input({ type: "key", key: "Tab" });
+    check(dialog()!.contains(document.activeElement) && document.activeElement !== focused, "Tab advances focus within the palette");
+    await input({ type: "key", key: "Tab", modifiers: 8 });
+    check(document.activeElement === focused, "Shift+Tab reverses palette focus");
+    await input({ type: "key", key: "Escape" });
+    await open(); await text("Search commands", "텍스트");
+    await physical(row("add-text")!);
+    await waitFor(() => Boolean(document.querySelector('[aria-label="Drafting text"]')));
+    check(!dialog() && document.querySelector<HTMLSelectElement>('[aria-label="Drafting operation"]')?.value === "text", "Korean command search starts the real text tool");
+    check(JSON.stringify(cadDocument) === before, "Starting the text tool only previews; it does not mutate document");
+    await input({ type: "key", key: "Escape" });
+    document.querySelector<HTMLCanvasElement>("#root canvas")!.focus();
+    await input({ type: "key", key: "t" });
+    await waitFor(() => Boolean(document.querySelector('[aria-label="Drafting text"]')));
+    check(document.querySelector<HTMLSelectElement>('[aria-label="Drafting operation"]')?.value === "text", "T starts text instead of Trim");
+    output.textContent = `${lines.join("\n")}\nALL ${lines.length} CHECKS PASSED`;
+  } catch (error) { output.textContent += `\nFAIL: ${error instanceof Error ? error.message : String(error)}`; }
+};
+installBrowserChecks(button, output);

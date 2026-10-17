@@ -39,7 +39,8 @@ export function buildPatternDrawingParams(document:CadDocument,instance:CadPatte
   };
   const params:Record<string,unknown>={kind:world.kind,workPlane:spec.workPlane};
   if(source.params.construction)params.construction=true;
-  if(Array.isArray(source.params.points)){
+  if(world.ellipse){const e=world.ellipse,center=map(e.center),axis=(a:Vec3)=>map(e.center.map((v,i)=>v+a[i]) as Vec3).map((v,i)=>v-center[i]) as Vec3;Object.assign(params,e,{center,axisU:axis(e.axisU),axisV:axis(e.axisV)});}
+  else if(Array.isArray(source.params.points)){
     params.points=(source.params.points as Vec3[]).map(p=>map(drawingModelToWorld(object,source,p)!));
     if(source.params.closed!==undefined)params.closed=source.params.closed;
     if(Array.isArray(source.params.bulges))params.bulges=source.params.bulges.map(b=>Number(b)*orientation*(spec.kind==="mirror"?-1:1));

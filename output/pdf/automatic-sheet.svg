@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -297 420 297" stroke="black" stroke-width="0.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<defs><clipPath id="artboard-crop"><rect x="0" y="-297" width="420" height="297" /></clipPath></defs>
+<g clip-path="url(#artboard-crop)">
+<rect x="0" y="-297" width="420" height="297" fill="#ffffff" stroke="none" />
+<text x="10" y="-14" font-family="system-ui, sans-serif" font-size="3.5" fill="#4f8cff" stroke="none">Automatic sheet · 1:5</text>
+<polygon points="13.069,-20.25 73.069,-20.25 73.069,-60.25 13.069,-60.25" stroke="#4f8cff" stroke-width="0.25" />
+<polygon points="120.169,-20.25 180.169,-20.25 180.169,-40.25 120.169,-40.25" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="43.069,-40.25 74.069,-68.25 81.069,-68.25" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="43.781,-42.072 43.069,-40.25 44.954,-40.774" stroke="#4f8cff" stroke-width="0.25" />
+<text x="81.069" y="-68.25" font-family="system-ui, sans-serif" font-size="3.5" fill="#4f8cff" stroke="none">live</text>
+<polyline points="43.069,-40.25 79.669,-73.25 81.069,-73.25" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="43.783,-42.072 43.069,-40.25 44.955,-40.772" stroke="#4f8cff" stroke-width="0.25" />
+<text x="81.069" y="-73.25" font-family="system-ui, sans-serif" font-size="3.5" fill="#4f8cff" stroke="none">snapshot</text>
+<polyline points="13.069,-35.25 73.069,-35.25" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="13.069,-20.25 13.069,-37.25" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="73.069,-20.25 73.069,-37.25" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="13.069,-35.25 10.25,-34.224" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="13.069,-35.25 10.25,-36.276" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="73.069,-35.25 75.888,-36.276" stroke="#4f8cff" stroke-width="0.25" />
+<polyline points="73.069,-35.25 75.888,-34.224" stroke="#4f8cff" stroke-width="0.25" />
+<text x="43.069" y="-37.75" font-family="system-ui, sans-serif" font-size="3.5" fill="#4f8cff" stroke="none">300.00 mm</text>
+</g>
+</svg>

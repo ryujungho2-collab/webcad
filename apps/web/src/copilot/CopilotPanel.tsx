@@ -27,6 +27,8 @@ export type CopilotPanelProps = {
   onApply: () => void;
   onClear: () => void;
   onInspectResult: () => void;
+  onPrepareFloorPlan?: () => void;
+  onFloorTasks?:()=>void;
 };
 
 const EXAMPLES = ["100x50x30 박스 3개", "100x50 사각형 돌출 20", "반지름 5 높이 20 원기둥", "XZ 평면에 지름 20 원 돌출 15"];
@@ -48,6 +50,11 @@ export function CopilotPanel(props: CopilotPanelProps) {
   return (
     <div className="properties-content" data-testid="copilot-panel">
       <div className="inspector-header"><span>Copilot</span><small>{props.connection.mode==="rules"?"rule-based":"gateway"}</small></div>
+      {props.onPrepareFloorPlan&&<PropertySection title="Floor plan workflow" meta="Guided import">
+        <p className="property-hint">Prepare a DXF reference: choose wall/opening layers, verify units and base point, then review and import as one Undo. This file stays local.</p>
+        <button type="button" aria-label="Prepare floor plan DXF" disabled={props.applying} onClick={props.onPrepareFloorPlan}>Prepare floor plan…</button>
+        {props.onFloorTasks&&<button type="button" disabled={props.applying} onClick={props.onFloorTasks}>Clean / Make face…</button>}
+      </PropertySection>}
       <CopilotQueryPanel {...props.query}/>
       <PropertySection title="Connection" meta="Optional gateway">
         <label>Planner<select aria-label="Copilot planner" value={props.connection.mode} onChange={e=>{props.onClear();props.onConnectionChange({...props.connection,mode:e.target.value as CopilotConnection["mode"]});}}><option value="rules">Local rules</option><option value="gateway">LLM gateway</option></select></label>

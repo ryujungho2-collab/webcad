@@ -34,14 +34,31 @@ function modelPoint(object: CadObject, feature: CadFeature, point: Vec3): Vec3 {
   return local;
 }
 
+
+/** Convert an analytic arc to an editable two-vertex contour, preserving endpoint/curve identities. */
+export function polylineEditingFeature(object:CadObject,feature:CadFeature):CadFeature {
+  if(feature.params.kind!=="arc")return feature;
+  const path=localContour(object,feature),s=path.segments[0],t=topology(feature);
+  const ids=[t.controls.find(c=>c.role==="start")!.id,t.controls.find(c=>c.role==="end")!.id];
+  const {center: _center,radius: _radius,startAngle: _start,endAngle: _end,...params}=feature.params;
+  return {...feature,params:withTopology({...params,kind:"polyline",points:[s.start,s.end],closed:false,bulges:[Math.tan(s.sweep!/4)]},ids,[t.curves[0].id])};
+}
+
 export function editPolyline(object: CadObject, feature: CadFeature, command: Extract<CadCommand, { type: "edit-polyline" }>) {
+  feature=polylineEditingFeature(object,feature);
   if (!["polyline", "rectangle"].includes(String(feature.params.kind))) throw new Error("Select a polyline or rectangle to edit its vertices.");
   const world = exactDrawingContour(object, feature);
   const local = localContour(object, feature), source = topology(feature), points = structuredClone(feature.params.points as Vec3[]), closed = local.closed;
   let bulges = local.segments.map(s => s.kind === "arc" ? Math.tan(s.sweep! / 4) : 0);
   const controls = source.controls.map(c => c.id), segments = source.segments.map(s => s.id);
   const params = { ...structuredClone(feature.params), kind: "polyline", points, closed, bulges };
-  if (command.operation === "open") {
+  if (command.operation === "to-arc" || command.operation === "to-line") {
+    const index=source.segments.findIndex(s=>s.id===command.segmentId);
+    if(index<0)throw new Error("The selected segment no longer exists.");
+    const bulge=command.operation==="to-line"?0:command.bulge!;
+    if(bulges[index]===bulge)throw new Error("The requested segment type and sweep are unchanged.");
+    bulges[index]=bulge;
+  } else if (command.operation === "open") {
     if (!closed) throw new Error("The polyline is already open.");
     params.closed = false; bulges.pop(); segments.pop();
   } else if (command.operation === "close") {
@@ -90,7 +107,8 @@ export function editPolyline(object: CadObject, feature: CadFeature, command: Ex
 export function lengthenDrawing(object: CadObject, feature: CadFeature, command: Extract<CadCommand, { type: "lengthen-drawing" }>) {
   const world = exactDrawingContour(object, feature), local = localContour(object, feature);
   if (world.closed || !["line", "arc", "polyline"].includes(String(feature.params.kind))) throw new Error("Lengthen requires an open line, arc or polyline.");
-  const total = contourLength(world), desired = command.mode === "delta" ? total + command.value : command.mode === "percent" ? total * command.value / 100 : command.value;
+  if (command.mode === "angle" && feature.params.kind !== "arc") throw new Error("Included-angle Lengthen needs a standalone circular arc. Use total length for lines and polylines.");
+  const total = contourLength(world), desired = command.mode === "delta" ? total + command.value : command.mode === "percent" ? total * command.value / 100 : command.mode === "angle" ? world.segments[0].radius! * command.value * Math.PI / 180 : command.value;
   const tolerance = contourTolerance([world]);
   if (!Number.isFinite(desired) || desired <= tolerance) throw new Error("The resulting total length must be positive and exceed the model tolerance.");
   if (Math.abs(total - desired) <= tolerance) throw new Error("The requested length is unchanged.");

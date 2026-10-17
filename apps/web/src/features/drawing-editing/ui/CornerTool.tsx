@@ -1,3 +1,4 @@
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../../../app/projectActivity";
 import { useEffect, useRef, useState } from "react";
 import type { CadCommand } from "@agent-webcad/cad-commands";
 import type { DrawingEditCanvas, CurveNextAction } from "../contracts";

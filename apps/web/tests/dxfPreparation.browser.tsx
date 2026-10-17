@@ -1,0 +1,71 @@
+import { createRoot } from "react-dom/client";
+import { App } from "../src/App";
+import "../src/ui/tokens.css";
+import "../src/ui/workstation.css";
+import "../src/ui/commands.css";
+import "../src/ui/menu.css";
+import "../src/ui/explorer.css";
+import "../src/ui/inspector.css";
+import { cadDocument } from "../src/state/cadDocument";
+import { cadHistory } from "../src/state/history";
+import { saveDocumentToCache } from "../src/state/documentFile";
+import { getWorldDrawingGeometry } from "../src/precision/worldGeometry";
+import { worldDraftingGeometry } from "../src/precision/draftingGeometry";
+import { serializeDocument } from "@agent-webcad/cad-document";
+import { resetTestDocument } from "./helpers/documentHarness";
+import { floorPlanDxf } from "./helpers/floorPlanFixture";
+import { installBrowserChecks } from "./helpers/browserChecks";
+import { click, input, physical, find, text, choose, waitFor } from "./helpers/physicalInput";
+resetTestDocument(); saveDocumentToCache(); createRoot(document.getElementById("root")!).render(<App/>);
+const button=document.getElementById("run-dxf") as HTMLButtonElement,output=document.getElementById("dxf-result")!;
+const state=()=>{const {revision:_,...d}=cadDocument;return JSON.stringify(d);};
+const roots=()=>cadDocument.rootObjects.filter(id=>cadDocument.objects[id].visible);
+const feature=(id:string)=>Object.values(cadDocument.features).find(f=>f.output===id)!;
+const file=()=>input({type:"fileInput",selector:'input[aria-label="Import DXF file"]',name:"drawing-test.dxf",base64:btoa(floorPlanDxf)});
+const ready=()=>waitFor(()=>!!document.querySelector('[aria-label="Apply DXF import"]')&&!find("Apply DXF import").disabled);
+async function pick(point:[number,number]){
+ const image=document.querySelector<HTMLImageElement>('img[alt="DXF geometry preview"]')!;image.scrollIntoView({block:"center"});await new Promise(resolve=>setTimeout(resolve,100));
+ const svg=decodeURIComponent(image.src.split(",").slice(1).join(",")),[x,y,w,h]=svg.match(/viewBox="([^"]+)"/)![1].split(" ").map(Number),box=image.getBoundingClientRect(),scale=Math.min(box.width/w,box.height/h),px=box.left+(box.width-w*scale)/2+(point[0]-x)*scale,py=box.top+(box.height-h*scale)/2+(-point[1]-y)*scale;
+ await input({type:"mousePressed",x:px,y:py,button:"left",buttons:1});await input({type:"mouseReleased",x:px,y:py,button:"left",buttons:0});
+}
+button.onclick=async()=>{button.disabled=true;const lines:string[]=[],check=(v:unknown,s:string)=>{if(!v)throw Error(s);lines.push(`PASS: ${s}`);output.textContent=lines.join("\n");};try{
+  await waitFor(()=>!!document.querySelector('canvas'));await click("New document");
+  const before=state(),history=cadHistory.getPastLabels().length;
+  await physical(document.querySelector('.app-menu summary')!);await click("Import DXF…");await file();await ready();
+  check(!!document.querySelector('[aria-label="DXF source layers"]'),"File import opens preparation controls in the real review dialog");
+  await click("Cancel DXF review");await click("Copilot");await click("Prepare floor plan DXF");await file();await ready();
+  check(state()===before,"Copilot guided entry opens the same local preparation review without applying a command");
+  await click("Suggest walls & openings");check(find("Apply DXF import").disabled,"Changing settings immediately blocks applying an older preview");
+  check(!(document.querySelector('[aria-label="Import source layer Furniture"]') as HTMLInputElement).checked,"Suggestion excludes furniture only after explicit user action");
+  await choose("DXF input units",1);await text("DXF base X mm","1000");await text("DXF base Y mm","2000");await click("Review DXF preparation");await ready();
+  await text("Search DXF layers","WALL");check(document.querySelectorAll('.dxf-source-layers label').length===1,"Layer search narrows source names without changing inclusion");await choose("DXF layer role A-WALL",1);await text("Search DXF layers","");await click("Review DXF preparation");await ready();
+  await text("DXF expected known length","4000mm");check(find("Apply DXF import").disabled,"A requested known-length check blocks import until measured");await click("Pick known length in preview");await pick([0,0]);await pick([400,0]);await click("Review DXF preparation");check(find("Apply DXF import").disabled&&document.querySelector('[role=alert]')?.textContent?.includes("mismatch"),"Actual XY endpoint picks detect a tenfold unit mismatch");
+  await text("DXF expected known length","400mm");await click("Review DXF preparation");await ready();check(document.querySelector('.dxf-preparation')?.textContent?.includes("400.000 mm"),"Endpoint snapping verifies the real prepared wall length");
+  await click("Pick base point in preview");await pick([0,0]);check(find("Apply DXF import").disabled&&(document.querySelector('[aria-label="DXF base X mm"]') as HTMLInputElement).value==="1000","Preview base pick composes with the previously reviewed source offset exactly once");await click("Review DXF preparation");await ready();
+  check(document.querySelector('[aria-label="DXF preparation summary"]')?.textContent?.includes("Window-label"),"Review identifies retained nested block dependency layers");
+  check(state()===before&&cadHistory.getPastLabels().length===history,"Preparation and geometry preview do not mutate document or history");
+  await text("DXF base X mm","");await click("Review DXF preparation");check(find("Apply DXF import").disabled,"Invalid base point cannot apply a previously reviewed plan");
+  await text("DXF base X mm","1000");await click("Review DXF preparation");await ready();
+  if(new URLSearchParams(location.search).has('artifacts')){
+    const aside=button.closest('aside')!;aside.style.visibility='hidden';document.querySelector('.dxf-review-body')!.scrollTop=0;
+    try{(globalThis as typeof globalThis&{cadTestArtifacts?:Record<string,string>}).cadTestArtifacts={'floor-plan-preparation-2026-10-14.png':(await(await input({type:'screenshot'})).json()).data};}finally{aside.style.visibility='';}
+  }
+  await click("Apply DXF import");await waitFor(()=>roots().length===2);
+  check(Object.keys(cadDocument.blocks??{}).length===1,"Apply removes unused definitions from the imported subset");
+  const wall=roots().find(id=>feature(id).type==="drawing")!,instance=roots().find(id=>id!==wall)!;
+  const receipt=feature(wall).params.floorPlanSource as any;check(receipt.unitMm===1&&receipt.unitCheck.measuredMm===400&&receipt.unitCheck.expectedMm===400&&receipt.layerRoles["A-WALL"]==="wall","Source receipt preserves reviewed role, unit, base point and known-length verification");
+  check(JSON.stringify(getWorldDrawingGeometry(cadDocument.objects[wall],feature(wall))?.points)==='[[0,0,0],[400,0,0]]',"Explicit mm override and world base point produce the exact wall endpoints");
+  check(worldDraftingGeometry(cadDocument,cadDocument.objects[instance],feature(instance)).texts[0].text==="W1","Retained block text is preserved even with standalone text excluded");
+  check(roots().every(id=>cadDocument.layers[cadDocument.objects[id].layerId].locked),"Imported reference layers are actually locked");
+  check(!cadDocument.layers['layer-default'].locked,"Existing authoring layer remains editable");
+  check(cadHistory.getPastLabels().length===history+1,"Cleanup, offsets and locks commit in one Undo entry");
+  const after=state(),portable=serializeDocument(cadDocument);
+  await click("Undo");check(state()===before,"Undo restores complete pre-import document");await click("Redo");check(state()===after,"Redo restores geometry, blocks, transforms and locks");
+  await file();await ready();await click("Suggest walls & openings");await click("Cancel DXF review");check(state()===after,"Cancel discards preparation without changing the active document");
+  await input({type:"fileInput",selector:'input[aria-label="Import DXF file"]',name:"drawing-test.dxf",base64:btoa(floorPlanDxf.replace("9\n$INSUNITS\n70\n5\n",""))});await waitFor(()=>!!document.querySelector('[aria-label="Confirm assumed DXF millimetres"]'));check(find("Apply DXF import").disabled,"Undeclared source units cannot silently apply assumed millimetres");await physical(document.querySelector('[aria-label="Confirm assumed DXF millimetres"]')!);await click("Review DXF preparation");await ready();await click("Cancel DXF review");check(state()===after,"Explicit assumed-unit review can be cancelled without mutation");
+  await input({type:"fileInput",selector:'input[accept=".json,.webcad.json"]',name:'prepared.webcad.json',base64:btoa(unescape(encodeURIComponent(portable)))});
+  await waitFor(()=>roots().length===2&&cadHistory.getPastLabels().length===0);
+  check(state()===after,"Actual file chooser reopens prepared document with exact locks and placement");
+  output.textContent=lines.join("\n")+`\nALL ${lines.length} CHECKS PASSED`;
+}catch(cause){output.textContent=lines.join("\n")+`\nFAIL: ${cause instanceof Error?cause.stack:String(cause)}`;}};
+installBrowserChecks(button,output);

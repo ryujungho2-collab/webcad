@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "scope": "G6-B1–B4 first offline JSON fixture: independent lines/rectangles, strict manifest, mm/basis and fresh ID mapping, reviewed atomic Apply, v16 receipts, export/reimport",
+  "node": {
+    "tests": 775,
+    "suites": 54,
+    "failed": 0,
+    "skipped": 0,
+    "newFixtureTests": 11,
+    "log": "output-g6-b-node.log",
+    "targetedLog": "output-g6-b-targeted.log"
+  },
+  "browser": {
+    "passed": true,
+    "workflows": 4,
+    "checks": 86,
+    "scope": "Targeted native Edge/CDP, real App/React/Worker; full browser suite not rerun",
+    "results": [
+      {
+        "workflow": "exchangeFixture",
+        "checks": 20,
+        "new": true,
+        "log": "output-g6-b-browser.log"
+      },
+      {
+        "workflow": "dxfWorkflow",
+        "checks": 18,
+        "log": "output-g6-b-browser-dxf.log"
+      },
+      {
+        "workflow": "modelViews",
+        "checks": 24,
+        "log": "output-g6-b-browser-views.log"
+      },
+      {
+        "workflow": "sessionContinuity",
+        "checks": 24,
+        "log": "output-g6-b-browser-session.log"
+      }
+    ],
+    "oracle": "Independent inch/basis world coordinates; actual downloaded fixture, exact edited geometry/provenance reimport, no Preview/Cancel mutation; public CAD commands prepare edits; one Undo/Redo and saved views/File Open retained"
+  },
+  "architecture": {
+    "passed": true,
+    "modules": 367,
+    "log": "output-g6-b-architecture.log"
+  },
+  "build": {
+    "passed": true,
+    "typecheck": "passed",
+    "mainRawKB": 1115.4,
+    "mainGzipKB": 336.94,
+    "viewportRawKB": 651.86,
+    "viewportGzipKB": 176.81,
+    "existingLargeChunkWarning": true,
+    "log": "output-g6-b-build.log"
+  },
+  "serialization": "v16 only when exchangeImports exists; v1–v15 load without injecting metadata; older envelopes cannot carry receipts; History/File New/Open/Publish/rollback/recovery preserve optional-field semantics",
+  "assets": "Validated ID/mediaType/size/SHA-256 manifest only. Required asset entities excluded with acceptance; no byte restoration, arbitrary local reads, downloads or executable fields.",
+  "support": "Independent line and exact rectangle in principal authoring planes; mm/cm/m/inch; right-handed orthonormal basis and origin; canonical world/mm output; original provenance tuple preserved through additive reimport.",
+  "remaining": [
+    "Real IFC/RVT/Revit and external provider environments are G6-C",
+    "Embedded asset bytes",
+    "Broader geometry/BRep/BIM semantics",
+    "Merge/synchronizing reimport",
+    "No new latency/practitioner/GPU benchmark"
+  ]
+}

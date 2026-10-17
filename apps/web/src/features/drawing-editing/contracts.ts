@@ -12,12 +12,17 @@ export type DrawingEditCanvas = {
   onFrame: (points: Vec3[]) => void;
 };
 
-export type ContourMode = "join" | "explode" | "break" | "polyline" | "lengthen" | "stretch";
+export type ContourMode = "join" | "explode" | "break" | "convert" | "polyline" | "lengthen" | "stretch";
 export type ContourSession = { id: string; mode: ContourMode; objectIds: string[] };
 export type ContourToolProps = DrawingEditCanvas & {
   session: ContourSession;
   snapEnabled: boolean;
   snapPreferences?: SnapPreferences;
+};
+
+export type BlockSession = { id: string; objectId: string };
+export type BlockToolProps = DrawingEditCanvas & {
+  session: BlockSession;
 };
 
 export type CurveSession = { id: string; objectIds: string[] };

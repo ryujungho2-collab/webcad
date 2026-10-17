@@ -1,5 +1,7 @@
 # Interaction plan performance
 
+> **현재 기능 설명:** [정밀 작도와 편집](../features/DRAWING-EDITING.md). 이 문서는 날짜별 검증·측정 기록이며, 아래 사용법·제한·수치는 당시 범위다. 후속 지원은 대표 가이드를 따른다.
+
 Measured 2026-10-04 with `pnpm --filter @agent-webcad/web exec tsx scripts/benchmarkInteraction.ts`. The same script, fixtures and nine trials per size were used before and after the index change. Each fixture has 127 generated pattern instances plus 0, 250 or 1,000 background lines. Repeated edits change the spacing, obtain every affected path, apply, undo and redo. Preview JSON immutability and serialization are checked in the script.
 
 These are Node command-path timings, not browser input-to-paint or practitioner task times. Nine samples make p95 the largest sample; treat the numbers as local evidence, not a universal latency guarantee. `enter` and `hover` measure candidate filtering and target description, not native pointer latency.

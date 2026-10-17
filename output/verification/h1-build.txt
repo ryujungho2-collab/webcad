@@ -1,0 +1,26 @@
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 391 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/assets/opencascade.full-VyDB2lmX.js         0.07 kB
+dist/index.html                                  0.40 kB │ gzip:      0.27 kB
+dist/assets/artboardPng.worker-kWfzIFZi.js       1.19 kB
+dist/assets/kernel.worker-COcy4h-p.js            6.38 kB
+dist/assets/index-Cxai41EU.js                   24.23 kB
+dist/assets/tiffDecode.worker-KP72HCI0.js       87.19 kB
+dist/assets/opencascade.full-BROZOezB.wasm  50,305.13 kB │ gzip: 13,955.45 kB
+dist/assets/index-Dx0AC36a.css                  79.34 kB │ gzip:     15.57 kB
+dist/assets/opencascade.full-6ofQA2u6.js         0.07 kB │ gzip:      0.09 kB
+dist/assets/tiffImport-61E4RDXB.js               2.52 kB │ gzip:      1.27 kB
+dist/assets/kernelRuntime-C_MR5Rnc.js            5.98 kB │ gzip:      2.09 kB
+dist/assets/index-BEBi9uGf.js                   24.30 kB │ gzip:      8.11 kB
+dist/assets/opencascade.full-BUFqgUGn.js       228.71 kB │ gzip:     51.09 kB
+dist/assets/CadViewport-BapjZQOD.js            742.05 kB │ gzip:    202.21 kB
+dist/assets/index-DgOjFRgy.js                1,474.82 kB │ gzip:    443.60 kB
+✓ built in 5.03s
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

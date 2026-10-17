@@ -1,0 +1,190 @@
+{
+  "date": "2026-10-12",
+  "status": "complete for reproduced P0/P1 and first analytic HLR scope",
+  "scope": [
+    "P0 inactive-toolbar pointer interception (existing fix retained)",
+    "P1 unnecessary section recomputation and cache thrash",
+    "P1 anchored line-graph section correspondence",
+    "P1 saved-section custom layer Review/Apply",
+    "P1 first analytic BRep HLR projections and hidden output",
+    "large-project compressed recovery discovered during native verification"
+  ],
+  "node": {
+    "tests": 1158,
+    "suites": 54,
+    "status": "passed",
+    "fail": 0,
+    "skip": 0,
+    "log": "output/verification/p01-full-node.txt"
+  },
+  "courtyardNative": {
+    "status": "passed",
+    "checks": 20,
+    "metrics": {
+      "initialSceneMs": 11681,
+      "nativeWidthEditMs": 12566,
+      "kernelEditTasks": [
+        {
+          "operation": "solid",
+          "ms": 225
+        },
+        {
+          "operation": "solid",
+          "ms": 271
+        },
+        {
+          "operation": "solid",
+          "ms": 271
+        },
+        {
+          "operation": "solid",
+          "ms": 291
+        },
+        {
+          "operation": "solid",
+          "ms": 482
+        },
+        {
+          "operation": "projection",
+          "ms": 2990
+        },
+        {
+          "operation": "projection",
+          "ms": 2797
+        },
+        {
+          "operation": "section",
+          "ms": 522
+        },
+        {
+          "operation": "section",
+          "ms": 503
+        },
+        {
+          "operation": "section",
+          "ms": 482
+        },
+        {
+          "operation": "inspect",
+          "ms": 218
+        },
+        {
+          "operation": "inspect",
+          "ms": 242
+        },
+        {
+          "operation": "inspect",
+          "ms": 249
+        },
+        {
+          "operation": "inspect",
+          "ms": 275
+        },
+        {
+          "operation": "inspect",
+          "ms": 469
+        },
+        {
+          "operation": "inspect",
+          "ms": 499
+        },
+        {
+          "operation": "primitive",
+          "ms": 25
+        }
+      ],
+      "commandEditMs": 11131.700000000186,
+      "savedSectionReview": {
+        "applyEnabled": true,
+        "alert": ""
+      },
+      "pdfBudgetDiagnostic": "The PDF would contain 17,814,075 raster pixels; the export limit is 16,000,000. Lower dpi or export fewer/smaller boards.",
+      "pdfDpi": 72,
+      "pdfPages": 5,
+      "pdfBytes": 384742
+    }
+  },
+  "batchMetrics": [
+    {
+      "label": "annotation edit without kernel recomputation",
+      "ms": 46,
+      "sectionTasks": 0,
+      "projectionTasks": 0
+    },
+    {
+      "label": "cold five-view sheet Review",
+      "ms": 6558,
+      "sectionTasks": 164,
+      "projectionTasks": 0
+    },
+    {
+      "label": "warm five-view sheet Review",
+      "ms": 551,
+      "sectionTasks": 0,
+      "projectionTasks": 0
+    },
+    {
+      "label": "five-view sheet Apply",
+      "ms": 550,
+      "sectionTasks": 0,
+      "projectionTasks": 0
+    },
+    {
+      "label": "elevation-front",
+      "ms": 1736,
+      "sectionTasks": 0,
+      "projectionTasks": 1
+    },
+    {
+      "label": "elevation-right",
+      "ms": 1662,
+      "sectionTasks": 0,
+      "projectionTasks": 1
+    },
+    {
+      "label": "seven-view sheet Apply",
+      "ms": 7398,
+      "sectionTasks": 0,
+      "projectionTasks": 0
+    }
+  ],
+  "project": {
+    "path": "output/projects/courtyard-commons/p01-fixed/courtyard-commons.webcad.json",
+    "parts": 56,
+    "views": 7,
+    "pages": 5,
+    "schema": 33
+  },
+  "visualReview": "all 5 downloaded A2 PDF pages independently rendered and inspected; drawing-expression limitations remain",
+  "limits": [
+    "HLR line/circle/arc first scope; ellipse/spline rejects atomically",
+    "legacy primitive-only view keeps existing silhouettes unless HLR requested",
+    "section proof needs stationary anchors and unique incidence; ambiguous/lost topology still needs rebind",
+    "native source edit 12.6s remains substantial; batch Apply0.55s is not interactive edit latency",
+    "A2 5-page PDF uses72dpi;96dpi aggregate pixels exceeds existing cap",
+    "architectural background/hatch/line hierarchy and project annotation layout remain G6-D4-H1/design work"
+  ],
+  "typecheck": "passed",
+  "architecture": {
+    "status": "passed",
+    "modules": 517
+  },
+  "build": {
+    "status": "passed",
+    "log": "output/verification/p01-build.txt",
+    "warning": "existing chunk >500kB warning"
+  },
+  "browser": {
+    "workflows": 6,
+    "checks": 167,
+    "pages": {
+      "courtyardStudio": 20,
+      "modelDrawing": 32,
+      "modelSheetSet": 24,
+      "directEditExperience": 43,
+      "frameSheets": 24,
+      "modelPresentation": 24
+    },
+    "scope": "targeted native regressions; not every browser page"
+  }
+}

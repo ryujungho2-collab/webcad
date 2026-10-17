@@ -1,10 +1,10 @@
 import type { CadDocument, CadFeature, CadObject } from "@agent-webcad/cad-document";
 import type { CadCommand, CommandBus, ContourReferenceRoute } from "@agent-webcad/cad-commands";
-import { exactDrawingContour, contourParams, explodeContour, breakContour } from "../geometry/contourEditing";
+import { exactDrawingContour, contourParams, explodeContour, breakContour, convertContourEdge } from "../geometry/contourEditing";
 import { replacementTopology } from "../geometry/contourTopology";
 import { trimContour } from "../geometry/trimContour";
 import { joinContoursWithBridges } from "../geometry/contourBridges";
-import { reconnectContourReferences } from "./contourReferences";
+import { contourReferenceRequirements, reconnectContourReferences } from "./contourReferences";
 import { sketchContourParams } from "../geometry/sketchContour";
 
 type Source = { object: CadObject; feature: CadFeature };
@@ -20,7 +20,7 @@ export function contourSources(document: CadDocument, ids: string[], reconnect =
     if (!object.visible || !layer?.visible || layer.locked) throw new Error(`Show and unlock '${object.name}' and its layer before editing.`);
     if (feature.params.sketchId && !reconnect) throw new Error("This curve belongs to a sketch. Use Trim/Join with explicit constraint references so ownership and constraints are preserved.");
     if (feature.pattern) throw new Error("Detach the pattern before editing the composition of an instance.");
-    if (Object.values(document.parameterBindings ?? {}).some(b => b.target.kind === "feature" && b.target.objectId === id)) throw new Error(`'${object.name}' is driven by an expression. Remove its binding before replacing its geometry.`);
+    if (Object.values(document.parameterBindings ?? {}).some(b => b.target.kind === "feature" && b.target.objectId === id) && !reconnect) throw new Error(`'${object.name}' is driven by an expression. Review its binding with explicit reference routes before replacing its geometry.`);
     return { object, feature };
   });
   for (const f of Object.values(document.features)) {
@@ -58,6 +58,8 @@ export function registerContourCommandHandlers(bus: CommandBus, document: CadDoc
     }
     for (const feature of references.features) document.features[feature.id] = feature;
     for (const sketch of references.sketches) document.sketches![sketch.id] = sketch;
+    for (const scene of references.scenes) document.scenes![scene.id] = scene;
+    for (const [id, binding] of Object.entries(references.bindings)) { document.parameterBindings ??= {}; document.parameterBindings[id] = binding; }
     document.revision++;
     return { createdIds: prepared.map(p => p.id) };
   };
@@ -81,16 +83,35 @@ export function registerContourCommandHandlers(bus: CommandBus, document: CadDoc
   });
   bus.registerHandler("explode-drawings", (command: CadCommand) => {
     if (command.type !== "explode-drawings") return;
-    const sources = contourSources(document, command.objectIds);
+    const sources = contourSources(document, command.objectIds, command.referenceRoutes !== undefined);
+    const requirements = contourReferenceRequirements(document,command.objectIds);
+    if (sources.some(s=>s.feature.params.sketchId) || requirements.some(r=>r.kind === "sketch" || r.kind === "pattern" || "throughPattern" in r && r.throughPattern)) throw new Error("Explode reference preservation currently supports standalone drawings. Sketch projections and patterns need their ownership adapters.");
     const pieces = sources.flatMap(source => {
       if (!["polyline", "rectangle"].includes(String(source.feature.params.kind))) throw new Error("Explode supports standalone polylines and rectangles. Lines, arcs and circles are already independent curves.");
       return explodeContour(exactDrawingContour(source.object, source.feature)).map(params => ({ params, source }));
     });
-    return replace(sources, pieces);
+    return replace(sources, pieces, command.referenceRoutes);
   });
   bus.registerHandler("break-drawing", (command: CadCommand) => {
     if (command.type !== "break-drawing") return;
-    const sources = contourSources(document, [command.objectId]), source = sources[0];
-    return replace(sources, breakContour(exactDrawingContour(source.object, source.feature), command.firstPoint, command.secondPoint).map(params => ({ params, source })));
+    const sources = contourSources(document, [command.objectId], command.referenceRoutes !== undefined), source = sources[0];
+    const requirements = contourReferenceRequirements(document, [command.objectId]);
+    if (source.feature.params.sketchId || requirements.some(r => r.kind === "sketch" || r.kind === "pattern" || "throughPattern" in r && r.throughPattern)) throw new Error("Break reference preservation currently supports standalone drawings. Edit sketch or pattern relationships separately.");
+    if (Object.values(document.scenes ?? {}).some(scene => scene.objectIds.includes(command.objectId))) throw new Error("This contour belongs to a scene. Reassign or remove that scene relationship before Break.");
+    const pieces = breakContour(exactDrawingContour(source.object, source.feature), command.firstPoint, command.secondPoint);
+    const keep = command.keepResultIndices;
+    if (keep?.some(i => !pieces[i])) throw new Error("Choose an existing Break result to keep.");
+    // Output order follows the contour, independent of the order of kept indices.
+    // Reference indices address this reviewed, filtered output list.
+    return replace(sources, pieces.filter((_, i) => !keep || keep.includes(i)).map(params => ({ params, source })), command.referenceRoutes);
+  });
+  bus.registerHandler("convert-contour-edge", (command: CadCommand) => {
+    if (command.type !== "convert-contour-edge") return;
+    const sources = contourSources(document, [command.objectId], command.referenceRoutes !== undefined), source = sources[0];
+    const requirements = contourReferenceRequirements(document, [command.objectId]);
+    if (source.feature.params.sketchId || requirements.some(r => r.kind === "sketch" || r.kind === "pattern" || "throughPattern" in r && r.throughPattern)) throw new Error("Edge conversion currently supports standalone drawings. Edit sketch or pattern relationships separately.");
+    if (Object.values(document.scenes ?? {}).some(scene => scene.objectIds.includes(command.objectId))) throw new Error("This contour belongs to a scene. Reassign or remove that scene relationship before converting its edge.");
+    const converted = convertContourEdge(exactDrawingContour(source.object, source.feature), command.segmentIndex, command.target, command.radius, command.side);
+    return replace(sources, [{ source, params: contourParams(converted) }], command.referenceRoutes);
   });
 }

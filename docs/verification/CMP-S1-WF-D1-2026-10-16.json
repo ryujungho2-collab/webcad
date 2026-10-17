@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-16",
+  "typecheck": "passed",
+  "architecture": {
+    "modules": 589,
+    "status": "passed"
+  },
+  "artifact": "output/projects/architectural-fitout/fitout.webcad.json",
+  "build": {
+    "warning": "Existing >500 kB chunks",
+    "modules": 427,
+    "status": "passed"
+  },
+  "native": {
+    "architectureContent": 16,
+    "floorTasks": 18,
+    "browser": "Edge, SwiftShader, Vite, real CDP input/Worker",
+    "architectureWall": 14,
+    "contentReport": "output/verification/architecture-content-native-report.json",
+    "modelDrawing": 32
+  },
+  "performance": {
+    "additionalKernelSubmissions": 0,
+    "largeScaleClaim": false,
+    "change": "finish only",
+    "fixture": "one fitted box instance and associated projection"
+  },
+  "node": {
+    "full": {
+      "log": "output/verification/cmp-s1-wf-d1-node-final.log",
+      "suites": 54,
+      "failed": 0,
+      "durationMs": 124145.9338,
+      "tests": 1274
+    },
+    "architectureContent": {
+      "status": "passed",
+      "tests": 9
+    },
+    "finalTargeted": {
+      "covers": [
+        "architectureContent 9",
+        "retained slab and global output cache",
+        "image source replacement"
+      ],
+      "failed": 0,
+      "tests": 17,
+      "log": "output/verification/cmp-s1-wf-d1-target-final.log",
+      "durationMs": 10408.1143
+    }
+  },
+  "limitations": [
+    "One slot per instance; one completed solid or finite XY drawing/text/image per definition",
+    "No nested assemblies, external-library remapping, texture/UV or automatic room/furniture planning",
+    "AABB and conservative door clearance box, not exact distance/collision/door sweep or code clearance",
+    "Opening content uses supported upward straight wall hosts; complex hosts and downward host insertion are excluded",
+    "Typography bounds use existing CAD estimates; capture unrotated left-aligned text",
+    "2D presentation slots are planar, Z size/padding/minimum zero",
+    "Topology/stale/annotation repair contracts retained; Q1 full residential task remains next"
+  ],
+  "scope": "CMP-S1 / WF-D1 first supported content-slot and architectural-surface workflow"
+}

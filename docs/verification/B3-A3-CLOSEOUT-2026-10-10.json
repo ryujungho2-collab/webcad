@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-10",
+  "status": "passed",
+  "scope": "B3-A3 finite analytic DXF OCS and tilted planar geometry exchange",
+  "node": {
+    "tests": 809,
+    "suites": 54,
+    "failed": 0,
+    "skipped": 0,
+    "newOcsTests": 9,
+    "log": "output-b3-a3-tests.log"
+  },
+  "browser": {
+    "workflows": 2,
+    "checks": 36,
+    "scope": "Targeted native Edge/CDP real App/Worker; full browser suite not rerun",
+    "results": [
+      {
+        "workflow": "dxfOcs",
+        "checks": 18,
+        "log": "output-b3-a3-browser.log"
+      },
+      {
+        "workflow": "dxfWorkflow",
+        "checks": 18,
+        "log": "output-b3-a3-browser-default.log"
+      }
+    ]
+  },
+  "architecture": {
+    "passed": true,
+    "modules": 382,
+    "log": "output-b3-a3-architecture.log"
+  },
+  "build": {
+    "passed": true,
+    "typecheck": "passed",
+    "mainRawKB": 1143.34,
+    "mainGzipKB": 345.91,
+    "viewportRawKB": 654.75,
+    "viewportGzipKB": 177.82,
+    "existingLargeChunkWarning": true,
+    "log": "output-b3-a3-build.log"
+  },
+  "serialization": "Existing analytic parameters plus object rotation/translation; no schema version change",
+  "supported": [
+    "CIRCLE/ARC/LWPOLYLINE/2D R12 POLYLINE non-default OCS",
+    "Normal/elevation/unit conversion, reverse extrusion and wrapped CCW arcs",
+    "WCS LINE and planar tilted 3D POLYLINE",
+    "Analytic OCS export of principal/tilted, uniformly scaled/reflected curves",
+    "Detached authoring preview; atomic Apply/Undo/Redo; JSON; lock/stale rejection"
+  ],
+  "remaining": [
+    "Non-default TEXT/INSERT OCS and tilted annotation/component adapter",
+    "Width/thickness/mesh/fitted/ellipse and nonuniform circular geometry",
+    "Nonplanar 3D polyline import; nested INSERT; DWG",
+    "User UCS and arbitrary-plane editing workflow",
+    "Full browser suite, external AutoCAD and large-document benchmark not run"
+  ]
+}

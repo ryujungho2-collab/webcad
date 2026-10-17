@@ -1,5 +1,7 @@
 # G3-1 이미지 workflow 검수
 
+> **현재 기능 설명:** [이미지와 장면](../features/IMAGES-SCENES.md). 이 문서는 날짜별 검증·측정 기록이며, 아래 사용법·제한·수치는 당시 범위다. 후속 지원은 대표 가이드를 따른다.
+
 실행일: 2026-10-05. 범위는 이미지 source import·placement·크기/crop review·artboard SVG·저장/복구 왕복이다. 최신 전체 기준은 [PROJECT-STATE](../../PROJECT-STATE.md), 기능·제한은 [G3-1 구현](../implementation/G3-IMAGE-ASSET-2026-10-05.md)을 따른다.
 
 ## 결과

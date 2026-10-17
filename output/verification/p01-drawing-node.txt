@@ -1,0 +1,20 @@
+✔ clipping Review/Apply changes only saved display state and respects both half spaces (2326.2877ms)
+✔ mechanical diameter20→25 length80→100 regenerates section, live note, sheet and preserves Undo/source IDs (104.874ms)
+✔ exact cropped circle produces arcs; line finite domains and source units remain analytic (2.0372ms)
+✔ plane misses and ellipse/spline sections reject atomically, without sampled replacement (20.9777ms)
+✔ topology loss marks associated note unresolved until explicit source rebind (16.1224ms)
+✔ section output ownership and locked layers protect source regeneration; unrelated rename still works (8.1897ms)
+✔ sheet scale/placement is owned, locked board and stale Review reject atomically (8.6324ms)
+✔ DXF sheet crossing paper bounds rejects rather than silently cropping exact curves (1.8928ms)
+✔ v25 rejects downgrade, corrupted output mapping and sheet refs; sheet deletion preserves model/views (3.3918ms)
+✔ architectural Boolean wall/window section is real BRep; opening width/height edit and rebind roundtrip (1422.3635ms)
+✔ overlapping model sheets isolate owned output in the generic artboard pipeline (2.3502ms)
+✔ associated model dimensions hide on source loss, preserve attachment, and explicitly rebind (3.4367ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4839.5963

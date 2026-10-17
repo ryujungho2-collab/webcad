@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-10",
+  "scope": "CAD B5-B face sketch and B5-C reviewed face cut",
+  "node": {"tests": 854, "suites": 54, "passed": 854, "failed": 0, "skipped": 0},
+  "browser": {"b5FaceSketch": 5, "b5FaceCut": 3, "total": 8},
+  "checks": [
+    "face-local drawing and driving dimensions project to the exact BRep face frame and regenerate an extrusion",
+    "source translation and rotation refresh face axes, projection, extrusion and cut",
+    "reviewed blind/through Boolean cut owns source and sketch inputs, removes measured volume and creates one Undo entry; side-face circular cut follows its local normal",
+    "reverse or empty cuts reject atomically; source-face key loss requires explicit rebind and blocks STEP export",
+    "document v19 reload, Undo/Redo and actual STEP transfer"
+  ],
+  "typecheck": "passed",
+  "architecture": {"result": "passed", "modules": 404},
+  "productionBuild": "passed",
+  "limitations": [
+    "One closed profile without holes; no face-sketch Offset/Trim/Extend, free grip/stretch or free rotation",
+    "Changed face topology keys require explicit rebind; unresolved results retain the last geometry for review"
+  ]
+}

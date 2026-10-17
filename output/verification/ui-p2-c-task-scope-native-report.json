@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "checks": 6,
+  "message": "PASS: An actual active view request is cancelled by its owner signal\nPASS: Queued protected document measurement survives the view Worker restart\nPASS: A fresh view retries cancelled geometry and receives real mesh buffers\nPASS: Long source keys trigger actual byte-budget eviction below the item limit\nPASS: All consumers settle after cancellation and eviction\nPASS: WASM capacity is reported separately from JS cache payload\nALL 6 CHECKS PASSED",
+  "metrics": {
+    "workerResident": true,
+    "workersCreated": 2,
+    "wasmCapacityBytes": 104857600,
+    "retainedSources": 1,
+    "retainedSlabs": 0,
+    "activeTasks": 0,
+    "submittedTasks": 23,
+    "idleWorkerReleases": 0,
+    "viewCancellations": 0,
+    "cacheBytes": 62953400,
+    "cacheLimitBytes": 67108864,
+    "cacheEvictions": 7,
+    "gpuPayloadBytes": 0,
+    "releasedGpuScenes": 0,
+    "meshCacheEntries": 15,
+    "topologyCacheEntries": 0,
+    "measurementCacheEntries": 0
+  }
+}

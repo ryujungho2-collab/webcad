@@ -1,0 +1,27 @@
+✔ OCCT tilted cylinder returns analytic ellipse with independent axes, plane and cylinder residuals (2507.0873ms)
+✔ finite BRep ellipse arcs and cap line form a closed analytic boundary (65.6325ms)
+✔ rotated ellipse range crop solves analytic roots and retains exact finite domains on all section bases (0.7029ms)
+✔ ellipse Review/Apply, sheet scale, exact SVG/DXF, schema35 and Undo preserve axes and ownership (21.588ms)
+✔ cropped elliptic arcs preserve finite endpoints in source notes and exact arc SVG/DXF (5.5233ms)
+✔ stale/locked edits reject atomically, source loss hides ellipse and notes, ambiguous crop requires rebind (27.9117ms)
+✔ architectural ellipse cut weights and labels export; hatch omission is explicit and conic background is supported (117.2619ms)
+✔ clipping Review/Apply changes only saved display state and respects both half spaces (2470.5831ms)
+✔ mechanical diameter20→25 length80→100 regenerates section, live note, sheet and preserves Undo/source IDs (115.3824ms)
+✔ exact cropped circle produces arcs; line finite domains and source units remain analytic (2.109ms)
+✔ plane misses reject atomically and tilted-cylinder sections retain exact ellipse (21.7159ms)
+✔ topology loss marks associated note unresolved until explicit source rebind (16.5504ms)
+✔ section output ownership and locked layers protect source regeneration; unrelated rename still works (8.1806ms)
+✔ sheet scale/placement is owned, locked board and stale Review reject atomically (7.6594ms)
+✔ DXF sheet crossing paper bounds rejects rather than silently cropping exact curves (2.0964ms)
+✔ v25 rejects downgrade, corrupted output mapping and sheet refs; sheet deletion preserves model/views (3.2791ms)
+✔ architectural Boolean wall/window section is real BRep; opening width/height edit and rebind roundtrip (1401.1728ms)
+✔ overlapping model sheets isolate owned output in the generic artboard pipeline (2.9303ms)
+✔ associated model dimensions hide on source loss, preserve attachment, and explicitly rebind (3.3484ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5052.2183

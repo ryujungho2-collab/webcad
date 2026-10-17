@@ -1,7 +1,7 @@
 export type Vec3 = [number, number, number];
 export type WorkPlaneId = "XY" | "XZ" | "YZ";
 
-export type WorkPlane = { id: WorkPlaneId; origin: Vec3; xAxis: Vec3; yAxis: Vec3; normal: Vec3 };
+export type WorkPlane = { id: string; origin: Vec3; xAxis: Vec3; yAxis: Vec3; normal: Vec3 };
 
 export const WORK_PLANES: Record<WorkPlaneId, WorkPlane> = {
   XY: { id: "XY", origin: [0, 0, 0], xAxis: [1, 0, 0], yAxis: [0, 1, 0], normal: [0, 0, 1] },
@@ -23,6 +23,17 @@ export function intersectRayWithWorkPlane(origin: Vec3, direction: Vec3, plane: 
 export function worldToPlane(point: Vec3, plane: WorkPlane): [number, number] {
   const delta: Vec3 = [point[0] - plane.origin[0], point[1] - plane.origin[1], point[2] - plane.origin[2]];
   return [dot(delta, plane.xAxis), dot(delta, plane.yAxis)];
+}
+
+/** Full signed local coordinates; the third component detects off-plane points. */
+export function worldToWorkPlane(point:Vec3,plane:WorkPlane):Vec3 {
+  const delta:Vec3=[point[0]-plane.origin[0],point[1]-plane.origin[1],point[2]-plane.origin[2]];
+  return [dot(delta,plane.xAxis),dot(delta,plane.yAxis),dot(delta,plane.normal)];
+}
+
+/** World position from signed local u/v/normal coordinates, including plane height. */
+export function workPlaneToWorld(point:Vec3,plane:WorkPlane):Vec3 {
+  return [0,1,2].map(index=>plane.origin[index]+plane.xAxis[index]*point[0]+plane.yAxis[index]*point[1]+plane.normal[index]*point[2]) as Vec3;
 }
 
 export function planeToWorld(point: [number, number], plane: WorkPlane): Vec3 {

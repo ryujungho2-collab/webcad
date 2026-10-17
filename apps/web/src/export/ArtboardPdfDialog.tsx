@@ -6,7 +6,7 @@ import { ARTBOARD_PDF_DPI_OPTIONS, ARTBOARD_PDF_MAX_FILE_BYTES, planArtboardPdf,
 import { renderArtboardPdfPageInWorker } from "./artboardPngRenderer";
 import "../ui/palette.css";
 
-export type ArtboardPdfBoard = { board: ArtboardPngScene["board"]; scene?: ArtboardPngScene; error?: string };
+export type ArtboardPdfBoard = { sheetSet?:{id:string;page:number;pageCount:number;name:string}; board: ArtboardPngScene["board"]; scene?: ArtboardPngScene; error?: string };
 type RenderedPdf = { key: string; blob: Blob; previewUrl: string; bytes: number; decodeMs: number; renderMs: number; elapsedMs: number; pages: number; estimatedPeakBytes: number };
 
 function isPdfPlan(value: ReturnType<typeof planArtboardPdf>): value is ArtboardPdfPlan {
@@ -21,7 +21,7 @@ export function ArtboardPdfDialog({ boards, activeBoardId, documentId, onClose, 
   onExported: (message: string) => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const [scope, setScope] = useState<"visible" | "active">(boards.length > 1 ? "visible" : "active");
+  const [scope, setScope] = useState<string>(boards.length > 1 ? "visible" : "active");
   const [dpiInput, setDpiInput] = useState<ArtboardPdfDpi>(96);
   const [rendered, setRendered] = useState<RenderedPdf | null>(null);
   const [rendering, setRendering] = useState(false);
@@ -29,14 +29,17 @@ export function ArtboardPdfDialog({ boards, activeBoardId, documentId, onClose, 
   const [renderError, setRenderError] = useState("");
   const selectedBoards = useMemo(() => {
     if (scope === "visible") return boards;
+    if(scope.startsWith("board:"))return boards.filter(b=>b.board.id===scope.slice(6));
+    if(scope.startsWith("set:"))return boards.filter(b=>b.sheetSet?.id===scope.slice(4)).sort((a,b)=>a.sheetSet!.page-b.sheetSet!.page);
     const active = boards.find(entry => entry.board.id === activeBoardId) ?? boards[0];
     return active ? [active] : [];
   }, [scope, boards, activeBoardId]);
   const boardError = selectedBoards.find(entry => entry.error || !entry.scene);
   const planResult = useMemo(() => {
+    if(scope.startsWith("set:")&&selectedBoards.length!==selectedBoards[0]?.sheetSet?.pageCount)return {error:"Show every page in this sheet set before PDF output."} as const;
     if (boardError) return { error: boardError.error ?? `Could not prepare “${boardError.board.name}” for PDF output.` } as const;
     return planArtboardPdf(selectedBoards.map(entry => entry.scene!), dpiInput);
-  }, [boardError, selectedBoards, dpiInput]);
+  }, [scope, boardError, selectedBoards, dpiInput]);
   const plan = isPdfPlan(planResult) ? planResult : null;
   const planError = plan ? "" : (planResult as { error: string }).error;
   const currentKey = `${scope}:${dpiInput}:${selectedBoards.map(board => board.board.id).join(",")}`;
@@ -119,9 +122,12 @@ export function ArtboardPdfDialog({ boards, activeBoardId, documentId, onClose, 
     </div>
     <div className="artboard-png-body">
       <section className="artboard-png-settings" aria-label="PDF output settings">
-        <label><span>Boards</span><select aria-label="PDF artboard scope" value={scope} onChange={event => setScope(event.target.value as "visible" | "active")}>
+        {selectedBoards.some(b=>b.scene?.items.some(i=>i.type==="polyline"&&i.polyline.spline))&&<p aria-label="Spline output tolerance">Spline curves: 0.02 mm paper chord tolerance. PDF is raster output; exact editable curves remain available in DXF SPLINE.</p>}
+        <label><span>Boards</span><select aria-label="PDF artboard scope" value={scope} onChange={event => setScope(event.target.value)}>
           {boards.length > 1 && <option value="visible">All visible boards ({boards.length})</option>}
+          {Array.from(new Map(boards.filter(b=>b.sheetSet).map(b=>[b.sheetSet!.id,b.sheetSet!])).values()).map(s=><option key={s.id} value={`set:${s.id}`}>Sheet set · {s.name} ({s.pageCount} pages)</option>)}
           <option value="active">Active board · {boards.find(board => board.board.id === activeBoardId)?.board.name ?? boards[0]?.board.name}</option>
+          <optgroup label="Single page">{boards.map(b=><option key={b.board.id} value={`board:${b.board.id}`}>{b.board.name}</option>)}</optgroup>
         </select></label>
         <label><span>Raster resolution</span><select aria-label="PDF raster resolution" value={dpiInput} onChange={event => setDpiInput(Number(event.target.value) as ArtboardPdfDpi)}>
           {ARTBOARD_PDF_DPI_OPTIONS.map(dpi => <option key={dpi} value={dpi}>{dpi} dpi</option>)}

@@ -12,7 +12,17 @@ export function editSketchPointGeometry(geometry:SketchGeometry,pointId:string,p
   if(geometry.kind==="circle"&&pointId===`${geometry.id}:radius:0`)return {...geometry,radius:Math.hypot(position[0]-geometry.center[0],position[1]-geometry.center[1])};
   if(geometry.kind==="arc"){
     if(pointId===geometry.centerId)return {...geometry,center:position};
-    if(pointId===geometry.startId||pointId===geometry.endId)return {...geometry,radius:Math.hypot(position[0]-geometry.center[0],position[1]-geometry.center[1]),[pointId===geometry.startId?"startAngle":"endAngle"]:Math.atan2(position[1]-geometry.center[1],position[0]-geometry.center[0])};
+    if(pointId===geometry.startId||pointId===geometry.endId){
+      const radius=Math.hypot(position[0]-geometry.center[0],position[1]-geometry.center[1]);
+      const angle=Math.atan2(position[1]-geometry.center[1],position[0]-geometry.center[0]);
+      const direction=Math.sign(geometry.endAngle-geometry.startAngle),tau=2*Math.PI;
+      const wrap=(a:number)=>((a%tau)+tau)%tau;
+      // atan2 wraps at ±π; preserve the directed arc instead of flipping its branch.
+      const start=pointId===geometry.startId;
+      const sweep=wrap(direction*(start?geometry.endAngle-angle:angle-geometry.startAngle));
+      if(radius<=1e-6||sweep<=1e-9||sweep>=tau-1e-9)return null;
+      return {...geometry,radius,[start?"startAngle":"endAngle"]:start?geometry.endAngle-direction*sweep:geometry.startAngle+direction*sweep};
+    }
   }
   if(geometry.kind==="rectangle")return resizeRectangleCorner(geometry,pointId,position);
   return null;

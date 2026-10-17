@@ -1,0 +1,30 @@
+{
+  "card": "UI-P1-H2",
+  "date": "2026-10-14",
+  "status": "passed",
+  "node": {
+    "command": "node node_modules/tsx/dist/cli.mjs --test tests/projectManagerStore.test.ts tests/projectWorkspaceStore.test.ts tests/projectSession.test.ts tests/documentRecovery.test.ts",
+    "checks": 29,
+    "fail": 0,
+    "skip": 0
+  },
+  "browser": [
+    { "command": "node scripts/browserChecks.mjs --page=projectManager --artifacts", "checks": 30, "status": "passed" },
+    { "command": "node scripts/browserChecks.mjs --page=projectTabs", "checks": 19, "status": "passed" },
+    { "command": "node scripts/browserChecks.mjs --page=projectRecovery", "checks": 24, "status": "passed" },
+    { "command": "node scripts/browserChecks.mjs --page=imageSourceWorkflow", "checks": 16, "status": "passed" }
+  ],
+  "browserTotal": 89,
+  "typecheck": "passed",
+  "architecture": { "modules": 554, "status": "passed" },
+  "productionBuild": { "modules": 405, "status": "passed", "existingLargeChunkWarning": true },
+  "storageBackend": "Documents remain in localStorage; native IndexedDB is used for storage-operation recovery journals, not full document migration.",
+  "capacityTest": "200 listed projects and injected localStorage-area quota; no claim of 200 simultaneously rendered large projects.",
+  "artifacts": [
+    "output/images/project-manager-storage-2026-10-14.png",
+    "output/projects/workspace-management/exported-project.webcad.json",
+    "output/verification/project-manager-native-report.json"
+  ],
+  "fullCadSuiteRerun": false,
+  "next": "UI-P2 inactive rendering, Worker lifecycle and memory budget"
+}

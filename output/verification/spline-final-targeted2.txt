@@ -1,0 +1,34 @@
+✔ analytic ellipse perimeter and area match independent circle and known elliptic integral (2.3564ms)
+✔ finite wrapping CW bounds and analytic extrema preserve drawing pivot (0.7206ms)
+✔ display sampling has bounded chord error and includes exact extrema without replacing source (19.6778ms)
+✔ principal decomposition retains conjugate ellipse evaluation and phase (0.2738ms)
+✔ nearest respects finite endpoints and noncircular high eccentric curve (0.4411ms)
+✔ nonuniform scaling, rotation and translation keep exact axes and 3D measurement (3.4463ms)
+✔ center axis and arc-end handles edit exact parameters and preserve topology/frame (2.3981ms)
+✔ numeric edit can switch full/open while retaining curve and remaining controls; one Undo (1.221ms)
+✔ center, axes and open ends snap to exact domain without fake chord intersections (2.0983ms)
+✔ SVG preserves ellipse and elliptic A syntax through artboard clipping (3.0511ms)
+✔ DXF ELLIPSE exact roundtrip preserves rotated conjugate reflected open domain (4.3892ms)
+✔ DXF WCS tilted center and inch units are not transformed as OCS twice (0.1975ms)
+✔ invalid axes domain ratio and version downgrade reject; old files keep minimal version (2.641ms)
+✔ detached Review Cancel stale and locked edit preserve all document and History state (4.5781ms)
+✔ mirror pattern retains exact reflected ellipse and source curve references (0.813ms)
+✔ rational quarter circle preserves exact source, finite domain and convergent length (12.7877ms)
+✔ exact homogeneous knot insertion trims rational and polynomial domains without changing points (1.6267ms)
+✔ malformed knots, nonpositive weights, interior breaks and invalid domain are rejected (0.2365ms)
+✔ closed rational circle reports independently known area and perimeter (38.1295ms)
+✔ spline source Review/Apply, rational weights, pole identity, live endpoints and exact Undo (49.5294ms)
+✔ invalid structure edits, locked sources, stale and aborted Review never publish (20.1794ms)
+✔ affine-transformed NURBS measures native curve length and exports exact finite DXF SPLINE (14.8502ms)
+✔ homogeneous polynomial roots crop finite rational domains without joining gaps or tangent splits (0.6402ms)
+✔ real oblique torus sections preserve native rational splines, crop, live endpoints, sheet scale and hatch omission (2950.6922ms)
+✔ paper crop emits three exact SPLINE domains across an S-curve and preserves LTYPE (2.186ms)
+✔ paper ELLIPSE crop retains exact reflected finite domains and editable entity (1.412ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4032.6912

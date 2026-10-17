@@ -1,3 +1,9 @@
+import {validateArchitectureContent} from "@agent-webcad/cad-document";
+import {getWorldDrawingGeometry} from "../precision/worldGeometry";
+import {assertModelSheets} from "./modelSheetCommands";
+import {refreshModelNotes} from "./modelNoteCommands";
+import {refreshModelSections} from "./modelDrawingCommands";
+import {refreshModelProjections} from "./modelPresentationCommands";
 import type {
   CadCommand,
   CommandResult,
@@ -29,6 +35,7 @@ import { notifyDocumentChanged } from "./documentSession";
 import { featureContract,validateFeatureParameters,type CadDocument } from "@agent-webcad/cad-document";
 import {measureDocumentObject} from "./documentQuery";
 import {getObjectTransform} from "../precision/objectTransform";
+import { isModelViewOnlyCommand } from "./modelViewCommands";
 
 export async function dispatchCadCommand(
   command: CadCommand
@@ -64,12 +71,19 @@ export async function prepareCadCommand(document:CadDocument, command:CadCommand
   let raw: unknown;
   try {
     raw = await createDocumentCommandExecutor(proposed)(detached);
-    if(proposed.revision!==document.revision){
+    if(proposed.revision!==document.revision && !isModelViewOnlyCommand(detached)){
+      validateArchitectureContent(proposed);
+      assertModelSheets(proposed);
+      await refreshModelProjections(proposed,document);
+      await refreshModelSections(proposed,document);
+      await refreshModelNotes(proposed);
       refreshAssociativeDimensions(proposed);
+      const priorFeatures=new Map(Object.values(document.features).map(f=>[f.output,f]));
       for(const feature of Object.values(proposed.features)){
         if(!validateFeatureParameters(feature))throw new Error(`Invalid feature parameters: ${feature.id}`);
+        if(feature.type==="drawing"&&["ellipse","elliptic-arc"].includes(String(feature.params.kind)))getWorldDrawingGeometry(proposed.objects[feature.output],feature);
         if(featureContract(feature).representation!=="brep")continue;
-        const prior=Object.values(document.features).find(f=>f.output===feature.output);
+        const prior=priorFeatures.get(feature.output);
         const currentObject=proposed.objects[feature.output],priorObject=document.objects[feature.output];
         if(prior&&priorObject&&JSON.stringify([prior.params,getObjectTransform(priorObject,prior)])===JSON.stringify([feature.params,getObjectTransform(currentObject,feature)]))continue;
         const measured=await measureDocumentObject(proposed,feature.output);
@@ -88,13 +102,22 @@ export async function prepareCadCommand(document:CadDocument, command:CadCommand
 export function publishCadProposal(prepared:PreparedCadCommand,documentBefore:CadDocument) {
   if(JSON.stringify(cadDocument)!==JSON.stringify(documentBefore))throw new Error("The document changed; preview the edit again.");
   if(!prepared.result.ok||!prepared.result.changed)return;
+  if(!prepared.proposed.componentLibrary)delete cadDocument.componentLibrary;
   if(!prepared.proposed.blocks)delete cadDocument.blocks;
   if(!prepared.proposed.variables)delete cadDocument.variables;
   if(!prepared.proposed.parameterBindings)delete cadDocument.parameterBindings;
+  if(!prepared.proposed.frameLinks)delete cadDocument.frameLinks;
+  if(!prepared.proposed.workspaceSections)delete cadDocument.workspaceSections;
   if(!prepared.proposed.artboards)delete cadDocument.artboards;
   if(!prepared.proposed.scenes)delete cadDocument.scenes;
+  if(!prepared.proposed.exchangeImports)delete cadDocument.exchangeImports;
+  if(!prepared.proposed.modelViews)delete cadDocument.modelViews;
+  if(!prepared.proposed.modelPresentation)delete cadDocument.modelPresentation;
+  if(!prepared.proposed.workPlanes)delete cadDocument.workPlanes;
   if(!prepared.proposed.rasterAssets)delete cadDocument.rasterAssets;
   Object.assign(cadDocument,structuredClone(prepared.proposed));
   cadHistory.pushSnapshot(prepared.result.label,structuredClone(documentBefore));
   notifyDocumentChanged();
 }
+
+

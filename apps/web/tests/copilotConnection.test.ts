@@ -79,3 +79,22 @@ test("Stream limits count UTF-8 bytes and preserve valid split multibyte summari
   await assert.rejects(requestCopilotPlan("/api",body,{...options,fetcher:async()=>new Response(refused,init)}));assert.equal(cancelled,true);assert.equal(refused.locked,false);
  }
 });
+
+test("Gateway requires the JSON media type rather than a matching substring",async()=>{
+ const body=copilotRequest("Circle",cadDocument,[],"XY"),options={signal:new AbortController().signal,baseUrl:"https://webcad.example"};
+ for(const mediaType of ["application/jsonp","text/application/json","application/json-extra"]){
+  await assert.rejects(requestCopilotPlan("/api",body,{...options,fetcher:async()=>new Response(JSON.stringify(response),{headers:{"Content-Type":mediaType}})}),/application\/json/);
+ }
+ const plan=await requestCopilotPlan("/api",body,{...options,fetcher:async()=>new Response(JSON.stringify(response),{headers:{"Content-Type":"Application/JSON; charset=utf-8"}})});
+ assert.equal(plan.command.type,"create-drawing");
+});
+
+test("Invalid or truncated UTF-8 never turns into a replacement-character plan",async()=>{
+ const body=copilotRequest("Circle",cadDocument,[],"XY"),options={signal:new AbortController().signal,baseUrl:"https://webcad.example"};
+ const json=JSON.stringify({...response,summary:["MARKER"]}),[prefix,suffix]=json.split("MARKER"),encoder=new TextEncoder();
+ for(const invalid of [[0xff],[0xe2,0x82]]){
+  const stream=new ReadableStream<Uint8Array>({start(c){c.enqueue(encoder.encode(prefix));c.enqueue(Uint8Array.from(invalid));c.enqueue(encoder.encode(suffix));c.close();}});
+  await assert.rejects(requestCopilotPlan("/api",body,{...options,fetcher:async()=>new Response(stream,{headers:{"Content-Type":"application/json"}})}),/UTF-8.*Plan again/);
+  assert.equal(stream.locked,false);
+ }
+});

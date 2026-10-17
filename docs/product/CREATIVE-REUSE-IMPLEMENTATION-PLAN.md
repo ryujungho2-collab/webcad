@@ -1,10 +1,12 @@
 # 공개 코드 재사용과 통합 제작 기능 구현
 
+> **문서 역할**: 후속 설계와 당시 결정 기록. 현재 사용법·지원 범위는 [이미지와 장면](../features/IMAGES-SCENES.md)에서 관리한다.
+
 2026-10-06. Photopea에서 재사용 가능한 것과 WebCAD에서 구현할 것을 기존 G0–G6 및 CAD B/X 계획에 연결한다. 라이브러리의 공개 기능, 실제 채택 상태, 제품 기능 완료를 구분한다. 이 문서가 재사용 판단과 연결 순서를 소유하고, 현재 구현·검수는 PROJECT-STATE가 소유한다.
 
 ## 가져올 수 있는 코드
 
-2026-10-09 실행 순서 변경: [1차 건축·기계 CAD / 2차 통합 제작 목표](ARCHITECTURE-MECHANICAL-MILESTONE.md)에 따라 이 문서의 새 제작 기능·LLM 확대는 2차 대기열이다. 기존 구현과 재사용 판단은 유지하며, 현재 CAD에 필요한 공통 기반은 재사용한다. 다음 구현은 NEXT-STEPS의 G6-A1이다.
+2026-10-17 정합성 기준: [1차 건축·기계 CAD / 2차 통합 제작 목표](ARCHITECTURE-MECHANICAL-MILESTONE.md)에 따라 새 제작 기능·LLM 확대는 2차 대기열이다. 기존 구현과 재사용 판단은 유지하며 CAD에 필요한 공통 기반은 재사용한다. 현재 실행은 [NEXT-STEPS](../../NEXT-STEPS.md#현재-실행-큐)의 **WF-Q1**이다. [B·X·G·I 분할](B-X-G-I-IMPLEMENTATION-ORDER-2026-10-11.md)과 아래 표의 순서는 당시 이력이며 최신 큐를 대신하지 않는다. 외부 라이선스·버전 후보는 당시 조사 기록으로, 이번에 재조회하거나 새 패키지를 채택하지 않았다.
 
 | 구성요소 | 확인한 근거 | 실제 활용과 현재 상태 | WebCAD가 별도로 해야 할 일 |
 | --- | --- | --- | --- |
@@ -27,7 +29,7 @@
 | 원본 교체·외부 편집 결과 인계 | 선택 placement만 새 asset 연결, 공유 원본 보존, 이전 원본 참조 해제, preview·Cancel·stale·한 Undo | 이번 `replace-image-source`; 이후 PSD/외부/AI 결과도 동일 명령 소비 |
 | 브러시·지우개·선택/마스크 | stroke·selection region·mask 자산, brush cursor, tile별 작업, preview/commit·색공간 | G3 후속 I2. SVG mask와 pixel mask를 같은 의미로 오인하지 않음 |
 | 필터·retouch·blend | effect parameters와 계산 Worker, 기존 source를 보존하는 결과, 순서·비용·손실 표시 | G3 후속 I3. 현재 brightness/contrast/saturation과 동일 interaction grammar |
-| 이미지 clipboard | permission·실패 복구, bitmap → 같은 decoder/asset → insertion/replacement | I4. 기존 CAD X6 clipboard와 공통 실행/대상 흐름을 공유하되 저장 의미를 구분 |
+| 이미지 clipboard | permission·실패 복구, bitmap → 같은 decoder/asset → insertion/replacement | I4. 기존 CAD X4 clipboard와 공통 실행/대상 흐름을 공유하되 저장 의미를 구분 |
 | PSD 레이어 import/export | parser adapter + canonical layer/image/text/style mapping, unsupported effect report | I5. 먼저 composite 왕복; 편집 가능한 레이어 전체 완료를 약속하지 않음 |
 | 일러스트·아이콘 | Bezier/node edit·compound path·gradient·text-to-path·style | CAD X2/Ellipse–Bezier–Spline과 G2 vector 후속. solver용 analytic geometry와 자유 path의 경계 명시 |
 | 피그마·와이어프레임·슬라이드 | Frame/Scene/Component override/state/link/layout/timeline | G4-A 검수, 원본 선택·유한 vector component, state/time preview·target state·SVG 출력 구현. override/variant·직접 layout handle·PPTX/GIF는 후속. geometry 원본 ID 공유 |

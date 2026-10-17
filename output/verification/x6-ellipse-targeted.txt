@@ -1,0 +1,15 @@
+✔ OCCT tilted cylinder returns analytic ellipse with independent axes, plane and cylinder residuals (2347.3178ms)
+✔ finite BRep ellipse arcs and cap line form a closed analytic boundary (50.8584ms)
+✔ rotated ellipse range crop solves analytic roots and retains exact finite domains on all section bases (0.4872ms)
+✔ ellipse Review/Apply, sheet scale, exact SVG/DXF, schema35 and Undo preserve axes and ownership (18.1474ms)
+✔ cropped elliptic arcs preserve finite endpoints in source notes and exact arc SVG/DXF (5.0557ms)
+✔ stale/locked edits reject atomically, source loss hides ellipse and notes, ambiguous crop requires rebind (22.1562ms)
+✔ architectural ellipse cut weights and labels export; hatch omission and unsupported background are explicit (95.4846ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3465.3541

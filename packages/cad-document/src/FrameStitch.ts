@@ -1,0 +1,22 @@
+import type {CadDocument,CadDrawingFrame} from "./CadDocument";
+export type StitchPoint=[number,number];
+export type StitchAlignment={source:[StitchPoint,StitchPoint];anchor:[StitchPoint,StitchPoint];sourceWitness?:StitchPoint;anchorWitness?:StitchPoint};
+export type StitchSeam={axis:"x"|"y";at:number;keep:"less"|"greater"};
+export type StitchTarget={frameId:string;alignment?:StitchAlignment;seam?:StitchSeam};
+export type CadFrameStitch={anchorId:string;mode:"model"|"points";tolerance:number;duplicates:"keep"|"first";parts:(StitchTarget&{sourceFrame:Omit<CadDrawingFrame,"stitch">;sourceSize:StitchPoint})[]};
+const record=(v:any)=>v&&typeof v==="object"&&!Array.isArray(v),vec=(v:any)=>Array.isArray(v)&&v.length===2&&v.every(Number.isFinite),name=(v:any)=>typeof v==="string"&&v.trim().length>0;
+export function validStitchSeam(v:unknown):v is StitchSeam {const s=v as StitchSeam;return !!record(s)&&["x","y"].includes(s.axis)&&Number.isFinite(s.at)&&["less","greater"].includes(s.keep);}
+export function validStitchAlignment(v:unknown):v is StitchAlignment{const a=v as StitchAlignment;return !!record(a)&&[a.source,a.anchor].every(p=>Array.isArray(p)&&p.length===2&&p.every(vec))&&(a.sourceWitness===undefined&&a.anchorWitness===undefined||vec(a.sourceWitness)&&vec(a.anchorWitness));}
+export function validStitchTarget(v:unknown):v is StitchTarget{const t=v as StitchTarget;return !!record(t)&&name(t.frameId)&&(t.alignment===undefined||validStitchAlignment(t.alignment))&&(t.seam===undefined||validStitchSeam(t.seam));}
+/** Stored references must describe a finite proper rigid alignment, including its witness. */
+function validRigidReferences(a:StitchAlignment,tolerance:number){
+ const [p,q]=a.source,[x,y]=a.anchor,u=[q[0]-p[0],q[1]-p[1]],v=[y[0]-x[0],y[1]-x[1]],l=Math.hypot(...u),r=Math.hypot(...v);
+ if(!Number.isFinite(l)||!Number.isFinite(r)||l<=tolerance||r<=tolerance||Math.abs(l-r)>tolerance)return false;
+ if(!a.sourceWitness)return true;
+ const z=a.sourceWitness,w=a.anchorWitness!,side=u[0]*(z[1]-p[1])-u[1]*(z[0]-p[0]),other=v[0]*(w[1]-x[1])-v[1]*(w[0]-x[0]);
+ if(Math.abs(side)/l<=tolerance||Math.abs(other)/r<=tolerance||Math.sign(side)!==Math.sign(other))return false;
+ const angle=Math.atan2(v[1],v[0])-Math.atan2(u[1],u[0]),c=Math.cos(angle),s=Math.sin(angle),dx=z[0]-p[0],dy=z[1]-p[1];
+ return Math.hypot(x[0]+c*dx-s*dy-w[0],x[1]+s*dx+c*dy-w[1])<=tolerance;
+}
+export function validFrameStitch(v:unknown):v is CadFrameStitch{const s=v as CadFrameStitch;return !!record(s)&&name(s.anchorId)&&["model","points"].includes(s.mode)&&Number.isFinite(s.tolerance)&&s.tolerance>=1e-6&&s.tolerance<=1&&["keep","first"].includes(s.duplicates)&&Array.isArray(s.parts)&&s.parts.length>=2&&s.parts.length<=16&&new Set(s.parts.map(p=>p.frameId)).size===s.parts.length&&s.parts[0].frameId===s.anchorId&&s.parts.every((p,i)=>validStitchTarget(p)&&record(p.sourceFrame)&&(p.sourceFrame as CadDrawingFrame).stitch===undefined&&Array.isArray(p.sourceFrame.memberIds)&&p.sourceFrame.memberIds.length<=1000&&p.sourceFrame.memberIds.every(name)&&new Set(p.sourceFrame.memberIds).size===p.sourceFrame.memberIds.length&&vec(p.sourceFrame.sourceOrigin)&&Number.isFinite(p.sourceFrame.denominator)&&p.sourceFrame.denominator>=.001&&p.sourceFrame.denominator<=1e6&&vec(p.sourceSize)&&p.sourceSize.every(v=>v>0)&&(i===0?p.alignment===undefined:s.mode==="points"?p.alignment!==undefined:p.alignment===undefined));}
+export function validateFrameStitches(d:CadDocument){for(const b of Object.values(d.artboards??{})){const s=b.frame?.stitch;if(s===undefined)continue;if(!validFrameStitch(s)||b.frameSheet)throw Error("Invalid continuous frame definition.");const seen=new Set<string>();for(const p of s.parts){const source=d.artboards?.[p.frameId];if(!source?.frame||source.frame.stitch||source.workPlane!==b.workPlane||source.id===b.id)throw Error("Invalid continuous frame source or cycle.");for(const id of p.sourceFrame.memberIds)seen.add(id);if(p.sourceFrame.denominator!==s.parts[0].sourceFrame.denominator)throw Error("Continuous frame sources require the same scale.");}if(b.frame!.denominator!==s.parts[0].sourceFrame.denominator||s.parts.some(p=>p.alignment&&!validRigidReferences(p.alignment,s.tolerance)))throw Error("Invalid continuous frame scale or rigid references.");if(seen.size!==b.frame!.memberIds.length||b.frame!.memberIds.some(id=>!seen.has(id)))throw Error("Continuous frame members must match its source snapshots.");}}

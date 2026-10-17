@@ -1,0 +1,25 @@
+{
+  "card": "UI-P2-C",
+  "date": "2026-10-16",
+  "status": "passed-supported-scope",
+  "node": {"passed": true, "checks": 31, "files": ["cacheBudget", "kernelWorkerClient", "projectActivity", "retainedOutputPerformance", "retainedSlab", "documentRecovery"]},
+  "typecheck": "passed",
+  "architecture": {"passed": true, "modules": 573},
+  "productionBuild": {"passed": true, "modules": 415, "existingLargeChunkWarning": true},
+  "browser": {"taskScope": 6, "projectPerformance": 22, "projectRecovery": 24, "projectManager": 30, "total": 82},
+  "r5": {
+    "report": "output/verification/ui-p2-c-r5-native-report.json",
+    "environment": "isolated Chromium / SwiftShader",
+    "projects": 2,
+    "partsPerProject": 56,
+    "warmSwitchSamples": 20,
+    "coldSceneMs": [9272.5, 8102],
+    "warmSwitchRangeMs": [196.5, 278.4],
+    "inactiveCacheAndGpuPayloadZero": true,
+    "resumedGpuUuidRecreated": true,
+    "undoSaveDxfCloseReopenReload": true
+  },
+  "limits": ["Accounted cache payload is not total process heap", "Active GPU, document and Undo have no new hard cap", "WASM telemetry is capacity, not live allocation", "Two-project bounded run, not an hours-long benchmark", "Kernel source/slab byte LRU remains P4"],
+  "runnerNotes": "An initial default-environment projectManager run timed out without a result; the isolated browser rerun with execution permissions passed all 30 checks. Final R5 also passed with browser execution permissions.",
+  "fullCadSuiteRerun": false
+}

@@ -1,3 +1,4 @@
+import {ellipsePoint,ellipseLength,ellipseArea} from "../precision/ellipseGeometry";
 import type { CadDocument } from "@agent-webcad/cad-document";
 import { drawingModelToWorld, getWorldDrawingGeometry } from "../precision/worldGeometry";
 import { WORK_PLANES, worldToPlane, type Vec3, type WorkPlaneId } from "../precision/workPlane";
@@ -41,6 +42,7 @@ export function describeSubObject(document: CadDocument, ref: TopologySelectionR
       if (!worldPoint) return null;
       return { title: "Vertex", plane, rows: positionRows(worldPoint) };
     }
+    if(world.ellipse&&["axis-u","axis-v","start","end"].includes(control.role)){const e=world.ellipse,axis=control.role==="axis-u"?e.axisU:e.axisV,point=control.role.startsWith("axis")?e.center.map((v,i)=>v+axis[i]) as Vec3:ellipsePoint(e,e.startParam+(control.role==="end"?e.sweep:0));return {title:control.role,plane,rows:[...positionRows(point),...(control.role.startsWith("axis")?[{label:"Semi-axis",value:formatLength(Math.hypot(...axis))}]:[])]};}
     if (control.role === "center" && world.center) {
       return { title: "Center", plane, rows: positionRows(world.center) };
     }
@@ -96,6 +98,7 @@ export function describeSubObject(document: CadDocument, ref: TopologySelectionR
   if (ref.kind === "drawing-curve") {
     const topology = params.topology as { curves?: TopologyCurve[] } | undefined;
     const curve = topology?.curves?.find((entry) => entry.id === ref.topologyId);
+    if(curve&&world.ellipse){const e=world.ellipse,area=ellipseArea(e);return {title:world.kind,plane,rows:[{label:"Length",value:formatLength(ellipseLength(e))},{label:"Parameter sweep",value:formatAngle(e.sweep)},...(area===undefined?[]:[{label:"Area",value:`${area.toFixed(2)} mm²`}])]};}
     if (!curve || world.radius === undefined) return null;
     if (curve.kind === "circle") {
       return { title: "Circumference", plane, rows: [{ label: "Radius", value: formatLength(world.radius) }] };

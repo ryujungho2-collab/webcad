@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-12",
+  "phase": "P0/P1 corrections",
+  "parts": 56,
+  "views": 7,
+  "pages": 5,
+  "metrics": [
+    {
+      "label": "annotation edit without kernel recomputation",
+      "ms": 46,
+      "sectionTasks": 0,
+      "projectionTasks": 0
+    },
+    {
+      "label": "cold five-view sheet Review",
+      "ms": 6558,
+      "sectionTasks": 164,
+      "projectionTasks": 0
+    },
+    {
+      "label": "warm five-view sheet Review",
+      "ms": 551,
+      "sectionTasks": 0,
+      "projectionTasks": 0
+    },
+    {
+      "label": "five-view sheet Apply",
+      "ms": 550,
+      "sectionTasks": 0,
+      "projectionTasks": 0
+    },
+    {
+      "label": "elevation-front",
+      "ms": 1736,
+      "sectionTasks": 0,
+      "projectionTasks": 1
+    },
+    {
+      "label": "elevation-right",
+      "ms": 1662,
+      "sectionTasks": 0,
+      "projectionTasks": 1
+    },
+    {
+      "label": "seven-view sheet Apply",
+      "ms": 7398,
+      "sectionTasks": 0,
+      "projectionTasks": 0
+    }
+  ],
+  "projectionOutputs": {
+    "elevation-front": {
+      "edges": 768,
+      "hidden": 679
+    },
+    "elevation-right": {
+      "edges": 569,
+      "hidden": 505
+    }
+  },
+  "limits": [
+    "Line/circle/arc HLR; unsupported ellipse/spline rejects atomically.",
+    "Cut-only architectural plans and hatch remain G6-D4-H1 work.",
+    "Legacy simple primitive projections keep prior outlines; explicit HLR selection adds assembly occlusion.",
+    "Node timings exclude browser/GPU and output file I/O."
+  ]
+}

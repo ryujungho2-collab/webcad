@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-10",
+  "scope": "CAD B0-B5 supplement review; read-only code inspection and isolated execution reproductions",
+  "fullNodeSuiteRerun": false,
+  "browserSuiteRerun": false,
+  "reproductions": {
+    "largeCoordinateLineCircle": {
+      "line": [
+        [
+          0,
+          0
+        ],
+        [
+          1000000000.0,
+          0
+        ]
+      ],
+      "center": [
+        500000000.0,
+        0
+      ],
+      "radius": 5,
+      "snapX": [
+        499999993.925999,
+        500000006.07400095
+      ],
+      "referenceX": [
+        499999995,
+        500000005
+      ],
+      "approxRadiusResidualMm": 1.074
+    },
+    "nearTangentCirclePair": {
+      "radii": [
+        5,
+        5
+      ],
+      "centerDistance": 10.00000001,
+      "snapRoots": 0,
+      "constructionStatus": "tangent"
+    },
+    "dimensionOutput": {
+      "style": {
+        "textHeight": 6,
+        "paperScale": 2
+      },
+      "scale": "1:1",
+      "activePlaneSvgTextHeight": 12,
+      "pdfPlanTextHeightMm": 3.5,
+      "artboardItems": "rejected: dimensions are not included in artboard image output yet"
+    }
+  },
+  "proposedSupplementCards": [
+    "B3-G1",
+    "B3-D3",
+    "B0-C1",
+    "B1-E2",
+    "B2-F2",
+    "B2-C2",
+    "B3-A4"
+  ],
+  "featureImplementationChanges": false
+}

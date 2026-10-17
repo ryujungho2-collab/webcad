@@ -1,7 +1,7 @@
 import { planeToWorld, WORK_PLANES, type Vec3, type WorkPlaneId } from "./workPlane";
 import { formatLength } from "./units";
 import { dimensionArrowhead as arrowhead } from "./dimensionSymbols";
-import { validAngularParams } from "@agent-webcad/cad-document";
+import { validAngularParams, validDimensionStyle, type CadDimensionStyle } from "@agent-webcad/cad-document";
 import { resolveAngularDimension } from "./angularDimension";
 
 export type DimensionOrientation = "aligned" | "horizontal" | "vertical";
@@ -16,12 +16,24 @@ export type DimensionRender = {
   /** Measured value in `unit`; angular measurements use radians, lengths mm. */
   value: number;
   unit: "mm" | "rad";
+  textHeight: number;
 };
 
 const EXTENSION_OVERSHOOT = 2;
 const TEXT_GAP = 2.5;
 const DEFAULT_OFFSET = 10;
 const DEFAULT_LEADER_ANGLE = 45;
+
+export function dimensionStyle(params: Record<string, unknown>): CadDimensionStyle {
+  return validDimensionStyle(params.style) ? params.style : {};
+}
+
+function scaleOf(style: CadDimensionStyle) { return style.paperScale ?? 1; }
+function labelLength(value: number, style: CadDimensionStyle) { return formatLength(value, style.lengthUnit ?? "mm", style.precision ?? 2); }
+function labelAngle(radians: number, style: CadDimensionStyle) {
+  const value = style.angleUnit === "rad" ? radians : radians * 180 / Math.PI;
+  return `${value.toFixed(style.precision ?? 2)}${style.angleUnit === "rad" ? " rad" : "°"}`;
+}
 
 type V2 = [number, number];
 
@@ -51,7 +63,9 @@ function resolveLinear(params: Record<string, unknown>): DimensionRender | null 
   const offset = params.offset === undefined ? DEFAULT_OFFSET : Number(params.offset);
   if (!Number.isFinite(offset)) return null;
   const plane = workPlaneOf(params);
+  const style = dimensionStyle(params), paperScale = scaleOf(style);
   const symbolScale = Number(params.symbolScale ?? 1);
+  const arrowScale = (style.arrowSize ?? 3) / 3 * paperScale * symbolScale;
 
   const axis: V2 | null = orientation === "horizontal" ? [1, 0] : orientation === "vertical" ? [0, 1]
     : (() => {
@@ -71,23 +85,24 @@ function resolveLinear(params: Record<string, unknown>): DimensionRender | null 
   const project = (point: V2): V2 => add(point, scale(normal, base - dot(point, normal)));
   const q1 = project(p1);
   const q2 = project(p2);
-  const overshoot = (point: V2): V2 => add(point, scale(normal, Math.sign(offset || 1) * EXTENSION_OVERSHOOT * symbolScale));
+  const overshoot = (point: V2): V2 => add(point, scale(normal, Math.sign(offset || 1) * EXTENSION_OVERSHOOT * paperScale * symbolScale));
 
   const segments2d: [V2, V2][] = [
     [q1, q2],
     [p1, overshoot(q1)],
     [p2, overshoot(q2)],
-    ...arrowhead(q1, axis, symbolScale),
-    ...arrowhead(q2, scale(axis, -1), symbolScale),
+    ...arrowhead(q1, axis, arrowScale),
+    ...arrowhead(q2, scale(axis, -1), arrowScale),
   ];
   const mid = scale(add(q1, q2), 0.5);
-  const textAnchor = add(mid, scale(normal, Math.sign(offset || 1) * TEXT_GAP * symbolScale));
+  const textAnchor = add(mid, scale(normal, Math.sign(offset || 1) * (style.textGap ?? TEXT_GAP) * paperScale * symbolScale));
   return {
     segments: segments2d.map(([a, b]) => [toWorld(plane, a), toWorld(plane, b)]),
-    text: overrideText(params) ?? formatLength(value),
+    text: overrideText(params) ?? labelLength(value*Number(params.modelMeasurementScale??1), style),
     textPosition: toWorld(plane, textAnchor),
-    value,
+    value:value*Number(params.modelMeasurementScale??1),
     unit: "mm",
+    textHeight: (style.textHeight ?? 4) * paperScale * symbolScale,
   };
 }
 
@@ -99,24 +114,26 @@ function resolveRadius(params: Record<string, unknown>): DimensionRender | null 
   const angle = ((params.angle === undefined ? DEFAULT_LEADER_ANGLE : Number(params.angle)) * Math.PI) / 180;
   if (!Number.isFinite(angle)) return null;
   const plane = workPlaneOf(params);
+  const style = dimensionStyle(params), paperScale = scaleOf(style), arrowScale = (style.arrowSize ?? 3) / 3 * paperScale;
   const direction: V2 = [Math.cos(angle), Math.sin(angle)];
   const c: V2 = [center[0], center[1]];
   const rim = add(c, scale(direction, radius));
-  const tail = add(rim, scale(direction, 10));
+  const tail = add(rim, scale(direction, 10 * paperScale));
   const diameter=params.kind==="diameter",opposite=add(c,scale(direction,-radius));
 
   const segments2d: [V2, V2][] = [
     [diameter?opposite:c, tail],
-    ...arrowhead(rim, scale(direction, diameter?1:-1)),
-    ...(diameter?arrowhead(opposite,scale(direction,-1)):[]),
+    ...arrowhead(rim, scale(direction, diameter?1:-1), arrowScale),
+    ...(diameter?arrowhead(opposite,scale(direction,-1),arrowScale):[]),
   ];
-  const textAnchor = add(tail, scale(direction, TEXT_GAP));
+  const textAnchor = add(tail, scale(direction, (style.textGap ?? TEXT_GAP) * paperScale));
   return {
     segments: segments2d.map(([a, b]) => [toWorld(plane, a), toWorld(plane, b)]),
-    text: overrideText(params) ?? `${diameter?"Ø":"R"} ${formatLength(diameter?2*radius:radius)}`,
+    text: overrideText(params) ?? `${diameter?"Ø":"R"} ${labelLength((diameter?2*radius:radius)*Number(params.modelMeasurementScale??1),style)}`,
     textPosition: toWorld(plane, textAnchor),
-    value: diameter?2*radius:radius,
+    value: (diameter?2*radius:radius)*Number(params.modelMeasurementScale??1),
     unit: "mm",
+    textHeight: (style.textHeight ?? 4) * paperScale,
   };
 }
 
@@ -127,12 +144,14 @@ function resolveRadius(params: Record<string, unknown>): DimensionRender | null 
  * validator rejects those before they reach the document).
  */
 export function resolveDimension(params: Record<string, unknown>): DimensionRender | null {
+  if(params.modelDrawingReference&&params.referenceStatus!=="resolved")return null;
   if (params.kind === "angular") {
     if (!validAngularParams(params)) return null;
-    const result = resolveAngularDimension(params.lines[0], params.lines[1], params.branch, { radius: params.radius, text: params.text ?? undefined });
+    const style = dimensionStyle(params), paperScale = scaleOf(style);
+    const result = resolveAngularDimension(params.lines[0], params.lines[1], params.branch, { radius: params.radius, text: params.text ?? undefined, symbolScale: (style.arrowSize ?? 3) / 3 * paperScale, textGap: (style.textGap ?? TEXT_GAP) * paperScale });
     if (!result.ok) return null;
     const g = result.geometry;
-    return { segments: g.segments, text: g.text, textPosition: g.textPosition, value: g.measurement.angleRadians, unit: "rad" };
+    return { segments: g.segments, text: overrideText(params) ?? labelAngle(g.measurement.angleRadians, style), textPosition: g.textPosition, value: g.measurement.angleRadians, unit: "rad", textHeight: (style.textHeight ?? 4) * paperScale };
   }
   if (params.kind === "linear") return resolveLinear(params);
   if (params.kind === "radius" || params.kind === "diameter") return resolveRadius(params);

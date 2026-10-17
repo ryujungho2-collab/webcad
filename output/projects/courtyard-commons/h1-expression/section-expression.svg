@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -297 210 297" stroke="black" stroke-width="0.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<defs><clipPath id="artboard-crop"><rect x="0" y="-297" width="210" height="297" /></clipPath></defs>
+<g clip-path="url(#artboard-crop)">
+<rect x="0" y="-297" width="210" height="297" fill="#ffffff" stroke="none" />
+<text x="5" y="-5" font-family="system-ui, sans-serif" font-size="3.5" fill="#4f8cff" stroke="none">Architectural plan · 1:1</text>
+<polyline points="35,-70 35,-50" stroke="#4f8cff" stroke-width="0.5" />
+<polyline points="35,-50 59,-50" stroke="#4f8cff" stroke-width="0.5" />
+<polyline points="35,-70 59,-70" stroke="#4f8cff" stroke-width="0.5" />
+<polyline points="39,-66 39,-54" stroke="#4f8cff" stroke-width="0.5" />
+<polyline points="39,-54 55,-54" stroke="#4f8cff" stroke-width="0.5" />
+<polyline points="39,-66 55,-66" stroke="#4f8cff" stroke-width="0.5" />
+<polyline points="55,-66 55,-54" stroke="#4f8cff" stroke-width="0.5" />
+<polyline points="59,-70 59,-50" stroke="#4f8cff" stroke-width="0.5" />
+<polyline points="43,-56 43,-60" stroke="#4f8cff" stroke-width="0.18" />
+<polyline points="43,-56 45,-56" stroke="#4f8cff" stroke-width="0.18" />
+<polyline points="43,-60 45,-60" stroke="#4f8cff" stroke-width="0.18" />
+<polyline points="45,-56 45,-60" stroke="#4f8cff" stroke-width="0.18" />
+<polyline points="57.627,-50 59,-51.373" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="54.799,-50 59,-54.201" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="51.971,-50 59,-57.029" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="49.142,-50 53.142,-54" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="55,-55.858 59,-59.858" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="46.314,-50 50.314,-54" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="55,-58.686 59,-62.686" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="43.485,-50 47.485,-54" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="55,-61.515 59,-65.515" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="40.657,-50 44.657,-54" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="55,-64.343 59,-68.343" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="37.828,-50 41.828,-54" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="53.828,-66 57.828,-70" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="35,-50 39,-54" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="51,-66 55,-70" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="35,-52.828 39,-56.828" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="48.172,-66 52.172,-70" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="35,-55.657 39,-59.657" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="45.343,-66 49.343,-70" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="35,-58.485 39,-62.485" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="42.515,-66 46.515,-70" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="35,-61.314 39,-65.314" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="39.686,-66 43.686,-70" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="35,-64.142 40.858,-70" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="35,-66.971 38.029,-70" stroke="#4f8cff" stroke-width="0.13" />
+<polyline points="35,-69.799 35.201,-70" stroke="#4f8cff" stroke-width="0.13" />
+<text x="35" y="-43" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">Ground plan · 1:1</text>
+</g>
+</svg>

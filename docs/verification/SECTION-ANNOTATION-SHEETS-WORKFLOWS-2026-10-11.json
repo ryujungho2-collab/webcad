@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-11",
+  "scope": [
+    "X6-D1",
+    "X6-D2",
+    "G6-D4",
+    "X7-A/E",
+    "G6-D5",
+    "G6-D6 bounded examples"
+  ],
+  "node": {
+    "tests": 1039,
+    "suites": 54,
+    "passed": 1039,
+    "failed": 0,
+    "skipped": 0
+  },
+  "typecheck": "passed",
+  "architecture": {
+    "modules": 469,
+    "status": "passed"
+  },
+  "productionBuild": "passed; existing chunk size warning",
+  "browser": {
+    "status": "passed",
+    "workflows": 11,
+    "checks": 266,
+    "pages": {
+      "modelDrawing": 32,
+      "modelPresentation": 24,
+      "modelViews": 24,
+      "numericPilot": 21,
+      "diameterWorkflow": 17,
+      "angularWorkflow": 24,
+      "artboardsWorkflow": 31,
+      "artboardPdfWorkflow": 21,
+      "dxfWorkflow": 18,
+      "basicEditWorkflow": 31,
+      "historySelection": 23
+    },
+    "fullBrowserSuite": false,
+    "driver": "Isolated native browser/CDP; actual App and Worker; sequential runs"
+  },
+  "boundaries": [
+    "Principal XY/XZ/YZ cutting planes; uncapped display clipping",
+    "Exact BRep line/circle/arc sections; ellipse/spline reject",
+    "Conservative correspondence failure requires explicit rebind",
+    "Manual paper layout; model mm dimensions and paper mm glyphs",
+    "DXF associations/dimension semantics flatten; fonts may differ; paper bounds reject",
+    "Three-part mechanical and one-floor Boolean architectural examples; general HLR/BIM/performance pending"
+  ],
+  "failuresAndRepairs": [
+    "STEP byte oracle corrected to geometric DATA excluding header time and translator counter",
+    "Native source tree expansion and source visibility corrected",
+    "Numeric source edits now await parameter commit",
+    "Native test report overlay intercepted File PDF click; bounded report height and disabled pointer interception; product menu unchanged"
+  ],
+  "stepEvidence": "Worker geometric DATA unchanged after clipping, metadata excluded; original operands unchanged",
+  "pdfEvidence": {
+    "tool": "pdfinfo + pdftoppm; visually inspected both rendered pages",
+    "initial": {
+      "pages": 1,
+      "bytes": 17604
+    },
+    "final": {
+      "pages": 2,
+      "bytes": 31355,
+      "sizePoints": [
+        595.276,
+        841.89
+      ],
+      "format": "PDF 1.4"
+    },
+    "visual": "Page 1: separate top outlines, section, diameter25 dimension and SHAFT25 leader; page2: wall ring and wider opening. Correct title/scale and ownership separation."
+  },
+  "artifacts": [
+    "output/pdf/model-sheet.pdf",
+    "output/pdf/two-workflows.pdf",
+    "output/pdf/mechanical-sheet.svg",
+    "output/pdf/architectural-sheet.svg",
+    "output/pdf/mechanical-sheet.dxf",
+    "output/pdf/architectural-sheet.dxf",
+    "output/pdf/two-workflows-1.png",
+    "output/pdf/two-workflows-2.png"
+  ],
+  "status": "complete within declared first support boundary",
+  "newNodeCoverage": {
+    "modelDrawing": 12,
+    "sectionKernel": 1,
+    "total": 13
+  },
+  "repairs": [
+    "Separated Worker/kernel service from pure section geometry to satisfy architecture",
+    "Locked unchanged section outputs no longer block unrelated edits",
+    "Sheet-owned exports isolate overlapping artboard content in both dedicated and generic pipelines",
+    "Duplicate sheet artboard ownership and direct owned placement/scale mutation reject atomically",
+    "Source-linked dimensions preserve model mm across paper scaling and hide unresolved references"
+  ],
+  "diffCheck": "passed; existing LF/CRLF warnings only"
+}

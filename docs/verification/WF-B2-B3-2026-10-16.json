@@ -1,0 +1,40 @@
+{
+  "architecture": {
+    "status": "passed",
+    "modules": 584
+  },
+  "native": {
+    "architectureWall": 14,
+    "modelDrawing": 32,
+    "floorTasks": 18
+  },
+  "date": "2026-10-16",
+  "limitations": [
+    "Independent butt ends, no automatic miter/fusion/T joints",
+    "Rectangular through openings on straight centerline / rectangular footprint hosts only",
+    "No cursor face/offset pick; along is explicit center distance from source start",
+    "Lost annotation correspondence requires explicit repair; view/output locks preserved",
+    "No wall-network scale performance claim"
+  ],
+  "build": {
+    "modules": 423,
+    "note": "Existing >500kB chunk warning remains.",
+    "status": "passed"
+  },
+  "typecheck": "passed",
+  "scope": "WF-B2 / WF-B3 supported straight-host workflow",
+  "node": {
+    "wall": {
+      "tests": 9,
+      "note": "Full run contains first seven wall tests; targeted final run additionally validates rotated source and malformed v41.",
+      "passed": 9
+    },
+    "full": {
+      "tests": 1263,
+      "failed": 0,
+      "suites": 54,
+      "log": "output/verification/wf-b2-b3-node-final.log",
+      "durationMs": 103134.1419
+    }
+  }
+}

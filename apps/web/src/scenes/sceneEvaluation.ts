@@ -10,7 +10,7 @@ function finiteComponent(document:CadDocument,id:string,plane:WorkPlaneId,path=n
  return block.members.every(m=>m.type==="drawing"?!["point","infinite-line","ray"].includes(String(m.params.kind)):m.params.kind==="block"&&finiteComponent(document,String(m.params.blockId),plane,next));
 }
 
-export type SceneFrame={objectId:string;x:number;y:number;width:number;height:number;items:SvgExportItem[]};
+export type SceneFrame={objectId:string;x:number;y:number;width:number;height:number;items:Exclude<SvgExportItem,{type:"text"}>[]};
 export function evaluateScene(document:CadDocument,scene:CadScene,timeMs=0,stateId?:string){
  if(!validScene(scene)||!Number.isFinite(timeMs))throw new Error("Enter valid scene inputs and a finite playback time.");
  const board=document.artboards?.[scene.artboardId];if(!board)throw new Error("Choose an existing artboard for this scene.");
@@ -21,7 +21,7 @@ export function evaluateScene(document:CadDocument,scene:CadScene,timeMs=0,state
  let cursor=0;const frames:SceneFrame[]=[];
  for(const objectId of scene.objectIds){
   const object=document.objects[objectId];if(!object)throw new Error(`Missing scene object ${objectId}. Reassign its reference.`);
-  const items:SvgExportItem[]=[...drawings.filter(d=>d.objectId===objectId).map(polyline=>({type:"polyline" as const,polyline})),...images.filter(i=>i.id===objectId).map(image=>({type:"image" as const,image}))];
+  const items:Exclude<SvgExportItem,{type:"text"}>[]=[...drawings.filter(d=>d.objectId===objectId).map(polyline=>({type:"polyline" as const,polyline})),...images.filter(i=>i.id===objectId).map(image=>({type:"image" as const,image}))];
   if(!object.visible||document.layers[object.layerId]?.visible===false||state?.hiddenObjectIds.includes(objectId))continue;
   const feature=Object.values(document.features).find(f=>f.output===objectId);
   if(feature?.type==="drafting"&&feature.params.kind==="block"){
@@ -43,7 +43,7 @@ export function evaluateScene(document:CadDocument,scene:CadScene,timeMs=0,state
   }
   const track=scene.tracks.find(t=>t.objectId===objectId);
   if(track){let t=Math.min(1,Math.max(0,(timeMs-track.startMs)/(track.endMs-track.startMs)));if(track.easing==="ease-in-out")t=t*t*(3-2*t);dx+=track.from[0]+(track.to[0]-track.from[0])*t;dy+=track.from[1]+(track.to[1]-track.from[1])*t;opacity=track.from[2]+(track.to[2]-track.from[2])*t;}
-  const moved=items.map((item):SvgExportItem=>item.type==="image"?{type:"image",image:{...item.image,center:[item.image.center[0]+dx,item.image.center[1]+dy],opacity:(item.image.opacity??1)*opacity}}:{type:"polyline",polyline:{...item.polyline,points:item.polyline.points.map(p=>[p[0]+dx,p[1]+dy]),opacity:(item.polyline.opacity??1)*opacity}});
+  const moved=items.map((item):Exclude<SvgExportItem,{type:"text"}>=>item.type==="image"?{type:"image",image:{...item.image,center:[item.image.center[0]+dx,item.image.center[1]+dy],opacity:(item.image.opacity??1)*opacity}}:{type:"polyline",polyline:{...item.polyline,points:item.polyline.points.map(p=>[p[0]+dx,p[1]+dy]),opacity:(item.polyline.opacity??1)*opacity}});
   frames.push({objectId,x:minX+dx,y:maxY+dy,width,height,items:moved});
  }
  return {board,frames,svg:encodeSvg([],{items:frames.flatMap(f=>f.items),viewBox:{origin:board.origin,size:board.size},background:board.background})};

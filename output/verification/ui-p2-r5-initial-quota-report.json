@@ -1,0 +1,20 @@
+{
+  "status": "failed",
+  "checks": 0,
+  "message": "PASS: Both independent R5 projects render all 56 real model parts\nPASS: Inactive R5 runs zero scheduled viewport/tool callbacks during observation\nPASS: Active R5 continues rendering\nPASS: Metadata edit remains session-local while inactive\nPASS: Each mounted R5 keeps its independent Undo\nPASS: Each R5 saves and exports a portable complete document\nPASS: Each R5 exports its associative projection with no skipped output\nPASS: Metadata edit remains session-local while inactive\nPASS: Each mounted R5 keeps its independent Undo\nFAIL: QuotaExceededError: Failed to execute 'setItem' on 'Storage': Setting the value of 'agent-webcad-project:r5-b:agent-webcad-working-document-backup' exceeded the quota.",
+  "metrics": {
+    "fixture": "R5: 56 parts, 14 views, 10 sheets per project",
+    "coldSceneMs": [
+      18117.600000000093,
+      15989.699999999953
+    ],
+    "warmSwitchMs": [
+      175.69999999995343,
+      199.40000000002328,
+      179.30000000004657,
+      190.09999999997672
+    ],
+    "environment": "isolated Chromium / SwiftShader",
+    "samples": 4
+  }
+}

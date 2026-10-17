@@ -1,0 +1,28 @@
+import type {CadDocument,CadArtboard,CadFrameStitch,StitchPoint,StitchAlignment} from "@agent-webcad/cad-document";
+import {validFrameStitch} from "@agent-webcad/cad-document";
+import {assertFrameMembers,frameSourceMapping} from "./drawingFrame";
+import {frameLinkView} from "./frameLinks";
+import {cross,clipHalfPlane,intersectConvex,polygonArea,polygonDistance} from "./convexClip";
+export type StitchTransform={rotation:number;translation:StitchPoint;error:number};
+export const rigidPoint=(p:StitchPoint,t:StitchTransform):StitchPoint=>[Math.cos(t.rotation)*p[0]-Math.sin(t.rotation)*p[1]+t.translation[0],Math.sin(t.rotation)*p[0]+Math.cos(t.rotation)*p[1]+t.translation[1]];
+export function solveStitchAlignment(a:StitchAlignment,tolerance:number):StitchTransform{
+ const [p,q]=a.source,[x,y]=a.anchor,u:[number,number]=[q[0]-p[0],q[1]-p[1]],v:[number,number]=[y[0]-x[0],y[1]-x[1]],l=Math.hypot(...u),r=Math.hypot(...v);
+ if(l<=tolerance||r<=tolerance)throw Error("Choose two distinct ordered reference points; coincident points have no unique alignment.");if(Math.abs(l-r)>tolerance)throw Error(`Reference distances differ by ${Math.abs(l-r).toFixed(6)} mm. Continuous frames cannot change scale.`);
+ const angle=Math.atan2(v[1],v[0])-Math.atan2(u[1],u[0]),rotation=Math.atan2(Math.sin(angle),Math.cos(angle)),t:StitchTransform={rotation,translation:[x[0]-Math.cos(rotation)*p[0]+Math.sin(rotation)*p[1],x[1]-Math.sin(rotation)*p[0]-Math.cos(rotation)*p[1]],error:0};
+ const errors=a.source.map((p,i)=>{const z=rigidPoint(p,t);return Math.hypot(z[0]-a.anchor[i][0],z[1]-a.anchor[i][1]);});
+ if(a.sourceWitness&&a.anchorWitness){const first=cross(p,q,a.sourceWitness),second=cross(x,y,a.anchorWitness);if(Math.abs(first)/l<=tolerance||Math.abs(second)/r<=tolerance)throw Error("Orientation witness is collinear; choose a point on a definite side.");if(first*second<0)throw Error("Mirrored reference orientation is unsupported; reflection is not a rigid rotation.");const z=rigidPoint(a.sourceWitness,t);errors.push(Math.hypot(z[0]-a.anchorWitness[0],z[1]-a.anchorWitness[1]));}
+ t.error=Math.max(...errors);if(t.error>tolerance)throw Error(`Reference residual ${t.error.toFixed(6)} mm exceeds tolerance.`);return t;
+}
+export type FrameStitchReport={parts:{frameId:string;transform:StitchTransform;polygon:StitchPoint[]}[];bounds:{min:StitchPoint;size:StitchPoint};pairs:{fromId:string;toId:string;overlapArea:number;gap:number}[];error:number;duplicateCount?:number};
+export function resolveFrameStitch(d:CadDocument,s:CadFrameStitch):FrameStitchReport{
+ if(!validFrameStitch(s))throw Error("Invalid continuous frame definition.");
+ const sourceBoards=s.parts.map(p=>{const b=d.artboards?.[p.frameId];if(!b?.frame||b.frame.stitch)throw Error("Choose original drawing frames; nested continuous frames are unsupported.");if(b.frame.denominator!==s.parts[0].sourceFrame.denominator)throw Error("Continuous frames require the same source scale.");if(JSON.stringify([b.frame.memberIds,b.frame.sourceOrigin,b.frame.denominator,b.size])!==JSON.stringify([p.sourceFrame.memberIds,p.sourceFrame.sourceOrigin,p.sourceFrame.denominator,p.sourceSize]))throw Error("Continuous frame source crop/scale/members changed; Review the stitch again.");assertFrameMembers(d,b.frame.memberIds,b.workPlane);frameSourceMapping(d,b.frame.memberIds);return b;});
+ if(new Set(sourceBoards.map(b=>b.workPlane)).size!==1)throw Error("Continuous frames require the same presentation plane.");
+ const views=sourceBoards.map(b=>frameLinkView(d,b)?.id??"");if(new Set(views).size>1)throw Error("Different model projections belong in Frame connections, not a continuous drawing. Use one source view or independent 2D drawings.");
+ const roles=new Set(Object.values(d.frameLinks??{}).filter(l=>l.reference.kind==="orthographic").flatMap(l=>l.reference.kind!=="orthographic"?[]:[...s.parts.some(p=>p.frameId===l.fromId)?[l.reference.fromView]:[],...s.parts.some(p=>p.frameId===l.toId)?[l.reference.toView]:[]]));if(roles.size>1)throw Error("Different orthographic roles cannot be stitched into one continuous drawing.");
+ const parts=s.parts.map((p,i)=>{const t=s.mode==="points"&&i>0?solveStitchAlignment(p.alignment!,s.tolerance):{rotation:0,translation:[0,0] as StitchPoint,error:0},f=p.sourceFrame,[x,y]=f.sourceOrigin,w=p.sourceSize[0]*f.denominator,h=p.sourceSize[1]*f.denominator;let polygon=([[x,y],[x+w,y],[x+w,y+h],[x,y+h]] as StitchPoint[]).map(q=>rigidPoint(q,t));if(p.seam){const axis=p.seam.axis==="x"?0:1,sign=p.seam.keep==="less"?-1:1;polygon=clipHalfPlane(polygon,q=>sign*(q[axis]-p.seam!.at));}if(polygon.length<3||polygonArea(polygon)<=s.tolerance*s.tolerance)throw Error(`Seam removes all of frame ${sourceBoards[i].name}; change the seam or remove the frame.`);return {frameId:p.frameId,transform:t,polygon};});
+ const points=parts.flatMap(p=>p.polygon),min:StitchPoint=[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1]))],size:StitchPoint=[Math.max(...points.map(p=>p[0]))-min[0],Math.max(...points.map(p=>p[1]))-min[1]],pairs:FrameStitchReport["pairs"]=[];
+ for(let i=0;i<parts.length;i++)for(let j=i+1;j<parts.length;j++){const a=parts[i],b=parts[j];pairs.push({fromId:a.frameId,toId:b.frameId,overlapArea:polygonArea(intersectConvex(a.polygon,b.polygon)),gap:polygonDistance(a.polygon,b.polygon)});}
+ return {parts,bounds:{min,size},pairs,error:Math.max(...parts.map(p=>p.transform.error))};
+}
+export function stitchSourceSnapshot(board:CadArtboard){if(!board.frame||board.frame.stitch)throw Error("Choose an original drawing frame.");return {sourceFrame:structuredClone(board.frame),sourceSize:[...board.size] as StitchPoint};}

@@ -73,7 +73,7 @@ export function validateCopilotResponse(value:unknown,edit?:CopilotMoveContract)
   const ghosts:CopilotGhost[]=(command.type==="batch"?command.commands:[command]).map((entry,index):CopilotGhost|null=>{
     if(entry.type==="move-object")return null;
     if(entry.type==="create-primitive")return {kind:"primitive",key:`gateway-${index}`,primitive:entry.primitive,params:entry.params,position:entry.position??[0,0,0]};
-    if(entry.type==="create-drawing"&&entry.drawing!=="point"&&entry.drawing!=="infinite-line"&&entry.drawing!=="ray")return {kind:"drawing",key:`gateway-${index}`,drawing:entry.drawing,params:{...entry.params,kind:entry.drawing}};
+    if(entry.type==="create-drawing"&&entry.drawing!=="point"&&entry.drawing!=="infinite-line"&&entry.drawing!=="ray"&&entry.drawing!=="ellipse"&&entry.drawing!=="elliptic-arc"&&entry.drawing!=="spline")return {kind:"drawing",key:`gateway-${index}`,drawing:entry.drawing,params:{...entry.params,kind:entry.drawing}};
     throw new Error(`Gateway command ${entry.type} is outside the current creation capabilities. Use manual editing for this operation.`);
   }).filter((ghost):ghost is CopilotGhost=>ghost!==null);
   // Ignore any server-supplied ghost/HTML/script fields: preview derives only from validated commands.
@@ -99,12 +99,16 @@ export async function requestCopilotPlan(endpoint:string,body:ReturnType<typeof 
     response=await Promise.race([fetching,aborted]);
     controller.signal.throwIfAborted();
     if(!response.ok)throw new Error(`Gateway returned HTTP ${response.status}. Check its configuration and Plan again.`);
-    if(!response.headers.get("content-type")?.includes("application/json"))throw new Error("Gateway must return application/json.");
+    if(response.headers.get("content-type")?.split(";",1)[0].trim().toLowerCase()!=="application/json")throw new Error("Gateway must return application/json.");
     if(Number(response.headers.get("content-length"))>MAX_BYTES)throw new Error("Gateway plan exceeds 64 KiB. Ask for a smaller operation.");
     if(!response.body)throw new Error("Gateway returned an empty response.");
-    reader=response.body.getReader();let size=0,text="";const decoder=new TextDecoder();
-    while(true){const chunk=await Promise.race([reader.read(),aborted]);controller.signal.throwIfAborted();if(chunk.done)break;size+=chunk.value.byteLength;if(size>MAX_BYTES)throw new Error("Gateway plan exceeds 64 KiB. Ask for a smaller operation.");text+=decoder.decode(chunk.value,{stream:true});}
-    text+=decoder.decode();
+    reader=response.body.getReader();let size=0,text="";const decoder=new TextDecoder("utf-8",{fatal:true});
+    const decode=(bytes?:Uint8Array)=>{
+      try{return bytes?decoder.decode(bytes,{stream:true}):decoder.decode();}
+      catch{throw new Error("Gateway returned invalid UTF-8. Correct the response and Plan again.");}
+    };
+    while(true){const chunk=await Promise.race([reader.read(),aborted]);controller.signal.throwIfAborted();if(chunk.done)break;size+=chunk.value.byteLength;if(size>MAX_BYTES)throw new Error("Gateway plan exceeds 64 KiB. Ask for a smaller operation.");text+=decode(chunk.value);}
+    text+=decode();
     let value:unknown;try{value=JSON.parse(text);}catch{throw new Error("Gateway returned malformed JSON. Correct the response and Plan again.");}
     return validateCopilotResponse(value,body.edit);
   }catch(error){if(controller.signal.aborted)throw controller.signal.reason;throw error;}

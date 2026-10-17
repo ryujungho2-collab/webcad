@@ -1,0 +1,35 @@
+✔ 56-part five-view reopened fixture shares source curves across all scale/page candidates and Apply/Undo (801.1394ms)
+✔ reopened HLR views change paper scale/placement without kernel or cache queries and preserve model geometry (2985.7916ms)
+✔ presentation commands do not recalculate source sections; changed geometry still regenerates (2985.3991ms)
+✔ anchored opening edit preserves section IDs, dimensions, annotations, sheet and Undo; layout keeps correspondence (231.7521ms)
+✔ graph correspondence rejects disconnected moving, reversed and ambiguous branches (0.271ms)
+✔ an affected view reuses unchanged part curves instead of querying their kernel cache (253.577ms)
+✔ exact HLR classifies front/back parts and suppresses no source geometry (16.1639ms)
+✖ Boolean opening HLR Review/Apply, hidden style, sheets, schema33 and stale/locked edits remain atomic (99.7654ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5047.3918
+
+✖ failing tests:
+
+test at tests\p01ModelIntegration.test.ts:1:6436
+✖ Boolean opening HLR Review/Apply, hidden style, sheets, schema33 and stale/locked edits remain atomic (99.7654ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  36 !== 33
+  
+      at TestContext.<anonymous> (C:\Users\thefi\OneDrive\Desktop\agent-webcad\apps\web\tests\p01ModelIntegration.test.ts:63:52)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 36,
+    expected: 33,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -359,3 +359,5 @@ button.tree-root:hover { background: #1d232b; }
 .cad-pattern-tool button { margin-right:8px; padding:7px; border:1px solid #486070; border-radius:4px; background:#233743; color:#edf4f6; }
 .cad-pattern-tool button[type="submit"] { background:#215544; border-color:#438b70; }
 .cad-pattern-tool button:disabled { opacity:.5; }
+.floor-task-panel{position:fixed;left:90px;top:120px;width:360px;max-height:calc(100vh - 150px);overflow:auto;padding:16px;z-index:60;background:var(--panel-bg,#fff);color:var(--text-primary,#222);border:1px solid #bcc2c6;border-radius:12px;box-shadow:0 8px 30px #0002;font:12px/1.5 system-ui}
+.floor-task-panel header{display:flex;justify-content:space-between;align-items:center;gap:8px}.floor-task-panel button{margin:4px;padding:6px 9px}.floor-task-panel img{width:100%;max-height:240px;object-fit:contain;background:#f5f7f8}.floor-task-panel label{display:block;margin:8px 0}.floor-task-panel pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px}

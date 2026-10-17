@@ -1,5 +1,7 @@
 # G5-A2 — Copilot 패널 draft와 요청 context 수명
 
+> **현재 기능 설명:** [Copilot](../features/COPILOT.md). 이 문서는 날짜별 구현·설계 기록이며, 아래 사용법·제한·수치는 당시 범위다. 후속 지원은 대표 가이드를 따른다.
+
 2026-10-08. 기준선 `d1cce60`. G5-A1의 gateway 응답 검증·취소 경계와 공통 CAD detached Preview/Apply를 유지하면서, 패널 탐색과 요청 시점의 입력 수명만 검수했다. 실제 LLM 공급자·API 키·서버는 연결하지 않았다.
 
 ## 발견과 변경

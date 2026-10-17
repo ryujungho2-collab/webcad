@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "scope": "B1-A standalone Break retained pieces and dimension/construction reference routes; sketch/pattern expansion pending",
+  "node": {
+    "tests": 711,
+    "suites": 54,
+    "newTests": 10,
+    "failed": 0,
+    "skipped": 0,
+    "log": "output-b1-a-node.log"
+  },
+  "browser": {
+    "fullStatus": "passed",
+    "workflows": 48,
+    "checks": 988,
+    "newWorkflow": "breakReferences",
+    "newWorkflowChecks": 16,
+    "environment": "Edge headless native CDP key/pointer; real App/React/Worker; SwiftShader",
+    "log": "output-b1-a-browser-full.log"
+  },
+  "serialization": "v14 unchanged",
+  "typecheck": "passed",
+  "architecture": {
+    "passed": true,
+    "modules": 339,
+    "log": "output-b1-a-architecture.log"
+  },
+  "build": {
+    "workspace": "passed",
+    "mainRawKB": 1071.68,
+    "mainGzipKB": 324.11,
+    "viewportRawKB": 635.08,
+    "viewportGzipKB": 172.77,
+    "existingLargeChunkWarning": true,
+    "log": "output-b1-a-build.log"
+  },
+  "performance": "No new latency, practitioner or GPU/VRAM benchmark",
+  "limits": [
+    "Sketch/pattern Break expansion pending and explicitly rejected",
+    "Unsupported hatch/chain consumers and invalid open solid results reject atomically",
+    "Scene membership must be reassigned before Break",
+    "Expression-driven source replacement remains rejected",
+    "Explode relationships and block composition adapters unchanged"
+  ]
+}

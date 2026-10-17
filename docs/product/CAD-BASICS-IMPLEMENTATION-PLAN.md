@@ -1,5 +1,11 @@
 # CAD 기본기 확장과 구현 단위 설계
 
+> **문서 역할**: 후속 설계와 당시 결정 기록. 현재 사용법·지원 범위는 [정밀 작도와 편집](../features/DRAWING-EDITING.md)에서 관리한다.
+
+2026-10-11 후속: **B2-C2 bounded line–arc Chamfer / 열린 mixed 끝 Chamfer·Fillet**을 완료했다. [실제 명령·UI·참조/출력·지원 경계](../implementation/B2-C2-OPEN-END-CORNERS-2026-10-11.md). B3-A4·B5-F1/F2·X 접선/clipboard/UCS pilot·G6-D1/D2·D3 첫 윤곽 adapter도 완료했고 X6-D1/D2·G6-D4·X7-A/E·G6-D5/D6 첫 지원 범위도 구현했으며 다음 실행은 G1 공통 session owner → G4-B이고 [통합 큐](B-X-G-I-IMPLEMENTATION-ORDER-2026-10-11.md)를 따른다.
+
+2026-10-11 후속 갱신: **B1-E2 호·혼합 스케치 구성 편집**을 실제 저장·solver·편집 명령·UI 범위에서 확대했다. [최신 지원·검수](../implementation/B1-E2-MIXED-SKETCH-EDITING-2026-10-11.md)를 따른다. 아래의 이전 호·혼합 미지원 설명은 최초 마감 당시의 경계이다.
+
 갱신일: 2026-10-09. 구현 카드와 지원 경계를 정하는 문서다. **B3-A1/A2·B·C1–C3와 B2-A1 두 윤곽·B2-A2 내부 코너의 비대칭 모따기는 구현·검수 완료**, 나머지 신규 카드는 계획이다. [G4·DXF·지름 실제 결과](../implementation/G4-CAD-BASICS-2026-10-06.md), [각도 치수](../implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md), [모따기 지원 범위](../implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md)를 따른다. 현재 지원 범위는 [CAD-BASICS](CAD-BASICS.md), 제품 전체 실행 큐는 [NEXT-STEPS](../../NEXT-STEPS.md), 세션 분할은 [WORK-SLICES](../WORK-SLICES-2026-10-06.md)가 소유한다.
 
 목표는 기계·건축 사용자가 정확한 도면을 작성하고, 관련 형상을 수정하고, 출력까지 마치는 것이다. 명령 수뿐 아니라 같은 입력·미리보기·복구·결과 인계를 완료 기준으로 삼는다. 아래 카드의 전체를 구현했다는 뜻은 아니다.
@@ -17,7 +23,7 @@
 
 - **형상**: 선·열린/닫힌 다중선·bulge 호·원·호·추가 곡선.
 - **소유권**: 일반 drawing / sketch / construction 결과 / pattern source·member / component definition·instance.
-- **배치**: XY/XZ/YZ, 이동·회전·균일/비균일 스케일·반사, 후속 사용자 작업면.
+- **배치**: XY/XZ/YZ, 이동·회전·균일/비균일 스케일·반사, 사용자 작업면 저장·면 연결. 활성 UCS 전환·작업면 위 작성은 후속.
 - **참조**: point/endpoint/segment/curve/whole-span, 측정 치수·구동 치수, 작도 branch, pattern slot, projection/extrusion, scene object reference.
 - **전달**: 편집·측정·스냅·JSON·DXF·SVG·PDF·STEP 중 정확 보존/명시적 근사/미지원.
 
@@ -60,6 +66,8 @@
 
 `FeatureContract`의 현재 용도는 표현·parameter·측정 계약이다. 새 도구 capability/ownership 규칙을 여기에 무조건 추가하지 말고 먼저 명령의 실제 검증 결과를 재사용한다. 장기 공유 엔진 추출은 기능 확장과 별도 검증 묶음이다.
 
+2026-10-10 [B계열 보충 검토](CAD-B-SUPPLEMENT-REVIEW-2026-10-10.md)에서 스냅 정밀도·PDF 치수 글자 크기 불일치를 실행 재현했다. 보충 카드 B3-G1/D3를 우선하고, 보드 주석·혼합 sketch·소유 Lengthen·열린 코너·추가 OCS를 별도 지원 단계로 등록했다. 기존 완료 범위와 구분한다.
+
 ## 4. B0–B5 구현 카드
 
 표의 각 ID는 별도 요청으로 선택할 수 있는 계획이다. 위험이 큰 행은 적힌 하위 단위만 실행한다. `전체 회귀`는 해당 행의 코드가 있는 현재 작업 트리에서 실행해야 한다.
@@ -69,8 +77,8 @@
 | ID | 한 번에 끝낼 사용자 결과 | 완료 검사 / 경계 |
 | --- | --- | --- |
 | B0-A | 완료: 포커스된 컨트롤의 Enter/Space를 행 선택·CAD 반복이 가로채던 결함 한 종류 수정 | [실제 21개 native browser 검사](../implementation/B0-A-KEYBOARD-ACTIVATION-2026-10-09.md): 일반/sketch/pattern/component, 겹친 행 선택, 잠금, 숫자 grip 오류/Apply/Cancel, 반복·Undo/Redo. 기본 조작 전체 완료를 의미하지 않음 |
-| B0-B | 길이/각도/상대·극좌표 입력과 drag가 같은 계산 결과를 만들기 | 빈 값·입력 중 부호·단위·범위·반올림, XY/XZ/YZ. 기존 parser 재사용, 적용 전 값 덮어쓰기 금지 |
-| B0-C | 해치·문자·선두께·보조 형상의 보이기/잠금/출력 의미 정리 | Layer와 construction visibility를 혼동하지 않음. 현재 object order/selection/hit-test·출력 과제로 한 결함씩 처리 |
+| B0-B | 완료: 기본 작도·점 기반 Move/Copy/Rotate의 단위/좌표/활성 필드·숫자 preview/Enter/클릭 일치 | [입력 복구·Rectangle/Arc 문법·XY/XZ/YZ·실제 검수와 경계](../implementation/B0-B-PRECISION-INPUT-2026-10-09.md). 기존 parser 재사용, 입력 draft 유지·모델 반올림 없음 |
+| B0-C | 완료: 기본 root 해치·문자·치수 layer stroke·finite construction의 표시/잠금/출력 공백 보완 | [layer hide/lock와 canvas construction 구분·SVG 문자·native hit-test·17 checks·경계](../implementation/B0-C-DRAFTING-VISIBILITY-2026-10-09.md). 보드 문자/치수·nested member별 정책은 별도 확대 |
 
 B0 전체를 끝내야 모든 기능을 시작할 수 있는 것은 아니다. 각 기능의 관련 기본 조작 검사를 먼저 실행하고 발견된 결함만 해당 묶음에 포함한다.
 
@@ -78,12 +86,12 @@ B0 전체를 끝내야 모든 기능을 시작할 수 있는 것은 아니다. �
 
 | ID | 한 번에 끝낼 사용자 결과 | 선행 / 완료 검사 |
 | --- | --- | --- |
-| B1-A | Break 후 남길 조각과 참조를 선택해 치수·작도를 유지 | 기존 Trim/Join remap 재사용. point/segment/whole-span·branch, missing/locked/ambiguous 실패. sketch/pattern 확대가 크면 일반→sketch→pattern으로 별도 요청 |
-| B1-B | Explode한 선·호를 재편집해 Join하고 의존 관계 복원 | B1-A의 참조 정책, 정확한 bulge와 ID, projection/solid/scene 입력 확인. “관계 제거 후 실행”을 기본값으로 만들지 않음 |
-| B1-C | 블록 인스턴스 하나를 해체해 일반 도형으로 편집 | 다른 instance/definition 보존. world transform·레이어·문자·appearance, 중첩 1단계/재귀 해체를 명시적으로 구분; 비균일 변환 불가 곡선은 거부 |
-| B1-D | 다중선의 지정 변을 직선↔호로 바꾸고 접속점 유지 | 제어점/곡률과 topology remap. 스케치 소유 도형 확대는 B1-E. 길이/반지름 불가능 입력은 유지·복구 |
-| B1-E | 스케치 정점·변 구성 편집 후 구속·구동 치수·돌출 갱신 | B1-A/B/D 정책과 solver. 직선 구성 먼저, mixed bulge는 별도 지원 단계로 검증 |
-| B1-F | 해치·연속 치수·변수 바인딩을 source 교체에 재연결 | 참조 소비자 한 종류씩 F1 해치→F2 연속 치수→F3 바인딩. 수식의 parameter 의미가 바뀌면 명시적 재지정 |
+| B1-A | Break 후 남길 조각과 참조를 선택해 치수·작도를 유지 | 일반 도형 완료: [남길 조각·참조·검수](../implementation/B1-A-BREAK-REFERENCES-2026-10-09.md). point/segment/whole-span·branch, missing/locked/ambiguous 실패 검수. sketch/pattern은 확대 대기 |
+| B1-B | Explode한 선·호를 재편집해 Join하고 의존 관계 복원 | 일반 도형 완료: [정확한 분해·편집·Join 참조 복원·검수](../implementation/B1-B-EXPLODE-JOIN-REFERENCES-2026-10-09.md). B1-A 참조 정책·bulge/ID 보존·profile/scene 입력, missing/locked/충돌 실패 검수. sketch/pattern adapter는 확대 대기 |
+| B1-C | 블록 인스턴스 하나를 해체해 일반 도형으로 편집 | 일반 해체 완료: [world 복원·1단계/재귀·검수](../implementation/B1-C-BLOCK-DISBAND-2026-10-09.md). 문자·appearance·레이어 보존, 비균일 곡선·참조 인스턴스 실패 검수. 정의 격리 편집·override/variant는 G4-B 후속 |
+| B1-D | 다중선의 지정 변을 직선↔호로 바꾸고 접속점 유지 | 일반 도형 완료: [변 전환·반지름/방향·참조 재연결·검수](../implementation/B1-D-EDGE-CONVERSION-2026-10-09.md). 불가능 길이/반지름 입력 유지·복구, missing/locked 실패 검수. 스케치 소유 도형은 B1-E 후속 |
+| B1-E | 스케치 정점·변 구성 편집 후 구속·구동 치수·돌출 갱신 | 직선 구성 완료: [정점 삽입/삭제/열기닫기·구속/치수/돌출·검수](../implementation/B1-E-SKETCH-VERTICES-2026-10-09.md). 명시적 점/변/profile 재연결, 원자성·History 검수. 호·혼합 bulge는 별도 지원 단계 |
+| B1-F | 해치·연속 치수·변수 바인딩을 source 교체에 재연결 | F1 해치 완료: [전체 결과 재지정·영역 재생성·검수](../implementation/B1-F1-HATCH-RECONNECTION-2026-10-09.md). F2 연속 치수 완료: [단일 결과 인계·점열 갱신·검수](../implementation/B1-F2-CHAIN-RECONNECTION-2026-10-09.md). F3 바인딩 완료: [단일 결과 인계·의미 변경 거부·검수](../implementation/B1-F3-BINDING-RECONNECTION-2026-10-09.md). 수식의 parameter 의미가 바뀌면 명시적 재지정 |
 
 G2에서 정의 수정·중첩 component는 이미 존재한다. B1-C는 그 기능을 새로 만드는 것이 아니라 **인스턴스 해체**다. definition 격리 편집과 property override/variant는 G4-B 쪽 과제로 남긴다.
 
@@ -93,11 +101,11 @@ G2에서 정의 수정·중첩 component는 이미 존재한다. B1-C는 그 기
 | --- | --- | --- |
 | B2-A1 · 완료 | 두 독립 윤곽의 직선 끝부분에 D1/D2 비대칭 Chamfer | 단위·대상/캔버스 거리선·swap/equal·반대 방향·예각/둔각·소모 거부·치수/중점·잠금/참조 실패·한 Undo·Join·저장. [실제 범위와 검수](../implementation/B2-A1-ASYMMETRIC-CHAMFER-2026-10-09.md) |
 | B2-A2 · 완료 | 독립 polyline/rectangle 내부 직선 코너의 D1/D2 및 공통 검토 UX | 이전/다음 edge 값 배정·단위/Swap/Equal·거리선·reference/원호 보존·치수/작도/돌출 갱신·교차/잠금/경합 원자성·한 Undo·v14 reload. [실제 범위와 검수](../implementation/B2-A2-INTERNAL-CHAMFER-2026-10-09.md) |
-| B2-B | line–arc Fillet에서 유지할 가지·접점 확인 후 적용 | 정확한 해석 접점·허용 구간·여러 해 선택. arc–arc는 B2-C로 분리 |
-| B2-C | arc–arc Fillet/Chamfer와 닫힌 윤곽 수정 | B2-B. 두 코너 연산도 별도 요청; 내/외접·불가능 반지름·Offset 후 접속 검증 |
-| B2-D | 교차 영역 Stretch에 포함된 블록의 이동 의미를 제어 | 완전 포함 instance의 rigid move 먼저. 일부 구성 요소 변형은 definition edit 또는 명시적 detach로 인계, 조용한 전역 definition 변경 금지 |
-| B2-E | 스케치 Stretch가 구속을 유지하거나 충돌 이유 표시 | 기존 connected drag·solver. 자유점/고정점/구동 치수, 연쇄 재생성, preview와 Apply 일치 |
-| B2-F | Lengthen에서 호 각도 입력과 목표 길이 입력을 연결 | 반지름 유지, sweep 방향·full-turn/zero-sweep 경계, 측정 길이와 독립 대조 |
+| B2-B | 완료: 독립 line–arc Fillet의 유지 가지·bounded 접점·radius guide·복수 해 선택 후 적용 | [해석 기하·실제 검수·지원 경계](../implementation/B2-B-LINE-ARC-FILLET-2026-10-10.md). arc–arc/닫힌 코너는 B2-C |
+| B2-C | 완료: finite arc–arc Fillet/Chamfer와 닫힌 line–arc/arc–arc 코너 수정 | [내/외접·원호 길이 D1/D2·정점/해 선택·폐합·Offset·검수](../implementation/B2-C-ARC-CORNERS-2026-10-10.md). 두 연산을 따로 검증. owner/ellipse는 후속. 열린 mixed arc end는 B2-C2에서 완료 |
+| B2-D | 완료: 전체 envelope 포함 블록의 rigid move와 부분 포함 거부 | [nested/affine 포함 판정·member Preview·혼합 batch 원자성·정의/sibling 보존](../implementation/B2-D-BLOCK-STRETCH-2026-10-10.md). 일부 구성 요소 변경은 definition edit/명시적 Disband로 인계 |
+| B2-E | 완료: 스케치 Stretch solver·구속/구동 치수 유지·충돌 복구 | [자유점/연결점·fixed/width 충돌·연쇄 재생성·Preview/Apply·검수](../implementation/B2-E-SKETCH-STRETCH-2026-10-10.md). active sketch는 Finish 후 사용; shear/Lengthen은 후속 |
+| B2-F | 완료: 독립 원호 Lengthen에서 포함각 입력과 목표 길이 입력을 연결 | [반지름·CW/CCW·0/full-turn 경계·world 실측·검수](../implementation/B2-F-ARC-ANGLE-LENGTHEN-2026-10-10.md). 혼합 다중선 말단 호의 각도별 편집과 스케치 호는 별도 |
 
 임의 비균일 transform에서 원호 Offset을 무조건 지원한다고 설계하지 않는다. 원이 타원이 되는 경우 X2의 표현 계약이 먼저 필요하다. 원의 Extend처럼 자유 끝이 없는 조합은 별도 의미 정의 전까지 안내와 함께 거부한다.
 
@@ -107,12 +115,12 @@ G2에서 정의 수정·중첩 component는 이미 존재한다. B1-C는 그 기
 | --- | --- | --- |
 | B3-A1 · 완료 | DXF bulge 정확한 입력·Explode/Join·재출력·재가져오기 | sparse/final/signed arc·R12 elevation·inch·회전/반사·독립 길이/반지름·저장/이력 검수. exact control vertices |
 | B3-A2 · 완료 | 실제 Import review→편집→Export 흐름 | 포함/제외·단위·subset acknowledgement, 실제 native file input·download/reimport·stale/Cancel·한 Undo·전체 회귀 |
-| B3-A3 | 필요한 non-default OCS·기울어진 평면의 교환 확대 | A1/A2의 명시적 미지원 목록에서 과제 선택. 사용자 작업면이 필요한 경로는 B5-A/X5와 연결 |
+| B3-A3 | 완료: 원·원호·bulge OCS와 기울어진 평면 선 교환 | [AAA·단위/elevation·analytic 왕복·Review·검수](../implementation/B3-A3-DXF-OCS-2026-10-10.md). TEXT/INSERT 비기본 OCS·중첩 배치는 [B3-A4](../implementation/B3-A4-DXF-PLACEMENT-2026-10-11.md)에서 완료. ellipse·사용자 UCS는 별도 후속 |
 | B3-B · 완료 | 원/허용 호의 일반 지름 치수 생성·leader 각도 재배치·source 변경 추적 | Ø·2r·양끝 화살표·deg/rad·source scale·Trim/Join edge remap·잠금 복구·v13·DXF TEXT. driver와 구별. canvas 주석 핸들은 후속 |
 | B3-C · 완료 | 두 선/변의 일반 각도 치수와 측정 가지 선택 | 같은 작업면, 교차 밖 연장·0/180°·평행·내각/외각, 원본 회전 후 측정, radians/degrees 변환. 실제 범위와 검증은 [C2/C3 기록](../implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md) |
-| B3-D | 선형/반지름/지름/각도/연속 치수의 공통 스타일 | D1 단위·자릿수→D2 글자/화살표/간격·종이 축척 별도 요청. 스타일 편집이 geometry/driver 값을 바꾸지 않음 |
-| B3-E | 스냅 추적점 획득·해제·일시 억제와 방향 잠금 | transient UI state, 문서 저장/구속과 구별. 원본 삭제/숨김/문서 교체 시 해제, 정확 입력 우선순위 |
-| B3-F | 복수 추적선 교점과 후보 전환 | B3-E. 후보 우선순위·기호/원본 표시·zoom 독립 픽셀 반경, 잡히지 않는 이유·해제 안내 |
+| B3-D | 완료 — 선형/반지름/지름/각도/연속 치수의 공통 표시 스타일 | D1 단위·자릿수와 D2 글자/화살표/간격·종이 축척. 스타일 편집은 geometry/driver 값을 바꾸지 않음. [검수](../implementation/B3-D-E-F-DIMENSION-TRACKING-2026-10-10.md) |
+| B3-E | 완료 — 스냅 추적점 획득·해제·일시 억제와 방향 잠금 | 작도 중 transient UI state. 문서 변경·원본 숨김/삭제 때 해제, 정확 입력 우선순위 |
+| B3-F | 완료 — 복수 추적선 교점과 후보 전환 | 실제 snap 우선, 교점→축 후보 순위·원본 표시·zoom 독립 픽셀 반경과 Shift+N 전환 |
 
 #### B3-C의 작은 실행 단위 (C1–C3 완료)
 
@@ -129,7 +137,7 @@ G2에서 정의 수정·중첩 component는 이미 존재한다. B1-C는 그 기
 
 기존 `B3-A`는 A1–A3의 상위 이름으로 유지한다. A1/A2의 지원 범위가 검증되면 기본 왕복 묶음을 완료로 표시할 수 있으나, A3의 미지원 평면까지 지원한다고 적지 않는다.
 
-### B4 — 호를 포함한 스케치 관계
+### B4 — 호를 포함한 스케치 관계 (A–D 완료, 2026-10-10)
 
 | ID | 한 번에 끝낼 사용자 결과 | 선행 / 완료 검사 |
 | --- | --- | --- |
@@ -142,18 +150,20 @@ G2에서 정의 수정·중첩 component는 이미 존재한다. B1-C는 그 기
 
 | ID | 한 번에 끝낼 사용자 결과 | 선행 / 완료 검사 |
 | --- | --- | --- |
-| B5-A1 | 사용자 작업면의 origin·basis·normal과 좌표 변환 계약 | 기존 XY/XZ/YZ 저장 호환. 재사용 가능한 frame을 정의하되 바로 모든 도구를 강제 전환하지 않음 |
-| B5-A2 | planar face에 붙는 frame과 안정적인 source 참조 | A1, face identity·모호/소멸 복구. 가장 가까운 다른 면으로 자동 이동 금지 |
-| B5-B | 면에서 스케치→치수→projection→돌출, 원본 수정 후 따라가기 | A2, B4 중 필요한 관계. 비평면은 안내하고 거부. 면 참조 복구와 save/reload |
-| B5-C | 프로파일의 돌출 절삭을 한 reviewed command로 실행 | 기존 Extrude/Boolean 계산 재사용, source/tool ownership·깊이/방향·through 조건. 내부 두 작업이 두 Undo가 되지 않음 |
-| B5-D | 정확한 위치·지름·깊이의 기본 Hole | C·면 참조. 초기 원통형 구멍부터, 관통/막힌 구멍을 단계 구분. 나사/counterbore는 별도 추가 |
-| B5-E | 제거할 면과 두께를 지정하는 Shell | 면 참조·커널 유효성·최소 형상 조건. 불가능 두께/자기 교차/면 분기에서 원자적 거부 |
+| B5-A1 · 완료 | 사용자 작업면의 origin·basis·normal과 좌표 변환 계약 | 기존 XY/XZ/YZ 저장 호환, 자유 frame·v18·명령/History. [구현](../implementation/B5-A-WORK-PLANES-2026-10-10.md) |
+| B5-A2 · 완료 | planar face에 붙는 frame과 정확한 source 참조 | face identity·모호/소멸 상태·명시적 재연결. 다른 면으로 자동 이동 금지. [마감 증거](../verification/B5-A-CLOSEOUT-2026-10-10.json) |
+| B5-B · 완료 | 면에서 스케치→치수→projection→돌출, 원본 수정 후 따라가기 | 평면 면의 로컬 frame·v19·면 참조 복구와 save/reload. [구현·검수](../implementation/B5-B-C-FACE-SKETCH-CUT-2026-10-10.md) |
+| B5-C · 완료 | 프로파일의 돌출 절삭을 한 reviewed command로 실행 | Extrude/Boolean 재사용, source/profile ownership·깊이/방향·through·체적 검증·단일 Undo. [마감 증거](../verification/B5-B-C-CLOSEOUT-2026-10-10.json) |
+| B5-D · 완료 | 정확한 위치·지름·깊이의 기본 Hole | 평면 면 로컬 좌표의 원통형 blind/through Hole·Review/Apply·v20·재생성·STEP. 나사/counterbore는 별도 추가. [구현·검수](../implementation/B5-D-FACE-HOLE-2026-10-10.md) |
+| B5-E · 완료 | 제거할 면과 두께를 지정하는 inward Shell | 정확한 면 참조·유효한 단일 solid·실제 체적 감소·원자적 거부·Review/Apply·재지정·v21·STEP/STL. [구현·검수](../implementation/B5-E-SHELL-2026-10-10.md) |
 
 각 3D 단계는 원본 치수 변경 뒤 재생성, 독립적인 체적/면적·유효성, Undo/Redo, 저장·STEP 결과를 확인한다. 새 Hole/Shell feature가 필요하면 type·kernel protocol·regeneration·measurement·export의 기존 solid 종류 분기를 모두 점검한다.
 
 ## 5. 기본기 밖으로 밀려나지 않도록 남겨 둘 확장 X
 
 X는 계획 구분자이며 새 모듈이나 별도 기하 엔진의 이름이 아니다. 각 하위 항목도 한 요청씩 실행한다.
+
+2026-10-10 현재 소스에 맞춘 하위 카드·선행 조건·실행 순서와 완료 기준은 [X 구현 계획 검토](CAD-X-IMPLEMENTATION-REVIEW-2026-10-10.md)를 따른다. X1-B, X2-C, X3-B/C, X4-A, X5, X6 Section과 X7을 작은 실행 카드로 분할했다. X1-A는 [3점 원·호](../implementation/X1-A-THREE-POINT-CURVES-2026-10-10.md), X1-C는 [정다각형](../implementation/X1-C-REGULAR-POLYGON-2026-10-10.md) 범위로 완료했다. X3-A도 [저장된 작도 정의 재지정](../implementation/X3-A-CONSTRUCTION-REASSIGNMENT-2026-10-10.md) 범위로 완료했다. X3-B1도 [원/호 교점](../implementation/X3-B1-CIRCULAR-INTERSECTIONS-2026-10-10.md) 범위로 완료했다. X1-B1도 [두 끝점+반지름 원호](../implementation/X1-B1-ENDPOINT-RADIUS-ARC-2026-10-10.md) 범위로 완료했으며 다음 권장 구현은 X1-B2이다. X 번호 전체가 직렬 선행 관계는 아니다.
 
 | ID | 확장 범위 | 필수 선행·정확도 경계 |
 | --- | --- | --- |
@@ -162,7 +172,7 @@ X는 계획 구분자이며 새 모듈이나 별도 기하 엔진의 이름이 �
 | X3 | X3-A 작도 정의 재지정 → X3-B 원–원/곡선 교점 → X3-C 각 이등분선·외접원·내접원 | 기존 dependency graph·expression 유지. 기존 branch가 사라지면 오류와 재지정, 좌표만 저장하지 않음. 이후 자취/함수/벡터·Euclidean 제한 모드 별도 |
 | X4 | X4-A 문서 내부 기준점 clipboard → X4-B 문서 간 붙여넣기 | 새 IDs와 dependency closure·asset/definition remap, 잠금·외부 참조·원본 누락 정책. JSON/command로 복사하며 render mesh를 원본으로 복사하지 않음 |
 | X5 | 명명된 UCS 저장·전환과 작업면 기반 작성·수정 확대 | B5-A1 공유. 단일 UCS pilot 도구부터, viewport 이동과 문서 객체 변환 구별. 모든 기존 도구에 별도 좌표 계산을 복제하지 않음 |
-| X6 | X6-A 3D Mirror → X6-B Linear Pattern → X6-C Radial Pattern → Section | 기존 2D recipe/slot 의미와 BRep geometry 경계를 연결. negative transform 방향·solid validity·source 편집, 기존 2D 인스턴스를 mesh 복제로 대체하지 않음 |
+| X6 | X6-A 3D Mirror → X6-B Linear Pattern → X6-C Radial Pattern · X6-D1 화면 clipping → X6-D2 실제 section curve | 기존 2D recipe/slot 의미와 BRep geometry 경계를 연결. negative transform 방향·solid validity·source 편집, 기존 2D 인스턴스를 mesh 복제로 대체하지 않음 |
 | X7 | Leader·좌표/면적/호 길이 치수·측정 결과 인계, 문자 편집 확대 | B3의 source/style/단위 계약 재사용. 항목별로 일반 주석과 driving 제약 지원을 구분 |
 
 평면 Boolean/Shape Builder·compound path는 X2와 G2 벡터 편집의 공동 과제다. 정확한 curve source와 fill rule·허용오차를 먼저 정하고 직선 윤곽→원호→새 곡선 순서로 나눈다. mesh 편집·BIM·협업은 [PRODUCT-ROADMAP](PRODUCT-ROADMAP.md)의 별도 단계이며 CAD 기본 묶음의 완료를 무한히 늘리는 조건으로 쓰지 않는다.
@@ -182,9 +192,9 @@ X는 계획 구분자이며 새 모듈이나 별도 기하 엔진의 이름이 �
 
 ## 7. 우선순위와 통합 과제
 
-G3-5A/I1, G4-A 및 G4-B/C의 첫 범위, CAD B3-A1/A2/B와 B3-C1–C3, G5-A1–A3/B1 및 B2의 첫 Move를 구현·검수했다. **2026-10-09 다음 우선순위는 G6-A1 모델 뷰 저장 계약**이다. [1차 건축·기계 CAD 목표](ARCHITECTURE-MECHANICAL-MILESTONE.md)의 뷰·수치 편집·분해도·연관 도면 workflow에 필요한 B/X 카드를 NEXT-STEPS에서 선택한다. B0의 해당 기본 조작을 각 묶음의 선행 회귀로 사용한다.
+G3-5A/I1, G4-A 및 G4-B/C의 첫 범위, CAD B3-A1/A2/B와 B3-C1–C3, G5-A1–A3/B1 및 B2의 첫 Move를 구현·검수했다. **2026-10-09 G6-A1 모델 뷰 저장 계약과 G6-A2 UI 연결을 완료했고 다음 1차 후보는 수치 편집 pilot**이다. [1차 건축·기계 CAD 목표](ARCHITECTURE-MECHANICAL-MILESTONE.md)의 뷰·수치 편집·분해도·연관 도면 workflow에 필요한 B/X 카드를 NEXT-STEPS에서 선택한다. B0의 해당 기본 조작을 각 묶음의 선행 회귀로 사용한다.
 
-다음 CAD 우선 후보는 `B1-A/B → B2-A → B4-A/B → B3-D/E/F`다. X1과 작도 재지정은 해당 사용자 과제가 필요할 때 독립 실행할 수 있다. B5-A1 이후 면 참조·3D 단계는 단계별 선행 조건을 충족해야 한다. 큰 solver/topology/schema 변경 두 종류를 같은 요청에 묶지 않는다.
+`B1-A/B`, `B2-A`, `B3-D/E/F`, `B4-A–D`, `B5-A1/A2·B/C/D/E`, `X1-A/C·B1`, `X3-A·X3-B1`은 구현했다. 남은 CAD 후보는 X1-B2/B3·신규 곡선 교점과 X5 추가 3D/UCS이며 해당 사용자 과제에 따라 순서를 정한다. 큰 solver/topology/schema 변경 두 종류를 같은 요청에 묶지 않는다.
 
 | 실제 과제 | 통합 확인 | 관련 카드 |
 | --- | --- | --- |
@@ -224,3 +234,5 @@ PROJECT-STATE, NEXT-STEPS를 실제 결과에 맞게 갱신해. 다음 카드를
 ```
 
 문서 책임: 이 파일은 카드·선행 조건·설계 경계, CAD-BASICS는 실제 지원표, WORK-SLICES는 세션 크기, NEXT-STEPS는 실행 순서, PROJECT-STATE는 실제 구현·검증 상태, implementation/verification은 근거를 소유한다. 같은 카드 목록을 여러 파일에 복제하지 않는다.
+
+B5-F1/F2 수치 편집 pilot: [cylinder Ø/R·단위·구동 sketch/변수·돌출 Review/Apply·Undo/STEP](../implementation/B5-F12-NUMERIC-PILOT-2026-10-11.md)를 완료했다.

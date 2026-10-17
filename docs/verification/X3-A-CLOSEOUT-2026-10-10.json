@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-10",
+  "scope": "CAD X3-A saved construction source/element/branch reassignment",
+  "node": {"tests": 900, "suites": 54, "passed": 900, "failed": 0, "skipped": 0},
+  "targetNodeTests": 13,
+  "browser": {"x3ConstructionReassign": 12, "constructionWorkflowRegression": 25, "total": 37},
+  "checks": [
+    "definition, inputs, evaluated cache, dependent constructions and associative dimensions share one transaction",
+    "transient Review, exact before/after world coordinates, affected object impact and one Undo/Redo",
+    "all six existing operations retain result kind and stable object/feature/topology identities",
+    "point/control/edge/curve/endpoint-span and signed intersection branch reassignment",
+    "old source no longer drives; edits to new source regenerate the rebound result",
+    "self/indirect cycles, missing source/topology, wrong plane/elevation, no intersection and operation changes reject atomically",
+    "locked output/dependent construction/annotation reject; locked read-only source is allowed",
+    "save/reload checks construction caches, expression/query graph, finite artboard SVG export",
+    "native select draft, Cancel, stale review, document-change invalidation and locked selection gating"
+  ],
+  "typecheck": "passed",
+  "architecture": {"result": "passed", "modules": 425},
+  "productionBuild": "passed",
+  "limitations": [
+    "Operation and result kind conversion is excluded",
+    "Circle-circle, circle-arc and arc-arc intersections remain X3-B1",
+    "Combined reassignment UI for multiple definitions and arbitrary UCS construction remain separate scope",
+    "Existing SVG support for finite drawings is reused; point/infinite-line/ray export is unchanged"
+  ]
+}

@@ -1,3 +1,7 @@
+import {validSpline} from "@agent-webcad/cad-document";
+import {validEllipse} from "@agent-webcad/cad-document";
+import {editEllipseControl} from "../../../precision/ellipseEditing";
+import { editCurvedInternalCorner } from "./curvedInternalCorner";
 import type { Vec3, WorkPlaneId } from "../../../precision/workPlane";
 import type {
   DrawingTopology,
@@ -218,7 +222,7 @@ export function editDrawingCornerParams(
 }
 
 /** The reviewed UI measures mm in world space; legacy commands keep model units. */
-export function editDrawingCornerForObject(object: CadObject, feature: CadFeature, controlId: string, treatment: "fillet" | "chamfer", distance: number, secondDistance?: number, distanceSpace?: "world") {
+export function editDrawingCornerForObject(object: CadObject, feature: CadFeature, controlId: string, treatment: "fillet" | "chamfer", distance: number, secondDistance?: number, distanceSpace?: "world", solutionIndex?: number) {
   const plane = workPlaneId(feature.params.workPlane);
   const scale = drawingPlaneScale(getObjectTransform(object, feature).scale, plane);
   if (distanceSpace === "world" && !scale.uniform) throw new Error("Use uniform in-plane scale before setting world-space corner distances; nonuniform scale is unsupported.");
@@ -227,6 +231,9 @@ export function editDrawingCornerForObject(object: CadObject, feature: CadFeatur
   const points = feature.params.points as Vec3[] | undefined, control = topologyOf(feature.params)?.controls.find(c => c.id === controlId);
   if (!points || control?.index === undefined || !points[control.index]) throw new Error("Select an internal corner point on a standalone polyline or rectangle.");
   const i = control.index, count = points.length;
+  const bulges=profileBulges(String(feature.params.kind),feature.params),prev=(i+profileSegmentCount(String(feature.params.kind),feature.params)-1)%profileSegmentCount(String(feature.params.kind),feature.params);
+  if(Math.abs(bulges[prev]??0)>EPSILON||Math.abs(bulges[i]??0)>EPSILON)return editCurvedInternalCorner(object,feature,controlId,treatment,distanceSpace === "world"?distance:distance*scale.magnitude,secondDistance===undefined?undefined:distanceSpace === "world"?secondDistance:secondDistance*scale.magnitude,solutionIndex);
+  if(solutionIndex!==undefined)throw new Error("Solution selection requires adjacent curved segments.");
   const corner = drawingPointToPlane(points[i], plane);
   const length = (at: number) => Math.hypot(...subtract2(drawingPointToPlane(points[at], plane), corner));
   if (treatment === "chamfer") {
@@ -248,6 +255,8 @@ export function editDrawingControlParams(
   const kind = String(params.kind ?? "");
   const control = topologyOf(params)?.controls.find((entry) => entry.id === controlId);
   if (!control) return null;
+  if(validSpline(params)){if(control.role!=="pole"||control.index===undefined)throw Error("Choose a spline control pole.");const controlPoints=structuredClone(params.controlPoints);controlPoints[control.index]=point;return {...params,controlPoints};}
+  if(validEllipse(params))return {...params,...editEllipseControl(params,control.role,point)};
 
   if (control.role === "vertex" && typeof control.index === "number" && Array.isArray(params.points)) {
     const points = structuredClone(params.points) as Vec3[];

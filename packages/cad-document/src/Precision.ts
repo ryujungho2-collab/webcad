@@ -16,7 +16,7 @@ export function linearToleranceAt(...coordinates: number[]) {
 }
 
 /** Render tessellation is a cache; an editable mesh will own its own source and topology. */
-export type GeometryRepresentation = "analytic-curve" | "brep" | "annotation" | "polygon-mesh";
+export type GeometryRepresentation = "analytic-curve" | "planar-region" | "brep" | "annotation" | "polygon-mesh";
 export type MeasurementBasis = "analytic" | "brep" | "mesh";
 export type GeometryMeasurement = {
   basis: MeasurementBasis;

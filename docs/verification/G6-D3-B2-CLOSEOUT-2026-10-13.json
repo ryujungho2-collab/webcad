@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-13",
+  "card": "G6-D3-B2",
+  "status": "complete within line/circle/arc/ellipse scope",
+  "node": {
+    "tests": 1182,
+    "suites": 54,
+    "fail": 0,
+    "skip": 0
+  },
+  "typecheck": "passed",
+  "architectureModulesAtB2": 530,
+  "productionBuild": "passed on retry after usage became available",
+  "native": {
+    "conicProjection": 22,
+    "courtyardConic": 16,
+    "modelPresentation": 24,
+    "modelDrawing": 32,
+    "ellipseSection": 18,
+    "sectionPresentation": 17,
+    "total": 129,
+    "fullBrowserSuite": false
+  },
+  "project": {
+    "date": "2026-10-13",
+    "parts": 56,
+    "views": 12,
+    "pages": 7,
+    "schema": 36,
+    "metrics": [
+      {
+        "id": "assembly-front-conic",
+        "parts": 56,
+        "outputs": 783,
+        "ellipses": 0,
+        "hidden": 686,
+        "policy": "sharp-outline",
+        "ms": 2329
+      },
+      {
+        "id": "skylight-hlr-top",
+        "parts": 1,
+        "outputs": 5,
+        "ellipses": 3,
+        "hidden": 1,
+        "policy": "sharp-outline",
+        "ms": 498
+      },
+      {
+        "id": "skylight-hlr-side",
+        "parts": 1,
+        "outputs": 5,
+        "ellipses": 3,
+        "hidden": 1,
+        "policy": "sharp-outline",
+        "ms": 471
+      }
+    ],
+    "backgroundOutputs": 3,
+    "ms": 23071,
+    "limits": [
+      "Exact sharp/silhouette policy excludes Rg1/RgN seams/tangent edges and isolines.",
+      "Ellipse hatch and non-linear spline/parabola/hyperbola remain unsupported.",
+      "Full assembly front includes the original inclined skylight, formerly omitted.",
+      "Large output layout/edit responsiveness remains P2; no cold/warm average claim."
+    ]
+  },
+  "nativeProject": {
+    "initialSceneMs": 33314,
+    "pdfBudgetDiagnostic": "The PDF would contain 17,814,075 raster pixels; the export limit is 16,000,000. Lower dpi or export fewer/smaller boards.",
+    "pdfDpi": 72,
+    "pdfPages": 7,
+    "pdfBytes": 735724
+  },
+  "pdf": {
+    "pages": 7,
+    "bytes": 735724,
+    "independentRender": "pdfinfo + pdftoppm; inspected with W1 closeout"
+  },
+  "limits": [
+    "Non-linear spline/parabola/hyperbola rejected atomically.",
+    "Only degree-1 nonrational collinear monotone collapsed conics qualify as line.",
+    "Ellipse hatch remains unsupported.",
+    "W1 and P2 are separate."
+  ],
+  "approvalHistory": "Initial production build was not executed because automatic approval review hit a usage limit; ordinaryUsageAllowed later true and approved build succeeded."
+}

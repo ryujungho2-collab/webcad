@@ -1,0 +1,11 @@
+Rebinding model views at the new storeys
+Projecting A201 South elevation
+Projecting A202 North elevation
+Projecting A203 East elevation
+Projecting A204 West elevation
+Publishing four logical volumes
+Layout issue-plans
+Layout issue-elevations
+Layout issue-entry
+Layout issue-skylight
+{"date":"2026-10-13","parts":56,"views":14,"pages":10,"volumes":[{"id":"issue-plans","name":"R5 Plans and sections","scale":100,"pages":4,"size":[594,420]},{"id":"issue-elevations","name":"R5 Four elevations","scale":100,"pages":4,"size":[594,420]},{"id":"issue-entry","name":"R5 Entry opening study","scale":20,"pages":1,"size":[420,297]},{"id":"issue-skylight","name":"R5 Skylight study","scale":50,"pages":1,"size":[420,297]}],"schema":38,"revision":{"reviewMs":29526,"applyMs":204,"commands":370,"undoRedoExact":true,"stable56Parts":true},"floorHeight":4500,"floorAreas":[812,764.88,764.88],"totalArea":2341.76,"courtyard":[14000,14000],"stairs":{"risers":28,"riserMm":160.71428571428572,"treadMm":300,"widthMm":1600,"upperProfileTopMatchesStorey":true},"entryWidth":5200,"roomNotes":12,"backgroundDimensions":3,"allViewsResolved":true,"allAssociationsResolved":true,"dxfSkipped":0,"limits":["Conceptual geometry capability study; no BIM room/stair solver or code/structure/fire/accessibility approval.","Entrance and skylight are study sections, not resolved construction details.","Large derived-output performance remains P2; revision Review and Apply are separate single-run measurements.","Four PDF volumes keep the existing raster budget; all-visible combined output may be rejected."]}

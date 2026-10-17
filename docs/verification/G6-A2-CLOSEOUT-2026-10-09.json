@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "scope": "G6-A2 Ribbon/palette named model-view save, recall, rename, update, delete and standard-view/Fit UI with active camera/control integration",
+  "node": { "tests": 764, "suites": 54, "failed": 0, "skipped": 0, "log": "output-g6-a2-node.log" },
+  "browser": {
+    "passed": true, "workflows": 4, "checks": 86,
+    "scope": "Targeted native Edge/CDP workflows; real App/React/Worker; full browser suite not rerun",
+    "results": [
+      { "workflow": "modelViews", "checks": 24, "log": "output-g6-a2-browser.log", "new": true },
+      { "workflow": "wheelNavigation", "checks": 11, "log": "output-g6-a2-browser-navigation.log" },
+      { "workflow": "sessionContinuity", "checks": 24, "log": "output-g6-a2-browser-session.log" },
+      { "workflow": "commandExperience", "checks": 27, "log": "output-g6-a2-browser-commands.log" }
+    ],
+    "oracle": "Actual active camera world-to-NDC after settled rendered frames; entire modeling fields unchanged through save/rename/recall/Fit/update/delete/file reopen"
+  },
+  "architecture": { "passed": true, "modules": 362, "log": "output-g6-a2-architecture.log" },
+  "build": { "passed": true, "typecheck": "passed", "mainRawKB": 1101.29, "mainGzipKB": 332.15, "viewportRawKB": 651.86, "viewportGzipKB": 176.81, "existingLargeChunkWarning": true, "log": "output-g6-a2-build.log" },
+  "serialization": "G6-A1 v15 for modelViews; existing minimum-version behavior without views unchanged",
+  "fixes": ["Top view uses an up axis independent of its viewing direction", "Recall cancels workspace transitions and flushes orbit/pan inertia before restoring camera/target", "Orthographic resize preserves asymmetric frame center"],
+  "remaining": ["Section/crop/visibility presets", "Assembly/exploded views", "Model-linked drawings/output", "RVT/IFC and external adapters", "No new latency/practitioner/GPU benchmark"]
+}

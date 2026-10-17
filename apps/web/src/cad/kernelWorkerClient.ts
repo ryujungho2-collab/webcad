@@ -8,6 +8,7 @@ export interface KernelWorkerPort {
   terminate(): void;
 }
 type PendingTask = {
+  signal?:AbortSignal;
   request: KernelRequest;
   resolve: (result: KernelTaskResults[KernelOperation]) => void;
   reject: (error: Error) => void;
@@ -20,17 +21,24 @@ export class KernelWorkerClient {
   private tasks: PendingTask[] = [];
   private active: PendingTask | null = null;
   private progress: KernelTaskProgress | null = null;
+  private memory:{capacityBytes:number|null;retainedSources:number;retainedSlabs:number}={capacityBytes:0,retainedSources:0,retainedSlabs:0};
+  private workersCreated=0;
+  private cancelledTasks=0;
+  metrics(){return {workerResident:!!this.worker,workersCreated:this.workersCreated,cancelledTasks:this.cancelledTasks,wasmCapacityBytes:this.memory.capacityBytes,retainedSources:this.memory.retainedSources,retainedSlabs:this.memory.retainedSlabs};}
 
   constructor(
     private readonly createWorker: () => KernelWorkerPort,
     private readonly onProgress: (progress: KernelTaskProgress | null) => void = () => {},
   ) {}
 
-  request<K extends KernelOperation>(operation: K, params: PrimitiveParams): Promise<KernelTaskResults[K]> {
+  request<K extends KernelOperation>(operation: K, params: PrimitiveParams, options: {signal?:AbortSignal} = {}): Promise<KernelTaskResults[K]> {
     return new Promise((resolve, reject) => {
       // Detach inputs now: later document edits cannot change a queued task.
       const request = { taskId: this.nextId++, operation, params: structuredClone(params) };
-      this.tasks.push({ request, resolve: resolve as PendingTask["resolve"], reject });
+      if(options.signal?.aborted){reject(new KernelCancelledError(request.taskId));return;}
+      const abort=()=>this.cancelTask(request.taskId),cleanup=()=>options.signal?.removeEventListener("abort",abort);
+      this.tasks.push({ request, signal:options.signal,resolve: result=>{cleanup();resolve(result as KernelTaskResults[K]);}, reject:error=>{if(error instanceof KernelCancelledError)this.cancelledTasks++;cleanup();reject(error);} });
+      options.signal?.addEventListener("abort",abort,{once:true});
       this.startNext();
       this.notify();
     });
@@ -42,7 +50,8 @@ export class KernelWorkerClient {
 
   private startNext() {
     if (this.active) return;
-    const task = this.tasks.shift();
+    let task = this.tasks.shift();
+    while(task?.signal?.aborted){task.reject(new KernelCancelledError(task.request.taskId));task=this.tasks.shift();}
     if (!task) { this.progress = null; this.notify(); return; }
     this.active = task;
     this.progress = { taskId: task.request.taskId, operation: task.request.operation, phase: "queued", pendingCount: 1 };
@@ -50,6 +59,7 @@ export class KernelWorkerClient {
       if (!this.worker) {
         const worker = this.createWorker();
         this.worker = worker;
+        this.workersCreated++;this.memory={capacityBytes:null,retainedSources:0,retainedSlabs:0};
         worker.onmessage = ({ data }) => {
           // Replies from a terminated worker or an obsolete ID are ignored.
           if (this.worker !== worker || this.active?.request.taskId !== data.taskId) return;
@@ -61,7 +71,7 @@ export class KernelWorkerClient {
           const active = this.active;
           this.active = null;
           if (data.type === "error") active.reject(new Error(data.message));
-          else active.resolve(data.result);
+          else {if(data.memory)this.memory=data.memory;active.resolve(data.result);}
           this.startNext();
         };
         worker.onerror = (event) => {
@@ -80,9 +90,15 @@ export class KernelWorkerClient {
   }
 
   /** Reject every waiter before releasing the WASM heap. A later request retries. */
+  releaseIfIdle(): boolean {
+    if (this.active || this.tasks.length || !this.worker) return false;
+    this.reset(); return true;
+  }
+
   reset(error = new Error("Geometry worker stopped.")) {
     const worker = this.worker;
     this.worker = null;
+    this.memory={capacityBytes:0,retainedSources:0,retainedSlabs:0};
     if (worker) {
       worker.onmessage = null;
       worker.onerror = null;
@@ -143,6 +159,7 @@ export class KernelWorkerClient {
   private abortActive(taskId: number) {
     const worker = this.worker;
     this.worker = null;
+    this.memory={capacityBytes:0,retainedSources:0,retainedSlabs:0};
     if (worker) {
       worker.onmessage = null;
       worker.onerror = null;

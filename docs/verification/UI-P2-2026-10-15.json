@@ -1,0 +1,16 @@
+{
+  "card": "UI-P2",
+  "date": "2026-10-15",
+  "status": "first-scope-passed; overall-in-progress",
+  "implemented": ["validated per-project activity messages", "viewport and editing RAF suspension/resume", "preserved mounted editor Undo/drafts/camera", "scene playback pause baseline", "inactive idle Worker release at 60 second checks", "safe Worker restart and metrics"],
+  "node": { "checks": 44, "passed": true, "includesPriorDxfCloseout": 31 },
+  "browser": { "projectPerformance": 16, "projectTabs": 19, "projectRecovery": 24, "projectManager": 30, "scenesWorkflow": 30, "total": 119, "passed": true },
+  "typecheck": "passed",
+  "architecture": { "passed": true, "modules": 563 },
+  "productionBuild": { "passed": true, "modules": 408, "existingChunkSizeWarning": true },
+  "r5": { "projects": 2, "partsPerProject": 56, "coldSceneMs": [17438.8,15332.9], "warmSwitchMs": [186.6,185.9,179.7,185.5], "inactiveCallbackObservationMs": 1200, "inactiveAdditionalCallbacks": 0, "workerReleaseCountA": 1, "checkpointA": "saved", "checkpointB": "quota-exceeded; document and live export preserved", "environment": "isolated Chromium / SwiftShader; one run; CDP and observation latency included" },
+  "memoryByteMeasurements": null,
+  "fullCadSuiteRerun": false,
+  "remaining": ["UI-P2-S large document storage migration and recovery", "UI-P2-C view/document work scope cancellation", "JS/GPU/cache byte budgets and long running measurements"],
+  "reports": ["output/verification/ui-p2-r5-native-report.json", "output/verification/ui-p2-r5-initial-quota-report.json"]
+}

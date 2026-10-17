@@ -19,8 +19,9 @@ const button=document.getElementById("run-scenes") as HTMLButtonElement,output=d
 const sceneState=()=>JSON.stringify(cadDocument.scenes);
 const ready=()=>waitFor(()=>!find("Apply scene").disabled,"Scene review");
 let downloaded:Promise<string>|undefined;
+let downloadedHtml:Promise<string>|undefined;
 const nativeAnchorClick=HTMLAnchorElement.prototype.click;
-HTMLAnchorElement.prototype.click=function(){if(this.download.endsWith(".svg")){downloaded=fetch(this.href).then(r=>r.text());return;}nativeAnchorClick.call(this);};
+HTMLAnchorElement.prototype.click=function(){if(this.download.endsWith(".svg")){downloaded=fetch(this.href).then(r=>r.text());return;}if(this.download.endsWith(".html")){downloadedHtml=fetch(this.href).then(r=>r.text());return;}nativeAnchorClick.call(this);};
 button.onclick=async()=>{
  button.disabled=true;const checks:string[]=[];const check=(condition:unknown,label:string)=>{if(!condition)throw new Error(label);checks.push(`PASS: ${label}`);output.textContent=checks.join("\n");};
  try{
@@ -43,7 +44,16 @@ button.onclick=async()=>{
   await click("Overview");await choose("Scene link target",2);await click("Connect object");await ready();await click("Apply scene");
   await waitFor(()=>cadDocument.scenes![first.id].links.length===1);check(cadDocument.scenes![first.id].links[0].targetSceneId===second.id,"Prototype navigation references a saved target scene");
   const saved=sceneState();check(JSON.stringify(deserializeDocument(serializeDocument(cadDocument)).scenes)===saved,"Portable v12 persistence preserves states, animation, notes and links");
+  await click("Export prototype HTML");await waitFor(()=>!!downloadedHtml);const html=await downloadedHtml!;
+  const offline=document.createElement("iframe");offline.srcdoc=html;document.body.append(offline);
+  await waitFor(()=>offline.contentDocument?.getElementById("title")?.textContent==="Overview");
+  const page=offline.contentDocument!;check(page.querySelectorAll("#stage img").length===1&&!page.querySelector("#stage button:not([hidden])"),"Standalone HTML starts with frozen artwork and hides an invisible link");
+  const timeline=page.getElementById("timeline") as HTMLInputElement;timeline.value="2000";timeline.dispatchEvent(new Event("input",{bubbles:true}));
+  const link=page.querySelector("#stage button:not([hidden])") as HTMLButtonElement;check(!!link&&page.getElementById("time")?.textContent==="2000 / 2000 ms","Offline timeline restores the animated link at its final pose");
+  link.click();check(page.getElementById("title")?.textContent==="Detail","Offline artwork link opens the saved target scene");
+  (page.getElementById("back") as HTMLButtonElement).click();check(page.getElementById("title")?.textContent==="Overview","Offline Back returns through prototype navigation");offline.remove();
   await click("Present scene");await waitFor(()=>!!document.querySelector('[aria-label="Scene presentation"]'));
+  check(!document.querySelector('.scene-hotspot'),"In-app player does not expose an invisible animation hotspot");
   await physical(document.querySelector('[aria-label="Scene timeline"]')!);await input({type:"key",key:"End"});
   check(document.querySelector('.scene-player output')?.textContent==="2000 / 2000 ms","Timeline scrubbing reaches the exact final pose");
   await choose("Presentation state",1);check(!document.querySelector('.scene-hotspot'),"A hidden object state also removes its interactive hotspot");
@@ -71,6 +81,13 @@ button.onclick=async()=>{
   await click("Detail");await click("Add state hiding object");await ready();await click("Apply scene");await waitFor(()=>cadDocument.scenes![second.id].states.length===1);
   await click("Overview");await choose("Scene link target",2);await choose("Scene link target state",1);await click("Connect object");await ready();await click("Apply scene");
   check(cadDocument.scenes![first.id].links[0].targetStateId===cadDocument.scenes![second.id].states[0].id,"Prototype links save the explicitly selected target state");
+  downloadedHtml=undefined;await click("Export prototype HTML");await waitFor(()=>!!downloadedHtml);
+  const linkedOffline=document.createElement("iframe");linkedOffline.srcdoc=await downloadedHtml!;document.body.append(linkedOffline);
+  await waitFor(()=>linkedOffline.contentDocument?.getElementById("title")?.textContent==="Overview");
+  const linkedPage=linkedOffline.contentDocument!,linkedTimeline=linkedPage.getElementById("timeline") as HTMLInputElement;
+  linkedTimeline.value="2000";linkedTimeline.dispatchEvent(new Event("input",{bubbles:true}));
+  (linkedPage.querySelector("#stage button:not([hidden])") as HTMLButtonElement).click();
+  check((linkedPage.getElementById("state") as HTMLSelectElement).value===cadDocument.scenes![second.id].states[0].id&&linkedPage.querySelectorAll("#stage img").length===0,"Standalone link activates its saved target state and hides its artwork");linkedOffline.remove();
   await click("Present scene");await physical(document.querySelector('[aria-label="Scene timeline"]')!);await input({type:"key",key:"End"});await click("Navigate via Updated card");
   check((document.querySelector('[aria-label="Presentation state"]') as HTMLSelectElement).value===cadDocument.scenes![second.id].states[0].id&&!document.querySelector('.scene-hotspot'),"Artwork navigation activates the target state and its visibility semantics");
   await click("Close presentation");

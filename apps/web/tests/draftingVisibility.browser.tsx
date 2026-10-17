@@ -1,0 +1,71 @@
+import { createRoot } from "react-dom/client";
+import { App } from "../src/App";
+import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+import { cadDocument } from "../src/state/cadDocument";
+import { cadHistory } from "../src/state/history";
+import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
+import { saveDocumentToCache } from "../src/state/documentFile";
+import { isDocumentCommandPending } from "../src/state/documentCommandQueue";
+import { resetTestDocument } from "./helpers/documentHarness";
+import { installBrowserChecks } from "./helpers/browserChecks";
+import { click,input,physical,pause,waitFor } from "./helpers/physicalInput";
+import { collectExportAnnotations,collectExportDrawings } from "../src/export/exportModel";
+import { planPlot } from "../src/plot/plotPlan";
+import { encodeDxf } from "../src/interop/dxfWriter";
+import { createDimensionRenderObject } from "../src/viewport/dimensionRenderer";
+import { createDrawingRenderObject } from "../src/viewport/drawingRenderer";
+import type { CadCommand } from "@agent-webcad/cad-commands";
+import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
+import type { Line2 } from "three/examples/jsm/lines/Line2.js";
+resetTestDocument();
+async function apply(c:CadCommand){const r=await dispatchCadCommand(c);if(!r.ok)throw new Error(r.reason);}
+await apply({type:"create-layer",id:"graphics",name:"Graphics"});
+await apply({type:"set-layer-style",layerId:"graphics",style:{color:"#204060",lineType:"center",lineWeight:.7}});
+await apply({type:"create-drawing",id:"box",drawing:"rectangle",params:{workPlane:"XY",points:[[0,0,0],[100,0,0],[100,60,0],[0,60,0]]}});
+await apply({type:"create-drafting",id:"hatch",layerId:"graphics",params:{kind:"hatch",workPlane:"XY",sourceObjectIds:["box"],spacing:10,angle:0}});
+await apply({type:"create-drafting",id:"text",layerId:"graphics",params:{kind:"text",workPlane:"XY",point:[50,30,0],text:"도면 <A>&",height:8,angle:30,align:"center"}});
+await apply({type:"create-dimension",id:"dim",layerId:"graphics",dimension:"linear",params:{kind:"linear",workPlane:"XY",points:[[0,0],[100,0]],offset:-15,orientation:"aligned"}});
+await apply({type:"create-drawing",id:"guide",layerId:"graphics",drawing:"line",params:{workPlane:"XY",construction:true,points:[[0,80,0],[100,80,0]]}});
+saveDocumentToCache();createRoot(document.getElementById("root")!).render(<App/>);
+const button=document.getElementById("run-drafting-visibility") as HTMLButtonElement,output=document.getElementById("drafting-visibility-result")!;
+const row=(id:string)=>document.querySelector<HTMLElement>(`[data-model-object-id="${id}"]`)!,canvas=()=>document.querySelector<HTMLCanvasElement>("#root canvas")!;
+const state=()=>{const {revision:_,...rest}=cadDocument;return JSON.stringify(rest);};
+let download:Promise<string>|undefined;const nativeClick=HTMLAnchorElement.prototype.click;
+HTMLAnchorElement.prototype.click=function(){if(this.download.endsWith(".svg")){download=fetch(this.href).then(r=>r.text());return;}nativeClick.call(this);};
+async function svg(){download=undefined;await physical(document.querySelector(".app-menu summary")!);await click("Export SVG…");await waitFor(()=>!!download);return new DOMParser().parseFromString(await download!,"image/svg+xml");}
+button.onclick=async()=>{button.disabled=true;button.style.display="none";const checks:string[]=[];const check=(ok:unknown,label:string)=>{if(!ok)throw new Error(label);checks.push(`PASS: ${label}`);};try{
+  await waitFor(()=>!!canvas()&&!!row("text"));await click("2D");await click("Fit all geometry");
+  await physical(row("box"));await click("Direct");
+  const controls=(cadDocument.features["feature-box"].params.topology as {controls:{id:string}[]}).controls;
+  const grip=(index:number)=>document.querySelector<SVGRectElement>(`[data-direct-handle="${controls[index].id}"]`);
+  await waitFor(()=>!!grip(0)&&!!grip(1)&&!!grip(3));await pause();
+  const centre=(index:number)=>{const r=grip(index)!.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2];},a=centre(0),b=centre(1),c=centre(3);
+  const screen=(u:number,v:number)=>({x:a[0]+u/100*(b[0]-a[0])+v/60*(c[0]-a[0]),y:a[1]+u/100*(b[1]-a[1])+v/60*(c[1]-a[1])});
+  async function canvasClick(u:number,v:number){const p=screen(u,v);await input({type:"mousePressed",...p,button:"left",buttons:1});await input({type:"mouseReleased",...p,button:"left",buttons:0});await pause();}
+  await click("Object");
+  const beforeExport=state(),history=cadHistory.getPastLabels().length,exported=await svg(),label=[...exported.querySelectorAll("text")].find(t=>t.textContent==="도면 <A>&")!;
+  check(!!label&&label.getAttribute("text-anchor")==="middle"&&label.getAttribute("transform")==="rotate(-30 50 -30)"&&label.getAttribute("fill")==="#204060",`Actual SVG download retains rotated centred Unicode drafting text and layer colour: ${label?.outerHTML ?? exported.documentElement.outerHTML}`);
+  check(state()===beforeExport&&cadHistory.getPastLabels().length===history,"SVG output does not mutate source or History");
+  const style=cadDocument.layers.graphics.style!,dimension=createDimensionRenderObject("dim",cadDocument.features["feature-dim"].params,style)!,line=dimension.children[0] as LineSegments2;
+  check(line.material.color.getHexString()==="204060"&&Math.abs(line.material.linewidth-.7*96/25.4)<1e-9&&line.material.dashed,"Dimension renderer uses layer colour and physical screen stroke weight");
+  const guide=createDrawingRenderObject("guide",cadDocument.features["feature-guide"].params,undefined,style) as Line2;
+  check(guide.material.dashSize===3&&guide.material.customProgramCacheKey()!=="cad-center-6-1.5-1-1.5"&&collectExportDrawings("XY").find(l=>l.objectId==="guide")!.dash!.join(",")==="3,1.5","Construction on Center layer uses dashed screen/export pattern");guide.geometry.dispose();guide.material.dispose();dimension.traverse(o=>{const m=o as import("three").Mesh;m.geometry?.dispose();if(m.material&&!Array.isArray(m.material)){const map=(m.material as import("three").SpriteMaterial).map;map?.dispose();m.material.dispose();}});
+  await physical(row("guide"));await physical(document.getElementById("tools-tab-draw")!);const beforeToggle=state(),count=cadHistory.getPastLabels().length;await click("Hide construction");
+  canvas().focus();await input({type:"key",key:"a",modifiers:2});await pause();check(row("guide").getAttribute("aria-pressed")==="false"&&row("hatch").getAttribute("aria-pressed")==="true","Hidden construction is excluded from Ctrl+A while hatch stays selectable");
+  await physical(row("guide"));check(row("guide").getAttribute("aria-pressed")==="false","Explorer cannot reselect canvas-hidden construction");
+  await canvasClick(50,80);check(row("guide").getAttribute("aria-pressed")==="false","Native canvas hit testing excludes hidden construction");
+  check(state()===beforeToggle&&cadHistory.getPastLabels().length===count&&collectExportDrawings("XY").some(l=>l.objectId==="guide"),"Canvas construction toggle leaves document, History and output unchanged");await click("Show construction");
+  await click("Layers");await click("Hide Graphics");await waitFor(()=>!isDocumentCommandPending());check(!collectExportAnnotations("XY").texts.some(t=>t.objectId==="text")&&!collectExportDrawings("XY").some(l=>l.objectId==="hatch"),"Layer hide excludes both hatch and text from output");
+  const hiddenSvg=await svg();check(![...hiddenSvg.querySelectorAll("text")].some(t=>t.textContent==="도면 <A>&"),"Actual downloaded SVG honours layer hiding");await click("Show Graphics");await waitFor(()=>!isDocumentCommandPending());
+  await click("Lock Graphics");await waitFor(()=>!isDocumentCommandPending());const locked=state(),lockedHistory=cadHistory.getPastLabels().length;
+  await click("Model tree");await waitFor(()=>!!row("text"),"Model text row missing");await physical(row("text"));canvas().focus();await input({type:"key",key:"Delete"});await pause();check(state()===locked&&cadHistory.getPastLabels().length===lockedHistory&&row("text").getAttribute("aria-pressed")==="false","Locked text cannot be selected/deleted and History stays unchanged");
+  await canvasClick(50,20);check(row("hatch").getAttribute("aria-pressed")==="false"&&state()===locked,"Native canvas hit testing excludes visible locked hatch without changing source");
+  check(collectExportAnnotations("XY").texts.some(t=>t.objectId==="text")&&collectExportDrawings("XY").some(l=>l.objectId==="hatch")&&encodeDxf(cadDocument).entities>1,"Lock keeps visible hatch/text in SVG/PDF/DXF output");
+  const plot=planPlot("XY","A4","landscape","1:2")!;check(plot.page.polylines.some(l=>l.lineWeight===.7&&l.color==="#204060")&&plot.page.texts.some(t=>t.color==="#204060"&&t.sizeMm===2),"PDF plan preserves physical dimension stroke weight and paper text size");
+  await click("Layers");await click("Unlock Graphics");await click("Model tree");await waitFor(()=>!!row("text"),"Model text row missing");await physical(row("text"));await physical(row("text").querySelector('button[aria-label^="Hide "]')!);await waitFor(()=>!isDocumentCommandPending());check(!collectExportAnnotations("XY").texts.some(t=>t.objectId==="text"),"Object hide excludes only the selected text");await click("Undo");await waitFor(()=>!!collectExportAnnotations("XY").texts.find(t=>t.objectId==="text"));check(cadDocument.objects.text.visible,"Undo restores the same text identity and output");
+  // Text-only documents must still produce a real file, rather than a Nothing-to-export message.
+  for(const id of ["box","hatch","dim","guide"]){await physical(row(id));await physical(row(id).querySelector('button[aria-label^="Hide "]')!);await waitFor(()=>!isDocumentCommandPending());}
+  const textOnly=await svg();check(textOnly.querySelectorAll("text").length===1&&textOnly.querySelectorAll("polyline,polygon").length===0,"Text-only active-plane document downloads a valid SVG");
+  output.textContent=[...checks,`ALL ${checks.length} CHECKS PASSED`].join("\n");
+}catch(e){output.textContent=[...checks,`FAIL: ${e instanceof Error?e.stack:String(e)}`].join("\n");}finally{HTMLAnchorElement.prototype.click=nativeClick;}};
+installBrowserChecks(button,output);

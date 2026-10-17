@@ -1,5 +1,7 @@
 # G5-A1 — Gateway 응답과 요청 종료 경계 검수
 
+> **현재 기능 설명:** [Copilot](../features/COPILOT.md). 이 문서는 날짜별 구현·설계 기록이며, 아래 사용법·제한·수치는 당시 범위다. 후속 지원은 대표 가이드를 따른다.
+
 2026-10-06. G5-A 전체가 아닌 첫 작은 검수 묶음이다. 기준선 `291c1c3`의 gateway 생성 제안·공통 Review/Apply를 보존하고 응답/취소 경계만 수정했다. 후속 실행 범위는 [WORK-SLICES](../WORK-SLICES-2026-10-06.md), 현재 전체 검증 수는 [PROJECT-STATE](../../PROJECT-STATE.md)가 소유한다.
 
 ## 발견한 문제와 수정

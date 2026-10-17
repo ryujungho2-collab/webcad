@@ -1,0 +1,228 @@
+{
+  "status": "passed",
+  "checks": 40,
+  "message": "PASS 56 revised architectural parts reach actual Three.js scene\nPASS Issued model has four facades, three plans, two main sections and study views\nPASS All 14 issued views load resolved\nPASS Actual rendered upper stair reaches revised 9000 mm storey\nPASS Live extrusion preserves revised 1600 mm flight width\nPASS North and west retain real opposite observers\nPASS Architectural facades retain visible silhouettes without hidden-line clutter\nPASS Twelve program notes use separate named sources\nPASS R5 source Review keeps live 3400-object document detached\nPASS R5 source change publishes its associated-view statuses atomically\nPASS Actual source mesh rebuild follows revised cylinder\nPASS R5 source edit has Undo\nPASS R5 source Undo restores all views, references and publications exactly\nPASS Native saved facade loads observer and hidden-display fields\nPASS Observer-side Review is detached\nPASS Native observer-side change commits one Undo\nPASS Native Undo restores side, geometry IDs, publication and references exactly\nPASS Room-name Review is detached from original BRep\nPASS Room label also updates its readable object name\nPASS Room-label Undo preserves source geometry and publication\nPASS Background-dimension Review is detached\nPASS Native background dimension retains model mm at 1:100\nPASS Native dimension Undo restores offset and association\nPASS File PDF exposes the actual CAD publication volume issue-plans\nPASS Combined ten-page output has an explicit budget diagnostic\nPASS issue-plans preview includes every numbered page in order\nPASS issue-plans native PDF contains 4 physical pages\nPASS File PDF exposes the actual CAD publication volume issue-elevations\nPASS issue-elevations preview includes every numbered page in order\nPASS issue-elevations native PDF contains 4 physical pages\nPASS File PDF exposes the actual CAD publication volume issue-entry\nPASS issue-entry preview includes every numbered page in order\nPASS issue-entry native PDF contains 1 physical pages\nPASS File PDF exposes the actual CAD publication volume issue-skylight\nPASS issue-skylight preview includes every numbered page in order\nPASS issue-skylight native PDF contains 1 physical pages\nPASS Explicit single-page printing does not disguise a complete publication set\nPASS Issued opposite facades and hidden-display semantics persist in schema38\nPASS Real cache reload preserves R5 model, named notes, four publication volumes and source references\nPASS Reload starts clean history\nALL 40 CHECKS PASSED",
+  "artifacts": [
+    "axonometric.png",
+    "issue-plans.pdf",
+    "issue-elevations.pdf",
+    "issue-entry.pdf",
+    "issue-skylight.pdf"
+  ],
+  "metrics": {
+    "initialSceneMs": 17332,
+    "sourceReviewMs": 10740,
+    "viewportSync": [
+      {
+        "ms": 8106.5,
+        "detail": {
+          "documentRevision": 2,
+          "documentObjects": 3352,
+          "sceneMeshes": 3344,
+          "remeshedCount": 3344,
+          "removedCount": 0,
+          "transformUpdateCount": 3344,
+          "visibilityUpdateCount": 0
+        }
+      },
+      {
+        "ms": 878.2999999998137,
+        "detail": {
+          "documentRevision": 3,
+          "documentObjects": 3352,
+          "sceneMeshes": 3344,
+          "remeshedCount": 29,
+          "removedCount": 0,
+          "transformUpdateCount": 29,
+          "visibilityUpdateCount": 1228
+        }
+      },
+      {
+        "ms": 934.4000000003725,
+        "detail": {
+          "documentRevision": 4,
+          "documentObjects": 3352,
+          "sceneMeshes": 3344,
+          "remeshedCount": 29,
+          "removedCount": 0,
+          "transformUpdateCount": 29,
+          "visibilityUpdateCount": 1225
+        }
+      }
+    ],
+    "kernelPhases": [
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 3187.9000000003725
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 410.29999999981374
+      },
+      {
+        "name": "agent-webcad:kernel-task:primitive",
+        "ms": 144.90000000037253
+      },
+      {
+        "name": "agent-webcad:kernel-task:primitive",
+        "ms": 12.399999999441206
+      },
+      {
+        "name": "agent-webcad:kernel-task:primitive",
+        "ms": 133.5
+      },
+      {
+        "name": "agent-webcad:kernel-task:primitive",
+        "ms": 114.09999999962747
+      },
+      {
+        "name": "agent-webcad:kernel-task:primitive",
+        "ms": 157.70000000018626
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 149.5
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 194.09999999962747
+      },
+      {
+        "name": "agent-webcad:kernel-task:primitive",
+        "ms": 144.29999999981374
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 197.59999999962747
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 144.30000000074506
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 225.59999999962747
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 391.8999999994412
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 193
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 231
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 67.20000000018626
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 166.90000000037253
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 268.20000000018626
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 599.2999999998137
+      },
+      {
+        "name": "agent-webcad:kernel-task:solid",
+        "ms": 276.79999999981374
+      },
+      {
+        "name": "agent-webcad:kernel-task:primitive",
+        "ms": 301.1000000005588
+      },
+      {
+        "name": "agent-webcad:kernel-task:primitive",
+        "ms": 184.40000000037253
+      },
+      {
+        "name": "agent-webcad:kernel-task:projection",
+        "ms": 184
+      },
+      {
+        "name": "agent-webcad:kernel-task:projection",
+        "ms": 15.400000000372529
+      },
+      {
+        "name": "agent-webcad:kernel-task:projection",
+        "ms": 2723.4000000003725
+      },
+      {
+        "name": "agent-webcad:kernel-task:projection",
+        "ms": 1541.2999999998137
+      },
+      {
+        "name": "agent-webcad:kernel-task:projection",
+        "ms": 1118
+      },
+      {
+        "name": "agent-webcad:kernel-task:projection",
+        "ms": 1256.7999999998137
+      },
+      {
+        "name": "agent-webcad:kernel-task:section",
+        "ms": 145.09999999962747
+      },
+      {
+        "name": "agent-webcad:kernel-task:section",
+        "ms": 8.5
+      },
+      {
+        "name": "agent-webcad:kernel-task:projection",
+        "ms": 2763
+      },
+      {
+        "name": "agent-webcad:kernel-task:section",
+        "ms": 131.70000000018626
+      },
+      {
+        "name": "agent-webcad:kernel-task:projection",
+        "ms": 157.5
+      },
+      {
+        "name": "agent-webcad:kernel-task:inspect",
+        "ms": 109.5
+      },
+      {
+        "name": "agent-webcad:kernel-task:inspect",
+        "ms": 8.900000000372529
+      },
+      {
+        "name": "agent-webcad:kernel-task:primitive",
+        "ms": 849.5
+      }
+    ],
+    "sideReviewMs": 4098,
+    "combinedPdfDiagnostic": "The PDF would contain 17,814,075 raster pixels; the export limit is 16,000,000. Lower dpi or export fewer/smaller boards.",
+    "pdfVolumes": {
+      "issue-plans": {
+        "pages": 4,
+        "bytes": 731609,
+        "dpi": 96
+      },
+      "issue-elevations": {
+        "pages": 4,
+        "bytes": 339704,
+        "dpi": 96
+      },
+      "issue-entry": {
+        "pages": 1,
+        "bytes": 49372,
+        "dpi": 96
+      },
+      "issue-skylight": {
+        "pages": 1,
+        "bytes": 77814,
+        "dpi": 96
+      }
+    }
+  }
+}

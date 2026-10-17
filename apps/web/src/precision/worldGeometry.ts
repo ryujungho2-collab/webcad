@@ -1,7 +1,12 @@
+import {validSpline,type CadSpline} from "@agent-webcad/cad-document";
+import {sampleSpline,splineClosed} from "./splineGeometry";
+import {validEllipse,type CadEllipse} from "@agent-webcad/cad-document";
+import {ellipseClosed,ellipseExtrema,sampleEllipse} from "./ellipseGeometry";
 import * as THREE from "three";
 import type { CadFeature, CadObject } from "@agent-webcad/cad-document";
+import { validWorkPlaneFrame } from "@agent-webcad/cad-document";
 import { getObjectTransform } from "./objectTransform";
-import { planeToWorld, worldToPlane, WORK_PLANES, type Vec3, type WorkPlaneId } from "./workPlane";
+import { planeToWorld, worldToPlane, WORK_PLANES, type Vec3, type WorkPlaneId, type WorkPlane } from "./workPlane";
 import { sampleProfile } from "./profileGeometry";
 import { profileSegments } from "./profileGeometry";
 
@@ -17,8 +22,10 @@ export type WorldProfileSegment = {
 };
 
 export type WorldDrawingGeometry = {
+  spline?:CadSpline;
+  ellipse?:CadEllipse;
   objectId: string;
-  kind: "line" | "polyline" | "rectangle" | "circle" | "arc" | "point" | "infinite-line" | "ray";
+  kind: "spline" | "ellipse" | "elliptic-arc" | "line" | "polyline" | "rectangle" | "circle" | "arc" | "point" | "infinite-line" | "ray";
   workPlane: WorkPlaneId;
   points?: Vec3[];
   center?: Vec3;
@@ -46,7 +53,11 @@ export function drawingPlaneScale(
   };
 }
 
-function sampleDrawing(feature: CadFeature, plane: WorkPlaneId): { points?: Vec3[]; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number } {
+function drawingFrame(params:Record<string,unknown>,plane:WorkPlaneId):WorkPlane {
+  return validWorkPlaneFrame(params.faceFrame)?{id:String(params.facePlaneId),...params.faceFrame}:WORK_PLANES[plane];
+}
+
+function sampleDrawing(feature: CadFeature, plane: WorkPlane): { points?: Vec3[]; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number } {
   const params = feature.params as Record<string, unknown>;
   const kind = String(params.kind);
   if (["point", "infinite-line", "ray"].includes(kind) && Array.isArray(params.points)) return { points: params.points as Vec3[] };
@@ -56,9 +67,9 @@ function sampleDrawing(feature: CadFeature, plane: WorkPlaneId): { points?: Vec3
   const radius = Number(params.radius);
   const start = kind === "arc" ? Number(params.startAngle) : 0;
   const end = kind === "arc" ? Number(params.endAngle) : Math.PI * 2;
-  const workPlane = WORK_PLANES[plane];
+  const workPlane = plane;
   const c = worldToPlane(center, workPlane);
-  const elevation = center.reduce((sum, value, index) => sum + value * workPlane.normal[index], 0);
+  const elevation = center.reduce((sum, value, index) => sum + (value-workPlane.origin[index]) * workPlane.normal[index], 0);
   const count = kind === "circle" ? 96 : Math.max(24, Math.ceil(Math.abs(end - start) / (Math.PI / 48)));
   const points = Array.from({ length: count + 1 }, (_, index) => {
     const angle = start + (end - start) * index / count;
@@ -75,11 +86,13 @@ export function drawingWorkPlane(feature: CadFeature): WorkPlaneId {
 /** A drawing's edit/render pivot is based on analytic extrema, independent of
  * display tessellation density. Both the renderer and precision tools use it. */
 export function drawingModelOrigin(params: Record<string, unknown>): Vec3 {
-  const kind = String(params.kind), planeId = (params.workPlane === "XZ" || params.workPlane === "YZ" ? params.workPlane : "XY") as WorkPlaneId, plane = WORK_PLANES[planeId];
+  const kind = String(params.kind), planeId = (params.workPlane === "XZ" || params.workPlane === "YZ" ? params.workPlane : "XY") as WorkPlaneId, plane = drawingFrame(params,planeId);
+  if(validSpline(params)){return new THREE.Box3().setFromPoints(params.controlPoints.map(p=>new THREE.Vector3(...p))).getCenter(new THREE.Vector3()).toArray() as Vec3;}
+  if(validEllipse(params)){const pts=ellipseExtrema(params);return new THREE.Box3().setFromPoints(pts.map(p=>new THREE.Vector3(...p))).getCenter(new THREE.Vector3()).toArray() as Vec3;}
   const points: Vec3[] = Array.isArray(params.points) ? [...params.points as Vec3[]] : [];
   if (["infinite-line", "ray"].includes(kind) && points.length) return [...points[0]];
   const includeArc = (center: Vec3, radius: number, start: number, sweep: number) => {
-    const c = worldToPlane(center, plane), h = center.reduce((sum, v, i) => sum + v * plane.normal[i], 0);
+    const c = worldToPlane(center, plane), h = center.reduce((sum, v, i) => sum + (v-plane.origin[i]) * plane.normal[i], 0);
     for (const angle of [start, start + sweep, 0, Math.PI / 2, Math.PI, Math.PI * 1.5]) {
       const progress = ((Math.sign(sweep) * (angle - start) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
       if (angle !== start && angle !== start + sweep && progress > Math.abs(sweep) + 1e-10) continue;
@@ -92,7 +105,7 @@ export function drawingModelOrigin(params: Record<string, unknown>): Vec3 {
   return points.length ? new THREE.Box3().setFromPoints(points.map(point => new THREE.Vector3(...point))).getCenter(new THREE.Vector3()).toArray() as Vec3 : [0, 0, 0];
 }
 
-function drawingTransformMatrix(object: CadObject, feature: CadFeature): THREE.Matrix4 {
+export function drawingTransformMatrix(object: CadObject, feature: CadFeature): THREE.Matrix4 {
   const transform = getObjectTransform(object, feature);
   const origin = new THREE.Vector3(...drawingModelOrigin(feature.params));
   const rotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(...transform.rotation.map(THREE.MathUtils.degToRad) as [number, number, number]));
@@ -131,17 +144,20 @@ export function drawingTransformAfterEdit(object:CadObject,feature:CadFeature,pa
 export function getWorldDrawingGeometry(object: CadObject, feature: CadFeature): WorldDrawingGeometry | null {
   if (feature.type !== "drawing") return null;
   const kind = String(feature.params.kind) as WorldDrawingGeometry["kind"];
-  if (!["line", "polyline", "rectangle", "circle", "arc", "point", "infinite-line", "ray"].includes(kind)) return null;
+  if (!["spline","ellipse","elliptic-arc","line", "polyline", "rectangle", "circle", "arc", "point", "infinite-line", "ray"].includes(kind)) return null;
   const plane = drawingWorkPlane(feature);
-  const local = sampleDrawing(feature, plane);
+  const frame=drawingFrame(feature.params,plane);
+  if(validSpline(feature.params)){const matrix=drawingTransformMatrix(object,feature),spline={...feature.params,controlPoints:feature.params.controlPoints.map(p=>new THREE.Vector3(...p).applyMatrix4(matrix).toArray() as Vec3)};return {objectId:object.id,kind:"spline",spline,workPlane:plane,points:sampleSpline(spline),closed:splineClosed(spline),uniformScale:false,planeAligned:spline.controlPoints.every(p=>Math.abs(p.reduce((sum,x,i)=>sum+(x-spline.controlPoints[0][i])*frame.normal[i],0))<1e-7)};}
+  if(validEllipse(feature.params)){const source=feature.params,m=drawingTransformMatrix(object,feature),map=(p:Vec3)=>new THREE.Vector3(...p).applyMatrix4(m).toArray() as Vec3,center=map(source.center),axis=(a:Vec3)=>map(source.center.map((v,i)=>v+a[i]) as Vec3).map((v,i)=>v-center[i]) as Vec3,ellipse={center,axisU:axis(source.axisU),axisV:axis(source.axisV),startParam:source.startParam,sweep:source.sweep};if(!validEllipse(ellipse))throw Error("Ellipse transform collapses its plane.");const normal=new THREE.Vector3(...ellipse.axisU).cross(new THREE.Vector3(...ellipse.axisV)).normalize();return {objectId:object.id,kind,workPlane:plane,points:sampleEllipse(ellipse),center,ellipse,closed:ellipseClosed(ellipse),uniformScale:false,planeAligned:Math.abs(normal.dot(new THREE.Vector3(...frame.normal)))>1-1e-9};}
+  const local = sampleDrawing(feature, frame);
   const transform = getObjectTransform(object, feature);
   const localPoints = local.points ?? [];
   const matrix = drawingTransformMatrix(object, feature);
   const rotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(...transform.rotation.map(THREE.MathUtils.degToRad) as [number, number, number]));
   const points = localPoints.map((point) => new THREE.Vector3(...point).applyMatrix4(matrix).toArray() as Vec3);
   const center = local.center ? new THREE.Vector3(...local.center).applyMatrix4(matrix).toArray() as Vec3 : undefined;
-  const planeScale = drawingPlaneScale(transform.scale, plane);
-  const sourceNormal = new THREE.Vector3(...WORK_PLANES[plane].normal).normalize();
+  const planeScale = feature.params.facePlaneId ? {uniform:transform.scale.every(v=>Math.abs(v-1)<1e-9),magnitude:1,orientation:1}:drawingPlaneScale(transform.scale, plane);
+  const sourceNormal = new THREE.Vector3(...frame.normal).normalize();
   const transformedNormal = sourceNormal.clone().applyQuaternion(rotation).normalize();
   const planeAligned = Math.abs(Math.abs(transformedNormal.dot(sourceNormal)) - 1) < 1e-9;
   const orientation = planeScale.orientation * Math.sign(transformedNormal.dot(sourceNormal));
@@ -156,8 +172,8 @@ export function getWorldDrawingGeometry(object: CadObject, feature: CadFeature):
     }
     if (!planeAligned || !planeScale.uniform || !segment.center || segment.sweep === undefined) return result;
     const arcCenter = new THREE.Vector3(...segment.center).applyMatrix4(matrix).toArray() as Vec3;
-    const center2 = worldToPlane(arcCenter, WORK_PLANES[plane]);
-    const start2 = worldToPlane(start, WORK_PLANES[plane]);
+    const center2 = worldToPlane(arcCenter, frame);
+    const start2 = worldToPlane(start, frame);
     const startAngle = Math.atan2(start2[1] - center2[1], start2[0] - center2[0]);
     result.push({
       topologyReference: reference,
@@ -172,7 +188,7 @@ export function getWorldDrawingGeometry(object: CadObject, feature: CadFeature):
     return result;
   }, []);
   const transformedArcStart = kind === "arc" && center && points[0]
-    ? (() => { const c = worldToPlane(center, WORK_PLANES[plane]); const p = worldToPlane(points[0], WORK_PLANES[plane]); return Math.atan2(p[1] - c[1], p[0] - c[0]); })()
+    ? (() => { const c = worldToPlane(center, frame); const p = worldToPlane(points[0], frame); return Math.atan2(p[1] - c[1], p[0] - c[0]); })()
     : undefined;
   return {
     objectId: object.id,

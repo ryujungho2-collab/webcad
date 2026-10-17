@@ -22,6 +22,7 @@ import { planeToWorld, WORK_PLANES, type Vec3, type WorkPlaneId } from "../preci
 export type CopilotPrimitive = "box" | "cylinder" | "sphere" | "cone" | "torus";
 
 export type CopilotGhost =
+  | {kind:"solid";featureType:import("@agent-webcad/cad-document").CadFeature["type"];key:string;params:Record<string,unknown>;transform:{translation:Vec3;rotation:Vec3;scale:Vec3}}
   | { kind: "path"; key: string; points: Vec3[]; workPlane: WorkPlaneId; closed: boolean; role: "source" | "result" }
   | {
     kind: "primitive";
@@ -396,3 +397,4 @@ export function withCopilotLayer(command: CadCommand, layerId: string): CadComma
   }
   return bind(command);
 }
+

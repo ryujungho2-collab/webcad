@@ -1,0 +1,61 @@
+BEGIN set-object-visible entry-tool
+END set-object-visible 5966ms
+BEGIN update-primitive entry-tool
+END update-primitive 3652ms
+BEGIN set-object-visible entry-tool
+END set-object-visible 3168ms
+BEGIN upsert-model-note program-0-0
+END upsert-model-note 3074ms
+BEGIN upsert-model-note program-0-1
+END upsert-model-note 3134ms
+BEGIN upsert-model-note program-0-2
+END upsert-model-note 3158ms
+BEGIN upsert-model-note program-1-0
+END upsert-model-note 3217ms
+BEGIN upsert-model-note program-1-1
+END upsert-model-note 3160ms
+BEGIN upsert-model-note program-1-2
+END upsert-model-note 3060ms
+BEGIN upsert-model-note program-2-0
+END upsert-model-note 3057ms
+BEGIN upsert-model-note program-2-1
+END upsert-model-note 3247ms
+BEGIN upsert-model-note program-2-2
+END upsert-model-note 3208ms
+BEGIN upsert-model-dimension dimension-plan-1
+END upsert-model-dimension 3205ms
+BEGIN upsert-model-dimension dimension-section-aa
+END upsert-model-dimension 3228ms
+BEGIN layout-model-sheet-set studio-set
+END layout-model-sheet-set 118023ms
+{
+  "out": "C:\\Users\\thefi\\OneDrive\\Desktop\\agent-webcad\\output\\projects\\courtyard-commons",
+  "parts": 56,
+  "pages": 4,
+  "issues": [
+    {
+      "id": "GAP-ELEVATION",
+      "operation": "General BRep elevation",
+      "reason": "Previous run rejected Boolean solids: primitive box/cylinder only.",
+      "severity": "blocks full project"
+    },
+    {
+      "id": "GAP-ELLIPSE",
+      "operation": "Inclined skylight section",
+      "reason": "Previous run rejected ellipse/spline section.",
+      "severity": "blocks full project"
+    },
+    {
+      "id": "GAP-REFERENCE",
+      "operation": "Entry width4000 to4800",
+      "reason": "Explicit rebind required for none; source volume delta 288000000.00061035 mm3",
+      "severity": "editing friction"
+    },
+    {
+      "id": "LAYOUT-A3",
+      "operation": "Five views at1:100 on A3",
+      "reason": "Sheet set overflow. 1:100: Automatic sheet overflow. 1:100: Overflow: view plan-1 and its annotations cannot fit this page without rotation. Choose larger paper, larger denominators, release fixed groups or fewer views.",
+      "severity": "paper choice"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-11",
+  "cards": {
+    "X1-B2": "complete",
+    "X1-B3": "complete",
+    "X4-A1": "complete",
+    "X5-A": "complete; active UCS is session state",
+    "X5-B": "complete within Line/Circle/local Move pilot"
+  },
+  "node": {
+    "command": "npx tsx --test tests/**/*.test.ts",
+    "tests": 1016,
+    "suites": 54,
+    "pass": 1016,
+    "fail": 0,
+    "skip": 0,
+    "newTests": 19
+  },
+  "browser": {
+    "fullSuiteRerun": false,
+    "nativeInput": "Edge headless CDP; hit tested mouse/keyboard; real location.reload",
+    "workflows": {
+      "cadPilots": 30,
+      "x1EndpointRadiusArc": 15,
+      "b5WorkPlanes": 8,
+      "b5FaceSketch": 5,
+      "basicEditWorkflow": 31,
+      "dxfOcs": 18,
+      "modelViews": 24
+    },
+    "checks": 131,
+    "status": "passed"
+  },
+  "typecheck": "npx tsc -b passed",
+  "architecture": {
+    "modules": 452,
+    "status": "passed"
+  },
+  "build": {
+    "command": "npm run build",
+    "status": "passed",
+    "mainKB": 1269.2,
+    "mainGzipKB": 381.55,
+    "viewportKB": 691.39,
+    "viewportGzipKB": 188.72,
+    "warning": "Existing large chunk warning remains"
+  },
+  "resolvedFindings": [
+    "UCS circle pivot lacked kind and produced wrong world centre",
+    "Fit previously reset UCS viewing direction to principal XY",
+    "Physical pointer oracle now verifies canvas hit and acquisition of a different endpoint",
+    "Fixture style required fillGradient; browser reload constant scope fixed; independent volume tolerance matches existing kernel precision; exported circle closes through endpoints"
+  ],
+  "remaining": [
+    "X4-A2 relation closure and cross-document/OS clipboard",
+    "X5-C tool and arbitrary frame sheet/export expansion"
+  ],
+  "next": "G6-D1"
+}

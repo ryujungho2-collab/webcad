@@ -47,7 +47,13 @@ describe("CAD shortcut routing", () => {
     assert.equal(routeCadShortcut("l", { ...idle2d, activeLayerLocked: true }), null);
     assert.equal(routeCadShortcut("m", { ...idle2d, hasSelection: true, selectionEditable: true }), "move");
     assert.equal(routeCadShortcut("o", { ...idle2d, canOffset: true }), "offset");
-    assert.equal(routeCadShortcut("t", { ...idle2d, canTrim: true }), "trim");
+    assert.equal(routeCadShortcut("t", { ...idle2d, canTrim: true }), "text");
+    assert.equal(routeCadShortcut("t", { ...idle2d, activeLayerLocked: true }), null);
+    assert.equal(routeCadShortcut("t", { ...idle2d, workspaceMode: "3d" }), null);
+    assert.equal(routeCadShortcut("x", { ...idle2d, canTrim: true }), "trim");
+    assert.equal(routeCadShortcut("x", { ...idle2d, canTrim: true }, { shiftKey: true }), "extend");
+    assert.equal(routeCadShortcut("x", idle2d), null);
+    assert.equal(routeCadShortcut("v", idle2d), "select");
     assert.equal(routeCadShortcut("e", { ...idle2d, canExtrude: true }), "extrude");
     assert.equal(routeCadShortcut("d", idle2d), null);
   });

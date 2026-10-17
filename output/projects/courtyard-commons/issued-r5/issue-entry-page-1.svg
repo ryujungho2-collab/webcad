@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="62000 -297 420 297" stroke="black" stroke-width="0.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<defs><clipPath id="artboard-crop"><rect x="62000" y="-297" width="420" height="297" /></clipPath></defs>
+<g clip-path="url(#artboard-crop)">
+<rect x="62000" y="-297" width="420" height="297" fill="#ffffff" stroke="none" />
+<text x="62015" y="-37" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">R5 Entry opening study</text>
+<polygon points="62012,-12 62408,-12 62408,-285 62012,-285" stroke="#4f8cff" stroke-width="0.25" />
+<polygon points="62012,-12 62408,-12 62408,-44 62012,-44" stroke="#4f8cff" stroke-width="0.25" />
+<text x="62015" y="-29" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">Author: CAD capability study</text>
+<text x="62015" y="-22" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">Revision: R5 / 2026-10-13</text>
+<text x="62015" y="-15" font-family="system-ui, sans-serif" font-size="2.5" fill="#4f8cff" stroke="none">Scale 1:20 | Page 1/1</text>
+<polyline points="62062.25,-67.25 62012.25,-67.25" stroke="#202020" stroke-width="0.5" />
+<polyline points="62062.25,-127.25 62012.25,-127.25" stroke="#202020" stroke-width="0.5" />
+<polyline points="62372.25,-217.25 62012.25,-217.25" stroke="#202020" stroke-width="0.5" />
+<polyline points="62062.25,-67.25 62062.25,-127.25" stroke="#202020" stroke-width="0.5" />
+<polyline points="62322.25,-67.25 62322.25,-127.25" stroke="#202020" stroke-width="0.5" />
+<polyline points="62372.25,-127.25 62322.25,-127.25" stroke="#202020" stroke-width="0.5" />
+<polyline points="62372.25,-67.25 62322.25,-67.25" stroke="#202020" stroke-width="0.5" />
+<polyline points="62372.25,-52.25 62012.25,-52.25" stroke="#202020" stroke-width="0.5" />
+<polyline points="62372.25,-67.25 62012.25,-67.25" stroke="#202020" stroke-width="0.5" />
+<text x="62012.25" y="-45.25" font-family="system-ui, sans-serif" font-size="2.5" fill="#202020" stroke="none">A501 Entry / ribbon opening study · 1:20</text>
+<polyline points="62037.25,-67.25 62081.25,-97.25 62087.25,-97.25" stroke="#202020" stroke-width="0.25" />
+<polyline points="62038.067,-68.715 62037.25,-67.25 62038.912,-67.475" stroke="#202020" stroke-width="0.25" />
+<text x="62087.25" y="-97.25" font-family="system-ui, sans-serif" font-size="3" fill="#202020" stroke="none">Entry void 5200 x2700 mm / study only</text>
+</g>
+</svg>

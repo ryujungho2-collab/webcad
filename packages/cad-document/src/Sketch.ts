@@ -4,7 +4,7 @@ export type SketchWorkPlane = "XY" | "XZ" | "YZ";
 
 export type SketchGeometry = { construction?: boolean } & (
   | { id: string; kind: "line"; startId: string; endId: string; segmentId: string; start: SketchPoint; end: SketchPoint }
-  | { id: string; kind: "polyline"; vertices: { id: string; point: SketchPoint }[]; segmentIds: string[]; closed: boolean }
+  | { id: string; kind: "polyline"; vertices: { id: string; point: SketchPoint }[]; segmentIds: string[]; closed: boolean; /** Signed tan(sweep/4), zero for straight edges. */ bulges?: number[] }
   | { id: string; kind: "rectangle"; cornerIds: [string, string, string, string]; edgeIds: [string, string, string, string]; origin: SketchPoint; width: number; height: number; /** In-plane orientation in radians; omitted means zero. */ angle?: number }
   | { id: string; kind: "circle"; centerId: string; curveId: string; center: SketchPoint; radius: number }
   | { id: string; kind: "arc"; centerId: string; startId: string; endId: string; curveId: string; center: SketchPoint; radius: number; startAngle: number; endAngle: number });
@@ -20,14 +20,16 @@ export type SketchConstraint =
   | { id: string; kind: "fixed-point"; point: SketchPointRef; value: SketchPoint }
   /** Signed radians from first line direction to second, wrapped to [-pi, pi]. */
   | { id: string; kind: "angle"; firstLineId: string; secondLineId: string; firstSegmentId?: string; secondSegmentId?: string; value: number }
-  | { id: string; kind: "radius" | "diameter"; geometryId: string; value: number }
+  | { id: string; kind: "radius" | "diameter"; geometryId: string; segmentId?: string; value: number }
   | { id: string; kind: "parallel" | "perpendicular" | "equal-length"; firstSegment: SketchSegmentRef; secondSegment: SketchSegmentRef }
-  | { id: string; kind: "concentric" | "equal-radius"; firstCurveId: string; secondCurveId: string }
+  | { id: string; kind: "concentric" | "equal-radius"; firstCurveId: string; secondCurveId: string; firstCurveSegmentId?: string; secondCurveSegmentId?: string }
   /** Signed side of the directed supporting line is preserved through edits. */
-  | { id: string; kind: "tangent-line"; line: SketchSegmentRef; curveId: string; side: 1 | -1 }
-  | { id: string; kind: "tangent-circles"; firstCurveId: string; secondCurveId: string; contact: "external" | "internal" }
+  | { id: string; kind: "tangent-line"; line: SketchSegmentRef; curveId: string; curveSegmentId?: string; side: 1 | -1 }
+  | { id: string; kind: "tangent-circles"; firstCurveId: string; secondCurveId: string; firstCurveSegmentId?: string; secondCurveSegmentId?: string; contact: "external" | "internal" }
   | { id: string; kind: "point-on-line"; point: SketchPointRef; line: SketchSegmentRef }
   | { id: string; kind: "point-on-circle"; point: SketchPointRef; curveId: string }
+  /** The referenced point stays on the directed finite arc, including its endpoints. */
+  | { id: string; kind: "point-on-arc"; point: SketchPointRef; curveId: string; curveSegmentId?: string }
   | { id: string; kind: "symmetric"; first: SketchPointRef; second: SketchPointRef; axis: SketchSegmentRef };
 
 /** Dimension identity is separate from its driving value, which lives only in the constraint. */
@@ -45,6 +47,10 @@ export type SketchSolveState = {
 export type Sketch = {
   id: string;
   workPlane: SketchWorkPlane;
+  /** B5: local sketch coordinates are projected through this resolved face frame. */
+  facePlaneId?: string;
+  faceFrame?: import("./WorkPlane").CadWorkPlaneFrame;
+  faceStatus?: "resolved" | "missing" | "ambiguous" | "non-planar" | "unsupported";
   layerId: string;
   geometry: SketchGeometry[];
   constraints: SketchConstraint[];

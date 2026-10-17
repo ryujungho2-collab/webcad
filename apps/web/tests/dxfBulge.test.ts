@@ -29,9 +29,9 @@ test("2D R12 POLYLINE elevation and repeated closed sentinel preserve the analyt
  const parsed=parseDxf(text);assert.deepEqual(parsed.warnings,[]);const entity=parsed.entities[0];assert.equal(entity.kind,"polyline");if(entity.kind==="polyline"){assert.deepEqual(entity.points,[[0,0,7],[2,0,7]]);assert.deepEqual(entity.bulges,[-1,0]);}
 });
 
-test("Malformed vertices and unsupported DXF width/OCS/mesh meanings are explicitly excluded",()=>{
+test("Malformed vertices and unsupported DXF width/invalid OCS/mesh meanings are explicitly excluded",()=>{
  const original=curvedDxfFixture();
- for(const text of [original.replace("90\n2","90\n3"),original.replace("20\n0\n42","42"),original.replace("42\n1","42\nNaN"),original.replace("10\n2","10\n "),original.replace("70\n1","70\n1\n43\n5"),original.replace("70\n1","70\n1\n210\n1"),original.replace("10\n2","10\n0"),original.replace("70\n1","70\n16")]){
+ for(const text of [original.replace("90\n2","90\n3"),original.replace("20\n0\n42","42"),original.replace("42\n1","42\nNaN"),original.replace("10\n2","10\n "),original.replace("70\n1","70\n1\n43\n5"),original.replace("70\n1","70\n1\n210\n0\n220\n0\n230\n0"),original.replace("10\n2","10\n0"),original.replace("70\n1","70\n16")]){
   const parsed=parseDxf(text);assert.equal(parsed.entities.length,0);assert.equal(parsed.warnings.length,1);assert.match(parsed.warnings[0],/skipped/);
  }
  const mesh="0\nSECTION\n2\nENTITIES\n0\nPOLYLINE\n70\n64\n0\nVERTEX\n10\n0\n20\n0\n0\nVERTEX\n10\n2\n20\n0\n0\nSEQEND\n0\nENDSEC\n";assert.match(parseDxf(mesh).warnings[0],/mesh/);

@@ -1,0 +1,51 @@
+import {featureContract,validateModelPresentation,type CadDocument,type CadModelProjection} from "@agent-webcad/cad-document";
+import type {CommandBus} from "@agent-webcad/cad-commands";
+import {projectModelPart} from "../precision/modelPresentation";
+import {createDrawingTopology} from "../precision/drawingTopology";
+import {getObjectTransform} from "../precision/objectTransform";
+import {projectionDrawings} from "./modelProjectionService";
+import {unchangedModelView} from "./modelViewRefresh";
+
+function presentation(document:CadDocument){return document.modelPresentation??={parts:{},explosions:{},projections:{},activeExplosionId:null};}
+function source(document:CadDocument,objectId:string){const o=document.objects[objectId],f=Object.values(document.features).find(f=>f.output===objectId);if(!o?.visible||!document.rootObjects.includes(objectId)||!document.layers[o.layerId]?.visible||document.layers[o.layerId].locked||!f||featureContract(f).representation!=="brep"||f.pattern)throw Error("Choose a visible, unlocked root solid; generated pattern members need their owner.");return {object:o,feature:f};}
+function editableOutputs(document:CadDocument,view:CadModelProjection){for(const entry of Object.values(view.outputs)){const o=document.objects[entry.objectId];if(!o||document.layers[o.layerId]?.locked)throw Error("Projection output is missing or locked. Restore it or unlock its layer.");}}
+async function updateProjection(document:CadDocument,view:CadModelProjection,rebind=false,before?:CadDocument,knownDrawings?:Awaited<ReturnType<typeof projectionDrawings>>){
+ try{
+  const features=new Map(Object.values(document.features).map(f=>[f.output,f]));
+  const outlines=(knownDrawings??await projectionDrawings(document,view,before)).map(g=>[g.slot,g] as const);
+  if(!rebind&&JSON.stringify(outlines.map(([id])=>id).sort())!==JSON.stringify(Object.keys(view.outputs).sort()))throw Error("Projection visibility/topology correspondence changed. Review and rebind this view.");
+  if(!rebind)for(const [id,g] of outlines){const old=view.outputs[id];if(!old||old.kind!==g.kind||JSON.stringify(old.sourceEdges)!==JSON.stringify(g.sourceEdges))throw Error("Source outline edge correspondence changed. Review and rebind this view explicitly.");}
+  for(const [id,g] of outlines){const entry=view.outputs[id];if(!entry)throw Error("Projection output mapping is missing.");const object=document.objects[entry.objectId],feature=features.get(entry.objectId);if(!object||!feature)throw Error("Projection output is missing. Restore the output before rebind.");const changed=entry.kind!==g.kind||JSON.stringify(entry.sourceEdges)!==JSON.stringify(g.sourceEdges),params={...g.params,kind:g.kind,modelProjection:view.id,sourcePartId:g.partId,sourceEdges:g.sourceEdges,projectionStatus:"resolved",topology:changed?createDrawingTopology(g.kind,g.params,crypto.randomUUID()):feature.params.topology};
+   if(JSON.stringify(feature.params)!==JSON.stringify(params)){if(document.layers[object.layerId]?.locked)throw Error(`Locked projection output: ${object.name}.`);feature.params=params;}
+   entry.kind=g.kind;entry.sourceEdges=g.sourceEdges;object.visible=true;
+  }
+  view.status="resolved";if(view.method==="brep-hlr")view.edgePolicy="sharp-outline";delete view.reason;
+ }catch(cause){
+  if(rebind||String(cause).includes("Locked projection"))throw cause;
+  view.status="unresolved";view.reason=cause instanceof Error?cause.message:String(cause);
+  for(const e of Object.values(view.outputs)){const object=document.objects[e.objectId],feature=Object.values(document.features).find(f=>f.output===e.objectId);if(object&&feature){if(document.layers[object.layerId]?.locked)throw Error(`Locked projection output: ${object.name}.`);object.visible=false;feature.params.projectionStatus="unresolved";}}
+ }
+}
+export async function refreshModelProjections(document:CadDocument,before?:CadDocument){if(!document.modelPresentation)return;validateModelPresentation(document.modelPresentation);for(const view of Object.values(document.modelPresentation.projections))if(!unchangedModelView(document,before,view))await updateProjection(document,view,false,before);}
+export function registerModelPresentationCommands(bus:CommandBus,document:CadDocument){
+ bus.registerHandler("register-model-part",c=>{if(c.type!=="register-model-part")return;source(document,c.part.objectId);const p=presentation(document);if(Object.values(p.parts).some(part=>part.id!==c.part.id&&part.objectId===c.part.objectId))throw Error("This solid already has a stable part identity.");if(JSON.stringify(p.parts[c.part.id])===JSON.stringify(c.part))return {accepted:false,reason:"Part is unchanged."};p.parts[c.part.id]=structuredClone(c.part);document.revision++;});
+ bus.registerHandler("place-model-part",async c=>{if(c.type!=="place-model-part")return;const part=presentation(document).parts[c.partId];if(!part)throw Error("Choose a registered part.");source(document,part.objectId);const f=Object.values(document.features).find(f=>f.output===part.objectId)!;const t=getObjectTransform(document.objects[part.objectId],f);let changed=false;if(JSON.stringify(t.translation)!==JSON.stringify(c.translation)){await bus.dispatch({type:"move-object",objectId:part.objectId,translation:c.translation});changed=true;}if(JSON.stringify(t.rotation)!==JSON.stringify(c.rotation)){await bus.dispatch({type:"rotate-object",objectId:part.objectId,rotation:c.rotation});changed=true;}return {accepted:changed,reason:changed?undefined:"Part placement is unchanged."};});
+ bus.registerHandler("remove-model-part",c=>{if(c.type!=="remove-model-part")return;const p=presentation(document);if(!p.parts[c.partId])throw Error("Choose a registered part.");if(Object.values(p.explosions).some(v=>v.offsets[c.partId])||Object.values(p.projections).some(v=>v.partIds.includes(c.partId))||Object.values(p.sections??{}).some(v=>v.partIds.includes(c.partId)))throw Error("Remove the exploded/projection views referencing this stable part first. Its solid stays in the model.");delete p.parts[c.partId];document.revision++;});
+ bus.registerHandler("upsert-exploded-view",c=>{if(c.type!=="upsert-exploded-view")return;const p=presentation(document);for(const id of Object.keys(c.view.offsets)){const part=p.parts[id];if(!part||!document.objects[part.objectId])throw Error("Exploded view contains a missing part source. Rebind that part explicitly.");}if(JSON.stringify(p.explosions[c.view.id])===JSON.stringify(c.view))return {accepted:false,reason:"Exploded view is unchanged."};p.explosions[c.view.id]=structuredClone(c.view);document.revision++;});
+ bus.registerHandler("activate-exploded-view",c=>{if(c.type!=="activate-exploded-view")return;const p=presentation(document);if(c.viewId&&!p.explosions[c.viewId])throw Error("Choose a saved exploded view.");if(p.activeExplosionId===c.viewId)return {accepted:false,reason:"Display is unchanged."};p.activeExplosionId=c.viewId;document.revision++;});
+ bus.registerHandler("delete-exploded-view",c=>{if(c.type!=="delete-exploded-view")return;const p=presentation(document);if(!p.explosions[c.viewId])throw Error("Choose a saved exploded view.");delete p.explosions[c.viewId];if(p.activeExplosionId===c.viewId)p.activeExplosionId=null;document.revision++;});
+ bus.registerHandler("upsert-model-projection",async c=>{
+  if(c.type!=="upsert-model-projection")return;const p=presentation(document),old=p.projections[c.id],layer=document.layers[c.layerId];if(!layer?.visible||layer.locked)throw Error("Projection target layer is hidden, missing or locked.");
+  if(old){editableOutputs(document,old);if(JSON.stringify(old.partIds)!==JSON.stringify(c.partIds)||old.layerId!==c.layerId)throw Error("Keep this view's source part list/layer, or create another view.");}
+  const method=c.direction||c.hiddenLines?"brep-hlr":old?.method??c.method??(c.partIds.some(id=>{try{projectModelPart(document,c,id);return false;}catch{return true;}})?"brep-hlr":undefined);
+  const view:CadModelProjection={...(method?{method,edgePolicy:"sharp-outline" as const}:{}),...c.direction?{direction:c.direction}:{},...c.hiddenLines?{hiddenLines:c.hiddenLines}:{},id:c.id,name:c.name,partIds:[...c.partIds],basis:c.basis,origin:[...c.origin],scale:c.scale,layerId:c.layerId,status:"resolved",outputs:structuredClone(old&&old.direction===c.direction?old.outputs:{})};
+  // Wall geometry may already have changed earlier in this reviewed batch. The current snapshot cannot prove that saved outlines describe it.
+  const beforeView=old&&!c.partIds.some(id=>Object.values(document.features).some(f=>f.output===p.parts[id]?.objectId&&f.params.architecturalWall))?structuredClone(document):undefined,drawings=await projectionDrawings(document,view,beforeView),used=new Set<string>();
+  for(const g of drawings){const prior=view.outputs[g.slot];if(prior){used.add(prior.objectId);continue;}const objectId=`projection-${crypto.randomUUID()}`;await bus.dispatch({type:"create-drawing",id:objectId,name:`${c.name} · ${p.parts[g.partId].name}`,drawing:g.kind,layerId:c.layerId,params:{...g.params,modelProjection:c.id,sourcePartId:g.partId,sourceEdges:g.sourceEdges,projectionStatus:"resolved"}});if(!document.objects[objectId])throw Error("Projection output could not be created.");view.outputs[g.slot]={objectId,sourceEdges:g.sourceEdges,kind:g.kind,...method?{partId:g.partId}:{}};used.add(objectId);}
+  for(const [slot,e] of Object.entries(old?.outputs??view.outputs))if(!used.has(e.objectId)){if(view.outputs[slot]?.objectId===e.objectId)delete view.outputs[slot];await bus.dispatch({type:"delete-object",objectId:e.objectId});}
+  await updateProjection(document,view,true,undefined,drawings);p.projections[c.id]=view;document.revision++;return {createdIds:old?[]:Object.values(view.outputs).map(e=>e.objectId)};
+ });
+ bus.registerHandler("delete-model-projection",async c=>{if(c.type!=="delete-model-projection")return;const p=presentation(document),view=p.projections[c.projectionId];if(!view)throw Error("Choose a derived view.");editableOutputs(document,view);if(Object.values(p.sheets??{}).some(s=>s.placements[view.id]))throw Error("Remove this view from its sheet first.");delete p.projections[c.projectionId];for(const entry of Object.values(view.outputs))await bus.dispatch({type:"delete-object",objectId:entry.objectId});document.revision++;});
+}
+
+

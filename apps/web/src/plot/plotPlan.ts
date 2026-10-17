@@ -4,6 +4,7 @@ import { resolveDimension } from "../precision/dimensionGeometry";
 import { worldToPlane, WORK_PLANES, type WorkPlaneId } from "../precision/workPlane";
 import { encodePdf, type PdfPage, type PdfPolyline, type PdfText } from "./pdfWriter";
 import { worldDraftingGeometry } from "../precision/draftingGeometry";
+import { layerStyle, paperDash } from "../precision/layerStyle";
 
 export type PaperSize = "A4" | "A3" | "A2" | "A1";
 export type PlotOrientation = "landscape" | "portrait";
@@ -28,7 +29,6 @@ export const PLOT_SCALES: { id: PlotScaleId; ratio: number | null; label: string
 ];
 
 export const PLOT_MARGIN_MM = 10;
-export const DIMENSION_TEXT_MM = 3.5;
 export const TITLE_TEXT_MM = 5;
 
 export type PlotPlan = {
@@ -58,6 +58,7 @@ export function planPlot(
   const frame = WORK_PLANES[plane];
   const drawings = collectExportDrawings(plane);
   const polylines: PdfPolyline[] = drawings.map(line => ({...line}));
+  // Annotation heights are resolved model-mm, just like their linework.
   const texts: PdfText[] = [];
 
   let dimensions = 0;
@@ -69,17 +70,18 @@ export function planPlot(
     if (String(feature.params.workPlane ?? "XY") !== plane) continue;
     if(feature.type==="drafting") {
       const data=worldDraftingGeometry(document,object,feature);
-      texts.push(...data.texts.map(text=>({position:worldToPlane(text.point,frame),sizeMm:text.height,text:text.text,color:text.style.color,angle:text.angle,align:text.align,modelSize:true})));
+      texts.push(...data.texts.map(text=>({position:worldToPlane(text.point,frame),sizeMm:text.height,text:text.text,color:text.style.color,angle:text.angle,align:text.align})));
       if(feature.params.kind==="chain"||feature.params.kind==="floor-plan")dimensions+=data.texts.length-Number(feature.params.kind==="floor-plan");
       continue;
     }
     if(feature.type!=="dimension")continue;
     const resolved = resolveDimension(feature.params);
     if (!resolved) continue;
+    const style = layerStyle(layer);
     for (const [a, b] of resolved.segments) {
-      polylines.push({ points: [worldToPlane(a, frame), worldToPlane(b, frame)], closed: false });
+      polylines.push({ points: [worldToPlane(a, frame), worldToPlane(b, frame)], closed: false, color:style.color,lineWeight:style.lineWeight,dash:paperDash(style.lineType) });
     }
-    texts.push({ position: worldToPlane(resolved.textPosition, frame), sizeMm: DIMENSION_TEXT_MM, text: resolved.text });
+    texts.push({ position: worldToPlane(resolved.textPosition, frame), sizeMm: resolved.textHeight, text: resolved.text, color:style.color });
     dimensions += 1;
   }
   if (!polylines.length && !texts.length) return null;
@@ -122,7 +124,7 @@ export function planPlot(
     heightMm,
     polylines: polylines.map((line) => ({ ...line, points: line.points.map(map) })),
     texts: [
-      ...texts.map((label) => ({ ...label, sizeMm: "modelSize" in label?label.sizeMm*ratio:label.sizeMm, position: map(label.position) })),
+      ...texts.map((label) => ({ ...label, sizeMm: label.sizeMm * ratio, position: map(label.position) })),
       {
         position: [PLOT_MARGIN_MM, PLOT_MARGIN_MM - 3] as [number, number],
         sizeMm: TITLE_TEXT_MM,

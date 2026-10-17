@@ -1,19 +1,23 @@
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../../../app/projectActivity";
+import {blockStretchEnvelope,classifyBlockStretch} from "../geometry/blockStretch";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { CadCommand } from "@agent-webcad/cad-commands";
 import { cadDocument } from "../../../state/cadDocument";
 import { subscribeDocumentChanges } from "../../../state/documentSession";
-import { previewCadCommand, applyCadPlan, discardCadPlan, getCadPlanDrawingPaths, type CadPlanPreview } from "../../../state/documentPlans";
+import { previewCadCommand, applyCadPlan, discardCadPlan, getCadPlanDrawingPaths, getCadPlanBlockPaths, type CadPlanPreview } from "../../../state/documentPlans";
 import { contourLength, exactDrawingContour, locateOnContour } from "../geometry/contourEditing";
-import { stretchDrawingPoints } from "../geometry/basicDrawingEditing";
+import { polylineEditingFeature, editPolyline, stretchDrawingPoints } from "../geometry/basicDrawingEditing";
+import { contourReferenceRequirements } from "../commands/contourReferences";
+import { needsPortion, referencePortions, referenceRoute, referenceKey, type ReferenceChoice } from "./contourReferenceChoices";
 import { createDrawingTopology, type DrawingTopology } from "../../../precision/drawingTopology";
 import { parsePointEntry } from "../../../precision/pointInput";
-import { parseLength } from "../../../precision/units";
+import { parseAngle, parseLength } from "../../../precision/units";
 import { WORK_PLANES, planeToWorld, worldToPlane, intersectRayWithWorkPlane, type Vec3 } from "../../../precision/workPlane";
 import type { ContourToolProps } from "../contracts";
 import {commandInteraction} from "../../../state/commandInteraction";
 
-type Operation = "insert" | "delete" | "open" | "close";
+type Operation = "insert" | "delete" | "open" | "close" | "to-arc" | "to-line";
 type Pick = "vertex" | "area-first" | "area-second" | "base" | "target" | "endpoint";
 type Ghost = { points: Vec3[]; closed: boolean; before: boolean };
 const title = { polyline: "Edit polyline", lengthen: "Lengthen drawing", stretch: "Stretch area" };
@@ -24,8 +28,8 @@ export function BasicEditTool(props: ContourToolProps) {
   const sources = useMemo(() => {
     const features = new Map(Object.values(cadDocument.features).map(f => [f.output, f]));
     return session.objectIds.map(id => {
-      const object = cadDocument.objects[id], feature = features.get(id);
-      try { if (!object || !feature) throw new Error("The source no longer exists. Select the geometry again."); return { object, feature, path: exactDrawingContour(object, feature), topology: (feature.params.topology ?? createDrawingTopology(String(feature.params.kind), feature.params, feature.output)) as DrawingTopology, error: "" }; }
+      const object = cadDocument.objects[id], rawFeature = features.get(id), feature = rawFeature && object && session.mode === "polyline" ? polylineEditingFeature(object, rawFeature) : rawFeature;
+      try { if (!object || !feature) throw new Error("The source no longer exists. Select the geometry again."); return { object, feature, path: session.mode === "stretch" && feature.type === "drafting" && feature.params.kind === "block" ? blockStretchEnvelope(cadDocument,object,feature) : exactDrawingContour(object, feature), topology: (feature.params.topology ?? createDrawingTopology(String(feature.params.kind), feature.params, feature.output)) as DrawingTopology, error: "" }; }
       catch (e) { return { object, feature, path: undefined, topology: undefined, error: e instanceof Error ? e.message : String(e) }; }
     });
   }, [session, revision]);
@@ -36,15 +40,22 @@ export function BasicEditTool(props: ContourToolProps) {
     return { object: value.object, feature: value.feature, path: value.path, topology: value.topology };
   };
   const initial = sources[0], currentLength = initial?.path ? contourLength(initial.path) : 0;
+  const arc = initial?.feature?.params.kind === "arc" && initial.path?.segments[0]?.kind === "arc" ? initial.path.segments[0] : null;
+  const currentAngle = arc ? Math.abs(arc.sweep!) * 180 / Math.PI : 0;
   const [operation, setOperation] = useState<Operation>("insert"), [index, setIndex] = useState(0), [point, setPoint] = useState("");
-  const [endpoint, setEndpoint] = useState<"start" | "end">("end"), [lengthMode, setLengthMode] = useState<"total" | "delta" | "percent">("total"), [value, setValue] = useState(String(currentLength));
+  const [arcSweep,setArcSweep]=useState("90deg");
+  const conversionBulge=operation==="to-arc"?(()=>{const a=parseAngle(arcSweep);return a!==null&&Math.abs(a)>1e-6&&Math.abs(a)<360-1e-6?Math.tan(a*Math.PI/720):null;})():undefined;
+  const [endpoint, setEndpoint] = useState<"start" | "end">("end"), [lengthMode, setLengthMode] = useState<"total" | "delta" | "percent" | "angle">("total"), [value, setValue] = useState(String(currentLength));
+  const entered = lengthMode === "angle" ? parseAngle(value) : lengthMode === "percent" ? (/^[+]?(?:\d+(?:\.\d*)?|\.\d+)\s*%?$/.test(value.trim()) ? Number(value.trim().replace(/%$/, "")) : null) : parseLength(value);
+  const targetLength = entered === null ? null : lengthMode === "angle" ? arc ? arc.radius! * entered * Math.PI / 180 : null : lengthMode === "delta" ? currentLength + entered : lengthMode === "percent" ? currentLength * entered / 100 : entered;
   const [first, setFirst] = useState(""), [second, setSecond] = useState(""), [delta, setDelta] = useState("");
   const [pick, setPick] = useState<Pick>(session.mode === "stretch" ? "area-first" : session.mode === "lengthen" ? "endpoint" : "vertex");
   const [preview, setPreview] = useState<CadPlanPreview | null>(null), [message, setMessage] = useState("Choose the edit on the canvas or enter exact values."), [pending, setPending] = useState(false);
   const [paths, setPaths] = useState<{ points: string; before: boolean }[]>([]), [handles, setHandles] = useState<{ p: [number, number]; index: number; selected: boolean }[]>([]), [area, setArea] = useState("");
   const [projectedPlan, setProjectedPlan] = useState<string | null>(null);
   const [reviewedKey,setReviewedKey]=useState<string>();
-  const draftKey=JSON.stringify([operation,index,point,endpoint,lengthMode,value,first,second,delta,revision,session]);
+  const [choices, setChoices] = useState<Record<string, ReferenceChoice>>({});
+  const draftKey=JSON.stringify([operation,index,point,arcSweep,endpoint,lengthMode,value,first,second,delta,revision,session,choices]);
   const interaction=commandInteraction({command:"Drawing edit",draftKey,reviewedKey,preview,pending,targets:session.objectIds,visualReady:projectedPlan===preview?.planId&&paths.some(p=>!p.before)});
   const latest = useRef(props); latest.current = props;
   const draft = useRef({ operation, index, endpoint, pick, first, second }); draft.current = { operation, index, endpoint, pick, first, second };
@@ -56,13 +67,30 @@ export function BasicEditTool(props: ContourToolProps) {
     const h = path.segments[0].start.reduce((sum, v, i) => sum + v * plane.normal[i], 0);
     return planeToWorld(p, plane).map((v, i) => v + h * plane.normal[i]) as Vec3;
   };
+  const sketchOwned = session.mode === "polyline" && String(initial?.feature?.params?.sketchId ?? "") !== "" && ["polyline", "rectangle"].includes(String(initial?.feature?.params?.kind ?? ""));
+  const sketchRequirements = useMemo(() => {
+    if (!sketchOwned) return [];
+    try { return contourReferenceRequirements(cadDocument, [session.objectIds[0]]); }
+    catch { return []; }
+  }, [session, revision, sketchOwned]);
+  const editedPath = useMemo(() => {
+    if (!sketchOwned) return null;
+    try {
+      const { object, feature, path, topology } = source();
+      const p = operation === "insert" ? typed(point, path.segments[index]?.start) : undefined;
+      if (operation === "insert" && !p) return null;
+      if(operation==="to-arc"&&conversionBulge===null)return null;
+      const params = editPolyline(object, feature, { type: "edit-polyline", objectId: session.objectIds[0], operation, segmentId: topology.segments[index]?.id, controlId: topology.controls[index]?.id, point: p ?? undefined, bulge:conversionBulge??undefined });
+      return exactDrawingContour({ ...object, transform: { translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] } }, { ...feature, params });
+    } catch { return null; }
+  }, [sources, operation, index, point, arcSweep, sketchOwned]);
   const modelMarks = useMemo(() => {
     try {
       const { path } = source(), vertices = path.segments.map(s => s.start).concat(path.closed ? [] : [path.segments.at(-1)!.end]);
       if (session.mode === "stretch") {
         const a = typed(first), b = a && typed(second, a); if (!a || !b) return { area: [], handles: [] };
         const plane = WORK_PLANES[path.workPlane], u = worldToPlane(a, plane), v = worldToPlane(b, plane), from = (p: [number, number]) => a.map((n, i) => n + (p[0] - u[0]) * plane.xAxis[i] + (p[1] - u[1]) * plane.yAxis[i]) as Vec3;
-        return { area: [a, from([v[0], u[1]]), b, from([u[0], v[1]]), a], handles: sources.flatMap(s => s.object && s.feature ? stretchDrawingPoints(s.object, s.feature, { workPlane: path.workPlane, first: a, second: b }).map((p, index) => ({ p, index, selected: true })) : []) };
+        return { area: [a, from([v[0], u[1]]), b, from([u[0], v[1]]), a], handles: sources.flatMap(s => s.object && s.feature ? (s.feature.type === "drafting" && s.feature.params.kind === "block" ? classifyBlockStretch(cadDocument,s.object,s.feature,{workPlane:path.workPlane,first:a,second:b}) === "inside" ? s.path!.segments.map(s=>s.start) : [] : stretchDrawingPoints(s.object, s.feature, { workPlane: path.workPlane, first: a, second: b })).map((p, index) => ({ p, index, selected: true })) : []) };
       }
       if (session.mode === "lengthen") return { area: [], handles: [vertices[0], vertices.at(-1)!].map((p, i) => ({ p, index: i, selected: i === (endpoint === "start" ? 0 : 1) })) };
       return { area: [], handles: vertices.map((p, i) => ({ p, index: i, selected: operation === "delete" && i === index })) };
@@ -80,11 +108,19 @@ export function BasicEditTool(props: ContourToolProps) {
       if (session.mode === "polyline") {
         const p = operation === "insert" ? typed(point, path.segments[index]?.start) : undefined;
         if (operation === "insert" && !p) { setMessage("Pick a segment to insert a vertex; drag to place it or enter U,V. Arc vertices stay on the arc."); return; }
-        command = { type: "edit-polyline", objectId: session.objectIds[0], operation, segmentId: topology.segments[index]?.id, controlId: topology.controls[index]?.id, point: p ?? undefined };
+        if(operation==="to-arc"&&conversionBulge===null){setMessage("Enter a signed arc sweep between -360 and 360 degrees, excluding zero.");return;}
+        const base = { type: "edit-polyline" as const, objectId: session.objectIds[0], operation, segmentId: topology.segments[index]?.id, controlId: topology.controls[index]?.id, point: p ?? undefined, bulge:conversionBulge??undefined };
+        if (!sketchOwned) command = base;
+        else {
+          const referenceRoutes = sketchRequirements.map(r => {
+            if (r.kind === "unsupported" || r.kind === "pattern" || "throughPattern" in r && r.throughPattern) throw new Error(`${r.name}: detach or edit this relationship before editing vertices.`);
+            return referenceRoute(r, choices[referenceKey(r)]);
+          });
+          command = { ...base, referenceRoutes };
+        }
       } else if (session.mode === "lengthen") {
-        const length = lengthMode === "percent" ? (/^[+]?(?:\d+(?:\.\d*)?|\.\d+)\s*%?$/.test(value.trim()) ? Number(value.trim().replace(/%$/, "")) : null) : parseLength(value);
-        if (length === null) { setMessage("Enter a finite length with units, or a percentage."); return; }
-        command = { type: "lengthen-drawing", objectId: session.objectIds[0], endpoint, mode: lengthMode, value: length };
+        if (entered === null || lengthMode === "angle" && entered <= 0) { setMessage("Enter a positive included angle in deg or rad, a finite length with units, or a percentage."); return; }
+        command = { type: "lengthen-drawing", objectId: session.objectIds[0], endpoint, mode: lengthMode, value: entered };
       } else {
         const a = typed(first), b = a && typed(second, a), d = parsePointEntry(delta);
         if (!a || !b || !d) { setMessage("Choose two crossing-area corners, then a displacement or base → target on the canvas."); return; }
@@ -97,12 +133,13 @@ export function BasicEditTool(props: ContourToolProps) {
       plan.current = result.planId; setPreview(result);setReviewedKey(draftKey);
       setMessage(!result.result.ok ? result.result.reason ?? "Edit rejected." : result.stale ? "The document changed; preparing again…" : `${result.changes.filter(c => c.kind === "modified").length} object(s) updated, including live dependents · one Undo`);
       ghosts.current = result.result.ok && !result.stale ? result.changes.flatMap<Ghost>(change => {
+        const blockPaths=getCadPlanBlockPaths(result.planId,change.objectId);if(blockPaths.length)return blockPaths;
         const p = getCadPlanDrawingPaths(result.planId, change.objectId); if (!p) return [];
         return [...(p.before ? [{ points: p.before, closed: p.beforeClosed, before: true }] : []), ...(p.after ? [{ points: p.after, closed: p.afterClosed, before: false }] : [])];
       }) : [];
     }).catch(e => { if (!controller.signal.aborted) setMessage(e instanceof Error ? e.message : String(e)); }); }, 120);
     return () => { clearTimeout(timer); controller.abort(); if (localPlan) discardCadPlan(localPlan); };
-  }, [operation, index, point, endpoint, lengthMode, value, first, second, delta, revision, session]);
+  }, [operation, index, point, arcSweep, endpoint, lengthMode, value, first, second, delta, revision, session, choices]);
   useEffect(() => {
     let frame: number, previous = "";
     const draw = () => {
@@ -209,17 +246,34 @@ export function BasicEditTool(props: ContourToolProps) {
     </svg>
     <form className="cad-contour-tool cad-basic-edit-tool" aria-label="Basic drawing editor" data-basic-edit-generation={preview?.baseVersion.generation} data-cad-editor="true" onSubmit={e => { e.preventDefault(); void apply(); }} onKeyDown={e => { e.stopPropagation(); if (e.key === "Escape" && !pending) { e.preventDefault(); close(); } }}>
       <strong>{title[session.mode as keyof typeof title]}</strong>
+      {session.mode === "lengthen" && !!initial?.feature?.params.sketchId && <small>Sketch Lengthen keeps the fixed endpoint and arc radius. Connected geometry follows its constraints; conflicting driving dimensions block Apply.</small>}
+      {session.mode === "stretch" && sources.some(s=>s.feature?.params.sketchId) && <small aria-label="Sketch Stretch policy">Sketch Stretch keeps constraints and driving dimensions. Connected geometry may follow the solver. A conflicting displacement changes nothing; adjust it, or Cancel and Edit Sketch to review the named constraints.</small>}
+      {session.mode === "stretch" && preview?.result.diagnostic?.kind === "sketch-conflict" && <small role="alert" aria-label="Stretch constraint conflict">Sketch {preview.result.diagnostic.sketchId} · constraints: {preview.result.diagnostic.constraintIds.join(", ") || "requested displacement"} · geometry: {preview.result.diagnostic.geometryIds.join(", ") || "selected sketch points"}. Adjust the displacement, or Cancel and Edit Sketch. Constraints are preserved.</small>}
+      {session.mode === "lengthen" && preview?.result.diagnostic?.kind === "sketch-conflict" && <small role="alert" aria-label="Lengthen constraint conflict">Sketch {preview.result.diagnostic.sketchId} · constraints: {preview.result.diagnostic.constraintIds.join(", ") || "requested length"}. Adjust the length, or Cancel and Edit Sketch to change the driving dimension.</small>}
       {session.mode === "polyline" && <>
-        <label>Operation<select aria-label="Polyline operation" value={operation} disabled={pending} onChange={e => { setOperation(e.target.value as Operation); setIndex(0); setPoint(""); }}><option value="insert">Insert vertex</option><option value="delete">Delete vertex</option><option value="open">Open (remove closing segment)</option><option value="close">Close (add closing segment)</option></select></label>
-        {(operation === "insert" || operation === "delete") && <label>{operation === "insert" ? "Segment" : "Vertex"}<select aria-label="Polyline reference" value={index} disabled={pending} onChange={e => { setIndex(Number(e.target.value)); setPoint(""); }}>{(operation === "insert" ? initial?.topology?.segments ?? [] : initial?.topology?.controls ?? []).map((c, i) => <option key={c.id} value={i}>{i + 1}{operation === "insert" ? ` · ${initial.path?.segments[i]?.kind}` : initial.path ? ` · ${worldToPlane(initial.path.segments[i]?.start ?? initial.path.segments.at(-1)!.end, WORK_PLANES[initial.path.workPlane]).map(v => v.toFixed(2)).join(", ")}` : ""}</option>)}</select></label>}
+        <label>Operation<select aria-label="Polyline operation" value={operation} disabled={pending} onChange={e => { setOperation(e.target.value as Operation); setIndex(0); setPoint(""); }}><option value="insert">Insert vertex</option><option value="delete">Delete vertex</option><option value="open">Open (remove closing segment)</option><option value="close">Close (add closing segment)</option><option value="to-arc">Convert edge to arc</option><option value="to-line">Convert edge to line</option></select></label>
+        {(operation === "insert" || operation === "delete" || operation === "to-arc" || operation === "to-line") && <label>{operation !== "delete" ? "Segment" : "Vertex"}<select aria-label="Polyline reference" value={index} disabled={pending} onChange={e => { setIndex(Number(e.target.value)); setPoint(""); }}>{(operation !== "delete" ? initial?.topology?.segments ?? [] : initial?.topology?.controls ?? []).map((c, i) => <option key={c.id} value={i}>{i + 1}{operation !== "delete" ? ` · ${initial.path?.segments[i]?.kind}` : initial.path ? ` · ${worldToPlane(initial.path.segments[i]?.start ?? initial.path.segments.at(-1)!.end, WORK_PLANES[initial.path.workPlane]).map(v => v.toFixed(2)).join(", ")}` : ""}</option>)}</select></label>}
         {operation === "insert" && <label>New vertex U,V<input aria-label="Inserted vertex" value={point} disabled={pending} placeholder="@20mm,0" onChange={e => setPoint(e.target.value)} /></label>}
+        {operation === "to-arc" && <label>Signed arc sweep<input aria-label="Converted arc sweep" value={arcSweep} disabled={pending} onChange={e=>setArcSweep(e.target.value)}/></label>}
+        {sketchOwned && <small>Sketch-owned contour: constraints, driving dimensions and live solids reconnect below and the solver revalidates the sketch.</small>}
+        {sketchOwned && sketchRequirements.length > 0 && <fieldset aria-label="Reconnect vertex references" disabled={pending}><legend>Reconnect references</legend>{sketchRequirements.map(r => {
+          const key = referenceKey(r), c = choices[key] ?? {result:"",edge:""}, slot = "referenceSlot" in r && r.referenceSlot ? ` ${r.referenceSlot}` : "";
+          const change = (patch: Partial<ReferenceChoice>) => setChoices(old => ({...old,[key]:{...c,...patch}}));
+          const unsupported = r.kind === "unsupported" || r.kind === "pattern" || "throughPattern" in r && r.throughPattern;
+          return <div key={key}><small>{r.name} · {r.kind}</small>{unsupported ? <small>Edit or detach this relationship first.</small> : <>
+            <select aria-label={`Reference result ${r.dependentId} ${r.sourceId}${slot}`} value={c.result} onChange={e => change({result:e.target.value,edge:""})}><option value="">Choose new result</option><option value={0}>Result 1</option></select>
+            {needsPortion(r) && <select aria-label={`Reference portion ${r.dependentId} ${r.sourceId}${slot}`} value={c.edge} onChange={e => change({edge:e.target.value})}><option value="">Choose reference portion</option>{c.result !== "" && editedPath && referencePortions(r,editedPath,r.kind === "sketch",true).map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select>}
+            {r.kind === "construction" && r.elementKind === "intersection" && <select aria-label={`Reference branch ${r.dependentId} ${r.sourceId}`} value={c.branch ?? ""} onChange={e => change({branch:e.target.value === "" ? undefined : e.target.value as "positive"|"negative"})}><option value="">Keep saved branch</option><option value="positive">Positive along line</option><option value="negative">Negative along line</option></select>}
+          </>}</div>;
+        })}</fieldset>}
         <small>Pick a segment or vertex on the canvas. Insert splits arcs without faceting; straight segments may form a new corner. @ is relative to the selected segment's start.</small>
       </>}
       {session.mode === "lengthen" && <>
         <small>Current total: {currentLength.toFixed(4)} mm</small>
         <label>Endpoint<select aria-label="Lengthen endpoint" value={endpoint} disabled={pending} onChange={e => setEndpoint(e.target.value as "start" | "end")}><option value="end">End</option><option value="start">Start</option></select></label>
-        <label>Method<select aria-label="Lengthen method" value={lengthMode} disabled={pending} onChange={e => { const mode = e.target.value as typeof lengthMode; setLengthMode(mode); setValue(mode === "percent" ? "100" : mode === "delta" ? "10mm" : String(currentLength)); }}><option value="total">Total length</option><option value="delta">Add / subtract length</option><option value="percent">Percent of current total</option></select></label>
-        <label>{lengthMode === "percent" ? "Percent" : "Length"}<input aria-label="Lengthen value" value={value} disabled={pending} placeholder={lengthMode === "percent" ? "125%" : "120mm"} onChange={e => setValue(e.target.value)} /></label>
+        <label>Method<select aria-label="Lengthen method" value={lengthMode} disabled={pending} onChange={e => { const mode = e.target.value as typeof lengthMode; setLengthMode(mode); setValue(mode === "angle" ? String(currentAngle) : mode === "percent" ? "100" : mode === "delta" ? "10mm" : String(currentLength)); }}><option value="total">Total length</option><option value="delta">Add / subtract length</option><option value="percent">Percent of current total</option>{arc && <option value="angle">Included arc angle</option>}</select></label>
+        <label>{lengthMode === "angle" ? "Included angle" : lengthMode === "percent" ? "Percent" : "Length"}<input aria-label="Lengthen value" value={value} disabled={pending} placeholder={lengthMode === "angle" ? "180deg or 3.14rad" : lengthMode === "percent" ? "125%" : "120mm"} onChange={e => setValue(e.target.value)} /></label>
+        {arc && targetLength !== null && Number.isFinite(targetLength) && <small aria-label="Arc angle and target length">Included angle: {(targetLength / arc.radius! * 180 / Math.PI).toFixed(4)}° · target length: {targetLength.toFixed(4)} mm · radius: {arc.radius!.toFixed(4)} mm</small>}
         <small>Pick or drag an endpoint. Lines keep their direction; arcs keep their radius. Shortening may remove intermediate vertices. Drag uses total length.</small>
       </>}
       {session.mode === "stretch" && <>
@@ -228,7 +282,7 @@ export function BasicEditTool(props: ContourToolProps) {
         <label>Area second U,V<input aria-label="Stretch second corner" value={second} disabled={pending} placeholder="@80,100" onChange={e => setSecond(e.target.value)} /></label>
         <label>Displacement dU,dV<input aria-label="Stretch displacement" value={delta} disabled={pending} placeholder="2cm,0" onChange={e => setDelta(e.target.value)} /></label>
         <div><button type="button" disabled={pending} onClick={() => { setPick("area-first"); props.getCanvas()?.focus(); }}>Pick crossing area</button><button type="button" disabled={pending || !typed(first) || !typed(second, typed(first) ?? undefined)} onClick={() => { setPick("base"); base.current = null; props.getCanvas()?.focus(); }}>Pick base → target</button></div>
-        <small>Canvas step: {pick.replace("area-", "area ")}. Draw the area in either direction. Circle centres inside move the whole circle; partial arc Stretch keeps its included angle.</small>
+        <small>Canvas step: {pick.replace("area-", "area ")}. Draw the area in either direction. Circle centres inside move the whole circle; partial arc Stretch keeps its included angle. Complete block bounds move the instance rigidly; partial bounds block Apply. Edit the definition or explicitly Disband block to change members. Text uses a conservative envelope.</small>
       </>}
       <p role="status">{message}</p><small>Green: result · dashed amber: before. Esc cancels; Enter applies.</small>
       <button type="button" disabled={pending || !initial?.path} onClick={() => props.onFrame([...(ghosts.current.length ? ghosts.current.flatMap(g => g.points) : cached.current.flatMap(s => s.path?.segments.flatMap(s => [s.start, s.end]) ?? [])), ...marks.current.area])}>Fit edit preview</button>

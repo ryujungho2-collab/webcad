@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-11",
+  "scope": "G6-D5-A2 title frames / orthographic alignment / multi-page sheet sets",
+  "status": "complete within declared 2-template / principal-view / 16-page boundary",
+  "newNodeTests": 12,
+  "newNativeChecks": 24,
+  "architectureModules": 478,
+  "node": {
+    "tests": 1060,
+    "suites": 54,
+    "pass": 1060,
+    "fail": 0,
+    "skip": 0
+  },
+  "native": {
+    "workflows": 7,
+    "checks": 166,
+    "wholeBrowserSuite": false,
+    "results": {
+      "modelSheetSet": 24,
+      "modelSheetLayout": 19,
+      "modelDrawing": 32,
+      "artboardsWorkflow": 31,
+      "artboardPdfWorkflow": 21,
+      "draftingWorkflow": 16,
+      "historySelection": 23
+    }
+  },
+  "typecheck": "passed",
+  "productionBuild": "passed; existing large-chunk warning remains",
+  "artifacts": [
+    "output/pdf/sheet-set.pdf",
+    "output/pdf/sheet-set-page-1.svg",
+    "output/pdf/sheet-set-page-2.svg",
+    "output/pdf/sheet-set-page-3.svg",
+    "output/pdf/sheet-set-preview-1.png",
+    "output/pdf/sheet-set-preview-2.png",
+    "output/pdf/sheet-set-preview-3.png"
+  ],
+  "pdf": {
+    "pages": 3,
+    "sizePoints": [
+      595.276,
+      841.89
+    ],
+    "bytes": 70145,
+    "validation": "native downloaded PDF count/MediaBox + independent pdfinfo/pdftoppm + visual inspection of all three pages; Housing, Engineer, Revision A and Page 1/3 through 3/3 inside title block"
+  },
+  "boundaries": [
+    "64 views / 12 scale candidates / up to 16 pages; deterministic non-rotating heuristic, no optimal packing guarantee",
+    "Standard32mm / Compact24mm template selection and field editing; arbitrary frame graphics editor/import excluded",
+    "Principal XY/XZ/YZ same-part projections; unique basis and front required for multiple aligned views; no first-angle rule/custom projection",
+    "Aligned bundles never split; fixed groups keep saved page and absolute placement/scale",
+    "Annotation routing inside a group unchanged; conservative full-circle arc/glyph envelope",
+    "Template/fields/alignment/page ownership persist v26; margins/gaps/candidates/fixed/page-limit are session inputs",
+    "v1-v25 read compatibility and minimal writer version preserved",
+    "No ellipse/spline/general HLR/font embedding expansion; next X2-A"
+  ],
+  "repairs": [
+    "Added atomic page growth/shrink with stable sheet/artboard/title/frame and view/output identities",
+    "Rejected generated page ID collision with unrelated sheet",
+    "Preserved rectangle topology when re-editing frame, fixing actual save/reopen mismatch",
+    "Removed obsolete selected output page after repartition; reset output when switching saved sheets",
+    "Strip page suffix when loading set name to prevent duplicate suffixes",
+    "A2 checks rendered frame fields instead of unused A1 footer title width"
+  ],
+  "failuresAndReruns": [
+    "Initial Node deletion oracle used Object.keys on removed optional artboards; corrected oracle to empty record",
+    "First native run passed 22 functional checks then failed actual reload comparison; diagnostic rerun identified missing frame rectangle topology after Compact re-layout. Product fix retained topology; final native run passed all24 including real reload",
+    "Final complete Node and six native regression workflows passed after fixes"
+  ],
+  "commands": [
+    "npx tsx --test tests/**/*.test.ts",
+    "npx tsc -b",
+    "npm run check:architecture",
+    "npm run build (root)",
+    "node scripts/browserChecks.mjs --page=modelSheetSet --artifacts",
+    "node scripts/browserChecks.mjs --page=<six regression pages>",
+    "pdfinfo output/pdf/sheet-set.pdf",
+    "pdftoppm -scale-to 1400 -png output/pdf/sheet-set.pdf output/pdf/sheet-set-preview"
+  ]
+}

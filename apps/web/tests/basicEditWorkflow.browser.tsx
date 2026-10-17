@@ -23,6 +23,7 @@ resetTestDocument();
 await dispatchCadCommand({ type: "create-drawing", id: "profile", drawing: "rectangle", params: { workPlane: "XY", points: [[0, 0, 0], [100, 0, 0], [100, 60, 0], [0, 60, 0]] } });
 await dispatchCadCommand({ type: "create-extrude", id: "solid", profileObjectIds: ["profile"], distance: 8 });
 await dispatchCadCommand({ type: "create-drawing", id: "line", drawing: "line", params: { workPlane: "XY", points: [[0, 90, 0], [100, 90, 0]] } });
+await dispatchCadCommand({ type: "create-drawing", id: "arc", drawing: "arc", params: { workPlane: "XY", center: [160, 90, 0], radius: 20, startAngle: 0, endAngle: Math.PI / 2 } });
 await dispatchCadCommand({ type: "create-dimension", id: "dimension", dimension: "linear", params: { workPlane: "XY", points: [[0, 90], [100, 90]], sourceObjectId: "line", offset: 10 } });
 saveDocumentToCache(); createRoot(document.getElementById("root")!).render(<App />);
 const output = document.getElementById("basic-edits-result")!, button = document.getElementById("run-basic-edits") as HTMLButtonElement;
@@ -65,6 +66,16 @@ button.onclick = async () => {
     check(Math.abs(draggedLength - 150) <= 120 / Math.abs(end.cx.baseVal.value - start.cx.baseVal.value), "Physical endpoint drag follows the projected pointer within one screen pixel");
     await field("Lengthen value", "150mm"); await ready();
     await click("Apply drawing edit"); await waitFor(() => !editor()); check(near(contourLength(path("line")), 150), "Exact input after dragging keeps the fixed endpoint and follows the preview");
+    await select("arc"); const arcBefore = state(), arcPast = past(); await click("Lengthen"); await choose("Lengthen method", 3); await field("Lengthen value", "180deg"); await ready();
+    check(editor()?.querySelector('[aria-label="Arc angle and target length"]')?.textContent?.includes("62.8319 mm") && state() === arcBefore && past() === arcPast, "Arc angle input previews the equivalent exact target length without changing CAD");
+    await field("Lengthen value", "360deg"); await waitFor(() => Boolean(editor()?.textContent?.includes("full circle")));
+    check(find("Apply drawing edit")?.disabled && state() === arcBefore && past() === arcPast, "A full-turn arc is rejected before Apply without changing history");
+    await field("Lengthen value", "3.141592653589793rad"); await ready(); await click("Apply drawing edit"); await waitFor(() => !editor());
+    check(near(path("arc").segments[0].sweep!, Math.PI) && near((await measureDocumentObject(cadDocument, "arc")).length!, 20 * Math.PI), "Radians input preserves radius and produces the independently measured arc length");
+    const arcAfter = state(); await click("Undo"); check(state() === arcBefore, "Angle Lengthen Undo restores the original arc"); await click("Redo"); check(state() === arcAfter, "Angle Lengthen Redo restores the reviewed arc");
+    await select("arc"); await click("Lengthen"); await field("Lengthen value", String(10 * Math.PI) + "mm"); await ready();
+    check(editor()?.querySelector('[aria-label="Arc angle and target length"]')?.textContent?.includes("90.0000°"), "Target length input reports the corresponding included angle");
+    await click("Apply drawing edit"); await waitFor(() => !editor()); check(near((await measureDocumentObject(cadDocument, "arc")).length!, 10 * Math.PI), "Length input and angle input share one analytic arc geometry");
     await select("profile"); await click("Edit polyline"); const originalControls = top("profile").controls.map(c => c.id); await field("Inserted vertex", "5cm,0"); await ready(); await click("Apply drawing edit"); await waitFor(() => !editor());
     check(top("profile").controls.length === 5 && near((await measureDocumentObject(cadDocument, "solid")).volume!, 48000), "Insert vertex retains the exact live solid profile without changing volume");
     await click("Edit polyline"); await choose("Polyline operation", 1); await choose("Polyline reference", 1); await ready(); await click("Apply drawing edit"); await waitFor(() => !editor());
@@ -97,7 +108,7 @@ button.onclick = async () => {
     check(find("Apply drawing edit")?.disabled && find("Fit edit preview")?.disabled, "Deleting an active source leaves a clear, cancellable editor rather than crashing the application");
     await click("Cancel drawing edit"); check(JSON.stringify(deserializeDocument(serializeDocument(cadDocument))) === JSON.stringify(cadDocument), "All edits retain exact contours, topology and live links on save/reopen");
     canvas().focus(); await key("Escape"); await click("Stretch");
-    check(editor()?.textContent?.includes("1 source(s)"), "Stretch starts from a crossing area without requiring prior object selection and excludes solids/annotations"); await click("Cancel drawing edit");
+    check(editor()?.textContent?.includes("2 source(s)"), "Stretch starts without prior selection and includes both finite drawings while excluding solids/annotations"); await click("Cancel drawing edit");
     await key("k", 2); await input({ type: "text", text: "Stretch" }); await pause(); check(document.querySelector('dialog[open]')?.textContent?.includes("Stretch"), "Command palette exposes the same area editing operation"); await key("Escape");
     output.textContent = `${lines.join("\n")}\nALL ${lines.length} CHECKS PASSED`;
   } catch (e) { output.textContent = `${lines.join("\n")}\nFAIL: ${e instanceof Error ? e.stack : String(e)}`; }

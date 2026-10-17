@@ -1,0 +1,80 @@
+{
+  "id": "G2-S1",
+  "date": "2026-10-11",
+  "status": "complete within flat same-plane drawing-frame workspace scope",
+  "node": {
+    "tests": 1098,
+    "suites": 54,
+    "passed": 1098,
+    "failed": 0,
+    "skipped": 0,
+    "newWorkspaceTests": 11
+  },
+  "nativeBrowser": {
+    "workflows": 5,
+    "checks": 126,
+    "results": {
+      "workspaceSections": 25,
+      "drawingFrames": 26,
+      "artboardsWorkflow": 31,
+      "artboardPdfWorkflow": 21,
+      "historySelection": 23
+    },
+    "entireBrowserSuiteRerun": false,
+    "finalRun": "passed after final product edits"
+  },
+  "typecheck": "passed",
+  "architecture": {
+    "status": "passed",
+    "modules": 493
+  },
+  "productionBuild": "passed; existing large-chunk warning remains",
+  "schema": {
+    "workspaceSectionVersion": 29,
+    "reader": "v1-v29",
+    "existingMinimumVersions": "preserved; frames without areas remain v28",
+    "downgradeTo28": "rejected"
+  },
+  "implemented": [
+    "2D work area name/color, flat single ownership and explicit ordered frame membership",
+    "Atomic frame reassignment/removal, independent member placement and area-wide translation",
+    "Native header drag and numeric movement with detached Review/Apply and one Undo",
+    "Canvas-only collapse with compact header; SVG/PDF/DXF continue existing frame visibility/crop/member rules",
+    "Area navigation includes members moved outside the background rectangle",
+    "Area delete releases frames; frame delete cleans membership in same transaction",
+    "Locked member rejects group movement; invalid numeric input, stale Review, Cancel and failed batch rollback",
+    "Optional root added/removed correctly through History, file opening, cache reload and proposal publication"
+  ],
+  "pdf": {
+    "pages": 2,
+    "sizePoints": [
+      283.465,
+      226.772
+    ],
+    "sizeMillimetres": [
+      100,
+      80
+    ],
+    "bytes": 7561,
+    "validation": "native Download with both frames collapsed, independent pdfinfo/pdftoppm and visual inspection; 100x60 model rectangle at1:2 becomes50x30 on100x80 paper"
+  },
+  "artifacts": [
+    "output/pdf/workspace-sections.pdf",
+    "output/pdf/workspace-sections.svg",
+    "output/pdf/workspace-sections-preview.png"
+  ],
+  "independentOracles": [
+    "30mm X and40mm Y area movement yields identical frame deltas without source TRS or scale changes",
+    "100mm model width remains50mm paper width at1:2",
+    "Collapsed frames remain in native two-page PDF",
+    "Deleting an area keeps frames and sources; deleting a frame removes only its membership",
+    "One frame has one owner; reassignment order and collapse survive actual page reload"
+  ],
+  "limitations": [
+    "Only flat sections of existing coplanar XY/XZ/YZ drawing frames; ordinary boards/model sheets/solids are not members",
+    "Ordered frame membership is stored and editable; automatic page order/layout and reference numbering are future F2/D5-F1 work",
+    "Section background/label are screen-only; no nested areas or geometric CAD section operation",
+    "Existing F1 DXF flattening losses remain; collapse does not change export semantics"
+  ],
+  "next": "G2-F2 frame links and alignment, then G6-D5-F1 automatic sheets, then G2-F3 continuous drawings; X6-D2-E1 remains separate CAD geometry queue"
+}

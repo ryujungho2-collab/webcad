@@ -1,0 +1,200 @@
+{
+  "date": "2026-10-13",
+  "card": "G6-D4-H1",
+  "status": "complete within line/circle/arc scope",
+  "node": {
+    "tests": 1166,
+    "suites": 54,
+    "fail": 0,
+    "skip": 0
+  },
+  "typecheck": "passed",
+  "architectureModules": 524,
+  "productionBuild": "passed",
+  "native": {
+    "sectionPresentation": 17,
+    "courtyardH1": 21,
+    "modelDrawing": 32,
+    "modelSheetLayout": 19,
+    "modelSheetSet": 24,
+    "total": 113,
+    "fullBrowserSuite": false
+  },
+  "project": {
+    "date": "2026-10-13",
+    "parts": 56,
+    "views": 7,
+    "pages": 5,
+    "schema": 34,
+    "metrics": [
+      {
+        "id": "plan-1",
+        "ms": 4348,
+        "cuts": 70,
+        "background": 86,
+        "hatch": 272,
+        "warnings": [
+          "l1-west-flight-1:part: open/ambiguous cut boundary; hatch omitted.",
+          "l1-east-flight-1:part: open/ambiguous cut boundary; hatch omitted."
+        ]
+      },
+      {
+        "id": "plan-2",
+        "ms": 1987,
+        "cuts": 70,
+        "background": 82,
+        "hatch": 272,
+        "warnings": [
+          "l2-west-flight-1:part: open/ambiguous cut boundary; hatch omitted.",
+          "l2-east-flight-1:part: open/ambiguous cut boundary; hatch omitted."
+        ]
+      },
+      {
+        "id": "plan-3",
+        "ms": 1585,
+        "cuts": 56,
+        "background": 28,
+        "hatch": 272,
+        "warnings": []
+      },
+      {
+        "id": "section-aa",
+        "ms": 4215,
+        "cuts": 128,
+        "background": 59,
+        "hatch": 672,
+        "warnings": []
+      },
+      {
+        "id": "section-bb",
+        "ms": 4314,
+        "cuts": 130,
+        "background": 24,
+        "hatch": 541,
+        "warnings": []
+      }
+    ],
+    "layoutMs": 43985,
+    "limits": [
+      "Retained depth is explicit; no inferred architectural floor semantics.",
+      "No material inference, window/door/stair symbols or filled surface hatch.",
+      "Program-note anchors remain the earlier study placement.",
+      "Ellipse/spline rejects the whole unsupported background; no sampled export."
+    ]
+  },
+  "nativeProjectMetrics": {
+    "initialSceneMs": 24552,
+    "nativeWidthEditMs": 54578,
+    "kernelEditTasks": [
+      {
+        "operation": "solid",
+        "ms": 1713
+      },
+      {
+        "operation": "solid",
+        "ms": 1622
+      },
+      {
+        "operation": "solid",
+        "ms": 1565
+      },
+      {
+        "operation": "solid",
+        "ms": 1671
+      },
+      {
+        "operation": "solid",
+        "ms": 1639
+      },
+      {
+        "operation": "projection",
+        "ms": 2424
+      },
+      {
+        "operation": "projection",
+        "ms": 3567
+      },
+      {
+        "operation": "section",
+        "ms": 1623
+      },
+      {
+        "operation": "projection",
+        "ms": 1916
+      },
+      {
+        "operation": "section",
+        "ms": 1651
+      },
+      {
+        "operation": "projection",
+        "ms": 4399
+      },
+      {
+        "operation": "section",
+        "ms": 1654
+      },
+      {
+        "operation": "projection",
+        "ms": 3138
+      },
+      {
+        "operation": "inspect",
+        "ms": 1563
+      },
+      {
+        "operation": "inspect",
+        "ms": 1602
+      },
+      {
+        "operation": "inspect",
+        "ms": 1589
+      },
+      {
+        "operation": "inspect",
+        "ms": 1636
+      },
+      {
+        "operation": "inspect",
+        "ms": 1615
+      },
+      {
+        "operation": "inspect",
+        "ms": 1677
+      },
+      {
+        "operation": "primitive",
+        "ms": 6620
+      }
+    ],
+    "commandEditMs": 39061.89999999851,
+    "savedSectionReview": {
+      "applyEnabled": true,
+      "alert": ""
+    },
+    "pdfBudgetDiagnostic": "The PDF would contain 17,814,075 raster pixels; the export limit is 16,000,000. Lower dpi or export fewer/smaller boards.",
+    "pdfDpi": 72,
+    "pdfPages": 5,
+    "pdfBytes": 596201
+  },
+  "pdf": {
+    "pages": 5,
+    "size": "A2 landscape",
+    "dpi": 72,
+    "bytes": 596201,
+    "independentRender": "pdfinfo + pdftoppm; all five pages visually inspected",
+    "observations": [
+      "Cut weights/background/hatch and holes present.",
+      "Original long converging program-note leaders remain.",
+      "Sheet title/block uses its configured default blue layer."
+    ]
+  },
+  "limitations": [
+    "Open/ambiguous stair boundaries omit hatch with explicit warnings.",
+    "Ellipse/spline rejected without sampled replacement.",
+    "No material/BIM inference or architectural window/door/stair symbols.",
+    "Single successful native edit 54.578 seconds; earlier concurrent run 66.196 seconds exceeded 5-second input timeout. These are separate runs, not averaged.",
+    "Actual 7-view sheet layout 43.985 seconds; responsiveness remains incomplete."
+  ],
+  "next": "G6-D6-P2 large derived-output edit/layout responsiveness, then X6-D2-E1 ellipse section"
+}

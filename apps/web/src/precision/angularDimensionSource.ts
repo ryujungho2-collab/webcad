@@ -26,7 +26,7 @@ export function resolveAngularSources(document: CadDocument, definition: Angular
   const result = resolveAngularDimension(first, second, definition.branch, { radius: definition.radius, text: definition.text ?? undefined });
   if (!result.ok) throw new Error(result.reason);
   return { kind: "angular", workPlane: first.workPlane, first: { ...definition.first }, second: { ...definition.second }, branch: { ...definition.branch }, radius: definition.radius,
-    ...(definition.text !== undefined ? { text: definition.text } : {}), lines: [first, second] };
+    ...(definition.text !== undefined ? { text: definition.text } : {}), ...(definition.style !== undefined ? { style: structuredClone(definition.style) } : {}), lines: [first, second] };
 }
 
 /** Keep the reviewed world ray when Join reverses an edge's parameter direction. */

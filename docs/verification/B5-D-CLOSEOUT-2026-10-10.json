@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-10",
+  "scope": "CAD B5-D face-bound cylindrical blind and through Hole",
+  "node": {"tests": 859, "suites": 54, "passed": 859, "failed": 0, "skipped": 0},
+  "browser": {"b5FaceHole": 3, "total": 3},
+  "checks": [
+    "face-local center, diameter and blind/through depth create an exact cylindrical Boolean cut after Review",
+    "whole circular opening must remain on the planar source face; invalid or microscopic cuts reject atomically",
+    "Hole parameter edits and source translation/rotation regenerate measured volume and validity",
+    "missing exact face identity blocks STEP until explicit rebind; dependent work plane cannot be deleted",
+    "single-entry Undo/Redo, document v20 reload and actual STEP transfer"
+  ],
+  "typecheck": "passed",
+  "architecture": {"result": "passed", "modules": 408},
+  "productionBuild": "passed",
+  "limitations": [
+    "One face-normal cylindrical Hole per operation; threads, counterbore, countersink, slots and angled holes remain future work",
+    "Changed topology keys require explicit face rebind; unresolved results retain the last geometry for review"
+  ]
+}

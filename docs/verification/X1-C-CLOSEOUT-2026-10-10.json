@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-10",
+  "scope": "CAD X1-C regular polygon creation",
+  "node": {"tests": 887, "suites": 54, "passed": 887, "failed": 0, "skipped": 0},
+  "targetNodeTests": 10,
+  "browser": {"x1RegularPolygon": 13, "x1ThreePointRegression": 10, "total": 23},
+  "checks": [
+    "independent triangle/square/hexagon perimeter and area, vertex radius and edge apothem",
+    "explicit first vertex / first edge normal rotation conventions and units",
+    "3 to 128 integer sides; degeneracy, precision collapse and numeric overflow rejection",
+    "ordinary closed polyline, unique vertex/segment topology, document serialization and one Undo/Redo",
+    "free sketch vertex edits regenerate dependent extrusion with independently verified volume",
+    "XY/XZ/YZ and resolved face sketch frames, missing/unresolved targets and layer locks",
+    "exact closed polyline DXF roundtrip and every edge in artboard SVG",
+    "transient Review/Apply, draft invalidation, document-change invalidation, Cancel and Escape"
+  ],
+  "typecheck": "passed",
+  "architecture": {"result": "passed", "modules": 421},
+  "productionBuild": "passed",
+  "limitations": [
+    "Creation-time values become editable polyline vertices; permanent regularity constraints are not stored",
+    "Automatic sketch constraints are omitted for free editing",
+    "Arbitrary standalone UCS creation remains X5"
+  ]
+}

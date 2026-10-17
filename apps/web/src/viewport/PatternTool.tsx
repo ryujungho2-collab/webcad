@@ -1,3 +1,4 @@
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../app/projectActivity";
 import {useEffect,useRef,useState} from "react";
 import type {CadPatternSpec} from "@agent-webcad/cad-document";
 import {validPatternSpec,patternSlots,MAX_PATTERN_OUTPUTS} from "@agent-webcad/cad-document";

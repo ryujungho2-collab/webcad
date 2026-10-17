@@ -76,8 +76,8 @@ button.onclick=async()=>{
     check(editor()?.querySelector<HTMLInputElement>('[aria-label="First break point"]')?.value!==oldValue,"Physical canvas picking fills exact coordinates on the analytic curve");
     await key("Escape");await waitFor(()=>!editor());await select(opened);
     await dispatchCadCommand({type:"create-dimension",id:"linked-dim",dimension:"linear",params:{workPlane:"XY",points:[[0,0],[100,0]],orientation:"aligned",offset:-5,sourceObjectId:opened}});
-    await click("Break");await field("First break point","30,0");await waitFor(()=>Boolean(editor()?.textContent?.includes("references the selected contour")));
-    check(find("Apply contour edit")?.disabled&&feature("linked-dim").params.sourceObjectId===opened,"Canvas explains dimension protection rather than severing its link");
+    await click("Break");await field("First break point","30,0");await waitFor(()=>Boolean(editor()?.textContent?.includes("Reconnect Linear Dimension")));
+    check(find("Apply contour edit")?.disabled&&!!editor()?.querySelector('[aria-label="Reconnect Break references"]')&&feature("linked-dim").params.sourceObjectId===opened,"Canvas requires an explicit dimension route before replacing its linked contour");
     await click("Cancel contour edit");await key("k",2);await input({type:"text",text:"Break contour"});await pause();check(document.querySelector('dialog[open]')?.textContent?.includes("Break contour"),"Command palette exposes the same composition operation");await key("Escape");
     output.textContent=`${lines.join("\n")}\nALL ${lines.length} CHECKS PASSED`;
   }catch(e){output.textContent=`${lines.join("\n")}\nFAIL: ${e instanceof Error?e.stack:String(e)}`;}

@@ -9,8 +9,15 @@ export function restoreTestDocument(snapshot: CadDocument) {
   delete cadDocument.variables;
   delete cadDocument.parameterBindings;
   delete cadDocument.artboards;
+  delete cadDocument.workspaceSections;
+  delete cadDocument.frameLinks;
   delete cadDocument.rasterAssets;
   delete cadDocument.scenes;
+  delete cadDocument.modelViews;
+  delete cadDocument.modelPresentation;
+  delete cadDocument.componentLibrary;
+  delete cadDocument.workPlanes;
+  delete cadDocument.exchangeImports;
   Object.assign(cadDocument, structuredClone({ ...snapshot, sketches: snapshot.sketches ?? {} }));
 }
 
@@ -51,3 +58,4 @@ export function meshVolume(mesh: MeshData) {
   }
   return Math.abs(volume / 6);
 }
+

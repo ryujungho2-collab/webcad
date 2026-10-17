@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-11",
+  "scope": "G6-D5-A1 single-page automatic layout",
+  "status": "complete within declared single-page pilot boundary",
+  "newNodeTests": 9,
+  "newNativeChecks": 19,
+  "architectureModules": 473,
+  "artifacts": [
+    "output/pdf/automatic-sheet.pdf",
+    "output/pdf/automatic-sheet.svg",
+    "output/pdf/automatic-sheet-preview.png"
+  ],
+  "pdf": {
+    "pages": 1,
+    "sizePoints": [
+      1190.551,
+      841.89
+    ],
+    "bytes": 23231,
+    "validation": "pdfinfo/pdftoppm + visual inspection; separate leader labels, dimension300, two view groups, title inside margin"
+  },
+  "boundaries": [
+    "64 views/12 common scale candidates; deterministic heuristic, no rotation or optimal packing guarantee",
+    "Only resolved visible view groups; full-circle envelope for arcs; conservative system-ui glyph envelope",
+    "Snapshot values stay frozen; paper placement moves intentionally",
+    "Layout settings/fixed selection are session inputs; resulting placement/scale persists in v25",
+    "No multi-page/template/automatic annotation routing; G6-D5-A2 next"
+  ],
+  "repairs": [
+    "Dimension lines/arrows/text added to group envelope; large offset rejection oracle",
+    "Chain geometry refreshed before candidate packing and final commit; model scale preserved",
+    "Footer title moved inside requested paper margin"
+  ],
+  "failures": [
+    "Invalid payload test corrected to expect validator exception",
+    "Strict model dimension equality corrected to 1e-8 geometric tolerance after placement arithmetic",
+    "First modelDrawing regression passed output checks but timed out waiting for reopened geometry while Node/build were running. No product change for this timeout; standalone rerun passed all 32 including reopen."
+  ],
+  "node": {
+    "tests": 1048,
+    "suites": 54,
+    "pass": 1048,
+    "fail": 0,
+    "skip": 0
+  },
+  "browser": {
+    "status": "passed",
+    "workflows": 7,
+    "checks": 159,
+    "pages": {
+      "modelSheetLayout": 19,
+      "modelDrawing": 32,
+      "artboardsWorkflow": 31,
+      "artboardPdfWorkflow": 21,
+      "diameterWorkflow": 17,
+      "draftingWorkflow": 16,
+      "historySelection": 23
+    },
+    "fullBrowserSuite": false
+  },
+  "typecheck": "passed",
+  "architecture": {
+    "status": "passed",
+    "modules": 473
+  },
+  "productionBuild": "passed; existing large chunk warnings only",
+  "diffCheck": "passed"
+}

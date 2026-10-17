@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-10",
+  "scope": "CAD X1-B1 two endpoints plus radius arc",
+  "node": {
+    "tests": 928,
+    "suites": 54,
+    "passed": 928,
+    "failed": 0,
+    "skipped": 0
+  },
+  "targetNodeTests": 14,
+  "browser": {
+    "x1EndpointRadiusArc": 15,
+    "x1ThreePointRegression": 10,
+    "x1RegularPolygonRegression": 13,
+    "total": 38
+  },
+  "checks": [
+    "independent 3-4-5 centre candidates and CW/CCW minor/major sweeps",
+    "diameter centre merge, degenerate/no-solution inputs and large coordinates",
+    "public command, detached Review, single Undo/Redo and legacy arc save/reopen",
+    "unit/relative/polar endpoint input and physical mouse snapping",
+    "XY/XZ/YZ, ordinary/face sketch, unresolved face and locked layer guards",
+    "editable arc topology, centre grip and sketch radius driving",
+    "closed semicircle profile live extrusion regeneration and exact volumes",
+    "major clockwise DXF roundtrip and finite artboard SVG",
+    "draft/document change invalidates reviewed proposal, Cancel/Escape preserve document"
+  ],
+  "typecheck": "passed",
+  "architecture": {
+    "result": "passed",
+    "modules": 433
+  },
+  "productionBuild": "passed",
+  "limitations": [
+    "X1-B remains partial: X1-B2 and X1-B3 are pending",
+    "endpoints are authored values rather than permanent live source constraints",
+    "standalone authoring uses XY/XZ/YZ base plane elevation zero; resolved face sketches use their frame",
+    "an open arc alone cannot form an extrusion profile"
+  ],
+  "nextRecommended": "X1-B2 start point, oriented start tangent and endpoint arc"
+}

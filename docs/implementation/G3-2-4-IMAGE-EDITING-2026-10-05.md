@@ -1,5 +1,7 @@
 # G3 이미지 placement·mask·opacity·crop·색 조정·Artboard 출력
 
+> **현재 기능 설명:** [이미지와 장면](../features/IMAGES-SCENES.md). 이 문서는 날짜별 구현·설계 기록이며, 아래 사용법·제한·수치는 당시 범위다. 후속 지원은 대표 가이드를 따른다.
+
 갱신일: 2026-10-06. G3-2 placement, G3-3a ellipse mask, G3-3b canvas crop handles, G3-4a opacity, G3-4b1 color adjustments, G3-4b2 PNG, G3-4b3 PDF와 I1 원본 교체를 구현·검증했다. G3-5 자원 수정의 전체 자동 회귀도 마감했다. 이전 단계 검수는 [이미지 편집 검수](../verification/G3-2-4-IMAGE-EDITING-2026-10-05.md), 최신 원본 교체/전체 결과는 [I1 검수](../verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md)를 따른다. 실제 사용자·native GPU 평가는 남으며 [NEXT-STEPS](../../NEXT-STEPS.md)가 실행 순서를 소유한다.
 
 ## 사용자 workflow와 구현 범위

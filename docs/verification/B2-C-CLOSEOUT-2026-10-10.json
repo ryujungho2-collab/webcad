@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-10",
+  "status": "passed",
+  "scope": "B2-C finite arc–arc Fillet/Chamfer and closed line–arc/arc–arc corners; analytic bounded contacts, source arc-length setbacks, stable topology, closed connectivity and Offset",
+  "node": {
+    "tests": 792,
+    "suites": 54,
+    "failed": 0,
+    "skipped": 0,
+    "newArcCornerTests": 10,
+    "log": "output-b2-c-tests.log",
+    "targetedLog": "output-b2-c-target.log"
+  },
+  "browser": {
+    "workflows": 5,
+    "checks": 95,
+    "scope": "Targeted native Edge/CDP real App/React/Worker; full suite not rerun",
+    "results": [
+      {
+        "workflow": "arcCorners",
+        "checks": 22,
+        "log": "output-b2-c-browser.log"
+      },
+      {
+        "workflow": "lineArcFillet",
+        "checks": 17,
+        "log": "output-b2-c-browser-linearc.log"
+      },
+      {
+        "workflow": "asymmetricChamfer",
+        "checks": 18,
+        "log": "output-b2-c-browser-chamfer.log"
+      },
+      {
+        "workflow": "internalChamfer",
+        "checks": 18,
+        "log": "output-b2-c-browser-internal.log"
+      },
+      {
+        "workflow": "curveWorkflow",
+        "checks": 20,
+        "log": "output-b2-c-browser-curves.log"
+      }
+    ]
+  },
+  "architecture": {
+    "modules": 374,
+    "log": "output-b2-c-architecture.log"
+  },
+  "build": {
+    "typecheck": "passed",
+    "log": "output-b2-c-build.log",
+    "existingLargeChunkWarning": true,
+    "mainRawKB": 1127.91,
+    "mainGzipKB": 340.69,
+    "viewportRawKB": 654.23,
+    "viewportGzipKB": 177.64
+  },
+  "geometry": "Circle locus R±r intersections and signed tangency; bounded finite sweeps and retained pick branches; G1 directional contacts; Chamfer arc-length D1/D2; closed vertex/splice and simple curved-profile validation",
+  "preservation": "Stable source object and old control/edge IDs, source arc model frame and retained endpoints; common preview/stale/locks/Undo/Redo/serialization contracts",
+  "serialization": "Existing geometry/topology version; no new schema",
+  "remaining": [
+    "Standalone line–arc Chamfer",
+    "Open mixed contour arc end connections",
+    "Sketch/pattern/construction owned corners",
+    "Ellipses, nonuniform scales, tilted planes and 3D corners",
+    "Live corner recipe; full browser suite/GPU and large-document benchmarks not rerun"
+  ]
+}

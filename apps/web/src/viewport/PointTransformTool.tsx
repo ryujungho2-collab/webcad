@@ -5,7 +5,7 @@ import type { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js
 import { cadDocument } from "../state/cadDocument";
 import { isCadKeyboardBlocked } from "../input/shortcutRouter";
 import { parseAngle, parseLength } from "../precision/units";
-import { applyPolarLocks, emptyPolarLocks, parsePointEntry } from "../precision/pointInput";
+import { applyPolarLocks, emptyPolarLocks, resolvePointInput } from "../precision/pointInput";
 import { querySnap, type SnapEntity, type SnapResult } from "../precision/snapEngine";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 import { worldDraftingGeometry } from "../precision/draftingGeometry";
@@ -46,7 +46,7 @@ export function PointTransformTool(props: Props) {
       cachedEntities = Object.values(cadDocument.features).flatMap((feature) => {
         const object = cadDocument.objects[feature.output], layer = object && cadDocument.layers[object.layerId];
         const world = object?.visible && layer?.visible && feature.type === "drawing" && (latest.current.constructionVisible !== false || !feature.params.construction) ? getWorldDrawingGeometry(object, feature) : null;
-        return world?.workPlane === props.planeId && world.planeAligned ? [{ objectId: object.id, kind: world.kind, points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle, profileSegments: world.profileSegments }] : [];
+        return world?.workPlane === props.planeId && world.planeAligned ? [{ objectId: object.id, kind: world.kind, points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle, spline:world.spline,ellipse:world.ellipse,profileSegments: world.profileSegments }] : [];
       });
       entityRevision = cadDocument.revision; return cachedEntities;
     }
@@ -76,19 +76,25 @@ export function PointTransformTool(props: Props) {
     function target(): Vec3 | null {
       if (!base) return hover;
       if (mode !== "rotate") {
-        const value = parsePointEntry(buffer, worldToPlane(base, plane), hover ? worldToPlane(hover, plane) : undefined, locks);
+        const value = resolvePointInput(buffer, worldToPlane(base, plane), hover ? worldToPlane(hover, plane) : undefined, locks, field);
         if (value) return planeToWorld(value, plane);
+        if (buffer.trim()) return null;
       }
       return hover ?? base;
     }
     function update() {
       const point = target();
+      if (base && (mode === "rotate" && buffer.trim() && parseAngle(buffer) === null || !point)) {
+        setPaths([]); setSnapMarker(null);
+        setReadout(`Invalid ${mode === "rotate" ? "angle" : field} input · ${buffer} · Revise the input or Esc to clear.`);
+        return;
+      }
       const shownSnap = activeSnap && !buffer && point && Math.hypot(...point.map((v, i) => v - activeSnap!.point[i])) <= 1e-6 ? activeSnap : null;
       const snapped = shownSnap ? project(shownSnap.point) : null;
       setSnapMarker(snapped ? { x: snapped[0], y: snapped[1], type: shownSnap!.type } : null);
       setBaseMarker(base ? project(base) : null); setStage(base ? "target" : "base");
       const snapText = suppressed ? "Snap suppressed" : !latest.current.snapEnabled ? "Snap off" : shownSnap ? snapCaption(shownSnap,cadDocument.objects[shownSnap.objectId??""]?.name) : "Free";
-      const navigation = "MMB pan · wheel zoom · F3 snap · F8 ortho · Alt suppress";
+      const navigation = "MMB pan · wheel scroll · Ctrl+wheel zoom · F3 snap · F8 ortho · Alt suppress";
       if (!base) {
         setReadout(`${mode.toUpperCase()} · pick ${mode === "rotate" ? "centre" : "base point"} or enter x,y · ${buffer} · ${snapText} · ${navigation} · Esc exits`);
         setPaths([]); return;
@@ -142,7 +148,12 @@ export function PointTransformTool(props: Props) {
       event.preventDefault(); canvas!.focus({ preventScroll: true }); pointer = event; suppressed = event.altKey;
       const point = resolve(event); if (!point) return;
       if (!base) { base = point; hover = point; buffer = ""; update(); }
-      else void finish(point, mode === "rotate" ? angleOf(point) : 0);
+      else {
+        hover = point;
+        const exact = target(), angle = mode === "rotate" && buffer.trim() ? parseAngle(buffer) : mode === "rotate" ? angleOf(point) : 0;
+        if (!exact || angle === null) { update(); return; }
+        void finish(exact, angle);
+      }
     };
     const key = (event: KeyboardEvent) => {
       if (isCadKeyboardBlocked(event.target, event.key) || event.ctrlKey || event.metaKey || pending) return;
@@ -156,7 +167,7 @@ export function PointTransformTool(props: Props) {
         return;
       }
       if (event.key === "Backspace") { event.preventDefault(); buffer = buffer.slice(0, -1); update(); return; }
-      if (event.key === "Tab" && base && mode !== "rotate") {
+      if (event.key === "Tab" && !event.ctrlKey && !event.metaKey && !event.altKey && base && mode !== "rotate") {
         event.preventDefault();
         if (event.shiftKey) locks = emptyPolarLocks();
         else {
@@ -175,7 +186,7 @@ export function PointTransformTool(props: Props) {
           if (angle !== null) void finish(base, angle); else setReadout("Enter a rotation angle, e.g. 90deg, or pick a direction from plane X.");
           return;
         }
-        const value = parsePointEntry(buffer, base ? worldToPlane(base, plane) : undefined, hover ? worldToPlane(hover, plane) : undefined, locks);
+        const value = resolvePointInput(buffer, base ? worldToPlane(base, plane) : undefined, hover ? worldToPlane(hover, plane) : undefined, locks, field);
         if (!value) { setReadout("Enter x,y, @dx,dy or distance<angle with units. Esc clears input."); return; }
         const point = planeToWorld(value, plane);
         if (!base) { base = point; hover = point; buffer = ""; activeSnap = null; update(); } else void finish(point, 0);

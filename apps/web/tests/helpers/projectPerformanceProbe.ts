@@ -1,0 +1,12 @@
+import * as THREE from 'three';
+export { projectActivityMetrics } from '../../src/app/projectActivity';
+export { projectKernelMetrics } from '../../src/cad/kernelGeometryService';
+export { cadDocument } from '../../src/state/cadDocument';
+export { dispatchCadCommand } from '../../src/state/dispatchCadCommand';
+export { undoDocument, cadHistory } from '../../src/state/history';
+export { documentExportSnapshot, saveDocumentRecovery as saveDocumentToCache } from '../../src/state/documentFile';
+export { encodeDxf } from '../../src/interop/dxfWriter';
+export const renderedObjects = new Set<string>();
+export const rootUuids=new Map<string,string>();
+const previous=THREE.Object3D.prototype.updateMatrixWorld;
+THREE.Object3D.prototype.updateMatrixWorld=function(force){if(this.userData.cadObjectId){renderedObjects.add(this.userData.cadObjectId);rootUuids.set(this.userData.cadObjectId,this.uuid);}return previous.call(this,force);};

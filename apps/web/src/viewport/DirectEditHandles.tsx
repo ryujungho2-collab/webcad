@@ -1,3 +1,4 @@
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../app/projectActivity";
 import { useEffect,useRef,useState } from "react";
 import { cadDocument } from "../state/cadDocument";
 import { describeDirectTarget,nextDirectGrip } from "./directTargetDescription";

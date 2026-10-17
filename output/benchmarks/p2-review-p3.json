@@ -1,0 +1,118 @@
+{
+  "records": [
+    {
+      "run": 1,
+      "kind": "first source Review",
+      "reviewMs": 6961.403600000001,
+      "applyMs": 106.09879999999976,
+      "undoMs": 96.80580000000009,
+      "changes": 1254
+    },
+    {
+      "run": 2,
+      "kind": "warmed source Review",
+      "reviewMs": 524.4784999999993,
+      "applyMs": 133.59970000000067,
+      "undoMs": 98.58920000000035,
+      "changes": 1254
+    },
+    {
+      "run": 3,
+      "kind": "warmed source Review",
+      "reviewMs": 486.4249,
+      "applyMs": 102.25979999999981,
+      "undoMs": 100.18000000000029,
+      "changes": 1254
+    }
+  ],
+  "phases": [
+    {
+      "name": "agent-webcad:preview-compare",
+      "ms": 17.627300000018295
+    },
+    {
+      "name": "agent-webcad:preview-compare",
+      "ms": 28.795700000006036
+    },
+    {
+      "name": "agent-webcad:preview-compare",
+      "ms": 21.34510000001319
+    },
+    {
+      "name": "agent-webcad:preview-prepare",
+      "ms": 6887.8349
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 2216.9255
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 3.792699999999968
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 1624.1136999999999
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 616.1724000000004
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 528.2641999999996
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 538.3521000000001
+    },
+    {
+      "name": "agent-webcad:kernel-task:section",
+      "ms": 11.36450000000059
+    },
+    {
+      "name": "agent-webcad:kernel-task:section",
+      "ms": 0.8861000000006243
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 826.8042999999989
+    },
+    {
+      "name": "agent-webcad:kernel-task:section",
+      "ms": 4.546099999999569
+    },
+    {
+      "name": "agent-webcad:kernel-task:projection",
+      "ms": 61.40940000000046
+    },
+    {
+      "name": "agent-webcad:kernel-task:inspect",
+      "ms": 10.33299999999872
+    },
+    {
+      "name": "agent-webcad:preview-diff",
+      "ms": 48.742200000000594
+    },
+    {
+      "name": "agent-webcad:kernel-task:inspect",
+      "ms": 4.848299999999654
+    },
+    {
+      "name": "agent-webcad:preview-prepare",
+      "ms": 436.2045999999991
+    },
+    {
+      "name": "agent-webcad:preview-diff",
+      "ms": 51.95060000000012
+    },
+    {
+      "name": "agent-webcad:preview-prepare",
+      "ms": 417.6742000000013
+    },
+    {
+      "name": "agent-webcad:preview-diff",
+      "ms": 43.67789999999877
+    }
+  ]
+}

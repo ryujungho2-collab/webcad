@@ -8,8 +8,9 @@ export function CommandPalette({ commands, onClose }: { commands: PaletteCommand
   const closeButton = useRef<HTMLButtonElement>(null);
   const executing = useRef(false);
   const [query, setQuery] = useState("");
+  const [view, setView] = useState<"commands" | "shortcuts">("commands");
   const [activeId, setActiveId] = useState<string | null>(null);
-  const results = searchPaletteCommands(commands, query);
+  const results = searchPaletteCommands(commands.filter(command => view === "shortcuts" ? Boolean(command.shortcut) : !command.reference), query);
   const active = results.find((command) => command.id === activeId) ?? results[0];
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export function CommandPalette({ commands, onClose }: { commands: PaletteCommand
   }
 
   function execute(command: PaletteCommand) {
-    if (command.disabledReason || executing.current) return;
+    if (command.reference || command.disabledReason || executing.current) return;
     executing.current = true;
     close();
     // Keep execution within the user gesture (not an effect or timer), so
@@ -48,12 +49,11 @@ export function CommandPalette({ commands, onClose }: { commands: PaletteCommand
       onKeyDown={(event) => {
         event.stopPropagation();
         if (event.nativeEvent.isComposing) return;
-        if (event.key === "Tab") {
+        if (event.key === "Tab" && !event.ctrlKey && !event.metaKey && !event.altKey) {
           event.preventDefault();
-          // There are two tab stops. Keep focus in the modal rather than
-          // allowing a browser's chrome to consume the next CAD shortcut.
-          if (event.target === input.current) closeButton.current?.focus();
-          else input.current?.focus();
+          const stops = [...dialog.current!.querySelectorAll<HTMLElement>('button:not(:disabled), input')];
+          const index = stops.indexOf(document.activeElement as HTMLElement);
+          stops[(index + (event.shiftKey ? -1 : 1) + stops.length) % stops.length]?.focus();
         } else if (event.key === "Escape" || ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k")) {
           event.preventDefault(); close();
         } else if (["ArrowDown", "ArrowUp"].includes(event.key)) {
@@ -68,19 +68,23 @@ export function CommandPalette({ commands, onClose }: { commands: PaletteCommand
         }
       }}>
       <div className="palette-heading"><h2 id="palette-title">Search commands</h2><button ref={closeButton} type="button" aria-label="Close command palette" onClick={close}>Esc</button></div>
+      <div className="palette-views" role="group" aria-label="Palette view">
+        {(["commands", "shortcuts"] as const).map(mode => <button key={mode} type="button" aria-pressed={view === mode}
+          onClick={() => { setView(mode); setActiveId(null); input.current?.focus(); }}>{mode === "commands" ? "Commands · 기능" : "Shortcuts · 단축키"}</button>)}
+      </div>
       <input ref={input} className="palette-search" type="text" role="combobox" aria-label="Search commands" aria-expanded="true" aria-controls="palette-results" aria-autocomplete="list" aria-activedescendant={active ? `palette-${active.id}` : undefined}
-        placeholder="Search in English or 한국어…" value={query} onChange={(event) => { setQuery(event.target.value); setActiveId(null); }} />
+        placeholder="기능명 또는 단축키 검색 · text, 자르기, Ctrl+Wheel…" value={query} onChange={(event) => { setQuery(event.target.value); setActiveId(null); }} />
       <div id="palette-results" className="palette-results" role="listbox" aria-label="Commands">
         {results.map((command) => <div key={command.id} id={`palette-${command.id}`} role="option" aria-selected={active?.id === command.id} aria-disabled={Boolean(command.disabledReason)}
-          className={`palette-option${active?.id === command.id ? " palette-option-active" : ""}`}
+          className={`palette-option${command.reference ? " palette-reference" : ""}${active?.id === command.id ? " palette-option-active" : ""}`}
           onMouseMove={() => setActiveId(command.id)} onMouseDown={(event) => event.preventDefault()} onClick={() => execute(command)}>
           <span className="palette-category">{command.category}</span>
-          <span className="palette-description"><strong>{command.label}</strong>{command.disabledReason && <small>{command.disabledReason}</small>}</span>
-          {command.shortcut && <kbd>{command.shortcut}</kbd>}
+          <span className="palette-description"><strong>{command.label}</strong>{command.description && <small>{command.description}</small>}{command.disabledReason && <small>{command.disabledReason}</small>}</span>
+          {command.shortcut ? <kbd>{command.shortcut}</kbd> : <small className="palette-no-shortcut">Menu / 메뉴</small>}
         </div>)}
         {!results.length && <p className="palette-empty" role="status">No matching commands. Try “돌출”, “align”, or “save”.</p>}
       </div>
-      <footer className="palette-footer"><span>{results.length} commands</span><span>↑ ↓ Navigate · Enter Run · Esc Close</span></footer>
+      <footer className="palette-footer"><span>{results.length} {view === "commands" ? "commands" : "shortcuts"}</span><span>↑ ↓ Navigate · {active?.reference ? "Gesture guide" : "Enter Run"} · Esc Close</span></footer>
     </dialog>
   );
 }

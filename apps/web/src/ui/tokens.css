@@ -1,13 +1,13 @@
 :root {
   color-scheme: dark;
-  --bg-0: #10161b;
-  --bg-1: #191f25;
-  --bg-2: #202830;
-  --bg-3: #2b353e;
-  --line: #36414a;
-  --line-soft: #2a333c;
-  --text: #dce4e9;
-  --muted: #9aa9b5;
+  --bg-0: #1b1c1e;
+  --bg-1: #242528;
+  --bg-2: #2b2c30;
+  --bg-3: #36383c;
+  --line: #42454a;
+  --line-soft: #33363a;
+  --text: #e4e5e7;
+  --muted: #a7aab0;
   --accent: #64d6c5;
   --accent-soft: #203e40;
   --danger: #ee9696;
@@ -20,7 +20,7 @@
   --font-size-small: 11px;
   --rail-width: 40px;
   --chrome-menu: 34px;
-  --chrome-tools: 94px;
+  --chrome-tools: 72px;
   --chrome-status: 28px;
   --axis-x: #ef9292;
   --axis-y: #9acb91;

@@ -1,3 +1,4 @@
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../app/projectActivity";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { validAngularParams, type AngularDimensionBranch, type AngularDimensionDefinition, type AngularDimensionReference } from "@agent-webcad/cad-document";
 import type { CadCommand } from "@agent-webcad/cad-commands";

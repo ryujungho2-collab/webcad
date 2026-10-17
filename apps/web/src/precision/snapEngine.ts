@@ -1,10 +1,15 @@
+import {splinePoint} from "./splineGeometry";
+import type {CadEllipse} from "@agent-webcad/cad-document";
+import {ellipseContains,ellipseClosed,ellipsePoint,ellipseNearest} from "./ellipseGeometry";
+import { linearToleranceAt } from "@agent-webcad/cad-document";
 import { planeToWorld, worldToPlane, type Vec3, type WorkPlane } from "./workPlane";
 import { intersectLinear, linearCircleBranches, type LinearDomain } from "./constructionGeometry";
+import { circularIntersections, pointOnCircularDomain } from "./circularIntersection";
 
 export type SnapType = "intersection" | "endpoint" | "midpoint" | "center" | "quadrant" | "perpendicular" | "tangent" | "extension" | "nearest" | "grid";
 export type SnapResult = { type: SnapType; point: Vec3; objectId?: string; topologyReference?: string; screenDistance: number; metadata?: Record<string, unknown> };
 export type SnapProfileSegment = { topologyReference: string; kind: "line" | "arc"; start: Vec3; end: Vec3; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number };
-export type SnapEntity = { objectId: string; kind: "line" | "polyline" | "rectangle" | "circle" | "arc" | "point" | "infinite-line" | "ray"; points?: Vec3[]; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number; profileSegments?: SnapProfileSegment[] };
+export type SnapEntity = { objectId: string; spline?:import("@agent-webcad/cad-document").CadSpline;ellipse?:CadEllipse;kind: "spline" | "ellipse" | "elliptic-arc" | "line" | "polyline" | "rectangle" | "circle" | "arc" | "point" | "infinite-line" | "ray"; points?: Vec3[]; center?: Vec3; radius?: number; startAngle?: number; endAngle?: number; profileSegments?: SnapProfileSegment[] };
 export type SnapQuery = { point: Vec3; referencePoint?: Vec3; entities: SnapEntity[]; plane: WorkPlane; gridStep: number; tolerancePx: number; project: (point: Vec3) => [number, number]; enabled?: Partial<Record<SnapType, boolean>> };
 
 const priorities: Record<SnapType, number> = { intersection: 0, endpoint: 1, midpoint: 2, center: 3, quadrant: 4, perpendicular: 5, tangent: 6, extension: 7, nearest: 8, grid: 9 };
@@ -12,6 +17,7 @@ const sq = (value: number) => value * value;
 const dist2 = (a: [number, number], b: [number, number]) => sq(a[0] - b[0]) + sq(a[1] - b[1]);
 
 function segments(entity: SnapEntity): [Vec3, Vec3, string][] {
+  if(entity.kind==="spline"||entity.ellipse||["ellipse","elliptic-arc"].includes(entity.kind))return [];
   if (entity.profileSegments) return entity.profileSegments
     .filter((segment) => segment.kind === "line")
     .map((segment) => [segment.start, segment.end, segment.topologyReference]);
@@ -57,37 +63,32 @@ export function angleOnSweep(angle: number, start: number, end: number) {
 function pointOnCurve(curve: SnapCurve, point: [number, number], plane: WorkPlane) {
   const center = worldToPlane(curve.center, plane);
   const radiusError = Math.abs(Math.hypot(point[0] - center[0], point[1] - center[1]) - curve.radius);
-  if (radiusError > 1e-7) return false;
-  if (curve.startAngle === undefined || curve.endAngle === undefined) return true;
-  return angleOnSweep(Math.atan2(point[1] - center[1], point[0] - center[0]), curve.startAngle, curve.endAngle);
+  if (radiusError > linearToleranceAt(...point, ...center, curve.radius)) return false;
+  return pointOnCircularDomain(point, center, curve.radius, curve.startAngle, curve.endAngle);
+}
+
+// Construction keeps signed branches; snapping keeps each physical position once.
+function uniqueIntersectionPoints(points: [number, number][], tolerance: number) {
+  return points.filter((point, index) => point.every(Number.isFinite) && !points.slice(0, index).some(previous => Math.hypot(point[0] - previous[0], point[1] - previous[1]) <= tolerance));
+}
+
+function linearCircleIntersections(a: [number, number], b: [number, number], center: [number, number], radius: number, domain: LinearDomain) {
+  if (![...a, ...b, ...center, radius].every(Number.isFinite) || radius <= 0) return [];
+  const tolerance = linearToleranceAt(...a, ...b, ...center, radius);
+  const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  if (!Number.isFinite(length) || length <= tolerance) return [];
+  return uniqueIntersectionPoints(linearCircleBranches(a, b, center, radius, domain).map(branch => branch.point), tolerance);
 }
 
 export function segmentCircleIntersections(a: [number, number], b: [number, number], center: [number, number], radius: number) {
-  const dx = b[0] - a[0], dy = b[1] - a[1];
-  const fx = a[0] - center[0], fy = a[1] - center[1];
-  const aa = dx * dx + dy * dy;
-  if (aa < 1e-12) return [];
-  const bb = 2 * (fx * dx + fy * dy);
-  const cc = fx * fx + fy * fy - radius * radius;
-  const discriminant = bb * bb - 4 * aa * cc;
-  if (discriminant < -1e-9) return [];
-  const root = Math.sqrt(Math.max(0, discriminant));
-  return [(-bb - root) / (2 * aa), (-bb + root) / (2 * aa)]
-    .filter((value, index, values) => value >= 0 && value <= 1 && (index === 0 || Math.abs(value - values[0]) > 1e-9))
-    .map((value) => [a[0] + dx * value, a[1] + dy * value] as [number, number]);
+  return linearCircleIntersections(a, b, center, radius, "line");
 }
 
 export function circleCircleIntersections(aCenter: [number, number], aRadius: number, bCenter: [number, number], bRadius: number) {
-  const dx = bCenter[0] - aCenter[0], dy = bCenter[1] - aCenter[1];
-  const distance = Math.hypot(dx, dy);
-  if (distance < 1e-9 || distance > aRadius + bRadius + 1e-9 || distance < Math.abs(aRadius - bRadius) - 1e-9) return [];
-  const along = (aRadius * aRadius - bRadius * bRadius + distance * distance) / (2 * distance);
-  const height = Math.sqrt(Math.max(0, aRadius * aRadius - along * along));
-  const base: [number, number] = [aCenter[0] + dx * along / distance, aCenter[1] + dy * along / distance];
-  const offset: [number, number] = [-dy * height / distance, dx * height / distance];
-  const first: [number, number] = [base[0] + offset[0], base[1] + offset[1]];
-  if (height < 1e-9) return [first];
-  return [first, [base[0] - offset[0], base[1] - offset[1]] as [number, number]];
+  if (![...aCenter, ...bCenter, aRadius, bRadius].every(Number.isFinite) || aRadius <= 0 || bRadius <= 0 || !Number.isFinite(Math.hypot(bCenter[0] - aCenter[0], bCenter[1] - aCenter[1]))) return [];
+  const result = circularIntersections(aCenter, aRadius, bCenter, bRadius);
+  // Preserve the existing positive-side-first snap candidate order.
+  return uniqueIntersectionPoints([...result.branches].reverse().map(branch => branch.point), linearToleranceAt(...aCenter, ...bCenter, aRadius, bRadius));
 }
 
 function perpendicularPoint(reference: [number, number], a: [number, number], b: [number, number]) {
@@ -144,6 +145,9 @@ export function querySnap(query: SnapQuery): SnapResult {
     return pointerScreen[0] >= minX && pointerScreen[0] <= maxX && pointerScreen[1] >= minY && pointerScreen[1] <= maxY;
   });
   for (const entity of nearby) {
+    if(entity.spline){const s=entity.spline;add("endpoint",splinePoint(s,s.domain[0]),entity.objectId,"spline:start");add("endpoint",splinePoint(s,s.domain[1]),entity.objectId,"spline:end");add("midpoint",splinePoint(s,(s.domain[0]+s.domain[1])/2),entity.objectId,"spline:parameter-midpoint");continue;}
+    if(entity.ellipse){const e=entity.ellipse;add("center",e.center,entity.objectId,"ellipse:center");if(!ellipseClosed(e)){add("endpoint",ellipsePoint(e,e.startParam),entity.objectId,"ellipse:start");add("endpoint",ellipsePoint(e,e.startParam+e.sweep),entity.objectId,"ellipse:end");}for(let i=0;i<4;i++)if(ellipseContains(e,i*Math.PI/2))add("quadrant",ellipsePoint(e,i*Math.PI/2),entity.objectId,`ellipse:axis:${i}`);add("nearest",ellipseNearest(e,query.point),entity.objectId,"ellipse:curve");continue;}
+
     if (entity.kind === "point" && entity.points?.[0]) add("endpoint", entity.points[0], entity.objectId, "point");
     for (const [point, reference] of curveEndpoints(entity, query.plane)) add("endpoint", point, entity.objectId, reference);
     for (const [a, b, reference] of segments(entity)) {
@@ -204,7 +208,7 @@ export function querySnap(query: SnapQuery): SnapResult {
     for (const lineEntity of nearby) for (const segment of segments(lineEntity)) for (const entry of curveEntries) {
       if (lineEntity.objectId === entry.entity.objectId) continue;
       const a = worldToPlane(segment[0], query.plane), b = worldToPlane(segment[1], query.plane), center = worldToPlane(entry.curve.center, query.plane);
-      const hits = ["infinite-line", "ray"].includes(lineEntity.kind) ? linearCircleBranches(a, b, center, entry.curve.radius, lineEntity.kind as LinearDomain).map(p => p.point) : segmentCircleIntersections(a, b, center, entry.curve.radius);
+      const hits = linearCircleIntersections(a, b, center, entry.curve.radius, ["infinite-line", "ray"].includes(lineEntity.kind) ? lineEntity.kind as LinearDomain : "line");
       for (const hit of hits) {
         if (pointOnCurve(entry.curve, hit, query.plane)) add("intersection", planeToWorld(hit, query.plane), lineEntity.objectId, `${segment[2]}|${entry.curve.reference}`, { otherObjectId: entry.entity.objectId });
       }

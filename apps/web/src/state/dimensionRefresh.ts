@@ -34,6 +34,14 @@ export function refreshAssociativeDimensions(document: CadDocument): boolean {
     if (typeof sourceId !== "string") continue;
     const source = document.objects[sourceId];
     const sourceFeature = Object.values(document.features).find((entry) => entry.output === sourceId);
+    const viewId=sourceFeature?.params.modelProjection??sourceFeature?.params.modelSection??(sourceFeature?.params.sectionRole==="background"?sourceFeature.params.modelSectionPresentation:undefined),view=typeof viewId==="string"?document.modelPresentation?.projections[viewId]??document.modelPresentation?.sections?.[viewId]:undefined;
+    const reference=feature.params.modelDrawingReference as {viewId:string;sourceToken:string}|undefined;
+    if(view||reference){
+      const currentToken=JSON.stringify(sourceFeature?.params.topology),resolved=!!source&&!!sourceFeature&&!!view&&sourceFeature.params.projectionStatus==="resolved"&&(!reference||reference.sourceToken===currentToken);
+      const nextReference=reference??{viewId:String(viewId),sourceToken:currentToken},multiplier=view?1/view.scale:Number(feature.params.modelMeasurementScale??1),status=resolved?"resolved":"unresolved",object=document.objects[feature.output];
+      if(feature.params.referenceStatus!==status||feature.params.modelMeasurementScale!==multiplier||!reference||object.visible!==resolved){assertDimensionUnlocked(document,feature);feature.params.modelDrawingReference=nextReference;feature.params.modelMeasurementScale=multiplier;feature.params.referenceStatus=status;object.visible=resolved;refreshed=true;}
+      if(!resolved)continue;
+    }
     if (!source || !sourceFeature) {
       // Source deleted: freeze as static, drop the dangling link.
       assertDimensionUnlocked(document,feature);

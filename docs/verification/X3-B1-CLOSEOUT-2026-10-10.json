@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-10",
+  "scope": "CAD X3-B1 circle-circle, circle-arc and arc-arc live intersections",
+  "node": {
+    "tests": 914,
+    "suites": 54,
+    "passed": 914,
+    "failed": 0,
+    "skipped": 0
+  },
+  "targetNodeTests": 14,
+  "browser": {
+    "x3CircularIntersection": 14,
+    "x3ConstructionReassignRegression": 12,
+    "constructionWorkflowRegression": 25,
+    "total": 51
+  },
+  "checks": [
+    "ordered first-centre to second-centre signed branches, explicit center-line basis",
+    "independent 3-4-5 residuals, unequal radii, translated large coordinates and reversed source order",
+    "external/internal tangency, separated, contained, concentric and coincident supports",
+    "both finite signed arc domains, wrapped angles and closed endpoints",
+    "tangency coalesces positions while preserving both IDs and branch identities",
+    "lost branch edits reject atomically without choosing the other root",
+    "detached Review, one Undo/Redo, source reassignment and locked dependent rollback",
+    "XY/XZ/YZ common elevation, nonuniform scale and cross-height rejection",
+    "v22 save/reopen, stale geometry/status diagnosis and legacy version compatibility",
+    "finite dependent segment artboard export follows circular source edits"
+  ],
+  "typecheck": "passed",
+  "architecture": {
+    "result": "passed",
+    "modules": 428
+  },
+  "productionBuild": "passed",
+  "limitations": [
+    "X3-B remains partial; ellipse and Bezier/spline intersections require respective X2 exact sources",
+    "coincident supporting circles/arcs reject, including endpoint-only coincident arc cases",
+    "arbitrary UCS constructions are separate scope",
+    "direct point SVG marks remain outside existing export support"
+  ],
+  "nextRecommended": "X1-B1 two endpoints plus radius arc"
+}

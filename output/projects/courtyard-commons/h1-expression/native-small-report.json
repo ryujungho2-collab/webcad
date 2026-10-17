@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "checks": 17,
+  "message": "PASS Actual UI reviews retained geometry, hatch and cut weights\nPASS Architectural Review is detached\nPASS Expression commits one Undo step\nPASS Paper hatch and cut weights come from actual fields\nPASS Below-cut geometry creates background output\nPASS Closed ring creates owned hatch strokes\nPASS Closed ring with courtyard hole reports no ambiguity\nPASS Actual Three.js cut stroke is thicker than background\nPASS Native Undo restores model and all expression outputs\nPASS Native Redo restores the architectural view\nPASS SVG carries view label and paper cut weight\nPASS Exact DXF includes owned expression and view label\nPASS Actual PDF Worker renders the architectural sheet\nPASS Downloaded PDF contains one physical sheet\nPASS Architectural ownership persists in schema34\nPASS Real cache reload preserves architectural options, cut IDs and decorations\nPASS Reopened expression has clean history\nALL 17 CHECKS PASSED",
+  "artifacts": [
+    "section-expression.svg",
+    "section-expression.dxf",
+    "section-expression-preview.png",
+    "section-expression.pdf"
+  ]
+}

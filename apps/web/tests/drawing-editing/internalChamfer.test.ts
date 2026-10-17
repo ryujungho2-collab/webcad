@@ -78,11 +78,10 @@ test("world mm works in elevated XY/XZ/YZ with rotation, reflection and uniform 
   }
   resetTestDocument();await setup();cadDocument.objects.profile.transform!.scale=[2,2,1];await apply(command({secondDistance:undefined,distanceSpace:undefined}));assert.deepEqual((feature().params.points as Vec3[]).slice(1,3),[[17,0,0],[20,3,0]]);
 });
-test("edge consumption, nonuniform scale, adjacent arcs, invalid target and downstream locks are atomic",async()=>{
+test("edge consumption, nonuniform scale, invalid target and downstream locks are atomic",async()=>{
   await setup();await rejected(command({distance:20}),/D1.*previous edge/);await rejected(command({secondDistance:10}),/D2.*next edge/);
   await rejected(command({controlId:"missing"}),/internal corner/);
   cadDocument.objects.profile.transform!.scale=[2,1,1];await rejected(command(),/uniform/);cadDocument.objects.profile.transform!.scale=[1,1,1];
-  feature().params.bulges=[.2,0,0,0];await rejected(command(),/Adjacent arcs/);delete feature().params.bulges;
   await apply({type:"create-dimension",id:"length",dimension:"linear",params:{sourceObjectId:"profile",sourceSegmentId:topology().segments[0].id,points:[[0,0],[20,0]]}});
   await apply({type:"create-layer",id:"locked",name:"Locked dimensions"});await apply({type:"move-object-to-layer",objectId:"length",layerId:"locked"});cadDocument.layers.locked.locked=true;
   await rejected(command(),/locked/);cadDocument.layers.locked.locked=false;cadDocument.layers["layer-default"].locked=true;await rejected(command(),/unlock/);

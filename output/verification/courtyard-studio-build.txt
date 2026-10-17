@@ -1,0 +1,11 @@
+Modeling L1
+Modeling L2
+Modeling L3
+Model checkpoint: 56 parts, floor area 840,792.88,792.88
+Deriving plan-1
+Deriving plan-2
+Deriving plan-3
+Deriving section-aa
+Deriving section-bb
+GAP-ELEVATION: Level 1 courtyard floor slab: outline adapter supports box/cylinder primitives; other BRep kinds need a new adapter.
+GAP-ELLIPSE: Section contains ellipse/spline or unsupported curves. No sampled approximation is exported.

@@ -1,10 +1,14 @@
 # 작업 범위 분할과 재시작 계약
 
-**현재 실행 순서(2026-10-09):** G5-B2 단일 2D Move 후 **CAD B2-A1 두 윤곽 / B2-A2 내부 코너의 D1/D2 모따기**를 구현했다. [내부 코너의 지원 범위·검수·한계](implementation/B2-A2-INTERNAL-CHAMFER-2026-10-09.md)를 따른다. **B0-A 컨트롤 Enter/Space ownership 결함 한 종류**를 수정했다. [native 조작·숫자 grip·반복/History 검수와 한계](implementation/B0-A-KEYBOARD-ACTIVATION-2026-10-09.md)를 따른다. 다음 조작 후보 B0-B는 별도 요청으로 실행한다. 동일 모델의 도면 목표는 별도 **G6-A1 모델 뷰 저장 계약**부터 시작한다. 2차는 아트보드·벡터/이미지·프로토타입·슬라이드·LLM 통합이다. 아래 B1 당시 B2 후보는 이력이다. 최신 실행 우선순위는 [NEXT-STEPS](../NEXT-STEPS.md)가 소유한다.
+2026-10-17 정합성 기준: 최신 실행 큐는 [NEXT-STEPS](../NEXT-STEPS.md#현재-실행-큐)의 **WF-Q1**이다. [B·X·G·I 구현 순서](product/B-X-G-I-IMPLEMENTATION-ORDER-2026-10-11.md)와 아래 날짜별 순서·프롬프트는 당시 카드 분할·인계 이력이며 현재 요청의 범위를 제한하지 않는다. 최신 완료 근거는 [PROJECT-STATE](../PROJECT-STATE.md)에서 찾는다.
+
+2026-10-10: **B2-B line–arc Fillet**을 bounded 접점·유지 가지·복수 해 review/Apply 범위에서 완료했다. [지원과 실제 검수](implementation/B2-B-LINE-ARC-FILLET-2026-10-10.md)를 따른다. 아래는 기존 실행 이력이다.
+
+**현재 실행 순서(2026-10-09):** G5-B2 단일 2D Move 후 **CAD B2-A1 두 윤곽 / B2-A2 내부 코너의 D1/D2 모따기**를 구현했다. [내부 코너의 지원 범위·검수·한계](implementation/B2-A2-INTERNAL-CHAMFER-2026-10-09.md)를 따른다. **B0-A 컨트롤 Enter/Space ownership 결함 한 종류**를 수정했다. [native 조작·숫자 grip·반복/History 검수와 한계](implementation/B0-A-KEYBOARD-ACTIVATION-2026-10-09.md)를 따른다. 다음 조작 후보 B0-B는 별도 요청으로 실행한다. 동일 모델의 도면 목표는 **G6-A1 모델 뷰 저장 계약**과 **G6-A2 UI 연결**을 완료했고 다음 1차 후보는 수치 편집 pilot이다. 2차는 아트보드·벡터/이미지·프로토타입·슬라이드·LLM 통합이다. 아래 B1 당시 B2 후보는 이력이다. 최신 실행 우선순위는 [NEXT-STEPS](../NEXT-STEPS.md)가 소유한다.
 
 **2026-10-09 마감:** G5-B1을 재개해 선택/명시적 target Query·잠금/오류·취소/context·수동 인계와 문서 게시 직후 버전 경합을 검수했다. 새 Node 8개/browser 35 checks 포함 **651 Node / 39 browser·834 checks / 318 module guard / 타입·build** 통과. [B1 구현·지원 경계](implementation/G5-B1-COPILOT-QUERY-2026-10-09.md), [마감 증거](verification/G5-B1-CLOSEOUT-2026-10-09.json)를 따른다. 이전 checkpoint는 중단 당시 기록으로 보존한다. 다음 B2·G6는 시작하지 않았다.
 
-갱신일 2026-10-09. 기존 G0–G6와 CAD B0–B5를 작은 검증 가능한 결과로 구분한다. G4 첫 범위·CAD B3-A1/A2·B·C1–C3와 **G5-A1–A3**를 구현·검수했다. [C1 계산](implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md), [C2/C3 구현·검수](implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md), [G4/CAD 기록](implementation/G4-CAD-BASICS-2026-10-06.md), [G5-A1 기록](implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md), [G5-A2 기록](implementation/G5-A2-COPILOT-CONTEXT-2026-10-08.md), [G5-A3 기록](implementation/G5-A3-COPILOT-APPLY-2026-10-08.md)을 따른다. B1 Query를 마감했으며 다음 우선순위는 별도 요청의 G6-A1이다.
+갱신일 2026-10-09. 기존 G0–G6와 CAD B0–B5를 작은 검증 가능한 결과로 구분한다. G4 첫 범위·CAD B3-A1/A2·B·C1–C3와 **G5-A1–A3**를 구현·검수했다. [C1 계산](implementation/B3-C1-ANGULAR-DIMENSION-2026-10-08.md), [C2/C3 구현·검수](implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md), [G4/CAD 기록](implementation/G4-CAD-BASICS-2026-10-06.md), [G5-A1 기록](implementation/G5-A1-GATEWAY-BOUNDARY-2026-10-06.md), [G5-A2 기록](implementation/G5-A2-COPILOT-CONTEXT-2026-10-08.md), [G5-A3 기록](implementation/G5-A3-COPILOT-APPLY-2026-10-08.md)을 따른다. B1 Query·G6-A1 저장 뷰 계약·G6-A2 UI 연결을 마감했으며 다음 1차 후보는 수치 편집 pilot이다.
 
 ## 현재 작업 트리에서 이어받을 것
 
@@ -38,7 +42,7 @@ G4/CAD 기준선은 커밋 `291c1c3`에 보존했다. 새 작업의 git status�
 | 8a · G5-B1 완료 | local 선택/explicit target Query·제한/실측/관계·취소/context·수동 인계 | 실제 browser 35 checks와 전체 Node/browser·타입·architecture/build 통과. 실제 provider와 구별 |
 | 8b · G5-B2 첫 범위 완료 | 독립 finite 2D drawing 한 개의 Move | Node 신규 8개·native browser 25 checks, 전체 659 Node/40 browser·859 checks·타입/321 module guard/build 통과. 다중 대상/다른 편집 명령·실제 provider는 미지원 |
 | 9 · G6-A | 현재 CAD의 Axo 뷰 계약·재현 가능한 preset | 카메라·Fit·출력의 첫 독립 과제. RVT import와 섞지 않음 |
-| 10 · G6-B | 오프라인 source ID/unit/loss/asset manifest와 fixture import/export | 하나의 adapter boundary만 구현, review/atomic Apply. IFC/RVT를 실제 읽었다는 주장 금지 |
+| 10 · G6-B | 오프라인 source ID/unit/loss/asset manifest와 fixture import/export | [B1 계약·B2 변환·B3 검토/적용·B4 export/왕복](product/G6-B-OFFLINE-ADAPTER-PLAN.md)의 첫 JSON fixture 선·직사각형 범위를 완료. [구현·v16·실제 검수](implementation/G6-B-OFFLINE-FIXTURE-2026-10-09.md). 하나의 adapter boundary만 지원. IFC/RVT를 실제 읽었다는 주장 금지 |
 | 11 · G6-C 이후 | 실제 연결 환경이 준비된 adapter 한 종류 | Manim render, Revit/IFC, Notion, InDesign을 각각 따로 검증. 환경 미정인 항목은 완료로 표시하지 않음 |
 
 위 목록 사이의 CAD 후속은 아래 대기열에서 하나씩 선택한다. G3-5가 끝났다는 이유만으로 G4–G6와 B0–B5 전체를 같은 요청에서 실행하지 않는다.
@@ -59,7 +63,9 @@ B0–B5 전체 완료와 일반 CAD 전체 기능 동등성은 구분한다. 여
 
 사용자의 각도 치수 우선 요청에 따른 **B3-C2a → B3-C2b → B3-C3** 구현과 **G5-A1–A3** 검수는 끝났다. 다음 G5-B는 **B1 Query → B2 편집 한 종류**의 별도 요청으로 구분한다. B3-C의 수정 위치·계약·완료 경계는 [CAD 카드의 하위 설계](product/CAD-BASICS-IMPLEMENTATION-PLAN.md)에서 관리한다.
 
-## 바로 다음 명령 — G6-A1 모델 뷰 저장 계약
+## G6-A1 실행 계약 — 완료 이력
+
+2026-10-09 모델 뷰 저장 계약·명령·카메라 복원·v15·History를 완료했다. [지원 범위·검수](implementation/G6-A1-MODEL-VIEWS-2026-10-09.md)를 따른다. G6-A2 UI 연결도 완료했다. 아래 프롬프트는 완료한 A1의 실행 계약을 보존한다.
 
 2026-10-09 사용자 목표에 따라 1차 건축·기계 CAD, 2차 아트보드·벡터/이미지·프로토타입·슬라이드·LLM 순서로 변경했다. 위 B1 마감 당시의 B2 우선 후보는 2차로 보류한다. 상세 범위는 [1차/2차 목표](product/ARCHITECTURE-MECHANICAL-MILESTONE.md)를 따른다.
 
@@ -84,7 +90,7 @@ viewport 실행 코드를 바꿨다면 실제 browser 회귀도 검증해.
 
 ## G5-B2 완료 범위의 실행 계약 (이력)
 
-아래 계약으로 사용자가 요청한 **단일 2D Move**를 구현했다. 지원 대상·검수·남은 제한은 [B2 구현](implementation/G5-B2-COPILOT-MOVE-2026-10-09.md), 최신 전체 결과는 PROJECT-STATE를 따른다. 다른 편집 명령을 모두 허용한 상태가 아니다. 다음 실행 프롬프트는 위 G6-A1이다.
+아래 계약으로 사용자가 요청한 **단일 2D Move**를 구현했다. 지원 대상·검수·남은 제한은 [B2 구현](implementation/G5-B2-COPILOT-MOVE-2026-10-09.md), 최신 전체 결과는 PROJECT-STATE를 따른다. 다른 편집 명령을 모두 허용한 상태가 아니다. G6-A1 실행 계약은 위 완료 이력에 보존하며 다음 1차 후보는 수치 편집 pilot이다.
 
 ```text
 WebCAD G5-B2의 기존 편집 명령 한 종류만 조사·구현·검수하고 기록 후 멈춰.

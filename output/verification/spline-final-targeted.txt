@@ -1,0 +1,18 @@
+✔ rational quarter circle preserves exact source, finite domain and convergent length (12.7393ms)
+✔ exact homogeneous knot insertion trims rational and polynomial domains without changing points (1.6122ms)
+✔ malformed knots, nonpositive weights, interior breaks and invalid domain are rejected (0.3644ms)
+✔ closed rational circle reports independently known area and perimeter (34.4225ms)
+✔ spline source Review/Apply, rational weights, pole identity, live endpoints and exact Undo (45.9453ms)
+✔ invalid structure edits, locked sources, stale and aborted Review never publish (18.1153ms)
+✔ affine-transformed NURBS measures native curve length and exports exact finite DXF SPLINE (11.8768ms)
+✔ homogeneous polynomial roots crop finite rational domains without joining gaps or tangent splits (0.779ms)
+✔ real oblique torus sections preserve native rational splines, crop, live endpoints, sheet scale and hatch omission (2979.5215ms)
+✔ paper crop emits three exact SPLINE domains across an S-curve and preserves LTYPE (2.4634ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3904.0306

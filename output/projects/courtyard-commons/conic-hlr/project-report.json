@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-13",
+  "parts": 56,
+  "views": 12,
+  "pages": 7,
+  "schema": 36,
+  "metrics": [
+    {
+      "id": "assembly-front-conic",
+      "parts": 56,
+      "outputs": 783,
+      "ellipses": 0,
+      "hidden": 686,
+      "policy": "sharp-outline",
+      "ms": 2329
+    },
+    {
+      "id": "skylight-hlr-top",
+      "parts": 1,
+      "outputs": 5,
+      "ellipses": 3,
+      "hidden": 1,
+      "policy": "sharp-outline",
+      "ms": 498
+    },
+    {
+      "id": "skylight-hlr-side",
+      "parts": 1,
+      "outputs": 5,
+      "ellipses": 3,
+      "hidden": 1,
+      "policy": "sharp-outline",
+      "ms": 471
+    }
+  ],
+  "backgroundOutputs": 3,
+  "ms": 23071,
+  "limits": [
+    "Exact sharp/silhouette policy excludes Rg1/RgN seams/tangent edges and isolines.",
+    "Ellipse hatch and non-linear spline/parabola/hyperbola remain unsupported.",
+    "Full assembly front includes the original inclined skylight, formerly omitted.",
+    "Large output layout/edit responsiveness remains P2; no cold/warm average claim."
+  ]
+}

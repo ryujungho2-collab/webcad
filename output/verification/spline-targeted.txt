@@ -1,0 +1,20 @@
+✔ conic seams merge only continuous same-source same-visibility domains; gaps and nearby loci remain separate (1.108ms)
+✔ canonical ellipse axes preserve reflected finite domains and full curves ignore parameter seam phase (0.347ms)
+✔ actual tilted-cylinder HLR preserves elliptical cap axes, hidden domain and silhouettes without an interior seam (2266.4139ms)
+✔ edge-on conic reconstructs four exact line boundaries only with a proven collinear degree-one control polygon (45.7848ms)
+✔ assembly occlusion keeps separated visible elliptic arcs and does not merge across the hidden strip (14.1906ms)
+✔ HLR ellipse Review/Undo, read-only ownership, exact sheet output and schema36 persist fixed edge policy (23.9627ms)
+✔ rotating a periodic cylinder about its own axis preserves seam-free circle outputs and references (10.8665ms)
+✔ stale/locked conic edits reject atomically; source loss hides outputs and invalidates the live note (8.6631ms)
+✔ oblique torus retains native finite spline HLR without replacing it with polylines (49.7909ms)
+✔ rational quarter circle preserves exact source, finite domain and convergent length (14.033ms)
+✔ exact homogeneous knot insertion trims rational and polynomial domains without changing points (2.5333ms)
+✔ malformed knots, nonpositive weights, interior breaks and invalid domain are rejected (0.5519ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3451.5363

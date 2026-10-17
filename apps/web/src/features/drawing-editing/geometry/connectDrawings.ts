@@ -1,3 +1,5 @@
+import { curveCornerSolutions, chooseCurveCorner } from "./arcCorners";
+import { lineArcFilletSolutions } from "./lineArcFillet";
 import type { CadFeature, CadObject } from "@agent-webcad/cad-document";
 import { contourTolerance, exactDrawingContour, locateOnContour } from "./contourEditing";
 import { drawingWorldToModel } from "../../../precision/worldGeometry";
@@ -7,13 +9,28 @@ import { WORK_PLANES, worldToPlane, type Vec3 } from "../../../precision/workPla
  * endpoints survive; the connecting line/arc is a separate editable object. */
 export function connectDrawings(
   first: { object: CadObject; feature: CadFeature }, second: { object: CadObject; feature: CadFeature },
-  firstPoint: Vec3, secondPoint: Vec3, treatment: "fillet" | "chamfer", value: number, secondDistance?: number,
+  firstPoint: Vec3, secondPoint: Vec3, treatment: "fillet" | "chamfer", value: number, secondDistance?: number, solutionIndex?: number,
 ) {
   if (!Number.isFinite(value) || value <= 1e-9 || secondDistance !== undefined && (treatment !== "chamfer" || !Number.isFinite(secondDistance) || secondDistance <= 1e-9)) throw new Error("Enter positive finite chamfer distances; Fillet uses one radius.");
   const paths = [first, second].map(s => exactDrawingContour(s.object, s.feature));
   const tolerance = contourTolerance(paths), plane = WORK_PLANES[paths[0].workPlane];
   const height = (p: Vec3) => p.reduce((sum, v, i) => sum + v * plane.normal[i], 0);
   if (paths.some(p => p.closed || p.workPlane !== paths[0].workPlane) || Math.abs(height(paths[0].segments[0].start) - height(paths[1].segments[0].start)) > tolerance) throw new Error("Connect two open contours on the same work plane and elevation.");
+  const picksForEnds=[firstPoint,secondPoint];
+  const selectedEnds=paths.map((p,i)=>p.segments[locateOnContour(p,picksForEnds[i]).segment]);
+  if(selectedEnds.some(s=>s.kind==="arc") && (treatment==="chamfer" || paths.some(p=>p.segments.length>1&&p.segments.some(s=>s.kind==="arc")))) {
+    return chooseCurveCorner(curveCornerSolutions(first,second,firstPoint,secondPoint,treatment,value,secondDistance),solutionIndex);
+  }
+  if([first,second].every(s=>s.feature.params.kind === "arc"))return chooseCurveCorner(curveCornerSolutions(first,second,firstPoint,secondPoint,treatment,value,secondDistance),solutionIndex);
+  if ([first,second].some(s=>s.feature.params.kind === "arc")) {
+    if(treatment !== "fillet")throw new Error("Line–arc corners support Fillet only; arc Chamfer is a separate operation.");
+    const solutions=lineArcFilletSolutions(first,second,firstPoint,secondPoint,value);
+    if(!solutions.length)throw new Error("No tangent Fillet fits the picked retained branches and bounded intervals. Change the radius or branch picks.");
+    if(solutions.length>1 && solutionIndex === undefined)throw new Error("Multiple tangent Fillets fit. Choose a solution and review its contact points.");
+    const chosen=solutions[solutionIndex ?? 0];if(!chosen)throw new Error("The selected Fillet solution is unavailable. Review the current branches again.");
+    return chosen;
+  }
+  if(solutionIndex !== undefined)throw new Error("Solution selection is only supported for line–arc Fillet.");
   const picks = [firstPoint, secondPoint], ends = paths.map((path, i) => {
     const hit = locateOnContour(path, picks[i]), last = path.segments.length - 1;
     if (hit.distance > tolerance || (hit.segment !== 0 && hit.segment !== last)) throw new Error("Pick a free end segment on each contour.");

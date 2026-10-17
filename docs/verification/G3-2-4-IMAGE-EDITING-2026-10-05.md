@@ -1,5 +1,7 @@
 # G3 이미지 배치·마스크·crop·색 조정·Artboard PNG/PDF 검수
 
+> **현재 기능 설명:** [이미지와 장면](../features/IMAGES-SCENES.md). 이 문서는 날짜별 검증·측정 기록이며, 아래 사용법·제한·수치는 당시 범위다. 후속 지원은 대표 가이드를 따른다.
+
 실행일: 2026-10-05. 범위: G3-2 placement duplicate/transform/align, G3-3a ellipse mask, G3-3b canvas crop handles, G3-4a opacity, G3-4b1 color adjustment, G3-4b2 artboard PNG, G3-4b3 artboard PDF composition. G3-1 최초 slice 검수와 구분한다. 최신 전체 상태는 [PROJECT-STATE](../../PROJECT-STATE.md), 실제 동작 경계는 [구현 기록](../implementation/G3-2-4-IMAGE-EDITING-2026-10-05.md)을 따른다.
 
 ## 검증 결과

@@ -1,3 +1,7 @@
+import {validSpline} from "@agent-webcad/cad-document";
+import {splineLength,splineArea} from "./splineGeometry";
+import {validEllipse} from "@agent-webcad/cad-document";
+import {ellipseLength,ellipseArea} from "./ellipseGeometry";
 import { WORK_PLANES, worldToPlane, type Vec3, type WorkPlaneId } from "./workPlane";
 
 export type DrawingMeasurements = {
@@ -21,6 +25,10 @@ export function measurePoints(a: Vec3, b: Vec3, planeId: WorkPlaneId = "XY"): Po
 }
 
 export function measureDrawing(params: Record<string, unknown>): DrawingMeasurements {
+  if(validSpline(params))return {distance:splineLength(params),area:splineArea(params)};
+  if(validSpline(params.spline))return {distance:splineLength(params.spline),area:splineArea(params.spline)};
+  if(validEllipse(params))return {distance:ellipseLength(params),area:ellipseArea(params)};
+  if(validEllipse(params.ellipse))return {distance:ellipseLength(params.ellipse),area:ellipseArea(params.ellipse)};
   const kind = String(params.kind ?? "");
   const planeId = (params.workPlane === "XZ" || params.workPlane === "YZ" ? params.workPlane : "XY") as WorkPlaneId;
   const plane = WORK_PLANES[planeId];

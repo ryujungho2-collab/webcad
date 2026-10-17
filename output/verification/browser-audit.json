@@ -1,0 +1,375 @@
+[
+  {
+    "page": "draftingWorkflow",
+    "status": "passed",
+    "checks": 16
+  },
+  {
+    "page": "sketchCanvas",
+    "status": "passed",
+    "checks": 11
+  },
+  {
+    "page": "pointWorkflow",
+    "status": "passed",
+    "checks": 18
+  },
+  {
+    "page": "regionWorkflow",
+    "status": "passed",
+    "checks": 8
+  },
+  {
+    "page": "deliveryWorkflow",
+    "status": "failed",
+    "checks": 0,
+    "message": "PASS: Room plan UI creates the requested 6000×4000 footprint with 150mm walls\nPASS: Opening edit moves door and window 500mm in one transaction\nPASS: Opening edit Undo restores the full plan\nPASS: Opening edit Redo restores linked linework and dimensions\nPASS: Invalid opening rejects without changing the model\nPASS: Layer panel sets persisted color and physical line weight\nPASS: 1:50 plot maps 4000mm to 80mm on paper\nPASS: Browser PDF preserves Korean labels using installed fonts and Unicode ActualText\nPASS: DXF carries editable Korean TEXT beside the plan vectors\nPASS: Text tool accepts model-unit coordinates and a real document annotation\nPASS: Representative plan creation and edits restore the complete empty document\nPASS: Hatch UI creates clipped linework with a live boundary reference\nFAIL: Continuous dimension UI retains its source instead of duplicating measured values"
+  },
+  {
+    "page": "trustWorkflow",
+    "status": "passed",
+    "checks": 15
+  },
+  {
+    "page": "variablesWorkflow",
+    "status": "passed",
+    "checks": 20
+  },
+  {
+    "page": "commandExperience",
+    "status": "passed",
+    "checks": 27
+  },
+  {
+    "page": "canvasIntent",
+    "status": "passed",
+    "checks": 27
+  },
+  {
+    "page": "directEditExperience",
+    "status": "passed",
+    "checks": 43
+  },
+  {
+    "page": "constrainedDrag",
+    "status": "passed",
+    "checks": 19
+  },
+  {
+    "page": "directTargetExperience",
+    "status": "passed",
+    "checks": 28
+  },
+  {
+    "page": "patternsWorkflow",
+    "status": "passed",
+    "checks": 22
+  },
+  {
+    "page": "contourWorkflow",
+    "status": "passed",
+    "checks": 20
+  },
+  {
+    "page": "basicEditWorkflow",
+    "status": "passed",
+    "checks": 31
+  },
+  {
+    "page": "dependencyWorkflow",
+    "status": "passed",
+    "checks": 9
+  },
+  {
+    "page": "constructionWorkflow",
+    "status": "passed",
+    "checks": 25
+  },
+  {
+    "page": "extendedCadWorkflow",
+    "status": "passed",
+    "checks": 27
+  },
+  {
+    "page": "curveWorkflow",
+    "status": "passed",
+    "checks": 20
+  },
+  {
+    "page": "contourTrimWorkflow",
+    "status": "failed",
+    "checks": 0,
+    "message": "FAIL: TypeError: Failed to fetch\n    at input (http://127.0.0.1:5174/tests/contourTrimWorkflow.browser.tsx:60:74)\n    at mouse (http://127.0.0.1:5174/tests/contourTrimWorkflow.browser.tsx:64:46)\n    at physical (http://127.0.0.1:5174/tests/contourTrimWorkflow.browser.tsx:71:9)\n    at async click (http://127.0.0.1:5174/tests/contourTrimWorkflow.browser.tsx:78:3)\n    at async button.onclick (http://127.0.0.1:5174/tests/contourTrimWorkflow.browser.tsx:127:5)"
+  },
+  {
+    "page": "interactionRelations",
+    "status": "passed",
+    "checks": 17
+  },
+  {
+    "page": "artboardsWorkflow",
+    "status": "passed",
+    "checks": 31
+  },
+  {
+    "page": "componentsWorkflow",
+    "status": "passed",
+    "checks": 13
+  },
+  {
+    "page": "imageWorkflow",
+    "status": "passed",
+    "checks": 38
+  },
+  {
+    "page": "tiffImportWorkflow",
+    "status": "passed",
+    "checks": 10
+  },
+  {
+    "page": "imageSourceWorkflow",
+    "status": "passed",
+    "checks": 16
+  },
+  {
+    "page": "artboardPngWorkflow",
+    "status": "passed",
+    "checks": 25
+  },
+  {
+    "page": "artboardPdfWorkflow",
+    "status": "passed",
+    "checks": 21
+  },
+  {
+    "page": "imageResources",
+    "status": "passed",
+    "checks": 34
+  },
+  {
+    "page": "scenesWorkflow",
+    "status": "passed",
+    "checks": 30
+  },
+  {
+    "page": "dxfWorkflow",
+    "status": "passed",
+    "checks": 18
+  },
+  {
+    "page": "diameterWorkflow",
+    "status": "passed",
+    "checks": 17
+  },
+  {
+    "page": "angularWorkflow",
+    "status": "passed",
+    "checks": 24
+  },
+  {
+    "page": "copilotGateway",
+    "status": "passed",
+    "checks": 13
+  },
+  {
+    "page": "copilotContext",
+    "status": "passed",
+    "checks": 15
+  },
+  {
+    "page": "copilotApply",
+    "status": "passed",
+    "checks": 26
+  },
+  {
+    "page": "copilotQuery",
+    "status": "passed",
+    "checks": 35
+  },
+  {
+    "page": "sessionContinuity",
+    "status": "passed",
+    "checks": 24
+  },
+  {
+    "page": "historySelection",
+    "status": "passed",
+    "checks": 23
+  },
+  {
+    "page": "copilotEdit",
+    "status": "passed",
+    "checks": 25
+  },
+  {
+    "page": "asymmetricChamfer",
+    "status": "passed",
+    "checks": 18
+  },
+  {
+    "page": "lineArcFillet",
+    "status": "passed",
+    "checks": 17
+  },
+  {
+    "page": "arcCorners",
+    "status": "passed",
+    "checks": 22
+  },
+  {
+    "page": "blockStretch",
+    "status": "passed",
+    "checks": 18
+  },
+  {
+    "page": "sketchStretch",
+    "status": "passed",
+    "checks": 19
+  },
+  {
+    "page": "dxfOcs",
+    "status": "passed",
+    "checks": 18
+  },
+  {
+    "page": "internalChamfer",
+    "status": "passed",
+    "checks": 18
+  },
+  {
+    "page": "keyboardActivation",
+    "status": "passed",
+    "checks": 21
+  },
+  {
+    "page": "wheelNavigation",
+    "status": "passed",
+    "checks": 11
+  },
+  {
+    "page": "modelViews",
+    "status": "passed",
+    "checks": 24
+  },
+  {
+    "page": "exchangeFixture",
+    "status": "passed",
+    "checks": 20
+  },
+  {
+    "page": "shortcutGuide",
+    "status": "passed",
+    "checks": 13
+  },
+  {
+    "page": "precisionInput",
+    "status": "failed",
+    "checks": 0,
+    "message": "PASS: Invalid drawing Tab preserves draft, source and history\nPASS: Drawing recovery uses 1in length and 90deg active angle\nPASS: Move Enter resolves active angle as degrees and commits once: [[1.2246467991473535e-15,20.000000000000004,0],[2.779948234064492e-15,45.400000000000006,0]], history 1->2\nPASS: Undo restores the exact unrounded source\nPASS: Move pointer confirmation uses the numeric endpoint after pointer motion\nPASS: Invalid angle Enter never falls back to length or pointer\nPASS: Drawing relative polar input shares unit conversion with locks\nPASS: XZ numeric drawing preserves local coordinates and units\nPASS: XZ numeric Move uses the same plane basis as drawing\nPASS: YZ numeric drawing preserves local coordinates and units\nPASS: YZ numeric Move uses the same plane basis as drawing\nPASS: Rectangle pointer confirmation preserves width/height units rather than pointer coordinates\nFAIL: TypeError: Failed to fetch\n    at input (http://127.0.0.1:5174/tests/helpers/physicalInput.ts:11:81)\n    at keys (http://127.0.0.1:5174/tests/precisionInput.browser.tsx:30:30)\n    at button.onclick (http://127.0.0.1:5174/tests/precisionInput.browser.tsx:156:11)"
+  },
+  {
+    "page": "artboardAnnotations",
+    "status": "passed",
+    "checks": 12
+  },
+  {
+    "page": "draftingVisibility",
+    "status": "passed",
+    "checks": 17
+  },
+  {
+    "page": "breakReferences",
+    "status": "passed",
+    "checks": 16
+  },
+  {
+    "page": "explodeReferences",
+    "status": "passed",
+    "checks": 19
+  },
+  {
+    "page": "explodeBlock",
+    "status": "passed",
+    "checks": 18
+  },
+  {
+    "page": "convertEdge",
+    "status": "passed",
+    "checks": 16
+  },
+  {
+    "page": "editSketchVertices",
+    "status": "passed",
+    "checks": 28
+  },
+  {
+    "page": "hatchReconnection",
+    "status": "passed",
+    "checks": 14
+  },
+  {
+    "page": "chainReconnection",
+    "status": "passed",
+    "checks": 12
+  },
+  {
+    "page": "bindingReconnection",
+    "status": "passed",
+    "checks": 13
+  },
+  {
+    "page": "b4ArcWorkflow",
+    "status": "passed",
+    "checks": 11
+  },
+  {
+    "page": "b5WorkPlanes",
+    "status": "passed",
+    "checks": 8
+  },
+  {
+    "page": "b5FaceSketch",
+    "status": "passed",
+    "checks": 5
+  },
+  {
+    "page": "b5FaceCut",
+    "status": "passed",
+    "checks": 3
+  },
+  {
+    "page": "b5FaceHole",
+    "status": "passed",
+    "checks": 3
+  },
+  {
+    "page": "b5Shell",
+    "status": "passed",
+    "checks": 6
+  },
+  {
+    "page": "x1ThreePoint",
+    "status": "passed",
+    "checks": 10
+  },
+  {
+    "page": "x1RegularPolygon",
+    "status": "passed",
+    "checks": 13
+  },
+  {
+    "page": "x1EndpointRadiusArc",
+    "status": "passed",
+    "checks": 15
+  },
+  {
+    "page": "x3ConstructionReassign",
+    "status": "passed",
+    "checks": 12
+  },
+  {
+    "page": "x3CircularIntersection",
+    "status": "passed",
+    "checks": 14
+  }
+]

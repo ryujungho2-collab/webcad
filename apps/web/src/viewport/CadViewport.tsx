@@ -1,3 +1,15 @@
+import { createViewGeometry } from "../cad/viewGeometryService";
+import { useProjectActivity } from "../app/useProjectActivity";
+import { gpuPayloadBytes } from "./gpuPayload";
+import { setViewResourceMetrics } from "../cad/kernelGeometryService";
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../app/projectActivity";
+import {SplineTool,type SplineSession} from "./SplineTool";
+import {workspaceFrameVisible} from "@agent-webcad/cad-document";
+import {DrawingFrames} from "./DrawingFrames";
+import {EllipseTool,type EllipseSession} from "./EllipseTool";
+import {modelClippingPlane,modelPointVisible} from "../precision/modelClipping";
+import {explodedDisplayOffset,hasExplodedDisplay} from "../precision/modelPresentation";
+import {CadPilotTool,type CadPilotSession} from "./CadPilotTool";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CadImageCrop, CadImageMask, Sketch, SketchPoint } from "@agent-webcad/cad-document";
@@ -15,13 +27,18 @@ import { PointTransformTool, type PointTransformSession, type PointTransformResu
 import {PatternTool,type PatternSession} from "./PatternTool";
 import { interactionTools, interactionToolReason, type InteractionToolId } from "../commands/interactionTools";
 import { ContourTool } from "../features/drawing-editing/ui/ContourTool";
+import { BlockTool } from "../features/drawing-editing/ui/BlockTool";
 import { CurveWorkbench } from "../features/drawing-editing/ui/CurveWorkbench";
-import type { ContourSession, CurveSession, CurveNextAction } from "../features/drawing-editing/contracts";
+import type { ContourSession, CurveSession, CurveNextAction, BlockSession } from "../features/drawing-editing/contracts";
+import {EndpointRadiusArcTool,type EndpointRadiusArcSession} from "./EndpointRadiusArcTool";
+import {RegularPolygonTool,type RegularPolygonSession} from "./RegularPolygonTool";
 import { ConstructionTool, type ConstructionSession } from "./ConstructionTool";
 import { AngularDimensionTool, type AngularDimensionSession } from "./AngularDimensionTool";
 import { RegionOverlay } from "./RegionOverlay";
 import type { SketchLoop } from "../precision/sketchProfiles";
 import { applyPolarLocks, emptyPolarLocks, parsePointEntry } from "../precision/pointInput";
+import { resolveDrawingPointInput } from "../precision/drawingPointInput";
+import {threePointCurve} from "../precision/threePointCurve";
 import { sketchSnapBinding, type SketchSnapBinding } from "../precision/automaticSketchConstraints";
 import * as THREE from "three";
 import { TransformControls } from "three/examples/jsm/controls/TransformControls.js";
@@ -32,11 +49,13 @@ import { getObjectTransform } from "../precision/objectTransform";
 import { getObjectWorldBounds, getSelectionWorldBounds } from "../precision/worldBounds";
 import { parseAngle, parseLength } from "../precision/units";
 import { querySnap, type SnapEntity, type SnapResult } from "../precision/snapEngine";
+import { trackingCandidates, type TrackingAnchor, type TrackingAxis, type TrackingCandidate } from "../precision/trackingSnap";
 import { DEFAULT_SNAP_PREFERENCES, snapCaption, type SnapPreferences } from "../precision/snapPreferences";
 import { measurePoints } from "../precision/measurements";
-import { intersectRayWithWorkPlane, planeToWorld, WORK_PLANES, worldToPlane, type Vec3, type WorkPlaneId } from "../precision/workPlane";
+import { intersectRayWithWorkPlane, planeToWorld, WORK_PLANES, worldToPlane, type Vec3, type WorkPlane, type WorkPlaneId } from "../precision/workPlane";
 import { easeWorkspaceTransition, workspaceTransitionDuration, type WorkspaceMode } from "./workspaceTransition";
-import { buildBooleanMesh, buildChamferMesh, buildDemoPartMesh, buildExtrudeMesh, buildFilletMesh, buildLoftMesh, buildPrimitiveMesh, buildRevolveMesh, buildSweepMesh, enumerateSolidTopology, subscribeKernelStatus, type KernelStatus } from "../cad/kernelGeometryService";
+import { buildBooleanMesh, buildChamferMesh, buildDemoPartMesh, buildExtrudeMesh, buildFilletMesh, buildLoftMesh, buildShellMesh, buildPrimitiveMesh, buildRevolveMesh, buildSweepMesh, enumerateSolidTopology } from "../cad/viewGeometryService";
+import { subscribeKernelStatus, type KernelStatus } from "../cad/kernelGeometryService";
 import { isKernelCancelled } from "../cad/kernelGeometryService";
 import type { CopilotGhost } from "../copilot/copilotPlan";
 import { drawingTransformAfterEdit, getWorldDrawingGeometry } from "../precision/worldGeometry";
@@ -44,6 +63,7 @@ import type { TopologySelectionRef } from "../state/selection";
 import { offsetDrawingForObject } from "../features/drawing-editing/geometry/drawingOperations";
 import { resolveLineEdit } from "../features/drawing-editing/geometry/lineEditing";
 import { createDrawingRenderObject, createDrawingSceneObject, drawingRenderOrigin, drawingRenderPoints, clipLinearToCamera } from "./drawingRenderer";
+import {drawingRenderParams} from "../precision/drawingRenderParams";
 import { createImageSceneObject, updateImageSceneCrop } from "./imageRenderer";
 import { ImageCropHandles } from "./ImageCropHandles";
 import { createDimensionRenderObject } from "./dimensionRenderer";
@@ -60,6 +80,11 @@ import {
 import { matchesSelectionWindow, type ScreenPoint } from "./selectionWindow";
 import { brepFaceKeyAtOrdinal, nearestBrepEdgeHit } from "./brepPicking";
 import { isCadKeyboardBlocked, middleMouseNavigation } from "../input/shortcutRouter";
+import { navigateWheel, VIEW_NAVIGATION_HINT } from "./wheelNavigation";
+import { captureModelViewCamera, cameraFromModelView } from "./modelViewCamera";
+import type { CadModelViewCamera } from "@agent-webcad/cad-document";
+export type ModelViewBridge = { capture: () => CadModelViewCamera };
+export type ModelViewRequest = { id: number; camera: CadModelViewCamera };
 import {
   cycleSelectionCandidate,
   hasSelectionToggleModifier,
@@ -70,6 +95,9 @@ import {
 } from "./selectionRouting";
 
 type CadViewportProps = {
+  onModelViewBridge?: (bridge: ModelViewBridge | null) => void;
+  modelViewRequest?: ModelViewRequest | null;
+  onModelViewRestored?: (error?: string) => void;
   activeLayerId?: string;
   curveSession?: CurveSession | null;
   angularSession?: AngularDimensionSession | null;
@@ -80,6 +108,15 @@ type CadViewportProps = {
   curveNextActions?: CurveNextAction[];
   onCurveClose?: () => void;
   onCurveApplied?: (ids: string[]) => void;
+  cadPilotSession?:CadPilotSession|null;activeUcsId?:string;onUcsChange?:(id:string)=>void;onCadPilotClose?:()=>void;onCadPilotApplied?:(ids:string[])=>void;
+  endpointRadiusArcSession?:EndpointRadiusArcSession|null;
+  onEndpointRadiusArcClose?:()=>void;
+  onEndpointRadiusArcApplied?:(ids:string[])=>void;
+  splineSession?:SplineSession|null;onSplineClose?:()=>void;onSplineApplied?:(ids:string[])=>void;
+  ellipseSession?:EllipseSession|null;onEllipseClose?:()=>void;onEllipseApplied?:(ids:string[])=>void;
+  regularPolygonSession?:RegularPolygonSession|null;
+  onRegularPolygonClose?:()=>void;
+  onRegularPolygonApplied?:(ids:string[])=>void;
   constructionSession?: ConstructionSession | null;
   constructionVisible?: boolean;
   onConstructionClose?: () => void;
@@ -88,6 +125,9 @@ type CadViewportProps = {
   contourSession?: ContourSession | null;
   onContourClose?: () => void;
   onContourApplied?: (ids: string[]) => void;
+  blockSession?: BlockSession | null;
+  onBlockClose?: () => void;
+  onBlockApplied?: (ids: string[]) => void;
   onPatternClose?:()=>void;
   onPatternApplied?:(ids:string[])=>void;
   extrusionPreview?: Record<string,unknown> | null;
@@ -158,6 +198,7 @@ type CadViewportProps = {
 export type ViewportActionType =
   | "reset-interaction"
   | "focus"
+  | "inspect-point"
   | "fit-all"
   | "fit-selection"
   | "fit-active-artboard"
@@ -167,9 +208,9 @@ export type ViewportActionType =
   | "right"
   | "isometric";
 
-export type ViewportAction = { id: number; type: ViewportActionType; artboardId?: string };
+export type ViewportAction = { id: number; type: ViewportActionType; artboardId?: string;point?:Vec3 };
 export type TransformMode = "translate" | "rotate" | "scale";
-export type DrawingTool = "line" | "polyline" | "rectangle" | "circle" | "arc";
+export type DrawingTool = "line" | "polyline" | "rectangle" | "circle" | "arc" | "circle-3point" | "arc-3point";
 export type MeasurementTool = "distance";
 export type PointMeasurement = { distance: number; angle: number };
 export type ObjectTransformValue = {
@@ -260,10 +301,15 @@ function createAdaptiveGrid(): AdaptiveGrid {
 }
 
 export function CadViewport({
+  onModelViewBridge, modelViewRequest, onModelViewRestored,
   activeLayerId="layer-default",
+  cadPilotSession=null,activeUcsId="WCS",onUcsChange,onCadPilotClose,onCadPilotApplied,
+  endpointRadiusArcSession=null,onEndpointRadiusArcClose,onEndpointRadiusArcApplied,
+  splineSession=null,onSplineClose,onSplineApplied,ellipseSession=null,onEllipseClose,onEllipseApplied,regularPolygonSession=null,onRegularPolygonClose,onRegularPolygonApplied,
   constructionSession = null, constructionVisible = true, onConstructionClose, onConstructionApplied,
   patternSession=null,onPatternClose,onPatternApplied,
   contourSession=null,onContourClose,onContourApplied,
+  blockSession=null,onBlockClose,onBlockApplied,
   curveSession=null,onCurveClose,onCurveApplied,curveNextActions,
   angularSession=null,onAngularClose,onAngularApplied,onAngularEditSketch,onAngularInspectSource,
   extrusionPreview = null, onExtrusionStatus, extrusionRegions, chosenRegions = [], onToggleRegion,
@@ -326,6 +372,17 @@ export function CadViewport({
   shortcutReadout = "",
 }: CadViewportProps) {
   const [toolReadout, setToolReadout] = useState("");
+  const projectActive=useProjectActivity();
+  useEffect(()=>{
+    if(projectActive)return;
+    const timer=setTimeout(()=>{
+      for(const mesh of meshesRef.current.values()){sceneRef.current?.remove(mesh);disposeMesh(mesh);}
+      meshesRef.current.clear();brepEdgeCacheRef.current.clear();directCandidatesRef.current=[];
+      transformControlsRef.current?.detach();rendererRef.current?.renderLists.dispose();
+      setViewResourceMetrics(0,true);
+    },30_000);
+    return()=>clearTimeout(timer);
+  },[projectActive]);
   const [sceneReady, setSceneReady] = useState(false);
   const [directSession,setDirectSession]=useState<DirectEditSession|null>(null);
   const directSessionRef=useRef(directSession);directSessionRef.current=directSession;
@@ -385,11 +442,12 @@ export function CadViewport({
   const projectSketchPoint = useCallback((point: SketchPoint): [number, number] | null => {
     const camera = cameraRef.current, host = hostRef.current;
     if (!camera || !host || !activeSketch) return null;
-    const projected = new THREE.Vector3(...planeToWorld(point, WORK_PLANES[activeSketch.workPlane])).project(camera);
+    const projected = new THREE.Vector3(...planeToWorld(point,activeSketch.faceFrame?{id:activeSketch.facePlaneId!,...activeSketch.faceFrame}:WORK_PLANES[activeSketch.workPlane])).project(camera);
     if (projected.z < -1 || projected.z > 1 || !Number.isFinite(projected.x + projected.y)) return null;
     return [Math.round((projected.x + 1) * host.clientWidth * 5) / 10, Math.round((1 - projected.y) * host.clientHeight * 5) / 10];
-  }, [activeSketch?.workPlane, Boolean(activeSketch)]);
+  }, [activeSketch?.workPlane, activeSketch?.faceFrame, Boolean(activeSketch)]);
   const gridRef = useRef<AdaptiveGrid | null>(null);
+  const frameWheelRef = useRef<(event:WheelEvent)=>void>(()=>{});
   const artboardMeshesRef = useRef(new Map<string, THREE.Mesh>());
   const onSelectArtboardRef = useRef(onSelectArtboard);
   onSelectArtboardRef.current = onSelectArtboard;
@@ -442,9 +500,13 @@ export function CadViewport({
   const pointTransformRef = useRef(pointTransform);
   const patternSessionRef=useRef(patternSession);patternSessionRef.current=patternSession;
   const contourSessionRef = useRef(contourSession); contourSessionRef.current = contourSession;
+  const blockSessionRef = useRef(blockSession); blockSessionRef.current = blockSession;
   const curveSessionRef = useRef(curveSession); curveSessionRef.current = curveSession;
   const cornerReviewRef = useRef(false); cornerReviewRef.current = Boolean(cornerPreview?.review);
   const angularSessionRef = useRef(angularSession); angularSessionRef.current = angularSession;
+  const cadPilotSessionRef=useRef(cadPilotSession);cadPilotSessionRef.current=cadPilotSession;
+  const endpointRadiusArcSessionRef=useRef(endpointRadiusArcSession);endpointRadiusArcSessionRef.current=endpointRadiusArcSession;
+  const regularPolygonSessionRef=useRef(regularPolygonSession);regularPolygonSessionRef.current=regularPolygonSession;
   const constructionSessionRef = useRef(constructionSession); constructionSessionRef.current = constructionSession;
   const constructionVisibleRef = useRef(constructionVisible); constructionVisibleRef.current = constructionVisible;
   const sketchInputRef = useRef({ sketch: activeSketch, automaticConstraints });
@@ -507,10 +569,11 @@ export function CadViewport({
   // Keyed by document revision: any geometry change invalidates entries.
   const brepEdgeCacheRef = useRef(new Map<string, { revision: number; edges: { key: string; points: [number, number, number][] }[] }>());
   useEffect(() => {
-    if (!directSelectMode) {
+    if (!directSelectMode || !projectActive) {
       brepEdgeCacheRef.current.clear();
       return;
     }
+    const scope=new AbortController();const {enumerateSolidTopology}=createViewGeometry(scope.signal);
     let cancelled = false;
     const revision = cadDocument.revision;
     void (async () => {
@@ -521,7 +584,7 @@ export function CadViewport({
         const object = cadDocument.objects[id];
         const feature = object ? Object.values(cadDocument.features).find((entry) => entry.output === id) : undefined;
         const layer = object ? cadDocument.layers[object.layerId] : undefined;
-        if (!object?.visible || !feature || (feature.type !== "primitive" && feature.type !== "extrude" && feature.type !== "boolean" && feature.type !== "fillet" && feature.type !== "chamfer" && feature.type !== "revolve" && feature.type !== "sweep" && feature.type !== "loft") || layer?.visible === false || layer?.locked) {
+        if (!object?.visible || !feature || (feature.type !== "primitive" && feature.type !== "extrude" && feature.type !== "boolean" && feature.type !== "fillet" && feature.type !== "chamfer" && feature.type !== "revolve" && feature.type !== "sweep" && feature.type !== "loft" && feature.type !== "shell") || layer?.visible === false || layer?.locked) {
           brepEdgeCacheRef.current.delete(id);
           continue;
         }
@@ -535,9 +598,9 @@ export function CadViewport({
       }
     })();
     return () => {
-      cancelled = true;
+      scope.abort();cancelled = true;
     };
-  }, [directSelectMode, documentRevision]);
+  }, [directSelectMode, documentRevision, projectActive]);
 
   // Object hover preselection for Select mode only. Every active tool owns
   // its own pointer feedback, so this listener exists solely when no drawing,
@@ -547,7 +610,7 @@ export function CadViewport({
   useEffect(() => {
     const renderer = rendererRef.current;
     if (!renderer) return;
-    if (drawingTool || directSelectMode || measurementTool || lineEditTool || offsetActive || transformMode || constructionSession) {
+    if (drawingTool || directSelectMode || measurementTool || lineEditTool || offsetActive || transformMode || constructionSession || regularPolygonSession || endpointRadiusArcSession || cadPilotSession) {
       clearObjectHover();
       return;
     }
@@ -588,11 +651,11 @@ export function CadViewport({
       domElement.removeEventListener("pointerleave", leaveHover);
       clearObjectHover();
     };
-  }, [drawingTool, directSelectMode, measurementTool, lineEditTool, offsetActive, transformMode, constructionSession, sceneReady]);
+  }, [drawingTool, directSelectMode, measurementTool, lineEditTool, offsetActive, transformMode, constructionSession, regularPolygonSession, endpointRadiusArcSession, cadPilotSession, sceneReady]);
 
   useEffect(() => { drawingToolRef.current = drawingTool; }, [drawingTool]);
 
-  useEffect(() => { activeWorkPlaneRef.current = WORK_PLANES[activeWorkPlane]; }, [activeWorkPlane]);
+  useEffect(() => { activeWorkPlaneRef.current = activeSketch?.faceFrame?{id:activeSketch.facePlaneId!,...activeSketch.faceFrame}:WORK_PLANES[activeWorkPlane]; }, [activeWorkPlane,activeSketch?.faceFrame]);
 
   useEffect(() => subscribeKernelStatus((status) => onKernelStatus?.(status)), [onKernelStatus]);
 
@@ -687,7 +750,7 @@ export function CadViewport({
       const layer = object ? cadDocument.layers[object.layerId] : undefined;
       const mesh = meshesRef.current.get(feature.output);
       const kind = feature.params.kind;
-      if (!object?.visible || layer?.visible === false || !mesh?.visible || !(["line", "polyline", "rectangle", "circle", "arc", "point", "infinite-line", "ray"] as unknown[]).includes(kind)) continue;
+      if (!object?.visible || layer?.visible === false || !mesh?.visible || !(["spline","line", "polyline", "rectangle", "circle", "arc", "point", "infinite-line", "ray"] as unknown[]).includes(kind)) continue;
       const world = getWorldDrawingGeometry(object, feature);
       if (!world) continue;
       result.push({
@@ -698,7 +761,7 @@ export function CadViewport({
         radius: world.radius,
         startAngle: world.startAngle,
         endAngle: world.endAngle,
-        profileSegments: world.profileSegments,
+        spline:world.spline,ellipse:world.ellipse,profileSegments: world.profileSegments,
       });
     }
     return result;
@@ -798,6 +861,8 @@ export function CadViewport({
         material
       );
 
+    const finish=Object.values(cadDocument.features).find(f=>f.output===objectId)?.params.solidFinish as import("@agent-webcad/cad-document").SolidFinish|undefined;
+    if(finish){material.color.set(finish.color);material.userData.baseColor=finish.color;material.roughness=finish.roughness;material.metalness=finish.metalness;material.opacity=finish.opacity;material.transparent=finish.opacity<1;material.depthWrite=finish.opacity>=1;}
     mesh.userData.cadObjectId =
       objectId;
     mesh.userData.topologyFaces =
@@ -840,7 +905,7 @@ export function CadViewport({
   }
 
   function fitArtboard(boardId?: string) {
-    const boards = Object.values(cadDocument.artboards ?? {}).filter(board => board.visible);
+    const boards = Object.values(cadDocument.artboards ?? {}).filter(board => board.visible&&workspaceFrameVisible(cadDocument,board.id));
     const targets = boardId
       ? boards.filter(board => board.id === boardId)
       : artboardsForCanvas(boards, workspaceMode, activeWorkPlane);
@@ -849,7 +914,7 @@ export function CadViewport({
     if (!bounds.isEmpty()) fitBounds(bounds);
   }
 
-  function fitBounds(bounds:THREE.Box3){
+  function fitBounds(bounds:THREE.Box3,viewPlane?:WorkPlane){
     const camera=cameraRef.current,controls=controlsRef.current;
     if(!camera||!controls||bounds.isEmpty())return;
 
@@ -860,9 +925,9 @@ export function CadViewport({
     const center = bounds.getCenter(new THREE.Vector3());
     const size = bounds.getSize(new THREE.Vector3());
     const radius = Math.max(size.length() / 2, 0.05);
-    const workspace = cameraWorkspaceRef.current, plane = WORK_PLANES[workspace.plane];
-    const direction = workspace.mode === "2d" ? new THREE.Vector3(...plane.normal) : camera.position.clone().sub(controls.target);
-    if (workspace.mode === "2d") camera.up.set(...plane.yAxis);
+    const workspace = cameraWorkspaceRef.current, plane = viewPlane??WORK_PLANES[workspace.plane];
+    const direction = viewPlane||workspace.mode === "2d" ? new THREE.Vector3(...plane.normal) : camera.position.clone().sub(controls.target);
+    if (viewPlane||workspace.mode === "2d") camera.up.set(...plane.yAxis);
     if (direction.lengthSq() < 0.0001) direction.set(1, -1, 1);
     direction.normalize();
     const aspect = Math.max(0.1, hostRef.current?.clientWidth ?? 1) /
@@ -912,7 +977,7 @@ export function CadViewport({
         right: new THREE.Vector3(1, 0, 0),
         isometric: new THREE.Vector3(1, -1, 1).normalize(),
       }[type];
-    camera.up.copy(workspaceMode === "2d" ? new THREE.Vector3(...plane.yAxis) : new THREE.Vector3(0, 0, 1));
+    camera.up.copy(workspaceMode === "2d" ? new THREE.Vector3(...plane.yAxis) : type === "top" ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(0, 0, 1));
     camera.position.copy(controls.target).addScaledVector(direction, distance);
     camera.lookAt(controls.target);
     camera.updateProjectionMatrix();
@@ -920,6 +985,7 @@ export function CadViewport({
   }
 
   function syncTransformControl() {
+    if(hasExplodedDisplay(cadDocument)){transformControlsRef.current?.detach();return;}
     const controls = transformControlsRef.current;
     const object = selectedObjectId ? cadDocument.objects[selectedObjectId] : undefined;
     const layer = object ? cadDocument.layers[object.layerId] : undefined;
@@ -1044,6 +1110,7 @@ export function CadViewport({
     host.appendChild(
       renderer.domElement
     );
+    renderer.domElement.title = VIEW_NAVIGATION_HINT;
 
     const controls =
       new OrbitControls(
@@ -1080,6 +1147,19 @@ export function CadViewport({
 
     controls.zoomToCursor =
       true;
+
+    // Own wheel input before OrbitControls so modifiers never also dolly or
+    // trigger browser zoom. Keep navigation disabled during tools/transitions.
+    const handleNavigationWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (!controls.enabled) return;
+      navigateWheel(controls.object as ViewCamera, controls.target, event,
+        renderer.domElement.getBoundingClientRect(), cameraWorkspaceRef.current.mode, controls);
+      controls.update();
+    };
+    frameWheelRef.current=handleNavigationWheel;
+    renderer.domElement.addEventListener("wheel", handleNavigationWheel, { capture: true, passive: false });
 
     const transformControls = new TransformControls(camera, renderer.domElement);
     transformControls.setTranslationSnap(0.1);
@@ -1331,6 +1411,7 @@ export function CadViewport({
      * (like segments), violet faces (like curves).
      */
     function pickBrepSubObject(event: PointerEvent): BrepPick | null {
+      if(hasExplodedDisplay(cadDocument))return null;
       const camera = cameraRef.current;
       const renderer = rendererRef.current;
       if (!camera || !renderer) return null;
@@ -1355,7 +1436,7 @@ export function CadViewport({
         }
       }
       const edgeHit = nearestBrepEdgeHit(edgeInputs, project, cursor, 12);
-      if (edgeHit) {
+      if (edgeHit&&modelPointVisible(cadDocument,new THREE.Vector3(...edgeHit.worldPoint))) {
         return {
           ref: { objectId: edgeHit.objectId, kind: "brep-edge", topologyId: edgeHit.key },
           worldPoint: new THREE.Vector3(...edgeHit.worldPoint),
@@ -1368,9 +1449,9 @@ export function CadViewport({
         const object = cadDocument.objects[objectId];
         const feature = object ? Object.values(cadDocument.features).find((entry) => entry.output === objectId) : undefined;
         const layer = object ? cadDocument.layers[object.layerId] : undefined;
-        return mesh.visible && Boolean(object) && (feature?.type === "primitive" || feature?.type === "extrude" || feature?.type === "boolean" || feature?.type === "fillet" || feature?.type === "chamfer" || feature?.type === "revolve" || feature?.type === "sweep" || feature?.type === "loft") && layer?.visible !== false && !layer?.locked;
+        return mesh.visible && Boolean(object) && (feature?.type === "primitive" || feature?.type === "extrude" || feature?.type === "boolean" || feature?.type === "fillet" || feature?.type === "chamfer" || feature?.type === "revolve" || feature?.type === "sweep" || feature?.type === "shell" || feature?.type === "loft") && layer?.visible !== false && !layer?.locked;
       }).map(([, mesh]) => mesh);
-      const hit = raycaster.intersectObjects(solidMeshes, false)[0];
+      const hit = raycaster.intersectObjects(solidMeshes, false).find(hit=>modelPointVisible(cadDocument,hit.point));
       if (!hit || hit.faceIndex === null || hit.faceIndex === undefined) return null;
       const objectId = hit.object.userData.cadObjectId as string | undefined;
       const ranges = (hit.object.userData.topologyFaces ?? []) as { key: string; start: number; count: number }[];
@@ -1599,7 +1680,7 @@ export function CadViewport({
     ) {
       const owner = selectionPointerOwner({
         button: event.button,
-        drawingActive: Boolean(cornerReviewRef.current || drawingToolRef.current || pointTransformRef.current || patternSessionRef.current || contourSessionRef.current || curveSessionRef.current || angularSessionRef.current || constructionSessionRef.current),
+        drawingActive: Boolean(cornerReviewRef.current || drawingToolRef.current || pointTransformRef.current || patternSessionRef.current || contourSessionRef.current || blockSessionRef.current || curveSessionRef.current || angularSessionRef.current || constructionSessionRef.current || regularPolygonSessionRef.current || endpointRadiusArcSessionRef.current || cadPilotSessionRef.current),
         directSelectActive: directSelectModeRef.current,
         transformHandleActive: Boolean(transformControlsRef.current?.axis),
       });
@@ -1869,7 +1950,7 @@ export function CadViewport({
             return mesh.visible && Boolean(object) && layer?.visible !== false && !layer?.locked;
           })
           .map(([, mesh]) => mesh);
-        targetId = raycaster.intersectObjects(selectableMeshes, true)[0]?.object.userData.cadObjectId as string | undefined;
+        targetId = raycaster.intersectObjects(selectableMeshes, true).find(hit=>{const id=hit.object.userData.cadObjectId as string,f=Object.values(cadDocument.features).find(f=>f.output===id);return !f||!["primitive","boolean","extrude","fillet","chamfer","revolve","sweep","loft","shell"].includes(f.type)||modelPointVisible(cadDocument,hit.point);})?.object.userData.cadObjectId as string | undefined;
       }
       // Right-clicking an unselected object makes it the context target. This
       // keeps destructive/contextual commands from accidentally acting on a
@@ -1919,8 +2000,9 @@ export function CadViewport({
       camera.aspect = aspect;
       camera.updateProjectionMatrix();
       const orthoHeight = orthographicCamera.top - orthographicCamera.bottom;
-      orthographicCamera.left = -orthoHeight * aspect / 2;
-      orthographicCamera.right = orthoHeight * aspect / 2;
+      const orthoCenter = orthographicCamera.left / 2 + orthographicCamera.right / 2;
+      orthographicCamera.left = orthoCenter - orthoHeight * aspect / 2;
+      orthographicCamera.right = orthoCenter + orthoHeight * aspect / 2;
       orthographicCamera.updateProjectionMatrix();
 
       renderer.setSize(
@@ -2022,6 +2104,8 @@ export function CadViewport({
       renderer.domElement.removeEventListener("pointerdown", handleNavigationPointerDown, true);
       renderer.domElement.removeEventListener("pointerup", handleNavigationPointerUp, true);
       renderer.domElement.removeEventListener("pointercancel", handleNavigationPointerCancel, true);
+      frameWheelRef.current=()=>{};
+      renderer.domElement.removeEventListener("wheel", handleNavigationWheel, true);
       renderer.domElement.removeEventListener("pointermove", handleDirectMove);
       renderer.domElement.removeEventListener("pointermove", handleSelectionMove);
       renderer.domElement.removeEventListener("pointerup", handleDirectUp);
@@ -2102,7 +2186,7 @@ export function CadViewport({
     const group = new THREE.Group();
     group.name = "CAD Artboards";
     const meshes = new Map<string, THREE.Mesh>();
-    for (const board of artboardsForCanvas(Object.values(cadDocument.artboards ?? {}), workspaceMode, activeWorkPlane)) {
+    for (const board of artboardsForCanvas(Object.values(cadDocument.artboards ?? {}).filter(b=>workspaceFrameVisible(cadDocument,b.id)), workspaceMode, activeWorkPlane)) {
       const corners = artboardWorldCorners(board).map(point => new THREE.Vector3(...point));
       const faceGeometry = new THREE.BufferGeometry();
       faceGeometry.setAttribute("position", new THREE.Float32BufferAttribute([
@@ -2252,6 +2336,9 @@ export function CadViewport({
   useEffect(() => {
     if (!viewAction) return;
     switch (viewAction.type) {
+      case "inspect-point":
+        if(viewAction.point?.every(Number.isFinite)){const p=new THREE.Vector3(...viewAction.point);fitBounds(new THREE.Box3(p.clone().addScalar(-10),p.clone().addScalar(10)));rendererRef.current?.domElement.focus();}
+        break;
       case "focus":
         rendererRef.current?.domElement.focus();
         break;
@@ -2285,6 +2372,46 @@ export function CadViewport({
   }, [viewAction]);
 
   useEffect(() => {
+    if (!sceneReady) return;
+    onModelViewBridge?.({ capture: () => {
+      cancelCameraTransitionRef.current?.();
+      const camera = cameraRef.current, controls = controlsRef.current;
+      if (!camera || !controls) throw new Error("The viewport is still loading. Try saving the view again.");
+      controls.update();
+      return captureModelViewCamera(camera, controls.target);
+    } });
+    return () => onModelViewBridge?.(null);
+  }, [sceneReady, onModelViewBridge]);
+
+  const restoredModelViewId = useRef<number | null>(null);
+  useEffect(() => {
+    if (!modelViewRequest || modelViewRequest.id === restoredModelViewId.current || !sceneReady ||
+      workspaceMode !== "3d" || projectionMode !== modelViewRequest.camera.projection) return;
+    const controls = controlsRef.current, host = hostRef.current;
+    if (!controls || !host) return;
+    restoredModelViewId.current = modelViewRequest.id;
+    try {
+      const snapshot = modelViewRequest.camera;
+      const restored = cameraFromModelView(snapshot, Math.max(host.clientWidth, 1) / Math.max(host.clientHeight, 1));
+      const destination = snapshot.projection === "perspective" ? perspectiveCameraRef.current : orthographicCameraRef.current;
+      if (!destination) throw new Error("The viewport is still loading. Recall the view again.");
+      cancelCameraTransitionRef.current?.();
+      const damping = controls.enableDamping;
+      controls.enableDamping = false;
+      controls.update(); // Clear pending orbit/pan inertia before installing the snapshot.
+      if (destination instanceof THREE.PerspectiveCamera && restored instanceof THREE.PerspectiveCamera) destination.copy(restored);
+      else if (destination instanceof THREE.OrthographicCamera && restored instanceof THREE.OrthographicCamera) destination.copy(restored);
+      controls.object = destination; controls.target.set(...snapshot.target);
+      cameraRef.current = destination;
+      if (transformControlsRef.current) transformControlsRef.current.camera = destination;
+      controls.update(); controls.saveState(); controls.enableDamping = damping;
+      saved3dViewRef.current = { direction: destination.position.clone().sub(controls.target).normalize(), distance: destination.position.distanceTo(controls.target) };
+      destination.updateMatrixWorld(true);
+      onModelViewRestored?.();
+    } catch (error) { onModelViewRestored?.(error instanceof Error ? error.message : "Could not restore the model view."); }
+  }, [modelViewRequest, sceneReady, workspaceMode, projectionMode]);
+
+  useEffect(() => {
     syncTransformControl();
   }, [selectedObjectId, selectedObjectIds, transformMode, documentRevision, workspaceMode, activeWorkPlane]);
 
@@ -2293,6 +2420,8 @@ export function CadViewport({
    * into Three.js meshes.
    */
   useEffect(() => {
+    if(!projectActive)return;
+    const scope=new AbortController();const {buildPrimitiveMesh,buildDemoPartMesh,buildBooleanMesh,buildExtrudeMesh,buildFilletMesh,buildChamferMesh,buildRevolveMesh,buildSweepMesh,buildLoftMesh,buildShellMesh}=createViewGeometry(scope.signal);
     let cancelled =
       false;
 
@@ -2302,6 +2431,7 @@ export function CadViewport({
     if (directMarkerRef.current) directMarkerRef.current.visible = false;
 
     async function syncDocument() {
+      if(rendererRef.current)rendererRef.current.localClippingEnabled=true;
       const syncStartedAt = performance.now();
       let remeshedCount = 0;
       let removedCount = 0;
@@ -2357,7 +2487,7 @@ export function CadViewport({
           Boolean(object) &&
           (
             objectId === "demo-part" ||
-            feature?.type === "primitive" || feature?.type === "boolean" || feature?.type === "drawing" || feature?.type === "drafting" || feature?.type === "dimension" || feature?.type === "extrude" || feature?.type === "fillet" || feature?.type === "chamfer" || feature?.type === "revolve" || feature?.type === "sweep" || feature?.type === "loft" || feature?.type === "image"
+            feature?.type === "primitive" || feature?.type === "boolean" || feature?.type === "drawing" || feature?.type === "drafting" || feature?.type === "dimension" || feature?.type === "extrude" || feature?.type === "fillet" || feature?.type === "chamfer" || feature?.type === "revolve" || feature?.type === "sweep" || feature?.type === "shell" || feature?.type === "loft" || feature?.type === "image"
           );
 
         if (renderable) {
@@ -2453,14 +2583,14 @@ export function CadViewport({
 
         if (
           !feature ||
-          (feature.type !== "primitive" && feature.type !== "boolean" && feature.type !== "drawing" && feature.type !== "drafting" && feature.type !== "dimension" && feature.type !== "extrude" && feature.type !== "fillet" && feature.type !== "chamfer" && feature.type !== "revolve" && feature.type !== "sweep" && feature.type !== "loft" && feature.type !== "image")
+          (feature.type !== "primitive" && feature.type !== "boolean" && feature.type !== "drawing" && feature.type !== "drafting" && feature.type !== "dimension" && feature.type !== "extrude" && feature.type !== "fillet" && feature.type !== "chamfer" && feature.type !== "revolve" && feature.type !== "sweep" && feature.type !== "loft" && feature.type !== "shell" && feature.type !== "image")
         ) {
           continue;
         }
 
         const featureSignature =
           JSON.stringify(
-            {params:feature.params,style:cadDocument.layers[cadObject.layerId]?.style,blocks:feature.type==="drafting"?cadDocument.blocks:undefined,raster:feature.type==="image"?cadDocument.rasterAssets?.[String(feature.params.assetId)]?.contentHash:undefined}
+            {params:feature.type==="drawing"?drawingRenderParams(feature.params):feature.params,style:cadDocument.layers[cadObject.layerId]?.style,blocks:feature.type==="drafting"?cadDocument.blocks:undefined,raster:feature.type==="image"?cadDocument.rasterAssets?.[String(feature.params.assetId)]?.contentHash:undefined}
           );
 
         const existingMesh =
@@ -2496,9 +2626,9 @@ export function CadViewport({
           : feature.type === "drawing"
           ? createDrawingSceneObject(objectId, feature.params,undefined,layerStyle(layer))
           : feature.type === "drafting"
-            ? createDraftingRenderObject(objectId,cadDocument)
+            ? createDraftingRenderObject(objectId,cadDocument,feature)
           : feature.type === "dimension"
-            ? createDimensionRenderObject(objectId, feature.params)
+            ? createDimensionRenderObject(objectId, feature.params,layerStyle(layer))
             : createThreeMesh(objectId, feature.type === "boolean"
               ? await buildBooleanMesh(feature.params)
               : feature.type === "extrude"
@@ -2511,11 +2641,11 @@ export function CadViewport({
                       ? await buildRevolveMesh(feature.params)
                       : feature.type === "sweep"
                         ? await buildSweepMesh(feature.params)
-                        : feature.type === "loft"
+                        : feature.type === "shell" ? await buildShellMesh(feature.params) : feature.type === "loft"
                           ? await buildLoftMesh(feature.params)
                           : await buildPrimitiveMesh(feature.params));
 
-        if (cancelled) return;
+        if (cancelled) { if(mesh)disposeMesh(mesh);return; }
 
         // Invalid dimension params resolve to no render object; the document
         // keeps the feature and Apply/inspector paths report the reason.
@@ -2562,12 +2692,13 @@ export function CadViewport({
         }
 
         const transform = getObjectTransform(cadObject, featuresByOutput.get(objectId));
-        const transformSignature = JSON.stringify(transform);
+        const displayOffset=explodedDisplayOffset(cadDocument,objectId);
+        const transformSignature = JSON.stringify([transform,displayOffset]);
         if (mesh.userData.transformSignature !== transformSignature) {
           const drawingPivot = Array.isArray(mesh.userData.drawingOrigin)
             ? new THREE.Vector3(...mesh.userData.drawingOrigin as Vec3)
             : new THREE.Vector3();
-          mesh.position.fromArray(transform.translation).add(drawingPivot);
+          mesh.position.fromArray(transform.translation).add(drawingPivot).add(new THREE.Vector3(...displayOffset));
           mesh.rotation.set(
             THREE.MathUtils.degToRad(transform.rotation[0]),
             THREE.MathUtils.degToRad(transform.rotation[1]),
@@ -2635,15 +2766,15 @@ export function CadViewport({
       }
     }
 
-    syncDocument().catch(
-      console.error
+    syncDocument().then(()=>{if(cancelled)return;setViewResourceMetrics(gpuPayloadBytes(meshesRef.current.values()));syncTransformControl();applySelectionColor();directCandidatesRef.current=buildDirectSelectionCandidates(cadDocument,meshesRef.current);const plane=modelClippingPlane(cadDocument),features=new Map(Object.values(cadDocument.features).map(f=>[f.output,f]));for(const [id,root] of meshesRef.current){const f=features.get(id);if(!f||!["primitive","boolean","extrude","fillet","chamfer","revolve","sweep","loft","shell"].includes(f.type))continue;root.traverse(child=>{const material=(child as THREE.Mesh).material;if(material)for(const m of Array.isArray(material)?material:[material]){m.clippingPlanes=plane?[plane]:[];m.clipShadows=true;m.needsUpdate=true;}});}}).catch(
+      error=>{if(!isKernelCancelled(error))console.error(error);}
     );
 
     return () => {
-      cancelled =
+      scope.abort();cancelled =
         true;
     };
-  }, [documentRevision, isolatedObjectIds, constructionVisible]);
+  }, [documentRevision, isolatedObjectIds, constructionVisible, projectActive]);
 
   useEffect(() => {
     for (const [objectId, mesh] of meshesRef.current) {
@@ -2671,7 +2802,7 @@ export function CadViewport({
     const scene = sceneRef.current, renderer = rendererRef.current, controls = controlsRef.current;
     if (!scene || !renderer || !controls || !sceneReady) return;
     if (!drawingTool && !measurementTool && !lineEditTool) return;
-    const plane = WORK_PLANES[activeWorkPlane];
+    const plane = activeSketch?.faceFrame?{id:activeSketch.facePlaneId!,...activeSketch.faceFrame}:WORK_PLANES[activeWorkPlane];
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
     const SPAN = 5000;
@@ -2724,12 +2855,12 @@ export function CadViewport({
       (crosshair.material as THREE.Material).dispose();
       hideCursorTag();
     };
-  }, [drawingTool, measurementTool, lineEditTool, activeWorkPlane, sceneReady]);
+  }, [drawingTool, measurementTool, lineEditTool, activeWorkPlane, activeSketch?.faceFrame, sceneReady]);
 
   useEffect(() => {
     const scene = sceneRef.current, renderer = rendererRef.current, controls = controlsRef.current;
     if (!scene || !renderer || !controls || !measurementTool) { if (!measurementTool) setToolReadout(""); return; }
-    const plane = WORK_PLANES[activeWorkPlane], raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
+    const plane = activeSketch?.faceFrame?{id:activeSketch.facePlaneId!,...activeSketch.faceFrame}:WORK_PLANES[activeWorkPlane], raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
     let first: Vec3 | null = null, hover: Vec3 | null = null;
     controls.enabled = false;
     const line = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 0x62d4bf, depthTest: false }));
@@ -2746,7 +2877,7 @@ export function CadViewport({
       if (f.type !== "drawing") return [];
       const object = cadDocument.objects[f.output];
       const world = object ? getWorldDrawingGeometry(object, f) : null;
-      return world ? [{ objectId: world.objectId, kind: world.kind, points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle, profileSegments: world.profileSegments }] : [];
+      return world ? [{ objectId: world.objectId, kind: world.kind, points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle, spline:world.spline,ellipse:world.ellipse,profileSegments: world.profileSegments }] : [];
     });
     const snapPoint = (raw: Vec3) => snapEnabled ? querySnap({ point: raw, referencePoint: first ?? undefined, entities, plane, ...snapPreferencesRef.current, project })?.point ?? raw : raw;
     const update = (p: Vec3) => { hover = snapPoint(p); const points = first ? [first, hover] : [hover]; line.geometry.dispose(); line.geometry = new THREE.BufferGeometry().setFromPoints(points.map((v) => new THREE.Vector3(...v))); setToolReadout(first ? `DISTANCE · ${measurePoints(first, hover, activeWorkPlane).distance.toFixed(2)} mm` : "DISTANCE · pick first point"); };
@@ -2774,8 +2905,9 @@ export function CadViewport({
     if (!drawingTool) { setToolReadout(""); return; }
     const activeRenderer = renderer;
     const activeTool = drawingTool;
+    const threePoint=activeTool==="circle-3point"||activeTool==="arc-3point";
 
-    const plane = WORK_PLANES[activeWorkPlane];
+    const plane = activeSketch?.faceFrame?{id:activeSketch.facePlaneId!,...activeSketch.faceFrame}:WORK_PLANES[activeWorkPlane];
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
     const acquired: Vec3[] = [];
@@ -2785,6 +2917,13 @@ export function CadViewport({
     let inputField: "length" | "angle" = "length";
     const sketchBindings: SketchSnapBinding[] = [];
     let suppressAutomaticConstraints = false;
+    const trackingAnchors: TrackingAnchor[] = [];
+    let trackingLock: TrackingAxis | null = null;
+    let trackingIndex = 0;
+    let lastRaw: Vec3 | null = null;
+    let lastSourceSnap: SnapResult | null = null;
+    let lastTrackingCandidateCount = 0;
+    const documentId = cadDocument.id;
     controls.enabled = false;
 
     const previewMaterial = new THREE.LineDashedMaterial({ color: 0x62d4bf, dashSize: 0.65, gapSize: 0.35, depthTest: false });
@@ -2796,6 +2935,29 @@ export function CadViewport({
     marker.renderOrder = 21;
     marker.visible = false;
     scene.add(marker);
+    const trackingMaterial = new THREE.LineDashedMaterial({color:0xf9bf70,dashSize:1,gapSize:0.6,depthTest:false});
+    const trackingGuide = new THREE.LineSegments(new THREE.BufferGeometry(),trackingMaterial);
+    trackingGuide.renderOrder = 19;
+    scene.add(trackingGuide);
+
+    function clearTrackingGuide() { trackingGuide.geometry.dispose(); trackingGuide.geometry = new THREE.BufferGeometry(); }
+    function showTrackingGuide(candidate: TrackingCandidate | null) {
+      if (!candidate) {clearTrackingGuide();return;}
+      const sourcePoints = trackingAnchors.filter(anchor=>candidate.sources.includes(anchor.source)).map(anchor=>anchor.point);
+      const vertices = sourcePoints.flatMap(point=>[new THREE.Vector3(...point),new THREE.Vector3(...candidate.point)]);
+      trackingGuide.geometry.dispose();trackingGuide.geometry=new THREE.BufferGeometry().setFromPoints(vertices);trackingGuide.computeLineDistances();
+    }
+    function validateTrackingAnchors() {
+      if (cadDocument.id !== documentId) {trackingAnchors.length=0;trackingLock=null;clearTrackingGuide();return;}
+      for (let index=trackingAnchors.length-1;index>=0;index--) {
+        const anchor=trackingAnchors[index], object=cadDocument.objects[anchor.objectId], layer=object&&cadDocument.layers[object.layerId];
+        if (!object?.visible || !layer?.visible || !snapEntities().some(entity=>entity.objectId===anchor.objectId)) trackingAnchors.splice(index,1);
+      }
+      if (!trackingAnchors.length) clearTrackingGuide();
+    }
+    const unsubscribeTracking = subscribeDocumentChanges(()=>{
+      trackingAnchors.length=0;trackingLock=null;trackingIndex=0;lastSourceSnap=null;clearTrackingGuide();
+    });
 
     function setPointer(event: PointerEvent) {
       const rect = activeRenderer.domElement.getBoundingClientRect();
@@ -2863,7 +3025,7 @@ export function CadViewport({
           radius: world.radius,
           startAngle: world.startAngle,
           endAngle: world.endAngle,
-          profileSegments: world.profileSegments,
+          spline:world.spline,ellipse:world.ellipse,profileSegments: world.profileSegments,
         });
       }
       snapEntityRevision = cadDocument.revision;
@@ -2922,6 +3084,13 @@ export function CadViewport({
     }
 
     function previewPoints(point: Vec3) {
+      if(threePoint){
+        if(acquired.length<2)return [...acquired,point];
+        const result=threePointCurve([...acquired,point].map(p=>worldToPlane(p,plane)));
+        if(!result.ok)return [];
+        const curve=result.curve;
+        return drawingRenderPoints({kind:activeTool==="circle-3point"?"circle":"arc",...curve,center:planeToWorld(curve.center,plane),faceFrame:activeSketch?.faceFrame,facePlaneId:activeSketch?.facePlaneId},activeWorkPlane);
+      }
       if (activeTool === "line" || activeTool === "polyline") return [...acquired, point];
       if (activeTool === "rectangle" && acquired[0]) {
         const a = worldToPlane(acquired[0], plane), b = worldToPlane(point, plane);
@@ -2929,13 +3098,13 @@ export function CadViewport({
       }
       if (activeTool === "circle" && acquired[0]) {
         const a = worldToPlane(acquired[0], plane), b = worldToPlane(point, plane);
-        return drawingRenderPoints({ kind: "circle", center: acquired[0], radius: Math.hypot(b[0] - a[0], b[1] - a[1]) }, activeWorkPlane);
+        return drawingRenderPoints({ kind: "circle", center: acquired[0], radius: Math.hypot(b[0] - a[0], b[1] - a[1]),faceFrame:activeSketch?.faceFrame,facePlaneId:activeSketch?.facePlaneId }, activeWorkPlane);
       }
       if (activeTool === "arc" && acquired[0]) {
         const c = worldToPlane(acquired[0], plane);
         const startPoint = acquired[1] ?? point;
         const s = worldToPlane(startPoint, plane), e = worldToPlane(point, plane);
-        return drawingRenderPoints({ kind: "arc", center: acquired[0], radius: Math.hypot(s[0] - c[0], s[1] - c[1]), startAngle: Math.atan2(s[1] - c[1], s[0] - c[0]), endAngle: Math.atan2(e[1] - c[1], e[0] - c[0]) }, activeWorkPlane);
+        return drawingRenderPoints({ kind: "arc", center: acquired[0], radius: Math.hypot(s[0] - c[0], s[1] - c[1]), startAngle: Math.atan2(s[1] - c[1], s[0] - c[0]), endAngle: Math.atan2(e[1] - c[1], e[0] - c[0]),faceFrame:activeSketch?.faceFrame,facePlaneId:activeSketch?.facePlaneId }, activeWorkPlane);
       }
       return [];
     }
@@ -2947,22 +3116,42 @@ export function CadViewport({
       preview.computeLineDistances();
     }
 
+    function updateNumericPreview() {
+      const draft = resolveDrawingPointInput(activeTool, numericBuffer, acquired.map(p => worldToPlane(p, plane)), hoverPoint ? worldToPlane(hoverPoint, plane) : undefined, polarLocks, inputField);
+      if (!draft) {
+        preview.geometry.dispose(); preview.geometry = new THREE.BufferGeometry();
+        return;
+      }
+      if (draft.arc) {
+        const points = drawingRenderPoints({ kind: "arc", center: acquired[0], ...draft.arc,faceFrame:activeSketch?.faceFrame,facePlaneId:activeSketch?.facePlaneId }, activeWorkPlane);
+        preview.geometry.dispose(); preview.geometry = new THREE.BufferGeometry().setFromPoints(points.map(p => new THREE.Vector3(...p))); preview.computeLineDistances();
+      } else updatePreview(planeToWorld(draft.point, plane));
+    }
+
     function acquirePoint(raw: Vec3, suppressSnap = false) {
+      validateTrackingAnchors();
       const startedAt = performance.now();
       const snapped = snapEnabled && !suppressSnap ? querySnap({ point: raw, referencePoint: acquired.at(-1), entities: snapEntities(), plane, ...snapPreferencesRef.current, project }) : null;
       performance.measure("agent-webcad:snap-query", { start: startedAt, end: performance.now(), detail: { entityCount: cadDocument.rootObjects.length, result: snapped?.type ?? "disabled" } });
       if (performance.getEntriesByName("agent-webcad:snap-query").length > 200) performance.clearMeasures("agent-webcad:snap-query");
       const onPlane = snapped && Math.abs((snapped.point[0] - plane.origin[0]) * plane.normal[0] + (snapped.point[1] - plane.origin[1]) * plane.normal[1] + (snapped.point[2] - plane.origin[2]) * plane.normal[2]) <= 1e-6;
       const validSnap = snapped && onPlane && Number.isFinite(snapped.screenDistance) ? snapped : null;
-      const point = constrain(validSnap ? validSnap.point : raw, !validSnap || !["endpoint", "center"].includes(validSnap.type));
-      const retainedSnap = validSnap && Math.hypot(...point.map((value, index) => value - validSnap.point[index])) <= 1e-6 ? validSnap : null;
-      if (retainedSnap) markerShape(retainedSnap, point); else marker.visible = false;
-      return { point, snap: retainedSnap };
+      const candidates = snapEnabled && !suppressSnap && !numericBuffer ? trackingCandidates(raw,trackingAnchors,plane,project,snapPreferencesRef.current.tolerancePx,trackingLock) : [];
+      lastTrackingCandidateCount=candidates.length;
+      const tracking = candidates.length && (!validSnap || ["nearest","grid"].includes(validSnap.type)) ? candidates[trackingIndex%candidates.length] : null;
+      const point = constrain(tracking?.point ?? validSnap?.point ?? raw, !validSnap || !["endpoint", "center"].includes(validSnap.type));
+      const retainedTracking = tracking && Math.hypot(...point.map((value,index)=>value-tracking.point[index]))<=1e-6 ? tracking : null;
+      const retainedSnap = !retainedTracking && validSnap && Math.hypot(...point.map((value, index) => value - validSnap.point[index])) <= 1e-6 ? validSnap : null;
+      if (retainedTracking) markerShape({type:"intersection",point,screenDistance:retainedTracking.distancePx},point);
+      else if (retainedSnap) markerShape(retainedSnap, point); else marker.visible = false;
+      showTrackingGuide(retainedTracking);
+      return { point, snap: retainedSnap, tracking: retainedTracking, sourceSnap:validSnap };
     }
 
     function commit(params: Record<string, unknown>) {
       const committed = structuredClone({ ...params, workPlane: activeWorkPlane, ...(sketchInputRef.current.sketch ? { sketchSnapBindings: sketchBindings, suppressAutomaticConstraints } : {}) });
       acquired.length = 0; numericBuffer = ""; hoverPoint = null;
+      trackingAnchors.length=0;trackingLock=null;trackingIndex=0;clearTrackingGuide();
       polarLocks = emptyPolarLocks(); inputField = "length";
       sketchBindings.length = 0; suppressAutomaticConstraints = false;
       preview.geometry.dispose(); preview.geometry = new THREE.BufferGeometry(); marker.visible = false;
@@ -2970,14 +3159,26 @@ export function CadViewport({
       drawingCallbacksRef.current.onDrawingCommit?.(activeTool, committed);
     }
 
+    function acceptThreePoint(point:Vec3){
+      if(acquired.length<2){
+        if(acquired.some(p=>Math.hypot(...p.map((v,i)=>v-point[i]))<=1e-6)){setToolReadout("Three points must be distinct · revise point or Esc to clear");return false;}
+        acquired.push(point);setToolReadout(`${activeTool.toUpperCase()} · point ${acquired.length+1} of 3${activeTool==="arc-3point"?(acquired.length===1?" (through point)":" (end point)"):""} · x,y / @x,y / @length<angle`);return true;
+      }
+      const points=[...acquired,point],result=threePointCurve(points.map(p=>worldToPlane(p,plane)));
+      if(!result.ok){setToolReadout(`${result.reason} Revise the third point or Esc to clear.`);return false;}
+      commit({threePointInputs:points});return true;
+    }
+
     function handlePointerMove(event: PointerEvent) {
       suppressAutomaticConstraints = event.altKey;
       const raw = worldPoint(event);
       if (!raw) return;
+      lastRaw=raw;
       const acquiredPoint = acquirePoint(raw,event.altKey);
+      lastSourceSnap=acquiredPoint.sourceSnap;
       hoverPoint = acquiredPoint.point;
-      updatePreview(hoverPoint);
-      const snapLabel = acquiredPoint.snap ? snapCaption(acquiredPoint.snap,cadDocument.objects[acquiredPoint.snap.objectId??""]?.name) : (orthoEnabled ? "Ortho" : "Free");
+      if (numericBuffer && acquired.length) updateNumericPreview(); else updatePreview(hoverPoint);
+      const snapLabel = acquiredPoint.tracking ? `⌖ Tracking ${acquiredPoint.tracking.axis} · ${acquiredPoint.tracking.sources.join(" + ")}` : acquiredPoint.snap ? snapCaption(acquiredPoint.snap,cadDocument.objects[acquiredPoint.snap.objectId??""]?.name) : (orthoEnabled ? "Ortho" : "Free");
       const previous = acquired.at(-1);
       let inference = "";
       if (previous) {
@@ -2987,8 +3188,8 @@ export function CadViewport({
         else if (Math.abs(dx) < 1e-5) inference = " · Vertical";
         else inference = ` · ${Math.hypot(dx, dy).toFixed(2)} mm · ${(Math.atan2(dy, dx) * 180 / Math.PI).toFixed(1)}°`;
       }
-      const autoHint = sketchInputRef.current.sketch && sketchInputRef.current.automaticConstraints ? suppressAutomaticConstraints ? " · Auto suppressed" : `${inference.includes("Horizontal") || inference.includes("Vertical") ? " · Auto axis" : ""}${sketchSnapBinding(sketchInputRef.current.sketch, acquiredPoint.snap) ? " · Auto Coincident" : ""}` : "";
-      setToolReadout(`${activeTool.toUpperCase()} · ${snapLabel}${inference}${autoHint} · ${numericBuffer || worldToPlane(hoverPoint, plane).map((value) => value.toFixed(2)).join(", ")} mm`);
+      const autoHint = !threePoint && sketchInputRef.current.sketch && sketchInputRef.current.automaticConstraints ? suppressAutomaticConstraints ? " · Auto suppressed" : `${inference.includes("Horizontal") || inference.includes("Vertical") ? " · Auto axis" : ""}${sketchSnapBinding(sketchInputRef.current.sketch, acquiredPoint.snap) ? " · Auto Coincident" : ""}` : "";
+      setToolReadout(`${activeTool.toUpperCase()} · ${snapLabel}${inference}${autoHint} · ${numericBuffer || worldToPlane(hoverPoint, plane).map((value) => value.toFixed(2)).join(", ")} mm · Shift+A acquire · Shift+L axis · Shift+N next · Shift+R release · Alt suppress`);
       const tagMeasure = previous ? inference.replace(/^ · /, "") : `${worldToPlane(hoverPoint, plane).map((value) => value.toFixed(2)).join(", ")} mm`;
       showCursorTag(event.clientX, event.clientY, `${snapLabel} · ${tagMeasure}${autoHint}${numericBuffer ? ` · ${numericBuffer}` : ""}`);
     }
@@ -2999,11 +3200,19 @@ export function CadViewport({
       suppressAutomaticConstraints = event.altKey;
       const raw = worldPoint(event);
       if (!raw) return;
+      lastRaw=raw;
       const acquiredPoint = acquirePoint(raw,event.altKey), point = acquiredPoint.point;
+      lastSourceSnap=acquiredPoint.sourceSnap;
+      if (numericBuffer) {
+        hoverPoint = point;
+        handleKeyDown(new KeyboardEvent("keydown", { key: "Enter", altKey: event.altKey }));
+        return;
+      }
       const binding = sketchInputRef.current.sketch && !event.altKey ? sketchSnapBinding(sketchInputRef.current.sketch, acquiredPoint.snap) : null;
       if (binding && Math.hypot(...point.map((value, index) => value - acquiredPoint.snap!.point[index])) < 1e-6) sketchBindings.push(binding);
       hoverPoint = point;
-      if (activeTool === "line") {
+      if(threePoint){if(!acceptThreePoint(point))return;}
+      else if (activeTool === "line") {
         if (!acquired.length) acquired.push(point); else commit({ points: [acquired[0], point] });
       } else if (activeTool === "rectangle") {
         if (!acquired.length) acquired.push(point); else {
@@ -3038,22 +3247,47 @@ export function CadViewport({
     function handleKeyDown(event: KeyboardEvent) {
       if (isCadKeyboardBlocked(event.target, event.key)) return;
       if (event.ctrlKey || event.metaKey) return;
-      if (event.key === "Alt") { suppressAutomaticConstraints = true; setToolReadout("Auto constraints suppressed · release Alt to restore"); return; }
+      if (event.shiftKey && !event.altKey && !numericBuffer && ["a","l","n","r"].includes(event.key.toLowerCase())) {
+        event.preventDefault();
+        const key=event.key.toLowerCase();
+        if (key==="a") {
+          const snap=lastSourceSnap;
+          const object=snap?.objectId?cadDocument.objects[snap.objectId]:undefined, layer=object?cadDocument.layers[object.layerId]:undefined;
+          if (!snap?.objectId || !object?.visible || !layer?.visible || ["nearest","grid"].includes(snap.type)) {setToolReadout("Tracking point needs a visible object snap · hover an endpoint, midpoint, center or intersection, then Shift+A");return;}
+          const index=trackingAnchors.findIndex(anchor=>anchor.objectId===snap.objectId&&Math.hypot(...anchor.point.map((value,i)=>value-snap.point[i]))<1e-7);
+          if (index>=0) trackingAnchors.splice(index,1); else trackingAnchors.push({point:[...snap.point],objectId:snap.objectId,topologyReference:snap.topologyReference,source:`${object.name} (${object.id})`});
+          trackingIndex=0;setToolReadout(index>=0?"Tracking point released":`Tracking point acquired · ${trackingAnchors.length} active · Shift+R clears all`);
+        } else if(key==="r") {trackingAnchors.length=0;trackingLock=null;trackingIndex=0;clearTrackingGuide();setToolReadout("Tracking points released");}
+        else if(key==="l") {if(!trackingAnchors.length){setToolReadout("Acquire a tracking point with Shift+A before locking a direction");return;}trackingLock=trackingLock===null?"horizontal":trackingLock==="horizontal"?"vertical":null;trackingIndex=0;setToolReadout(`Tracking direction ${trackingLock??"free"} · Shift+L cycles`);}
+        else {if(lastTrackingCandidateCount<2){setToolReadout(`No alternate tracking candidate within ${snapPreferencesRef.current.tolerancePx} px · move near another guide or acquire a second point`);return;}trackingIndex=(trackingIndex+1)%lastTrackingCandidateCount;setToolReadout(`Tracking candidate ${trackingIndex+1}/${lastTrackingCandidateCount} · Shift+N cycles nearby candidates`);}
+        if(lastRaw){const result=acquirePoint(lastRaw);hoverPoint=result.point;updatePreview(result.point);}
+        return;
+      }
+      if (event.key === "Alt") { suppressAutomaticConstraints = true;clearTrackingGuide();marker.visible=false; setToolReadout("Snap and tracking suppressed · release Alt to restore"); return; }
       if (event.key === "Escape") {
         event.preventDefault();
         if (acquired.length || numericBuffer) {
-          acquired.length = 0; numericBuffer = ""; hoverPoint = null; polarLocks = emptyPolarLocks(); inputField = "length"; sketchBindings.length = 0;
+          acquired.length = 0; numericBuffer = ""; hoverPoint = null; polarLocks = emptyPolarLocks(); inputField = "length"; sketchBindings.length = 0;trackingAnchors.length=0;trackingLock=null;clearTrackingGuide();
           preview.geometry.dispose(); preview.geometry = new THREE.BufferGeometry(); marker.visible = false;
           setToolReadout(`${activeTool.toUpperCase()} · first point (x,y) · Esc to finish`);
         } else drawingCallbacksRef.current.onDrawingCancel?.();
         return;
       }
-      if (event.key === "Backspace") { event.preventDefault(); numericBuffer = numericBuffer.slice(0, -1); return; }
-      if (event.key === "Tab" && acquired.length) {
+      if (event.key === "Backspace") {
+        event.preventDefault(); numericBuffer = numericBuffer.slice(0, -1);
+        if (acquired.length) { if (numericBuffer) updateNumericPreview(); else if (hoverPoint) updatePreview(hoverPoint); }
+        setToolReadout(`${activeTool.toUpperCase()} · ${inputField} input ${numericBuffer} · Tab locks field`);
+        return;
+      }
+      if (event.key === "Tab" && !event.ctrlKey && !event.metaKey && !event.altKey && acquired.length) {
         event.preventDefault();
         if (event.shiftKey) polarLocks = emptyPolarLocks();
         else {
           const value = inputField === "length" ? parseLength(numericBuffer) : parseAngle(numericBuffer);
+          if (numericBuffer.trim() && (value === null || inputField === "length" && value < 0)) {
+            setToolReadout(`Invalid ${inputField} · ${numericBuffer} · revise input or Esc to clear`);
+            return;
+          }
           if (value !== null && (inputField !== "length" || value >= 0)) polarLocks[inputField] = value;
           inputField = inputField === "length" ? "angle" : "length";
         }
@@ -3079,107 +3313,28 @@ export function CadViewport({
           if (!values) { setToolReadout("Enter first point as x,y (for example 0,0 or 2m,1m)"); return; }
           const point = planeToWorld(values, plane);
           acquired.push(point); hoverPoint = point; numericBuffer = ""; updatePreview(point);
-          setToolReadout(`${activeTool.toUpperCase()} · next point or size`); return;
+          setToolReadout(threePoint?`${activeTool.toUpperCase()} · point 2 of 3${activeTool==="arc-3point"?" (through point)":""} · x,y / @x,y / @length<angle`:`${activeTool.toUpperCase()} · next point or size`); return;
         }
-        const coordinateInput = numericBuffer.includes(",") && (activeTool !== "rectangle" || /^[@#]/.test(numericBuffer.trim()));
-        const lockedInput = !numericBuffer.includes(",") && !numericBuffer.includes("<") && (polarLocks.length !== null || polarLocks.angle !== null);
-        if (coordinateInput || lockedInput) {
-          const base = worldToPlane(acquired.at(-1)!, plane), locks = { ...polarLocks };
-          if (lockedInput && numericBuffer) {
-            const value = inputField === "length" ? parseLength(numericBuffer) : parseAngle(numericBuffer);
-            if (value === null) return; locks[inputField] = value;
-          }
-          const local = parsePointEntry(coordinateInput ? numericBuffer : "", base, hoverPoint ? worldToPlane(hoverPoint, plane) : undefined, locks);
-          if (!local) return;
-          const exact = planeToWorld(local, plane), first = acquired[0];
-          if (activeTool === "line") commit({ points: [first, exact] });
-          else if (activeTool === "polyline") { acquired.push(exact); numericBuffer = ""; polarLocks = emptyPolarLocks(); }
-          else if (activeTool === "rectangle") { const a = worldToPlane(first, plane); commit({ points: [first, planeToWorld([local[0], a[1]], plane), exact, planeToWorld([a[0], local[1]], plane)] }); }
-          else if (activeTool === "circle") { const a = worldToPlane(first, plane); commit({ center: first, radius: Math.hypot(local[0] - a[0], local[1] - a[1]) }); }
-          else if (acquired.length === 1) { acquired.push(exact); numericBuffer = ""; polarLocks = emptyPolarLocks(); }
-          else { const center = worldToPlane(first, plane), start = worldToPlane(acquired[1], plane); commit({ center: first, radius: Math.hypot(start[0] - center[0], start[1] - center[1]), startAngle: Math.atan2(start[1] - center[1], start[0] - center[0]), endAngle: Math.atan2(local[1] - center[1], local[0] - center[0]) }); }
-          hoverPoint = exact; updatePreview(exact); return;
+        const draft = resolveDrawingPointInput(activeTool, numericBuffer, acquired.map(p => worldToPlane(p, plane)), hoverPoint ? worldToPlane(hoverPoint, plane) : undefined, polarLocks, inputField);
+        if (!draft) { setToolReadout(`Invalid ${inputField} input · ${numericBuffer} · revise input or Esc to clear`); return; }
+        const local = draft.point, exact = planeToWorld(local, plane), first = acquired[0];
+        if(threePoint){if(!acceptThreePoint(exact))return;}
+        else if (activeTool === "line") commit({ points: [first, exact] });
+        else if (activeTool === "polyline") { acquired.push(exact); polarLocks = emptyPolarLocks(); inputField = "length"; }
+        else if (activeTool === "rectangle") { const a = worldToPlane(first, plane); commit({ points: [first, planeToWorld([local[0], a[1]], plane), exact, planeToWorld([a[0], local[1]], plane)] }); }
+        else if (activeTool === "circle") { const a = worldToPlane(first, plane); commit({ center: first, radius: Math.hypot(local[0] - a[0], local[1] - a[1]) }); }
+        else if (acquired.length === 1) { acquired.push(exact); polarLocks = emptyPolarLocks(); inputField = "length"; }
+        else {
+          const centre = worldToPlane(first, plane), start = worldToPlane(acquired[1], plane);
+          commit({ center: first, ...(draft.arc ?? { radius: Math.hypot(start[0] - centre[0], start[1] - centre[1]), startAngle: Math.atan2(start[1] - centre[1], start[0] - centre[0]), endAngle: Math.atan2(local[1] - centre[1], local[0] - centre[0]) }) });
         }
-        if (activeTool === "rectangle" && acquired.length === 1) {
-          const start = worldToPlane(acquired[0], plane);
-          const commaParts = numericBuffer.trim().split(/[,x]/i).map((part) => part.trim()).filter(Boolean);
-          let opposite: [number, number];
-          if (commaParts.length === 2) {
-            const width = parseLength(commaParts[0]), height = parseLength(commaParts[1]);
-            if (width === null || height === null || Math.abs(width) < 1e-9 || Math.abs(height) < 1e-9) return;
-            opposite = [start[0] + width, start[1] + height];
-          } else {
-            const [distanceText, angleText] = numericBuffer.split("<");
-            const distance = parseLength(distanceText);
-            if (distance === null || distance <= 0) return;
-            const angle = angleText ? parseAngle(angleText) : hoverPoint ? Math.atan2(worldToPlane(hoverPoint, plane)[1] - start[1], worldToPlane(hoverPoint, plane)[0] - start[0]) * 180 / Math.PI : null;
-            if (angle === null) return;
-            const diagonalAngle = THREE.MathUtils.degToRad(angle);
-            opposite = [start[0] + Math.cos(diagonalAngle) * distance, start[1] + Math.sin(diagonalAngle) * distance];
-          }
-          if (Math.abs(opposite[0] - start[0]) < 1e-9 || Math.abs(opposite[1] - start[1]) < 1e-9) return;
-          const exact = planeToWorld(opposite, plane);
-          commit({ points: [acquired[0], planeToWorld([opposite[0], start[1]], plane), exact, planeToWorld([start[0], opposite[1]], plane)] });
-          numericBuffer = "";
-          updatePreview(exact);
-          return;
-        }
-        if (activeTool === "arc") {
-          if (acquired.length === 1) {
-            const radiusText = numericBuffer.split("<")[0];
-            const radius = parseLength(radiusText);
-            if (radius === null || radius <= 0 || !hoverPoint) return;
-            const center = worldToPlane(acquired[0], plane), hover = worldToPlane(hoverPoint, plane);
-            const angle = Math.atan2(hover[1] - center[1], hover[0] - center[0]);
-            const startPoint = planeToWorld([center[0] + Math.cos(angle) * radius, center[1] + Math.sin(angle) * radius], plane);
-            acquired.push(startPoint);
-            hoverPoint = startPoint;
-            numericBuffer = "";
-            updatePreview(startPoint);
-            return;
-          }
-          if (acquired.length === 2) {
-            const parts = numericBuffer.split("<");
-            const sweep = parseAngle(parts.length > 1 ? parts[1] : parts[0]);
-            if (sweep === null || Math.abs(sweep) < 1e-9) return;
-            const center = worldToPlane(acquired[0], plane), startPoint = worldToPlane(acquired[1], plane);
-            const radius = parts.length > 1 ? parseLength(parts[0]) ?? Math.hypot(startPoint[0] - center[0], startPoint[1] - center[1]) : Math.hypot(startPoint[0] - center[0], startPoint[1] - center[1]);
-            if (radius <= 0) return;
-            const startAngle = Math.atan2(startPoint[1] - center[1], startPoint[0] - center[0]);
-            const endAngle = startAngle + THREE.MathUtils.degToRad(sweep);
-            const endPoint = planeToWorld([center[0] + Math.cos(endAngle) * radius, center[1] + Math.sin(endAngle) * radius], plane);
-            commit({ center: acquired[0], radius, startAngle, endAngle });
-            numericBuffer = "";
-            updatePreview(endPoint);
-            return;
-          }
-        }
-        if (!hoverPoint && activeTool !== "circle" && !numericBuffer.includes("<")) return;
-        const [distanceText, angleText] = numericBuffer.split("<");
-        const distance = parseLength(distanceText);
-        if (distance === null || distance <= 0) return;
-        const start = acquired[acquired.length - 1];
-        const start2 = worldToPlane(start, plane), hover2 = worldToPlane(hoverPoint ?? start, plane);
-        const parsedAngle = angleText ? parseAngle(angleText) : null;
-        const angle = angleText ? (parsedAngle === null ? undefined : THREE.MathUtils.degToRad(parsedAngle)) : Math.atan2(hover2[1] - start2[1], hover2[0] - start2[0]);
-        if (angle === undefined) return;
-        const exact = planeToWorld([start2[0] + Math.cos(angle) * distance, start2[1] + Math.sin(angle) * distance], plane);
-        if (activeTool === "line") commit({ points: [start, exact] });
-        else if (activeTool === "polyline") { acquired.push(exact); hoverPoint = exact; }
-        else if (activeTool === "circle") commit({ center: acquired[0], radius: distance });
-        numericBuffer = "";
-        updatePreview(exact);
+        numericBuffer = ""; hoverPoint = exact; updatePreview(exact);
         return;
       }
       if (/^[0-9a-zA-Z.°<,@#+\- ]$/.test(event.key)) {
         event.preventDefault();
         numericBuffer += event.key;
-        if (acquired.length) {
-          const base = worldToPlane(acquired.at(-1)!, plane), locks = { ...polarLocks };
-          if (inputField === "angle" && polarLocks.length !== null && !numericBuffer.includes("<")) { const angle = parseAngle(numericBuffer); if (angle !== null) locks.angle = angle; }
-          const local = parsePointEntry(inputField === "angle" && polarLocks.length !== null ? "" : numericBuffer, base, hoverPoint ? worldToPlane(hoverPoint, plane) : undefined, locks);
-          if (local) updatePreview(planeToWorld(local, plane));
-        }
+        if (acquired.length) updateNumericPreview();
         setToolReadout(`${activeTool.toUpperCase()} · ${inputField} input ${numericBuffer} · Tab locks field`);
       }
     }
@@ -3187,21 +3342,24 @@ export function CadViewport({
     activeRenderer.domElement.addEventListener("pointermove", handlePointerMove);
     activeRenderer.domElement.addEventListener("pointerdown", handlePointerDown);
     window.addEventListener("keydown", handleKeyDown, true);
-    const releaseAlt = (event: KeyboardEvent) => { if (event.key === "Alt") suppressAutomaticConstraints = false; };
+    if(threePoint)setToolReadout(`${activeTool==="arc-3point"?"3-Point Arc · start → through → end":"3-Point Circle"} · point 1 of 3 · x,y · Esc to cancel`);
+    const releaseAlt = (event: KeyboardEvent) => { if (event.key === "Alt") {suppressAutomaticConstraints = false;if(lastRaw){const result=acquirePoint(lastRaw);hoverPoint=result.point;updatePreview(result.point);}} };
     window.addEventListener("keyup", releaseAlt);
     return () => {
       activeRenderer.domElement.removeEventListener("pointermove", handlePointerMove);
       activeRenderer.domElement.removeEventListener("pointerdown", handlePointerDown);
+      unsubscribeTracking();
       window.removeEventListener("keydown", handleKeyDown, true);
       window.removeEventListener("keyup", releaseAlt);
-      scene.remove(preview, marker);
+      scene.remove(preview, marker,trackingGuide);
       preview.geometry.dispose(); previewMaterial.dispose();
       marker.geometry.dispose(); markerMaterial.dispose();
+      trackingGuide.geometry.dispose();trackingMaterial.dispose();
       controls.enabled = true;
       hideCursorTag();
       setToolReadout("");
     };
-  }, [drawingTool, activeWorkPlane, snapEnabled, orthoEnabled]);
+  }, [drawingTool, activeWorkPlane, activeSketch?.faceFrame, snapEnabled, orthoEnabled]);
 
   const offsetPreviewRef = useRef<Exclude<RenderObject, THREE.Group> | null>(null);
 
@@ -3294,7 +3452,8 @@ export function CadViewport({
 
   useEffect(() => {
     const scene=sceneRef.current;
-    if(!scene || !extrusionPreview)return;
+    if(!scene || !extrusionPreview || !projectActive)return;
+    const scope=new AbortController();const {buildExtrudeMesh}=createViewGeometry(scope.signal);
     let cancelled=false, mesh:RenderObject|null=null;
     onExtrusionStatus?.("Preparing preview…");
     void buildExtrudeMesh(extrusionPreview,true).then(data=>{
@@ -3304,8 +3463,8 @@ export function CadViewport({
       material.color.setHex(0x36d9c5);material.transparent=true;material.opacity=0.6;mesh.renderOrder=20;
       scene.add(mesh);onExtrusionStatus?.("Preview ready");
     }).catch(error=>{if(!cancelled)onExtrusionStatus?.(`Preview failed: ${error instanceof Error?error.message:String(error)}`);});
-    return()=>{cancelled=true;if(mesh){scene.remove(mesh);disposeMesh(mesh);}};
-  },[extrusionPreview,sceneReady]);
+    return()=>{scope.abort();cancelled=true;if(mesh){scene.remove(mesh);disposeMesh(mesh);}};
+  },[extrusionPreview,sceneReady,projectActive]);
   const projectRegionPoint=useCallback((point:Vec3):[number,number]=>{
     const camera=cameraRef.current, host=hostRef.current;
     if(!camera||!host)return [0,0];
@@ -3330,7 +3489,8 @@ export function CadViewport({
       disposeMesh(previous);
       filletPreviewRef.current = null;
     }
-    if (!filletPreview) return;
+    if (!filletPreview || !projectActive) return;
+    const scope=new AbortController();const {buildFilletMesh}=createViewGeometry(scope.signal);
     let cancelled = false;
     void (async () => {
       let mesh: RenderObject | null = null;
@@ -3356,7 +3516,7 @@ export function CadViewport({
       filletPreviewRef.current = mesh;
     })();
     return () => {
-      cancelled = true;
+      scope.abort();cancelled = true;
       const current = filletPreviewRef.current;
       if (current) {
         scene.remove(current);
@@ -3364,7 +3524,7 @@ export function CadViewport({
         filletPreviewRef.current = null;
       }
     };
-  }, [filletPreview, documentRevision, sceneReady]);
+  }, [filletPreview, documentRevision, sceneReady, projectActive]);
 
   const chamferPreviewRef = useRef<Exclude<RenderObject, THREE.Group> | null>(null);
 
@@ -3377,7 +3537,8 @@ export function CadViewport({
       disposeMesh(previous);
       chamferPreviewRef.current = null;
     }
-    if (!chamferPreview) return;
+    if (!chamferPreview || !projectActive) return;
+    const scope=new AbortController();const {buildChamferMesh}=createViewGeometry(scope.signal);
     let cancelled = false;
     void (async () => {
       let mesh: RenderObject | null = null;
@@ -3403,7 +3564,7 @@ export function CadViewport({
       chamferPreviewRef.current = mesh;
     })();
     return () => {
-      cancelled = true;
+      scope.abort();cancelled = true;
       const current = chamferPreviewRef.current;
       if (current) {
         scene.remove(current);
@@ -3411,7 +3572,7 @@ export function CadViewport({
         chamferPreviewRef.current = null;
       }
     };
-  }, [chamferPreview, documentRevision, sceneReady]);
+  }, [chamferPreview, documentRevision, sceneReady, projectActive]);
 
   const copilotPreviewRef = useRef<Exclude<RenderObject, THREE.Group>[]>([]);
 
@@ -3424,7 +3585,8 @@ export function CadViewport({
       scene.remove(ghost);
       disposeMesh(ghost);
     }
-    if (!copilotPreview?.length) return;
+    if (!copilotPreview?.length || !projectActive) return;
+    const scope=new AbortController();const {buildPrimitiveMesh,buildExtrudeMesh,buildBooleanMesh}=createViewGeometry(scope.signal);
     // Generation token: a superseded plan (new keystrokes, Apply, panel
     // close) must never mount stale ghosts. Deliberately no
     // cancelKernelTasks() here: that would abort unrelated in-flight
@@ -3434,6 +3596,7 @@ export function CadViewport({
     let cancelled = false;
     void (async () => {
       const settled = await Promise.allSettled(copilotPreview.map(async (ghost): Promise<Exclude<RenderObject, THREE.Group>> => {
+        if(ghost.kind==="solid"){const mesh=createThreeMesh(ghost.key,ghost.featureType==="boolean"?await buildBooleanMesh(ghost.params,true):ghost.featureType==="extrude"?await buildExtrudeMesh(ghost.params,true):ghost.featureType==="fillet"?await buildFilletMesh(ghost.params,true):ghost.featureType==="chamfer"?await buildChamferMesh(ghost.params,true):ghost.featureType==="revolve"?await buildRevolveMesh(ghost.params,true):ghost.featureType==="sweep"?await buildSweepMesh(ghost.params,true):ghost.featureType==="loft"?await buildLoftMesh(ghost.params,true):ghost.featureType==="shell"?await buildShellMesh(ghost.params,true):await buildPrimitiveMesh(ghost.params));mesh.position.set(...ghost.transform.translation);mesh.rotation.set(...ghost.transform.rotation.map(THREE.MathUtils.degToRad) as Vec3);mesh.scale.set(...ghost.transform.scale);return mesh;}
         if (ghost.kind === "drawing" || ghost.kind === "path") {
           // Pure 2D outline, no kernel involved.
           const outline = createDrawingRenderObject(ghost.key, ghost.kind==="path"?{kind:ghost.points.length===1?"point":"polyline",points:ghost.points,closed:ghost.closed,workPlane:ghost.workPlane}:ghost.params, 0x36d9c5);
@@ -3492,7 +3655,7 @@ export function CadViewport({
       onCopilotPreviewStatusRef.current?.(failed, copilotPreview.length);
     })();
     return () => {
-      cancelled = true;
+      scope.abort();cancelled = true;
       const current = copilotPreviewRef.current;
       copilotPreviewRef.current = [];
       for (const mesh of current) {
@@ -3500,7 +3663,7 @@ export function CadViewport({
         disposeMesh(mesh);
       }
     };
-  }, [copilotPreview, documentRevision, sceneReady]);
+  }, [copilotPreview, documentRevision, sceneReady, projectActive]);
 
   useEffect(() => {
     if (!offsetActive || !offsetPreview) return;
@@ -3676,6 +3839,8 @@ export function CadViewport({
   return (
     <>
       <div ref={hostRef} className="cad-viewport" />
+      {sceneReady&&workspaceMode==="2d"&&<DrawingFrames onWheel={event=>frameWheelRef.current(event)} revision={documentRevision} plane={activeWorkPlane} enabled={!drawingTool&&!measurementTool&&!pointTransform&&!splineSession&&!ellipseSession&&!curveSession&&!constructionSession&&!contourSession&&!blockSession&&!regularPolygonSession&&!endpointRadiusArcSession&&!cadPilotSession&&!directSelectMode} onFitSection={(bounds,plane)=>fitBounds(new THREE.Box3().setFromPoints(artboardWorldCorners({...bounds,workPlane:plane} as import("@agent-webcad/cad-document").CadArtboard).map(p=>new THREE.Vector3(...p))),WORK_PLANES[plane])} selectedIds={selectedObjectIds} project={projectRegionPoint} onSelect={id=>onSelectArtboardRef.current?.(id)}/>}
+
       {cornerPreview?.review && sceneReady && <CornerTool key={`${cornerPreview.objectId}:${cornerPreview.controlId}`} session={cornerPreview} project={projectRegionPoint}
         getCanvas={() => rendererRef.current?.domElement ?? null} getCamera={() => cameraRef.current}
         onClose={() => onCornerClose?.()} onApplied={ids => onCornerApplied?.(ids)} nextActions={curveNextActions}
@@ -3707,6 +3872,11 @@ export function CadViewport({
           const offset = new THREE.Vector3(...plane.xAxis).multiplyScalar(-(camera.right - camera.left) / camera.zoom * reserved / 2 / width);
           camera.position.add(offset); controls.target.add(offset); controls.update();
         }} />}
+      {cadPilotSession&&sceneReady&&<CadPilotTool key={cadPilotSession.id} session={cadPilotSession} activeUcsId={activeUcsId} onUcsChange={id=>onUcsChange?.(id)} project={projectRegionPoint} getCanvas={()=>rendererRef.current?.domElement??null} getCamera={()=>cameraRef.current} snapEnabled={snapEnabled} snapPreferences={snapPreferences} constructionVisible={constructionVisible} onClose={()=>onCadPilotClose?.()} onApplied={ids=>onCadPilotApplied?.(ids)} onFrame={(points,plane)=>{if(points.length)fitBounds(new THREE.Box3().setFromPoints(points.map(p=>new THREE.Vector3(...p))),plane);}} onAlign={plane=>{const camera=cameraRef.current,controls=controlsRef.current;if(!camera||!controls)return;cancelCameraTransitionRef.current?.();const origin=new THREE.Vector3(...plane.origin),distance=Math.max(100,camera.position.distanceTo(controls.target));controls.target.copy(origin);camera.up.set(...plane.yAxis);camera.position.copy(origin).addScaledVector(new THREE.Vector3(...plane.normal),distance);camera.lookAt(origin);camera.updateMatrixWorld();controls.update();}}/>}
+      {endpointRadiusArcSession && sceneReady && <EndpointRadiusArcTool key={endpointRadiusArcSession.id} session={endpointRadiusArcSession} project={projectRegionPoint} getCanvas={()=>rendererRef.current?.domElement??null} getCamera={()=>cameraRef.current} snapEnabled={snapEnabled} snapPreferences={snapPreferences} constructionVisible={constructionVisible} onClose={()=>onEndpointRadiusArcClose?.()} onApplied={ids=>onEndpointRadiusArcApplied?.(ids)} onFrame={points=>{if(points.length)fitBounds(new THREE.Box3().setFromPoints(points.map(p=>new THREE.Vector3(...p))));}}/>}
+      {splineSession&&sceneReady&&<SplineTool key={splineSession.id} session={splineSession} project={projectRegionPoint} onClose={()=>onSplineClose?.()} onApplied={ids=>onSplineApplied?.(ids)} onFrame={points=>{if(points.length)fitBounds(new THREE.Box3().setFromPoints(points.map(p=>new THREE.Vector3(...p))));}}/>}
+      {ellipseSession&&sceneReady&&<EllipseTool key={ellipseSession.id} session={ellipseSession} project={projectRegionPoint} onClose={()=>onEllipseClose?.()} onApplied={ids=>onEllipseApplied?.(ids)} onFrame={points=>{if(points.length)fitBounds(new THREE.Box3().setFromPoints(points.map(p=>new THREE.Vector3(...p))));}}/>}
+      {regularPolygonSession && sceneReady && <RegularPolygonTool key={regularPolygonSession.id} session={regularPolygonSession} project={projectRegionPoint} onClose={()=>onRegularPolygonClose?.()} onApplied={ids=>onRegularPolygonApplied?.(ids)} onFrame={points=>{if(points.length)fitBounds(new THREE.Box3().setFromPoints(points.map(p=>new THREE.Vector3(...p))));}}/>}
       {constructionSession && sceneReady && <ConstructionTool key={constructionSession.id} session={constructionSession} constructionVisible={constructionVisible} snapEnabled={snapEnabled} snapPreferences={snapPreferences} project={projectRegionPoint}
         onFrame={points=>{if(points.length)fitBounds(new THREE.Box3().setFromPoints(points.map(p=>new THREE.Vector3(...p))));}}
         getCanvas={() => rendererRef.current?.domElement ?? null} getCamera={() => cameraRef.current}
@@ -3725,6 +3895,13 @@ export function CadViewport({
           camera.updateProjectionMatrix();
           const offset = new THREE.Vector3(...plane.xAxis).multiplyScalar(-(camera.right - camera.left) / camera.zoom * reserved / 2 / width);
           camera.position.add(offset); controls.target.add(offset); controls.update();
+        }} />}
+      {blockSession && sceneReady && <BlockTool key={blockSession.id} session={blockSession} project={projectRegionPoint}
+        getCanvas={() => rendererRef.current?.domElement ?? null} getCamera={() => cameraRef.current}
+        onClose={() => onBlockClose?.()} onApplied={ids => onBlockApplied?.(ids)}
+        onFrame={points => {
+          if (!points.length) return;
+          fitBounds(new THREE.Box3().setFromPoints(points.map(p => new THREE.Vector3(...p))));
         }} />}
       {extrusionRegions && sceneReady && <RegionOverlay loops={extrusionRegions} selected={chosenRegions} toggle={id=>onToggleRegion?.(id)} project={projectRegionPoint}/>}
       {imageCropEditingId && selectedObjectIds.includes(imageCropEditingId) && sceneReady && !drawingTool && !measurementTool && !pointTransform && (() => {
@@ -3773,3 +3950,5 @@ export function CadViewport({
     </>
   );
 }
+
+

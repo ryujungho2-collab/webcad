@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-10",
+  "status": "passed",
+  "scope": "B2-D block Stretch: complete envelope rigid instance translation; partial envelope rejects entire mixed batch and names explicit definition/disband handoff",
+  "node": {
+    "tests": 800,
+    "suites": 54,
+    "failed": 0,
+    "skipped": 0,
+    "newBlockStretchTests": 8,
+    "log": "output-b2-d-tests.log",
+    "targetedLog": "output-b2-d-target.log"
+  },
+  "browser": {
+    "workflows": 3,
+    "checks": 57,
+    "scope": "Targeted native Edge/CDP real App/React/Worker; full suite not rerun",
+    "results": [
+      {
+        "workflow": "blockStretch",
+        "checks": 18,
+        "new": true,
+        "log": "output-b2-d-browser.log"
+      },
+      {
+        "workflow": "basicEditWorkflow",
+        "checks": 24,
+        "log": "output-b2-d-browser-basic.log"
+      },
+      {
+        "workflow": "explodeBlock",
+        "checks": 15,
+        "log": "output-b2-d-browser-disband.log"
+      }
+    ]
+  },
+  "architecture": {
+    "passed": true,
+    "modules": 379,
+    "log": "output-b2-d-architecture.log"
+  },
+  "build": {
+    "passed": true,
+    "typecheck": "passed",
+    "mainRawKB": 1138.65,
+    "mainGzipKB": 344.24,
+    "viewportRawKB": 654.75,
+    "viewportGzipKB": 177.82,
+    "existingLargeChunkWarning": true,
+    "log": "output-b2-d-build.log"
+  },
+  "geometry": "Work-plane AABB envelope with analytically transformed line/arc/circle/bulge extrema, composed nested pivots/placements, conservative text envelope; full/partial/outside and elevation classification",
+  "preservation": "Only instance translation changes by world delta; IDs, geometry/member data, rotation/scale, definitions and sibling placements retained; common mixed proposal/History/stale/locks/file contracts",
+  "serialization": "Existing transforms and block snapshots; no new command or file schema",
+  "remaining": [
+    "Partial member deformation requires explicit existing disband or definition edit; isolated definition UI remains G4-B",
+    "Model envelope is conservative for text and empty-space overlap; not glyph ink or screen stroke bounds",
+    "Sketch Stretch B2-E and standalone annotation Stretch",
+    "Nonplanar/tilted instances, unbounded/unsupported members, empty/missing/cyclic definitions are rejected",
+    "64 nesting levels and 4096 nested members; full browser suite/GPU/large-document benchmark not rerun"
+  ],
+  "integration": "During closeout, concurrent sketch Stretch work modified the shared adapter. Preserved its changes, extracted the common conflict error to precision/sketchConflict.ts with state re-export to preserve diagnostic identity, and made never-return conflict exits explicit for TypeScript narrowing. Build and architecture passed afterward. B2-E feature completion is outside this card."
+}

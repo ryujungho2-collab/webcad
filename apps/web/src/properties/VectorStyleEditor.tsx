@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { CadVectorStyle } from "@agent-webcad/cad-document";
+import type { CadVectorStyle, CadVectorGradient } from "@agent-webcad/cad-document";
 import { applyCadPlan, discardCadPlan, previewCadCommand, type CadPlanPreview } from "../state/documentPlans";
 import { commandInteraction } from "../state/commandInteraction";
 import { dispatchCadCommand } from "../state/dispatchCadCommand";
@@ -8,9 +8,9 @@ import { PrecisionField } from "../ui/PrecisionField";
 import { PropertySection } from "../ui/PropertySection";
 import { parseLength } from "../precision/units";
 
-type Draft = { stroke: string; fill: string; fillEnabled: boolean; opacity: string; strokeWidth: string };
+type Draft = { stroke: string; fill: string; fillEnabled: boolean; fillGradient: CadVectorGradient | null; opacity: string; strokeWidth: string };
 type Props = { objectId: string; style: CadVectorStyle; disabled: boolean; revision: number; onDocumentChange: () => void };
-const toDraft = (style: CadVectorStyle): Draft => ({ stroke: style.stroke, fill: style.fill ?? "#ffffff", fillEnabled: style.fill !== null, opacity: String(style.opacity), strokeWidth: String(style.strokeWidth) });
+const toDraft = (style: CadVectorStyle): Draft => ({ stroke: style.stroke, fill: style.fill ?? "#ffffff", fillEnabled: style.fill !== null, fillGradient: style.fillGradient, opacity: String(style.opacity), strokeWidth: String(style.strokeWidth) });
 
 export function VectorStyleEditor({ objectId, style, disabled, revision, onDocumentChange }: Props) {
   const styleKey = JSON.stringify(style);
@@ -22,7 +22,7 @@ export function VectorStyleEditor({ objectId, style, disabled, revision, onDocum
   const dirty = draftKey !== JSON.stringify(toDraft(style));
   const opacity = Number(draft.opacity), strokeWidth = parseLength(draft.strokeWidth);
   const inputError = !/^#[0-9a-f]{6}$/i.test(draft.stroke) ? "Choose a valid stroke color." : draft.fillEnabled && !/^#[0-9a-f]{6}$/i.test(draft.fill) ? "Choose a valid fill color." : !draft.opacity.trim() || !Number.isFinite(opacity) || opacity < 0 || opacity > 1 ? "Opacity must be between 0 and 1." : strokeWidth === null || strokeWidth <= 0 || strokeWidth > 20 ? "Stroke width must be greater than 0 and at most 20 mm." : undefined;
-  const nextStyle: CadVectorStyle = { stroke: draft.stroke, fill: draft.fillEnabled ? draft.fill : null, opacity, strokeWidth: strokeWidth ?? 0 };
+  const nextStyle: CadVectorStyle = { stroke: draft.stroke, fill: draft.fillEnabled ? draft.fill : null, fillGradient: draft.fillGradient, opacity, strokeWidth: strokeWidth ?? 0 };
   const interaction = commandInteraction({ command: "Edit Vector Appearance", targets: [objectId], draftKey, reviewedKey: review?.key, preview: review?.preview, inputError: disabled ? "Unlock the object's layer before changing vector appearance." : dirty ? inputError || error : error || undefined, pending: applying, idle: disabled || !dirty && !error });
 
   useEffect(() => { setDraft(toDraft(style)); setReview(null); setError(""); }, [objectId, styleKey, revision]);

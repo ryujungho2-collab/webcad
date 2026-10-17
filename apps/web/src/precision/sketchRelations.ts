@@ -2,7 +2,7 @@ import type { SketchConstraint, SketchGeometry, SketchPoint, SketchSegmentRef } 
 
 export function sketchSegments(g: SketchGeometry): SketchSegmentRef[] {
   const ids = g.kind === "line" ? [g.segmentId] : g.kind === "polyline" ? g.segmentIds : g.kind === "rectangle" ? g.edgeIds : [];
-  return ids.map(segmentId => ({ geometryId: g.id, segmentId }));
+  return ids.filter((_,i)=>g.kind!=="polyline"||!g.bulges?.[i]).map(segmentId => ({ geometryId: g.id, segmentId }));
 }
 
 export function sketchAngleEdge(g: SketchGeometry | undefined, segmentId?: string): [SketchPoint, SketchPoint] | null {
@@ -13,7 +13,7 @@ export function sketchAngleEdge(g: SketchGeometry | undefined, segmentId?: strin
 export function sketchSegment(g: SketchGeometry | undefined, ref: SketchSegmentRef): [SketchPoint, SketchPoint] | null {
   if (!g || g.id !== ref.geometryId) return null;
   if (g.kind === "line") return g.segmentId === ref.segmentId ? [g.start, g.end] : null;
-  if (g.kind === "polyline") { const i = g.segmentIds.indexOf(ref.segmentId); return i < 0 ? null : [g.vertices[i].point, g.vertices[(i + 1) % g.vertices.length].point]; }
+  if (g.kind === "polyline") { const i = g.segmentIds.indexOf(ref.segmentId); return i < 0 || g.bulges?.[i] ? null : [g.vertices[i].point, g.vertices[(i + 1) % g.vertices.length].point]; }
   if (g.kind === "rectangle") {
     const i = g.edgeIds.indexOf(ref.segmentId); if (i < 0) return null;
     const c = Math.cos(g.angle ?? 0), s = Math.sin(g.angle ?? 0);

@@ -1,0 +1,8 @@
+import {CadEngine} from "../runtime/CadEngine";
+export type KernelSpline={kind:"spline";degree:number;controlPoints:[number,number,number][];knots:number[];weights?:number[];domain:[number,number]};
+/** Preserve native finite BSpline/Bezier domain, converting a private trimmed copy. */
+export async function nativeSpline(adaptor:any,first:number,last:number):Promise<KernelSpline>{
+ const {oc}=await CadEngine.create();let basis:any,base:any,trim:any,converted:any,rawTrim:any;
+ try{basis=adaptor.GetType()===oc.GeomAbs_CurveType.GeomAbs_BezierCurve?adaptor.Bezier():adaptor.BSpline();base=new oc.Handle_Geom_Curve_2(basis.get());rawTrim=new oc.Geom_TrimmedCurve(base,first,last,true,true);trim=new oc.Handle_Geom_Curve_2(rawTrim);converted=oc.GeomConvert.CurveToBSplineCurve(trim,oc.Convert_ParameterisationType.Convert_TgtThetaOver2 as any);const c=converted.get();if(c.IsPeriodic())throw Error("Periodic kernel spline did not convert to a finite nonperiodic domain.");const controlPoints:[number,number,number][]=[],weights:number[]=[],knots:number[]=[];for(let i=1;i<=c.NbPoles();i++){const p=c.Pole(i);try{controlPoints.push([p.X(),p.Y(),p.Z()]);weights.push(c.Weight(i));}finally{p.delete();}}for(let i=1;i<=c.NbKnots();i++)for(let j=0;j<c.Multiplicity(i);j++)knots.push(c.Knot(i));if(c.Degree()>8||controlPoints.length>256)throw Error(`Kernel spline exceeds support budget: degree ${c.Degree()} / ${controlPoints.length} poles.`);return {kind:"spline",degree:c.Degree(),controlPoints,knots,...c.IsRational()?{weights}:{},domain:[c.FirstParameter(),c.LastParameter()]};
+ }finally{converted?.delete();if(trim)trim.delete();else rawTrim?.delete();base?.delete();basis?.delete();}
+}

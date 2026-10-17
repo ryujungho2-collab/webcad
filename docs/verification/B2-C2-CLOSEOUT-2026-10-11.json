@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-11",
+  "card": "B2-C2",
+  "status": "complete-with-documented-scope",
+  "implementation": "../implementation/B2-C2-OPEN-END-CORNERS-2026-10-11.md",
+  "actualChanges": [
+    "Bounded line/arc Chamfer candidates with independent D1/D2 source lengths",
+    "Selected mixed free-end normalization and model-frame restoration preserving shared vertices, bulges and IDs",
+    "Mixed line/arc and arc/arc Fillet through existing analytic solvers",
+    "Actual curved arc-length D guide and explicit corner solution review",
+    "Existing atomic dependency regeneration, one Undo and source/export continuity"
+  ],
+  "verification": {
+    "node": {
+      "tests": 983,
+      "suites": 54,
+      "pass": 983,
+      "fail": 0,
+      "skipped": 0,
+      "newTests": 12
+    },
+    "browser": {
+      "openEndChamfer": 28,
+      "arcCorners": 22,
+      "lineArcFillet": 17,
+      "asymmetricChamfer": 18,
+      "internalChamfer": 18,
+      "curveWorkflow": 20,
+      "totalChecks": 123,
+      "workflows": 6,
+      "input": "Edge native CDP mouse/keyboard",
+      "fullRegisteredSuiteRerun": false,
+      "initialFailures": "New browser harness initially used Model tab navigation/wrong form selector, a default branch pick removed by setback, and editor-scoped query for an SVG guide label. Corrected harness and fixture; final run passed."
+    },
+    "typescript": "passed",
+    "architecture": {
+      "modules": 442,
+      "status": "passed"
+    },
+    "productionBuild": "passed"
+  },
+  "boundaries": [
+    "Standalone XY/XZ/YZ finite line/arc and mixed first/last segments only",
+    "No implicit supporting-circle extension, tangent Chamfer or full-circle free branch",
+    "Shared/interior edges stay fixed; unsupported sketch/pattern/block/derived ownership requires separate adapters",
+    "Nonuniform circular placement and tilted user-plane corners remain unsupported"
+  ],
+  "next": "B5-F1"
+}

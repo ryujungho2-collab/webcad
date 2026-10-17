@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-10",
+  "scope": "Standalone circular arc Lengthen by included angle in degrees, linked to world target length and existing reviewed edit path",
+  "status": "passed",
+  "node": { "tests": 832, "suites": 54, "failed": 0, "skipped": 0, "newTests": 6 },
+  "browser": { "workflow": "basicEditWorkflow", "checks": 31, "environment": "isolated native browser with real App/React/Worker" },
+  "typecheck": "passed",
+  "architecture": { "passed": true, "modules": 386, "includesDocumentationLinks": true },
+  "productionBuild": { "passed": true, "existingLargeChunkWarning": true },
+  "limits": ["Included-angle input supports standalone circular arcs only", "Sketch-owned and nonuniformly scaled elliptical curves remain unsupported", "No full browser suite or large-document benchmark in this closeout"]
+}

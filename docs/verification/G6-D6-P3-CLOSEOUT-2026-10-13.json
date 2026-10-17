@@ -1,0 +1,161 @@
+{
+  "date": "2026-10-13",
+  "node": {
+    "tests": 1204,
+    "suites": 54,
+    "fail": 0,
+    "skip": 0
+  },
+  "typecheck": "passed",
+  "architectureModules": 539,
+  "productionBuild": "passed",
+  "nativeShared": {
+    "courtyardIssue": 40,
+    "spline": 19,
+    "ellipseSection": 18,
+    "sectionPresentation": 17,
+    "conicProjection": 22,
+    "frameStitches": 25,
+    "modelSheetLayout": 19
+  },
+  "nativeSharedTotal": 160,
+  "nativeSharedWorkflows": 7,
+  "card": "G6-D6-P3",
+  "status": "complete measured retained slab scope",
+  "review": [
+    {
+      "run": 1,
+      "kind": "first source Review",
+      "reviewMs": 7838.3861,
+      "applyMs": 101.12169999999969,
+      "undoMs": 100.46389999999883,
+      "changes": 1254,
+      "retained": {
+        "heapCapacityBytes": 104857600,
+        "hits": 287,
+        "builds": 49,
+        "evictions": 0,
+        "entries": 49,
+        "limit": 128,
+        "slabs": {
+          "hits": 0,
+          "builds": 15,
+          "inside": 0,
+          "outside": 42,
+          "evictions": 0,
+          "entries": 15,
+          "limit": 128
+        }
+      }
+    },
+    {
+      "run": 2,
+      "kind": "warmed source Review",
+      "reviewMs": 559.6915000000008,
+      "applyMs": 143.97849999999926,
+      "undoMs": 95.24539999999979,
+      "changes": 1254,
+      "retained": {
+        "heapCapacityBytes": 104857600,
+        "hits": 287,
+        "builds": 49,
+        "evictions": 0,
+        "entries": 49,
+        "limit": 128,
+        "slabs": {
+          "hits": 0,
+          "builds": 15,
+          "inside": 0,
+          "outside": 42,
+          "evictions": 0,
+          "entries": 15,
+          "limit": 128
+        }
+      }
+    },
+    {
+      "run": 3,
+      "kind": "warmed source Review",
+      "reviewMs": 497.41150000000016,
+      "applyMs": 132.4224000000013,
+      "undoMs": 131.9442999999992,
+      "changes": 1254,
+      "retained": {
+        "heapCapacityBytes": 104857600,
+        "hits": 287,
+        "builds": 49,
+        "evictions": 0,
+        "entries": 49,
+        "limit": 128,
+        "slabs": {
+          "hits": 0,
+          "builds": 15,
+          "inside": 0,
+          "outside": 42,
+          "evictions": 0,
+          "entries": 15,
+          "limit": 128
+        }
+      }
+    }
+  ],
+  "rawSlab": [
+    {
+      "run": 1,
+      "kind": "first raw kernel projection",
+      "ms": 4163.4466,
+      "edges": 195,
+      "retained": {
+        "heapCapacityBytes": 104857600,
+        "hits": 56,
+        "builds": 48,
+        "evictions": 0,
+        "entries": 48,
+        "limit": 128,
+        "slabs": {
+          "hits": 0,
+          "builds": 11,
+          "inside": 5,
+          "outside": 40,
+          "evictions": 0,
+          "entries": 11,
+          "limit": 128
+        }
+      }
+    },
+    {
+      "run": 2,
+      "kind": "warmed raw kernel projection",
+      "ms": 105.40010000000075,
+      "edges": 195,
+      "retained": {
+        "heapCapacityBytes": 104857600,
+        "hits": 101,
+        "builds": 48,
+        "evictions": 0,
+        "entries": 48,
+        "limit": 128,
+        "slabs": {
+          "hits": 11,
+          "builds": 11,
+          "inside": 10,
+          "outside": 80,
+          "evictions": 0,
+          "entries": 11,
+          "limit": 128
+        }
+      }
+    }
+  ],
+  "rawExactEquality": true,
+  "nativeSingleRun": {
+    "initialSceneMs": 14723,
+    "sourceReviewMs": 8758,
+    "sideReviewMs": 3346
+  },
+  "memoryMeaning": "heapCapacityBytes is total allocated WASM capacity, not live cache bytes; each source/slab LRU has128 entries",
+  "limits": [
+    "Exact global HLR still recalculates for changed assembly/observer.",
+    "No full realtime claim or byte-weighted native-cache budget."
+  ]
+}

@@ -1,10 +1,11 @@
+import { requestProjectFrame as requestAnimationFrame, cancelProjectFrame as cancelAnimationFrame } from "../app/projectActivity";
 import { DEFAULT_SNAP_PREFERENCES, snapCaption, type SnapPreferences } from "../precision/snapPreferences";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { constructionExpression, type CadConstructionDefinition } from "@agent-webcad/cad-document";
 import type { CadCommand } from "@agent-webcad/cad-commands";
 import { cadDocument } from "../state/cadDocument";
-import { previewCadCommand, applyCadPlan, discardCadPlan, getCadPlanDrawingPaths, type CadPlanPreview } from "../state/documentPlans";
+import { previewCadCommand, applyCadPlan, discardCadPlan, getCadPlanDrawingPaths, getCadPlanConstructionStatus, type CadPlanPreview } from "../state/documentPlans";
 import { subscribeDocumentChanges } from "../state/documentSession";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 import { parsePointEntry } from "../precision/pointInput";
@@ -19,7 +20,7 @@ import {PrecisionField} from "../ui/PrecisionField";
 export type ConstructionSession = { id: string; workPlane: WorkPlaneId; layerId: string; selectedIds: string[] };
 type Operation = "point" | "infinite-line" | "ray" | CadConstructionDefinition["operation"];
 type Props = { session: ConstructionSession; constructionVisible: boolean; snapEnabled: boolean; snapPreferences?: SnapPreferences; project: (point: Vec3) => [number, number]; getCanvas: () => HTMLCanvasElement | null; getCamera: () => THREE.Camera | null; onClose: () => void; onApplied: (ids: string[]) => void; onFrame:(points:Vec3[])=>void };
-const operations: [Operation, string][] = [["point", "Independent point"], ["infinite-line", "Independent infinite line"], ["ray", "Independent ray"], ["segment", "Segment through two points"], ["line-through", "Infinite line through two points"], ["ray-through", "Ray through two points"], ["midpoint", "Midpoint of segment"], ["perpendicular-bisector", "Perpendicular bisector at midpoint"], ["intersection", "Intersection of line and circle / line"]];
+const operations: [Operation, string][] = [["point", "Independent point"], ["infinite-line", "Independent infinite line"], ["ray", "Independent ray"], ["segment", "Segment through two points"], ["line-through", "Infinite line through two points"], ["ray-through", "Ray through two points"], ["midpoint", "Midpoint of segment"], ["perpendicular-bisector", "Perpendicular bisector at midpoint"], ["intersection", "Intersection of lines / circles / arcs"]];
 type Source = { id: string; name: string; kind: string; points: Vec3[]; snap: SnapEntity };
 type Ghost = { points: Vec3[]; kind: string };
 
@@ -38,10 +39,12 @@ export function ConstructionTool(props: Props) {
     const object = cadDocument.objects[feature.output], layer = object && cadDocument.layers[object.layerId];
     if (feature.type !== "drawing" || !object?.visible || layer?.visible === false || !props.constructionVisible && feature.params.construction || String(feature.params.workPlane ?? "XY") !== session.workPlane) return [];
     const world = getWorldDrawingGeometry(object, feature); if (!world?.planeAligned || !world.points) return [];
-    return [{ id: object.id, name: object.name, kind: world.kind, points: world.points, snap: { objectId: object.id, kind: world.kind as SnapEntity["kind"], points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle, profileSegments: world.profileSegments } }];
+    return [{ id: object.id, name: object.name, kind: world.kind, points: world.points, snap: { objectId: object.id, kind: world.kind as SnapEntity["kind"], points: world.points, center: world.center, radius: world.radius, startAngle: world.startAngle, endAngle: world.endAngle, ellipse:world.ellipse,profileSegments: world.profileSegments } }];
   });
-  const eligible = (slot: 0 | 1) => sources.filter(s => operation === "midpoint" || operation === "perpendicular-bisector" && slot === 0 ? s.kind === "line" : operation === "intersection" ? ["line", "infinite-line", "ray", "circle"].includes(s.kind) : s.kind === "point");
+  const eligible = (slot: 0 | 1) => sources.filter(s => operation === "midpoint" || operation === "perpendicular-bisector" && slot === 0 ? s.kind === "line" : operation === "intersection" ? ["line", "infinite-line", "ray", "circle", "arc"].includes(s.kind) : s.kind === "point");
   const firstSources = eligible(0), secondSources = eligible(1);
+  const centerLine=operation==="intersection"&&[firstId,secondId].every(id=>sources.some(s=>s.id===id&&["circle","arc"].includes(s.kind)));
+  const classification=preview?.result.ok?getCadPlanConstructionStatus(preview.planId,session.id):undefined;
   const draftKey=JSON.stringify([operation,first,second,height,firstId,secondId,branch,name,construction,revision,props.constructionVisible]);
   const interaction=commandInteraction({command:"Construction",draftKey,reviewedKey,preview,pending,targets:literal?[]:[firstId,...(needsSecond?[secondId]:[])].filter(Boolean),numericParameters:{first,second,height},inputError:reviewedKey===draftKey?inputError:undefined,missing:literal?[]:!firstId?["Choose the first saved source."]:needsSecond&&!secondId?["Choose the second saved source."]:[]});
   useEffect(() => {
@@ -163,9 +166,10 @@ export function ConstructionTool(props: Props) {
       <label>Operation<select aria-label="Construction operation" value={operation} disabled={pending} onChange={e => setOperation(e.target.value as Operation)}>{operations.map(([op, label]) => <option key={op} value={op}>{label}</option>)}</select></label>
       <label>Name<input aria-label="Construction name" value={name} placeholder="Automatic name" disabled={pending} onChange={e => setName(e.target.value)} /></label>
       {literal ? <><PrecisionField label="First point U,V" aria-label="First construction coordinate" kind="coordinate" value={first} disabled={pending} onChange={setFirst}/>{needsSecond&&<PrecisionField label="Through point U,V" aria-label="Second construction coordinate" kind="coordinate" relativeTo={parsePointEntry(first)??undefined} value={second} disabled={pending} onChange={setSecond}/>}<PrecisionField label="Plane elevation" aria-label="Construction elevation" value={height} disabled={pending} onChange={setHeight}/><small>@ uses the first point. The through point defines direction, not the end of an infinite line or ray.</small></> : <>{sourceField(0, operation === "midpoint" || operation === "perpendicular-bisector" ? "Segment" : "First source")}{needsSecond && sourceField(1, operation === "perpendicular-bisector" ? "Midpoint" : "Second source")}</>}
-      {operation === "intersection" && <><label>Intersection branch<select aria-label="Intersection branch" value={branch} disabled={pending} onChange={e => setBranch(e.target.value as typeof branch)}><option value="positive">Positive along line direction</option><option value="negative">Negative along line direction</option></select></label><small>Line–circle: two signed branches; at tangency both share one position. Each saved point keeps its branch when sources change. Line–line has one intersection.</small></>}
+      {operation === "intersection" && <><label>Intersection branch<select aria-label="Intersection branch" value={branch} disabled={pending} onChange={e => setBranch(e.target.value as typeof branch)}><option value="positive">{centerLine?"Left of first → second centre":"Positive along line direction"}</option><option value="negative">{centerLine?"Right of first → second centre":"Negative along line direction"}</option></select></label><small>{centerLine?"Circle/arc pairs: signed left/right of the ordered centre axis; both arc domains must contain the point.":"Line–circle/arc: signed along line direction. Line–line has one intersection."} At tangency both branches share one position and retain their IDs. Lost branches reject the edit; reassign explicitly.</small></>}
       <label>Construction geometry<input aria-label="Construction geometry" type="checkbox" checked={construction} disabled={pending} onChange={e => setConstruction(e.target.checked)} /></label>
       <div><button type="button" disabled={pending} aria-pressed={pick === 0} onClick={() => { setPick(0); props.getCanvas()?.focus(); }}>Pick first {literal ? "coordinate" : "source"}</button>{needsSecond && <button type="button" disabled={pending} aria-pressed={pick === 1} onClick={() => { setPick(1); props.getCanvas()?.focus(); }}>Pick second {literal ? "coordinate" : "source"}</button>}</div>
+      {classification&&<p data-testid="construction-intersection-status">Intersection: {classification}</p>}
       {formula && <p aria-label="Construction definition">{formula}</p>}<p role="status">{message}</p>
       <CommandReview state={interaction} onInspect={ids=>props.onFrame(sources.filter(s=>ids.includes(s.id)).flatMap(s=>s.points))}/>
       <small>{construction && !props.constructionVisible ? "Construction geometry is hidden; enable Show construction after Apply. " : ""}Esc cancels; Enter applies. Derived objects are edited through their saved sources.</small>

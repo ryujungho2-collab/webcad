@@ -1,11 +1,44 @@
 import assert from "node:assert/strict";
 import {test} from "node:test";
-import {readRecoveryCheckpoint,writeRecoveryCheckpoint,DOCUMENT_CACHE_KEY,DOCUMENT_BACKUP_KEY} from "../src/state/documentRecovery";
+import {readRecoveryCheckpoint,writeRecoveryCheckpoint,recoveryStatus,DOCUMENT_CACHE_KEY,DOCUMENT_BACKUP_KEY} from "../src/state/documentRecovery";
+import {documentFingerprint,loadDocumentFromCache,newDocument,saveDocumentToCache} from "../src/state/documentFile";
+import {documentVersion} from "../src/state/documentSession";
 import {resetTestDocument} from "./helpers/documentHarness";
 import {cadDocument} from "../src/state/cadDocument";
 import {deserializeDocument,serializeDocument} from "@agent-webcad/cad-document";
 
 function storage(){const data=new Map<string,string>();return {data,getItem:(key:string)=>data.get(key)??null,setItem:(key:string,value:string)=>{data.set(key,value);}};}
+test("local save acknowledges only the exact written snapshot and detects a version change during the write",()=>{
+  resetTestDocument();const cache=storage(),old=Object.getOwnPropertyDescriptor(globalThis,"localStorage");
+  try{
+    Object.defineProperty(globalThis,"localStorage",{configurable:true,value:cache});
+    const fingerprint=documentFingerprint(),version=documentVersion();assert.deepEqual(saveDocumentToCache(),version);
+    assert.equal(recoveryStatus().fingerprint,fingerprint);assert.equal(recoveryStatus().revision,version.revision);
+    let changed=false;
+    Object.defineProperty(globalThis,"localStorage",{configurable:true,value:{...cache,setItem:(key:string,value:string)=>{cache.setItem(key,value);if(key===DOCUMENT_CACHE_KEY&&!changed){changed=true;cadDocument.revision++;cadDocument.id="changed-during-write";}}}});
+    assert.throws(()=>saveDocumentToCache(),/changed while saving/);assert.equal(recoveryStatus().state,"failed");
+    assert.equal(readRecoveryCheckpoint(cache)!.document.id,version.documentId);
+    Object.defineProperty(globalThis,"localStorage",{configurable:true,value:cache});saveDocumentToCache();
+    assert.equal(recoveryStatus().fingerprint,documentFingerprint());assert.equal(readRecoveryCheckpoint(cache)!.document.id,"changed-during-write");
+  }finally{if(old)Object.defineProperty(globalThis,"localStorage",old);else Reflect.deleteProperty(globalThis,"localStorage");resetTestDocument();}
+});
+test("an unreadable document cannot be overwritten by recovery retry or autosave until an explicit valid New/Open",()=>{
+  resetTestDocument();const cache=storage(),old=Object.getOwnPropertyDescriptor(globalThis,"localStorage");cache.setItem(DOCUMENT_CACHE_KEY,"unreadable source");cache.setItem(DOCUMENT_BACKUP_KEY,"unreadable backup");
+  try{
+    Object.defineProperty(globalThis,"localStorage",{configurable:true,value:cache});assert.throws(()=>loadDocumentFromCache(),/No valid recovery/);
+    assert.throws(()=>saveDocumentToCache(),/Recovery source is unreadable/);assert.equal(cache.getItem(DOCUMENT_CACHE_KEY),"unreadable source");assert.equal(cache.getItem(DOCUMENT_BACKUP_KEY),"unreadable backup");
+    newDocument();assert.equal(recoveryStatus().state,"saved");assert.equal(readRecoveryCheckpoint(cache)!.document.id,cadDocument.id);
+  }finally{if(old)Object.defineProperty(globalThis,"localStorage",old);else Reflect.deleteProperty(globalThis,"localStorage");resetTestDocument();}
+});
+test("large model recovery compresses current and backup, survives reload and corrupt data falls back",()=>{
+ resetTestDocument();const doc=structuredClone(cadDocument);doc.id="large";doc.features.large={id:"large",type:"primitive",output:"large",inputs:[],params:{kind:"box",width:1,depth:1,height:1,studyText:"library ".repeat(100000)}};
+ doc.objects.large={id:"large",geometryId:"large-geometry",name:"Large",layerId:"layer-default",visible:true};doc.rootObjects=["large"];doc.layers["layer-default"].objectIds=["large"];
+ const cache=storage(),bounded={getItem:cache.getItem,setItem:(key:string,value:string)=>{if(value.length>128000)throw Error("Quota exceeded");cache.setItem(key,value);}};
+ writeRecoveryCheckpoint(bounded,doc);assert.equal(JSON.parse(cache.getItem(DOCUMENT_CACHE_KEY)!).format,"agent-webcad-recovery-compressed");assert.deepEqual(readRecoveryCheckpoint(bounded)!.document,doc);
+ const changed=structuredClone(doc);changed.revision++;writeRecoveryCheckpoint(bounded,changed);assert.deepEqual(readRecoveryCheckpoint(bounded)!.document,changed);
+ const packed=cache.getItem(DOCUMENT_CACHE_KEY)!;writeRecoveryCheckpoint(bounded,changed);assert.equal(cache.getItem(DOCUMENT_CACHE_KEY),packed);
+ cache.data.set(DOCUMENT_CACHE_KEY,packed.replace('"decodedBytes":','"decodedBytes":999999999,"ignored":'));assert.deepEqual(readRecoveryCheckpoint(bounded),{document:doc,recovered:true});
+});
 test("recovery falls back from a damaged latest copy to the last valid checkpoint",()=>{
   resetTestDocument();const cache=storage(),original=structuredClone(cadDocument);writeRecoveryCheckpoint(cache,original);
   const changed=structuredClone(original);changed.id="newer";writeRecoveryCheckpoint(cache,changed);

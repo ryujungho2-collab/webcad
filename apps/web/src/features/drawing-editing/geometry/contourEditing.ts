@@ -105,6 +105,46 @@ export function explodeContour(path: ExactContour): Record<string, unknown>[] {
   return path.segments.map(s => contourParams({ workPlane: path.workPlane, closed: false, segments: [s] }));
 }
 
+/** Replace one edge's curvature while its junction points stay exactly fixed.
+ * Line→arc needs a radius and a bulge side; arc→line keeps the chord. */
+export function convertContourEdge(path: ExactContour, segmentIndex: number, target: "line" | "arc", radius?: number, side?: "left" | "right"): ExactContour {
+  const tolerance = contourTolerance([path]);
+  if (!Number.isInteger(segmentIndex) || segmentIndex < 0 || segmentIndex >= path.segments.length)
+    throw new Error(`Choose edge 1–${path.segments.length} of this contour.`);
+  const source = path.segments[segmentIndex];
+  if (source.kind === target) throw new Error(`Edge ${segmentIndex + 1} is already ${target === "line" ? "straight" : "curved"}. Choose the other treatment.`);
+  const segments = path.segments.map(s => ({ ...s }));
+  if (target === "line") {
+    if (distance(source.start, source.end) <= tolerance) throw new Error("This edge has no chord to straighten.");
+    segments[segmentIndex] = { kind: "line", start: source.start, end: source.end };
+    return { workPlane: path.workPlane, closed: path.closed, segments };
+  }
+  if (radius === undefined || !Number.isFinite(radius) || radius <= 0)
+    throw new Error("Enter a positive arc radius with units, such as 60mm or 2in.");
+  const plane = WORK_PLANES[path.workPlane];
+  const start = worldToPlane(source.start, plane), end = worldToPlane(source.end, plane);
+  const dx = end[0] - start[0], dy = end[1] - start[1], chord = Math.hypot(dx, dy);
+  if (chord <= tolerance) throw new Error("This edge has no length to curve.");
+  const half = chord / 2;
+  if (radius < half - tolerance)
+    throw new Error(`Radius ${radius} mm is smaller than half the edge length (${half.toFixed(3)} mm). Enter at least ${half.toFixed(3)} mm.`);
+  const r = Math.max(radius, half), offset = Math.sqrt(Math.max(0, r * r - half * half));
+  const s = side === "right" ? -1 : 1;
+  const cx = (start[0] + end[0]) / 2 + s * (dy / chord) * offset;
+  const cy = (start[1] + end[1]) / 2 - s * (dx / chord) * offset;
+  const elevation = source.start.reduce((sum, v, i) => sum + v * plane.normal[i], 0);
+  const center = planeToWorld([cx, cy], plane).map((v, i) => v + elevation * plane.normal[i]) as Vec3;
+  const startAngle = Math.atan2(start[1] - cy, start[0] - cx);
+  const endAngle = Math.atan2(end[1] - cy, end[0] - cx);
+  const twoPi = 2 * Math.PI;
+  let sweep = (endAngle - startAngle) % twoPi;
+  if (sweep <= -Math.PI) sweep += twoPi;
+  if (sweep > Math.PI) sweep -= twoPi;
+  if (Math.abs(Math.abs(sweep) - Math.PI) <= 1e-9) sweep = s > 0 ? -Math.PI : Math.PI;
+  segments[segmentIndex] = { kind: "arc", start: source.start, end: source.end, center, radius: r, startAngle, sweep };
+  return { workPlane: path.workPlane, closed: path.closed, segments };
+}
+
 export function segmentPoint(s: ContourSegment, t: number, plane: WorkPlaneId): Vec3 {
   if (t === 0) return [...s.start];
   if (t === 1) return [...s.end];

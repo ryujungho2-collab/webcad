@@ -16,3 +16,12 @@ export * from './operations/revolve';
 export * from './operations/sweep';
 export * from './operations/loft';
 export * from './operations/step';
+export * from './operations/shell';
+
+export {sectionShape} from "./operations/section";
+export type {SectionCurve} from "./operations/section";
+export {projectShapes,clipProjectionShape,classifyProjectionSlab} from "./operations/projection";
+export type {ProjectionCurve,ProjectionClip} from "./operations/projection";
+
+export {canonicalProjectionCurve,mergeProjectionConics,projectionCurveKey} from "./operations/projectionConics";
+export type {ClassifiedProjectionCurve} from "./operations/projectionConics";

@@ -1,5 +1,7 @@
 # G4 장면 작업과 CAD 기본 치수·DXF 왕복
 
+> **현재 기능 설명:** [이미지와 장면](../features/IMAGES-SCENES.md). 이 문서는 날짜별 구현·설계 기록이며, 아래 사용법·제한·수치는 당시 범위다. 후속 지원은 대표 가이드를 따른다.
+
 2026-10-06. G4-A 기존 장면 검수, G4-B의 원본 선택·유한 벡터 component 연결, G4-C 첫 SVG 출력과 CAD B3-A1/A2·B3-B를 구현했다. G4 전체 또는 CAD B0–B5/X 전체 완료 기록이 아니다. 최신 전체 검수는 [PROJECT-STATE](../../PROJECT-STATE.md)가 소유한다.
 
 ## Before → 문제 → 변경

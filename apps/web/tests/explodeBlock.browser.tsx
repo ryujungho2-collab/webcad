@@ -1,0 +1,64 @@
+import {createRoot} from "react-dom/client";
+import {App} from "../src/App";
+import "../src/styles.css";import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+import {cadDocument} from "../src/state/cadDocument";
+import {cadHistory} from "../src/state/history";
+import {dispatchCadCommand} from "../src/state/dispatchCadCommand";
+import {saveDocumentToCache} from "../src/state/documentFile";
+import {isDocumentCommandPending} from "../src/state/documentCommandQueue";
+import {getWorldDrawingGeometry} from "../src/precision/worldGeometry";
+import {serializeDocument,deserializeDocument} from "@agent-webcad/cad-document";
+import {resetTestDocument} from "./helpers/documentHarness";
+import {installBrowserChecks} from "./helpers/browserChecks";
+import {click,physical,input,waitFor,pause,find} from "./helpers/physicalInput";
+resetTestDocument();
+async function apply(c:Parameters<typeof dispatchCadCommand>[0]){const r=await dispatchCadCommand(c);if(!r.ok)throw new Error(r.reason);return r;}
+const feature=(id:string)=>Object.values(cadDocument.features).find(f=>f.output===id)!;
+await apply({type:"create-drawing",id:"stem",drawing:"line",params:{workPlane:"XY",points:[[0,0,0],[60,0,0]]}});
+await apply({type:"create-drawing",id:"bend",drawing:"arc",params:{workPlane:"XY",center:[0,0,0],radius:20,startAngle:0,endAngle:Math.PI/2}});
+await apply({type:"create-drafting",id:"tag",params:{kind:"text",workPlane:"XY",point:[0,10,0],text:"PUMP",height:50,angle:0}});
+await apply({type:"define-block",id:"symbol",name:"Symbol",objectIds:["stem","bend","tag"],base:[0,0,0]});
+await apply({type:"insert-block",id:"placed",blockId:"symbol",position:[100,50,0],angle:90});
+await apply({type:"insert-block",id:"spare",blockId:"symbol",position:[300,50,0]});
+saveDocumentToCache();createRoot(document.getElementById("root")!).render(<App/>);
+const editor=()=>document.querySelector<HTMLFormElement>('[aria-label="Block disband editor"]'),canvas=()=>document.querySelector<HTMLCanvasElement>("#root canvas")!;
+const state=()=>{const {revision:_,...d}=cadDocument;return JSON.stringify(d);},past=()=>cadHistory.getPastLabels().length;
+const ready=()=>waitFor(()=>!!editor()&&!find("Apply block disband").disabled);
+async function select(id:string){await physical(document.querySelector(`[data-model-object-id="${id}"] .tree-label`)!);}
+async function keys(value:string){for(const key of value)await input({type:"key",key});await pause();}
+async function key(key:string,modifiers=0){await input({type:"key",key,modifiers});await pause();await waitFor(()=>!isDocumentCommandPending());}
+const button=document.getElementById("run-disband") as HTMLButtonElement,output=document.getElementById("disband-result")!;
+button.onclick=async()=>{button.disabled=true;button.style.pointerEvents="none";const lines:string[]=[],check=(ok:unknown,label:string)=>{if(!ok)throw new Error(label);lines.push(`PASS: ${label}`);};try{
+ await waitFor(()=>!!canvas());await click("2D");await select("stem");await physical(document.getElementById("tools-tab-modify")!);
+ check(find("Disband")?.disabled,"A plain drawing selection keeps Disband unavailable");
+ await select("placed");
+ check(!find("Disband")?.disabled,"Selecting one placed instance enables Disband");
+  let before=state(),h=past();await click("Disband");await waitFor(()=>document.querySelectorAll("[data-block-result]").length===3);
+ check(state()===before&&past()===h,"Three numbered results preview without mutating the instance or history");
+ await ready();
+ check(editor()!.textContent!.includes("1 instance → 3 standalone objects · one Undo"),"Reviewed preview reports the exact replacement and single Undo");
+  canvas().focus();await key("l");check(!!editor(),"Canvas drawing shortcuts stay inside the active block review session");
+ await click("Cancel block disband");await waitFor(()=>!editor());check(state()===before&&past()===h&&document.activeElement===canvas(),"Cancel keeps the definition, both instances and history intact");
+  await apply({type:"update-block",blockId:"symbol",name:"Symbol revised"});before=state();h=past();
+  await click("Disband");await ready();editor()!.querySelector<HTMLInputElement>('[aria-label="Disband nested blocks recursively"]')!.focus();
+  await key("z",2);check(!editor()&&cadDocument.blocks?.symbol.name==="Symbol"&&past()===h-1,"Ctrl+Z from a focused checkbox uses document History and closes the stale review");
+  await key("y",2);check(state()===before&&past()===h,"Redo restores the source document after checkbox-focused Undo");
+  await select("placed");
+ await click("Disband");await ready();await click("Apply block disband");await waitFor(()=>!editor()&&!isDocumentCommandPending());
+ const ids=[...cadDocument.rootObjects].filter(id=>!["stem","bend","tag","placed","spare"].includes(id)),disbanded=state();
+ check(ids.length===3&&!cadDocument.objects.placed,"Apply replaces only the reviewed instance with three standalone objects");
+ check(!!cadDocument.blocks!.symbol&&!!cadDocument.objects.spare,"The definition and the sibling instance stay intact");
+ const arc=ids.find(id=>feature(id).params.kind==="arc")!,text=ids.find(id=>feature(id).params.kind==="text")!;
+ check(Number(feature(arc).params.radius)===20,"The restored arc stays analytic with its exact radius");
+ check(feature(text).params.text==="PUMP"&&Number(feature(text).params.angle)===90,"The restored text keeps its content with the placement rotation");
+ check(past()===h+1&&document.activeElement===canvas(),"Disband and its replacements share one Undo entry and return to canvas input");
+ await click("Undo");check(state()===before,"Undo restores the placed instance and drops the replacements");await click("Redo");check(state()===disbanded,"Redo restores the reviewed replacement identities");
+ await click("Move by points");canvas().focus();await keys("0,0");await input({type:"key",key:"Enter"});await keys("1cm,2cm");await input({type:"key",key:"Enter"});await waitFor(()=>!document.querySelector("[data-point-mode]")&&!isDocumentCommandPending());
+ const line=ids.find(id=>feature(id).params.kind==="line")!,moved=getWorldDrawingGeometry(cadDocument.objects[line],feature(line))!.points!;
+ check(Math.round(moved[0][0])===110&&Math.round(moved[0][1])===70,"A disbanded line accepts ordinary point editing after restoration");
+ await click("Undo");await click("Redo");
+ check(JSON.stringify(deserializeDocument(serializeDocument(cadDocument)))===JSON.stringify(cadDocument),"Exact geometry, text and blocks survive native document serialization");
+ await key("k",2);await input({type:"text",text:"Disband block instance"});await pause();check(document.querySelector("dialog[open]")?.textContent?.includes("Disband block instance"),"Command palette exposes the same disband operation");await key("Escape");
+ output.textContent=lines.join("\n")+`\nALL ${lines.length} CHECKS PASSED`;
+}catch(e){output.textContent=lines.join("\n")+`\nFAIL: ${e instanceof Error?e.message:String(e)}`;}finally{button.disabled=false;button.style.pointerEvents="";}};
+installBrowserChecks(button,output);

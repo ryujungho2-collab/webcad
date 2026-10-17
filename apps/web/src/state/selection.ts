@@ -23,11 +23,13 @@ export function reduceSelection(state: SelectionState, objectId: string | null, 
  * shortcut never yanks the user out of sketch mode. Never dispatches a
  * command and never mutates the document.
  */
-export function selectAllIds(document: CadDocument, activeSketchId?: string | null): string[] {
+export function selectAllIds(document: CadDocument, activeSketchId?: string | null, options: { constructionVisible?: boolean } = {}): string[] {
+  const hiddenConstruction = options.constructionVisible === false
+    ? new Set(Object.values(document.features).filter(f=>f.params.construction).map(f=>f.output)) : new Set<string>();
   const isSelectable = (id: string) => {
     const object = document.objects[id];
     const layer = object ? document.layers[object.layerId] : undefined;
-    return Boolean(object?.visible && layer?.visible && !layer.locked);
+    return Boolean(object?.visible && layer?.visible && !layer.locked && !hiddenConstruction.has(id));
   };
   if (activeSketchId) {
     const sketch = document.sketches?.[activeSketchId];
@@ -37,11 +39,13 @@ export function selectAllIds(document: CadDocument, activeSketchId?: string | nu
   return document.rootObjects.filter(isSelectable);
 }
 
-export function validSelection(state: SelectionState): SelectionState {
+export function validSelection(state: SelectionState, options: { constructionVisible?: boolean } = {}): SelectionState {
+  const hiddenConstruction = options.constructionVisible === false
+    ? new Set(Object.values(cadDocument.features).filter(f=>f.params.construction).map(f=>f.output)) : new Set<string>();
   const ids = state.ids.filter((id) => {
     const object = cadDocument.objects[id];
     const layer = object ? cadDocument.layers[object.layerId] : undefined;
-    return Boolean(object?.visible && layer?.visible && !layer.locked);
+    return Boolean(object?.visible && layer?.visible && !layer.locked && !hiddenConstruction.has(id));
   });
   const subObjects = state.subObjects?.filter((entry) => {
     if (!ids.includes(entry.objectId)) return false;

@@ -9,7 +9,7 @@ export function registerDraftingCommandHandlers(bus:CommandBus,document:CadDocum
   const create=(id:string,layerId:string,params:Record<string,unknown>)=>{
     const layer=document.layers[layerId];if(!layer||layer.locked||!layer.visible||document.objects[id]||document.features[`feature-${id}`])return;
     document.objects[id]={id,name:String(params.kind),geometryId:`geometry-${id}`,visible:true,layerId,transform:{translation:[0,0,0],rotation:[0,0,0],scale:[1,1,1]}};
-    document.features[`feature-${id}`]={id:`feature-${id}`,type:"drafting",inputs:params.kind==="hatch"?[...(params.sourceObjectIds as string[])]:typeof params.sourceObjectId==="string"?[params.sourceObjectId]:[],output:id,params:structuredClone(params)};
+    document.features[`feature-${id}`]={id:`feature-${id}`,type:"drafting",inputs:["hatch","face"].includes(String(params.kind))?[...(params.sourceObjectIds as string[])]:typeof params.sourceObjectId==="string"?[params.sourceObjectId]:[],output:id,params:structuredClone(params)};
     refreshDrafting(document);layer.objectIds.push(id);document.rootObjects.push(id);document.revision++;return id;
   };
   const containsBlock=(blockId:string,targetId:string,seen=new Set<string>()):boolean=>{
@@ -24,7 +24,7 @@ export function registerDraftingCommandHandlers(bus:CommandBus,document:CadDocum
     let plane:WorkPlaneId|undefined;
     for(const id of objectIds){
       const object=editable(id),feature=Object.values(document.features).find(entry=>entry.output===id);
-      if(!object||!feature||!(["drawing","drafting"] as string[]).includes(feature.type)||feature.params.sketchId||feature.params.kind==="hatch")return null;
+      if(!object||!feature||!(["drawing","drafting"] as string[]).includes(feature.type)||feature.params.sketchId||["hatch","face"].includes(String(feature.params.kind)))return null;
       const candidatePlane=String(feature.params.workPlane??"XY") as WorkPlaneId;
       if(!WORK_PLANES[candidatePlane]||plane&&candidatePlane!==plane)return null;
       if(feature.params.kind==="block"){
@@ -35,7 +35,7 @@ export function registerDraftingCommandHandlers(bus:CommandBus,document:CadDocum
       const transform=getObjectTransform(object,feature);
       transform.translation=transform.translation.map((value,index)=>value-base[index]) as Vec3;
       const params=structuredClone(feature.params);delete params.sourceObjectId;
-      members.push({type:feature.type as "drawing"|"drafting",params,transform,layerId:object.layerId});
+      members.push({type:feature.type as "drawing"|"drafting",objectId:id,params,transform,layerId:object.layerId});
     }
     if(!plane||Math.abs(base.reduce((sum,value,index)=>sum+value*WORK_PLANES[plane!].normal[index],0))>1e-6)return null;
     return {members,plane};
@@ -67,7 +67,24 @@ export function registerDraftingCommandHandlers(bus:CommandBus,document:CadDocum
     const block=document.blocks?.[command.blockId];if(!block)return;
     const definition=command.objectIds?componentMembers(command.objectIds,command.base!,block.id):undefined;
     if(command.objectIds&&(!definition||definition.plane!==block.workPlane))return;
-    const next={...block,name:command.name===undefined?block.name:command.name.trim()||block.name,members:definition?.members??block.members};
+    const members=definition?.members??block.members;
+    const next:CadBlock={...block,name:command.name===undefined?block.name:command.name.trim()||block.name,members};
+    if(definition){
+      const memberIds=new Set(members.map(member=>member.objectId??member.params.objectId??member.params.id).filter((id):id is string=>typeof id==="string"));
+      const overrides=Object.fromEntries(Object.entries(block.overrides??{}).filter(([id])=>memberIds.has(id)));
+      if(Object.keys(overrides).length)next.overrides=overrides;else delete next.overrides;
+    }
+    if(JSON.stringify(next)===JSON.stringify(block))return;
+    document.blocks![block.id]=next;refreshDrafting(document);document.revision++;
+  });
+  bus.registerHandler("set-block-override",(command:CadCommand)=>{
+    if(command.type!=="set-block-override")return;
+    const block=document.blocks?.[command.blockId];if(!block)return;
+    if(!block.members.some(member=>(member.objectId??member.params.objectId??member.params.id)===command.objectId))return;
+    const overrides={...(block.overrides??{})};
+    if(command.clear){delete overrides[command.objectId];}
+    else{overrides[command.objectId]={objectId:command.objectId,...(command.vectorStyle?{vectorStyle:command.vectorStyle}:{})};}
+    const next={...block,overrides:Object.keys(overrides).length?overrides:undefined};
     if(JSON.stringify(next)===JSON.stringify(block))return;
     document.blocks![block.id]=next;refreshDrafting(document);document.revision++;
   });
@@ -76,6 +93,6 @@ export function registerDraftingCommandHandlers(bus:CommandBus,document:CadDocum
     const block=document.blocks?.[command.blockId];if(!block)return;
     const normal=WORK_PLANES[block.workPlane].normal;if(Math.abs(command.position.reduce((sum,v,i)=>sum+v*normal[i],0))>1e-6)return;
     const id=create(command.id??`instance-${crypto.randomUUID()}`,command.layerId??"layer-default",{kind:"block",blockId:block.id,workPlane:block.workPlane});
-    if(id){const transform=document.objects[id].transform!;transform.translation=[...command.position];transform.rotation=normal.map(v=>v*(command.angle??0)) as Vec3;return id;}
+    if(id){const transform=document.objects[id].transform!;transform.translation=[...command.position];if(command.scale)transform.scale=[...command.scale];transform.rotation=normal.map(v=>v*(command.angle??0)) as Vec3;return id;}
   });
 }

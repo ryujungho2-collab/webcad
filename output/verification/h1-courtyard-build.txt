@@ -1,0 +1,6 @@
+{"id":"plan-1","ms":4348,"cuts":70,"background":86,"hatch":272,"warnings":["l1-west-flight-1:part: open/ambiguous cut boundary; hatch omitted.","l1-east-flight-1:part: open/ambiguous cut boundary; hatch omitted."]}
+{"id":"plan-2","ms":1987,"cuts":70,"background":82,"hatch":272,"warnings":["l2-west-flight-1:part: open/ambiguous cut boundary; hatch omitted.","l2-east-flight-1:part: open/ambiguous cut boundary; hatch omitted."]}
+{"id":"plan-3","ms":1585,"cuts":56,"background":28,"hatch":272,"warnings":[]}
+{"id":"section-aa","ms":4215,"cuts":128,"background":59,"hatch":672,"warnings":[]}
+{"id":"section-bb","ms":4314,"cuts":130,"background":24,"hatch":541,"warnings":[]}
+Saved C:\Users\thefi\OneDrive\Desktop\agent-webcad\output\projects\courtyard-commons\h1-expression: 5 pages

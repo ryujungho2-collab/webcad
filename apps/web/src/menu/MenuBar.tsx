@@ -8,6 +8,8 @@ type MenuBarProps = {
   canUndo: boolean;
   canRedo: boolean;
   isModified: boolean;
+  saveStatus?: string;
+  fileStatus?: string;
   onNew: () => void;
   onOpen: () => void;
   onSave: () => void;
@@ -19,7 +21,10 @@ type MenuBarProps = {
   onExportArtboardPdf?: () => void;
   activeArtboardName?: string;
   hasVisibleArtboards?: boolean;
+  onImportFixture?: () => void;
+  onExportFixture?: () => void;
   onImportDxf: () => void;
+  onFloorTasks?:()=>void;
   onImportImage?: () => void;
   onExportDxf: () => void;
   onExportStep: () => void;
@@ -91,11 +96,14 @@ export function MenuBar(props: MenuBarProps) {
           <div className="menu-popover">
             <button type="button" onClick={(event) => { closeMenu(event); props.onNew(); }}><span>New document</span><kbd>Ctrl N</kbd></button>
             <button type="button" onClick={(event) => { closeMenu(event); props.onOpen(); }}><span>Open…</span><kbd>Ctrl O</kbd></button>
+            <button type="button" onClick={event=>{closeMenu(event);props.onImportFixture?.();}}><span>Import exchange fixture…</span></button>
+            <button type="button" onClick={event=>{closeMenu(event);props.onExportFixture?.();}}><span>Export exchange fixture…</span></button>
             <button type="button" title="Import drawings from a DXF file" onClick={(event) => { closeMenu(event); props.onImportDxf(); }}><span>Import DXF…</span></button>
+            <button type="button" onClick={event=>{closeMenu(event);props.onFloorTasks?.();}}>Floor plan tasks…</button>
             <button type="button" title="Place PNG, JPEG, or WebP; single-page 8-bit TIFF is converted to PNG" onClick={(event) => { closeMenu(event); props.onImportImage?.(); }}><span>Import Image…</span></button>
             <div className="menu-divider" />
-            <button type="button" onClick={(event) => { closeMenu(event); props.onSave(); }}><span>Save</span><kbd>Ctrl S</kbd></button>
-            <button type="button" onClick={(event) => { closeMenu(event); props.onSaveAs(); }}><span>Save as…</span><kbd>Ctrl Shift S</kbd></button>
+            <button type="button" onClick={(event) => { closeMenu(event); props.onSave(); }}><span>Save locally</span><kbd>Ctrl S</kbd></button>
+            <button type="button" onClick={(event) => { closeMenu(event); props.onSaveAs(); }}><span>Download WebCAD file…</span><kbd>Ctrl Shift S</kbd></button>
             <div className="menu-divider" />
             <button type="button" title="Export visible solids for 3D printing" onClick={(event) => { closeMenu(event); props.onExportStl(); }}><span>Export STL…</span></button>
             <button type="button" title="Export visible solids as STEP for manufacturers" onClick={(event) => { closeMenu(event); props.onExportStep(); }}><span>Export STEP…</span></button>
@@ -134,19 +142,19 @@ export function MenuBar(props: MenuBarProps) {
         <button type="button" className="menu-quick-button" title="Search commands (Ctrl+K)" aria-label="Search commands" onClick={() => runQuickAction(props.onCommandPalette)}>⌕</button>
         <button type="button" className="menu-quick-button" title="New document (Ctrl+N)" aria-label="New document" onClick={() => runQuickAction(props.onNew)}><ToolIcon name="New" fallback="+" /></button>
         <button type="button" className="menu-quick-button" title="Open document (Ctrl+O)" aria-label="Open document" onClick={() => runQuickAction(props.onOpen)}><ToolIcon name="Open" fallback="↗" /></button>
-        <button type="button" className="menu-quick-button" title="Save document (Ctrl+S)" aria-label="Save document" onClick={() => runQuickAction(props.onSave)}><ToolIcon name="Save" fallback="▣" /></button>
+        <button type="button" className="menu-quick-button" title="Save local recovery copy (Ctrl+S)" aria-label="Save document" onClick={() => runQuickAction(props.onSave)}><ToolIcon name="Save" fallback="▣" /></button>
         <span className="menu-quick-divider" role="separator" aria-orientation="vertical" />
         <button type="button" className="menu-quick-button" title="Undo (Ctrl+Z)" aria-label="Undo" disabled={!props.canUndo} onClick={() => runQuickAction(props.onUndo)}><ToolIcon name="Undo" fallback="↶" /></button>
         <button type="button" className="menu-quick-button" title="Redo (Ctrl+Y)" aria-label="Redo" disabled={!props.canRedo} onClick={() => runQuickAction(props.onRedo)}><ToolIcon name="Redo" fallback="↷" /></button>
       </div>
 
-      <div className="document-title" title={`${props.documentName} · ${props.isModified ? "Unsaved changes" : "Saved"}`}>
+      <div className="document-title" title={`${props.documentName} · ${props.saveStatus ?? (props.isModified ? "Unsaved changes" : "Saved")} · ${props.fileStatus ?? ""}`}>
         <span className={props.isModified ? "document-state document-state-modified" : "document-state"} aria-hidden="true" />
         <span className="document-name">{props.documentName}</span>
         {props.isModified && <span className="document-modified-label">Modified</span>}
       </div>
 
-      <button type="button" className="menu-save-as" title="Save as (Ctrl+Shift+S)" onClick={() => runQuickAction(props.onSaveAs)}>Save As</button>
+      <button type="button" className="menu-save-as" title={`Download WebCAD file (Ctrl+Shift+S) · ${props.fileStatus ?? "Download completion cannot be confirmed"}`} onClick={() => runQuickAction(props.onSaveAs)}>Download file</button>
     </header>
   );
 }

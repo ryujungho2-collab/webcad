@@ -11,6 +11,8 @@ export type BrepTopologyEdge = { key: string; points: [number, number, number][]
 export type BrepTopology = { faces: BrepTopologyFace[]; edges: BrepTopologyEdge[] };
 export type StepData = { bytes: Uint8Array };
 export type KernelTaskResults = {
+  projection: import("@agent-webcad/cad-kernel").ProjectionCurve[];
+  section: import("@agent-webcad/cad-kernel").SectionCurve[];
   inspect: import("@agent-webcad/cad-document").GeometryMeasurement;
   primitive: MeshData;
   solid: MeshData;
@@ -29,7 +31,7 @@ export type KernelTaskProgress = {
 export type KernelRequest = { taskId: number; operation: KernelOperation; params: PrimitiveParams };
 export type KernelResponse =
   | { type: "progress"; taskId: number; phase: KernelTaskPhase }
-  | { type: "result"; taskId: number; result: KernelTaskResults[KernelOperation] }
+  | { type: "result"; taskId: number; result: KernelTaskResults[KernelOperation]; memory?:{capacityBytes:number|null;retainedSources:number;retainedSlabs:number} }
   | { type: "error"; taskId: number; message: string };
 
 /** Rejection message for user- or agent-initiated task cancellation. Never

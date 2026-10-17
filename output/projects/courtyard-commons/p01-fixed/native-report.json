@@ -1,0 +1,92 @@
+{
+  "status": "passed",
+  "checks": 20,
+  "message": "PASS 56 architectural parts reach actual Three.js scene\nPASS All plan/section views load resolved\nPASS Extruded stair flights are present in the rendered model\nPASS Both Boolean/stair assembly elevations load resolved\nPASS Analytic hidden edges reach the canvas scene\nPASS Native opening edit commits one history entry\nPASS Affected plan retains proven edge correspondence\nPASS Unchanged upper-floor plan remains resolved\nPASS Reference-status changes reuse existing canvas geometry while stale outputs hide\nPASS Native Undo restores geometry and all drawing references\nPASS Native Redo restores edited opening\nPASS Saved custom-layer section Review allows Apply\nPASS Saved section Apply preserves custom layer and owning sheet placement\nPASS Saved section UI Apply is exactly reversible\nPASS Five A2 pages at96dpi receive an explicit aggregate budget diagnostic\nPASS PDF preview includes full drawing set\nPASS Downloaded PDF contains every issued page\nPASS Model views and sheet-set schema serialize\nPASS Real cache reload preserves project, sheets and source references\nPASS Reload starts clean history\nALL 20 CHECKS PASSED",
+  "artifacts": [
+    "axonometric.png",
+    "courtyard-commons.pdf"
+  ],
+  "metrics": {
+    "initialSceneMs": 11681,
+    "nativeWidthEditMs": 12566,
+    "kernelEditTasks": [
+      {
+        "operation": "solid",
+        "ms": 225
+      },
+      {
+        "operation": "solid",
+        "ms": 271
+      },
+      {
+        "operation": "solid",
+        "ms": 271
+      },
+      {
+        "operation": "solid",
+        "ms": 291
+      },
+      {
+        "operation": "solid",
+        "ms": 482
+      },
+      {
+        "operation": "projection",
+        "ms": 2990
+      },
+      {
+        "operation": "projection",
+        "ms": 2797
+      },
+      {
+        "operation": "section",
+        "ms": 522
+      },
+      {
+        "operation": "section",
+        "ms": 503
+      },
+      {
+        "operation": "section",
+        "ms": 482
+      },
+      {
+        "operation": "inspect",
+        "ms": 218
+      },
+      {
+        "operation": "inspect",
+        "ms": 242
+      },
+      {
+        "operation": "inspect",
+        "ms": 249
+      },
+      {
+        "operation": "inspect",
+        "ms": 275
+      },
+      {
+        "operation": "inspect",
+        "ms": 469
+      },
+      {
+        "operation": "inspect",
+        "ms": 499
+      },
+      {
+        "operation": "primitive",
+        "ms": 25
+      }
+    ],
+    "commandEditMs": 11131.700000000186,
+    "savedSectionReview": {
+      "applyEnabled": true,
+      "alert": ""
+    },
+    "pdfBudgetDiagnostic": "The PDF would contain 17,814,075 raster pixels; the export limit is 16,000,000. Lower dpi or export fewer/smaller boards.",
+    "pdfDpi": 72,
+    "pdfPages": 5,
+    "pdfBytes": 384742
+  }
+}

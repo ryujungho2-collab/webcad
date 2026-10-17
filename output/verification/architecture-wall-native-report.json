@@ -1,0 +1,5 @@
+{
+  "status": "passed",
+  "checks": 14,
+  "message": "PASS Exact wall ghost renders in viewport without document mutation\nPASS Canceled height is not remembered as a completed extrusion\nPASS Unit input creates wall in one Undo\nPASS Committed exact wall is rendered by viewport\nPASS Repeat uses last successfully applied height\nPASS Next wall repeats height through the same Review workflow\nPASS Door review keeps original solid untouched\nPASS Door cuts exact current wall thickness\nPASS Window keeps sill and door host identity\nPASS Thickness edit rebuilds both through openings\nPASS Remove opening restores host material\nPASS One Undo restores removed opening and exact wall\nPASS Portable v41 reopen retains wall sources, dimensions and openings\nPASS Copilot opens the shared wall/opening task panel\nALL 14 CHECKS PASSED"
+}

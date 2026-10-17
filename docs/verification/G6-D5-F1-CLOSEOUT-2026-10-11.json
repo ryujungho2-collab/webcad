@@ -1,0 +1,72 @@
+{
+  "task": "G6-D5-F1",
+  "date": "2026-10-11",
+  "status": "complete",
+  "node": {
+    "tests": 1132,
+    "suites": 54,
+    "fail": 0,
+    "skip": 0,
+    "newFrameSheetTests": 16,
+    "log": "output/verification/frame-sheets-node.txt"
+  },
+  "typecheck": "passed",
+  "architecture": {
+    "status": "passed",
+    "modules": 504
+  },
+  "build": {
+    "status": "passed",
+    "warning": "Existing >500kB chunks warning"
+  },
+  "native": {
+    "scope": "targeted regression, not full browser suite",
+    "workflows": {
+      "frameSheets": 24,
+      "drawingFrames": 26,
+      "frameLinks": 36,
+      "workspaceSections": 25,
+      "modelSheetSet": 24,
+      "artboardPdfWorkflow": 21,
+      "artboardsWorkflow": 31,
+      "historySelection": 23
+    },
+    "totalChecks": 210
+  },
+  "output": {
+    "pdf": "output/pdf/frame-sheets.pdf",
+    "svg": "output/pdf/frame-sheets-page-1.svg",
+    "dxf": "output/pdf/frame-sheets-page-1.dxf",
+    "pdfPages": 2,
+    "paper": "A4 landscape",
+    "pageSizePt": [
+      841.89,
+      595.276
+    ],
+    "independentRenderer": "Poppler pdfinfo/pdftoppm; both pages visually inspected",
+    "sourceLengthMm": 50,
+    "paperLengthAt1to2Mm": 25,
+    "paperLengthAtDivisor2Mm": 12.5,
+    "pdfBytes": 53935
+  },
+  "fixesDuringVerification": [
+    "Area sources now precede explicit frames so area order is preserved in publication.",
+    "Orthographic alignment no longer mistakes its own first join for a conflicting preexisting group.",
+    "Unreadable reference/caption candidates are rejected before scale selection, allowing a readable larger-scale multi-page candidate to win.",
+    "Per-instance clip paths prevent source text outside a frame crop from leaking onto neighboring drawings.",
+    "Regression found the new toolbar covered an existing frame editor label; toolbar moved to the shared top control row and native checks repeated.",
+    "Native test initial 3D mode was corrected to use the actual 2D switch."
+  ],
+  "limitations": [
+    "Existing finite frame geometry and model-view adapters only; no general HLR/spline expansion.",
+    "PDF uses existing raster Worker export.",
+    "DXF sampled polylines/text; fills/dashes/colors/association omitted; partial or rotated text refuses output.",
+    "Same presentation plane and one scale divisor per set; no connected-group splitting or rotated packing.",
+    "Fixed groups keep existing local paper placements and require original paper/template/divisor."
+  ],
+  "nextFrameTask": "G2-F3",
+  "separateGeometryQueue": "X6-D2-E1",
+  "fileGuards": [
+    "Invalid or duplicate page numbers, source references, inconsistent set metadata, out-of-paper/overlapping placements, malformed saved link graph, and connected groups split across pages are rejected."
+  ]
+}

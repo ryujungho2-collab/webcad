@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "checks": 16,
+  "message": "PASS 56 architectural parts reach actual Three.js scene\nPASS All five plan/section views load resolved\nPASS Extruded stair flights are present in the rendered model\nPASS Native opening edit commits one history entry\nPASS Affected plan retains proven edge correspondence\nPASS Unchanged upper-floor plan remains resolved\nPASS Native Undo restores geometry and all drawing references\nPASS Native Redo restores edited opening\nPASS Saved custom-layer section Review allows Apply\nPASS Saved section Apply preserves custom layer and owning sheet placement\nPASS Saved section UI Apply is exactly reversible\nPASS PDF preview includes full drawing set\nPASS Downloaded PDF contains every issued page\nPASS Model views and sheet-set schema serialize\nPASS Real cache reload preserves project, sheets and source references\nPASS Reload starts clean history\nALL 16 CHECKS PASSED",
+  "artifacts": [
+    "axonometric.png",
+    "courtyard-commons.pdf"
+  ],
+  "metrics": {
+    "initialSceneMs": 8091,
+    "nativeWidthEditMs": 19087,
+    "savedSectionReview": {
+      "applyEnabled": true,
+      "alert": ""
+    },
+    "pdfPages": 4,
+    "pdfBytes": 330866
+  }
+}

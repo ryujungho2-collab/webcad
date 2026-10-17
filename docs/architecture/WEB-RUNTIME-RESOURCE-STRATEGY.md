@@ -65,3 +65,5 @@ WebGPU는 지원 브라우저에서 우선 선택할 수 있지만 필수 조건
 - WebGPU·WebGL·CPU fallback의 정확성 차이와 출력 파일 차이
 
 기존 interaction benchmark의 `getCadPlanDrawingPaths` 수치는 Node 경로 최적화 결과이며, WebGPU 성능이나 browser input-to-paint를 뜻하지 않는다. 실제 측정 전에는 WebGPU 도입이나 하드웨어 요구 완화를 완료로 표시하지 않는다.
+
+2026-10-16 CMP-S1/WF-D1: 평가가 끝난 componentContent와 solidFinish metadata는 primitive mesh/정확 measurement key에서 제외하며 실제 기하와 중첩 source/operand 및 transform은 유지한다. 반환값 복제와 task ownership은 보존한다. material-only source 비교는 연관 view의 불필요한 재생성을 건너뛴다. 신규 3D slot ghost는 원래 solid 종류별 기존 builder를 사용한다. 자세한 범위와 Worker 제출 검증은 [콘텐츠/마감 구현](../implementation/CMP-S1-WF-D1-2026-10-16.md)을 따른다.

@@ -1,5 +1,7 @@
 # G5-A3 — Copilot Apply·잠금·경합 검수
 
+> **현재 기능 설명:** [Copilot](../features/COPILOT.md). 이 문서는 날짜별 구현·설계 기록이며, 아래 사용법·제한·수치는 당시 범위다. 후속 지원은 대표 가이드를 따른다.
+
 2026-10-08. 기준선 `7541fd3`. A1의 응답/취소 경계와 A2의 패널 draft/요청 context를 유지하면서 Apply 게시와 결과 인계를 검수했다. 실제 provider·gateway 서버·키는 연결하지 않았다. 전체 실행 결과는 [검증 요약](../verification/G5-A3-CLOSEOUT-2026-10-08.json), 현재 누적 결과는 [PROJECT-STATE](../../PROJECT-STATE.md)를 따른다.
 
 ## 발견 → 변경

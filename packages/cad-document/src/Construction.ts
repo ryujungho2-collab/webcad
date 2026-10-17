@@ -6,7 +6,7 @@ export type CadConstructionDefinition = (
   | { operation: "segment" | "line-through" | "ray-through"; firstId: string; secondId: string }
   | { operation: "midpoint"; segmentId: string }
   | { operation: "perpendicular-bisector"; segmentId: string; midpointId: string }
-  | { operation: "intersection"; firstId: string; secondId: string; branch: "negative" | "positive" }
+  | { operation: "intersection"; firstId: string; secondId: string; branch: "negative" | "positive"; /** Ordered centre-axis side; omission retains legacy linear semantics. */ branchBasis?: "center-line" }
 ) & { elements?: Partial<Record<"segment" | "first" | "second", CadConstructionElement>> };
 
 export function constructionInputs(d: CadConstructionDefinition): string[] {
@@ -15,6 +15,7 @@ export function constructionInputs(d: CadConstructionDefinition): string[] {
 export function validConstructionDefinition(value: unknown): value is CadConstructionDefinition {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const d = value as Record<string, unknown>, id = (v: unknown) => typeof v === "string" && v.length > 0;
+  if(d.branchBasis!==undefined&&(d.operation!=="intersection"||d.branchBasis!=="center-line"))return false;
   if (d.elements !== undefined) {
     if (!d.elements || typeof d.elements !== "object" || Array.isArray(d.elements)) return false;
     const roles = d.operation === "midpoint" || d.operation === "perpendicular-bisector" ? ["segment"] : ["first", "second"];
@@ -32,7 +33,7 @@ export function constructionExpression(d: CadConstructionDefinition, label: (id:
   const source = (id: string, role: "segment" | "first" | "second") => `${label(id)}${d.elements?.[role] ? d.elements[role]!.span ? "[endpoint-span]" : `[${d.elements[role]!.topologyId}${d.elements[role]!.endpoint ? `:${d.elements[role]!.endpoint}` : ""}]` : ""}`;
   if (d.operation === "midpoint") return `midpoint(${source(d.segmentId, "segment")})`;
   if (d.operation === "perpendicular-bisector") return `perpendicularBisector(${source(d.segmentId, "segment")}, midpoint=${label(d.midpointId)})`;
-  if (d.operation === "intersection") return `intersection(${source(d.firstId, "first")}, ${source(d.secondId, "second")}, branch=${d.branch})`;
+  if (d.operation === "intersection") return `intersection(${source(d.firstId, "first")}, ${source(d.secondId, "second")}, branch=${d.branch}${d.branchBasis ? ", basis=center-line" : ""})`;
   return `${d.operation}(${source(d.firstId, "first")}, ${source(d.secondId, "second")})`;
 }
 export function validateConstructionGraph(document: CadDocument) {

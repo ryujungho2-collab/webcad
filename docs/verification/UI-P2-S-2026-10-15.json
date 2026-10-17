@@ -1,0 +1,15 @@
+{
+  "card":"UI-P2-S",
+  "date":"2026-10-15",
+  "status":"passed within documented scope",
+  "node":{"checks":29,"passed":true},
+  "browser":{"durableRecovery":15,"projectPerformance":19,"projectRecovery":24,"projectManager":30,"projectTabs":19,"total":107,"passed":true},
+  "typecheck":"passed",
+  "architecture":{"passed":true,"modules":567},
+  "productionBuild":{"passed":true,"modules":411,"existingChunkWarning":true},
+  "r5":{"projects":2,"partsPerProject":56,"viewsPerProject":14,"pagesPerProject":10,"checkpoints":["saved","saved"],"closeReopen":true,"actualPageReload":true,"coldSceneMs":[11823.2,9386.6],"warmSwitchMs":[198,175.4,183.3,179.5],"measurementLimit":"one run; Chromium/SwiftShader; CDP/poll latency included; not a comparative speed claim"},
+  "scope":"large full snapshots and backup with embedded images; small localStorage path retained; strict atomic commit; CAS; migration receipt and recovery",
+  "limits":["browser disk quota and forced shutdown can still fail before transaction completes","image bytes are embedded per snapshot, not deduplicated in an asset store","UI-P2-C memory budgets and view-scope cancellation remain","full PDF issuance not rerun"],
+  "fullCadSuiteRerun":false,
+  "reports":["output/verification/ui-p2-s-durable-native-report.json","output/verification/ui-p2-s-r5-native-report.json"]
+}

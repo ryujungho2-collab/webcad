@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "checks": 18,
+  "message": "PASS Actual UI reviews exact ellipse section\nPASS Ellipse Review is detached\nPASS Ellipse Apply commits one Undo\nPASS Worker keeps exact ellipse axes rather than sampled source points\nPASS Worker major axis matches independent tilted cylinder equation\nPASS Owned ellipse reaches actual Three.js viewport\nPASS Native Undo restores model before section\nPASS Native Redo restores exact ellipse and stable output ID\nPASS Native range crop commits exact bounded elliptic arcs\nPASS Native leader binds elliptic arc endpoint\nPASS Owned sheet relocation preserves live endpoint note\nPASS SVG exports exact elliptic arc path\nPASS DXF exports exact ELLIPSE entities\nPASS Actual PDF Worker renders elliptic section and note\nPASS Downloaded elliptic-section PDF has one physical sheet\nPASS Ellipse ownership serializes in schema35\nPASS Real cache reload preserves exact axes, finite domains, cut IDs and notes\nPASS Reopen starts clean history\nALL 18 CHECKS PASSED",
+  "artifacts": [
+    "ellipse-section.svg",
+    "ellipse-section.dxf",
+    "ellipse-section.pdf"
+  ]
+}

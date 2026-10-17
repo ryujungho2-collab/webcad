@@ -1,0 +1,36 @@
+{
+  "format": "agent-webcad",
+  "version": 8,
+  "document": {
+    "id": "same-cad-id",
+    "revision": 0,
+    "objects": {},
+    "features": {},
+    "sketches": {},
+    "layers": {
+      "layer-default": {
+        "id": "layer-default",
+        "name": "Default",
+        "visible": true,
+        "locked": false,
+        "objectIds": []
+      }
+    },
+    "rootLayers": [
+      "layer-default"
+    ],
+    "rootObjects": [],
+    "rasterAssets": {
+      "asset-9d6399e88ca618983995fbfe4563be8eb5218c000f8c6565bc5262bd7c9b9cf1": {
+        "id": "asset-9d6399e88ca618983995fbfe4563be8eb5218c000f8c6565bc5262bd7c9b9cf1",
+        "contentHash": "9d6399e88ca618983995fbfe4563be8eb5218c000f8c6565bc5262bd7c9b9cf1",
+        "name": "A image",
+        "mimeType": "image/png",
+        "width": 1,
+        "height": 1,
+        "byteLength": 68,
+        "dataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jBScAAAAASUVORK5CYII="
+      }
+    }
+  }
+}

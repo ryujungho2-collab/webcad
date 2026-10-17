@@ -85,7 +85,7 @@ export function measureAngularDimension(first: AngularDimensionLine, second: Ang
   } };
 }
 
-export type AngularDimensionPlacement = { radius: number; symbolScale?: number; text?: string };
+export type AngularDimensionPlacement = { radius: number; symbolScale?: number; textGap?: number; text?: string };
 export type AngularDimensionGeometry = {
   measurement: AngularDimensionMeasurement;
   /** Exact arc; sampled linework below is presentation only. */
@@ -101,8 +101,8 @@ export type AngularDimensionGeometry = {
 export function resolveAngularDimension(first: AngularDimensionLine, second: AngularDimensionLine, branch: AngularDimensionBranch, placement: AngularDimensionPlacement): { ok: true; geometry: AngularDimensionGeometry } | AngularDimensionError {
   const result = measureAngularDimension(first, second, branch);
   if (!result.ok) return result;
-  const m = result.measurement, { radius, symbolScale = 1, text } = placement;
-  if (!Number.isFinite(radius) || radius <= 0 || !Number.isFinite(symbolScale) || symbolScale <= 0 || text !== undefined && typeof text !== "string")
+  const m = result.measurement, { radius, symbolScale = 1, textGap = 2.5, text } = placement;
+  if (!Number.isFinite(radius) || radius <= 0 || !Number.isFinite(symbolScale) || symbolScale <= 0 || !Number.isFinite(textGap) || textGap < 0 || text !== undefined && typeof text !== "string")
     return failure("invalid-placement", "placement", "Enter a positive finite dimension radius and symbol scale.");
   if (radius <= linearToleranceAt(...m.vertex, radius)) return failure("invalid-placement", "placement", "Increase the dimension radius beyond the coordinate precision tolerance.");
   const frame = WORK_PLANES[m.workPlane], center = worldToPlane(m.vertex, frame);
@@ -126,7 +126,7 @@ export function resolveAngularDimension(first: AngularDimensionLine, second: Ang
     segments2.push([at(angle, anchor), at(angle, radius + Math.sign(radius - anchor) * 2 * scale)]);
   }
   const segments = segments2.map(([a, b]): [Vec3, Vec3] => [world(a), world(b)]);
-  const textPosition = world(at(m.startAngle + m.sweepRadians / 2, radius + 2.5 * scale));
+  const textPosition = world(at(m.startAngle + m.sweepRadians / 2, radius + textGap * Math.min(scale, 1)));
   if (![...segments.flat(2), ...textPosition].every(Number.isFinite)) return failure("precision-loss", "placement", "Reduce the dimension radius or move the geometry closer to the origin.");
   return { ok: true, geometry: {
     measurement: m, arc: { center: [...m.vertex], radius, startAngle: m.startAngle, sweepRadians: m.sweepRadians },

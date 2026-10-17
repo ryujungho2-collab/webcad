@@ -65,7 +65,7 @@ button.onclick=async()=>{button.disabled=true;const lines:string[]=[],check=(ok:
     check(editor()?.textContent?.includes("Allowed target: X 140 mm · Y 0 mm")&&state()===before,"Precision input uses the same motion control and explicitly reports the coordinates that will apply");await screenshot("canvas-motion-projection.png");
     const origin=document.querySelector<SVGRectElement>('[data-motion-origin]')!,oldX=origin.x.baseVal.value,canvas=document.querySelector("#root canvas")!,canvasRect=canvas.getBoundingClientRect(),wheel:[number,number]=[canvasRect.right-50,canvasRect.bottom-60];
     if(document.elementFromPoint(...wheel)!==canvas)throw new Error("Zoom point obscured: "+document.elementFromPoint(...wheel)?.outerHTML.slice(0,250));
-    await input({type:"mouseWheel",x:wheel[0],y:wheel[1],deltaX:0,deltaY:-180});await waitFor(()=>Math.abs(document.querySelector<SVGRectElement>('[data-motion-origin]')!.x.baseVal.value-oldX)>1);
+    await input({type:"mouseWheel",x:wheel[0],y:wheel[1],deltaX:0,deltaY:-180,modifiers:2});await waitFor(()=>Math.abs(document.querySelector<SVGRectElement>('[data-motion-origin]')!.x.baseVal.value-oldX)>1);
     check(editor()?.textContent?.includes("Allowed target: X 140 mm · Y 0 mm")&&state()===before,"Camera zoom reprojects the direction and targets without changing model coordinates or the proposal");
     await type("Y","50deg");await waitFor(()=>editor()?.dataset.previewStatus==="blocked"&&!document.querySelector('[data-motion-kind]')&&!document.querySelector('[data-preview-side]'));
     check(find("Apply direct edit")?.disabled&&state()===before&&history()===past,"Invalid units clear motion guides and verified ghosts instead of displaying a stale allowed target");

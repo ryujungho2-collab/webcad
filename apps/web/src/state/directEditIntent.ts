@@ -8,6 +8,7 @@ import { editDrawingControlParams, editDrawingSegmentParams } from "../features/
 import { sketchDimensionName } from "../precision/sketchAnnotations";
 import { drawingModelToWorld, drawingTransformAfterEdit, getWorldDrawingGeometry } from "../precision/worldGeometry";
 import { WORK_PLANES, planeToWorld, worldToPlane, type Vec3 } from "../precision/workPlane";
+import { sketchPlane } from "../precision/sketchAdapter";
 
 export type DirectEditRequest={objectId:string;target:{kind:"control";id:string;point:Vec3}|{kind:"segment";id:string;delta:Vec3};startWorld:Vec3;targetWorld:Vec3};
 export type DirectEditSession={id:string;baseVersion:DocumentVersion;request:DirectEditRequest;phase:"dragging"|"review";snap:string;input?:"keyboard"};
@@ -38,7 +39,8 @@ export function planDirectEdit(document:CadDocument,request:DirectEditRequest,mo
   }
   const sketch=document.sketches?.[sketchId],geometry=sketch?.geometry.find(g=>g.id===object.id);
   if(!sketch||!geometry)throw new Error("Sketch source is unavailable.");
-  const plane=WORK_PLANES[sketch.workPlane];
+  if(sketch.facePlaneId)throw new Error("Edit face sketch dimensions in the Sketch inspector; free direct grips on an attached face are not available yet.");
+  const plane=sketchPlane(sketch);
   const coordinates=worldToPlane(target.kind==="control"?target.point:target.delta,plane);
   const motion=controlSketchGrip(sketch,geometry,target,coordinates,mode==="drivers",mode==="connected");
   if(motion.dof>0&&!motion.geometry)throw new Error("No valid movement was found for this handle. Adjust the target or inspect its constraints.");

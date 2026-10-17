@@ -24,7 +24,12 @@ export function isCadKeyboardBlocked(target: EventTarget | null, key?: string): 
 /** History belongs to the document even when a tool control has focus.
  * Text/select editors and modal dialogs keep their own native keyboard scope. */
 export function isCadHistoryBlocked(target: EventTarget | null): boolean {
-  return isTextEditingTarget(target)
+  const input = target instanceof HTMLInputElement ? target : null;
+  const nativeInputUndo = input && !["checkbox", "radio", "range", "button", "submit", "reset", "color", "file"].includes(input.type);
+  return Boolean(nativeInputUndo)
+    || target instanceof HTMLTextAreaElement
+    || target instanceof HTMLSelectElement
+    || Boolean((target as HTMLElement | null)?.isContentEditable)
     || (target instanceof Element && Boolean(target.closest('dialog[open], [role="dialog"]')));
 }
 
@@ -42,7 +47,7 @@ export function numericShortcutCharacter(key: string): boolean {
 export type CadShortcutAction =
   | "line" | "polyline" | "rectangle" | "circle" | "arc"
   | "move" | "copy" | "rotate" | "scale" | "offset" | "trim"
-  | "measure" | "extrude" | "fit" | "hide";
+  | "measure" | "extrude" | "fit" | "hide" | "text" | "extend" | "select";
 
 export type CadShortcutContext = {
   workspaceMode: "2d" | "3d";
@@ -61,9 +66,11 @@ export function routeCadShortcut(key: string, context: CadShortcutContext, modif
   if (modifiers.shiftKey) {
     if (key.toLowerCase() === "r") return context.hasSelection && context.selectionEditable ? "rotate" : null;
     if (key.toLowerCase() === "c") return context.workspaceMode === "2d" && context.hasSelection && context.selectionEditable ? "copy" : null;
+    if (key.toLowerCase() === "x") return context.canTrim ? "extend" : null;
     return null;
   }
   switch (key.toLowerCase()) {
+    case "v": return "select";
     case "l": return drawingAvailable ? "line" : null;
     case "p": return drawingAvailable ? "polyline" : null;
     case "c": return drawingAvailable ? "circle" : null;
@@ -73,7 +80,8 @@ export function routeCadShortcut(key: string, context: CadShortcutContext, modif
     case "m": return context.hasSelection && context.selectionEditable ? "move" : null;
     case "s": return context.hasSelection && context.selectionEditable ? "scale" : null;
     case "o": return context.canOffset ? "offset" : null;
-    case "t": return context.canTrim ? "trim" : null;
+    case "t": return drawingAvailable ? "text" : null;
+    case "x": return context.canTrim ? "trim" : null;
     case "i": return "measure";
     case "e": return context.canExtrude ? "extrude" : null;
     case "f": return "fit";

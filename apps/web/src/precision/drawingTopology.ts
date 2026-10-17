@@ -1,6 +1,6 @@
 export type DrawingTopologyControl = {
   id: string;
-  role: "vertex" | "center" | "radius" | "start" | "end";
+  role: "pole" | "vertex" | "center" | "radius" | "axis-u" | "axis-v" | "start" | "end";
   index?: number;
 };
 
@@ -14,7 +14,7 @@ export type DrawingTopologySegment = {
 
 export type DrawingTopologyCurve = {
   id: string;
-  kind: "circle" | "arc";
+  kind: "spline" | "circle" | "arc" | "ellipse" | "elliptic-arc";
 };
 
 export type DrawingTopology = {
@@ -67,6 +67,8 @@ export function createDrawingTopology(
         kind: Math.abs(Array.isArray(params.bulges) ? Number(params.bulges[controls.length - 1] ?? 0) : 0) > 1e-9 ? "arc" : "line",
       });
     }
+  } else if(kind==="spline"&&Array.isArray(params.controlPoints)){params.controlPoints.forEach((_,index)=>controls.push({id:id("pole",index),role:"pole",index}));curves.push({id:id("curve",0),kind});
+  } else if(kind==="ellipse"||kind==="elliptic-arc"){controls.push({id:id("center",0),role:"center"},{id:id("axis-u",0),role:"axis-u"},{id:id("axis-v",0),role:"axis-v"});if(kind==="elliptic-arc")controls.push({id:id("start",0),role:"start"},{id:id("end",0),role:"end"});curves.push({id:id("curve",0),kind});
   } else if (kind === "circle") {
     controls.push(
       { id: id("center", 0), role: "center" },

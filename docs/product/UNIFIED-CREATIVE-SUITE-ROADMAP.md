@@ -1,8 +1,10 @@
 # WebCAD 통합 제작 제품 방향
 
+> **문서 역할**: 후속 설계와 당시 결정 기록. 현재 사용법·지원 범위는 [이미지와 장면](../features/IMAGES-SCENES.md)에서 관리한다.
+
 2026-10-09 우선순위: **건축·기계 CAD가 1차 목표**, 이 문서의 **아트보드·벡터/이미지·프로토타입·슬라이드·LLM 통합은 2차 목표**다. [목표·완료 workflow](ARCHITECTURE-MECHANICAL-MILESTONE.md)를 따른다. 이미 구현한 제작 기능을 유지하고 CAD 도면 출력에 필요한 기반은 재사용한다. 아래 장기 설계는 유지하되 실행 순서는 NEXT-STEPS를 따른다.
 
-갱신일: 2026-10-05
+설계 기준일: 2026-10-05. 상태 정합성 갱신: 2026-10-17. 현재 실행은 [NEXT-STEPS](../../NEXT-STEPS.md#현재-실행-큐)의 **WF-Q1**이다.
 
 문서 역할: 통합 UI와 제작 기능의 목표·설계 원칙을 기록한다. 아래 ToolSession/RasterAsset/ImageNode/Scene/Timeline과 어댑터 도식은 계획을 포함한다. 실제 구현과 검증은 [PROJECT-STATE](../../PROJECT-STATE.md), 실제 수정 위치와 현재/목표 차이는 [CHANGE-GUIDE](../architecture/CHANGE-GUIDE.md), 다음 실행 순서는 [NEXT-STEPS](../../NEXT-STEPS.md)를 따른다.
 
@@ -286,12 +288,14 @@ AI는 문서 최상위에 별도 그래픽 엔진으로 붙이지 않고, 관계
 
 모든 AI 결과는 Preview에서 대상·영향·생성 객체·미해결 관계를 확인하고 Apply/Undo할 수 있어야 한다.
 
-## 다음 구현 순서
+## 초기 구현 순서 이력 — 2026-10-05
 
 **G0 실행 환경·시작된 아트보드 검수**와 G1 세션/History 기술 묶음은 각각 [G0 증거](../verification/G0-ARTBOARDS-2026-10-05.md), [G1 세션](../verification/G1-SESSION-CONTINUITY-2026-10-05.md), [G1 History](../verification/G1-HISTORY-IDENTITY-2026-10-05.md)에 기록했다. G2의 artboard frames/Fit/individual SVG → CAD vector appearance → reusable/nested Component foundation도 구현·검증했다. 실제 지원·한계·수치는 [G2 기록](../implementation/G2-ARTBOARD-VECTOR-COMPONENTS-2026-10-05.md)을 따른다. G3-1 import/crop/save/export 위에 placement duplicate/transform/align, ellipse mask, per-placement opacity·brightness·contrast·saturation과 캔버스 direct crop을 추가했다. 실제 동작과 한계는 [G3 이미지 편집 기록](../implementation/G3-2-4-IMAGE-EDITING-2026-10-05.md), 최신 수치는 [검수](../verification/G3-2-4-IMAGE-EDITING-2026-10-05.md)를 따른다. 다음은 Artboard PNG composite, 이후 페이지 단위 PDF output과 large-image resource workflow다. G4 Frame/AutoLayout/Prototype → Scene/Timeline/슬라이드, G5 Copilot/LLM, G6 Axo/IFC/RVT·Manim·출판 adapter는 이후 단계/선택 확장이다.
 
 공통 ToolSession·SelectionContext·Review·Handoff는 각 작업에서 필요한 만큼 기존 commandInteraction과 transaction 경로를 재사용해 공통화한다. 상세 선행 조건·검수·다음 구현 프롬프트는 [최종 기획](../IMPLEMENTATION-READINESS-2026-10-05.md), 짧은 작업 대기열은 [NEXT-STEPS](../../NEXT-STEPS.md)에 둔다. G2에서 아트보드 viewport frame/Fit/SVG를 추가했지만 전체 편집 계층 세션 통합은 진행 중이다.
 
-## 현재 상태와 한계
+<a id="현재-상태와-한계--2026-10-17-정리"></a>
 
-현재 문서에는 CAD geometry, drawing의 제한된 vector fill/stroke/opacity/width, artboard frame/Fit/SVG, definition/instance/nested Component foundation, RasterAsset image placement/duplicate/transform/align, numeric crop, ellipse mask, per-placement opacity와 제한된 board SVG가 있다. SVG path-node/import, compound operations, gradient/blend, component overrides, direct crop handles, pixel adjustments·retouch·PNG/PDF composite export, 타임라인, prototype links, slide model, GIF/PPT export는 미구현이다. CAD의 모든 세부 기능이 기존 상용 CAD 수준으로 완성된 상태도 아니다. 이 문서는 계획을 구현 완료로 표시하지 않으며, 각 단계를 실제 코드와 브라우저 검증이 끝난 뒤 상태 문서에 옮긴다.
+## 현재 상태와 한계 — 대표 문서
+
+현재 기능을 이 로드맵에 다시 열거하지 않는다. [이미지와 장면](../features/IMAGES-SCENES.md), [Copilot](../features/COPILOT.md), [평면도와 건축 콘텐츠](../features/FLOOR-PLANNING.md), [프로젝트와 저장](../features/PROJECTS.md)가 각각 사용법·지원 경계를 소유한다. 이 문서의 단계와 타입/어댑터 설계는 후속 목표이며 실행 순서는 [NEXT-STEPS](../../NEXT-STEPS.md)를 따른다.

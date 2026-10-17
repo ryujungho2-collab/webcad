@@ -3,6 +3,8 @@ import { type WorldDrawingGeometry } from "./worldGeometry";
 import { drawingReferenceGeometry } from "./drawingReference";
 import { WORK_PLANES, planeToWorld, worldToPlane, type Vec3, type WorkPlaneId } from "./workPlane";
 
+import {circularIntersections,pointOnCircularDomain} from "./circularIntersection";
+
 type Vec2 = [number, number];
 export type LinearDomain = "line" | "infinite-line" | "ray";
 export const linearParameterAllowed = (kind: LinearDomain, t: number, tolerance = 1e-9) => kind === "infinite-line" || t >= -tolerance && (kind === "ray" || t <= 1 + tolerance);
@@ -60,21 +62,30 @@ export function evaluateConstruction(document: CadDocument, definition: CadConst
       result = { kind: "infinite-line", points: [m, m.map((v, i) => v + direction[i])] };
     }
   } else if (definition.operation === "intersection") {
-    const first = source(definition.firstId, "first"), second = source(definition.secondId, "second"), circular = (g: WorldDrawingGeometry) => g.kind === "circle" || g.kind === "arc", line = circular(first) ? second : first, other = circular(first) ? first : second;
-    const [a, b] = linear(line); let hit: Vec2 | undefined;
-    if (circular(other)) {
-      if (!other.center || !other.radius || !other.uniformScale) throw new Error("Intersection requires an exact circular source.");
-      hit = linearCircleBranches(worldToPlane(a, plane), worldToPlane(b, plane), worldToPlane(other.center, plane), other.radius, line.kind as LinearDomain).find(p => p.branch === definition.branch)?.point;
-      if (hit && other.kind === "arc") {
-        const c = worldToPlane(other.center, plane), angle = Math.atan2(hit[1] - c[1], hit[0] - c[0]), sweep = other.endAngle! - other.startAngle!, delta = ((Math.sign(sweep) * (angle - other.startAngle!) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-        if (delta > Math.abs(sweep) + 1e-8 && Math.PI * 2 - delta > 1e-8) hit = undefined;
+    const first=source(definition.firstId,"first"),second=source(definition.secondId,"second"),circular=(g:WorldDrawingGeometry)=>g.kind==="circle"||g.kind==="arc";
+    const exactCircle=(g:WorldDrawingGeometry)=>{if(!g.center||!g.radius||!g.uniformScale)throw Error("Intersection requires an exact circular source.");return {center:worldToPlane(g.center,plane),radius:g.radius};};
+    const inDomain=(g:WorldDrawingGeometry,hit:Vec2)=>{if(g.kind!=="arc")return true;const c=exactCircle(g);return pointOnCircularDomain(hit,c.center,c.radius,g.startAngle,g.endAngle);};
+    let hit:Vec2|undefined,heightPoint:Vec3,intersectionStatus:string|undefined;
+    if(circular(first)&&circular(second)){
+      if(definition.branchBasis!=="center-line")throw Error("Circular source pair requires explicit centre-line branch reassignment.");
+      const a=exactCircle(first),b=exactCircle(second),solutions=circularIntersections(a.center,a.radius,b.center,b.radius);
+      if(!solutions.branches.length)throw Error(`Circular intersection is ${solutions.status}; no isolated signed intersection exists.`);
+      const domain=solutions.branches.filter(p=>inDomain(first,p.point)&&inDomain(second,p.point));
+      intersectionStatus=solutions.status==="tangent"?"tangent":domain.length===1?"one-domain-point":"two-points";
+      hit=domain.find(p=>p.branch===definition.branch)?.point;
+      heightPoint=first.center!;
+    }else{
+      if(definition.branchBasis)throw Error("The centre-line branch requires two circular sources. Reassign the definition explicitly.");
+      const line=circular(first)?second:first,other=circular(first)?first:second,[a,b]=linear(line);heightPoint=a;
+      if(circular(other)){
+        const c=exactCircle(other);hit=linearCircleBranches(worldToPlane(a,plane),worldToPlane(b,plane),c.center,c.radius,line.kind as LinearDomain).find(p=>p.branch===definition.branch&&inDomain(other,p.point))?.point;
+      }else{
+        const [c,d]=linear(other);hit=intersectLinear(worldToPlane(a,plane),worldToPlane(b,plane),line.kind as LinearDomain,worldToPlane(c,plane),worldToPlane(d,plane),other.kind as LinearDomain)??undefined;
       }
-    } else {
-      const [c, d] = linear(other); hit = intersectLinear(worldToPlane(a, plane), worldToPlane(b, plane), line.kind as LinearDomain, worldToPlane(c, plane), worldToPlane(d, plane), other.kind as LinearDomain) ?? undefined;
     }
-    if (!hit) throw new Error(`The selected intersection (${definition.branch}) does not exist in the source domains.`);
-    const h = a.reduce((sum, v, i) => sum + v * plane.normal[i], 0);
-    result = { kind: "point", points: [planeToWorld(hit, plane).map((v, i) => v + h * plane.normal[i])] };
+    if(!hit)throw Error(`The selected intersection (${definition.branch}) does not exist in the source domains. Reassign the branch explicitly.`);
+    const h=heightPoint.reduce((sum,v,i)=>sum+v*plane.normal[i],0);
+    result={kind:"point",points:[planeToWorld(hit,plane).map((v,i)=>v+h*plane.normal[i])],...(intersectionStatus?{intersectionStatus}:{})};
   } else throw new Error("Unsupported construction operation.");
   const points = sources.flatMap(g => g.center ? [g.center] : g.points ?? []), height = (p: Vec3) => p.reduce((sum, v, i) => sum + v * plane.normal[i], 0);
   if (points.some(p => Math.abs(height(p) - height(points[0])) > linearToleranceAt(...p, ...points[0]))) throw new Error("Construction sources have different elevations.");
@@ -86,7 +97,18 @@ export function assertConstructionEvaluation(document: CadDocument) {
   const features = new Map(Object.values(document.features).map(f => [f.output, f]));
   for (const f of features.values()) if (f.construction) {
     const result = evaluateConstruction(document, f.construction, f.params.workPlane as WorkPlaneId, features);
+    if(result.intersectionStatus!==undefined&&result.intersectionStatus!==f.params.intersectionStatus)throw Error(`Stale construction intersection status: ${f.output}`);
     const expected = result.points as Vec3[], actual = f.params.points as Vec3[];
     if (!actual || actual.length !== expected.length || expected.some((p, i) => p.some((v, j) => Math.abs(v - actual[i][j]) > linearToleranceAt(v, actual[i][j])))) throw new Error(`Stale construction geometry: ${f.output}`);
   }
+}
+
+/** Only explicit create/reassign actions may choose a new branch basis. */
+export function normalizeConstructionDefinition(document:CadDocument,definition:CadConstructionDefinition):CadConstructionDefinition{
+  const next=structuredClone(definition);if(next.operation!=="intersection")return next;
+  const get=(id:string,role:"first"|"second")=>{const object=document.objects[id],feature=Object.values(document.features).find(f=>f.output===id);return object&&feature?drawingReferenceGeometry(object,feature,next.elements?.[role]):undefined;};
+  const first=get(next.firstId,"first"),second=get(next.secondId,"second"),circular=(kind:string|undefined)=>kind==="circle"||kind==="arc";
+  if(circular(first?.kind)&&circular(second?.kind))next.branchBasis="center-line";
+  else if(next.branchBasis)throw Error("The centre-line branch requires two circular sources.");
+  return next;
 }
