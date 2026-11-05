@@ -6,11 +6,17 @@
 
 | 필요한 정보 | 문서 |
 | --- | --- |
+| 현재 단계의 제품 목적·개발 판단 기준 | [자연어 CAD·코파일럿 목적](product/NATURAL-LANGUAGE-CAD-PURPOSE-2026-10-19.md) |
+| Native 건축 코파일럿 기능 개선과 실습 | [구현·기존 기능 감사](implementation/COPILOT-NATIVE-ARCHITECTURE-01-2026-10-23.md) · [native 실습 파일](../output/projects/native-architecture-lesson/README.md) |
+| CAD 기능과 모델 독립 MCP 연결 | [설정·도구 계약](architecture/CAD-MCP.md) · [실제 검증](implementation/CAD-MCP-01-2026-10-23.md) |
 | 실행·검증 명령 | [프로젝트 README](../README.md) |
 | 지금 지원하는 기능과 사용법 | [기능별 가이드](features/README.md) |
 | 프로젝트의 진행·검증 상태 | [PROJECT-STATE](../PROJECT-STATE.md) |
 | 다음 작업과 완료 조건 | [NEXT-STEPS](../NEXT-STEPS.md#현재-실행-큐) |
 | 평면도→모델→시트 작업 | [평면도와 건축 콘텐츠](features/FLOOR-PLANNING.md) → [도면과 출력](features/DRAWINGS-OUTPUT.md) |
+| 속성의 수치·단위·표현·고급 설정 | [속성 패널](features/PROPERTIES.md) |
+| 선택별 도구·메뉴·잠금 이유 | [선택 문맥 도구](features/SELECTION-TOOLS.md) |
+| 상태·키보드·접근성 | [상태와 키보드](features/INPUT-ACCESSIBILITY.md) |
 | 프로젝트 열기·저장·복구 | [프로젝트와 저장](features/PROJECTS.md) |
 | 코드 수정 위치·검증·문서 책임 | [CHANGE-GUIDE](architecture/CHANGE-GUIDE.md), [디렉토리 규칙](architecture/DIRECTORY-STRUCTURE.md) |
 
@@ -26,6 +32,7 @@
 | [리뷰·감사](reviews/README.md) | 발견한 문제, 대조 근거, 정리 결과 |
 | [실행·문서 이력](history/README.md) | 루트에서 분리한 상세 기록과 초기 인계 |
 | [검증 입력](fixtures/README.md) | 문서와 함께 보관하는 재현 fixture |
+| [QA·보안·배포 체크리스트](QA-SECURITY-DEPLOY-CHECKLIST.md) | 배포 전 점검 항목, 화면 인터랙션 합격 기준, 가이드 정합성 확인. 정책은 [SECURITY](../SECURITY.md) |
 
 색인에는 각 폴더의 모든 Markdown/검증 JSON을 연결한다. 카드 ID나 날짜를 알고 있으면 해당 색인에서 검색한다. 실제 산출물은 구현/검증 기록이 연결하는 output 파일을 따른다.
 
@@ -38,3 +45,7 @@
 - 이동 시 상대 링크와 제목 앵커를 확인하고 `pnpm --filter @agent-webcad/web check:architecture`를 실행한다. 오래된 문서의 고유 근거를 확인하기 전 삭제하지 않는다.
 
 [계획서 정합성 대조](reviews/PLAN-CONSISTENCY-2026-10-17.md) · [이번 문서 정리 범위](reviews/DOCUMENTATION-ORGANIZATION-2026-10-17.md) · [이전 전체 안내 보존본](history/DOCUMENT-INDEX-2026-10-17.md)
+
+- [내부 코파일럿과 선택 모델 (2026-10-23)](implementation/COPILOT-INTERNAL-OPTIONAL-01-2026-10-23.md)
+
+- [졸업설계 과제로 내부 코파일럿 검증 (2026-10-23)](implementation/COPILOT-GRADUATION-TASK-01-2026-10-23.md)

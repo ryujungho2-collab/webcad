@@ -1,4 +1,5 @@
 import type { ExtrudeProfile } from "@agent-webcad/cad-kernel";
+import {singleSplineProfile,splineProfileContains,splineProfilePoints,splineProfileMeasurement,splineProfilePointOn,curvedProfilesTouch} from "./splineProfile";
 import { angleOnSweep, circleCircleIntersections, segmentCircleIntersections } from "./snapEngine";
 import { worldToPlane, WORK_PLANES, type WorkPlaneId } from "./workPlane";
 
@@ -13,6 +14,7 @@ const positive = (a: number) => (a % TAU + TAU) % TAU;
 function boundaries(profile: ExtrudeProfile, plane: WorkPlaneId): Boundary[] {
   const local = (p: [number, number, number]) => worldToPlane(p, WORK_PLANES[plane]);
   return profile.segments.map(segment => {
+    if(segment.kind==="spline")throw Error("Use a single closed spline profile separately from analytic boundaries.");
     if (segment.kind === "line") return { kind: "line", a: local(segment.start), b: local(segment.end) };
     if (segment.kind === "circle") return { kind: "curve", c: local(segment.center), r: segment.radius, start: 0, sweep: TAU };
     const a = local(segment.start), m = local(segment.mid), b = local(segment.end);
@@ -51,6 +53,7 @@ function meet(a: Boundary, b: Boundary) {
 }
 
 export function profilesTouch(a: ExtrudeProfile, b: ExtrudeProfile, plane: WorkPlaneId) {
+  if(singleSplineProfile(a)||singleSplineProfile(b))return curvedProfilesTouch(a,b,plane);
   return boundaries(a, plane).some(first => boundaries(b, plane).some(second => meet(first, second)));
 }
 
@@ -77,6 +80,7 @@ export function profileSelfCrosses(profile:ExtrudeProfile,plane:WorkPlaneId){con
 
 /** Exact horizontal-ray winding parity for line/circular boundaries. Boundary points are excluded. */
 export function profileContainsPoint(profile: ExtrudeProfile, p: P, plane: WorkPlaneId): boolean {
+  if(singleSplineProfile(profile))return splineProfileContains(profile,p,plane);
   const edges = boundaries(profile, plane);
   if (edges.some(edge => on(edge, p))) return false;
   let hits = 0;
@@ -102,6 +106,7 @@ export function profileContainsPoint(profile: ExtrudeProfile, p: P, plane: WorkP
 }
 
 export function profileBoundaryPoints(profile: ExtrudeProfile, plane: WorkPlaneId, tolerance?:number,maxPoints=200000): P[] {
+  if(singleSplineProfile(profile))return splineProfilePoints(profile,plane,tolerance,maxPoints);
   let samples=0;
   return boundaries(profile, plane).flatMap(edge => {
     if (edge.kind === "line") {if(++samples>maxPoints)throw Error("Face display exceeds its point budget.");return [edge.a];}
@@ -116,12 +121,12 @@ export function profileBoundaryPoints(profile: ExtrudeProfile, plane: WorkPlaneI
 }
 
 export function regionContainsPoint(profile: ExtrudeProfile, p: P, plane: WorkPlaneId) {
-  return profileContainsPoint(profile, p, plane) && !(profile.holes ?? []).some(hole => profileContainsPoint(hole, p, plane) || boundaries(hole, plane).some(edge => on(edge, p)));
+  return profileContainsPoint(profile, p, plane) && !(profile.holes ?? []).some(hole => profileContainsPoint(hole, p, plane) || (singleSplineProfile(hole)?splineProfilePointOn(hole,p,plane):boundaries(hole, plane).some(edge => on(edge, p))));
 }
 
 /** Green's theorem on exact lines/circular arcs, independent of display tessellation. */
 export function profileRegionMeasurement(profile:ExtrudeProfile,plane:WorkPlaneId):{area:number;length:number}{
-  const measure=(boundary:ExtrudeProfile)=>{let signed=0,length=0;const edges=boundaries(boundary,plane),first=edges[0],origin=first.kind==="line"?first.a:first.c;for(const edge of edges){
+  const measure=(boundary:ExtrudeProfile)=>{if(singleSplineProfile(boundary))return splineProfileMeasurement(boundary);let signed=0,length=0;const edges=boundaries(boundary,plane),first=edges[0],origin=first.kind==="line"?first.a:first.c;for(const edge of edges){
     if(edge.kind==="line"){signed+=cross(sub(edge.a,origin),sub(edge.b,origin))/2;length+=dist(edge.a,edge.b);}
     else {const end=edge.start+edge.sweep,c=sub(edge.c,origin); signed+=(c[0]*edge.r*(Math.sin(end)-Math.sin(edge.start))+c[1]*edge.r*(Math.cos(edge.start)-Math.cos(end))+edge.r**2*edge.sweep)/2;length+=edge.r*Math.abs(edge.sweep);}
   }return {area:Math.abs(signed),length};};

@@ -1,0 +1,74 @@
+{
+  "id": "COPILOT-NATIVE-ARCHITECTURE-01",
+  "date": "2026-10-23",
+  "scope": "Existing native wall/opening/slab/BRep section capabilities connected to internal copilot; bounded straight-wall path clearance read",
+  "catalogTools": 37,
+  "modelRequests": 0,
+  "unit": {
+    "passed": 1592,
+    "suites": 54,
+    "failed": 0,
+    "log": "output/architecture-tools-all-unit.log"
+  },
+  "newUnit": {
+    "passed": 9,
+    "failed": 0,
+    "log": "output/architecture-tools-unit.log"
+  },
+  "browser": {
+    "page": "nativeArchitectureCopilot",
+    "passed": 29,
+    "failed": 0,
+    "log": "output/architecture-tools-browser.log",
+    "report": "output/projects/native-architecture-lesson/browser-report.json"
+  },
+  "regression": [
+    {
+      "page": "localCopilot",
+      "passed": 29,
+      "failed": 0,
+      "log": "output/architecture-tools-regression-localCopilot.log"
+    },
+    {
+      "page": "designStudy",
+      "passed": 26,
+      "failed": 0,
+      "log": "output/architecture-tools-regression-designStudy.log"
+    },
+    {
+      "page": "copilotConversation",
+      "passed": 15,
+      "failed": 0,
+      "log": "output/architecture-tools-regression-copilotConversation.log"
+    }
+  ],
+  "build": {
+    "status": "passed",
+    "log": "output/architecture-tools-build.log"
+  },
+  "architecture": {
+    "status": "passed",
+    "log": "output/architecture-tools-architecture.log",
+    "modules": 777
+  },
+  "artifactDirectory": "output/projects/native-architecture-lesson",
+  "exercised": [
+    "native wall and linked hidden centerline",
+    "hosted through door/window with sill",
+    "linked floor below top level",
+    "actual XY/XZ BRep cuts",
+    "wall and both drawings in one Undo/Redo",
+    "oversized opening atomic rejection",
+    "door-width-sensitive body clearance and stale-result invalidation",
+    "native reload relationships and analytic wall volume",
+    "STEP BRep and zero-skipped cut DXF export"
+  ],
+  "limits": [
+    "No automatic room design or aesthetic verdict",
+    "No automatic wall joins or curved-wall shortcut",
+    "Path read checks only explicit upright unit-scale straight native walls and hosted door dimensions",
+    "No furniture, door swing, floors, steps, stairs or unlisted-object collision",
+    "No accessibility or evacuation certification",
+    "Previous graduation task remains NOT_MET"
+  ]
+}

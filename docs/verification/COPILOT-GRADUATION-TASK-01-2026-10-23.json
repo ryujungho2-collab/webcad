@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-23",
+  "verificationStatus": "passed",
+  "academicTaskVerdict": "NOT_MET",
+  "scope": "Internal model-free copilot, designer-structured 2D task, independent rubric",
+  "reference": "output/projects/repair-school",
+  "modelCalls": 0,
+  "nativeObjects": 365,
+  "designerToolBatches": 23,
+  "sourceViews": 5,
+  "programZones": 17,
+  "checks": {
+    "node": 1583,
+    "targeted": 20,
+    "nativeTask": 13,
+    "academicBrowser": 54,
+    "localCopilotBrowserRegression": 29,
+    "designStudyBrowserRegression": 26,
+    "architectureModules": 771
+  },
+  "disclosures": [
+    "Not a Korea University official assessment, published grading rubric or completed graduation project",
+    "Program/coordinates are authored by Codex as benchmark designer, not inferred by internal copilot",
+    "Independent 2D section and program-zone area, no BIM/life-safety/structure approval",
+    "Exact point edit and geometry validation do not establish architectural/aesthetic quality"
+  ],
+  "evidence": {
+    "native": "../../output/projects/repair-school/repair-school.webcad.json",
+    "toolLedger": "../../output/projects/repair-school/tool-ledger.json",
+    "nativeReport": "../../output/projects/repair-school/report.json",
+    "browserReport": "../../output/projects/repair-school/browser-report.json",
+    "review": "../../output/projects/repair-school/index.html",
+    "reviewScreenshot": "../../output/projects/repair-school/verification-review.png"
+  },
+  "sources": [
+    "https://eng.korea.ac.kr/square/news_view.html?key=&no=1194&page=",
+    "https://eng.korea.ac.kr/square/news_view.html?key=&no=1141&page=5"
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "status": "passed",
+  "date": "2026-10-25",
+  "title": "바람의 뜰 · Courtyard Pavilion",
+  "nativeFormat": 54,
+  "sourceDocumentId": "document-2589ec26-0160-430b-b22c-3380a9bbd42e",
+  "parts": 27,
+  "nativeBrowserChecks": 79,
+  "presentationViewChecks": 2,
+  "modelEndpointRequests": 0,
+  "freshStepRead": {
+    "validSolids": 27,
+    "independentlyCheckedVolumes": 24,
+    "sourceLoftVolumeComparisons": 3
+  },
+  "panel": {
+    "status": "passed",
+    "paperMm": [
+      841,
+      594
+    ],
+    "pageCount": 1,
+    "koreanText": true,
+    "renderPixels": {
+      "exterior.png": [
+        3600,
+        2308
+      ],
+      "arrival.png": [
+        3600,
+        2308
+      ],
+      "interior.png": [
+        3600,
+        2308
+      ],
+      "ground-plan.png": [
+        3600,
+        2308
+      ],
+      "roof-plan.png": [
+        3600,
+        2308
+      ]
+    },
+    "visualReview": "Poppler-rendered full page reviewed for layout, legible section lines and no clipping."
+  },
+  "productConnectionImprovement": "Explicit shared target picker accepts up to 64 targets, matching architectural sections; individual tool limits remain enforced. 27 selected UI objects are captured identically by MCP.",
+  "artifactTransport": "Full final functional run passed using bounded gzip reporting after the initial oversized HTTP report failure; failed initial artifacts archived under output/verification/courtyard-initial-run.",
+  "checks": {
+    "typecheck": "passed",
+    "build": "passed",
+    "architectureModules": 829,
+    "nativeApplicationReopen": "Final clean model opened through normal Open project file picker; no source JSON mutation",
+    "uiProjectId": "a44dc7de-139b-4512-a2cf-a4c6bea1de2e",
+    "uiProjectTitle": "바람의 뜰 · 중정 파빌리온"
+  },
+  "limits": [
+    "Architectural concept; not structural or connection detailing",
+    "140 mm is vertical roof section height, not constant normal shell thickness",
+    "Ground/roof presentation views are actual BRep tessellations; cut drawings are exact BRep intersections",
+    "Aesthetic quality is not inferred from automated check counts"
+  ],
+  "artifacts": [
+    {
+      "file": "arrival.png",
+      "bytes": 479115,
+      "sha256": "3e4bfd2e80982a3302bd049f8f2ab058c525aba2682b3bd401a7e43e2f079b18"
+    },
+    {
+      "file": "browser-report.json",
+      "bytes": 6309,
+      "sha256": "2514f8bb3d54828c478b97bd9da3ca72a16ed82cb9b49bd43d7c25cc6017eab0"
+    },
+    {
+      "file": "courtPlan.dxf",
+      "bytes": 2458550,
+      "sha256": "3c1c513232c2d75c67f13f6c7a94973cb0480207d3e0774d4ecaca23ec59c4ae"
+    },
+    {
+      "file": "courtPlan.svg",
+      "bytes": 439306,
+      "sha256": "fce1ae962c58565cd0afec6c68332ca16242c4ccbbddf317daba992b2177ddf1"
+    },
+    {
+      "file": "courtSection.dxf",
+      "bytes": 480393,
+      "sha256": "ae2a1ff6598f877d9876a76c9878e658fd63a1170a0043747711396ad8baa42a"
+    },
+    {
+      "file": "courtSection.svg",
+      "bytes": 65464,
+      "sha256": "dbe0ade63bf8dd19a0e58086cc30483326d85bc56b89f63a4dc898be86119669"
+    },
+    {
+      "file": "exterior.png",
+      "bytes": 503817,
+      "sha256": "981df5e54e7c6d6b06e9ffdc6c3a0f9dce7a2409c192e46cc0b2254413a6dd9a"
+    },
+    {
+      "file": "ground-plan.png",
+      "bytes": 599425,
+      "sha256": "0c6cb198714c8703127af5103deb98f84ba857e03572ca938080cf87ea2efc2c"
+    },
+    {
+      "file": "handoff.json",
+      "bytes": 114508,
+      "sha256": "907bd2c496b00441809e98fad200f776ca0af30f14586591702ce4e68a06929f"
+    },
+    {
+      "file": "interior.png",
+      "bytes": 625718,
+      "sha256": "cd4ec997ad00d3a62329d6c5d394c42ea6e2207f5c121b7c77c1c397efb75696"
+    },
+    {
+      "file": "mesh-scene.json",
+      "bytes": 50406730,
+      "sha256": "ea0ae262ef3b3fe77b8349f91f25abb5f463b8ebbe597dbb00bc5ec381b6b8b8"
+    },
+    {
+      "file": "native-editor.png",
+      "bytes": 119486,
+      "sha256": "29f6c7b5d183f6bb1ec8d608b2670192a94579bef7bd505da6108bc117d92810"
+    },
+    {
+      "file": "panel-inspection.json",
+      "bytes": 527,
+      "sha256": "73186665f52ed009da5df9886d83b686be7bbf96951ad03b328d2aff2d0d6ba3"
+    },
+    {
+      "file": "panel-preview.png",
+      "bytes": 221989,
+      "sha256": "e7302f59f2a49b2baaace6f9c1c46d69004b140320ccf68b4623093d992f5064"
+    },
+    {
+      "file": "pavilion-drawings.webcad.json",
+      "bytes": 13899070,
+      "sha256": "3c68ea163405a63b912587394a2ef6bec689288321bd0b9b616376be77047a81"
+    },
+    {
+      "file": "pavilion.step",
+      "bytes": 7768533,
+      "sha256": "9ba7f62f889aa5c8ec1a04a6c174035eba8b96ca76b9b69cd8efff04be94843d"
+    },
+    {
+      "file": "pavilion.webcad.json",
+      "bytes": 545742,
+      "sha256": "90edf41274953f73b3f80ac6f833083caa6518b567ceaa8ef12ac2480c63f15d"
+    },
+    {
+      "file": "presentation-report.json",
+      "bytes": 417,
+      "sha256": "be569b263e67681e5cad500e73120814f43b7213fb5841f8ce11d40d95a4994d"
+    },
+    {
+      "file": "README.md",
+      "bytes": 3552,
+      "sha256": "924e6491d81ab5a01e997363f55941adcfa9f7f54a4747d87e3cfc36b550e782"
+    },
+    {
+      "file": "roof-plan.png",
+      "bytes": 317668,
+      "sha256": "d1ea5f10f787287e66590292f98b719babaeb6bfdbecc5a5037fe4269b9cc7c9"
+    },
+    {
+      "file": "step-inspection.json",
+      "bytes": 15877,
+      "sha256": "46f0a135011cef5e47eee0615633937fdd8a71ca62dc8081763a89a2b162a3ba"
+    },
+    {
+      "file": "viewport.png",
+      "bytes": 541617,
+      "sha256": "79d87627c54dc86fb3d0bac2c3c96f468fb0f36a30583ad0c6e786a3bf42de58"
+    },
+    {
+      "file": "courtyard-pavilion-A1.pdf",
+      "bytes": 1265606,
+      "sha256": "51780a48889b02c3342ddbaaa5db0b00dc8145bfd4a6000fabd81dce760fb934"
+    }
+  ]
+}

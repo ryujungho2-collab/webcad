@@ -29,6 +29,8 @@ let network=0,unhandled=0;
 window.addEventListener("unhandledrejection",()=>unhandled++);
 const originalFetch=window.fetch.bind(window);
 window.fetch=async(url,init)=>{
+  // The panel's local-model status probe is not a gateway request; stub it so the real machine's Ollama is never contacted.
+  if(String(url).includes("/api/copilot/status"))return new Response(JSON.stringify({ready:true,models:["stub-model"],model:"stub-model"}),{headers:{"Content-Type":"application/json"}});
   if(String(url).includes("/api/copilot/")){network++;return new Response(JSON.stringify({version:1,summary:["Create circle"],command:{type:"create-drawing",id:"planned",drawing:"circle",params:{center:[0,0,0],radius:4,workPlane:"XY"}}}),{headers:{"Content-Type":"application/json"}});}
   return originalFetch(url,init);
 };

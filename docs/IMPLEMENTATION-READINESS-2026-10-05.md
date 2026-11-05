@@ -1,6 +1,6 @@
 # 다음 구현 전 최종 기획과 인계
 
-정합성 갱신: 2026-10-17. 현재 실행 기준은 [NEXT-STEPS 현재 실행 큐](../NEXT-STEPS.md#현재-실행-큐)의 **WF-Q1**이다. 이 문서의 G0–G6 단계·모델 배분·G3-5A 인계는 2026-10-05~06 당시 설계와 이력이다. G3-5A 회귀는 [후속 증거](verification/G3-5-IMAGE-RESOURCES-2026-10-06.md)에 완료 기록이 있으며 현재 대기 작업이 아니다. 최신 구현·검증은 [PROJECT-STATE](../PROJECT-STATE.md)를 따른다.
+정합성 갱신: 2026-10-17. 현재 실행 기준은 [NEXT-STEPS 현재 실행 큐](../NEXT-STEPS.md#현재-실행-큐)를 따른다. 이 문서의 G0–G6 단계·모델 배분·G3-5A 인계는 2026-10-05~06 당시 설계와 이력이다. G3-5A 회귀는 [후속 증거](verification/G3-5-IMAGE-RESOURCES-2026-10-06.md)에 완료 기록이 있으며 현재 대기 작업이 아니다. 최신 구현·검증은 [PROJECT-STATE](../PROJECT-STATE.md)를 따른다.
 
 이 문서는 G0–G6의 공통 설계·검증 계약을 보존한다. 최신 카드의 범위·선행·완료 조건은 NEXT-STEPS에서 연결한 개별 계획과 구현 기록이 소유한다. 수정 위치는 [CHANGE-GUIDE](architecture/CHANGE-GUIDE.md)를 따른다. 아래 과거 실행 순서와 프롬프트는 현재 요청을 제한하거나 모델 설정을 변경하지 않는다.
 

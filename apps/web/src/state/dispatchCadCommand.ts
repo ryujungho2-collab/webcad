@@ -1,3 +1,6 @@
+import {refreshSavedMeasurements,isSavedMeasurementOnlyCommand} from "./savedMeasurementCommands";
+import {validateCanvasHierarchy} from "@agent-webcad/cad-document";
+import {isCanvasOnlyCommand} from "./canvasCommands";
 import {validateArchitectureContent} from "@agent-webcad/cad-document";
 import {getWorldDrawingGeometry} from "../precision/worldGeometry";
 import {assertModelSheets} from "./modelSheetCommands";
@@ -65,13 +68,13 @@ async function executeCadCommand(command: CadCommand): Promise<CommandResult> {
 export type PreparedCadCommand = {command:CadCommand;proposed:CadDocument;result:CommandResult};
 
 /** Common UI/automation preview execution. Never publishes or records history. */
-export async function prepareCadCommand(document:CadDocument, command:CadCommand):Promise<PreparedCadCommand> {
+export async function prepareCadCommand(document:CadDocument, command:CadCommand,task:import("./cooperativeTask").CooperativeTask={}):Promise<PreparedCadCommand> {
   if(!validateCommand(command))throw new Error("Invalid CAD command payload.");
   const detached=structuredClone(command),proposed=structuredClone(document);
   let raw: unknown;
   try {
-    raw = await createDocumentCommandExecutor(proposed)(detached);
-    if(proposed.revision!==document.revision && !isModelViewOnlyCommand(detached)){
+    raw = await createDocumentCommandExecutor(proposed,task)(detached);
+    if(proposed.revision!==document.revision && detached.type!=="assembly-pair-intent" && !isModelViewOnlyCommand(detached) && !isCanvasOnlyCommand(detached) && !isSavedMeasurementOnlyCommand(detached)){
       validateArchitectureContent(proposed);
       assertModelSheets(proposed);
       await refreshModelProjections(proposed,document);
@@ -90,7 +93,9 @@ export async function prepareCadCommand(document:CadDocument, command:CadCommand
         if(measured.validity!=="valid")throw new Error(`Invalid solid geometry: ${currentObject.name}`);
       }
     }
+    if(proposed.revision!==document.revision){await refreshSavedMeasurements(proposed);validateCanvasHierarchy(proposed);}
   } catch (error) {
+    task.signal?.throwIfAborted();
     return {command:detached,proposed:structuredClone(document),result:failedResult(detached, error instanceof Error ? error.message : "Document operation failed.", undefined,
       error instanceof SketchParameterConflictError ? error.diagnostic : error instanceof FeatureRegenerationError ? { kind: "regeneration-failed", constraintIds: [], geometryIds: error.geometryIds } : undefined)};
   }
@@ -107,13 +112,18 @@ export function publishCadProposal(prepared:PreparedCadCommand,documentBefore:Ca
   if(!prepared.proposed.variables)delete cadDocument.variables;
   if(!prepared.proposed.parameterBindings)delete cadDocument.parameterBindings;
   if(!prepared.proposed.frameLinks)delete cadDocument.frameLinks;
+  if(!prepared.proposed.savedMeasurements)delete cadDocument.savedMeasurements;
+  if(!prepared.proposed.canvases)delete cadDocument.canvases;
   if(!prepared.proposed.workspaceSections)delete cadDocument.workspaceSections;
   if(!prepared.proposed.artboards)delete cadDocument.artboards;
   if(!prepared.proposed.scenes)delete cadDocument.scenes;
   if(!prepared.proposed.exchangeImports)delete cadDocument.exchangeImports;
   if(!prepared.proposed.modelViews)delete cadDocument.modelViews;
   if(!prepared.proposed.modelPresentation)delete cadDocument.modelPresentation;
+  if(!prepared.proposed.interferenceIntents)delete cadDocument.interferenceIntents;
+  if(!prepared.proposed.assembly)delete cadDocument.assembly;
   if(!prepared.proposed.workPlanes)delete cadDocument.workPlanes;
+  if(!prepared.proposed.externalSceneAssets)delete cadDocument.externalSceneAssets;
   if(!prepared.proposed.rasterAssets)delete cadDocument.rasterAssets;
   Object.assign(cadDocument,structuredClone(prepared.proposed));
   cadHistory.pushSnapshot(prepared.result.label,structuredClone(documentBefore));

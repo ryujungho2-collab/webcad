@@ -1,0 +1,2880 @@
+[
+  {
+    "id": "F1-slab",
+    "name": "F1 floor / FFL 0",
+    "level": "F1",
+    "kind": "slab",
+    "expected": 22809600000,
+    "volumeMm3": 22809600000
+  },
+  {
+    "id": "F1-south",
+    "name": "F1-south",
+    "level": "F1",
+    "kind": "wall",
+    "expected": 1859250000,
+    "volumeMm3": 1859250000.0000005
+  },
+  {
+    "id": "F1-W01-glass",
+    "name": "F1-W01",
+    "level": "F1",
+    "kind": "glass",
+    "expected": 206400000,
+    "volumeMm3": 206400000
+  },
+  {
+    "id": "F1-W01-jamb-1",
+    "name": "F1-W01 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 12900000,
+    "volumeMm3": 12900000
+  },
+  {
+    "id": "F1-W01-jamb1",
+    "name": "F1-W01 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 12900000,
+    "volumeMm3": 12900000
+  },
+  {
+    "id": "F1-southEast",
+    "name": "F1-southEast",
+    "level": "F1",
+    "kind": "wall",
+    "expected": 2368000000,
+    "volumeMm3": 2368000000
+  },
+  {
+    "id": "F1-W02-glass",
+    "name": "F1-W02",
+    "level": "F1",
+    "kind": "glass",
+    "expected": 97200000,
+    "volumeMm3": 97200000
+  },
+  {
+    "id": "F1-W02-jamb-1",
+    "name": "F1-W02 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F1-W02-jamb1",
+    "name": "F1-W02 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F1-west",
+    "name": "F1-west",
+    "level": "F1",
+    "kind": "wall",
+    "expected": 5778250000,
+    "volumeMm3": 5778250000.000001
+  },
+  {
+    "id": "F1-W03-glass",
+    "name": "F1-W03",
+    "level": "F1",
+    "kind": "glass",
+    "expected": 86400000,
+    "volumeMm3": 86400000
+  },
+  {
+    "id": "F1-W03-jamb-1",
+    "name": "F1-W03 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F1-W03-jamb1",
+    "name": "F1-W03 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F1-east",
+    "name": "F1-east",
+    "level": "F1",
+    "kind": "wall",
+    "expected": 5148250000,
+    "volumeMm3": 5148250000.000001
+  },
+  {
+    "id": "F1-W04-glass",
+    "name": "F1-W04",
+    "level": "F1",
+    "kind": "glass",
+    "expected": 97200000,
+    "volumeMm3": 97200000
+  },
+  {
+    "id": "F1-W04-jamb-1",
+    "name": "F1-W04 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F1-W04-jamb1",
+    "name": "F1-W04 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F1-W05-glass",
+    "name": "F1-W05",
+    "level": "F1",
+    "kind": "glass",
+    "expected": 64800000,
+    "volumeMm3": 64800000
+  },
+  {
+    "id": "F1-W05-jamb-1",
+    "name": "F1-W05 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F1-W05-jamb1",
+    "name": "F1-W05 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F1-north",
+    "name": "F1-north",
+    "level": "F1",
+    "kind": "wall",
+    "expected": 6182250000,
+    "volumeMm3": 6182250000.000001
+  },
+  {
+    "id": "F1-W06-glass",
+    "name": "F1-W06",
+    "level": "F1",
+    "kind": "glass",
+    "expected": 108000000,
+    "volumeMm3": 108000000
+  },
+  {
+    "id": "F1-W06-jamb-1",
+    "name": "F1-W06 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F1-W06-jamb1",
+    "name": "F1-W06 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F1-W07-glass",
+    "name": "F1-W07",
+    "level": "F1",
+    "kind": "glass",
+    "expected": 30000000,
+    "volumeMm3": 30000000
+  },
+  {
+    "id": "F1-W07-jamb-1",
+    "name": "F1-W07 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 6000000,
+    "volumeMm3": 6000000
+  },
+  {
+    "id": "F1-W07-jamb1",
+    "name": "F1-W07 jamb",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 6000000,
+    "volumeMm3": 6000000
+  },
+  {
+    "id": "F1-spine",
+    "name": "F1-spine",
+    "level": "F1",
+    "kind": "wall",
+    "expected": 3167700000,
+    "volumeMm3": 3167700000
+  },
+  {
+    "id": "F1-westRoom",
+    "name": "F1-westRoom",
+    "level": "F1",
+    "kind": "wall",
+    "expected": 1819275000,
+    "volumeMm3": 1819275000
+  },
+  {
+    "id": "F1-service",
+    "name": "F1-service",
+    "level": "F1",
+    "kind": "wall",
+    "expected": 736800000,
+    "volumeMm3": 736800000
+  },
+  {
+    "id": "F1-core",
+    "name": "F1-core",
+    "level": "F1",
+    "kind": "wall",
+    "expected": 896550000,
+    "volumeMm3": 896550000
+  },
+  {
+    "id": "F1-tread-1",
+    "name": "F1 stair tread 1",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-2",
+    "name": "F1 stair tread 2",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-3",
+    "name": "F1 stair tread 3",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-4",
+    "name": "F1 stair tread 4",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-5",
+    "name": "F1 stair tread 5",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-6",
+    "name": "F1 stair tread 6",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-7",
+    "name": "F1 stair tread 7",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-8",
+    "name": "F1 stair tread 8",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-9",
+    "name": "F1 stair tread 9",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-11",
+    "name": "F1 stair tread 11",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-12",
+    "name": "F1 stair tread 12",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-13",
+    "name": "F1 stair tread 13",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-14",
+    "name": "F1 stair tread 14",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-15",
+    "name": "F1 stair tread 15",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-16",
+    "name": "F1 stair tread 16",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-17",
+    "name": "F1 stair tread 17",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-18",
+    "name": "F1 stair tread 18",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-tread-19",
+    "name": "F1 stair tread 19",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F1-landing",
+    "name": "F1 half landing",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 290400000,
+    "volumeMm3": 290400000.00000006
+  },
+  {
+    "id": "F1-table",
+    "name": "F1 work / dining surface",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 86400000,
+    "volumeMm3": 86400000
+  },
+  {
+    "id": "F1-table-leg0",
+    "name": "Table leg",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 1800000,
+    "volumeMm3": 1800000
+  },
+  {
+    "id": "F1-table-leg1",
+    "name": "Table leg",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 1800000,
+    "volumeMm3": 1800000
+  },
+  {
+    "id": "F1-table-leg2",
+    "name": "Table leg",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 1800000,
+    "volumeMm3": 1800000
+  },
+  {
+    "id": "F1-table-leg3",
+    "name": "Table leg",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 1800000,
+    "volumeMm3": 1800000
+  },
+  {
+    "id": "F1-screen0",
+    "name": "F1 600 pitch facade screen",
+    "level": "F1",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F1-screen1",
+    "name": "F1 600 pitch facade screen",
+    "level": "F1",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F1-screen2",
+    "name": "F1 600 pitch facade screen",
+    "level": "F1",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F1-screen3",
+    "name": "F1 600 pitch facade screen",
+    "level": "F1",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F1-screen4",
+    "name": "F1 600 pitch facade screen",
+    "level": "F1",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F1-screen5",
+    "name": "F1 600 pitch facade screen",
+    "level": "F1",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F1-screen6",
+    "name": "F1 600 pitch facade screen",
+    "level": "F1",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F1-screen7",
+    "name": "F1 600 pitch facade screen",
+    "level": "F1",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F2-slab",
+    "name": "F2 floor / FFL 3000",
+    "level": "F2",
+    "kind": "slab",
+    "expected": 20776800000,
+    "volumeMm3": 20776800000
+  },
+  {
+    "id": "F2-south",
+    "name": "F2-south",
+    "level": "F2",
+    "kind": "wall",
+    "expected": 1859250000,
+    "volumeMm3": 1859250000.0000005
+  },
+  {
+    "id": "F2-W01-glass",
+    "name": "F2-W01",
+    "level": "F2",
+    "kind": "glass",
+    "expected": 206400000,
+    "volumeMm3": 206400000
+  },
+  {
+    "id": "F2-W01-jamb-1",
+    "name": "F2-W01 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 12900000,
+    "volumeMm3": 12900000
+  },
+  {
+    "id": "F2-W01-jamb1",
+    "name": "F2-W01 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 12900000,
+    "volumeMm3": 12900000
+  },
+  {
+    "id": "F2-southEast",
+    "name": "F2-southEast",
+    "level": "F2",
+    "kind": "wall",
+    "expected": 2943000000,
+    "volumeMm3": 2943000000.0000005
+  },
+  {
+    "id": "F2-W02-glass",
+    "name": "F2-W02",
+    "level": "F2",
+    "kind": "glass",
+    "expected": 97200000,
+    "volumeMm3": 97200000
+  },
+  {
+    "id": "F2-W02-jamb-1",
+    "name": "F2-W02 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F2-W02-jamb1",
+    "name": "F2-W02 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F2-west",
+    "name": "F2-west",
+    "level": "F2",
+    "kind": "wall",
+    "expected": 5778250000,
+    "volumeMm3": 5778250000.000001
+  },
+  {
+    "id": "F2-W03-glass",
+    "name": "F2-W03",
+    "level": "F2",
+    "kind": "glass",
+    "expected": 86400000,
+    "volumeMm3": 86400000
+  },
+  {
+    "id": "F2-W03-jamb-1",
+    "name": "F2-W03 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F2-W03-jamb1",
+    "name": "F2-W03 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F2-east",
+    "name": "F2-east",
+    "level": "F2",
+    "kind": "wall",
+    "expected": 5148250000,
+    "volumeMm3": 5148250000
+  },
+  {
+    "id": "F2-W04-glass",
+    "name": "F2-W04",
+    "level": "F2",
+    "kind": "glass",
+    "expected": 97200000,
+    "volumeMm3": 97200000
+  },
+  {
+    "id": "F2-W04-jamb-1",
+    "name": "F2-W04 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F2-W04-jamb1",
+    "name": "F2-W04 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F2-W05-glass",
+    "name": "F2-W05",
+    "level": "F2",
+    "kind": "glass",
+    "expected": 64800000,
+    "volumeMm3": 64800000
+  },
+  {
+    "id": "F2-W05-jamb-1",
+    "name": "F2-W05 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F2-W05-jamb1",
+    "name": "F2-W05 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F2-north",
+    "name": "F2-north",
+    "level": "F2",
+    "kind": "wall",
+    "expected": 6182250000,
+    "volumeMm3": 6182250000.000001
+  },
+  {
+    "id": "F2-W06-glass",
+    "name": "F2-W06",
+    "level": "F2",
+    "kind": "glass",
+    "expected": 108000000,
+    "volumeMm3": 108000000
+  },
+  {
+    "id": "F2-W06-jamb-1",
+    "name": "F2-W06 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F2-W06-jamb1",
+    "name": "F2-W06 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F2-W07-glass",
+    "name": "F2-W07",
+    "level": "F2",
+    "kind": "glass",
+    "expected": 30000000,
+    "volumeMm3": 30000000
+  },
+  {
+    "id": "F2-W07-jamb-1",
+    "name": "F2-W07 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 6000000,
+    "volumeMm3": 6000000
+  },
+  {
+    "id": "F2-W07-jamb1",
+    "name": "F2-W07 jamb",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 6000000,
+    "volumeMm3": 6000000
+  },
+  {
+    "id": "F2-spine",
+    "name": "F2-spine",
+    "level": "F2",
+    "kind": "wall",
+    "expected": 3167700000,
+    "volumeMm3": 3167700000
+  },
+  {
+    "id": "F2-westRoom",
+    "name": "F2-westRoom",
+    "level": "F2",
+    "kind": "wall",
+    "expected": 1819275000,
+    "volumeMm3": 1819275000
+  },
+  {
+    "id": "F2-service",
+    "name": "F2-service",
+    "level": "F2",
+    "kind": "wall",
+    "expected": 736800000,
+    "volumeMm3": 736800000
+  },
+  {
+    "id": "F2-core",
+    "name": "F2-core",
+    "level": "F2",
+    "kind": "wall",
+    "expected": 896550000,
+    "volumeMm3": 896550000
+  },
+  {
+    "id": "F2-tread-1",
+    "name": "F2 stair tread 1",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-2",
+    "name": "F2 stair tread 2",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-3",
+    "name": "F2 stair tread 3",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-4",
+    "name": "F2 stair tread 4",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-5",
+    "name": "F2 stair tread 5",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-6",
+    "name": "F2 stair tread 6",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-7",
+    "name": "F2 stair tread 7",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-8",
+    "name": "F2 stair tread 8",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-9",
+    "name": "F2 stair tread 9",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-11",
+    "name": "F2 stair tread 11",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-12",
+    "name": "F2 stair tread 12",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-13",
+    "name": "F2 stair tread 13",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-14",
+    "name": "F2 stair tread 14",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-15",
+    "name": "F2 stair tread 15",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-16",
+    "name": "F2 stair tread 16",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-17",
+    "name": "F2 stair tread 17",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-18",
+    "name": "F2 stair tread 18",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-tread-19",
+    "name": "F2 stair tread 19",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 19600000,
+    "volumeMm3": 19600000
+  },
+  {
+    "id": "F2-landing",
+    "name": "F2 half landing",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 290400000,
+    "volumeMm3": 290400000.00000006
+  },
+  {
+    "id": "F2-table",
+    "name": "F2 work / dining surface",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 86400000,
+    "volumeMm3": 86400000
+  },
+  {
+    "id": "F2-table-leg0",
+    "name": "Table leg",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 1800000,
+    "volumeMm3": 1800000
+  },
+  {
+    "id": "F2-table-leg1",
+    "name": "Table leg",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 1800000,
+    "volumeMm3": 1800000
+  },
+  {
+    "id": "F2-table-leg2",
+    "name": "Table leg",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 1800000,
+    "volumeMm3": 1800000
+  },
+  {
+    "id": "F2-table-leg3",
+    "name": "Table leg",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 1800000,
+    "volumeMm3": 1800000
+  },
+  {
+    "id": "F2-screen0",
+    "name": "F2 600 pitch facade screen",
+    "level": "F2",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F2-screen1",
+    "name": "F2 600 pitch facade screen",
+    "level": "F2",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F2-screen2",
+    "name": "F2 600 pitch facade screen",
+    "level": "F2",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F2-screen3",
+    "name": "F2 600 pitch facade screen",
+    "level": "F2",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F2-screen4",
+    "name": "F2 600 pitch facade screen",
+    "level": "F2",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F2-screen5",
+    "name": "F2 600 pitch facade screen",
+    "level": "F2",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F2-screen6",
+    "name": "F2 600 pitch facade screen",
+    "level": "F2",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F2-screen7",
+    "name": "F2 600 pitch facade screen",
+    "level": "F2",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F3-slab",
+    "name": "F3 floor / FFL 6000",
+    "level": "F3",
+    "kind": "slab",
+    "expected": 20776800000,
+    "volumeMm3": 20776800000
+  },
+  {
+    "id": "F3-south",
+    "name": "F3-south",
+    "level": "F3",
+    "kind": "wall",
+    "expected": 1499250000,
+    "volumeMm3": 1499250000.0000005
+  },
+  {
+    "id": "F3-W01-glass",
+    "name": "F3-W01",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 249600000,
+    "volumeMm3": 249600000
+  },
+  {
+    "id": "F3-W01-jamb-1",
+    "name": "F3-W01 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 15600000,
+    "volumeMm3": 15600000
+  },
+  {
+    "id": "F3-W01-jamb1",
+    "name": "F3-W01 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 15600000,
+    "volumeMm3": 15600000
+  },
+  {
+    "id": "F3-southEast",
+    "name": "F3-southEast",
+    "level": "F3",
+    "kind": "wall",
+    "expected": 2943000000,
+    "volumeMm3": 2943000000.0000005
+  },
+  {
+    "id": "F3-W02-glass",
+    "name": "F3-W02",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 97200000,
+    "volumeMm3": 97200000
+  },
+  {
+    "id": "F3-W02-jamb-1",
+    "name": "F3-W02 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F3-W02-jamb1",
+    "name": "F3-W02 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F3-west",
+    "name": "F3-west",
+    "level": "F3",
+    "kind": "wall",
+    "expected": 2946125000,
+    "volumeMm3": 2946125000.0000005
+  },
+  {
+    "id": "F3-W03-glass",
+    "name": "F3-W03",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 86400000,
+    "volumeMm3": 86400000
+  },
+  {
+    "id": "F3-W03-jamb-1",
+    "name": "F3-W03 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F3-W03-jamb1",
+    "name": "F3-W03 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F3-east",
+    "name": "F3-east",
+    "level": "F3",
+    "kind": "wall",
+    "expected": 5148250000,
+    "volumeMm3": 5148250000
+  },
+  {
+    "id": "F3-W04-glass",
+    "name": "F3-W04",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 97200000,
+    "volumeMm3": 97200000
+  },
+  {
+    "id": "F3-W04-jamb-1",
+    "name": "F3-W04 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F3-W04-jamb1",
+    "name": "F3-W04 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F3-W05-glass",
+    "name": "F3-W05",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 64800000,
+    "volumeMm3": 64800000
+  },
+  {
+    "id": "F3-W05-jamb-1",
+    "name": "F3-W05 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F3-W05-jamb1",
+    "name": "F3-W05 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F3-north",
+    "name": "F3-north",
+    "level": "F3",
+    "kind": "wall",
+    "expected": 6182250000,
+    "volumeMm3": 6182250000.000001
+  },
+  {
+    "id": "F3-W06-glass",
+    "name": "F3-W06",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 108000000,
+    "volumeMm3": 108000000
+  },
+  {
+    "id": "F3-W06-jamb-1",
+    "name": "F3-W06 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F3-W06-jamb1",
+    "name": "F3-W06 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F3-W07-glass",
+    "name": "F3-W07",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 30000000,
+    "volumeMm3": 30000000
+  },
+  {
+    "id": "F3-W07-jamb-1",
+    "name": "F3-W07 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 6000000,
+    "volumeMm3": 6000000
+  },
+  {
+    "id": "F3-W07-jamb1",
+    "name": "F3-W07 jamb",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 6000000,
+    "volumeMm3": 6000000
+  },
+  {
+    "id": "F3-spine",
+    "name": "F3-spine",
+    "level": "F3",
+    "kind": "wall",
+    "expected": 3167700000,
+    "volumeMm3": 3167700000
+  },
+  {
+    "id": "F3-westRoom",
+    "name": "F3-westRoom",
+    "level": "F3",
+    "kind": "wall",
+    "expected": 1819275000,
+    "volumeMm3": 1819275000
+  },
+  {
+    "id": "F3-service",
+    "name": "F3-service",
+    "level": "F3",
+    "kind": "wall",
+    "expected": 736800000,
+    "volumeMm3": 736800000
+  },
+  {
+    "id": "F3-core",
+    "name": "F3-core",
+    "level": "F3",
+    "kind": "wall",
+    "expected": 896550000,
+    "volumeMm3": 896550000
+  },
+  {
+    "id": "F3-terraceReturn",
+    "name": "F3-terraceReturn",
+    "level": "F3",
+    "kind": "wall",
+    "expected": 1302150000,
+    "volumeMm3": 1302150000
+  },
+  {
+    "id": "F3-table",
+    "name": "F3 work / dining surface",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 86400000,
+    "volumeMm3": 86400000
+  },
+  {
+    "id": "F3-table-leg0",
+    "name": "Table leg",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 1800000,
+    "volumeMm3": 1800000
+  },
+  {
+    "id": "F3-table-leg1",
+    "name": "Table leg",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 1800000,
+    "volumeMm3": 1800000
+  },
+  {
+    "id": "F3-table-leg2",
+    "name": "Table leg",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 1800000,
+    "volumeMm3": 1800000
+  },
+  {
+    "id": "F3-table-leg3",
+    "name": "Table leg",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 1800000,
+    "volumeMm3": 1800000
+  },
+  {
+    "id": "F3-screen0",
+    "name": "F3 600 pitch facade screen",
+    "level": "F3",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F3-screen1",
+    "name": "F3 600 pitch facade screen",
+    "level": "F3",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F3-screen2",
+    "name": "F3 600 pitch facade screen",
+    "level": "F3",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F3-screen3",
+    "name": "F3 600 pitch facade screen",
+    "level": "F3",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F3-screen4",
+    "name": "F3 600 pitch facade screen",
+    "level": "F3",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F3-screen5",
+    "name": "F3 600 pitch facade screen",
+    "level": "F3",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F3-screen6",
+    "name": "F3 600 pitch facade screen",
+    "level": "F3",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "F3-screen7",
+    "name": "F3 600 pitch facade screen",
+    "level": "F3",
+    "kind": "panel",
+    "expected": 22080000,
+    "volumeMm3": 22080000
+  },
+  {
+    "id": "RF-slab",
+    "name": "Roof / drainage design pending",
+    "level": "RF",
+    "kind": "slab",
+    "volumeMm3": 17820000000
+  },
+  {
+    "id": "F3-guard0",
+    "name": "Terrace guard post",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 2750000,
+    "volumeMm3": 2750000.0000000005
+  },
+  {
+    "id": "F3-guard1",
+    "name": "Terrace guard post",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 2750000,
+    "volumeMm3": 2750000.0000000005
+  },
+  {
+    "id": "F3-guard2",
+    "name": "Terrace guard post",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 2750000,
+    "volumeMm3": 2750000.0000000005
+  },
+  {
+    "id": "F3-guard3",
+    "name": "Terrace guard post",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 2750000,
+    "volumeMm3": 2750000.0000000005
+  },
+  {
+    "id": "F3-guard4",
+    "name": "Terrace guard post",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 2750000,
+    "volumeMm3": 2750000.0000000005
+  },
+  {
+    "id": "F3-guard5",
+    "name": "Terrace guard post",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 2750000,
+    "volumeMm3": 2750000.0000000005
+  },
+  {
+    "id": "F3-handrail",
+    "name": "Terrace top rail",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 12750000,
+    "volumeMm3": 12750000
+  },
+  {
+    "id": "F1-unit0-left",
+    "name": "F1 cabinet 0 left",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F1-unit0-right",
+    "name": "F1 cabinet 0 right",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F1-unit0-bottom",
+    "name": "F1 cabinet 0 bottom",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 5783760,
+    "volumeMm3": 5783760
+  },
+  {
+    "id": "F1-unit0-shelf",
+    "name": "F1 cabinet 0 shelf",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 5584320,
+    "volumeMm3": 5584320
+  },
+  {
+    "id": "F1-unit0-front",
+    "name": "F1 cabinet 0 front",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 7076160,
+    "volumeMm3": 7076160
+  },
+  {
+    "id": "F1-unit0-handle",
+    "name": "F1 cabinet 0 handle",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 171000,
+    "volumeMm3": 171000
+  },
+  {
+    "id": "F1-unit1-left",
+    "name": "F1 cabinet 1 left",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F1-unit1-right",
+    "name": "F1 cabinet 1 right",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F1-unit1-bottom",
+    "name": "F1 cabinet 1 bottom",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 5783760,
+    "volumeMm3": 5783760
+  },
+  {
+    "id": "F1-unit1-shelf",
+    "name": "F1 cabinet 1 shelf",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 5584320,
+    "volumeMm3": 5584320
+  },
+  {
+    "id": "F1-unit1-front",
+    "name": "F1 cabinet 1 front",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 7076160,
+    "volumeMm3": 7076160
+  },
+  {
+    "id": "F1-unit1-handle",
+    "name": "F1 cabinet 1 handle",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 171000,
+    "volumeMm3": 171000
+  },
+  {
+    "id": "F1-unit2-left",
+    "name": "F1 cabinet 2 left",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F1-unit2-right",
+    "name": "F1 cabinet 2 right",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F1-unit2-bottom",
+    "name": "F1 cabinet 2 bottom",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 5783760,
+    "volumeMm3": 5783760
+  },
+  {
+    "id": "F1-unit2-shelf",
+    "name": "F1 cabinet 2 shelf",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 5584320,
+    "volumeMm3": 5584320
+  },
+  {
+    "id": "F1-unit2-front",
+    "name": "F1 cabinet 2 front",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 7076160,
+    "volumeMm3": 7076160
+  },
+  {
+    "id": "F1-unit2-handle",
+    "name": "F1 cabinet 2 handle",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 171000,
+    "volumeMm3": 171000
+  },
+  {
+    "id": "F1-unit3-left",
+    "name": "F1 cabinet 3 left",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F1-unit3-right",
+    "name": "F1 cabinet 3 right",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F1-unit3-bottom",
+    "name": "F1 cabinet 3 bottom",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 5783760,
+    "volumeMm3": 5783760
+  },
+  {
+    "id": "F1-unit3-shelf",
+    "name": "F1 cabinet 3 shelf",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 5584320,
+    "volumeMm3": 5584320
+  },
+  {
+    "id": "F1-unit3-front",
+    "name": "F1 cabinet 3 front",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 7076160,
+    "volumeMm3": 7076160
+  },
+  {
+    "id": "F1-unit3-handle",
+    "name": "F1 cabinet 3 handle",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 171000,
+    "volumeMm3": 171000
+  },
+  {
+    "id": "F1-counter",
+    "name": "Continuous stone countertop",
+    "level": "F1",
+    "kind": "stone",
+    "expected": 47580000,
+    "volumeMm3": 47580000
+  },
+  {
+    "id": "F1-vanity",
+    "name": "Vanity carcass",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 528000000,
+    "volumeMm3": 528000000
+  },
+  {
+    "id": "F1-basin-back",
+    "name": "Basin back rim",
+    "level": "F1",
+    "kind": "ceramic",
+    "expected": 5760000,
+    "volumeMm3": 5760000
+  },
+  {
+    "id": "F1-basin-front",
+    "name": "Basin front rim",
+    "level": "F1",
+    "kind": "ceramic",
+    "expected": 5760000,
+    "volumeMm3": 5760000
+  },
+  {
+    "id": "F1-basin-left",
+    "name": "Basin side",
+    "level": "F1",
+    "kind": "ceramic",
+    "expected": 8064000,
+    "volumeMm3": 8063999.999999999
+  },
+  {
+    "id": "F1-basin-right",
+    "name": "Basin side",
+    "level": "F1",
+    "kind": "ceramic",
+    "expected": 8064000,
+    "volumeMm3": 8063999.999999999
+  },
+  {
+    "id": "F1-wc-base",
+    "name": "WC pedestal envelope",
+    "level": "F1",
+    "kind": "ceramic",
+    "expected": 95760000,
+    "volumeMm3": 95760000
+  },
+  {
+    "id": "F1-wc-cistern",
+    "name": "WC cistern",
+    "level": "F1",
+    "kind": "ceramic",
+    "expected": 60000000,
+    "volumeMm3": 60000000.00000001
+  },
+  {
+    "id": "F1-shower",
+    "name": "900 shower tray",
+    "level": "F1",
+    "kind": "stone",
+    "expected": 40500000,
+    "volumeMm3": 40500000
+  },
+  {
+    "id": "F1-shower-screen",
+    "name": "Shower fixed screen",
+    "level": "F1",
+    "kind": "glass",
+    "expected": 18000000,
+    "volumeMm3": 18000000
+  },
+  {
+    "id": "F1-bath-door",
+    "name": "Bath door / open 90deg",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 68888000,
+    "volumeMm3": 68888000
+  },
+  {
+    "id": "F1-bath-handle",
+    "name": "Door pull",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 96000,
+    "volumeMm3": 96000
+  },
+  {
+    "id": "F1-stair-rail1",
+    "name": "F1 sloped handrail 1",
+    "level": "F1",
+    "kind": "metal",
+    "volumeMm3": 5669999.999999998
+  },
+  {
+    "id": "F1-stair-infill1",
+    "name": "F1 stair glass 1",
+    "level": "F1",
+    "kind": "glass",
+    "volumeMm3": 24192000
+  },
+  {
+    "id": "F1-stair-rail2",
+    "name": "F1 sloped handrail 2",
+    "level": "F1",
+    "kind": "metal",
+    "volumeMm3": 5670000.000000007
+  },
+  {
+    "id": "F1-stair-infill2",
+    "name": "F1 stair glass 2",
+    "level": "F1",
+    "kind": "glass",
+    "volumeMm3": 24192000
+  },
+  {
+    "id": "F1-W01-head",
+    "name": "F1-W01 head",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 28800000,
+    "volumeMm3": 28799999.999999996
+  },
+  {
+    "id": "F1-W01-sill",
+    "name": "F1-W01 sill",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 28800000,
+    "volumeMm3": 28799999.999999996
+  },
+  {
+    "id": "F1-W02-head",
+    "name": "F1-W02 head",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 16200000,
+    "volumeMm3": 16200000
+  },
+  {
+    "id": "F1-W02-sill",
+    "name": "F1-W02 sill",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 16200000,
+    "volumeMm3": 16200000
+  },
+  {
+    "id": "F1-W03-head",
+    "name": "F1-W03 head",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 14400000,
+    "volumeMm3": 14399999.999999998
+  },
+  {
+    "id": "F1-W03-sill",
+    "name": "F1-W03 sill",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 14400000,
+    "volumeMm3": 14399999.999999998
+  },
+  {
+    "id": "F1-W04-head",
+    "name": "F1-W04 head",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 16200000,
+    "volumeMm3": 16200000
+  },
+  {
+    "id": "F1-W04-sill",
+    "name": "F1-W04 sill",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 16200000,
+    "volumeMm3": 16200000
+  },
+  {
+    "id": "F1-W05-head",
+    "name": "F1-W05 head",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F1-W05-sill",
+    "name": "F1-W05 sill",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F1-W06-head",
+    "name": "F1-W06 head",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 18000000,
+    "volumeMm3": 18000000
+  },
+  {
+    "id": "F1-W06-sill",
+    "name": "F1-W06 sill",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 18000000,
+    "volumeMm3": 18000000
+  },
+  {
+    "id": "F1-W07-head",
+    "name": "F1-W07 head",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 9000000,
+    "volumeMm3": 9000000
+  },
+  {
+    "id": "F1-W07-sill",
+    "name": "F1-W07 sill",
+    "level": "F1",
+    "kind": "metal",
+    "expected": 9000000,
+    "volumeMm3": 9000000
+  },
+  {
+    "id": "F2-unit0-left",
+    "name": "F2 cabinet 0 left",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F2-unit0-right",
+    "name": "F2 cabinet 0 right",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F2-unit0-bottom",
+    "name": "F2 cabinet 0 bottom",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 5783760,
+    "volumeMm3": 5783760
+  },
+  {
+    "id": "F2-unit0-shelf",
+    "name": "F2 cabinet 0 shelf",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 5584320,
+    "volumeMm3": 5584320
+  },
+  {
+    "id": "F2-unit0-front",
+    "name": "F2 cabinet 0 front",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 7076160,
+    "volumeMm3": 7076160
+  },
+  {
+    "id": "F2-unit0-handle",
+    "name": "F2 cabinet 0 handle",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 171000,
+    "volumeMm3": 171000
+  },
+  {
+    "id": "F2-unit1-left",
+    "name": "F2 cabinet 1 left",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F2-unit1-right",
+    "name": "F2 cabinet 1 right",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F2-unit1-bottom",
+    "name": "F2 cabinet 1 bottom",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 5783760,
+    "volumeMm3": 5783760
+  },
+  {
+    "id": "F2-unit1-shelf",
+    "name": "F2 cabinet 1 shelf",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 5584320,
+    "volumeMm3": 5584320
+  },
+  {
+    "id": "F2-unit1-front",
+    "name": "F2 cabinet 1 front",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 7076160,
+    "volumeMm3": 7076160
+  },
+  {
+    "id": "F2-unit1-handle",
+    "name": "F2 cabinet 1 handle",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 171000,
+    "volumeMm3": 171000
+  },
+  {
+    "id": "F2-unit2-left",
+    "name": "F2 cabinet 2 left",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F2-unit2-right",
+    "name": "F2 cabinet 2 right",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F2-unit2-bottom",
+    "name": "F2 cabinet 2 bottom",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 5783760,
+    "volumeMm3": 5783760
+  },
+  {
+    "id": "F2-unit2-shelf",
+    "name": "F2 cabinet 2 shelf",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 5584320,
+    "volumeMm3": 5584320
+  },
+  {
+    "id": "F2-unit2-front",
+    "name": "F2 cabinet 2 front",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 7076160,
+    "volumeMm3": 7076160
+  },
+  {
+    "id": "F2-unit2-handle",
+    "name": "F2 cabinet 2 handle",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 171000,
+    "volumeMm3": 171000
+  },
+  {
+    "id": "F2-unit3-left",
+    "name": "F2 cabinet 3 left",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F2-unit3-right",
+    "name": "F2 cabinet 3 right",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F2-unit3-bottom",
+    "name": "F2 cabinet 3 bottom",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 5783760,
+    "volumeMm3": 5783760
+  },
+  {
+    "id": "F2-unit3-shelf",
+    "name": "F2 cabinet 3 shelf",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 5584320,
+    "volumeMm3": 5584320
+  },
+  {
+    "id": "F2-unit3-front",
+    "name": "F2 cabinet 3 front",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 7076160,
+    "volumeMm3": 7076160
+  },
+  {
+    "id": "F2-unit3-handle",
+    "name": "F2 cabinet 3 handle",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 171000,
+    "volumeMm3": 171000
+  },
+  {
+    "id": "F2-counter",
+    "name": "Continuous stone countertop",
+    "level": "F2",
+    "kind": "stone",
+    "expected": 47580000,
+    "volumeMm3": 47580000
+  },
+  {
+    "id": "F2-vanity",
+    "name": "Vanity carcass",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 528000000,
+    "volumeMm3": 528000000
+  },
+  {
+    "id": "F2-basin-back",
+    "name": "Basin back rim",
+    "level": "F2",
+    "kind": "ceramic",
+    "expected": 5760000,
+    "volumeMm3": 5760000
+  },
+  {
+    "id": "F2-basin-front",
+    "name": "Basin front rim",
+    "level": "F2",
+    "kind": "ceramic",
+    "expected": 5760000,
+    "volumeMm3": 5760000
+  },
+  {
+    "id": "F2-basin-left",
+    "name": "Basin side",
+    "level": "F2",
+    "kind": "ceramic",
+    "expected": 8064000,
+    "volumeMm3": 8063999.999999999
+  },
+  {
+    "id": "F2-basin-right",
+    "name": "Basin side",
+    "level": "F2",
+    "kind": "ceramic",
+    "expected": 8064000,
+    "volumeMm3": 8063999.999999999
+  },
+  {
+    "id": "F2-wc-base",
+    "name": "WC pedestal envelope",
+    "level": "F2",
+    "kind": "ceramic",
+    "expected": 95760000,
+    "volumeMm3": 95760000
+  },
+  {
+    "id": "F2-wc-cistern",
+    "name": "WC cistern",
+    "level": "F2",
+    "kind": "ceramic",
+    "expected": 60000000,
+    "volumeMm3": 60000000.00000001
+  },
+  {
+    "id": "F2-shower",
+    "name": "900 shower tray",
+    "level": "F2",
+    "kind": "stone",
+    "expected": 40500000,
+    "volumeMm3": 40500000
+  },
+  {
+    "id": "F2-shower-screen",
+    "name": "Shower fixed screen",
+    "level": "F2",
+    "kind": "glass",
+    "expected": 18000000,
+    "volumeMm3": 18000000
+  },
+  {
+    "id": "F2-bath-door",
+    "name": "Bath door / open 90deg",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 68888000,
+    "volumeMm3": 68888000
+  },
+  {
+    "id": "F2-bath-handle",
+    "name": "Door pull",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 96000,
+    "volumeMm3": 96000
+  },
+  {
+    "id": "F2-stair-rail1",
+    "name": "F2 sloped handrail 1",
+    "level": "F2",
+    "kind": "metal",
+    "volumeMm3": 5670000
+  },
+  {
+    "id": "F2-stair-infill1",
+    "name": "F2 stair glass 1",
+    "level": "F2",
+    "kind": "glass",
+    "volumeMm3": 24192000.000000004
+  },
+  {
+    "id": "F2-stair-rail2",
+    "name": "F2 sloped handrail 2",
+    "level": "F2",
+    "kind": "metal",
+    "volumeMm3": 5670000.000000007
+  },
+  {
+    "id": "F2-stair-infill2",
+    "name": "F2 stair glass 2",
+    "level": "F2",
+    "kind": "glass",
+    "volumeMm3": 24192000
+  },
+  {
+    "id": "F2-W01-head",
+    "name": "F2-W01 head",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 28800000,
+    "volumeMm3": 28799999.999999996
+  },
+  {
+    "id": "F2-W01-sill",
+    "name": "F2-W01 sill",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 28800000,
+    "volumeMm3": 28799999.999999996
+  },
+  {
+    "id": "F2-W02-head",
+    "name": "F2-W02 head",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 16200000,
+    "volumeMm3": 16200000
+  },
+  {
+    "id": "F2-W02-sill",
+    "name": "F2-W02 sill",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 16200000,
+    "volumeMm3": 16200000
+  },
+  {
+    "id": "F2-W03-head",
+    "name": "F2-W03 head",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 14400000,
+    "volumeMm3": 14399999.999999998
+  },
+  {
+    "id": "F2-W03-sill",
+    "name": "F2-W03 sill",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 14400000,
+    "volumeMm3": 14399999.999999998
+  },
+  {
+    "id": "F2-W04-head",
+    "name": "F2-W04 head",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 16200000,
+    "volumeMm3": 16200000
+  },
+  {
+    "id": "F2-W04-sill",
+    "name": "F2-W04 sill",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 16200000,
+    "volumeMm3": 16200000
+  },
+  {
+    "id": "F2-W05-head",
+    "name": "F2-W05 head",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F2-W05-sill",
+    "name": "F2-W05 sill",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F2-W06-head",
+    "name": "F2-W06 head",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 18000000,
+    "volumeMm3": 18000000
+  },
+  {
+    "id": "F2-W06-sill",
+    "name": "F2-W06 sill",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 18000000,
+    "volumeMm3": 18000000
+  },
+  {
+    "id": "F2-W07-head",
+    "name": "F2-W07 head",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 9000000,
+    "volumeMm3": 9000000
+  },
+  {
+    "id": "F2-W07-sill",
+    "name": "F2-W07 sill",
+    "level": "F2",
+    "kind": "metal",
+    "expected": 9000000,
+    "volumeMm3": 9000000
+  },
+  {
+    "id": "F3-unit0-left",
+    "name": "F3 cabinet 0 left",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F3-unit0-right",
+    "name": "F3 cabinet 0 right",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F3-unit0-bottom",
+    "name": "F3 cabinet 0 bottom",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 5783760,
+    "volumeMm3": 5783760
+  },
+  {
+    "id": "F3-unit0-shelf",
+    "name": "F3 cabinet 0 shelf",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 5584320,
+    "volumeMm3": 5584320
+  },
+  {
+    "id": "F3-unit0-front",
+    "name": "F3 cabinet 0 front",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 7076160,
+    "volumeMm3": 7076160
+  },
+  {
+    "id": "F3-unit0-handle",
+    "name": "F3 cabinet 0 handle",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 171000,
+    "volumeMm3": 171000
+  },
+  {
+    "id": "F3-unit1-left",
+    "name": "F3 cabinet 1 left",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F3-unit1-right",
+    "name": "F3 cabinet 1 right",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F3-unit1-bottom",
+    "name": "F3 cabinet 1 bottom",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 5783760,
+    "volumeMm3": 5783760
+  },
+  {
+    "id": "F3-unit1-shelf",
+    "name": "F3 cabinet 1 shelf",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 5584320,
+    "volumeMm3": 5584320
+  },
+  {
+    "id": "F3-unit1-front",
+    "name": "F3 cabinet 1 front",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 7076160,
+    "volumeMm3": 7076160
+  },
+  {
+    "id": "F3-unit1-handle",
+    "name": "F3 cabinet 1 handle",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 171000,
+    "volumeMm3": 171000
+  },
+  {
+    "id": "F3-unit2-left",
+    "name": "F3 cabinet 2 left",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F3-unit2-right",
+    "name": "F3 cabinet 2 right",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F3-unit2-bottom",
+    "name": "F3 cabinet 2 bottom",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 5783760,
+    "volumeMm3": 5783760
+  },
+  {
+    "id": "F3-unit2-shelf",
+    "name": "F3 cabinet 2 shelf",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 5584320,
+    "volumeMm3": 5584320
+  },
+  {
+    "id": "F3-unit2-front",
+    "name": "F3 cabinet 2 front",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 7076160,
+    "volumeMm3": 7076160
+  },
+  {
+    "id": "F3-unit2-handle",
+    "name": "F3 cabinet 2 handle",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 171000,
+    "volumeMm3": 171000
+  },
+  {
+    "id": "F3-unit3-left",
+    "name": "F3 cabinet 3 left",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F3-unit3-right",
+    "name": "F3 cabinet 3 right",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 7934400,
+    "volumeMm3": 7934400
+  },
+  {
+    "id": "F3-unit3-bottom",
+    "name": "F3 cabinet 3 bottom",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 5783760,
+    "volumeMm3": 5783760
+  },
+  {
+    "id": "F3-unit3-shelf",
+    "name": "F3 cabinet 3 shelf",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 5584320,
+    "volumeMm3": 5584320
+  },
+  {
+    "id": "F3-unit3-front",
+    "name": "F3 cabinet 3 front",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 7076160,
+    "volumeMm3": 7076160
+  },
+  {
+    "id": "F3-unit3-handle",
+    "name": "F3 cabinet 3 handle",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 171000,
+    "volumeMm3": 171000
+  },
+  {
+    "id": "F3-counter",
+    "name": "Continuous stone countertop",
+    "level": "F3",
+    "kind": "stone",
+    "expected": 47580000,
+    "volumeMm3": 47580000
+  },
+  {
+    "id": "F3-vanity",
+    "name": "Vanity carcass",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 528000000,
+    "volumeMm3": 528000000
+  },
+  {
+    "id": "F3-basin-back",
+    "name": "Basin back rim",
+    "level": "F3",
+    "kind": "ceramic",
+    "expected": 5760000,
+    "volumeMm3": 5760000
+  },
+  {
+    "id": "F3-basin-front",
+    "name": "Basin front rim",
+    "level": "F3",
+    "kind": "ceramic",
+    "expected": 5760000,
+    "volumeMm3": 5760000
+  },
+  {
+    "id": "F3-basin-left",
+    "name": "Basin side",
+    "level": "F3",
+    "kind": "ceramic",
+    "expected": 8064000,
+    "volumeMm3": 8063999.999999999
+  },
+  {
+    "id": "F3-basin-right",
+    "name": "Basin side",
+    "level": "F3",
+    "kind": "ceramic",
+    "expected": 8064000,
+    "volumeMm3": 8063999.999999999
+  },
+  {
+    "id": "F3-wc-base",
+    "name": "WC pedestal envelope",
+    "level": "F3",
+    "kind": "ceramic",
+    "expected": 95760000,
+    "volumeMm3": 95760000
+  },
+  {
+    "id": "F3-wc-cistern",
+    "name": "WC cistern",
+    "level": "F3",
+    "kind": "ceramic",
+    "expected": 60000000,
+    "volumeMm3": 60000000.00000001
+  },
+  {
+    "id": "F3-shower",
+    "name": "900 shower tray",
+    "level": "F3",
+    "kind": "stone",
+    "expected": 40500000,
+    "volumeMm3": 40500000
+  },
+  {
+    "id": "F3-shower-screen",
+    "name": "Shower fixed screen",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 18000000,
+    "volumeMm3": 18000000
+  },
+  {
+    "id": "F3-bath-door",
+    "name": "Bath door / open 90deg",
+    "level": "F3",
+    "kind": "timber",
+    "expected": 68888000,
+    "volumeMm3": 68888000
+  },
+  {
+    "id": "F3-bath-handle",
+    "name": "Door pull",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 96000,
+    "volumeMm3": 96000
+  },
+  {
+    "id": "F3-W01-head",
+    "name": "F3-W01 head",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 28800000,
+    "volumeMm3": 28799999.999999996
+  },
+  {
+    "id": "F3-W01-sill",
+    "name": "F3-W01 sill",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 28800000,
+    "volumeMm3": 28799999.999999996
+  },
+  {
+    "id": "F3-W02-head",
+    "name": "F3-W02 head",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 16200000,
+    "volumeMm3": 16200000
+  },
+  {
+    "id": "F3-W02-sill",
+    "name": "F3-W02 sill",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 16200000,
+    "volumeMm3": 16200000
+  },
+  {
+    "id": "F3-W03-head",
+    "name": "F3-W03 head",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 14400000,
+    "volumeMm3": 14399999.999999998
+  },
+  {
+    "id": "F3-W03-sill",
+    "name": "F3-W03 sill",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 14400000,
+    "volumeMm3": 14399999.999999998
+  },
+  {
+    "id": "F3-W04-head",
+    "name": "F3-W04 head",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 16200000,
+    "volumeMm3": 16200000
+  },
+  {
+    "id": "F3-W04-sill",
+    "name": "F3-W04 sill",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 16200000,
+    "volumeMm3": 16200000
+  },
+  {
+    "id": "F3-W05-head",
+    "name": "F3-W05 head",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F3-W05-sill",
+    "name": "F3-W05 sill",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 10800000,
+    "volumeMm3": 10800000
+  },
+  {
+    "id": "F3-W06-head",
+    "name": "F3-W06 head",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 18000000,
+    "volumeMm3": 18000000
+  },
+  {
+    "id": "F3-W06-sill",
+    "name": "F3-W06 sill",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 18000000,
+    "volumeMm3": 18000000
+  },
+  {
+    "id": "F3-W07-head",
+    "name": "F3-W07 head",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 9000000,
+    "volumeMm3": 9000000
+  },
+  {
+    "id": "F3-W07-sill",
+    "name": "F3-W07 sill",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 9000000,
+    "volumeMm3": 9000000
+  },
+  {
+    "id": "F1-island-body",
+    "name": "Island cabinet",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 1346400000,
+    "volumeMm3": 1346400000
+  },
+  {
+    "id": "F1-island-top",
+    "name": "Island worktop",
+    "level": "F1",
+    "kind": "stone",
+    "expected": 63175000,
+    "volumeMm3": 63175000
+  },
+  {
+    "id": "F1-furniture-800",
+    "name": "Sofa / bed base",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 1560000000,
+    "volumeMm3": 1560000000
+  },
+  {
+    "id": "F1-furniture-800-cushion",
+    "name": "Upholstered cushion / mattress",
+    "level": "F1",
+    "kind": "fabric",
+    "expected": 1103872000,
+    "volumeMm3": 1103872000
+  },
+  {
+    "id": "F1-furniture-800-back",
+    "name": "Back / headboard",
+    "level": "F1",
+    "kind": "timber",
+    "expected": 166400000,
+    "volumeMm3": 166399999.99999994
+  },
+  {
+    "id": "F2-furniture-1000",
+    "name": "Sofa / bed base",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 1080000000,
+    "volumeMm3": 1080000000
+  },
+  {
+    "id": "F2-furniture-1000-cushion",
+    "name": "Upholstered cushion / mattress",
+    "level": "F2",
+    "kind": "fabric",
+    "expected": 758912000,
+    "volumeMm3": 758911999.9999998
+  },
+  {
+    "id": "F2-furniture-1000-back",
+    "name": "Back / headboard",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 115200000,
+    "volumeMm3": 115200000
+  },
+  {
+    "id": "F2-furniture-6000",
+    "name": "Sofa / bed base",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 840000000,
+    "volumeMm3": 840000000.0000001
+  },
+  {
+    "id": "F2-furniture-6000-cushion",
+    "name": "Upholstered cushion / mattress",
+    "level": "F2",
+    "kind": "fabric",
+    "expected": 586432000,
+    "volumeMm3": 586432000
+  },
+  {
+    "id": "F2-furniture-6000-back",
+    "name": "Back / headboard",
+    "level": "F2",
+    "kind": "timber",
+    "expected": 89600000,
+    "volumeMm3": 89600000.00000001
+  },
+  {
+    "id": "F1-entry-canopy",
+    "name": "Folded entry canopy",
+    "level": "F1",
+    "kind": "metal",
+    "volumeMm3": 300125000
+  },
+  {
+    "id": "F3-guard-infill0",
+    "name": "Terrace front glass infill",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 10488000,
+    "volumeMm3": 10488000
+  },
+  {
+    "id": "F3-guard-infill1",
+    "name": "Terrace front glass infill",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 10488000,
+    "volumeMm3": 10488000
+  },
+  {
+    "id": "F3-guard-infill2",
+    "name": "Terrace front glass infill",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 10488000,
+    "volumeMm3": 10488000
+  },
+  {
+    "id": "F3-guard-infill3",
+    "name": "Terrace front glass infill",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 10488000,
+    "volumeMm3": 10488000
+  },
+  {
+    "id": "F3-guard-infill4",
+    "name": "Terrace front glass infill",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 10488000,
+    "volumeMm3": 10488000
+  },
+  {
+    "id": "F3-west-rail",
+    "name": "Terrace west handrail",
+    "level": "F3",
+    "kind": "metal",
+    "expected": 9875000,
+    "volumeMm3": 9875000.000000002
+  },
+  {
+    "id": "F3-west-glass",
+    "name": "Terrace west glass infill",
+    "level": "F3",
+    "kind": "glass",
+    "expected": 43608000,
+    "volumeMm3": 43608000.00000001
+  },
+  {
+    "id": "RF-parapet-north",
+    "name": "Roof parapet / flashing detail pending",
+    "level": "RF",
+    "kind": "stone",
+    "expected": 729000000,
+    "volumeMm3": 729000000
+  },
+  {
+    "id": "RF-parapet-east",
+    "name": "Roof parapet / flashing detail pending",
+    "level": "RF",
+    "kind": "stone",
+    "expected": 637875000,
+    "volumeMm3": 637875000
+  },
+  {
+    "id": "RF-parapet-south",
+    "name": "Roof parapet / flashing detail pending",
+    "level": "RF",
+    "kind": "stone",
+    "expected": 354375000,
+    "volumeMm3": 354375000
+  },
+  {
+    "id": "RF-parapet-inner",
+    "name": "Roof parapet / flashing detail pending",
+    "level": "RF",
+    "kind": "stone",
+    "expected": 364500000,
+    "volumeMm3": 364500000
+  },
+  {
+    "id": "RF-parapet-west",
+    "name": "Roof parapet / flashing detail pending",
+    "level": "RF",
+    "kind": "stone",
+    "expected": 344250000,
+    "volumeMm3": 344250000
+  }
+]

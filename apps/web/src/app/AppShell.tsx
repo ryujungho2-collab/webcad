@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { CommandPalette } from "../commands/CommandPalette";
 import { createPaletteCommands } from "../commands/paletteCommands";
-import { isCadKeyboardBlocked } from "../input/shortcutRouter";
+import { isCompositionKey, isCadKeyboardBlocked } from "../input/shortcutRouter";
 import { ActivityBar, type ActivityId } from "../activity/ActivityBar";
 import { ExplorerPanel } from "../explorer/ExplorerPanel";
 import type { CopilotPanelProps } from "../copilot/CopilotPanel";
@@ -13,8 +13,19 @@ import type { WorkPlaneId } from "../precision/workPlane";
 import type { WorkspaceMode } from "../viewport/workspaceTransition";
 import type { KernelStatus } from "../cad/kernelGeometryService";
 import { ToolIcon } from "../ui/ToolIcon";
+import { useCompactComparison } from "./useCompactComparison";
+import "../ui/projectComparison.css";
+import "../ui/accessibility.css";
+import {SelectionToolbar} from "../ui/SelectionToolbar";
+import {selectionContext} from "../commands/selectionContext";
+import {cadDocument} from "../state/cadDocument";
+import {InspectorSectionScope} from "../ui/PropertySection";
 
 export type AppShellProps = {
+  onCurveLayout?:()=>void;
+  onRepeatCommand?:()=>void;
+  frameToolsBusy?:boolean;
+  onFrameAction?:(action:"edit"|"links"|"sheets")=>void;
   onAssembly?:()=>void;
   onModelViews?: () => void;
   onRecallModelView?: (viewId: string) => void;
@@ -42,7 +53,8 @@ export type AppShellProps = {
   activeArtboardId: string | null;
   activeArtboardName?: string;
   hasVisibleArtboards: boolean;
-  onActivateArtboard: (id: string | null) => void;
+  onActivateArtboard: (id: string | null, options?: { keepSelection?: boolean }) => void;
+  onNavigateProject: (key:string)=>void;
   onInsertComponent: (blockId: string) => void;
   documentId: string;
   documentRevision: number;
@@ -130,9 +142,13 @@ export type AppShellProps = {
   onExportSvg?: () => void;
   onExportArtboardSvg?: () => void;
   onExportArtboardPng?: () => void;
+  onOutputPreflight?:()=>void;
   onExportArtboardPdf?: () => void;
   onExportDxf?: () => void;
   onExportStep?: () => void;
+  onExportGlb?: () => void;
+  solidEdgesVisible?: boolean;
+  onToggleSolidEdges?: () => void;
   onImportFixture?: () => void;
   onExportFixture?: () => void;
   onImportDxf?: () => void;
@@ -148,13 +164,18 @@ export type AppShellProps = {
 };
 
 export function AppShell(props: AppShellProps) {
-  const [explorerCollapsed, setExplorerCollapsed] = useState(false);
-  const [propertiesCollapsed, setPropertiesCollapsed] = useState(false);
+  const [normalExplorerCollapsed, setExplorerCollapsed] = useState(false);
+  const [normalPropertiesCollapsed, setPropertiesCollapsed] = useState(false);
+  const compact=useCompactComparison(),[compactPanel,setCompactPanel]=useState<"explorer"|"properties"|null>(null);
+  const explorerCollapsed=compact?compactPanel!=="explorer":normalExplorerCollapsed;
+  const propertiesCollapsed=compact?compactPanel!=="properties":normalPropertiesCollapsed;
+  const toggleExplorer=()=>{if(compact)setCompactPanel(panel=>panel==="explorer"?null:"explorer");else setExplorerCollapsed(value=>!value);};
+  const toggleProperties=()=>{if(compact)setCompactPanel(panel=>panel==="properties"?null:"properties");else setPropertiesCollapsed(value=>!value);};
   const [paletteOpen, setPaletteOpen] = useState(false);
 
   useEffect(() => {
     function openPalette(event: KeyboardEvent) {
-      if (event.isComposing || event.repeat || event.altKey || event.shiftKey || !(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== "k") return;
+      if (isCompositionKey(event) || event.repeat || event.altKey || event.shiftKey || !(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== "k") return;
       if (isCadKeyboardBlocked(event.target)) return;
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -165,16 +186,18 @@ export function AppShell(props: AppShellProps) {
   }, []);
 
   const paletteCommands = createPaletteCommands(props, {
-    toggleExplorer: () => setExplorerCollapsed((value) => !value),
-    toggleProperties: () => setPropertiesCollapsed((value) => !value),
-    openActivity: (activity) => { setExplorerCollapsed(false); props.onChangeActivity(activity); },
+    inspectSelection:()=>{if(compact)setCompactPanel("properties");else setPropertiesCollapsed(false);requestAnimationFrame(()=>document.querySelector<HTMLElement>(".workbench-properties input:not(:disabled), .workbench-properties button:not(:disabled)")?.focus());},
+    toggleExplorer,
+    toggleProperties,
+    openActivity: (activity) => { if(compact)setCompactPanel("explorer");else setExplorerCollapsed(false); props.onChangeActivity(activity); },
   });
 
   function changeActivity(activity: ActivityId) {
     // A different activity is a navigation request and must reveal its panel.
     // Clicking the already-active activity is the compact CAD/VS Code-style
     // shortcut for toggling the Explorer without hunting for the edge button.
-    setExplorerCollapsed((collapsed) => activity === props.activeActivity ? !collapsed : false);
+    if(compact)setCompactPanel(panel=>activity===props.activeActivity&&panel==="explorer"?null:"explorer");
+    else setExplorerCollapsed((collapsed) => activity === props.activeActivity ? !collapsed : false);
     props.onChangeActivity(activity);
   }
 
@@ -197,6 +220,7 @@ export function AppShell(props: AppShellProps) {
         onExportSvg={() => props.onExportSvg?.()}
         onExportArtboardSvg={() => props.onExportArtboardSvg?.()}
         onExportArtboardPng={() => props.onExportArtboardPng?.()}
+        onOutputPreflight={props.onOutputPreflight}
         onExportArtboardPdf={() => props.onExportArtboardPdf?.()}
         activeArtboardName={props.activeArtboardName}
         hasVisibleArtboards={props.hasVisibleArtboards}
@@ -207,20 +231,25 @@ export function AppShell(props: AppShellProps) {
         onImportImage={() => props.onImportImage?.()}
         onExportDxf={() => props.onExportDxf?.()}
         onExportStep={() => props.onExportStep?.()}
+        onExportGlb={props.onExportGlb}
+        solidEdgesVisible={props.solidEdgesVisible}
+        onToggleSolidEdges={props.onToggleSolidEdges}
         onPlot={() => props.onPlot?.()}
         onInsertPavilion={props.onInsertPavilion}
         onUndo={props.onUndo}
         onRedo={props.onRedo}
         explorerVisible={!explorerCollapsed}
         propertiesVisible={!propertiesCollapsed}
-        onToggleExplorer={() => setExplorerCollapsed((value) => !value)}
-        onToggleProperties={() => setPropertiesCollapsed((value) => !value)}
+        onToggleExplorer={toggleExplorer}
+        onToggleProperties={toggleProperties}
       />
 
       <Ribbon
+        editingCommands={paletteCommands.filter(c=>["drafting","points-move","points-copy","points-rotate","repeat-command"].includes(c.id))}
+        annotationCommands={["add-text","drafting"].map(id=>paletteCommands.find(c=>c.id===id&&!c.reference)).filter((c):c is NonNullable<typeof c>=>Boolean(c))}
         onAssembly={props.onAssembly} onModelViews={props.onModelViews}
         onCurveWorkflow={props.onCurveWorkflow} canCurveWorkflow={props.canCurveWorkflow}
-        onCadPilot={props.onCadPilot} activeUcsName={props.activeUcsName} onEndpointRadiusArc={props.onEndpointRadiusArc} onSpline={props.onSpline} onEllipse={props.onEllipse} onRegularPolygon={props.onRegularPolygon} onConstruction={props.onConstruction} onAngularDimension={props.onAngularDimension} constructionVisible={props.constructionVisible} onToggleConstruction={props.onToggleConstruction}
+        onCadPilot={props.onCadPilot} activeUcsName={props.activeUcsName} onEndpointRadiusArc={props.onEndpointRadiusArc} onCurveLayout={props.onCurveLayout} onSpline={props.onSpline} onEllipse={props.onEllipse} onRegularPolygon={props.onRegularPolygon} onConstruction={props.onConstruction} onAngularDimension={props.onAngularDimension} constructionVisible={props.constructionVisible} onToggleConstruction={props.onToggleConstruction}
         canContour={props.canContour} onContour={props.onContour}
         canDisbandBlock={props.canDisbandBlock} onDisbandBlock={props.onDisbandBlock}
         canPattern={props.canPattern} onPattern={props.onPattern}
@@ -283,9 +312,11 @@ export function AppShell(props: AppShellProps) {
         onLineEditTool={props.onLineEditTool}
       />
 
-      <div className={`workbench${explorerCollapsed ? " explorer-collapsed" : ""}${propertiesCollapsed ? " properties-collapsed" : ""}`}>
+      <div className={`workbench${compact?" project-comparison-compact":""}${explorerCollapsed ? " explorer-collapsed" : ""}${propertiesCollapsed ? " properties-collapsed" : ""}`}>
         <ActivityBar activeActivity={props.activeActivity} workspaceMode={props.workspaceMode} onChange={changeActivity} />
         <ExplorerPanel
+          navigationBusy={props.frameToolsBusy}
+          onNavigateProject={props.onNavigateProject}
           activeActivity={props.activeActivity}
           activeArtboardId={props.activeArtboardId}
           onActivateArtboard={props.onActivateArtboard}
@@ -304,9 +335,11 @@ export function AppShell(props: AppShellProps) {
         />
 
         <section className="workbench-viewport">
+          <SelectionToolbar selectionKey={JSON.stringify([props.documentId,props.selectedObjectIds,props.activeArtboardId,props.activeSketchId])} context={selectionContext(cadDocument,props.selectedObjectIds,{workspace:props.workspaceMode,sketch:props.activeSketchId,artboard:props.activeArtboardId,frameBusy:props.frameToolsBusy})} commands={paletteCommands}/>
+          <div className="selection-viewport-content">
           {props.children}
-          <button className="panel-toggle panel-toggle-left" type="button" onClick={() => setExplorerCollapsed((collapsed) => !collapsed)} title={`${explorerCollapsed ? "Show" : "Hide"} Explorer`} aria-label={`${explorerCollapsed ? "Show" : "Hide"} Explorer`}>{explorerCollapsed ? "›" : "‹"}</button>
-          <button className="panel-toggle panel-toggle-right" type="button" onClick={() => setPropertiesCollapsed((collapsed) => !collapsed)} title={`${propertiesCollapsed ? "Show" : "Hide"} Properties`} aria-label={`${propertiesCollapsed ? "Show" : "Hide"} Properties`}>{propertiesCollapsed ? "‹" : "›"}</button>
+          <button className="panel-toggle panel-toggle-left" type="button" onClick={toggleExplorer} title={`${explorerCollapsed ? "Show" : "Hide"} Explorer`} aria-label={`${explorerCollapsed ? "Show" : "Hide"} Explorer`}>{explorerCollapsed ? "›" : "‹"}</button>
+          <button className="panel-toggle panel-toggle-right" type="button" onClick={toggleProperties} title={`${propertiesCollapsed ? "Show" : "Hide"} Properties`} aria-label={`${propertiesCollapsed ? "Show" : "Hide"} Properties`}>{propertiesCollapsed ? "‹" : "›"}</button>
           <div className="viewport-label"><strong>{props.projectionMode === "perspective" ? "Perspective" : "Orthographic"}</strong><span>{props.workspaceMode === "2d" ? `${props.activeWorkPlane} plane` : "Shaded"}</span></div>
           <div className="viewport-frame-actions" role="group" aria-label="Frame geometry">
             <button type="button" title="Fit all visible geometry" aria-label="Fit all geometry" onClick={() => props.onViewAction("fit-all")}><ToolIcon name="Fit" fallback="□" /></button>
@@ -317,12 +350,13 @@ export function AppShell(props: AppShellProps) {
           {props.activeArtboardName && <div className="viewport-artboard-label" aria-label={`Active artboard ${props.activeArtboardName}`}>Canvas · {props.activeArtboardName}</div>}
           {props.isolationActive && <div className="viewport-isolation">Isolated view <button type="button" onClick={props.onIsolate}>Exit isolation</button></div>}
           <div className="navigation-hint"><span>Wheel</span> Up/down <b>·</b> <span>Shift Wheel</span> Left/right <b>·</b> <span>Ctrl Wheel</span> Zoom <b>·</b> <span>Alt Wheel</span> Rotate <b>·</b> <span>MMB</span> Pan <b>·</b> <span>Ctrl K</span> Commands / Shortcuts</div>
+          </div>
         </section>
 
-        <aside className="workbench-properties">{props.properties}</aside>
+        <aside className="workbench-properties"><InspectorSectionScope scope={props.activeSketchId?"sketch":props.activeArtboardId&&!props.selectedObjectIds.length?"frame":Object.values(cadDocument.features).find(f=>f.output===props.selectedObjectId)?.type??"document"}>{props.properties}</InspectorSectionScope></aside>
       </div>
 
-      <StatusBar
+      <StatusBar saveStatus={props.saveStatus} fileStatus={props.fileStatus} onSave={props.onSave} onSaveAs={props.onSaveAs}
         selectedObjectId={props.selectedObjectId}
         selectedObjectIds={props.selectedObjectIds}
         selectedLayerId={props.selectedLayerId}

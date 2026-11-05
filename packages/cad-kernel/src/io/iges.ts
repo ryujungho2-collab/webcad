@@ -25,7 +25,7 @@
  */
 export function importIges(filePath: string) {
   // Implementation copied from Cascade Studio's StandardLibrary.js
-  return null;
+  throw new Error("Legacy IGES import is unsupported. No file was imported.");
 }
 
 /**
@@ -33,5 +33,5 @@ export function importIges(filePath: string) {
  */
 export function exportIges(shape: any, filePath: string) {
   // Implementation copied from Cascade Studio's StandardLibrary.js
-  return true;
+  throw new Error("Legacy IGES export is unsupported. No file was written.");
 }

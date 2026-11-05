@@ -2,6 +2,21 @@ import type { CadCommand, CommandBus } from "@agent-webcad/cad-commands";
 import { MAX_DOCUMENT_RASTER_BYTES, validRasterAsset, validImageNodeParams, type CadDocument } from "@agent-webcad/cad-document";
 
 export function registerImageCommandHandlers(bus: CommandBus, document: CadDocument) {
+  bus.registerHandler("reorder-image", command => {
+    if (command.type !== "reorder-image") return;
+    const object = document.objects[command.objectId];
+    const feature = Object.values(document.features).find(f => f.output === command.objectId && f.type === "image");
+    const layer = object && document.layers[object.layerId];
+    if (!object || !feature || !layer || layer.locked || !layer.visible || !object.visible) return { accepted: false, reason: "Select a visible image on an unlocked layer." };
+    const images = document.rootObjects.filter(id => Object.values(document.features).some(f => f.output === id && f.type === "image" && f.params.workPlane === feature.params.workPlane));
+    const index = images.indexOf(command.objectId);
+    const target = command.direction === "front" ? images.length - 1 : command.direction === "back" ? 0 : command.direction === "forward" ? Math.min(images.length - 1, index + 1) : Math.max(0, index - 1);
+    if (index < 0 || index === target) return { accepted: false, reason: "Image is already at this stacking boundary." };
+    images.splice(index, 1); images.splice(target, 0, command.objectId);
+    const imageIds = new Set(images); let cursor = 0;
+    document.rootObjects = document.rootObjects.map(id => imageIds.has(id) ? images[cursor++] : id);
+    document.revision++;
+  });
   bus.registerHandler("replace-image-source", command => {
     if (command.type !== "replace-image-source") return;
     const object = document.objects[command.objectId];

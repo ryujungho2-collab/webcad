@@ -1,8 +1,42 @@
 # 검증·측정
 
+- [CAD-MCP-01 공식 SDK stdio·실제 브라우저·native Review 검증](CAD-MCP-01-2026-10-23.json) · 2026-10-23
+
+- [COPILOT-NATIVE-ARCHITECTURE-01 실제 부재·도면·Undo·경로 조회 검증](COPILOT-NATIVE-ARCHITECTURE-01-2026-10-23.json) · 2026-10-23
+
+- [COPILOT-DESIGN-STUDY-01 실제 대안·gateway 계약·Undo·복구](COPILOT-DESIGN-STUDY-01-2026-10-22.json) · 2026-10-22
+
+- [CAFE-2F-02 카페 3D·STEP 재수입·GLB·실제 UI](CAFE-2F-02-2026-10-20.json) · 2026-10-20
+
+- [CAFE-2F-01 2층 카페·PDF·DXF](CAFE-2F-01-2026-10-20.json) · 2026-10-20
+
+- [COPILOT-ENCLOSURE-01 둥근 케이스·내부 바닥/앞면 구멍](COPILOT-ENCLOSURE-01-2026-10-19.json) · 2026-10-19
+
+
+- [COPILOT-2D3D-01 자연어 2D→3D→다듬기 검증](COPILOT-2D3D-01-2026-10-19.json) · 2026-10-19
+
+
+- [COPILOT-CONVERSATION-01 자연어 생성·후속 대화](COPILOT-CONVERSATION-01-2026-10-19.json) · 2026-10-19
+
+
+- [CAD-TOOLS-02 3D 도구 확대](CAD-TOOLS-02-2026-10-19.json) · 2026-10-19
+
+- [CAD-TOOLS-01 공통 도구와 3D 확대](CAD-TOOLS-01-2026-10-19.json) · 2026-10-19
+
+- [COPILOT-SOLID-01 생성·후속 치수 변경](COPILOT-SOLID-01-2026-10-19.json) · 2026-10-19
+
 [문서 안내](../README.md) · [현재 상태](../../PROJECT-STATE.md) · [실행 큐](../../NEXT-STEPS.md)
 
 Markdown은 당시 조건·해석, JSON은 실행 결과를 담는다. 파일별 날짜·환경·실패/미실행을 함께 읽는다. 현재 기능 설명은 [대표 가이드](../features/README.md)가 소유하며 이 색인은 검증 증거를 찾는 용도다.
+
+- [UI-P4 프로젝트 묶음·revision 비교](UI-P4-2026-10-18.json) · 2026-10-18
+
+- [G6-D5-E2 곡선 DXF 확대](G6-D5-E2-2026-10-18.json) · JSON
+
+- [G6-D5-Q1 출력 전 점검](G6-D5-Q1-2026-10-18.json) · 2026-10-18
+- [G2-W2 재사용 부품·표현 라이브러리](G2-W2-2026-10-18.json) · 2026-10-18
+- [G2-W1 프로젝트 내부 탐색](G2-W1-2026-10-18.json) · 2026-10-18
+- [G6-D6-P4 캐시·cold HLR](G6-D6-P4-2026-10-18.json) · JSON
 
 ## CAD B · 기본 편집·정밀도
 
@@ -58,6 +92,7 @@ Markdown은 당시 조건·해석, JSON은 실행 결과를 담는다. 파일별
 - [WF-A1-2026-10-14](WF-A1-2026-10-14.json) · JSON
 - [WF-B2-B3-2026-10-16](WF-B2-B3-2026-10-16.json) · JSON
 - [WF-C0-A2-B1-2026-10-16](WF-C0-A2-B1-2026-10-16.json) · JSON
+- [WF-Q1-2026-10-17](WF-Q1-2026-10-17.json) · JSON
 
 ## 모델·프레임·연관 도면·시트
 
@@ -116,8 +151,45 @@ Markdown은 당시 조건·해석, JSON은 실행 결과를 담는다. 파일별
 
 ## 프로젝트·UI·자원
 
+- [G6-D4-H2-2026-10-18](G6-D4-H2-2026-10-18.json) · JSON
+- [UI-C5-2026-10-18](UI-C5-2026-10-18.json) · JSON
+- [UI-C4-2026-10-17](UI-C4-2026-10-17.json) · JSON
+- [UI-C3-2026-10-17](UI-C3-2026-10-17.json) · JSON
+- [UI-C2-2026-10-17](UI-C2-2026-10-17.json) · JSON
+- [UI-P3-B-2026-10-17](UI-P3-B-2026-10-17.json) · JSON
+- [UI-P3-A-2026-10-17](UI-P3-A-2026-10-17.json) · JSON
 - [UI-P1-H1-2026-10-14](UI-P1-H1-2026-10-14.json) · JSON
 - [UI-P1-H2-2026-10-14](UI-P1-H2-2026-10-14.json) · JSON
 - [UI-P2-2026-10-15](UI-P2-2026-10-15.json) · JSON
 - [UI-P2-C-2026-10-16](UI-P2-C-2026-10-16.json) · JSON
 - [UI-P2-S-2026-10-15](UI-P2-S-2026-10-15.json) · JSON
+
+- [CAN-A1 상위 캔버스](CAN-A1-2026-10-18.json) · 2026-10-18
+
+- [CAN-A2 Flex 배치](CAN-A2-2026-10-18.json) · 2026-10-18
+
+- [CAN-A3 콘텐츠 비례 확대](CAN-A3-2026-10-18.json) · 2026-10-18
+
+- [MEAS-H1 호버 거리·측정 지점](MEAS-H1-2026-10-18.json) · 2026-10-18
+
+- [MEAS-H1 솔리드/BRep 거리](MEAS-H1-BREP-2026-10-18.json) · 2026-10-18
+
+- [MEAS 면·모서리 지정 측정](MEAS-SELECTED-ELEMENTS-2026-10-18.json) — Node 52, browser 11+16, build/architecture 통과.
+
+- [MEAS 혼합·투영·축별 측정](MEAS-MIXED-PROJECTED-2026-10-18.json) — Node 60, browser 25+16, build/architecture 통과.
+
+- [MEAS 측정 결과 고정·치수화](MEAS-SAVED-DIMENSIONS-2026-10-18.json) — 전체 Node 1460, 최종 관련 70, browser 14+25, 실제 SVG/PDF 및 재열기 검증.
+
+- [MEAS 치수선 직접 배치·편집](MEAS-DIMENSION-PLACEMENT-2026-10-18.json) — 전체 Node 1468, 관련 76, browser 17+14+25, 단일 Undo·stale/취소·재열기 검증.
+
+- [MEAS 치수 배치 스냅·겹침 정리](MEAS-DIMENSION-LAYOUT-2026-10-18.json) — 전체 Node 1476, 관련 84, browser 15+17+14+25, 스냅/Shift/그룹 Apply·Undo와 stale 검증.
+
+- 완료: [주거 과제 측정·A3 연결 검증](MEAS-RESIDENTIAL-2026-10-18.json) — 실제 파일의 치수 출력 누락 보완, 도면 원점·축척·종이 문자와 v47 재열기.
+
+- [외부 주거 도면 기반 가져오기 개선](EXT-CIVIL-01-2026-10-18.json) — MTEXT·정적 치수 블록·숨김 표시·사용 블록 범위와 신규 batch/블록 표시 성능.
+
+- [외부 주거 도면 2차 개선](EXT-CIVIL-02-2026-10-19.json) — 직선 HATCH·채움·색상 상속과 실제 DXF 왕복 검증.
+
+- [외부 주거 도면 3차 개선](EXT-CIVIL-03-2026-10-19.json) — 가져오기 진행·취소, 탐색기 표시와 다중 선택 인덱스 성능.
+
+- [주거 도면 수정·복원 검증](EXT-CIVIL-RESTORE-01-2026-10-19.json) — Undo·직접 편집 복원, 전체 문서 및 DXF 표시 경로 비교.

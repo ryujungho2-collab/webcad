@@ -1,0 +1,56 @@
+import {createRoot} from "react-dom/client";
+import * as THREE from "three";
+import {App} from "../src/App";
+import {cadDocument} from "../src/state/cadDocument";
+import {cadHistory} from "../src/state/history";
+import {saveDocumentToCache} from "../src/state/documentFile";
+import {projectTreeFixture} from "./helpers/projectTreeFixture";
+import {dispatchCadCommand} from "../src/state/dispatchCadCommand";
+import {projectKernelMetrics} from "../src/cad/kernelGeometryService";
+import {collectArtboardExportItems} from "../src/export/exportModel";
+import {encodeSvg} from "../src/export/svgWriter";
+import {serializeDocument,canvasOwner} from "@agent-webcad/cad-document";
+import {physical,click,text,input,waitFor,pause,choose} from "./helpers/physicalInput";
+import {installBrowserChecks} from "./helpers/browserChecks";
+import "../src/styles.css";import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+const reloadKey="canvas-hierarchy-reload",saved=sessionStorage.getItem(reloadKey);
+if(!saved){await projectTreeFixture();const r=await dispatchCadCommand({type:"upsert-workspace-section",section:{id:"area",name:"주거 도면 구역",color:"#586d92",workPlane:"XY",origin:[780,-20],size:[300,150],frameIds:["frame","detail"],collapsed:false}});if(!r.ok)throw Error(r.reason);saveDocumentToCache();}
+let camera:THREE.Camera;const original=THREE.Camera.prototype.updateMatrixWorld;THREE.Camera.prototype.updateMatrixWorld=function(force){camera=this;return original.call(this,force);};
+createRoot(document.getElementById("root")!).render(<App/>);
+const button=document.getElementById('run') as HTMLButtonElement,output=document.getElementById('output')!;
+const state=()=>{const {revision:_,...value}=cadDocument;return JSON.stringify(value);};
+const stable=(value:unknown):string=>JSON.stringify(value,(_,entry)=>entry&&typeof entry==="object"&&!Array.isArray(entry)?Object.fromEntries(Object.entries(entry).sort(([a],[b])=>a.localeCompare(b))):entry);
+const geometry=()=>{const {revision:_,canvases:__,...value}=cadDocument;return stable(value);};
+const field=(label:string)=>document.querySelector<HTMLInputElement>(`[aria-label="${label}"]`)!;
+const nodes=()=>Object.values(cadDocument.canvases??{}),byName=(name:string)=>nodes().find(c=>c.name===name)!;
+async function selectValue(label:string,value:string){const select=document.querySelector<HTMLSelectElement>(`[aria-label="${label}"]`)!;const index=[...select.options].findIndex(o=>o.value===value);if(index<0)throw Error(`Missing ${label}: ${value}`);await choose(label,index);}
+async function reviewed(){await waitFor(()=>!![...document.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent==='Apply canvas changes'&&!b.disabled),'Canvas review ready');}
+const center=(x:number,y:number)=>{const p=new THREE.Vector3(x,y,0).project(camera);return Math.abs(p.x)<.15&&Math.abs(p.y)<.15;};
+button.onclick=async()=>{const resumed=saved?JSON.parse(saved):null,lines:string[]=resumed?.lines??[],artifacts:Record<string,string>=resumed?.artifacts??{},check=(ok:unknown,label:string)=>{if(!ok)throw Error(label);lines.push('PASS '+label);output.textContent=lines.join('\n');};try{
+ await waitFor(()=>!!camera&&!!document.querySelector('canvas'));
+ if(resumed){await waitFor(()=>nodes().length===3);check(geometry()===resumed.geometry,'Reload preserves original model, frames, sections and unit/scaling metadata');check(JSON.stringify(cadDocument.canvases)===resumed.canvases,'Reload restores canvas ownership, references and bounds');check(cadHistory.getPastLabels().length===0,'Reopening starts a fresh Undo session');await click('Project navigation');check(!!document.querySelector('[data-canvas-target]'),'Reopened hierarchy is navigable');(globalThis as any).cadTestArtifacts=artifacts;output.textContent=lines.join('\n')+`\nALL ${lines.length} CHECKS PASSED`;return;}
+ await click('Project navigation');await waitFor(()=>!!document.querySelector('[aria-label="Canvas hierarchy"]'));await waitFor(()=>projectKernelMetrics().activeTasks===0);
+ const before=state(),source=geometry(),depth=cadHistory.getPastLabels().length,kernel=projectKernelMetrics().submittedTasks,svgBefore=encodeSvg([],{items:collectArtboardExportItems('paper'),viewBox:cadDocument.artboards!.paper});
+ await click('Organize existing document');await reviewed();check(state()===before,'Legacy hierarchy migration is detached until Apply');await click('Cancel canvas edit');check(state()===before,'Cancel preserves every legacy source and history');
+ await click('Organize existing document');await reviewed();await click('Apply canvas changes');await waitFor(()=>nodes().length===2);
+ check(geometry()===source,'Organize preserves model transforms, Section/Frame references, crops and scale');check(cadHistory.getPastLabels().length===depth+1,'Migration is one Undo transaction');check(projectKernelMetrics().submittedTasks===kernel,'Organizational migration submits no native geometry work');
+ await click('Undo');check(nodes().length===0,'Undo restores the legacy document without a canvas field');await click('Redo');check(nodes().length===2,'Redo restores the entire hierarchy');
+ const model=nodes().find(c=>c.units==='model-mm')!,paper=nodes().find(c=>c.units==='paper-mm')!;
+ const navigation=state(),navDepth=cadHistory.getPastLabels().length;
+ await physical(document.querySelector(`[data-canvas-target="${model.id}"]`)!);await waitFor(()=>center(500,500));check(state()===navigation&&cadHistory.getPastLabels().length===navDepth,'Canvas navigation fits its declared bounds without model revision or Undo');
+ await click('New canvas');await text('Canvas name','주거 검토 캔버스');await selectValue('Canvas parent',model.id);await selectValue('Canvas target','body');await click('Add canvas member');await click('Review canvas');await reviewed();await click('Apply canvas changes');await waitFor(()=>nodes().length===3);
+ const child=byName('주거 검토 캔버스');check(canvasOwner(cadDocument,child.id)?.id===model.id&&child.members[0].relation==='reference','Nested canvas owns one parent and shares the existing model by reference');check(geometry()===source,'Adding a canvas reference creates no duplicate geometry');
+ await click('New canvas');await text('Canvas name','Duplicate owner');await selectValue('Canvas target','body');await selectValue('Canvas relation','own');await click('Add canvas member');const duplicateBefore=state();await click('Review canvas');await waitFor(()=>!!document.querySelector('.canvas-hierarchy [role="alert"]'));check(state()===duplicateBefore&&document.querySelector('.canvas-hierarchy [role="alert"]')!.textContent!.includes('Duplicate'),'Duplicate source ownership rejects before mutation');await click('Cancel canvas edit');
+ await click('Edit canvas 주거 검토 캔버스');await selectValue('Canvas target kind','canvas');await selectValue('Canvas target',model.id);await click('Add canvas member');await click('Review canvas');await waitFor(()=>!!document.querySelector('.canvas-hierarchy [role="alert"]'));check(document.querySelector('.canvas-hierarchy [role="alert"]')!.textContent!.includes('cycle'),'Ancestor reference cycles have an explicit review error');await click('Cancel canvas edit');
+ await click('Edit canvas 주거 검토 캔버스');await selectValue('Canvas units','paper-mm');await click('Review canvas');await waitFor(()=>!!document.querySelector('.canvas-hierarchy [role="alert"]'));check(document.querySelector('.canvas-hierarchy [role="alert"]')!.textContent!.includes('units'),'Mixed model/paper ownership requires an explicit reference boundary');await click('Cancel canvas edit');
+ await click('Edit canvas 주거 검토 캔버스');await selectValue('Canvas parent','');const parentBefore=state();await click('Review canvas');await reviewed();check(state()===parentBefore,'Parent reassignment remains a reviewed draft');await click('Apply canvas changes');check(!canvasOwner(cadDocument,child.id),'Reparent to document root preserves its source reference');
+ await click(`Edit canvas ${paper.name}`);await selectValue('Canvas target kind','canvas');await selectValue('Canvas target',child.id);await click('Add canvas member');await click('Review canvas');await reviewed();await click('Apply canvas changes');check(cadDocument.canvases![paper.id].members.some(m=>m.kind==='canvas'&&m.id===child.id&&m.relation==='reference'),'Paper canvas can explicitly reference the model-unit canvas without conversion');
+ await click(`Edit canvas ${paper.name}`);await physical(field('Canvas locked'));await click('Review canvas');await reviewed();await click('Apply canvas changes');await click(`Edit canvas ${paper.name}`);check(field('Canvas name').matches(':disabled'),'Canvas lock prevents hierarchy edits');await click('Review unlock canvas');await reviewed();await click('Apply canvas changes');check(!cadDocument.canvases![paper.id].locked,'Unlock uses the same reviewed command path');
+ await click('Edit canvas 주거 검토 캔버스');await click('Review delete canvas');await reviewed();const deleteBefore=state();await click('Apply canvas changes');check(!cadDocument.canvases?.[child.id]&&!!cadDocument.objects.body,'Deleting a container keeps source geometry');await click('Undo');check(state()===deleteBefore,'Undo restores the container and incoming shared reference atomically');
+ await physical(document.querySelector(`[data-canvas-target="${child.id}"]`)!);await waitFor(()=>center(100,75));
+ const shot=async(name:string)=>{button.closest('aside')!.style.visibility='hidden';try{artifacts[name]=(await(await input({type:'screenshot'})).json()).data;}finally{button.closest('aside')!.style.visibility='';}};
+ await shot('canvas-1440.png');await input({type:'viewport',width:960,height:1000});await pause();await physical(document.querySelector(`[data-canvas-target="${child.id}"]`)!);await waitFor(()=>[[0,0],[200,150]].every(([x,y])=>{const p=new THREE.Vector3(x,y,0).project(camera);return Math.abs(p.x)<1&&Math.abs(p.y)<1;}),'Compact canvas bounds fit');check(document.documentElement.scrollWidth<=960,'Canvas hierarchy and editor fit the 960px workspace');await click('Edit canvas 주거 검토 캔버스');check(field('Canvas name').getBoundingClientRect().width>60,'Compact canvas editor retains usable precise controls');await shot('canvas-960.png');await click('Cancel canvas edit');await input({type:'viewport',width:1440,height:1000});
+ await click('Save document');const svg=encodeSvg([],{items:collectArtboardExportItems('paper'),viewBox:cadDocument.artboards!.paper});check(svg===svgBefore,'Published SVG geometry and paper scale stay identical after canvas edits');artifacts['paper.svg']=svg;artifacts['canvas.webcad.json']=serializeDocument(cadDocument);check(JSON.parse(artifacts['canvas.webcad.json']).version===43,'Portable save records the canvas hierarchy in version 43');
+ sessionStorage.setItem(reloadKey,JSON.stringify({lines,artifacts,canvases:JSON.stringify(cadDocument.canvases),geometry:source}));location.reload();
+ }catch(reason){(globalThis as any).cadTestArtifacts=artifacts;output.textContent=lines.join('\n')+'\nFAIL: '+(reason instanceof Error?reason.stack:String(reason));}};
+installBrowserChecks(button,output);

@@ -3,6 +3,7 @@ import {CadEngine} from "../runtime/CadEngine";
 import type {SectionCurve,SectionPoint} from "./section";
 import {mergeProjectionConics,projectionCurveKey} from "./projectionConics";
 import {intersect} from "./booleans";
+import {projectionGroups} from "./projectionPartition";
 export type ProjectionClip={normal:SectionPoint;height:number;keep:"positive"|"negative";depth:number};
 /** Conservative analytic BRep bounds, including native shape tolerances.
  * An uncertain/touching boundary always falls through to exact clipping. */
@@ -29,13 +30,34 @@ export type ProjectionCurve={sourceIndex:number;hidden:boolean;edgeClass:"sharp"
 /** OCCT exact HLR across the complete assembly; returned edges live in paper XY.
  * Sharp V/H and silhouette OutLine only; Rg1/RgN smooth/seam and isolines are excluded.
  * No mesh hull, tessellation or unclassified edge is substituted for a curve. */
-export async function projectShapes(shapes:any[],normal:SectionPoint,xAxis:SectionPoint):Promise<ProjectionCurve[]>{
+export type HlrProfile={boundsMs:number;updateMs:number;hideMs:number;extractMs:number;groups:number;computedGroups:number;reusedGroups:number;largestGroup:number;shapes:number};
+export async function projectShapes(shapes:any[],normal:SectionPoint,xAxis:SectionPoint,options:{partition?:boolean;profile?:(profile:HlrProfile)=>void;
+ /** Trusted immutable construction recipes matched to shapes by the runtime.
+  * Never supplied for clipped shapes. Key includes geometry, rotation and scale. */
+ instances?:()=>{key:string;translation:SectionPoint}[];
+}={}):Promise<ProjectionCurve[]>{
+ const started=performance.now(),groups=options.partition===false?[shapes.map((_,i)=>i)]:await projectionGroups(shapes,normal,xAxis),profile:HlrProfile={boundsMs:performance.now()-started,updateMs:0,hideMs:0,extractMs:0,groups:groups.length,computedGroups:0,reusedGroups:0,largestGroup:Math.max(0,...groups.map(g=>g.length)),shapes:shapes.length},curves:ProjectionCurve[]=[];
+ const candidates=groups.length>1?options.instances?.():undefined,instances=candidates?.length===shapes.length?candidates:undefined,reuse=new Map<string,{anchor:SectionPoint;curves:ProjectionCurve[];magnitude:number}>();
+ const nl=Math.hypot(...normal),n=normal.map(v=>v/nl),dot=xAxis.reduce((sum,v,i)=>sum+v*n[i],0),x=xAxis.map((v,i)=>v-dot*n[i]),xl=Math.hypot(...x);for(let i=0;i<3;i++)x[i]/=xl;const y=[n[1]*x[2]-n[2]*x[1],n[2]*x[0]-n[0]*x[2],n[0]*x[1]-n[1]*x[0]];
+ for(const group of groups){
+  const anchor=instances?.[group[0]]?.translation,key=instances&&anchor?JSON.stringify(group.map(i=>[instances[i].key,instances[i].translation.map((v,j)=>v-anchor[j])])):undefined,prior=key?reuse.get(key):undefined;let result:ProjectionCurve[];
+  if(prior&&anchor&&Math.max(prior.magnitude,...anchor.map(Math.abs),...prior.anchor.map(Math.abs))*Number.EPSILON*64<=1e-7){
+   const delta=anchor.map((v,j)=>v-prior.anchor[j]),offset=[x.reduce((sum,v,j)=>sum+v*delta[j],0),y.reduce((sum,v,j)=>sum+v*delta[j],0),0],move=(p:SectionPoint)=>p.map((v,j)=>v+offset[j]) as SectionPoint;
+   result=prior.curves.map(c=>{const curve=structuredClone(c.curve);if(curve.kind==="spline")curve.controlPoints=curve.controlPoints.map(move);else if(curve.kind==="line")curve.points=curve.points.map(move) as [SectionPoint,SectionPoint];else{curve.center=move(curve.center);if(curve.kind!=="ellipse")curve.points=curve.points.map(move) as [SectionPoint,SectionPoint,SectionPoint];}return {...c,curve};});profile.reusedGroups++;
+  }else{result=await projectShapeGroup(group.map(i=>shapes[i]),normal,xAxis,profile);profile.computedGroups++;if(key&&anchor){let magnitude=0;const add=(p:SectionPoint)=>{for(const v of p)magnitude=Math.max(magnitude,Math.abs(v));};for(const {curve} of result){if(curve.kind==="spline")curve.controlPoints.forEach(add);else if(curve.kind==="line")curve.points.forEach(add);else{add(curve.center);magnitude+=curve.kind==="ellipse"?Math.hypot(...curve.axisU)+Math.hypot(...curve.axisV):curve.radius;}}reuse.set(key,{anchor,curves:result,magnitude});}}
+  if(curves.length+result.length>10000)throw Error("Projection exceeds 10,000 analytic edges.");
+  curves.push(...result.map(c=>({...c,sourceIndex:group[c.sourceIndex]})));
+ }
+ curves.sort((a,b)=>a.sourceIndex-b.sourceIndex||Number(a.hidden)-Number(b.hidden));
+ if(curves.length>10000)throw Error("Projection exceeds 10,000 analytic edges.");options.profile?.(profile);return curves;
+}
+async function projectShapeGroup(shapes:any[],normal:SectionPoint,xAxis:SectionPoint,profile:HlrProfile):Promise<ProjectionCurve[]>{
  const {oc}=await CadEngine.create();
  const p=new oc.gp_Pnt_3(0,0,0),n=new oc.gp_Dir_4(...normal),x=new oc.gp_Dir_4(...xAxis),axes=new oc.gp_Ax2_2(p,n,x),projector=new oc.HLRAlgo_Projector_2(axes),algo=new oc.HLRBRep_Algo_1();
  let handle:any,output:any;const result:ProjectionCurve[]=[];
  try{
   for(const shape of shapes)algo.Add_2(shape,0);
-  algo.Projector_1(projector);algo.Update();algo.Hide_1();handle=new oc.Handle_HLRBRep_Algo_2(algo);output=new oc.HLRBRep_HLRToShape(handle);
+  algo.Projector_1(projector);let stamp=performance.now();algo.Update();profile.updateMs+=performance.now()-stamp;stamp=performance.now();algo.Hide_1();profile.hideMs+=performance.now()-stamp;stamp=performance.now();handle=new oc.Handle_HLRBRep_Algo_2(algo);output=new oc.HLRBRep_HLRToShape(handle);
   const point=(v:any):SectionPoint=>{try{return [v.X(),v.Y(),0];}finally{v.delete();}};
   for(const [sourceIndex,source] of shapes.entries())for(const hidden of [false,true]){
    const seen=new Set<string>();
@@ -69,6 +91,6 @@ export async function projectShapes(shapes:any[],normal:SectionPoint,xAxis:Secti
     }finally{explorer?.delete();shape.delete();}
    }
   }
-  return mergeProjectionConics(result);
+  const merged=mergeProjectionConics(result);profile.extractMs+=performance.now()-stamp;return merged;
  }finally{output?.delete();if(handle)handle.delete();else algo.delete();projector.delete();axes.delete();x.delete();n.delete();p.delete();}
 }

@@ -1,3 +1,11 @@
+import {ReconstructionPanel} from "./ReconstructionPanel";
+import {AssemblyPanel} from "./AssemblyPanel";
+import {HybridPanel} from "./HybridPanel";
+import {SculptPanel} from "./SculptPanel";
+import {GeometryNodesPanel} from "./GeometryNodesPanel";
+import {FrameInspector} from "./FrameInspector";
+import {InspectorSummary} from "./InspectorSummary";
+import {primitivePropertyEdit} from "./inspectorEdits";
 import {NumericModelEdit} from "./NumericModelEdit";
 
 import { useEffect, useRef, useState } from "react";
@@ -9,7 +17,7 @@ import { NumericField } from "../ui/NumericField";
 import { PropertySection } from "../ui/PropertySection";
 import { validateBooleanOperation, validateChamferOperation, validateFilletOperation } from "../cad/kernelGeometryService";
 import { measureDrawing } from "../precision/measurements";
-import { formatLength } from "../precision/units";
+import { parseLength,parseAngle,formatLength } from "../precision/units";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 import { resolveDimension } from "../precision/dimensionGeometry";
 import { planDiameterFromSelection, planDimensionFromSelection } from "../state/dimensionCommands";
@@ -34,6 +42,9 @@ import {FaceHolePanel} from "./FaceHolePanel";
 import {ShellPanel} from "./ShellPanel";
 
 type PropertiesPanelProps = {
+  onReviewCadTools?: (calls:import("../copilot/cadToolContract").CadToolCall[])=>void;
+  activeArtboardId?:string|null;
+  onEditFrame?:()=>void;
   onFaceSketchCreated?:(id:string)=>void;
   onEditAngularDimension?: (id:string)=>void;
   onEditPattern?:(id:string)=>void;
@@ -68,6 +79,7 @@ type PropertiesPanelProps = {
   onImageCropDraftRegister?: (objectId: string, update: ((crop: CadImageCrop) => void) | null) => void;
 };
 
+import {MeshPanel} from "./MeshPanel";
 type PrimitiveDraft = Record<string, string>;
 
 type TransformDraft = {
@@ -98,8 +110,15 @@ const changedVector = (next: [number, number, number], current: [number, number,
 
 export function PropertiesPanel(props: PropertiesPanelProps) {
   const [diameterSource, setDiameterSource] = useState<string | null>(null);
+  if(!props.selectedObjectId&&props.activeArtboardId&&cadDocument.artboards?.[props.activeArtboardId])return <FrameInspector board={cadDocument.artboards[props.activeArtboardId]} onEdit={props.onEditFrame}/>;
   return <>
-    <PropertiesContent {...props} onDiameterDimension={setDiameterSource}/>
+    <MeshPanel selectedObjectId={props.selectedObjectId} layerId={props.selectedLayerId} revision={props.documentRevision} onCreated={props.onBooleanCreated} onDocumentChange={props.onDocumentChange}/>
+    <ReconstructionPanel selectedObjectId={props.selectedObjectId} revision={props.documentRevision} onCreated={props.onBooleanCreated} onDocumentChange={props.onDocumentChange}/>
+    <AssemblyPanel revision={props.documentRevision} onDocumentChange={props.onDocumentChange}/>
+    <HybridPanel selectedObjectId={props.selectedObjectId} revision={props.documentRevision} onCreated={props.onBooleanCreated} onDocumentChange={props.onDocumentChange}/>
+    <SculptPanel selectedObjectId={props.selectedObjectId} revision={props.documentRevision} onCreated={props.onBooleanCreated} onDocumentChange={props.onDocumentChange}/>
+    <GeometryNodesPanel selectedObjectId={props.selectedObjectId} layerId={props.selectedLayerId} revision={props.documentRevision} onCreated={props.onBooleanCreated} onDocumentChange={props.onDocumentChange}/>
+    <PropertiesContent key={JSON.stringify([props.selectedObjectId,props.selectedObjectIds])} {...props} onDiameterDimension={setDiameterSource}/>
     <WorkPlanePanel revision={props.documentRevision} selection={props.selectedSubObjects??[]} layerId={props.selectedLayerId} onDocumentChange={props.onDocumentChange} onSketchCreated={props.onFaceSketchCreated}/>
     <FaceHolePanel revision={props.documentRevision} selectedObjectId={props.selectedObjectId} onDocumentChange={props.onDocumentChange} onCreated={props.onBooleanCreated}/>
     <ShellPanel revision={props.documentRevision} selectedObjectId={props.selectedObjectId} selection={props.selectedSubObjects??[]} onDocumentChange={props.onDocumentChange} onCreated={props.onBooleanCreated}/>
@@ -108,6 +127,7 @@ export function PropertiesPanel(props: PropertiesPanelProps) {
 }
 
 function PropertiesContent({
+  onReviewCadTools,
   onDiameterDimension,
   onEditAngularDimension,
   onEditPattern,
@@ -143,21 +163,22 @@ function PropertiesContent({
 }: PropertiesPanelProps & { onDiameterDimension: (id: string) => void }) {
   const normalAxis = draftingPlane ? WORK_PLANES[draftingPlane].normal.findIndex((value) => value !== 0) : -1;
   const object = selectedObjectId ? cadDocument.objects[selectedObjectId] : null;
+  const featureByOutput=new Map(Object.values(cadDocument.features).map(f=>[f.output,f]));
   const selectedObjects = selectedObjectIds.map((id) => cadDocument.objects[id]).filter(Boolean);
   const selectedTransforms = selectedObjects.map((entry) => {
-    const f = Object.values(cadDocument.features).find((candidate) => candidate.output === entry.id);
+    const f = featureByOutput.get(entry.id);
     return getObjectTransform(entry, f);
   });
   const selectedPositions = selectedObjects.map((entry, index) =>
-    getObjectWorldTransformPivot(cadDocument, entry.id) ?? selectedTransforms[index].translation
+    getObjectWorldTransformPivot(cadDocument, entry.id,featureByOutput) ?? selectedTransforms[index].translation
   );
   const mixed = (values: number[]) => values.length > 1 && values.some((value) => Math.abs(value - values[0]) > 1e-9);
   const mixedLayer = selectedObjects.length > 1 && selectedObjects.some((entry) => entry.layerId !== selectedObjects[0].layerId);
   const mixedVisible = selectedObjects.length > 1 && selectedObjects.some((entry) => entry.visible !== selectedObjects[0].visible);
   const feature = object
-    ? Object.values(cadDocument.features).find((entry) => entry.output === object.id)
+    ? featureByOutput.get(object.id)
     : undefined;
-  const isPrimitive = feature?.type === "primitive";
+  const isPrimitive = feature?.type === "primitive" && feature.params.kind !== "planar-reconstruction";
   const isSolid = feature?.type === "primitive" || feature?.type === "extrude" || feature?.type === "boolean" || feature?.type === "fillet" || feature?.type === "chamfer" || feature?.type === "revolve" || feature?.type === "sweep" || feature?.type === "shell" || feature?.type === "loft";
   const isDrawing = feature?.type === "drawing";
   const isImage = feature?.type === "image";
@@ -179,8 +200,8 @@ function PropertiesContent({
     : {};
   const primitiveKind = isPrimitive && typeof feature.params.kind === "string" ? feature.params.kind : "box";
   const selectedPrimitiveKinds = selectedObjects.map((entry) => {
-    const candidate = Object.values(cadDocument.features).find((item) => item.output === entry.id);
-    return candidate?.type === "primitive" && typeof candidate.params.kind === "string" ? candidate.params.kind : null;
+    const candidate = featureByOutput.get(entry.id);
+    return candidate?.type === "primitive" && candidate.params.kind !== "planar-reconstruction" && typeof candidate.params.kind === "string" ? candidate.params.kind : null;
   });
   const multiPrimitiveKind = selectedObjects.length > 1 && selectedPrimitiveKinds.every((kind) => kind !== null && kind === selectedPrimitiveKinds[0])
     ? (selectedPrimitiveKinds[0] as string)
@@ -190,7 +211,7 @@ function PropertiesContent({
   const primitiveFieldMixed = (key: string) => {
     if (!multiPrimitiveKind) return false;
     const values = selectedObjects.map((entry) => {
-      const candidate = Object.values(cadDocument.features).find((item) => item.output === entry.id);
+      const candidate = featureByOutput.get(entry.id);
       return candidate?.type === "primitive" ? Number(candidate.params[key]) : Number.NaN;
     });
     return values.length > 1 && values.some((value) => value !== values[0]);
@@ -209,7 +230,7 @@ function PropertiesContent({
   // Single selection keeps the exact legacy behavior (primary layer lock).
   // Multi-selection edits are all-or-nothing batches, so disable them unless
   // every member is editable.
-  const constructionOwned = selectedObjects.some(entry => Object.values(cadDocument.features).some(f => f.output === entry.id && f.construction));
+  const constructionOwned = selectedObjects.some(entry => !!featureByOutput.get(entry.id)?.construction);
   const generalEditDisabled = selectedObjects.length > 1 ? !allSelectedEditable : isLocked;
   const bulkEditDisabled = constructionOwned || generalEditDisabled || dimensionKind === "angular";
   const [name, setName] = useState("");
@@ -367,7 +388,7 @@ function PropertiesContent({
       const next: PrimitiveDraft = {};
       for (const { key } of fields) {
         const values = selectedObjects.map((entry) => {
-          const candidate = Object.values(cadDocument.features).find((item) => item.output === entry.id);
+          const candidate = featureByOutput.get(entry.id);
           return candidate?.type === "primitive" ? candidate.params[key] : undefined;
         });
         next[key] = values.every((value) => String(value) === String(values[0])) ? String(values[0] ?? "") : "Mixed";
@@ -403,48 +424,15 @@ function PropertiesContent({
     onDocumentChange();
   }
 
-  async function commitPrimitive() {
-    if (multiPrimitiveKind) {
-      const allEditable = selectedObjects.every((entry) => {
-        const layer = cadDocument.layers[entry.layerId];
-        return Boolean(entry.visible && layer?.visible && !layer.locked);
-      });
-      if (!allEditable) return;
-      const edited: Record<string, number> = {};
-      for (const { key } of fields) {
-        const draft = primitiveDraft[key];
-        if (draft === undefined || draft === "Mixed" || draft.trim() === "") continue;
-        const value = Number(draft);
-        if (!Number.isFinite(value) || value <= 0) return;
-        edited[key] = value;
-      }
-      if (Object.keys(edited).length === 0) return;
-      const commands: Array<{ type: "update-primitive"; objectId: string; params: Record<string, number> }> = [];
-      for (const entry of selectedObjects) {
-        const candidate = Object.values(cadDocument.features).find((item) => item.output === entry.id);
-        if (!candidate || candidate.type !== "primitive") return;
-        const current = Object.fromEntries(Object.entries(candidate.params).filter(([key]) => key !== "kind")) as Record<string, number>;
-        const params: Record<string, number> = { ...current, ...edited };
-        const numeric = Object.fromEntries(fields.map(({ key }) => [key, Number(params[key])]));
-        if (Object.values(numeric).some((value) => !Number.isFinite(value) || (value as number) <= 0)) return;
-        if (multiPrimitiveKind === "torus" && numeric.majorRadius <= numeric.minorRadius) return;
-        if (JSON.stringify(current) === JSON.stringify(params)) continue;
-        commands.push({ type: "update-primitive", objectId: entry.id, params });
-      }
-      if (commands.length) await dispatchCadCommand(commands.length === 1 ? commands[0] : { type: "batch", label: `Edit ${commands.length} primitives`, commands });
-      onDocumentChange();
-      return;
-    }
-    if (!object || !isPrimitive || isLocked) return;
-    const params = Object.fromEntries(fields.map(({ key }) => [key, Number(primitiveDraft[key])]));
-    if (Object.values(params).some((value) => !Number.isFinite(value) || value <= 0) || (primitiveKind === "torus" && params.majorRadius <= params.minorRadius)) {
-      setPrimitiveDraft(Object.fromEntries(Object.entries(feature.params).filter(([key]) => key !== "kind").map(([key, value]) => [key, String(value)])));
-      return;
-    }
-    await dispatchCadCommand({ type: "update-primitive", objectId: object.id, params });
-    onDocumentChange();
+  async function commitPrimitive(field:string) {
+    try {
+      const command=primitivePropertyEdit(cadDocument,selectedObjects.map(o=>o.id),field,primitiveDraft[field]??"");
+      if(!command){setCommandError("");return;}
+      const result=await dispatchCadCommand(command);
+      if(!result.ok){setCommandError(result.reason??"Dimension edit rejected.");return;}
+      setCommandError("");onDocumentChange();
+    }catch(error){setCommandError(error instanceof Error?error.message:String(error));}
   }
-
   async function runBoolean(operation: "union" | "cut" | "intersect") {
     if (!object || !feature || !isSolid || isLocked || !booleanToolId) return;
     const tool = cadDocument.objects[booleanToolId];
@@ -511,7 +499,7 @@ function PropertiesContent({
     else setChamferError(chamferResult.reason ?? "The selected edges do not produce a valid chamfer. The distance may be too large.");
   }
 
-  async function commitTransform(kind: "move" | "rotate" | "scale") {
+  async function commitTransform(kind: "move" | "rotate" | "scale",editedKey?:keyof TransformDraft) {
     if (!object || isLocked) return;
     const allEditable = selectedObjects.every((entry) => {
       const layer = cadDocument.layers[entry.layerId];
@@ -524,10 +512,11 @@ function PropertiesContent({
         ? ["rx", "ry", "rz"] as const
         : ["sx", "sy", "sz"] as const;
     const values = keys.map((key) => {
+      if(editedKey&&key!==editedKey)return null;
       const draft = transformDraft[key];
       if (draft === "Mixed" || draft.trim() === "") return null;
-      const value = Number(draft);
-      return Number.isFinite(value) ? value : Number.NaN;
+      const value = kind==="move"?parseLength(draft):kind==="rotate"?parseAngle(draft):Number(draft);
+      return value!==null&&Number.isFinite(value) ? value : Number.NaN;
     }) as [number | null, number | null, number | null];
     const commands = planBulkTransformEdit(
       cadDocument,
@@ -535,13 +524,13 @@ function PropertiesContent({
       kind === "move" ? "translate" : kind,
       values,
     );
-    if (!commands) return;
-    if (commands.length) await dispatchCadCommand(selectedObjects.length > 1 ? {
+    if (!commands) {setCommandError("Enter a valid position in mm, cm, m, in or ft; rotation in deg or rad; scale as a positive factor.");return;}
+    if (commands.length) {const result=await dispatchCadCommand(selectedObjects.length > 1 ? {
       type: "batch",
       label: `${kind === "move" ? "Move" : kind === "rotate" ? "Rotate" : "Scale"} selection`,
       commands,
-    } : commands[0]);
-    onDocumentChange();
+    } : commands[0]);if(!result.ok){setCommandError(result.reason??"Transform rejected.");return;}}
+    setCommandError("");onDocumentChange();
   }
 
   async function changeLayer(layerId: string) {
@@ -695,32 +684,13 @@ function PropertiesContent({
   if(feature?.pattern){
     const p=feature.pattern,members=Object.values(cadDocument.features).filter(f=>f.pattern?.id===p.id);
     const act=async(type:"detach-pattern"|"delete-pattern")=>{const result=await dispatchDocumentCommand({type,patternId:p.id});if(result.ok)onDocumentChange();else setCommandError(result.reason??"Pattern operation rejected.");};
-    return <div className="properties-content"><PropertySection title="Live pattern"><strong>{p.spec.kind} · {members.length} generated curves</strong><p>Edit the sources to change every instance. Edit the pattern to change its axis, spacing or placements.</p><button type="button" onClick={()=>onEditPattern?.(p.id)}>Edit pattern</button><button type="button" onClick={()=>void act("detach-pattern")}>Detach pattern</button><button type="button" onClick={()=>void act("delete-pattern")}>Delete pattern</button><small>Detach keeps all current curves as independent drawings. Delete keeps the originals.</small></PropertySection>{commandError&&<p role="alert">{commandError}</p>}<ExactMeasurements objectId={object.id} revision={documentRevision}/></div>;
+    return <div className="properties-content"><InspectorSummary ids={selectedObjects.map(o=>o.id)} revision={documentRevision}/><PropertySection title="Live pattern"><strong>{p.spec.kind} · {members.length} generated curves</strong><p>Edit the sources to change every instance. Edit the pattern to change its axis, spacing or placements.</p><button type="button" onClick={()=>onEditPattern?.(p.id)}>Edit pattern</button><button type="button" onClick={()=>void act("detach-pattern")}>Detach pattern</button><button type="button" onClick={()=>void act("delete-pattern")}>Delete pattern</button><small>Detach keeps all current curves as independent drawings. Delete keeps the originals.</small></PropertySection>{commandError&&<p role="alert">{commandError}</p>}<ExactMeasurements objectId={object.id} revision={documentRevision}/></div>;
   }
   return (
     <div className="properties-content">
+
+      <InspectorSummary ids={selectedObjects.map(o=>o.id)} revision={documentRevision}/>
       {commandError && <div className="inspector-notice inspector-error" role="alert">{commandError}</div>}
-      {selectedObjects.length===1&&(isSolid||isDrawing)&&<ExactMeasurements objectId={object.id} revision={documentRevision}/>}
-      {selectedObjects.length===1&&<ParameterBindingsNotice objectId={object.id} onEdit={onVariables}/>}
-      <div className="inspector-header"><span>Inspector</span><small>{selectedObjects.length} selected</small></div>
-      <div className="inspector-selection-summary">
-        <span className="inspector-selection-mark" aria-hidden="true">◇</span>
-        <div><strong title={object.name}>{object.name}</strong><span>{selectedObjects.length > 1 ? `Primary · ${selectedObjects.length} objects selected` : isImage ? "Image · raster" : isPrimitive ? `Primitive · ${primitiveKind}` : isDrawing ? `Drawing · ${String(feature.params.kind)}` : isDimension ? `Dimension · ${dimensionLabel}` : isExtrude ? "Extrude" : feature?.params.faceHole ? "Hole" : feature?.type === "boolean" ? "Boolean result" : feature?.type === "fillet" ? "Fillet" : feature?.type === "chamfer" ? "Chamfer" : feature?.type === "revolve" ? "Revolve" : feature?.type === "sweep" ? "Sweep" : feature?.type === "shell" ? "Shell" : feature?.type === "loft" ? "Loft" : "BRep body"}</span></div>
-        {isLocked && <span className="inspector-state-badge">Locked</span>}
-      </div>
-
-      {isLocked && <div className="inspector-notice">Unlock <strong>{objectLayer?.name}</strong> in Layers to edit this object.</div>}
-
-      <PropertySection title="Identity" meta={selectedObjects.length > 1 ? "Multiple" : "Name / ID"} defaultOpen={false}>
-        {selectedObjects.length === 1 ? <>
-          <label className="property-row"><span>Name</span><input disabled={isLocked} value={name} onChange={(event) => setName(event.target.value)} onBlur={() => void commitName()} onKeyDown={(event) => event.key === "Enter" && event.currentTarget.blur()} /></label>
-          <div className="property-row"><span>Type</span><strong>{isImage ? "Image / Raster" : isPrimitive ? `Primitive / ${primitiveKind[0].toUpperCase()}${primitiveKind.slice(1)}` : isDrawing ? `Drawing / ${String(feature.params.kind)}` : isDimension ? `Dimension / ${dimensionLabel}` : isExtrude ? "Feature / Extrude" : feature?.params.faceHole ? "Feature / Hole" : feature?.type === "boolean" ? "Feature / Boolean" : feature?.type === "fillet" ? "Feature / Fillet" : feature?.type === "chamfer" ? "Feature / Chamfer" : feature?.type === "revolve" ? "Feature / Revolve" : feature?.type === "sweep" ? "Feature / Sweep" : feature?.type === "shell" ? "Feature / Shell" : feature?.type === "loft" ? "Feature / Loft" : "BRep body"}</strong></div>
-          <div className="property-row" title={object.id}><span>ID</span><code>{object.id}</code></div>
-        </> : <>
-          <div className="property-row"><span>Selection</span><strong>{selectedObjects.length} objects</strong></div>
-          <div className="property-row"><span>Primary</span><strong>{object.name}</strong></div>
-        </>}
-      </PropertySection>
 
       {selectedSubObjects.length > 0 && (
         <PropertySection title="Direct selection" meta={selectedSubObjects.length} onOpenChange={(open) => { if (!open) setPreviewTreatment(null); }}>
@@ -756,25 +726,46 @@ function PropertiesContent({
         </PropertySection>
       )}
 
-      {selectedObjects.length===1&&<DependencyNotice objectId={object.id} revision={documentRevision}/>}
-      {constructionOwned && selectedObjects.length===1 && <ConstructionDefinitionPanel key={`construction-${object.id}`} objectId={object.id} revision={documentRevision} onDocumentChange={onDocumentChange}/>}
-      <PropertySection title="General" meta={mixedLayer || mixedVisible ? "Mixed" : undefined}>
-        <label className="property-row"><span>Layer</span><select disabled={generalEditDisabled} value={mixedLayer ? "__mixed__" : object.layerId} onChange={(event) => void changeLayer(event.target.value)}><option value="__mixed__" disabled>Mixed</option>{cadDocument.rootLayers.map((layerId) => {
-          const layer = cadDocument.layers[layerId];
-          return layer && <option key={layer.id} value={layer.id} disabled={layer.locked && layer.id !== object.layerId}>{layer.name}{layer.locked ? " (locked)" : ""}</option>;
-        })}</select></label>
-        <label className="property-row"><span>Visible</span><input ref={visibilityInputRef} className={mixedVisible ? "property-toggle property-toggle-mixed" : "property-toggle"} type="checkbox" disabled={generalEditDisabled} checked={allVisible} onChange={(event) => void setVisibility(event.target.checked)} /></label>
-      </PropertySection>
-
       {selectedObjects.length===1&&!feature?.params.architecturalWall&&!feature?.params.architecturalSlab&&!feature?.params.componentContent&&(isPrimitive&&primitiveKind==="cylinder"||isExtrude)&&<NumericModelEdit key={object.id} objectId={object.id} revision={documentRevision} disabled={isLocked} onDocumentChange={onDocumentChange} onVariables={onVariables}/>}
       {((isPrimitive && primitiveKind!=="cylinder" && selectedObjects.length === 1) || multiPrimitiveKind) && (
         <PropertySection title="Dimensions" meta={multiPrimitiveKind ? `${selectedObjects.length} · ${multiPrimitiveKind}` : "mm"}>
+          <p className="property-hint">mm / cm / m / in / ft. Enter or leave the field to apply; Esc cancels this input.</p>
           {fields.map(({ key, label }) => (
-            <NumericField key={key} label={label} context="Dimensions" unit="mm" disabled={bulkEditDisabled} min="0.001" step="0.1" mixed={primitiveFieldMixed(key)} value={primitiveDraft[key] ?? ""} onChange={(value) => setPrimitiveDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitPrimitive()} />
+            <NumericField key={key} label={label} context="Dimensions" unit="mm" disabled={bulkEditDisabled} min="0.001" step="0.1" mixed={primitiveFieldMixed(key)} value={primitiveDraft[key] ?? ""} onChange={(value) => setPrimitiveDraft((draft) => ({ ...draft, [key]: value }))} unitInput onCommit={() => void commitPrimitive(key)} />
           ))}
           {multiPrimitiveKind && <p className="property-hint">Enter a value to apply it to all {selectedObjects.length} objects. Mixed values stay unchanged.</p>}
         </PropertySection>
       )}
+
+      <PropertySection title="Transform">
+        <div className="transform-group">
+          <div className="transform-group-label">Position <span title={isPrimitive&&primitiveKind==="box"&&selectedObjects.length===1?"Box position is its minimum corner; rotation turns about that corner.":undefined}>{isPrimitive&&primitiveKind==="box"&&selectedObjects.length===1?"World · mm · min corner":"World · mm"}</span></div>
+          <div className="transform-axis-grid">
+            {(["x", "y", "z"] as const).map((key) => (
+              <NumericField key={key} label={key.toUpperCase()} context="Position" unit="mm" disabled={bulkEditDisabled || normalAxis === ["x", "y", "z"].indexOf(key)} step="0.1" mixed={mixed(selectedPositions.map((position) => position[["x","y","z"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} unitInput onCommit={() => void commitTransform("move",key)} />
+            ))}
+          </div>
+        </div>
+        <PropertySection title="Rotation & scale" defaultOpen={false}>
+        <div className="transform-group">
+          <div className="transform-group-label">Rotation <span>deg</span></div>
+          <div className="transform-axis-grid">
+            {(["rx", "ry", "rz"] as const).map((key) => (
+              <NumericField key={key} label={key.slice(1).toUpperCase()} context="Rotation" unit="°" disabled={bulkEditDisabled || (normalAxis >= 0 && normalAxis !== ["rx", "ry", "rz"].indexOf(key))} step="1" mixed={mixed(selectedTransforms.map((t) => t.rotation[["rx","ry","rz"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} unitInput onCommit={() => void commitTransform("rotate",key)} />
+            ))}
+          </div>
+        </div>
+        <div className="transform-group">
+          <div className="transform-group-label">Scale <span>factor</span></div>
+          <div className="transform-axis-grid">
+            {(["sx", "sy", "sz"] as const).map((key) => (
+              <NumericField key={key} label={key.slice(1).toUpperCase()} context="Scale" unit="×" min="0.001" disabled={bulkEditDisabled} step="0.1" mixed={mixed(selectedTransforms.map((t) => t.scale[["sx","sy","sz"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} unitInput onCommit={() => void commitTransform("scale",key)} />
+            ))}
+          </div>
+        </div>
+        </PropertySection>
+        {selectedObjects.length > 1 && <p className="property-hint">Edits apply to the selection. Mixed axes retain each object&apos;s value.</p>}
+      </PropertySection>
 
       {isDrawing && selectedObjects.length === 1 && (
         <PropertySection title="Geometry" meta={`${String(feature.params.workPlane ?? "XY")} plane`}>
@@ -789,7 +780,7 @@ function PropertiesContent({
         </PropertySection>
       )}
 
-      {isDrawing && selectedObjects.length === 1 && <VectorStyleEditor key={object.id} objectId={object.id} style={vectorStyle} disabled={isLocked || !object.visible || objectLayer?.visible === false} revision={documentRevision} onDocumentChange={onDocumentChange} />}
+
 
       {isImage && selectedObjects.length === 1 && feature && <ImageInspector key={object.id} objectId={object.id} params={feature.params as unknown as CadImageNodeParams} asset={cadDocument.rasterAssets?.[String(feature.params.assetId)]!} disabled={isLocked || !object.visible || objectLayer?.visible === false} revision={documentRevision} onDocumentChange={onDocumentChange} cropHandlesActive={imageCropEditingId === object.id} onCropHandleModeChange={onImageCropHandleModeChange} onCropDraftRegister={onImageCropDraftRegister} onCropPreview={onImageCropPreview ?? (() => {})} />}
 
@@ -812,7 +803,7 @@ function PropertiesContent({
               if (Number.isFinite(value)) void commitDimensionEdit({ angle: value });
             }} />
           )}
-          {dimensionKind !== "angular" && <label className="property-row"><span>Text</span><input disabled={isLocked} placeholder="Auto" value={dimensionText} onChange={(event) => setDimensionText(event.target.value)} onBlur={() => void commitDimensionEdit({ text: dimensionText })} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /></label>}
+          {dimensionKind !== "angular" && <label className="property-row"><span>Text</span><input disabled={isLocked} aria-label="Dimension text" placeholder="Auto" value={dimensionText} onChange={(event) => setDimensionText(event.target.value)} onBlur={() => void commitDimensionEdit({ text: dimensionText })} onKeyDown={event=>{if(!event.nativeEvent.isComposing&&event.keyCode!==229&&event.key==="Enter")event.currentTarget.blur();}} /></label>}
           <div key={`${selectedObjectId}-${documentRevision}`}>
             <label className="property-row"><span>Length unit</span><select aria-label="Dimension length unit" disabled={isLocked} defaultValue={String((feature.params.style as Record<string, unknown> | undefined)?.lengthUnit ?? "mm")} onChange={event=>void commitDimensionEdit({style:{...feature.params.style as object,lengthUnit:event.target.value}})}>{["mm","cm","m","in","ft"].map(unit=><option key={unit} value={unit}>{unit}</option>)}</select></label>
             <label className="property-row"><span>Angle unit</span><select aria-label="Dimension angle unit" disabled={isLocked} defaultValue={String((feature.params.style as Record<string, unknown> | undefined)?.angleUnit ?? "deg")} onChange={event=>void commitDimensionEdit({style:{...feature.params.style as object,angleUnit:event.target.value}})}><option value="deg">Degrees</option><option value="rad">Radians</option></select></label>
@@ -822,35 +813,9 @@ function PropertiesContent({
         </PropertySection>
       )}
 
-      <PropertySection title="Transform">
-        <div className="transform-group">
-          <div className="transform-group-label">Position <span>World · mm</span></div>
-          <div className="transform-axis-grid">
-            {(["x", "y", "z"] as const).map((key) => (
-              <NumericField key={key} label={key.toUpperCase()} context="Position" unit="mm" disabled={bulkEditDisabled || normalAxis === ["x", "y", "z"].indexOf(key)} step="0.1" mixed={mixed(selectedPositions.map((position) => position[["x","y","z"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("move")} />
-            ))}
-          </div>
-        </div>
-        <div className="transform-group">
-          <div className="transform-group-label">Rotation <span>deg</span></div>
-          <div className="transform-axis-grid">
-            {(["rx", "ry", "rz"] as const).map((key) => (
-              <NumericField key={key} label={key.slice(1).toUpperCase()} context="Rotation" unit="°" disabled={bulkEditDisabled || (normalAxis >= 0 && normalAxis !== ["rx", "ry", "rz"].indexOf(key))} step="1" mixed={mixed(selectedTransforms.map((t) => t.rotation[["rx","ry","rz"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("rotate")} />
-            ))}
-          </div>
-        </div>
-        <div className="transform-group">
-          <div className="transform-group-label">Scale <span>factor</span></div>
-          <div className="transform-axis-grid">
-            {(["sx", "sy", "sz"] as const).map((key) => (
-              <NumericField key={key} label={key.slice(1).toUpperCase()} context="Scale" unit="×" min="0.001" disabled={bulkEditDisabled} step="0.1" mixed={mixed(selectedTransforms.map((t) => t.scale[["sx","sy","sz"].indexOf(key)]))} value={transformDraft[key]} onChange={(value) => setTransformDraft((draft) => ({ ...draft, [key]: value }))} onCommit={() => void commitTransform("scale")} />
-            ))}
-          </div>
-        </div>
-        {selectedObjects.length > 1 && <p className="property-hint">Edits apply to the selection. Mixed axes retain each object&apos;s value.</p>}
-      </PropertySection>
-
-      {(selectedObjects.length > 0 && selectedObjects.every((entry) => Object.values(cadDocument.features).some((candidate) => candidate.output === entry.id && candidate.type === "drawing"))) && (
+      {isDrawing && selectedObjects.length === 1 && <VectorStyleEditor key={object.id} objectId={object.id} style={vectorStyle} disabled={isLocked || !object.visible || objectLayer?.visible === false} revision={documentRevision} onDocumentChange={onDocumentChange} />}
+      {selectedObjects.length===1&&(isSolid||isDrawing)&&<ExactMeasurements objectId={object.id} revision={documentRevision}/>}
+      {(selectedObjects.length > 0 && selectedObjects.every((entry) => featureByOutput.get(entry.id)?.type === "drawing")) && (
         <PropertySection title="Extrude" meta={isExtrude ? "Feature" : profileResult.ok ? "Ready" : "Needs closed profile"} defaultOpen={isExtrude || profileResult.ok} active={isExtrude}>
           <NumericField label="Distance" context="Extrude" unit="mm" disabled={isLocked || (!isExtrude && !profileResult.ok)} step="0.1" value={extrudeDistance} onChange={setExtrudeDistance} onCommit={() => isExtrude && void commitExtrude()} />
           {!isExtrude && <div className="property-row"><span>Profile</span><strong>{profileResult.ok ? "Closed · Ready" : "Invalid"}</strong></div>}
@@ -860,12 +825,12 @@ function PropertiesContent({
         </PropertySection>
       )}
 
-      {((selectedObjects.length === 1 && isRevolve) || (selectedObjects.length > 0 && selectedObjects.every((entry) => Object.values(cadDocument.features).some((candidate) => candidate.output === entry.id && candidate.type === "drawing")))) && (
+      {((selectedObjects.length === 1 && isRevolve) || (selectedObjects.length > 0 && selectedObjects.every((entry) => featureByOutput.get(entry.id)?.type === "drawing"))) && (
         <PropertySection title="Revolve" meta={isRevolve ? "Feature" : profileResult.ok ? "Ready" : "Needs closed profile"} defaultOpen={isRevolve || profileResult.ok} active={isRevolve}>
           <NumericField label="Angle" context="Revolve" unit="°" disabled={isLocked || (!isRevolve && !profileResult.ok)} step="15" value={revolveAngle} onChange={setRevolveAngle} onCommit={() => isRevolve && void commitRevolve()} />
           {!isRevolve && <div className="property-row"><span>Profile</span><strong>{profileResult.ok ? "Closed · Ready" : "Invalid"}</strong></div>}
           {!isRevolve && !profileResult.ok && <p className="property-hint">{profileResult.reason}</p>}
-          {!isRevolve && <label className="property-row"><span>Axis</span><select value={revolveAxis} disabled={isLocked || !profileResult.ok} onChange={(event) => setRevolveAxis(event.currentTarget.value as "x" | "y")}><option value="x">Work-plane X</option><option value="y">Work-plane Y</option></select></label>}
+          {!isRevolve && <label className="property-row"><span>Axis</span><select aria-label="Revolve axis" value={revolveAxis} disabled={isLocked || !profileResult.ok} onChange={(event) => setRevolveAxis(event.currentTarget.value as "x" | "y")}><option value="x">Work-plane X</option><option value="y">Work-plane Y</option></select></label>}
           {isRevolve && <div className="property-row"><span>Axis</span><strong>Work-plane {String(feature.params.axis).toUpperCase()}</strong></div>}
           {isRevolve && <div className="property-row"><span>Sources</span><strong>{feature.inputs.length}</strong></div>}
           <div className="property-actions"><button type="button" disabled={isLocked || (!isRevolve && !profileResult.ok)} onClick={() => void commitRevolve()}>{isRevolve ? "Update revolution" : "Create solid"}</button></div>
@@ -878,6 +843,7 @@ function PropertiesContent({
           {(isSweep || isLoft) && selectedObjects.length === 1 && <>
             <div className="property-row"><span>Sources</span><strong>{feature.inputs.length}</strong></div>
             {isLoft && <div className="property-row"><span>Ruled</span><strong>{feature.params.ruled === true ? "Yes" : "No"}</strong></div>}
+            {isLoft&&onReviewCadTools&&<div aria-label="Loft connection editing"><p className="property-hint">같은 모델의 연결 방식을 바꾸고 실제 미리보기를 검토합니다. 원본 단면은 유지됩니다.</p><button disabled={isLocked||feature.params.ruled!==true} onClick={()=>onReviewCadTools([{id:"loft-edit",name:"solid.loft.update",arguments:{objectId:object.id,ruled:false}}])}>부드러운 곡면으로</button><button disabled={isLocked||feature.params.ruled===true} onClick={()=>onReviewCadTools([{id:"loft-edit",name:"solid.loft.update",arguments:{objectId:object.id,ruled:true}}])}>직선 연결로</button></div>}
           </>}
           {sweepMatch && <>
             <div className="property-row"><span>Profile</span><strong>{cadDocument.objects[sweepMatch.profile]?.name ?? sweepMatch.profile}</strong></div>
@@ -955,6 +921,28 @@ function PropertiesContent({
           <p className="property-hint">{filletEdgeKeys.length ? "Hover Chamfer to preview the selected edges." : "Use Direct select to pick solid edges, then set a distance."}</p>
         </PropertySection>
       )}
+      <PropertySection title="Identity" meta={selectedObjects.length > 1 ? "Multiple" : "Name / ID"} defaultOpen={false}>
+        {selectedObjects.length === 1 ? <>
+          <label className="property-row"><span>Name</span><input aria-label="Object name" disabled={isLocked} value={name} onChange={(event) => setName(event.target.value)} onBlur={() => void commitName()} onKeyDown={event=>{if(!event.nativeEvent.isComposing&&event.keyCode!==229&&event.key==="Enter")event.currentTarget.blur();}} /></label>
+          <div className="property-row"><span>Type</span><strong>{isImage ? "Image / Raster" : isPrimitive ? `Primitive / ${primitiveKind[0].toUpperCase()}${primitiveKind.slice(1)}` : isDrawing ? `Drawing / ${String(feature.params.kind)}` : isDimension ? `Dimension / ${dimensionLabel}` : isExtrude ? "Feature / Extrude" : feature?.params.faceHole ? "Feature / Hole" : feature?.type === "boolean" ? "Feature / Boolean" : feature?.type === "fillet" ? "Feature / Fillet" : feature?.type === "chamfer" ? "Feature / Chamfer" : feature?.type === "revolve" ? "Feature / Revolve" : feature?.type === "sweep" ? "Feature / Sweep" : feature?.type === "shell" ? "Feature / Shell" : feature?.type === "loft" ? "Feature / Loft" : "BRep body"}</strong></div>
+          <div className="property-row" title={object.id}><span>ID</span><code>{object.id}</code></div>
+        </> : <>
+          <div className="property-row"><span>Selection</span><strong>{selectedObjects.length} objects</strong></div>
+          <div className="property-row"><span>Primary</span><strong>{object.name}</strong></div>
+        </>}
+      </PropertySection>
+
+      {selectedObjects.length===1&&<DependencyNotice objectId={object.id} revision={documentRevision}/>}
+      {constructionOwned && selectedObjects.length===1 && <ConstructionDefinitionPanel key={`construction-${object.id}`} objectId={object.id} revision={documentRevision} onDocumentChange={onDocumentChange}/>}
+      <PropertySection defaultOpen={false} title="General" meta={mixedLayer || mixedVisible ? "Mixed" : undefined}>
+        <label className="property-row"><span>Layer</span><select disabled={generalEditDisabled} value={mixedLayer ? "__mixed__" : object.layerId} onChange={(event) => void changeLayer(event.target.value)}><option value="__mixed__" disabled>Mixed</option>{cadDocument.rootLayers.map((layerId) => {
+          const layer = cadDocument.layers[layerId];
+          return layer && <option key={layer.id} value={layer.id} disabled={layer.locked && layer.id !== object.layerId}>{layer.name}{layer.locked ? " (locked)" : ""}</option>;
+        })}</select></label>
+        <label className="property-row"><span>Visible</span><input ref={visibilityInputRef} className={mixedVisible ? "property-toggle property-toggle-mixed" : "property-toggle"} type="checkbox" disabled={generalEditDisabled} checked={allVisible} onChange={(event) => void setVisibility(event.target.checked)} /></label>
+      </PropertySection>
+
+      {selectedObjects.length===1&&<ParameterBindingsNotice objectId={object.id} onEdit={onVariables}/>}
       <div className="inspector-object-actions">
         <div className="property-actions">
           <button type="button" disabled={!feature || bulkEditDisabled} onClick={onDuplicate}>Duplicate</button>

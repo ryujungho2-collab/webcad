@@ -1,90 +1,98 @@
 {
   "status": "passed",
   "checks": 20,
-  "message": "PASS 56 architectural parts reach actual Three.js scene\nPASS All plan/section views load resolved\nPASS Extruded stair flights are present in the rendered model\nPASS Both Boolean/stair assembly elevations load resolved\nPASS Analytic hidden edges reach the canvas scene\nPASS Native opening edit commits one history entry\nPASS Affected plan retains proven edge correspondence\nPASS Unchanged upper-floor plan remains resolved\nPASS Reference-status changes reuse existing canvas geometry while stale outputs hide\nPASS Native Undo restores geometry and all drawing references\nPASS Native Redo restores edited opening\nPASS Saved custom-layer section Review allows Apply\nPASS Saved section Apply preserves custom layer and owning sheet placement\nPASS Saved section UI Apply is exactly reversible\nPASS Five A2 pages at96dpi receive an explicit aggregate budget diagnostic\nPASS PDF preview includes full drawing set\nPASS Downloaded PDF contains every issued page\nPASS Model views and sheet-set schema serialize\nPASS Real cache reload preserves project, sheets and source references\nPASS Reload starts clean history\nALL 20 CHECKS PASSED",
+  "message": "PASS 56 architectural parts reach actual Three.js scene\nPASS All plan/section views load resolved\nPASS Extruded stair flights are present in the rendered model\nPASS Both Boolean/stair assembly elevations load resolved\nPASS Analytic hidden edges reach the canvas scene\nPASS Native opening edit commits one history entry\nPASS Affected plan retains proven edge correspondence\nPASS Unchanged upper-floor plan remains resolved\nPASS Reference-status changes reuse existing canvas geometry while stale outputs hide\nPASS Native Undo restores geometry and all drawing references\nPASS Native Redo restores edited opening\nPASS Saved custom-layer section Review allows Apply\nPASS Saved section Apply preserves custom layer and owning sheet placement\nPASS Saved section UI Apply is exactly reversible\nPASS Five A2 pages at150dpi receive an explicit aggregate budget diagnostic\nPASS PDF preview includes full drawing set\nPASS Downloaded PDF contains every issued page\nPASS Model views and sheet-set schema serialize\nPASS Real cache reload preserves project, sheets and source references\nPASS Reload starts clean history\nALL 20 CHECKS PASSED",
   "artifacts": [
     "axonometric.png",
     "courtyard-commons.pdf"
   ],
   "metrics": {
-    "initialSceneMs": 11681,
-    "nativeWidthEditMs": 12566,
+    "initialSceneMs": 54926,
+    "nativeWidthEditMs": 20610,
     "kernelEditTasks": [
       {
         "operation": "solid",
-        "ms": 225
+        "ms": 751
       },
       {
         "operation": "solid",
-        "ms": 271
+        "ms": 1018
       },
       {
         "operation": "solid",
-        "ms": 271
+        "ms": 546
       },
       {
         "operation": "solid",
-        "ms": 291
+        "ms": 500
       },
       {
         "operation": "solid",
-        "ms": 482
+        "ms": 483
       },
       {
         "operation": "projection",
-        "ms": 2990
+        "ms": 3295
       },
       {
         "operation": "projection",
-        "ms": 2797
+        "ms": 3162
       },
       {
         "operation": "section",
-        "ms": 522
+        "ms": 518
       },
       {
         "operation": "section",
-        "ms": 503
+        "ms": 664
       },
       {
         "operation": "section",
-        "ms": 482
+        "ms": 83
       },
       {
         "operation": "inspect",
-        "ms": 218
+        "ms": 497
       },
       {
         "operation": "inspect",
-        "ms": 242
+        "ms": 502
       },
       {
         "operation": "inspect",
-        "ms": 249
+        "ms": 468
       },
       {
         "operation": "inspect",
-        "ms": 275
+        "ms": 507
       },
       {
         "operation": "inspect",
-        "ms": 469
+        "ms": 454
       },
       {
         "operation": "inspect",
-        "ms": 499
+        "ms": 453
+      },
+      {
+        "operation": "solid",
+        "ms": 1738
       },
       {
         "operation": "primitive",
-        "ms": 25
+        "ms": 1823
+      },
+      {
+        "operation": "primitive",
+        "ms": 1889
       }
     ],
-    "commandEditMs": 11131.700000000186,
+    "commandEditMs": 14744.69999999972,
     "savedSectionReview": {
       "applyEnabled": true,
       "alert": ""
     },
-    "pdfBudgetDiagnostic": "The PDF would contain 17,814,075 raster pixels; the export limit is 16,000,000. Lower dpi or export fewer/smaller boards.",
+    "pdfBudgetDiagnostic": "Estimated PDF working memory is 356.5 MiB; the limit is 256.0 MiB. Lower dpi or export fewer/smaller boards.",
     "pdfDpi": 72,
     "pdfPages": 5,
     "pdfBytes": 384742

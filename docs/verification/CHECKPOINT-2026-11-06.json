@@ -1,0 +1,358 @@
+{
+  "date": "2026-11-06",
+  "purpose": "Development checkpoint; selected existing artifacts, not a new full validation run",
+  "branch": "codex/checkpoint-2026-11-06",
+  "newArtifactCount": 55,
+  "newArtifactBytes": 30833940,
+  "artifacts": [
+    {
+      "path": "output/projects/flow-court/flow-court.webcad.json",
+      "bytes": 4199477,
+      "sha256": "db138404b157521f422a05552ed203c7fd9693c0bf8a92b0aee2210e719665b5",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/projects/large-cafe/3d/large-cafe-3d.webcad.json",
+      "bytes": 4024130,
+      "sha256": "c31f02a8f72b4a802014abf53cd6f32fd7d9aa764fb0814b8fc16fc5a8796cf6",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/projects/large-cafe/large-cafe.webcad.json",
+      "bytes": 1971338,
+      "sha256": "341172d39a240e8248406ac2a88dea6641fc4f63a56be59aee9b83d73555fffb",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/projects/lightwell-house/base-mcp-trace.json",
+      "bytes": 131135,
+      "sha256": "1233858c50aa90ad8a31a6e0dd7c4cf74ba4841550336c8cf4b2c6db6f8f51a2",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/projects/lightwell-house/review-design.json",
+      "bytes": 92746,
+      "sha256": "9fa2fa6377072e49e93cfd67baeeb7a1f0f1cf07ca10b3d93d17d0d0f560b1a4",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/projects/lightwell-house/review-mcp-trace.json",
+      "bytes": 244581,
+      "sha256": "ea66eeb4e597471677b9e853a23547942f9b1f4c221165f249833c3ebc320b8e",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/projects/residential-q1/residential.webcad.json",
+      "bytes": 1048898,
+      "sha256": "aad2e8cbbd04113a46f3fe683a0d9229a06a1a425eefcf915edd843aed88bb17",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/projects/rotating-laptop-stand/laptop-stand.webcad.json",
+      "bytes": 25586,
+      "sha256": "47888897e01380f1c87db0cb32aa46393d70feba1d82befcdb27186255396159",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/A101.dxf",
+      "bytes": 25020,
+      "sha256": "16c46752b4efc9fce1f38bd738dd6cb2a917350236ee3842221c54b4a592edad",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/A101.svg",
+      "bytes": 22552,
+      "sha256": "2db4b3580855f5e0cdaf89feffc0eaa90b525c7ff5d737276c3a6d006200f4b3",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/A102.dxf",
+      "bytes": 24566,
+      "sha256": "612f22a668425c8cf7416104b7be06be881890aa1dcae39d5172173d158ff9ef",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/A102.svg",
+      "bytes": 22359,
+      "sha256": "11cdc45df9d4324507f5d9af5c3d2623fbdd933f85bc965bfae6ab359be3c725",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/A103.dxf",
+      "bytes": 24040,
+      "sha256": "8ea4d43a22fff68c941db4100098403a84db19a9ce82b3d2a6f36a8e703002fa",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/A103.svg",
+      "bytes": 19630,
+      "sha256": "7519edcb37cffd6142fc703ad992f430ac8650ab7074eeb9bed6f9acec111daa",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/A201.dxf",
+      "bytes": 20564,
+      "sha256": "86bb0df52abc1384cf156e350ef9472e2446cc563df174ef62fa79cba11d906c",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/A201.svg",
+      "bytes": 13464,
+      "sha256": "17dc8d4a1d16b9f800bea468624dfe94a20bda64e04266240e5f9b2ccbd11ea1",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/A202.dxf",
+      "bytes": 17448,
+      "sha256": "01b73681dc87203d664881bd86defdd02bbd03c9600767c715f1e792ae297603",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/A202.svg",
+      "bytes": 11676,
+      "sha256": "e55a57daf95b2e7c976a269a76ffaeff57080979f7d8f68c4807c9473ad8ac7e",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/NOTES.md",
+      "bytes": 356,
+      "sha256": "c299d85035edc996ad22216f71baf2f43309d03638ff10a94b69ee6cdd3dac3f",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/exterior.png",
+      "bytes": 85099,
+      "sha256": "cd58ca2df497f94af3a9f9cb402039f320ad8479922a72ac5d20e416bbd025c4",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/house.glb",
+      "bytes": 538364,
+      "sha256": "4dea0241f733c998a0973cd33f9d5cf65889b098b0008fbb24b7badf415327bc",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/house.step",
+      "bytes": 6763408,
+      "sha256": "6ea7c060b32252b69e1b9e333e4bc60189819a96f22296f90a2a9538e8380609",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/house.webcad.json",
+      "bytes": 5328073,
+      "sha256": "732a6a800c227bcc4fba2e4c79ca88bd1b57bfea12cf049c3b1dbc96b7988385",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/interior.png",
+      "bytes": 81129,
+      "sha256": "bba794fd3b258b788c96f7983d53b580444780afd32383bae3d8ba9253e7fb3c",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/openings.json",
+      "bytes": 6550,
+      "sha256": "49edac5e6c063d4057f6240550f3fb55a90a34587789f3136b1881bdd517df64",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/parts.json",
+      "bytes": 57466,
+      "sha256": "784543399756dbe38611938d913e893674b24f8da295db76ea3f687d0ac38d3c",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/quantities.csv",
+      "bytes": 11653,
+      "sha256": "d61ac465e29685153ab077b0e8162a0ee8433fdbeaa0f7d831472ac6c045e05d",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/review.html",
+      "bytes": 1401641,
+      "sha256": "e9abcd0a95649461677dea943bdd8187e10529fb1f7be6804a97e6a8d85473b8",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/step-inspection.json",
+      "bytes": 5684,
+      "sha256": "ccdf1002fd6f203b2a4d0d898a9282a1ef50ef0b6c245e672f6f190bfcb7f95e",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/projects/three-storey-house/r1/verification.json",
+      "bytes": 50882,
+      "sha256": "4218fc809966861494724a1783af6cc8155ffc9ea5c8dc340b0c2cf77f45f725",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/ai-agent-phase-0/evaluation.json",
+      "bytes": 485503,
+      "sha256": "0af9568d33c0472268091691864d7fee95ff90d325211220d2b7b71fa8866b4d",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/verification/ai-agent-phase-1b2/A.json",
+      "bytes": 390469,
+      "sha256": "db1e7d99bb42efc3de954730c16f7d1b77d2c4c07a92f39c4a6b68752b663395",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/verification/ai-agent-phase-1b2/B.json",
+      "bytes": 357767,
+      "sha256": "8ddf3d6f1293f5ebb6b89b265a178a392fa0a55f75e9bffe40e97fd7e9f9981d",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/verification/ai-agent-phase-1b2/budget-partial.json",
+      "bytes": 27833,
+      "sha256": "8d018845393907a2a853f72a2b9acefc30db0d470ba71c9078874751268dcdee",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/verification/assembly-b2/laptop.json",
+      "bytes": 14791,
+      "sha256": "13fb29e49682c8dc05e4f91a848c028144b2de95c07cef47c2119ecaaf8b3f1f",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/verification/assembly-b2/obstacle.json",
+      "bytes": 1851,
+      "sha256": "33a6eaea15451843f88ebf6e7d390a277de174d84f612c840f30738f28c0eaba",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/verification/assembly-b25/annotated-laptop.webcad.json",
+      "bytes": 29644,
+      "sha256": "d0936d1165146066adb43d96e2ece7a20bd93ddb3eca5d84d3d173eac2fbcd8f",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/verification/assembly-b25/assembly-0.png",
+      "bytes": 95285,
+      "sha256": "9f8073bcdd4ade52c47e6d50a560b7cc4c08bd891d545045567429e1ce87690d",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/assembly-b25/assembly-180.png",
+      "bytes": 94342,
+      "sha256": "45c14f6247f19a30c45d428533eeb0a64cb972a4b6199110c90e7bdd7c600194",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/assembly-b25/assembly-90.png",
+      "bytes": 95447,
+      "sha256": "2ee44752c3cafbf8a7de4a74b672c316120d3143f516576cd3a3700549093052",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/assembly-b25/assembly-motion-180.png",
+      "bytes": 107987,
+      "sha256": "ebe0bd310557768bc4418546588b531938e5d893b04652a4a787e51e2542ee82",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/assembly-b25/browser-report.json",
+      "bytes": 5019,
+      "sha256": "fc62ac9bed00791697806f13562fb8edb17e1e35076a204a41b587896d6c8905",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/assembly-b25/interference-triage.png",
+      "bytes": 88435,
+      "sha256": "e649f3e23c5458f2210f4003ca6d8ebe9d2797f50d2ed7148cd20a919ffc7341",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/assembly-phase-a/laptop-stand-assembly.webcad.json",
+      "bytes": 29386,
+      "sha256": "5a8bf105dda11eae5a3f4963cc0fddca644a598d81707e8c7d4869a527d78d96",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/verification/geometry-nodes-phase-3/benchmark.json",
+      "bytes": 1807,
+      "sha256": "f0c2a191f9ec375472f36c542dc7a8237684bbb29cda34c649f7a86e3eeb6256",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/geometry-nodes-phase-3/browser-report.json",
+      "bytes": 1764,
+      "sha256": "9faeef52c29f8dc79fcee9b5e31868dc97648fb9941dc81a8e6ad448f38f4261",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/hybrid-phase-5b/quality.json",
+      "bytes": 16054,
+      "sha256": "b9c3ec6f62cce3462c0ab98dde53e52bef50038d6609763bc570caac9801fd1b",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/hybrid-phase-5c1/baseline-diagnosis.json",
+      "bytes": 8042,
+      "sha256": "e3505feb753706cbff4a63f8962e47029e14337b906ae8878b4150b07865b054",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/hybrid-phase-5c1/quality.json",
+      "bytes": 24852,
+      "sha256": "9fee537fa62ec572698c5000ee2bad6cfdbfac549777457da11c76001f4bcbfb",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/sculpt-phase-4/benchmark.json",
+      "bytes": 3831,
+      "sha256": "54104e1043dc239b13ddc562862c5828d3ef3681e94cdf8bbece885243d14c11",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/simready/arm_articulated_support_a01.glb",
+      "bytes": 2674208,
+      "sha256": "ea517115d26fa35270eea13d7a612813d19612aac80230bd3bc1a34331ada356",
+      "reason": "fixture"
+    },
+    {
+      "path": "output/verification/simready/source-provenance.json",
+      "bytes": 963,
+      "sha256": "9e1f16386388db352ebe868d798e2088b29c8ba340eb7aa435c82f0a8156ae0d",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/webcad-feature-audit/audit-validation.json",
+      "bytes": 342,
+      "sha256": "6b282ac5e158b5ae08051c0d671227be673383d2ff83a63474da094a0c474d9a",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/webcad-feature-audit/geometry-nodes-phase-3-browser-report.json",
+      "bytes": 1776,
+      "sha256": "49a6a1911530827f5b29cc343823e9f40ed6d1b5eabe7b82afcf4e95d53fff13",
+      "reason": "showcase-or-verification"
+    },
+    {
+      "path": "output/verification/webcad-feature-audit/sculpt-phase-4-browser-report.json",
+      "bytes": 7027,
+      "sha256": "76eb6da6bb36d355989abf1eaed84c537b19910de0748c073471c4152997c498",
+      "reason": "showcase-or-verification"
+    }
+  ],
+  "externalFixtureRequirements": {
+    "output/external/civil-projects/converted.dxf": [
+      "apps/web/tests/externalCivil.browser.tsx",
+      "apps/web/tests/externalCivilSpeed.browser.tsx",
+      "apps/web/tests/externalCivilStyle.browser.tsx"
+    ],
+    "output/external/civil-projects/restoration-01/baseline.webcad.json": [
+      "apps/web/tests/residentialRestoration.browser.tsx"
+    ]
+  },
+  "checks": {
+    "webBuild": "passed; bundle size warnings",
+    "architecture": "passed; 933 modules",
+    "showcaseStagedLinkTargets": "passed",
+    "credentialPatternScan": "no matches in scanned candidate text; not a full security audit",
+    "fullUnitSuite": "not run",
+    "browserSuite": "not run",
+    "stagedWhitespace": "warnings in pre-existing source EOFs and generated STEP trailing whitespace; retained without rewriting outputs"
+  }
+}

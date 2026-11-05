@@ -1,0 +1,272 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-700 -11600 12200 13200" stroke="black" stroke-width="0.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<defs><clipPath id="artboard-crop"><rect x="-700" y="-11600" width="12200" height="13200" /></clipPath></defs>
+<g clip-path="url(#artboard-crop)">
+<rect x="-700" y="-11600" width="12200" height="13200" fill="#ffffff" stroke="none" />
+<polyline points="125,-250 125,0" stroke="#22313a" stroke-width="12" />
+<polyline points="125,0 1100,0" stroke="#22313a" stroke-width="12" />
+<polyline points="1100,-250 125,-250" stroke="#22313a" stroke-width="12" />
+<polyline points="1100,-250 1100,0" stroke="#22313a" stroke-width="12" />
+<polyline points="4300,0 4300,-250" stroke="#22313a" stroke-width="12" />
+<polyline points="4300,0 5275,0" stroke="#22313a" stroke-width="12" />
+<polyline points="5275,-250 4300,-250" stroke="#22313a" stroke-width="12" />
+<polyline points="5275,0 5275,-250" stroke="#22313a" stroke-width="12" />
+<polyline points="1100,-140 1100,-110" stroke="#22313a" stroke-width="12" />
+<polyline points="1100,-110 4300,-110" stroke="#22313a" stroke-width="12" />
+<polyline points="4300,-140 1100,-140" stroke="#22313a" stroke-width="12" />
+<polyline points="4300,-110 4300,-140" stroke="#22313a" stroke-width="12" />
+<polyline points="1100,-185 1100,-65" stroke="#22313a" stroke-width="12" />
+<polyline points="1100,-65 1150,-65" stroke="#22313a" stroke-width="12" />
+<polyline points="1150,-185 1100,-185" stroke="#22313a" stroke-width="12" />
+<polyline points="1150,-65 1150,-185" stroke="#22313a" stroke-width="12" />
+<polyline points="4250,-185 4250,-65" stroke="#22313a" stroke-width="12" />
+<polyline points="4250,-65 4300,-65" stroke="#22313a" stroke-width="12" />
+<polyline points="4300,-185 4250,-185" stroke="#22313a" stroke-width="12" />
+<polyline points="4300,-65 4300,-185" stroke="#22313a" stroke-width="12" />
+<polyline points="5275,-250 5275,0" stroke="#22313a" stroke-width="12" />
+<polyline points="5275,0 6175,0" stroke="#22313a" stroke-width="12" />
+<polyline points="6175,-250 5275,-250" stroke="#22313a" stroke-width="12" />
+<polyline points="6175,-250 6175,0" stroke="#22313a" stroke-width="12" />
+<polyline points="7975,0 7975,-250" stroke="#22313a" stroke-width="12" />
+<polyline points="7975,0 8975,0" stroke="#22313a" stroke-width="12" />
+<polyline points="8975,-250 7975,-250" stroke="#22313a" stroke-width="12" />
+<polyline points="8975,-250 8975,0" stroke="#22313a" stroke-width="12" />
+<polyline points="9975,0 9975,-250" stroke="#22313a" stroke-width="12" />
+<polyline points="9975,0 10675,0" stroke="#22313a" stroke-width="12" />
+<polyline points="10675,-250 9975,-250" stroke="#22313a" stroke-width="12" />
+<polyline points="10675,0 10675,-250" stroke="#22313a" stroke-width="12" />
+<polyline points="6175,-140 6175,-110" stroke="#22313a" stroke-width="12" />
+<polyline points="6175,-110 7975,-110" stroke="#22313a" stroke-width="12" />
+<polyline points="7975,-140 6175,-140" stroke="#22313a" stroke-width="12" />
+<polyline points="7975,-110 7975,-140" stroke="#22313a" stroke-width="12" />
+<polyline points="6175,-185 6175,-65" stroke="#22313a" stroke-width="12" />
+<polyline points="6175,-65 6225,-65" stroke="#22313a" stroke-width="12" />
+<polyline points="6225,-185 6175,-185" stroke="#22313a" stroke-width="12" />
+<polyline points="6225,-65 6225,-185" stroke="#22313a" stroke-width="12" />
+<polyline points="7925,-185 7925,-65" stroke="#22313a" stroke-width="12" />
+<polyline points="7925,-65 7975,-65" stroke="#22313a" stroke-width="12" />
+<polyline points="7975,-185 7925,-185" stroke="#22313a" stroke-width="12" />
+<polyline points="7975,-65 7975,-185" stroke="#22313a" stroke-width="12" />
+<polyline points="0,-4000 0,-125" stroke="#22313a" stroke-width="12" />
+<polyline points="0,-4000 250,-4000" stroke="#22313a" stroke-width="12" />
+<polyline points="0,-9475 0,-5600" stroke="#22313a" stroke-width="12" />
+<polyline points="250,-5600 0,-5600" stroke="#22313a" stroke-width="12" />
+<polyline points="0,-125 250,-125" stroke="#22313a" stroke-width="12" />
+<polyline points="250,-9475 0,-9475" stroke="#22313a" stroke-width="12" />
+<polyline points="250,-125 250,-4000" stroke="#22313a" stroke-width="12" />
+<polyline points="250,-5600 250,-9475" stroke="#22313a" stroke-width="12" />
+<polyline points="110,-5600 110,-4000" stroke="#22313a" stroke-width="12" />
+<polyline points="110,-4000 140,-4000" stroke="#22313a" stroke-width="12" />
+<polyline points="140,-5600 110,-5600" stroke="#22313a" stroke-width="12" />
+<polyline points="140,-4000 140,-5600" stroke="#22313a" stroke-width="12" />
+<polyline points="65,-4050 65,-4000" stroke="#22313a" stroke-width="12" />
+<polyline points="65,-4000 185,-4000" stroke="#22313a" stroke-width="12" />
+<polyline points="185,-4050 65,-4050" stroke="#22313a" stroke-width="12" />
+<polyline points="185,-4000 185,-4050" stroke="#22313a" stroke-width="12" />
+<polyline points="65,-5600 65,-5550" stroke="#22313a" stroke-width="12" />
+<polyline points="65,-5550 185,-5550" stroke="#22313a" stroke-width="12" />
+<polyline points="185,-5600 65,-5600" stroke="#22313a" stroke-width="12" />
+<polyline points="185,-5550 185,-5600" stroke="#22313a" stroke-width="12" />
+<polyline points="10550,-1725 10550,-125" stroke="#22313a" stroke-width="12" />
+<polyline points="10550,-1725 10800,-1725" stroke="#22313a" stroke-width="12" />
+<polyline points="10550,-6925 10550,-3525" stroke="#22313a" stroke-width="12" />
+<polyline points="10800,-3525 10550,-3525" stroke="#22313a" stroke-width="12" />
+<polyline points="10550,-6925 10800,-6925" stroke="#22313a" stroke-width="12" />
+<polyline points="10550,-9475 10550,-8125" stroke="#22313a" stroke-width="12" />
+<polyline points="10800,-8125 10550,-8125" stroke="#22313a" stroke-width="12" />
+<polyline points="10550,-125 10800,-125" stroke="#22313a" stroke-width="12" />
+<polyline points="10800,-9475 10550,-9475" stroke="#22313a" stroke-width="12" />
+<polyline points="10800,-125 10800,-1725" stroke="#22313a" stroke-width="12" />
+<polyline points="10800,-3525 10800,-6925" stroke="#22313a" stroke-width="12" />
+<polyline points="10800,-8125 10800,-9475" stroke="#22313a" stroke-width="12" />
+<polyline points="10660,-3525 10660,-1725" stroke="#22313a" stroke-width="12" />
+<polyline points="10660,-1725 10690,-1725" stroke="#22313a" stroke-width="12" />
+<polyline points="10690,-3525 10660,-3525" stroke="#22313a" stroke-width="12" />
+<polyline points="10690,-1725 10690,-3525" stroke="#22313a" stroke-width="12" />
+<polyline points="10615,-1775 10615,-1725" stroke="#22313a" stroke-width="12" />
+<polyline points="10615,-1725 10735,-1725" stroke="#22313a" stroke-width="12" />
+<polyline points="10735,-1775 10615,-1775" stroke="#22313a" stroke-width="12" />
+<polyline points="10735,-1725 10735,-1775" stroke="#22313a" stroke-width="12" />
+<polyline points="10615,-3525 10615,-3475" stroke="#22313a" stroke-width="12" />
+<polyline points="10615,-3475 10735,-3475" stroke="#22313a" stroke-width="12" />
+<polyline points="10735,-3525 10615,-3525" stroke="#22313a" stroke-width="12" />
+<polyline points="10735,-3475 10735,-3525" stroke="#22313a" stroke-width="12" />
+<polyline points="10660,-8125 10660,-6925" stroke="#22313a" stroke-width="12" />
+<polyline points="10660,-6925 10690,-6925" stroke="#22313a" stroke-width="12" />
+<polyline points="10690,-8125 10660,-8125" stroke="#22313a" stroke-width="12" />
+<polyline points="10690,-6925 10690,-8125" stroke="#22313a" stroke-width="12" />
+<polyline points="10615,-6975 10615,-6925" stroke="#22313a" stroke-width="12" />
+<polyline points="10615,-6925 10735,-6925" stroke="#22313a" stroke-width="12" />
+<polyline points="10735,-6975 10615,-6975" stroke="#22313a" stroke-width="12" />
+<polyline points="10735,-6925 10735,-6975" stroke="#22313a" stroke-width="12" />
+<polyline points="10615,-8125 10615,-8075" stroke="#22313a" stroke-width="12" />
+<polyline points="10615,-8075 10735,-8075" stroke="#22313a" stroke-width="12" />
+<polyline points="10735,-8125 10615,-8125" stroke="#22313a" stroke-width="12" />
+<polyline points="10735,-8075 10735,-8125" stroke="#22313a" stroke-width="12" />
+<polyline points="125,-9600 125,-9350" stroke="#22313a" stroke-width="12" />
+<polyline points="125,-9350 1725,-9350" stroke="#22313a" stroke-width="12" />
+<polyline points="1725,-9600 125,-9600" stroke="#22313a" stroke-width="12" />
+<polyline points="1725,-9600 1725,-9350" stroke="#22313a" stroke-width="12" />
+<polyline points="3725,-9350 3725,-9600" stroke="#22313a" stroke-width="12" />
+<polyline points="3725,-9350 10675,-9350" stroke="#22313a" stroke-width="12" />
+<polyline points="10675,-9600 3725,-9600" stroke="#22313a" stroke-width="12" />
+<polyline points="10675,-9350 10675,-9600" stroke="#22313a" stroke-width="12" />
+<polyline points="1725,-9490 1725,-9460" stroke="#22313a" stroke-width="12" />
+<polyline points="1725,-9460 3725,-9460" stroke="#22313a" stroke-width="12" />
+<polyline points="3725,-9490 1725,-9490" stroke="#22313a" stroke-width="12" />
+<polyline points="3725,-9460 3725,-9490" stroke="#22313a" stroke-width="12" />
+<polyline points="1725,-9535 1725,-9415" stroke="#22313a" stroke-width="12" />
+<polyline points="1725,-9415 1775,-9415" stroke="#22313a" stroke-width="12" />
+<polyline points="1775,-9535 1725,-9535" stroke="#22313a" stroke-width="12" />
+<polyline points="1775,-9415 1775,-9535" stroke="#22313a" stroke-width="12" />
+<polyline points="3675,-9535 3675,-9415" stroke="#22313a" stroke-width="12" />
+<polyline points="3675,-9415 3725,-9415" stroke="#22313a" stroke-width="12" />
+<polyline points="3725,-9535 3675,-9535" stroke="#22313a" stroke-width="12" />
+<polyline points="3725,-9415 3725,-9535" stroke="#22313a" stroke-width="12" />
+<polyline points="5325,-3950 5325,-250" stroke="#22313a" stroke-width="12" />
+<polyline points="5325,-3950 5475,-3950" stroke="#22313a" stroke-width="12" />
+<polyline points="5325,-6300 5325,-4950" stroke="#22313a" stroke-width="12" />
+<polyline points="5475,-4950 5325,-4950" stroke="#22313a" stroke-width="12" />
+<polyline points="5325,-6300 5475,-6300" stroke="#22313a" stroke-width="12" />
+<polyline points="5325,-9350 5325,-7200" stroke="#22313a" stroke-width="12" />
+<polyline points="5475,-7200 5325,-7200" stroke="#22313a" stroke-width="12" />
+<polyline points="5325,-250 5475,-250" stroke="#22313a" stroke-width="12" />
+<polyline points="5475,-9350 5325,-9350" stroke="#22313a" stroke-width="12" />
+<polyline points="5475,-250 5475,-3950" stroke="#22313a" stroke-width="12" />
+<polyline points="5475,-4950 5475,-6300" stroke="#22313a" stroke-width="12" />
+<polyline points="5475,-7200 5475,-9350" stroke="#22313a" stroke-width="12" />
+<polyline points="250,-4875 250,-4725" stroke="#22313a" stroke-width="12" />
+<polyline points="250,-4725 4100,-4725" stroke="#22313a" stroke-width="12" />
+<polyline points="4100,-4875 250,-4875" stroke="#22313a" stroke-width="12" />
+<polyline points="4100,-4875 4100,-4725" stroke="#22313a" stroke-width="12" />
+<polyline points="5000,-4725 5000,-4875" stroke="#22313a" stroke-width="12" />
+<polyline points="5000,-4725 5325,-4725" stroke="#22313a" stroke-width="12" />
+<polyline points="5325,-4875 5000,-4875" stroke="#22313a" stroke-width="12" />
+<polyline points="5325,-4725 5325,-4875" stroke="#22313a" stroke-width="12" />
+<polyline points="5475,-7275 5475,-7125" stroke="#22313a" stroke-width="12" />
+<polyline points="5475,-7125 6275,-7125" stroke="#22313a" stroke-width="12" />
+<polyline points="6275,-7275 5475,-7275" stroke="#22313a" stroke-width="12" />
+<polyline points="6275,-7275 6275,-7125" stroke="#22313a" stroke-width="12" />
+<polyline points="7075,-7125 7075,-7275" stroke="#22313a" stroke-width="12" />
+<polyline points="7075,-7125 7875,-7125" stroke="#22313a" stroke-width="12" />
+<polyline points="7875,-7275 7075,-7275" stroke="#22313a" stroke-width="12" />
+<polyline points="7875,-7125 7875,-7275" stroke="#22313a" stroke-width="12" />
+<polyline points="7800,-9350 7800,-7200" stroke="#22313a" stroke-width="12" />
+<polyline points="7800,-7200 7950,-7200" stroke="#22313a" stroke-width="12" />
+<polyline points="7950,-9350 7800,-9350" stroke="#22313a" stroke-width="12" />
+<polyline points="7950,-7200 7950,-9350" stroke="#22313a" stroke-width="12" />
+<polyline points="8050,-7790 8050,-7510" stroke="#22313a" stroke-width="12" />
+<polyline points="8050,-7510 9050,-7510" stroke="#22313a" stroke-width="12" />
+<polyline points="9050,-7790 8050,-7790" stroke="#22313a" stroke-width="12" />
+<polyline points="9050,-7510 9050,-7790" stroke="#22313a" stroke-width="12" />
+<polyline points="5700,0 5700,120" stroke="#22313a" stroke-width="12" />
+<polyline points="5700,120 5780,120" stroke="#22313a" stroke-width="12" />
+<polyline points="5780,0 5700,0" stroke="#22313a" stroke-width="12" />
+<polyline points="5780,120 5780,0" stroke="#22313a" stroke-width="12" />
+<polyline points="6300,0 6300,120" stroke="#22313a" stroke-width="12" />
+<polyline points="6300,120 6380,120" stroke="#22313a" stroke-width="12" />
+<polyline points="6380,0 6300,0" stroke="#22313a" stroke-width="12" />
+<polyline points="6380,120 6380,0" stroke="#22313a" stroke-width="12" />
+<polyline points="6900,0 6900,120" stroke="#22313a" stroke-width="12" />
+<polyline points="6900,120 6980,120" stroke="#22313a" stroke-width="12" />
+<polyline points="6980,0 6900,0" stroke="#22313a" stroke-width="12" />
+<polyline points="6980,120 6980,0" stroke="#22313a" stroke-width="12" />
+<polyline points="7500,0 7500,120" stroke="#22313a" stroke-width="12" />
+<polyline points="7500,120 7580,120" stroke="#22313a" stroke-width="12" />
+<polyline points="7580,0 7500,0" stroke="#22313a" stroke-width="12" />
+<polyline points="7580,120 7580,0" stroke="#22313a" stroke-width="12" />
+<polyline points="8100,0 8100,120" stroke="#22313a" stroke-width="12" />
+<polyline points="8100,120 8180,120" stroke="#22313a" stroke-width="12" />
+<polyline points="8180,0 8100,0" stroke="#22313a" stroke-width="12" />
+<polyline points="8180,120 8180,0" stroke="#22313a" stroke-width="12" />
+<polyline points="8700,0 8700,120" stroke="#22313a" stroke-width="12" />
+<polyline points="8700,120 8780,120" stroke="#22313a" stroke-width="12" />
+<polyline points="8780,0 8700,0" stroke="#22313a" stroke-width="12" />
+<polyline points="8780,120 8780,0" stroke="#22313a" stroke-width="12" />
+<polyline points="9300,0 9300,120" stroke="#22313a" stroke-width="12" />
+<polyline points="9300,120 9380,120" stroke="#22313a" stroke-width="12" />
+<polyline points="9380,0 9300,0" stroke="#22313a" stroke-width="12" />
+<polyline points="9380,120 9380,0" stroke="#22313a" stroke-width="12" />
+<polyline points="9900,0 9900,120" stroke="#22313a" stroke-width="12" />
+<polyline points="9900,120 9980,120" stroke="#22313a" stroke-width="12" />
+<polyline points="9980,0 9900,0" stroke="#22313a" stroke-width="12" />
+<polyline points="9980,120 9980,0" stroke="#22313a" stroke-width="12" />
+<polyline points="7690,-8300 7690,-7400" stroke="#22313a" stroke-width="12" />
+<polyline points="7690,-7400 7700,-7400" stroke="#22313a" stroke-width="12" />
+<polyline points="7700,-8300 7690,-8300" stroke="#22313a" stroke-width="12" />
+<polyline points="7700,-7400 7700,-8300" stroke="#22313a" stroke-width="12" />
+<polyline points="6275,-7200 6275,-6410" stroke="#22313a" stroke-width="12" />
+<polyline points="6275,-6410 6315,-6410" stroke="#22313a" stroke-width="12" />
+<polyline points="6315,-7200 6275,-7200" stroke="#22313a" stroke-width="12" />
+<polyline points="6315,-6410 6315,-7200" stroke="#22313a" stroke-width="12" />
+<polyline points="9090,-5830 9090,-5736.667" stroke="#22313a" stroke-width="12" />
+<polyline points="9090,-5736.667 9135,-5736.667" stroke="#22313a" stroke-width="12" />
+<polyline points="9135,-5830 9090,-5830" stroke="#22313a" stroke-width="12" />
+<polyline points="9135,-5830 9135,-5736.667" stroke="#22313a" stroke-width="12" />
+<polyline points="9105,-7416.667 9105,-5923.333" stroke="#22313a" stroke-width="12" />
+<polyline points="9105,-5923.333 9117,-5923.333" stroke="#22313a" stroke-width="12" />
+<polyline points="9117,-7416.667 9105,-7416.667" stroke="#22313a" stroke-width="12" />
+<polyline points="9117,-7416.667 9117,-5923.333" stroke="#22313a" stroke-width="12" />
+<polygon points="8050,-5550 9050,-5550 9050,-5830 8050,-5830" stroke="#80918e" stroke-width="8" />
+<polygon points="8050,-5830 9050,-5830 9050,-6110 8050,-6110" stroke="#80918e" stroke-width="8" />
+<polygon points="8050,-6110 9050,-6110 9050,-6390 8050,-6390" stroke="#80918e" stroke-width="8" />
+<polygon points="8050,-6390 9050,-6390 9050,-6670 8050,-6670" stroke="#80918e" stroke-width="8" />
+<polygon points="8050,-6670 9050,-6670 9050,-6950 8050,-6950" stroke="#80918e" stroke-width="8" />
+<polygon points="8050,-6950 9050,-6950 9050,-7230 8050,-7230" stroke="#80918e" stroke-width="8" />
+<polygon points="8050,-7230 9050,-7230 9050,-7510 8050,-7510" stroke="#80918e" stroke-width="8" />
+<polygon points="8050,-7510 9050,-7510 9050,-7790 8050,-7790" stroke="#80918e" stroke-width="8" />
+<polygon points="8050,-7790 9050,-7790 9050,-8070 8050,-8070" stroke="#80918e" stroke-width="8" />
+<polygon points="9250,-7790 10250,-7790 10250,-8070 9250,-8070" stroke="#80918e" stroke-width="8" />
+<polygon points="9250,-7510 10250,-7510 10250,-7790 9250,-7790" stroke="#80918e" stroke-width="8" />
+<polygon points="9250,-7230 10250,-7230 10250,-7510 9250,-7510" stroke="#80918e" stroke-width="8" />
+<polygon points="9250,-6950 10250,-6950 10250,-7230 9250,-7230" stroke="#80918e" stroke-width="8" />
+<polygon points="9250,-6670 10250,-6670 10250,-6950 9250,-6950" stroke="#80918e" stroke-width="8" />
+<polygon points="9250,-6390 10250,-6390 10250,-6670 9250,-6670" stroke="#80918e" stroke-width="8" />
+<polygon points="9250,-6110 10250,-6110 10250,-6390 9250,-6390" stroke="#80918e" stroke-width="8" />
+<polygon points="9250,-5830 10250,-5830 10250,-6110 9250,-6110" stroke="#80918e" stroke-width="8" />
+<polygon points="9250,-5550 10250,-5550 10250,-5830 9250,-5830" stroke="#80918e" stroke-width="8" />
+<polygon points="8050,-8070 10250,-8070 10250,-9170 8050,-9170" stroke="#80918e" stroke-width="8" />
+<polygon points="1400,-6500 3200,-6500 3200,-7300 1400,-7300" stroke="#80918e" stroke-width="8" />
+<polygon points="5700,-350 5718,-350 5718,-930 5700,-930" stroke="#80918e" stroke-width="8" />
+<polygon points="6272,-350 6290,-350 6290,-930 6272,-930" stroke="#80918e" stroke-width="8" />
+<polygon points="5718,-350 6272,-350 6272,-930 5718,-930" stroke="#80918e" stroke-width="8" />
+<polygon points="5718,-350 6272,-350 6272,-910 5718,-910" stroke="#80918e" stroke-width="8" />
+<polygon points="5722,-933 6268,-933 6268,-951 5722,-951" stroke="#80918e" stroke-width="8" />
+<polygon points="6300,-350 6318,-350 6318,-930 6300,-930" stroke="#80918e" stroke-width="8" />
+<polygon points="6872,-350 6890,-350 6890,-930 6872,-930" stroke="#80918e" stroke-width="8" />
+<polygon points="6318,-350 6872,-350 6872,-930 6318,-930" stroke="#80918e" stroke-width="8" />
+<polygon points="6318,-350 6872,-350 6872,-910 6318,-910" stroke="#80918e" stroke-width="8" />
+<polygon points="6322,-933 6868,-933 6868,-951 6322,-951" stroke="#80918e" stroke-width="8" />
+<polygon points="6900,-350 6918,-350 6918,-930 6900,-930" stroke="#80918e" stroke-width="8" />
+<polygon points="7472,-350 7490,-350 7490,-930 7472,-930" stroke="#80918e" stroke-width="8" />
+<polygon points="6918,-350 7472,-350 7472,-930 6918,-930" stroke="#80918e" stroke-width="8" />
+<polygon points="6918,-350 7472,-350 7472,-910 6918,-910" stroke="#80918e" stroke-width="8" />
+<polygon points="6922,-933 7468,-933 7468,-951 6922,-951" stroke="#80918e" stroke-width="8" />
+<polygon points="7500,-350 7518,-350 7518,-930 7500,-930" stroke="#80918e" stroke-width="8" />
+<polygon points="8072,-350 8090,-350 8090,-930 8072,-930" stroke="#80918e" stroke-width="8" />
+<polygon points="7518,-350 8072,-350 8072,-930 7518,-930" stroke="#80918e" stroke-width="8" />
+<polygon points="7518,-350 8072,-350 8072,-910 7518,-910" stroke="#80918e" stroke-width="8" />
+<polygon points="7522,-933 8068,-933 8068,-951 7522,-951" stroke="#80918e" stroke-width="8" />
+<polygon points="5680,-330 8120,-330 8120,-980 5680,-980" stroke="#80918e" stroke-width="8" />
+<polygon points="5550,-8100 6150,-8100 6150,-9200 5550,-9200" stroke="#80918e" stroke-width="8" />
+<polygon points="5550,-8100 6150,-8100 6150,-8180 5550,-8180" stroke="#80918e" stroke-width="8" />
+<polygon points="5550,-9020 6150,-9020 6150,-9100 5550,-9100" stroke="#80918e" stroke-width="8" />
+<polygon points="5550,-8180 5630,-8180 5630,-9020 5550,-9020" stroke="#80918e" stroke-width="8" />
+<polygon points="6070,-8180 6150,-8180 6150,-9020 6070,-9020" stroke="#80918e" stroke-width="8" />
+<polygon points="6860,-8500 7240,-8500 7240,-9100 6860,-9100" stroke="#80918e" stroke-width="8" />
+<polygon points="6800,-9100 7300,-9100 7300,-9250 6800,-9250" stroke="#80918e" stroke-width="8" />
+<polygon points="6800,-7400 7700,-7400 7700,-8300 6800,-8300" stroke="#80918e" stroke-width="8" />
+<polygon points="6275,-6410 6315,-6410 6315,-7200 6275,-7200" stroke="#80918e" stroke-width="8" />
+<polygon points="5700,-2150 7500,-2150 7500,-3000 5700,-3000" stroke="#80918e" stroke-width="8" />
+<polygon points="5650,-2100 7550,-2100 7550,-3050 5650,-3050" stroke="#80918e" stroke-width="8" />
+<polygon points="1000,-800 3600,-800 3600,-2800 1000,-2800" stroke="#80918e" stroke-width="8" />
+<polygon points="1020,-820 3580,-820 3580,-2780 1020,-2780" stroke="#80918e" stroke-width="8" />
+<polygon points="1000,-2750 3600,-2750 3600,-2830 1000,-2830" stroke="#80918e" stroke-width="8" />
+<text x="0" y="-10800" font-family="system-ui, sans-serif" font-size="200" fill="#22313a" stroke="none">A101 / MODULE HOUSE / 1F PLAN / R1 REVIEW</text>
+<text x="0" y="1000" font-family="system-ui, sans-serif" font-size="140" fill="#22313a" stroke="none">mm | 10800 x 9600 | FFL 0 / 3000 / 6000 | stair 20 x 150 / going 280</text>
+<text x="2000" y="-2400" font-family="system-ui, sans-serif" font-size="160" fill="#234c46" stroke="none">LIVING / DINING</text>
+<text x="1800" y="-7800" font-family="system-ui, sans-serif" font-size="160" fill="#234c46" stroke="none">WORK / GUEST</text>
+<text x="6000" y="-2400" font-family="system-ui, sans-serif" font-size="160" fill="#234c46" stroke="none">KITCHEN</text>
+<text x="5900" y="-8200" font-family="system-ui, sans-serif" font-size="160" fill="#234c46" stroke="none">WC / UTILITY</text>
+<text x="8400" y="-5100" font-family="system-ui, sans-serif" font-size="140" fill="#234c46" stroke="none">UP / 1000 wide</text>
+</g>
+</svg>

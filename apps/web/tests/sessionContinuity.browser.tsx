@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { openDisclosureFor } from "./helpers/physicalInput";
 import { App } from "../src/App";
 import "../src/styles.css";
 import "../src/ui/tokens.css";
@@ -49,6 +50,7 @@ async function input(action: Record<string, unknown>) {
   if (!response.ok) throw new Error(await response.text()); return response;
 }
 async function physical(element: Element) {
+  await openDisclosureFor(element);
   element.scrollIntoView({ block: "nearest" }); await pause();
   const r = element.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
   if (!element.contains(document.elementFromPoint(x, y))) throw new Error(`Obscured control: ${element.outerHTML.slice(0, 160)}`);

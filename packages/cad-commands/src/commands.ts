@@ -1,3 +1,4 @@
+import type {PolygonMeshOperation, MeshModifier} from "@agent-webcad/cad-document";
 import type { SketchConstraint, SketchGeometry, SketchPointRef, SketchWorkPlane } from "@agent-webcad/cad-document";
 
 /** Explicit routing from a replaced source to reviewed output pieces. */
@@ -5,6 +6,38 @@ export type ContourReferenceRoute = { dependentId: string; sourceId: string; ref
 export type ContourBridge = { fromId: string; fromEnd: "start" | "end"; toId: string; toEnd: "start" | "end" };
 
 export type CadCommand =
+  | {type:"assembly-part-place";objectId:string;targetWorldPose:import("@agent-webcad/cad-document").CadObjectTransform;descendantPolicy:import("@agent-webcad/cad-document").DescendantPolicy}
+  | {type:'insert-external-scene';id:string;layerId:string;asset:import('@agent-webcad/cad-document').ExternalSceneAsset}
+  | {type:"assembly-pair-intent";pair:[string,string];intent:import("@agent-webcad/cad-document").InterferenceIntent|null;note:string}
+  | {type:"assembly-joint-delete";jointId:string}
+  | {type:"assembly-joint-reparent";jointId:string;parentId:string;preserveWorld:boolean}
+  | {type:"assembly-joint-edit";jointId:string;edit:import("@agent-webcad/cad-document").JointEdit;preserveWorld:boolean}
+  | {type:"assembly-ground";objectId:string;grounded:boolean}
+  | {type:"assembly-joint-create";joint:import("@agent-webcad/cad-document").JointInput}
+  | ({type:"assembly-joint-update";jointId:string} & ({angle:number;offset?:never}|{offset:number;angle?:never}))
+
+  | {type:"reconstruct-planar-mesh";objectId:string;id?:string;options:import("@agent-webcad/cad-document").ReconstructionOptions}
+  | {type:"hybrid-reference";objectId:string;referenceId:string;origin:[number,number,number];direction:[number,number,number];expectedFingerprint?:string}
+  | {type:"hybrid-datum";referenceId:string;id?:string;width:number;depth:number;height:number}
+  | {type:"hybrid-to-mesh";objectId:string;id?:string}
+  | {type:"sculpt-stroke";objectId:string;stroke:import("@agent-webcad/cad-document").SculptStroke}
+  | {type:"remesh-mesh";objectId:string;id?:string;options:import("@agent-webcad/cad-document").RemeshOptions}
+  | {type:"bake-mesh";objectId:string;id?:string}
+  | {type:"create-geometry-graph";id?:string;layerId?:string;graph:import("@agent-webcad/cad-document").GeometryNodeGraph}
+  | {type:"edit-geometry-graph";objectId:string;actions:import("@agent-webcad/cad-document").GeometryGraphAction[]}
+  | {type:"create-polygon-mesh";id?:string;layerId?:string;size:number;shape:"cube"|"ngon";sides?:number}
+  | {type:"upgrade-mesh";objectId:string}
+  | {type:"edit-polygon-mesh";objectId:string;operation:PolygonMeshOperation}
+  | {type:"set-mesh-modifiers";objectId:string;modifiers:MeshModifier[]}
+  | {type:"create-mesh";id?:string;layerId?:string;size:number}
+  | {type:"select-mesh-elements";objectId:string;enabled:boolean;mode:import("@agent-webcad/cad-document").MeshSelectionMode;elementIds:string[]}
+  | {type:"transform-mesh-elements";objectId:string;mode:import("@agent-webcad/cad-document").MeshSelectionMode;elementIds:string[];operation:"move"|"scale";value:[number,number,number];pivot?:[number,number,number]}
+  | {type:"extrude-mesh-face";objectId:string;faceId:string;distance:number}
+  | {type:"layout-saved-measurements";placements:{measurementId:string;offset:[number,number]}[];documentId:string;expectedRevision:number}
+  | {type:"place-saved-measurement";measurementId:string;offset:[number,number];documentId:string;expectedRevision:number}
+  | {type:"upsert-saved-measurement";measurement:import("@agent-webcad/cad-document").SavedMeasurementDefinition}
+  | {type:"delete-saved-measurement";measurementId:string}
+  | {type:"refresh-saved-measurements"}
   | {type:"define-component-content";id:string;name:string;objectId:string}
   | {type:"delete-component-content";definitionId:string}
   | {type:"place-component-content";id?:string;layerId?:string;content:import("@agent-webcad/cad-document").ComponentContent}
@@ -14,7 +47,7 @@ export type CadCommand =
   | {type:"update-architectural-slab";objectId:string;level:number;thickness:number}
   | {type:"set-solid-finish";objectId:string;finish:import("@agent-webcad/cad-document").SolidFinish|null}
   | {type:"create-wall";id?:string;layerId?:string;definition:import("@agent-webcad/cad-document").ArchitectureWall}
-  | {type:"update-wall";objectId:string;height:number;thickness:number;baseLevel:number}
+  | {type:"update-wall";objectId:string;height:number;thickness:number;baseLevel:number;startMiter?:number;endMiter?:number;start?:[number,number];end?:[number,number]}
   | {type:"upsert-wall-opening";objectId:string;opening:import("@agent-webcad/cad-document").WallOpening}
   | {type:"delete-wall-opening";objectId:string;openingId:string}
   | {type:"refresh-wall-drawings";objectId:string}
@@ -27,6 +60,11 @@ export type CadCommand =
   | {type:"upsert-frame-link";link:import("@agent-webcad/cad-document").CadFrameLink}
   | {type:"delete-frame-link";linkId:string}
   | {type:"layout-frame-links";frameId:string;translation?:[number,number]}
+  | {type:"scale-canvas-contents";canvasId:string;factor:number;keepPaperStyles?:boolean;includeImages?:boolean}
+  | {type:"apply-canvas-flex";canvasId:string;allowModelMoves?:boolean;allowNoMovement?:boolean}
+  | {type:"upsert-canvas";canvas:import("@agent-webcad/cad-document").CadCanvas}
+  | {type:"delete-canvas";canvasId:string}
+  | {type:"organize-canvases"}
   | {type:"upsert-workspace-section";section:import("@agent-webcad/cad-document").CadWorkspaceSection}
   | {type:"delete-workspace-section";sectionId:string}
   | {type:"update-spline";objectId:string;spline:import("@agent-webcad/cad-document").CadSpline}
@@ -59,6 +97,7 @@ export type CadCommand =
   | { type: "delete-artboard"; artboardId: string }
   | { type: "insert-image"; id?: string; layerId?: string; asset: import("@agent-webcad/cad-document").CadRasterAsset; workPlane: import("@agent-webcad/cad-document").SketchWorkPlane; center: [number, number, number]; width: number; height: number }
   | { type: "replace-image-source"; objectId: string; asset: import("@agent-webcad/cad-document").CadRasterAsset }
+  | { type: "reorder-image"; objectId: string; direction: "front" | "back" | "forward" | "backward" }
   | { type: "update-image"; objectId: string; width?: number; height?: number; crop?: import("@agent-webcad/cad-document").CadImageCrop; mask?: import("@agent-webcad/cad-document").CadImageMask; opacity?: number; adjustments?: import("@agent-webcad/cad-document").CadImageAdjustments }
   | { type: "update-construction"; objectId: string; definition: import("@agent-webcad/cad-document").CadConstructionDefinition }
   | { type: "create-construction"; id?: string; name?: string; definition: import("@agent-webcad/cad-document").CadConstructionDefinition; workPlane: SketchWorkPlane; construction?: boolean; layerId?: string }
@@ -84,7 +123,7 @@ export type CadCommand =
   | {type:"define-block";id:string;name:string;objectIds:string[];base:[number,number,number]}
   | {type:"update-block";blockId:string;name?:string;objectIds?:string[];base?:[number,number,number]}
   | {type:"set-block-override";blockId:string;objectId:string;vectorStyle?:import("@agent-webcad/cad-document").CadVectorStyle;clear?:boolean}
-  | {type:"insert-block";id?:string;blockId:string;layerId?:string;position:[number,number,number];angle?:number;scale?:[number,number,number]}
+  | {type:"insert-block";dxfStyle?:import("@agent-webcad/cad-document").CadDxfStyle;id?:string;blockId:string;layerId?:string;position:[number,number,number];angle?:number;scale?:[number,number,number]}
   | {type:"explode-block";objectId:string;recursive?:boolean}
   | {
       type: "batch";
@@ -216,8 +255,9 @@ export type CadCommand =
       type: "create-sweep";
       /** Exactly one closed profile (same loop rules as extrude). */
       profileObjectIds: string[];
-      /** One open drawing (line/polyline/arc/circle) used as the spine. */
+      /** One open drawing, including an exact spatial spline, used as the spine. */
       pathObjectId: string;
+      alignToPath?: boolean;
       layerId?: string;
       id?: string;
     }
@@ -234,6 +274,11 @@ export type CadCommand =
       type: "update-revolve";
       objectId: string;
       angle: number;
+    }
+  | {
+      type: "update-loft";
+      objectId: string;
+      ruled: boolean;
     }
   | {
       type: "offset-drawing";
@@ -279,6 +324,7 @@ export type CadCommand =
     }
   | {
       type: "fillet";
+      id?: string;
       target: string;
       edges: string[];
       radius: number;
@@ -288,6 +334,7 @@ export type CadCommand =
       // Asymmetric (distance1/distance2) needs face disambiguation the
       // current kernel binding cannot express; deferred, not faked.
       type: "chamfer";
+      id?: string;
       target: string;
       edges: string[];
       distance: number;

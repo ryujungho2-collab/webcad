@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-18",
+  "status": "passed",
+  "feature": "Selected BRep mixed face-edge and world projected/axis metrics",
+  "node": {
+    "passed": 60,
+    "selectedDistance": 14,
+    "brepDistance": 13,
+    "hoverDistance": 18,
+    "kernelWorkerClient": 15,
+    "log": "output/verification/selected-distance/node-regression.log"
+  },
+  "browser": {
+    "selectedDistance": 25,
+    "brepDistance": 16,
+    "nativeReport": "output/verification/selected-distance/native-report.json",
+    "screenshots": [
+      "output/verification/selected-distance/selected-faces.png",
+      "output/verification/selected-distance/selected-mixed-projection-960.png"
+    ],
+    "visualReview": "960px mixed projection screenshot inspected; metric label layout improved"
+  },
+  "build": "pnpm build passed",
+  "architecture": {
+    "status": "passed",
+    "modules": 683
+  },
+  "modes": [
+    "shortest",
+    "project-XY",
+    "project-XZ",
+    "project-YZ",
+    "axis-X",
+    "axis-Y",
+    "axis-Z"
+  ],
+  "guarantees": [
+    "Each mode minimizes its own metric",
+    "Native trimmed BRep witness recovery",
+    "Mixed pairs in either direction",
+    "Finite face holes remain excluded",
+    "World coordinates and transforms",
+    "Mode/document change invalidates result",
+    "Actual Worker abort and retry",
+    "No document/history mutation"
+  ],
+  "numericalLimits": {
+    "projectedTargetToleranceMm": 0.001,
+    "kernelDeflectionMm": 1e-07,
+    "regularizationFloor": 1e-05,
+    "maxRefinements": 3,
+    "bounds": "Numerical estimates, not certified intervals",
+    "degradation": "Approximate when target gap, recovery correction or numerical consistency checks fail"
+  },
+  "scopeNote": "Projected and axis modes apply to Direct Select pinned measurements; whole-solid hover remains shortest-3D."
+}

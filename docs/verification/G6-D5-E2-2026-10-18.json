@@ -1,0 +1,136 @@
+{
+  "card": "G6-D5-E2",
+  "date": "2026-10-18",
+  "status": "complete-first-supported-scope",
+  "implementation": "../implementation/G6-D5-E2-CURVE-DXF-2026-10-18.md",
+  "environment": {
+    "platform": "Windows",
+    "timezone": "Asia/Seoul",
+    "browser": "Microsoft Edge",
+    "renderer": "SwiftShader",
+    "newExternalDependencies": 0,
+    "sourceSchema": 39,
+    "paperMm": [
+      148,
+      105
+    ],
+    "nativePdfDpi": 96,
+    "independentPdfDpi": 144
+  },
+  "checks": {
+    "allNode": {
+      "passed": 1335,
+      "failed": 0,
+      "suites": 54,
+      "durationMs": 72486.9774,
+      "command": "pnpm --filter @agent-webcad/web test",
+      "log": "../../output/verification/curve-dxf/all-node.log"
+    },
+    "focusedNode": {
+      "passed": 37,
+      "newTests": 12,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/curveDxf.test.ts tests/splineIntegration.test.ts tests/curveHatch.test.ts tests/dxfPreparation.test.ts",
+      "log": "../../output/verification/curve-dxf/focused.log"
+    },
+    "nativeUI": {
+      "passed": 24,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=curveDxf --artifacts",
+      "report": "../../output/projects/curve-dxf/native-report.json"
+    },
+    "nativeRegressions": {
+      "passed": 123,
+      "failed": 0,
+      "pages": [
+        {
+          "page": "dxfWorkflow",
+          "passed": 18,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=dxfWorkflow",
+          "log": "../../output/verification/curve-dxf/dxfWorkflow-regression.log"
+        },
+        {
+          "page": "dxfOcs",
+          "passed": 18,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=dxfOcs",
+          "log": "../../output/verification/curve-dxf/dxfOcs-regression.log"
+        },
+        {
+          "page": "dxfPreparation",
+          "passed": 25,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=dxfPreparation",
+          "log": "../../output/verification/curve-dxf/dxfPreparation-regression.log"
+        },
+        {
+          "page": "dxfPlacement",
+          "passed": 15,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=dxfPlacement",
+          "log": "../../output/verification/curve-dxf/dxfPlacement-regression.log"
+        },
+        {
+          "page": "spline",
+          "passed": 19,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=spline",
+          "log": "../../output/verification/curve-dxf/spline-regression.log"
+        },
+        {
+          "page": "curveHatch",
+          "passed": 28,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=curveHatch --artifacts",
+          "log": "../../output/verification/curve-dxf/curveHatch-regression.log"
+        }
+      ]
+    },
+    "r5CurveHatchRegression": {
+      "status": "passed",
+      "checks": 28,
+      "report": "../../output/projects/curve-hatch-r5/native-report.json",
+      "log": "../../output/verification/curve-dxf/curveHatch-regression.log"
+    },
+    "independentArtifacts": {
+      "status": "passed",
+      "samples": 2002,
+      "maxDeviationMm": 3.260957681782951e-14,
+      "pdfPages": 1,
+      "cropPieces": 2,
+      "command": "C:/Users/thefi/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe apps/web/scripts/verifyCurveDxfArtifacts.py",
+      "report": "../../output/projects/curve-dxf/artifact-verification.json"
+    },
+    "typecheck": {
+      "status": "passed",
+      "command": "pnpm --filter @agent-webcad/web exec tsc --noEmit -p tsconfig.json"
+    },
+    "architecture": {
+      "status": "passed",
+      "modules": 635,
+      "command": "pnpm --filter @agent-webcad/web check:architecture"
+    },
+    "build": {
+      "status": "passed",
+      "modules": 452,
+      "command": "pnpm --filter @agent-webcad/web build",
+      "warning": "Existing chunks larger than 500 kB"
+    }
+  },
+  "supportedScope": {
+    "periodic": "Explicit expanded periodic knot basis, degree 1–8, at least degree+1 poles before explicit degree-pole/weight repetition; exact finite nonperiodic normalization at original domain/seam",
+    "fitOnly": "Open degree-3 nonrational, 2–86 points, natural endpoints, chord-length parameters, declared tolerance checked at fit points, explicit conversion consent",
+    "writer": "Editable finite SPLINE with roundtrippable knot/weight/pole numbers and domain-relative crop tolerances"
+  },
+  "artifacts": [
+    "../../output/projects/curve-dxf/source.dxf",
+    "../../output/projects/curve-dxf/curves.dxf",
+    "../../output/projects/curve-dxf/crop.dxf",
+    "../../output/projects/curve-dxf/curves.svg",
+    "../../output/projects/curve-dxf/curves.pdf",
+    "../../output/projects/curve-dxf/curves.png",
+    "../../output/projects/curve-dxf/curves.webcad.json"
+  ],
+  "boundaries": [
+    "Periodic and fit editing metadata are intentionally replaced by finite control/knot basis after explicit Review consent",
+    "Fit residual does not bound deviation from an unknown original between-point CAD curve",
+    "Closed/periodic/tangent fit-only, implied cyclic poles, custom LTYPE and font portability remain follow-up scope",
+    "Self-authored group-code fixtures and product downloads; no external CAD application interoperability certification",
+    "SVG/PDF retain separate 0.02 mm paper chord tolerance; PDF is raster"
+  ]
+}

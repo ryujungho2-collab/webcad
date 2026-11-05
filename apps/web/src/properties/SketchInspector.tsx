@@ -141,13 +141,30 @@ export function SketchInspector({ reviewResetKey,sketch,onConstraintReview,onVar
     } catch(cause){if(ticket===sequence.current)setError(cause instanceof Error?cause.message:String(cause));} finally{if(ticket===sequence.current)setReviewing(false);}
   }
   return <div className="properties-content" data-testid="sketch-inspector">
-    <ParameterBindingsNotice sketchId={sketch.id} onEdit={onVariables}/>
-    {geometry.length === 1 && <DependencyNotice objectId={geometry[0].id} revision={cadDocument.revision}/>}
+
+
     <div className="inspector-header"><span>Sketch inspector</span><small>{sketch.facePlaneId?`Face · ${sketch.facePlaneId}`:`${sketch.workPlane} plane`}</small></div>
     <div className="inspector-selection-summary">
       <span className="inspector-selection-mark" aria-hidden="true">◇</span>
       <div><strong>{geometry.length ? `${geometry.length} ${geometry.length === 1 ? "entity" : "entities"} selected` : "Sketch geometry"}</strong><span>{controls.length ? `${controls.length} ${controls.length === 1 ? "point" : "points"} selected` : "Select entities to add constraints"}</span></div>
     </div>
+    <p className="inspector-notice" role="status">{sketch.solveState.status} · {sketch.solveState.degreesOfFreedom} DOF · {sketch.workPlane} · mm</p>
+    {sketch.facePlaneId&&sketch.faceStatus!=="resolved"&&<p className="inspector-notice inspector-error" role="alert">Source face is {sketch.faceStatus}. Rebind the work plane before editing.</p>}
+    <PropertySection title="Dimensions & relations" meta={sketch.constraints.length} active={!!diagnostic} keepOpen={!!diagnostic}>
+      <p className="property-hint">These dimensions drive the sketch and its live solids. Enter units; R and Ø prefixes accept radius or diameter. Standalone drawing annotations do not drive the model.</p>
+      <label className="property-row"><span>Show all relations</span><input type="checkbox" checked={showAll} onChange={(event) => setShowAll(event.target.checked)} /></label>
+      {relations.map((constraint) => <div className={`property-row sketch-constraint${selectedConstraintId === constraint.id ? " focused" : ""}${diagnostic?.constraintIds.includes(constraint.id) ? " conflict" : ""}`} key={constraint.id}>
+        <button type="button" title={constraint.id} aria-label={`Show ${dimensionLabel(constraint)} geometry`} onClick={() => onSelectConstraint?.(constraint.id)}>{dimensionLabel(constraint)}</button>
+        {"value" in constraint && typeof constraint.value === "number" ? <span className="numeric-control"><input aria-label={`${dimensionLabel(constraint)} ${constraint.id}`} type="text" inputMode="decimal" disabled={Object.values(cadDocument.parameterBindings??{}).some(b=>b.target.kind==="sketch-constraint"&&b.target.sketchId===sketch.id&&b.target.constraintId===constraint.id)}
+          value={drafts[constraint.id] ?? String(constraint.kind === "angle" ? constraint.value * 180 / Math.PI : constraint.value)}
+          onChange={(event) => {cancelReview();setDrafts((current) => ({ ...current, [constraint.id]: event.target.value }));}}
+          onFocus={(event) => { event.currentTarget.select(); onSelectConstraint?.(constraint.id); }}
+          onBlur={() => void commitDimension(constraint)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /><span className="numeric-unit">{constraint.kind === "angle" ? "°" : "mm"}</span></span> : <strong>Active</strong>}
+        <button type="button" aria-label={`Remove ${constraint.kind} constraint`} title="Remove constraint" onClick={() => void send({ type: "remove-sketch-constraint", sketchId: sketch.id, constraintId: constraint.id })}>×</button>
+      </div>)}
+      {!relations.length && <div className="inspector-section-empty">No constraints for this selection. Add one or show all relations.</div>}
+    </PropertySection>
+    {diagnostic&&<p className="inspector-notice inspector-error" role="alert">Constraint diagnostic · {diagnostic.constraintIds.join(", ")||"Inspect the highlighted geometry"}</p>}
     <PropertySection title="Sketch" meta={sketch.workPlane}>
       <div className="property-row"><span>Entities</span><strong>{sketch.geometry.length}</strong></div>
       <div className="property-row"><span>Status</span><strong className={sketch.solveState.status === "fully-constrained" ? "sketch-status-complete" : undefined}>{sketch.solveState.status === "fully-constrained" ? "Fully constrained" : `${sketch.solveState.degreesOfFreedom} DOF`}</strong></div>
@@ -226,19 +243,7 @@ export function SketchInspector({ reviewResetKey,sketch,onConstraintReview,onVar
       {(edgeB||tangentLine||targetLine||targetCurve)&&<p className="property-hint">Arc relations use the actual arc sweep and finite contact; nearby tangent candidates require Preview and Apply before they become permanent. Circle relations use full circles. Select a point and another entity for point-on-line, circle or arc.</p>}
       {!hasConstraintActions && <div className="inspector-section-empty">Select a line, circle, arc, rectangle, or individual points to add a constraint.</div>}
     </PropertySection>
-    <PropertySection title="Dimensions & relations" meta={sketch.constraints.length}>
-      <p className="property-hint">These dimensions drive the sketch and its live solids. Enter units; R and Ø prefixes accept radius or diameter. Standalone drawing annotations do not drive the model.</p>
-      <label className="property-row"><span>Show all relations</span><input type="checkbox" checked={showAll} onChange={(event) => setShowAll(event.target.checked)} /></label>
-      {relations.map((constraint) => <div className={`property-row sketch-constraint${selectedConstraintId === constraint.id ? " focused" : ""}${diagnostic?.constraintIds.includes(constraint.id) ? " conflict" : ""}`} key={constraint.id}>
-        <button type="button" title={constraint.id} aria-label={`Show ${dimensionLabel(constraint)} geometry`} onClick={() => onSelectConstraint?.(constraint.id)}>{dimensionLabel(constraint)}</button>
-        {"value" in constraint && typeof constraint.value === "number" ? <span className="numeric-control"><input aria-label={`${dimensionLabel(constraint)} ${constraint.id}`} type="text" inputMode="decimal" disabled={Object.values(cadDocument.parameterBindings??{}).some(b=>b.target.kind==="sketch-constraint"&&b.target.sketchId===sketch.id&&b.target.constraintId===constraint.id)}
-          value={drafts[constraint.id] ?? String(constraint.kind === "angle" ? constraint.value * 180 / Math.PI : constraint.value)}
-          onChange={(event) => {cancelReview();setDrafts((current) => ({ ...current, [constraint.id]: event.target.value }));}}
-          onFocus={(event) => { event.currentTarget.select(); onSelectConstraint?.(constraint.id); }}
-          onBlur={() => void commitDimension(constraint)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /><span className="numeric-unit">{constraint.kind === "angle" ? "°" : "mm"}</span></span> : <strong>Active</strong>}
-        <button type="button" aria-label={`Remove ${constraint.kind} constraint`} title="Remove constraint" onClick={() => void send({ type: "remove-sketch-constraint", sketchId: sketch.id, constraintId: constraint.id })}>×</button>
-      </div>)}
-      {!relations.length && <div className="inspector-section-empty">No constraints for this selection. Add one or show all relations.</div>}
-    </PropertySection>
+    <ParameterBindingsNotice sketchId={sketch.id} onEdit={onVariables}/>
+    {geometry.length === 1 && <DependencyNotice objectId={geometry[0].id} revision={cadDocument.revision}/>}
   </div>;
 }

@@ -1,9 +1,11 @@
+import {useModalDialog} from "../ui/useModalDialog";
+import {isCompositionKey} from "../input/shortcutRouter";
 import { useEffect, useRef, useState } from "react";
 import { searchPaletteCommands, type PaletteCommand } from "./paletteCommands";
 import "../ui/palette.css";
 
 export function CommandPalette({ commands, onClose }: { commands: PaletteCommand[]; onClose: () => void }) {
-  const dialog = useRef<HTMLDialogElement>(null);
+  const dialog = useModalDialog(true,".palette-search");
   const input = useRef<HTMLInputElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const executing = useRef(false);
@@ -12,13 +14,6 @@ export function CommandPalette({ commands, onClose }: { commands: PaletteCommand
   const [activeId, setActiveId] = useState<string | null>(null);
   const results = searchPaletteCommands(commands.filter(command => view === "shortcuts" ? Boolean(command.shortcut) : !command.reference), query);
   const active = results.find((command) => command.id === activeId) ?? results[0];
-
-  useEffect(() => {
-    const element = dialog.current!;
-    element.showModal();
-    input.current?.focus();
-    return () => element.close();
-  }, []);
 
   useEffect(() => {
     if (active) document.getElementById(`palette-${active.id}`)?.scrollIntoView({ block: "nearest" });
@@ -48,7 +43,7 @@ export function CommandPalette({ commands, onClose }: { commands: PaletteCommand
       }}
       onKeyDown={(event) => {
         event.stopPropagation();
-        if (event.nativeEvent.isComposing) return;
+        if (isCompositionKey(event.nativeEvent)) return;
         if (event.key === "Tab" && !event.ctrlKey && !event.metaKey && !event.altKey) {
           event.preventDefault();
           const stops = [...dialog.current!.querySelectorAll<HTMLElement>('button:not(:disabled), input')];

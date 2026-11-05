@@ -31,7 +31,31 @@ export type MeshedFaceRange = {
   count: number;
 };
 
-export async function shapeToMesh(shape: any): Promise<{
+export const BASE_LINEAR_DEFLECTION = 0.1;
+
+/** Absolute deflection for small parts, relative for large ones. */
+export function meshDeflection(oc: any, shape: any): number {
+  const box = new oc.Bnd_Box_1();
+  let min: any, max: any;
+  try {
+    oc.BRepBndLib.AddOptimal(shape, box, false, false);
+    if (box.IsVoid()) return BASE_LINEAR_DEFLECTION;
+    min = box.CornerMin(); max = box.CornerMax();
+    const diagonal = Math.hypot(max.X() - min.X(), max.Y() - min.Y(), max.Z() - min.Z());
+    return Number.isFinite(diagonal) ? Math.max(BASE_LINEAR_DEFLECTION, diagonal / 2000) : BASE_LINEAR_DEFLECTION;
+  } catch {
+    return BASE_LINEAR_DEFLECTION;
+  } finally {
+    min?.delete?.(); max?.delete?.(); box.delete();
+  }
+}
+
+/**
+ * `deflection` lets a caller mesh one face with the deflection of its parent solid.
+ * Face keys fingerprint the triangulation, so a face re-meshed alone at its own
+ * (smaller) size would not match the key published for the whole solid.
+ */
+export async function shapeToMesh(shape: any, deflection?: number): Promise<{
   positions: number[];
   normals: number[];
   indices: number[];
@@ -40,18 +64,24 @@ export async function shapeToMesh(shape: any): Promise<{
   const engine = await CadEngine.create();
   const oc = engine.oc;
 
-  // Tessellate the BRep shape.
+  // Tessellate the BRep shape. Parts up to ~200 mm keep the 0.1 mm absolute
+  // deflection; larger shapes use 1/2000 of their bounding diagonal so a 27 m
+  // torus or cylinder does not explode into hundreds of thousands of triangles.
   const mesher = new oc.BRepMesh_IncrementalMesh_2(
     shape,
-    0.1,
+    deflection ?? meshDeflection(oc, shape),
     false,
     0.5,
     false
   );
 
-  mesher.Perform(
-    new oc.Message_ProgressRange_1()
-  );
+  const progress = new oc.Message_ProgressRange_1();
+  try {
+    mesher.Perform(progress);
+  } finally {
+    progress.delete();
+    mesher.delete();
+  }
 
   const positions: number[] = [];
   const normals: number[] = [];
@@ -87,28 +117,31 @@ export async function shapeToMesh(shape: any): Promise<{
 
   let globalVertexOffset = 0;
 
+  try {
   while (explorer.More()) {
-    const face = oc.TopoDS.Face_1(
-      explorer.Current()
-    );
+    const owned: any[] = [];
+    const keep = <T>(value: T): T => { owned.push(value); return value; };
+    try {
+    const current = keep(explorer.Current());
+    const face = keep(oc.TopoDS.Face_1(current));
 
     const location =
-      new oc.TopLoc_Location_1();
+      keep(new oc.TopLoc_Location_1());
 
     const triHandle =
-      oc.BRep_Tool.Triangulation(
+      keep(oc.BRep_Tool.Triangulation(
         face,
         location,
         meshPurpose
-      );
+      ));
 
     if (!triHandle.IsNull()) {
       // Convert Handle_Poly_Triangulation to the concrete
       // Poly_Triangulation wrapper exposed by opencascade.js.
       const triangulation =
-        new oc.Poly_Triangulation_5(
+        keep(new oc.Poly_Triangulation_5(
           triHandle
-        );
+        ));
 
       const nodeCount = triangulation.NbNodes();
       const faceNodes: number[] = [];
@@ -118,14 +151,16 @@ export async function shapeToMesh(shape: any): Promise<{
 
       const transform = location.IsIdentity()
         ? null
-        : location.Transformation();
+        : keep(location.Transformation());
 
       const hasNormals = triangulation.HasNormals();
 
       for (let i = 1; i <= nodeCount; i++) {
         const point = triangulation.Node(i);
+        let worldPoint = point;
+        try {
 
-        const worldPoint = transform
+        worldPoint = transform
           ? point.Transformed(transform)
           : point;
 
@@ -142,8 +177,10 @@ export async function shapeToMesh(shape: any): Promise<{
 
         if (hasNormals) {
           const normal = triangulation.Normal_1(i);
+          let worldNormal = normal;
+          try {
 
-          const worldNormal = transform
+          worldNormal = transform
           ? normal.Transformed(transform)
           : normal;
 
@@ -154,6 +191,14 @@ export async function shapeToMesh(shape: any): Promise<{
             worldNormal.Y() * sign,
             worldNormal.Z() * sign
           );
+          } finally {
+            if (worldNormal !== normal) worldNormal.delete();
+            normal.delete();
+          }
+        }
+        } finally {
+          if (worldPoint !== point) worldPoint.delete();
+          point.delete();
         }
       }
 
@@ -168,6 +213,7 @@ export async function shapeToMesh(shape: any): Promise<{
       ) {
         const triangle =
           triangulation.Triangle(i);
+        try {
 
         const i1 =
           triangle.Value(1) - 1;
@@ -190,6 +236,7 @@ export async function shapeToMesh(shape: any): Promise<{
             globalVertexOffset + i3
           );
         }
+        } finally { triangle.delete(); }
       }
 
       faces.push({
@@ -201,8 +248,12 @@ export async function shapeToMesh(shape: any): Promise<{
       globalVertexOffset += nodeCount;
     }
 
+    } finally {
+      for (let i = owned.length - 1; i >= 0; i--) owned[i].delete();
+    }
     explorer.Next();
   }
+  } finally { explorer.delete(); }
 
   // Fallback: generate vertex normals when OpenCascade
   // triangulation does not provide them.

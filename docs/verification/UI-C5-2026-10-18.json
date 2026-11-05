@@ -1,0 +1,117 @@
+{
+  "card": "UI-C5",
+  "date": "2026-10-18",
+  "status": "complete-first-supported-scope",
+  "implementation": "../implementation/UI-C5-INPUT-ACCESSIBILITY-2026-10-18.md",
+  "environment": {
+    "platform": "Windows",
+    "timezone": "Asia/Seoul",
+    "browser": "Microsoft Edge",
+    "renderer": "SwiftShader",
+    "newExternalDependencies": 0
+  },
+  "checks": {
+    "allNode": {
+      "passed": 1311,
+      "suites": 54,
+      "failed": 0,
+      "durationMs": 69602.8538,
+      "command": "pnpm --filter @agent-webcad/web test",
+      "log": "../../output/verification/accessibility-input/all-node.log"
+    },
+    "focusedNode": {
+      "passed": 7,
+      "newTests": 2,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/accessibilityInput.test.ts tests/shortcutRouter.test.ts",
+      "log": "../../output/verification/accessibility-input/node.log"
+    },
+    "accessibilityBrowser": {
+      "passed": 30,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=accessibilityInput --artifacts",
+      "report": "../../output/verification/accessibility-input/native-report.json"
+    },
+    "typecheck": {
+      "status": "passed",
+      "command": "pnpm --filter @agent-webcad/web exec tsc --noEmit -p tsconfig.json"
+    },
+    "architecture": {
+      "status": "passed",
+      "modules": 626,
+      "command": "pnpm --filter @agent-webcad/web check:architecture"
+    },
+    "build": {
+      "status": "passed",
+      "modules": 450,
+      "command": "pnpm --filter @agent-webcad/web build",
+      "warning": "Existing chunks larger than 500 kB"
+    },
+    "selectionToolbar": {
+      "passed": 23,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=selectionToolbar --artifacts",
+      "log": "../../output/verification/accessibility-input/selectionToolbar-regression.log"
+    },
+    "precisionInput": {
+      "passed": 15,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=precisionInput --artifacts",
+      "log": "../../output/verification/accessibility-input/precisionInput-regression.log"
+    },
+    "historySelection": {
+      "passed": 23,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=historySelection --artifacts",
+      "log": "../../output/verification/accessibility-input/historySelection-regression.log"
+    },
+    "projectHome": {
+      "passed": 26,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectHome --artifacts",
+      "log": "../../output/verification/accessibility-input/projectHome-regression.log"
+    },
+    "projectComparison": {
+      "passed": 25,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectComparison --artifacts",
+      "log": "../../output/verification/accessibility-input/projectComparison-regression.log"
+    },
+    "projectTabNavigation": {
+      "passed": 27,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectTabNavigation --artifacts",
+      "log": "../../output/verification/accessibility-input/projectTabNavigation-regression.log"
+    },
+    "projectManager": {
+      "passed": 30,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectManager --artifacts",
+      "log": "../../output/verification/accessibility-input/manager-regression.log"
+    },
+    "inspectorProperties": {
+      "passed": 28,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=inspectorProperties --artifacts",
+      "log": "../../output/verification/accessibility-input/inspector-regression.log"
+    },
+    "keyboardActivation": {
+      "passed": 21,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=keyboardActivation",
+      "log": "../../output/verification/accessibility-input/keyboard-regression.log"
+    },
+    "existingBrowserTotal": 218
+  },
+  "artifacts": [
+    "../../output/verification/accessibility-input/accessibility-1440.png",
+    "../../output/verification/accessibility-input/accessibility-960.png",
+    "../../output/verification/accessibility-input/accessibility-zoom-150.png"
+  ],
+  "boundaries": [
+    "Actual Edge keyboard, pointer and IME; no screen-reader audio or cross-browser certification",
+    "Geometry cancellation preserves edits already completed at the user action; does not cancel storage transactions or downloads",
+    "1440/960px and 640x667 CSS pixels at deviceScaleFactor 1.5; not a full operating-system zoom matrix",
+    "UI navigation does not create CAD revisions or Undo entries; existing command paths remain authoritative"
+  ]
+}

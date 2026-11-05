@@ -1,0 +1,179 @@
+{
+  "id": "BASIN-HANDOFF-2026-10-24",
+  "status": "verified",
+  "task": "Organic basin / mixed native profiles / removable drain / deferred MCP validation",
+  "canonicalTools": 39,
+  "mcpTools": 42,
+  "humanFormTools": 12,
+  "nativeFileVersion": 51,
+  "browserChecks": {
+    "basinHandoff": 47,
+    "kioskHandoff": 48,
+    "handleHandoff": 42,
+    "sharedToolHandoff": 38,
+    "mcpBridge": 24,
+    "cadToolsAdvanced": 17
+  },
+  "unitChecks": 96,
+  "productionBuild": "passed; existing chunk-size warning",
+  "architecture": "passed",
+  "modelRequests": 0,
+  "mcpReviewedAndAppliedDeferredProposals": 4,
+  "deferredValidationBudgetSeconds": 180,
+  "stepSolidCount": 2,
+  "sourceObjectIds": {
+    "outer": "manual-9bb0e200",
+    "inner": "basinInner",
+    "drain": "manual-fbb6ea39",
+    "floor": "model-93c0ac15",
+    "walls": "manual-b98100b5"
+  },
+  "finalInnerPoints": [
+    [
+      -297.6,
+      -148.8,
+      0
+    ],
+    [
+      -74.4,
+      -186,
+      0
+    ],
+    [
+      223.20000000000002,
+      -139.5,
+      0
+    ],
+    [
+      331.5,
+      -18.6,
+      0
+    ],
+    [
+      279,
+      139.5,
+      0
+    ],
+    [
+      18.6,
+      195.3,
+      0
+    ],
+    [
+      -241.8,
+      130.20000000000002,
+      0
+    ],
+    [
+      -331.8,
+      0,
+      0
+    ]
+  ],
+  "expectedVolumesMm3": {
+    "basinBody": 8701241.090803538,
+    "drainAssembly": 15645.131414877169
+  },
+  "fitSections": {
+    "basinPipeFit": {
+      "radii": [
+        19,
+        22,
+        22.5
+      ],
+      "worldSheetCenter": [
+        1000,
+        0,
+        0
+      ],
+      "radialClearanceMm": 0.5
+    },
+    "basinSeatFit": {
+      "radii": [
+        19,
+        26,
+        26.5
+      ],
+      "worldSheetCenter": [
+        1000,
+        -500,
+        0
+      ],
+      "radialClearanceMm": 0.5
+    }
+  },
+  "drawingStatuses": {
+    "basinPipeFit": "resolved",
+    "basinSeatFit": "resolved",
+    "basinPlan": "resolved",
+    "basinSection": "resolved"
+  },
+  "mainCadProjectTab": "63156c56-0268-48ca-bda9-d5a97a3b05d7",
+  "mainCadUrl": "http://127.0.0.1:5188/",
+  "limits": [
+    "Flat-bottom conceptual basin; variable wall thickness, no drainage slope, seal or plumbing/manufacturing certification.",
+    "Each spline is a closed boundary; open spline / line mixed edge chains remain unsupported.",
+    "Changed NURBS drawing correspondence requires reviewed rebind; no guessed matching.",
+    "Deferred validation avoids a held MCP RPC; native preview still takes time.",
+    "Kernel sections retain native OCCT intersection tolerance."
+  ],
+  "files": {
+    "basin.step": {
+      "bytes": 598035,
+      "sha256": "6b946b94c120f25f1317db45251d28b98cd57e9876c265c8651675b37134cbcf"
+    },
+    "basin.webcad.json": {
+      "bytes": 2248540,
+      "sha256": "bd92c2c3dbdd366dcea97f72a4a845b64100a9203e4ddba9e58010f4efbd1ebe"
+    },
+    "basinPipeFit.dxf": {
+      "bytes": 107829,
+      "sha256": "4f32df68e98751c386d0ccadb37a79448b4604ed2844669921ae152ebece1b77"
+    },
+    "basinPipeFit.svg": {
+      "bytes": 16028,
+      "sha256": "257aba15b5005b38b2ea8b96afe66312926ddad18b9c961eafd6ef034fe18a5f"
+    },
+    "basinPlan.dxf": {
+      "bytes": 220140,
+      "sha256": "4447a5c091a43aa7067dc2e7896b41f2c3acf3c2133738692b42cc38fdcf9f77"
+    },
+    "basinPlan.svg": {
+      "bytes": 22514,
+      "sha256": "4b21f8ade1a641aa4cbb6e4b154810ebce1aea964951eff8fb2fb0cc3a04ad65"
+    },
+    "basinSeatFit.dxf": {
+      "bytes": 107988,
+      "sha256": "4a3a17d15957eabc854f279b96388f0adf000d425b8084b70930a01a05a823e2"
+    },
+    "basinSeatFit.svg": {
+      "bytes": 16227,
+      "sha256": "cfe8c59f531448232bc965b7936345fa336ae70cb5555ff57100f098f6fbaade"
+    },
+    "basinSection.dxf": {
+      "bytes": 25947,
+      "sha256": "bbc31b5d2e6bdeb140c114a0c68902e22a17082933a3d9c77a8fd2bc9fe81477"
+    },
+    "basinSection.svg": {
+      "bytes": 5727,
+      "sha256": "14cc454997d6b6c5168f3df64e8f6d7b2fb72085a40cd4d58638163e5f21587a"
+    },
+    "browser-report.json": {
+      "bytes": 4668,
+      "sha256": "29ad7391760af7075df452a2901ea4b294cf3d5f57a145ebec4ec1d4dfeb17e2"
+    },
+    "handoff.json": {
+      "bytes": 12261,
+      "sha256": "a8385e8893f39fccc3183cdb9b9a183c4eb1e5d80a248603de5a783758ee45af"
+    },
+    "native-editor.png": {
+      "bytes": 171173,
+      "sha256": "da9683ac37c6357ce5775a9168c815f966b1c606837f53f01d97634b2a3bda7f"
+    },
+    "viewport.png": {
+      "bytes": 271261,
+      "sha256": "0a75a3de3650aaeb8284bc315079b6b286ed8a2c739a9d0fda975c8943ca95b3"
+    }
+  },
+  "architectureModules": 808
+}

@@ -1,0 +1,49 @@
+{
+  "id": "SHARED-TOOL-HANDOFF-2026-10-24",
+  "status": "verified",
+  "task": "Sensor wall bracket; human form → internal language → official MCP SDK → human form",
+  "canonicalTools": 39,
+  "mcpTools": 42,
+  "humanFormTools": [
+    "solid.primitive",
+    "solid.parameter",
+    "solid.extrude",
+    "solid.boolean"
+  ],
+  "browserChecks": {
+    "sharedToolHandoff": 38,
+    "mcpBridge": 24,
+    "cadTools": 19,
+    "copilotSolid": 18
+  },
+  "unitChecks": 42,
+  "build": "passed",
+  "architectureModules": 791,
+  "modelRequests": 0,
+  "expectedVolumeMm3": 81000.8629234919,
+  "files": {
+    "bracket.webcad.json": {
+      "bytes": 128194,
+      "sha256": "a7510abef07cff90d4acb46ed4f9d54f5a2384352c2327997fb01317c227415b"
+    },
+    "bracket.step": {
+      "bytes": 65996,
+      "sha256": "c5b23f08d8873e1ba1caa3a4a104e35627b4bca3c71b17bc1c89cdfdf408836c"
+    },
+    "handoff.json": {
+      "bytes": 6986,
+      "sha256": "06fbed8152c0f0f648a7a10349cd5b13f81cedd36d74ec65bea3b5a530b1b7ea"
+    },
+    "native-editor.png": {
+      "bytes": 116150,
+      "sha256": "a8e385a22558ca522a33805d2d35dd7025e0099b47ccb8e4c8841197e9907675"
+    }
+  },
+  "limitations": [
+    "Not all manual CAD tools are exposed by MCP.",
+    "Four human forms cover only part of the canonical catalog.",
+    "Internal language shortcuts are bounded; task geometry and sequence were agent-authored.",
+    "Face meshBounds are tessellation bounds, not exact containment.",
+    "No sheet-metal development, tolerancing or structural verification."
+  ]
+}

@@ -1,0 +1,4587 @@
+{
+  "brief": {
+    "name": "틈마당집 / Lightwell House",
+    "site": [
+      [
+        0,
+        0
+      ],
+      [
+        22000,
+        0
+      ],
+      [
+        22000,
+        28000
+      ],
+      [
+        0,
+        28000
+      ]
+    ],
+    "outline": [
+      [
+        5000,
+        10000
+      ],
+      [
+        13500,
+        10000
+      ],
+      [
+        13500,
+        12800
+      ],
+      [
+        17400,
+        14500
+      ],
+      [
+        17400,
+        21400
+      ],
+      [
+        5000,
+        21400
+      ]
+    ],
+    "upper": [
+      [
+        5000,
+        10000
+      ],
+      [
+        10500,
+        10000
+      ],
+      [
+        10500,
+        16600
+      ],
+      [
+        17400,
+        16600
+      ],
+      [
+        17400,
+        21400
+      ],
+      [
+        5000,
+        21400
+      ]
+    ],
+    "stair": [
+      [
+        11400,
+        17750
+      ],
+      [
+        13800,
+        17750
+      ],
+      [
+        13800,
+        21200
+      ],
+      [
+        11400,
+        21200
+      ]
+    ],
+    "levels": {
+      "B1": -3000,
+      "F1": 0,
+      "F2": 3300
+    },
+    "references": [
+      {
+        "name": "Villa Vals / SeARCH + CMA",
+        "url": "https://www.search.nl/works/villa-vals/",
+        "take": "지하 공간이 하늘과 외부 마당을 직접 마주하도록 구성"
+      },
+      {
+        "name": "House in Leiria / Aires Mateus",
+        "url": "https://www.archdaily.com/118906/house-in-leiria-aires-mateus",
+        "take": "선큰마당을 지하 실의 채광과 사생활을 조직하는 빈 공간으로 사용"
+      },
+      {
+        "name": "Garden House / Hayhurst & Co",
+        "url": "https://hayhurstand.co.uk/projects/garden-house/",
+        "take": "서로 다른 경사와 높이를 가진 지붕으로 공간 성격을 드러냄"
+      }
+    ],
+    "assumptions": [
+      "가상 22×28m 대지; 북측 도로; 4인 가족; 단위 mm",
+      "지하 작업·취미층, 지상 공동생활층, 2층 침실층",
+      "설계 발전 과제; 지반·배수·방수·구조·법규 검토 전"
+    ],
+    "rooms": [
+      {
+        "level": "B1",
+        "name": "작업실 · 빛마당",
+        "x": 7300,
+        "y": 15000
+      },
+      {
+        "level": "B1",
+        "name": "취미 라운지",
+        "x": 7800,
+        "y": 11900
+      },
+      {
+        "level": "B1",
+        "name": "보관실",
+        "x": 7200,
+        "y": 20300
+      },
+      {
+        "level": "B1",
+        "name": "설비 / 창고",
+        "x": 15300,
+        "y": 19900
+      },
+      {
+        "level": "B1",
+        "name": "욕실",
+        "x": 10450,
+        "y": 18400
+      },
+      {
+        "level": "B1",
+        "name": "취미실",
+        "x": 15100,
+        "y": 15300
+      },
+      {
+        "level": "F1",
+        "name": "거실 · 남쪽 마당",
+        "x": 7800,
+        "y": 11900
+      },
+      {
+        "level": "F1",
+        "name": "식당",
+        "x": 7800,
+        "y": 14900
+      },
+      {
+        "level": "F1",
+        "name": "주방",
+        "x": 15300,
+        "y": 15500
+      },
+      {
+        "level": "F1",
+        "name": "게스트 / 다목적실",
+        "x": 7300,
+        "y": 19300
+      },
+      {
+        "level": "F1",
+        "name": "화장실 / 세탁실",
+        "x": 10300,
+        "y": 20000
+      },
+      {
+        "level": "F1",
+        "name": "현관",
+        "x": 7000,
+        "y": 16500
+      },
+      {
+        "level": "F1",
+        "name": "팬트리",
+        "x": 15500,
+        "y": 19900
+      },
+      {
+        "level": "F2",
+        "name": "안방",
+        "x": 7600,
+        "y": 12300
+      },
+      {
+        "level": "F2",
+        "name": "드레스룸 / 욕실",
+        "x": 7500,
+        "y": 15300
+      },
+      {
+        "level": "F2",
+        "name": "침실 02",
+        "x": 7200,
+        "y": 19500
+      },
+      {
+        "level": "F2",
+        "name": "침실 03",
+        "x": 15600,
+        "y": 19600
+      },
+      {
+        "level": "F2",
+        "name": "가족 갤러리",
+        "x": 10000,
+        "y": 17300
+      },
+      {
+        "level": "F2",
+        "name": "공용 욕실",
+        "x": 10200,
+        "y": 19800
+      },
+      {
+        "level": "F2",
+        "name": "루프 테라스",
+        "x": 12800,
+        "y": 14300
+      }
+    ]
+  },
+  "facade": [
+    {
+      "id": "ext_skin_f1_w0",
+      "hostId": "f1_w0",
+      "length": 8850,
+      "thickness": 70,
+      "height": 3050,
+      "openings": [
+        {
+          "id": "ext_skin_gardenSlide",
+          "kind": "door",
+          "side": "left",
+          "along": 3575,
+          "width": 3200,
+          "height": 2500,
+          "sill": 0
+        }
+      ]
+    },
+    {
+      "id": "ext_skin_f1_w1",
+      "hostId": "f1_w1",
+      "length": 2860.379061918873,
+      "thickness": 70,
+      "height": 3050,
+      "openings": []
+    },
+    {
+      "id": "ext_skin_f1_w2",
+      "hostId": "f1_w2",
+      "length": 4254.40947723653,
+      "thickness": 70,
+      "height": 3050,
+      "openings": [
+        {
+          "id": "ext_skin_kitchenCorner",
+          "kind": "window",
+          "side": "left",
+          "along": 1985.379061918874,
+          "width": 2400,
+          "height": 1600,
+          "sill": 850
+        }
+      ]
+    },
+    {
+      "id": "ext_skin_f1_w3",
+      "hostId": "f1_w3",
+      "length": 7189.620938081127,
+      "thickness": 70,
+      "height": 3050,
+      "openings": [
+        {
+          "id": "ext_skin_kitchenLight",
+          "kind": "window",
+          "side": "left",
+          "along": 2114.620938081127,
+          "width": 2100,
+          "height": 1600,
+          "sill": 850
+        }
+      ]
+    },
+    {
+      "id": "ext_skin_f1_w4",
+      "hostId": "f1_w4",
+      "length": 12750,
+      "thickness": 70,
+      "height": 3050,
+      "openings": [
+        {
+          "id": "ext_skin_northGuest",
+          "kind": "window",
+          "side": "left",
+          "along": 8375,
+          "width": 2300,
+          "height": 1700,
+          "sill": 700
+        }
+      ]
+    },
+    {
+      "id": "ext_skin_f1_w5",
+      "hostId": "f1_w5",
+      "length": 11750,
+      "thickness": 70,
+      "height": 3050,
+      "openings": [
+        {
+          "id": "ext_skin_bridgeEntry",
+          "kind": "door",
+          "side": "left",
+          "along": 5275,
+          "width": 1300,
+          "height": 2400,
+          "sill": 0
+        },
+        {
+          "id": "ext_skin_diningLight",
+          "kind": "window",
+          "side": "left",
+          "along": 7575,
+          "width": 2000,
+          "height": 1900,
+          "sill": 550
+        }
+      ]
+    },
+    {
+      "id": "ext_skin_f2_w0",
+      "hostId": "f2_w0",
+      "length": 5825,
+      "thickness": 45,
+      "height": 3000,
+      "openings": [
+        {
+          "id": "ext_skin_masterSouth",
+          "kind": "window",
+          "side": "left",
+          "along": 2912.5,
+          "width": 2700,
+          "height": 1900,
+          "sill": 650
+        }
+      ]
+    },
+    {
+      "id": "ext_skin_f2_w1",
+      "hostId": "f2_w1",
+      "length": 6600,
+      "thickness": 45,
+      "height": 3000,
+      "openings": [
+        {
+          "id": "ext_skin_terraceDoor",
+          "kind": "door",
+          "side": "left",
+          "along": 2762.5,
+          "width": 1600,
+          "height": 2400,
+          "sill": 0
+        }
+      ]
+    },
+    {
+      "id": "ext_skin_f2_w2",
+      "hostId": "f2_w2",
+      "length": 6900,
+      "thickness": 45,
+      "height": 3000,
+      "openings": []
+    },
+    {
+      "id": "ext_skin_f2_w3",
+      "hostId": "f2_w3",
+      "length": 5125,
+      "thickness": 45,
+      "height": 3000,
+      "openings": [
+        {
+          "id": "ext_skin_bedroomEast",
+          "kind": "window",
+          "side": "left",
+          "along": 2962.5,
+          "width": 1800,
+          "height": 1800,
+          "sill": 700
+        }
+      ]
+    },
+    {
+      "id": "ext_skin_f2_w4",
+      "hostId": "f2_w4",
+      "length": 12725,
+      "thickness": 45,
+      "height": 3000,
+      "openings": [
+        {
+          "id": "ext_skin_childNorth",
+          "kind": "window",
+          "side": "left",
+          "along": 9362.5,
+          "width": 2100,
+          "height": 1700,
+          "sill": 750
+        }
+      ]
+    },
+    {
+      "id": "ext_skin_f2_w5",
+      "hostId": "f2_w5",
+      "length": 11725,
+      "thickness": 45,
+      "height": 3000,
+      "openings": [
+        {
+          "id": "ext_skin_galleryWest",
+          "kind": "window",
+          "side": "left",
+          "along": 4362.5,
+          "width": 1800,
+          "height": 1900,
+          "sill": 550
+        },
+        {
+          "id": "ext_skin_masterWest",
+          "kind": "window",
+          "side": "left",
+          "along": 9262.5,
+          "width": 1800,
+          "height": 1800,
+          "sill": 700
+        }
+      ]
+    },
+    {
+      "id": "ext_base_f1_w0",
+      "hostId": "f1_w0",
+      "length": 8880,
+      "thickness": 100,
+      "height": 480,
+      "openings": [
+        {
+          "id": "ext_base_gardenSlide",
+          "kind": "door",
+          "side": "left",
+          "along": 3590,
+          "width": 3200,
+          "height": 480,
+          "sill": 0
+        }
+      ]
+    },
+    {
+      "id": "ext_base_f1_w1",
+      "hostId": "f1_w1",
+      "length": 2865.5544100833486,
+      "thickness": 100,
+      "height": 480,
+      "openings": []
+    },
+    {
+      "id": "ext_base_f1_w2",
+      "hostId": "f1_w2",
+      "length": 4254.40947723653,
+      "thickness": 100,
+      "height": 480,
+      "openings": []
+    },
+    {
+      "id": "ext_base_f1_w3",
+      "hostId": "f1_w3",
+      "length": 7214.445589916651,
+      "thickness": 100,
+      "height": 480,
+      "openings": []
+    },
+    {
+      "id": "ext_base_f1_w4",
+      "hostId": "f1_w4",
+      "length": 12780,
+      "thickness": 100,
+      "height": 480,
+      "openings": []
+    },
+    {
+      "id": "ext_base_f1_w5",
+      "hostId": "f1_w5",
+      "length": 11780,
+      "thickness": 100,
+      "height": 480,
+      "openings": [
+        {
+          "id": "ext_base_bridgeEntry",
+          "kind": "door",
+          "side": "left",
+          "along": 5290,
+          "width": 1300,
+          "height": 480,
+          "sill": 0
+        }
+      ]
+    },
+    {
+      "id": "ext_band_f1_w0",
+      "hostId": "f1_w0",
+      "length": 8825,
+      "thickness": 45,
+      "height": 300,
+      "openings": []
+    },
+    {
+      "id": "ext_band_f1_w1",
+      "hostId": "f1_w1",
+      "length": 2856.0662717818104,
+      "thickness": 45,
+      "height": 300,
+      "openings": []
+    },
+    {
+      "id": "ext_band_f1_w2",
+      "hostId": "f1_w2",
+      "length": 4254.40947723653,
+      "thickness": 45,
+      "height": 300,
+      "openings": []
+    },
+    {
+      "id": "ext_band_f1_w3",
+      "hostId": "f1_w3",
+      "length": 7168.93372821819,
+      "thickness": 45,
+      "height": 300,
+      "openings": []
+    },
+    {
+      "id": "ext_band_f1_w4",
+      "hostId": "f1_w4",
+      "length": 12725,
+      "thickness": 45,
+      "height": 300,
+      "openings": []
+    },
+    {
+      "id": "ext_band_f1_w5",
+      "hostId": "f1_w5",
+      "length": 11725,
+      "thickness": 45,
+      "height": 300,
+      "openings": []
+    }
+  ],
+  "repairs": [
+    {
+      "id": "b1_w0",
+      "start": [
+        5000,
+        10000
+      ],
+      "end": [
+        13500,
+        10000
+      ],
+      "height": 2750,
+      "thickness": 250,
+      "baseLevel": -3000,
+      "openings": [],
+      "startMiter": 45,
+      "endMiter": 45
+    },
+    {
+      "id": "b1_w1",
+      "start": [
+        13500,
+        10000
+      ],
+      "end": [
+        13500,
+        12800
+      ],
+      "height": 2750,
+      "thickness": 250,
+      "baseLevel": -3000,
+      "openings": [],
+      "startMiter": 45,
+      "endMiter": -33.22386816355267
+    },
+    {
+      "id": "b1_w2",
+      "start": [
+        13500,
+        12800
+      ],
+      "end": [
+        17400,
+        14500
+      ],
+      "height": 2750,
+      "thickness": 250,
+      "baseLevel": -3000,
+      "openings": [],
+      "startMiter": -33.22386816355267,
+      "endMiter": 33.22386816355267
+    },
+    {
+      "id": "b1_w3",
+      "start": [
+        17400,
+        14500
+      ],
+      "end": [
+        17400,
+        21400
+      ],
+      "height": 2750,
+      "thickness": 250,
+      "baseLevel": -3000,
+      "openings": [],
+      "startMiter": 33.22386816355267,
+      "endMiter": 45
+    },
+    {
+      "id": "b1_w4",
+      "start": [
+        17400,
+        21400
+      ],
+      "end": [
+        5000,
+        21400
+      ],
+      "height": 2750,
+      "thickness": 250,
+      "baseLevel": -3000,
+      "openings": [],
+      "startMiter": 45,
+      "endMiter": 45
+    },
+    {
+      "id": "b1_w5",
+      "start": [
+        5000,
+        21400
+      ],
+      "end": [
+        5000,
+        10000
+      ],
+      "height": 2750,
+      "thickness": 250,
+      "baseLevel": -3000,
+      "openings": [
+        {
+          "id": "studioDoor",
+          "kind": "door",
+          "side": "left",
+          "along": 5100,
+          "width": 1500,
+          "height": 2400,
+          "sill": 0
+        },
+        {
+          "id": "studioWindow",
+          "kind": "window",
+          "side": "left",
+          "along": 7900,
+          "width": 2000,
+          "height": 1800,
+          "sill": 700
+        }
+      ],
+      "startMiter": 45,
+      "endMiter": 45
+    },
+    {
+      "id": "b1_p1",
+      "start": [
+        5125,
+        17200
+      ],
+      "end": [
+        11300,
+        17200
+      ],
+      "height": 2750,
+      "thickness": 150,
+      "baseLevel": -3000,
+      "openings": [
+        {
+          "id": "storeAccess",
+          "kind": "door",
+          "side": "left",
+          "along": 3600,
+          "width": 900,
+          "height": 2200,
+          "sill": 0
+        }
+      ],
+      "endMiter": 45
+    },
+    {
+      "id": "b1_p2",
+      "start": [
+        11000,
+        10125
+      ],
+      "end": [
+        11000,
+        17125
+      ],
+      "height": 2750,
+      "thickness": 150,
+      "baseLevel": -3000,
+      "openings": [
+        {
+          "id": "hobbyAccess",
+          "kind": "door",
+          "side": "left",
+          "along": 6200,
+          "width": 1000,
+          "height": 2200,
+          "sill": 0
+        }
+      ]
+    },
+    {
+      "id": "b1_p3",
+      "start": [
+        13900,
+        17700
+      ],
+      "end": [
+        17275,
+        17700
+      ],
+      "height": 2750,
+      "thickness": 150,
+      "baseLevel": -3000,
+      "openings": [
+        {
+          "id": "plantAccess",
+          "kind": "door",
+          "side": "left",
+          "along": 1200,
+          "width": 900,
+          "height": 2200,
+          "sill": 0
+        }
+      ],
+      "startMiter": 45
+    },
+    {
+      "id": "b1_p4",
+      "start": [
+        5125,
+        19500
+      ],
+      "end": [
+        11225,
+        19500
+      ],
+      "height": 2750,
+      "thickness": 150,
+      "baseLevel": -3000,
+      "openings": [
+        {
+          "id": "storage",
+          "kind": "door",
+          "side": "left",
+          "along": 2200,
+          "width": 900,
+          "height": 2200,
+          "sill": 0
+        }
+      ]
+    },
+    {
+      "id": "b1_p5",
+      "start": [
+        9600,
+        17275
+      ],
+      "end": [
+        9600,
+        19425
+      ],
+      "height": 2750,
+      "thickness": 150,
+      "baseLevel": -3000,
+      "openings": [
+        {
+          "id": "bath",
+          "kind": "door",
+          "side": "left",
+          "along": 1100,
+          "width": 800,
+          "height": 2200,
+          "sill": 0
+        }
+      ]
+    },
+    {
+      "id": "f1_w0",
+      "start": [
+        5000,
+        10000
+      ],
+      "end": [
+        13500,
+        10000
+      ],
+      "height": 3050,
+      "thickness": 200,
+      "baseLevel": 0,
+      "openings": [
+        {
+          "id": "gardenSlide",
+          "kind": "door",
+          "side": "left",
+          "along": 3400,
+          "width": 3200,
+          "height": 2500,
+          "sill": 0
+        }
+      ],
+      "startMiter": 45,
+      "endMiter": 45
+    },
+    {
+      "id": "f1_w1",
+      "start": [
+        13500,
+        10000
+      ],
+      "end": [
+        13500,
+        12800
+      ],
+      "height": 3050,
+      "thickness": 200,
+      "baseLevel": 0,
+      "openings": [],
+      "startMiter": 45,
+      "endMiter": -33.22386816355267
+    },
+    {
+      "id": "f1_w2",
+      "start": [
+        13500,
+        12800
+      ],
+      "end": [
+        17400,
+        14500
+      ],
+      "height": 3050,
+      "thickness": 200,
+      "baseLevel": 0,
+      "openings": [
+        {
+          "id": "kitchenCorner",
+          "kind": "window",
+          "side": "left",
+          "along": 2100,
+          "width": 2400,
+          "height": 1600,
+          "sill": 850
+        }
+      ],
+      "startMiter": -33.22386816355267,
+      "endMiter": 33.22386816355267
+    },
+    {
+      "id": "f1_w3",
+      "start": [
+        17400,
+        14500
+      ],
+      "end": [
+        17400,
+        21400
+      ],
+      "height": 3050,
+      "thickness": 200,
+      "baseLevel": 0,
+      "openings": [
+        {
+          "id": "kitchenLight",
+          "kind": "window",
+          "side": "left",
+          "along": 2000,
+          "width": 2100,
+          "height": 1600,
+          "sill": 850
+        }
+      ],
+      "startMiter": 33.22386816355267,
+      "endMiter": 45
+    },
+    {
+      "id": "f1_w4",
+      "start": [
+        17400,
+        21400
+      ],
+      "end": [
+        5000,
+        21400
+      ],
+      "height": 3050,
+      "thickness": 200,
+      "baseLevel": 0,
+      "openings": [
+        {
+          "id": "northGuest",
+          "kind": "window",
+          "side": "left",
+          "along": 8200,
+          "width": 2300,
+          "height": 1700,
+          "sill": 700
+        }
+      ],
+      "startMiter": 45,
+      "endMiter": 45
+    },
+    {
+      "id": "f1_w5",
+      "start": [
+        5000,
+        21400
+      ],
+      "end": [
+        5000,
+        10000
+      ],
+      "height": 3050,
+      "thickness": 200,
+      "baseLevel": 0,
+      "openings": [
+        {
+          "id": "bridgeEntry",
+          "kind": "door",
+          "side": "left",
+          "along": 5100,
+          "width": 1300,
+          "height": 2400,
+          "sill": 0
+        },
+        {
+          "id": "diningLight",
+          "kind": "window",
+          "side": "left",
+          "along": 7400,
+          "width": 2000,
+          "height": 1900,
+          "sill": 550
+        }
+      ],
+      "startMiter": 45,
+      "endMiter": 45
+    },
+    {
+      "id": "f1_p1",
+      "start": [
+        5100,
+        17600
+      ],
+      "end": [
+        11300,
+        17600
+      ],
+      "height": 3050,
+      "thickness": 150,
+      "baseLevel": 0,
+      "openings": [
+        {
+          "id": "guest",
+          "kind": "door",
+          "side": "left",
+          "along": 2500,
+          "width": 900,
+          "height": 2200,
+          "sill": 0
+        },
+        {
+          "id": "utility",
+          "kind": "door",
+          "side": "left",
+          "along": 5300,
+          "width": 800,
+          "height": 2200,
+          "sill": 0
+        }
+      ]
+    },
+    {
+      "id": "f1_p2",
+      "start": [
+        9400,
+        17675
+      ],
+      "end": [
+        9400,
+        21300
+      ],
+      "height": 3050,
+      "thickness": 150,
+      "baseLevel": 0,
+      "openings": []
+    },
+    {
+      "id": "f1_p3",
+      "start": [
+        11300,
+        17675
+      ],
+      "end": [
+        11300,
+        21300
+      ],
+      "height": 3050,
+      "thickness": 150,
+      "baseLevel": 0,
+      "openings": []
+    },
+    {
+      "id": "f1_p4",
+      "start": [
+        13900,
+        18100
+      ],
+      "end": [
+        17300,
+        18100
+      ],
+      "height": 3050,
+      "thickness": 150,
+      "baseLevel": 0,
+      "openings": [
+        {
+          "id": "pantry",
+          "kind": "door",
+          "side": "left",
+          "along": 1600,
+          "width": 900,
+          "height": 2200,
+          "sill": 0
+        }
+      ],
+      "startMiter": 45
+    },
+    {
+      "id": "f2_w0",
+      "start": [
+        5000,
+        10000
+      ],
+      "end": [
+        10500,
+        10000
+      ],
+      "height": 3000,
+      "thickness": 200,
+      "baseLevel": 3300,
+      "openings": [
+        {
+          "id": "masterSouth",
+          "kind": "window",
+          "side": "left",
+          "along": 2750,
+          "width": 2700,
+          "height": 1900,
+          "sill": 650
+        }
+      ],
+      "startMiter": 45,
+      "endMiter": 45
+    },
+    {
+      "id": "f2_w1",
+      "start": [
+        10500,
+        10000
+      ],
+      "end": [
+        10500,
+        16600
+      ],
+      "height": 3000,
+      "thickness": 200,
+      "baseLevel": 3300,
+      "openings": [
+        {
+          "id": "terraceDoor",
+          "kind": "door",
+          "side": "left",
+          "along": 2600,
+          "width": 1600,
+          "height": 2400,
+          "sill": 0
+        }
+      ],
+      "startMiter": 45,
+      "endMiter": -45
+    },
+    {
+      "id": "f2_w2",
+      "start": [
+        10500,
+        16600
+      ],
+      "end": [
+        17400,
+        16600
+      ],
+      "height": 3000,
+      "thickness": 200,
+      "baseLevel": 3300,
+      "openings": [],
+      "startMiter": -45,
+      "endMiter": 45
+    },
+    {
+      "id": "f2_w3",
+      "start": [
+        17400,
+        16600
+      ],
+      "end": [
+        17400,
+        21400
+      ],
+      "height": 3000,
+      "thickness": 200,
+      "baseLevel": 3300,
+      "openings": [
+        {
+          "id": "bedroomEast",
+          "kind": "window",
+          "side": "left",
+          "along": 2800,
+          "width": 1800,
+          "height": 1800,
+          "sill": 700
+        }
+      ],
+      "startMiter": 45,
+      "endMiter": 45
+    },
+    {
+      "id": "f2_w4",
+      "start": [
+        17400,
+        21400
+      ],
+      "end": [
+        5000,
+        21400
+      ],
+      "height": 3000,
+      "thickness": 200,
+      "baseLevel": 3300,
+      "openings": [
+        {
+          "id": "childNorth",
+          "kind": "window",
+          "side": "left",
+          "along": 9200,
+          "width": 2100,
+          "height": 1700,
+          "sill": 750
+        }
+      ],
+      "startMiter": 45,
+      "endMiter": 45
+    },
+    {
+      "id": "f2_w5",
+      "start": [
+        5000,
+        21400
+      ],
+      "end": [
+        5000,
+        10000
+      ],
+      "height": 3000,
+      "thickness": 200,
+      "baseLevel": 3300,
+      "openings": [
+        {
+          "id": "galleryWest",
+          "kind": "window",
+          "side": "left",
+          "along": 4200,
+          "width": 1800,
+          "height": 1900,
+          "sill": 550
+        },
+        {
+          "id": "masterWest",
+          "kind": "window",
+          "side": "left",
+          "along": 9100,
+          "width": 1800,
+          "height": 1800,
+          "sill": 700
+        }
+      ],
+      "startMiter": 45,
+      "endMiter": 45
+    },
+    {
+      "id": "f2_p1",
+      "start": [
+        5100,
+        14400
+      ],
+      "end": [
+        10400,
+        14400
+      ],
+      "height": 3000,
+      "thickness": 150,
+      "baseLevel": 3300,
+      "openings": [
+        {
+          "id": "master",
+          "kind": "door",
+          "side": "left",
+          "along": 4400,
+          "width": 900,
+          "height": 2200,
+          "sill": 0
+        }
+      ]
+    },
+    {
+      "id": "f2_p2",
+      "start": [
+        5100,
+        16600
+      ],
+      "end": [
+        10400,
+        16600
+      ],
+      "height": 3000,
+      "thickness": 150,
+      "baseLevel": 3300,
+      "openings": [
+        {
+          "id": "suite",
+          "kind": "door",
+          "side": "left",
+          "along": 4400,
+          "width": 900,
+          "height": 2200,
+          "sill": 0
+        }
+      ]
+    },
+    {
+      "id": "f2_p3",
+      "start": [
+        5100,
+        18200
+      ],
+      "end": [
+        11300,
+        18200
+      ],
+      "height": 3000,
+      "thickness": 150,
+      "baseLevel": 3300,
+      "openings": [
+        {
+          "id": "childOne",
+          "kind": "door",
+          "side": "left",
+          "along": 3700,
+          "width": 900,
+          "height": 2200,
+          "sill": 0
+        },
+        {
+          "id": "sharedBath",
+          "kind": "door",
+          "side": "left",
+          "along": 5100,
+          "width": 800,
+          "height": 2200,
+          "sill": 0
+        }
+      ],
+      "endMiter": 45
+    },
+    {
+      "id": "f2_p4",
+      "start": [
+        9300,
+        18275
+      ],
+      "end": [
+        9300,
+        21300
+      ],
+      "height": 3000,
+      "thickness": 150,
+      "baseLevel": 3300,
+      "openings": []
+    },
+    {
+      "id": "f2_p5",
+      "start": [
+        11300,
+        18200
+      ],
+      "end": [
+        11300,
+        21300
+      ],
+      "height": 3000,
+      "thickness": 150,
+      "baseLevel": 3300,
+      "openings": [],
+      "startMiter": 45
+    },
+    {
+      "id": "f2_p6",
+      "start": [
+        13900,
+        16700
+      ],
+      "end": [
+        13900,
+        21300
+      ],
+      "height": 3000,
+      "thickness": 150,
+      "baseLevel": 3300,
+      "openings": [
+        {
+          "id": "eastHall",
+          "kind": "door",
+          "side": "left",
+          "along": 900,
+          "width": 900,
+          "height": 2200,
+          "sill": 0
+        }
+      ]
+    },
+    {
+      "id": "f1_p5",
+      "start": [
+        13900,
+        21300
+      ],
+      "end": [
+        13900,
+        18100
+      ],
+      "height": 3050,
+      "thickness": 150,
+      "baseLevel": 0,
+      "endMiter": 45,
+      "openings": []
+    },
+    {
+      "id": "b1_p6",
+      "start": [
+        13900,
+        21275
+      ],
+      "end": [
+        13900,
+        17700
+      ],
+      "height": 2750,
+      "thickness": 150,
+      "baseLevel": -3000,
+      "endMiter": 45,
+      "openings": []
+    },
+    {
+      "id": "b1_p7",
+      "start": [
+        11300,
+        17200
+      ],
+      "end": [
+        11300,
+        21275
+      ],
+      "height": 2750,
+      "thickness": 150,
+      "baseLevel": -3000,
+      "startMiter": 45,
+      "openings": []
+    }
+  ],
+  "retired": [
+    "sofa",
+    "dining",
+    "desk1",
+    "desk2",
+    "hobbytable",
+    "sofa_low",
+    "frame_2_a",
+    "frame_2_b",
+    "frame_2_head",
+    "frame_3_a",
+    "frame_3_b",
+    "frame_3_head",
+    "frame_4_a",
+    "frame_4_b",
+    "frame_4_head",
+    "frame_5_a",
+    "frame_5_b",
+    "frame_5_head",
+    "frame_6_a",
+    "frame_6_b",
+    "frame_6_head",
+    "frame_13_a",
+    "frame_13_b",
+    "frame_13_head",
+    "frame_14_a",
+    "frame_14_b",
+    "frame_14_head",
+    "frame_15_a",
+    "frame_15_b",
+    "frame_15_head",
+    "frame_22_a",
+    "frame_22_b",
+    "frame_22_head",
+    "frame_23_a",
+    "frame_23_b",
+    "frame_23_head",
+    "frame_24_a",
+    "frame_24_b",
+    "frame_24_head",
+    "frame_25_a",
+    "frame_25_b",
+    "frame_25_head",
+    "frame_26_a",
+    "frame_26_b",
+    "frame_26_head",
+    "B101_annotation_1",
+    "B101_annotation_2",
+    "B101_annotation_3",
+    "B101_annotation_4",
+    "B101_annotation_5",
+    "B101_annotation_6",
+    "B101_annotation_7",
+    "B101_annotation_8",
+    "B101_annotation_9",
+    "B101_annotation_10",
+    "B101_annotation_11",
+    "B101_annotation_12",
+    "B101_annotation_13",
+    "B101_annotation_14",
+    "B101_annotation_15",
+    "B101_annotation_16",
+    "B101_annotation_17",
+    "B101_annotation_18",
+    "B101_annotation_19",
+    "B101_annotation_20",
+    "B101_annotation_21",
+    "B101_annotation_22",
+    "B101_annotation_23",
+    "B101_annotation_24",
+    "B101_annotation_25",
+    "B101_annotation_26",
+    "B101_annotation_27",
+    "B101_annotation_28",
+    "B101_annotation_29",
+    "B101_annotation_30",
+    "B101_annotation_31",
+    "B101_annotation_32",
+    "A101_annotation_33",
+    "A101_annotation_34",
+    "A101_annotation_35",
+    "A101_annotation_36",
+    "A101_annotation_37",
+    "A101_annotation_38",
+    "A101_annotation_39",
+    "A101_annotation_40",
+    "A101_annotation_41",
+    "A101_annotation_42",
+    "A101_annotation_43",
+    "A101_annotation_44",
+    "A101_annotation_45",
+    "A101_annotation_46",
+    "A101_annotation_47",
+    "A101_annotation_48",
+    "A101_annotation_49",
+    "A101_annotation_50",
+    "A101_annotation_51",
+    "A101_annotation_52",
+    "A101_annotation_53",
+    "A101_annotation_54",
+    "A101_annotation_55",
+    "A101_annotation_56",
+    "A101_annotation_57",
+    "A101_annotation_58",
+    "A101_annotation_59",
+    "A101_annotation_60",
+    "A101_annotation_61",
+    "A101_annotation_62",
+    "A101_annotation_63",
+    "A101_annotation_64",
+    "A101_annotation_65",
+    "A101_annotation_66",
+    "A101_annotation_67",
+    "A101_annotation_68",
+    "A101_annotation_69",
+    "A101_annotation_70",
+    "A101_annotation_71",
+    "A102_annotation_72",
+    "A102_annotation_73",
+    "A102_annotation_74",
+    "A102_annotation_75",
+    "A102_annotation_76",
+    "A102_annotation_77",
+    "A102_annotation_78",
+    "A102_annotation_79",
+    "A102_annotation_80",
+    "A102_annotation_81",
+    "A102_annotation_82",
+    "A102_annotation_83",
+    "A102_annotation_84",
+    "A102_annotation_85",
+    "A102_annotation_86",
+    "A102_annotation_87",
+    "A102_annotation_88",
+    "A102_annotation_89",
+    "A102_annotation_90",
+    "A102_annotation_91",
+    "A102_annotation_92",
+    "A102_annotation_93",
+    "A102_annotation_94",
+    "A102_annotation_95",
+    "A102_annotation_96",
+    "A102_annotation_97",
+    "A102_annotation_98",
+    "A102_annotation_99",
+    "A102_annotation_100",
+    "A102_annotation_101",
+    "A102_annotation_102",
+    "A102_annotation_103",
+    "A102_annotation_104",
+    "A102_annotation_105",
+    "A102_annotation_106",
+    "A102_annotation_107",
+    "A102_annotation_108",
+    "A102_annotation_109",
+    "A102_annotation_110",
+    "A102_annotation_111"
+  ],
+  "solids": [
+    {
+      "id": "b1_floor",
+      "name": "B1 / 지하 바닥 -3.000",
+      "level": "B1",
+      "kind": "slab"
+    },
+    {
+      "id": "f1_floor",
+      "name": "1F / 생활층 바닥 ±0.000",
+      "level": "F1",
+      "kind": "slab"
+    },
+    {
+      "id": "f2_floor",
+      "name": "2F / 침실층 바닥 +3.300",
+      "level": "F2",
+      "kind": "slab"
+    },
+    {
+      "id": "terrace",
+      "name": "2F / 남동 루프 테라스",
+      "level": "F2",
+      "kind": "slab"
+    },
+    {
+      "id": "sunken",
+      "name": "SITE / 선큰마당 -3.000",
+      "level": "site",
+      "kind": "slab"
+    },
+    {
+      "id": "bridge",
+      "name": "SITE / 선큰을 건너는 현관 다리",
+      "level": "site",
+      "kind": "slab"
+    },
+    {
+      "id": "ground",
+      "name": "SITE / 지반 표현체 · 굴착 제외",
+      "level": "site",
+      "kind": "slab"
+    },
+    {
+      "id": "ground_skin",
+      "name": "SITE / 정원 지표면",
+      "level": "site",
+      "kind": "slab"
+    },
+    {
+      "id": "parking",
+      "name": "SITE / 북동측 2대 주차",
+      "level": "site",
+      "kind": "slab"
+    },
+    {
+      "id": "walk",
+      "name": "SITE / 북측 진입 산책로",
+      "level": "site",
+      "kind": "slab"
+    },
+    {
+      "id": "deck",
+      "name": "SITE / 남향 생활 테라스",
+      "level": "site",
+      "kind": "slab"
+    },
+    {
+      "id": "b1_w0",
+      "name": "B1 / 1 벽",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_w1",
+      "name": "B1 / 2 벽",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_w2",
+      "name": "B1 / 3 벽",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_w3",
+      "name": "B1 / 4 벽",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_w4",
+      "name": "B1 / 5 벽",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_w5",
+      "name": "B1 / 6 벽",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_p1",
+      "name": "B1 / 7 벽",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_p2",
+      "name": "B1 / 8 벽",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_p3",
+      "name": "B1 / 9 벽",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_p4",
+      "name": "B1 / 10 벽",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_p5",
+      "name": "B1 / 11 벽",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "f1_w0",
+      "name": "F1 / 1 벽",
+      "level": "F1",
+      "kind": "wall"
+    },
+    {
+      "id": "f1_w1",
+      "name": "F1 / 2 벽",
+      "level": "F1",
+      "kind": "wall"
+    },
+    {
+      "id": "f1_w2",
+      "name": "F1 / 3 벽",
+      "level": "F1",
+      "kind": "wall"
+    },
+    {
+      "id": "f1_w3",
+      "name": "F1 / 4 벽",
+      "level": "F1",
+      "kind": "wall"
+    },
+    {
+      "id": "f1_w4",
+      "name": "F1 / 5 벽",
+      "level": "F1",
+      "kind": "wall"
+    },
+    {
+      "id": "f1_w5",
+      "name": "F1 / 6 벽",
+      "level": "F1",
+      "kind": "wall"
+    },
+    {
+      "id": "f1_p1",
+      "name": "F1 / 7 벽",
+      "level": "F1",
+      "kind": "wall"
+    },
+    {
+      "id": "f1_p2",
+      "name": "F1 / 8 벽",
+      "level": "F1",
+      "kind": "wall"
+    },
+    {
+      "id": "f1_p3",
+      "name": "F1 / 9 벽",
+      "level": "F1",
+      "kind": "wall"
+    },
+    {
+      "id": "f1_p4",
+      "name": "F1 / 10 벽",
+      "level": "F1",
+      "kind": "wall"
+    },
+    {
+      "id": "f2_w0",
+      "name": "F2 / 1 벽",
+      "level": "F2",
+      "kind": "wall"
+    },
+    {
+      "id": "f2_w1",
+      "name": "F2 / 2 벽",
+      "level": "F2",
+      "kind": "wall"
+    },
+    {
+      "id": "f2_w2",
+      "name": "F2 / 3 벽",
+      "level": "F2",
+      "kind": "wall"
+    },
+    {
+      "id": "f2_w3",
+      "name": "F2 / 4 벽",
+      "level": "F2",
+      "kind": "wall"
+    },
+    {
+      "id": "f2_w4",
+      "name": "F2 / 5 벽",
+      "level": "F2",
+      "kind": "wall"
+    },
+    {
+      "id": "f2_w5",
+      "name": "F2 / 6 벽",
+      "level": "F2",
+      "kind": "wall"
+    },
+    {
+      "id": "f2_p1",
+      "name": "F2 / 7 벽",
+      "level": "F2",
+      "kind": "wall"
+    },
+    {
+      "id": "f2_p2",
+      "name": "F2 / 8 벽",
+      "level": "F2",
+      "kind": "wall"
+    },
+    {
+      "id": "f2_p3",
+      "name": "F2 / 9 벽",
+      "level": "F2",
+      "kind": "wall"
+    },
+    {
+      "id": "f2_p4",
+      "name": "F2 / 10 벽",
+      "level": "F2",
+      "kind": "wall"
+    },
+    {
+      "id": "f2_p5",
+      "name": "F2 / 11 벽",
+      "level": "F2",
+      "kind": "wall"
+    },
+    {
+      "id": "f2_p6",
+      "name": "F2 / 12 벽",
+      "level": "F2",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_tread1",
+      "name": "B1 / 계단 1 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread2",
+      "name": "B1 / 계단 2 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread3",
+      "name": "B1 / 계단 3 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread4",
+      "name": "B1 / 계단 4 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread5",
+      "name": "B1 / 계단 5 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread6",
+      "name": "B1 / 계단 6 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread7",
+      "name": "B1 / 계단 7 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread8",
+      "name": "B1 / 계단 8 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread10",
+      "name": "B1 / 계단 10 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread11",
+      "name": "B1 / 계단 11 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread12",
+      "name": "B1 / 계단 12 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread13",
+      "name": "B1 / 계단 13 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread14",
+      "name": "B1 / 계단 14 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread15",
+      "name": "B1 / 계단 15 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread16",
+      "name": "B1 / 계단 16 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_tread17",
+      "name": "B1 / 계단 17 · 166.67 mm",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_landing",
+      "name": "B1 / 중간참",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "b1_toplanding",
+      "name": "B1 / 상부참",
+      "level": "B1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread1",
+      "name": "F1 / 계단 1 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread2",
+      "name": "F1 / 계단 2 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread3",
+      "name": "F1 / 계단 3 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread4",
+      "name": "F1 / 계단 4 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread5",
+      "name": "F1 / 계단 5 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread6",
+      "name": "F1 / 계단 6 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread7",
+      "name": "F1 / 계단 7 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread8",
+      "name": "F1 / 계단 8 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread9",
+      "name": "F1 / 계단 9 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread11",
+      "name": "F1 / 계단 11 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread12",
+      "name": "F1 / 계단 12 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread13",
+      "name": "F1 / 계단 13 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread14",
+      "name": "F1 / 계단 14 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread15",
+      "name": "F1 / 계단 15 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread16",
+      "name": "F1 / 계단 16 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread17",
+      "name": "F1 / 계단 17 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread18",
+      "name": "F1 / 계단 18 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_tread19",
+      "name": "F1 / 계단 19 · 165.00 mm",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_landing",
+      "name": "F1 / 중간참",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "f1_toplanding",
+      "name": "F1 / 상부참",
+      "level": "F1",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step1",
+      "name": "SITE / 선큰 계단 1",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step2",
+      "name": "SITE / 선큰 계단 2",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step3",
+      "name": "SITE / 선큰 계단 3",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step4",
+      "name": "SITE / 선큰 계단 4",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step5",
+      "name": "SITE / 선큰 계단 5",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step6",
+      "name": "SITE / 선큰 계단 6",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step7",
+      "name": "SITE / 선큰 계단 7",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step8",
+      "name": "SITE / 선큰 계단 8",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step9",
+      "name": "SITE / 선큰 계단 9",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step10",
+      "name": "SITE / 선큰 계단 10",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step11",
+      "name": "SITE / 선큰 계단 11",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step12",
+      "name": "SITE / 선큰 계단 12",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step13",
+      "name": "SITE / 선큰 계단 13",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step14",
+      "name": "SITE / 선큰 계단 14",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step15",
+      "name": "SITE / 선큰 계단 15",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step16",
+      "name": "SITE / 선큰 계단 16",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step17",
+      "name": "SITE / 선큰 계단 17",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "garden_step18",
+      "name": "SITE / 선큰 계단 18",
+      "level": "garden",
+      "kind": "stair"
+    },
+    {
+      "id": "ret_w1",
+      "name": "SITE / 선큰 서측 옹벽 1",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "ret_w2",
+      "name": "SITE / 선큰 서측 옹벽 2",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "ret_s",
+      "name": "SITE / 선큰 남측 옹벽",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "ret_n",
+      "name": "SITE / 선큰 북측 옹벽",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "bridge_s_top",
+      "name": "site / 난간 상부",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "bridge_s_post0",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "bridge_s_post1",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "bridge_s_post2",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "bridge_s_post3",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "bridge_n_top",
+      "name": "site / 난간 상부",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "bridge_n_post0",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "bridge_n_post1",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "bridge_n_post2",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "bridge_n_post3",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_w_s_top",
+      "name": "site / 난간 상부",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_w_s_post0",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_w_s_post1",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_w_s_post2",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_w_s_post3",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_w_n_top",
+      "name": "site / 난간 상부",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_w_n_post0",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_w_n_post1",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_w_n_post2",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_w_n_post3",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_n_top",
+      "name": "site / 난간 상부",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_n_post0",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_n_post1",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_n_post2",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "court_n_post3",
+      "name": "site / 난간 기둥",
+      "level": "site",
+      "kind": "detail"
+    },
+    {
+      "id": "terrace_s_top",
+      "name": "F2 / 난간 상부",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "terrace_s_post0",
+      "name": "F2 / 난간 기둥",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "terrace_s_post1",
+      "name": "F2 / 난간 기둥",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "terrace_s_post2",
+      "name": "F2 / 난간 기둥",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "terrace_s_post3",
+      "name": "F2 / 난간 기둥",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "terrace_e_top",
+      "name": "F2 / 난간 상부",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "terrace_e_post0",
+      "name": "F2 / 난간 기둥",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "terrace_e_post1",
+      "name": "F2 / 난간 기둥",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "terrace_e_post2",
+      "name": "F2 / 난간 기둥",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "terrace_e_post3",
+      "name": "F2 / 난간 기둥",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "stair_void_top",
+      "name": "F2 / 난간 상부",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "stair_void_post0",
+      "name": "F2 / 난간 기둥",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "stair_void_post1",
+      "name": "F2 / 난간 기둥",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "stair_void_post2",
+      "name": "F2 / 난간 기둥",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "stair_void_post3",
+      "name": "F2 / 난간 기둥",
+      "level": "F2",
+      "kind": "detail"
+    },
+    {
+      "id": "diag_glass_8",
+      "name": "F1 / kitchenCorner 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "diag_frame_8_a",
+      "name": "F1 / 대각 개구부 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "diag_frame_8_b",
+      "name": "F1 / 대각 개구부 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "diag_head_8",
+      "name": "F1 / 대각 개구부 헤드",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "glazing_0",
+      "name": "B1 / studioDoor 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "glazing_1",
+      "name": "B1 / studioWindow 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "glazing_7",
+      "name": "F1 / gardenSlide 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "glazing_9",
+      "name": "F1 / kitchenLight 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "glazing_10",
+      "name": "F1 / northGuest 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "glazing_12",
+      "name": "F1 / diningLight 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "glazing_16",
+      "name": "F2 / masterSouth 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "glazing_17",
+      "name": "F2 / terraceDoor 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "glazing_18",
+      "name": "F2 / bedroomEast 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "glazing_19",
+      "name": "F2 / childNorth 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "glazing_20",
+      "name": "F2 / galleryWest 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "glazing_21",
+      "name": "F2 / masterWest 유리",
+      "level": "glass",
+      "kind": "glazing"
+    },
+    {
+      "id": "frame_0_a",
+      "name": "B1 / studioDoor 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_0_b",
+      "name": "B1 / studioDoor 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_0_head",
+      "name": "B1 / studioDoor 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_1_a",
+      "name": "B1 / studioWindow 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_1_b",
+      "name": "B1 / studioWindow 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_1_head",
+      "name": "B1 / studioWindow 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_7_a",
+      "name": "F1 / gardenSlide 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_7_b",
+      "name": "F1 / gardenSlide 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_7_head",
+      "name": "F1 / gardenSlide 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_9_a",
+      "name": "F1 / kitchenLight 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_9_b",
+      "name": "F1 / kitchenLight 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_9_head",
+      "name": "F1 / kitchenLight 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_10_a",
+      "name": "F1 / northGuest 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_10_b",
+      "name": "F1 / northGuest 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_10_head",
+      "name": "F1 / northGuest 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_11_a",
+      "name": "F1 / bridgeEntry 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_11_b",
+      "name": "F1 / bridgeEntry 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_11_head",
+      "name": "F1 / bridgeEntry 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_12_a",
+      "name": "F1 / diningLight 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_12_b",
+      "name": "F1 / diningLight 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_12_head",
+      "name": "F1 / diningLight 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_16_a",
+      "name": "F2 / masterSouth 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_16_b",
+      "name": "F2 / masterSouth 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_16_head",
+      "name": "F2 / masterSouth 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_17_a",
+      "name": "F2 / terraceDoor 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_17_b",
+      "name": "F2 / terraceDoor 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_17_head",
+      "name": "F2 / terraceDoor 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_18_a",
+      "name": "F2 / bedroomEast 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_18_b",
+      "name": "F2 / bedroomEast 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_18_head",
+      "name": "F2 / bedroomEast 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_19_a",
+      "name": "F2 / childNorth 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_19_b",
+      "name": "F2 / childNorth 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_19_head",
+      "name": "F2 / childNorth 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_20_a",
+      "name": "F2 / galleryWest 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_20_b",
+      "name": "F2 / galleryWest 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_20_head",
+      "name": "F2 / galleryWest 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_21_a",
+      "name": "F2 / masterWest 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_21_b",
+      "name": "F2 / masterWest 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "frame_21_head",
+      "name": "F2 / masterWest 프레임",
+      "level": "glass",
+      "kind": "frame"
+    },
+    {
+      "id": "roof_w_north",
+      "name": "RF / 서측 급경사 north",
+      "level": "roof",
+      "kind": "roof"
+    },
+    {
+      "id": "roof_e_north",
+      "name": "RF / 동측 완경사 north",
+      "level": "roof",
+      "kind": "roof"
+    },
+    {
+      "id": "roof_w_south",
+      "name": "RF / 서측 급경사 south",
+      "level": "roof",
+      "kind": "roof"
+    },
+    {
+      "id": "roof_e_south",
+      "name": "RF / 동측 완경사 south",
+      "level": "roof",
+      "kind": "roof"
+    },
+    {
+      "id": "roof_east",
+      "name": "RF / 낮은 동측 날개",
+      "level": "roof",
+      "kind": "roof"
+    },
+    {
+      "id": "gable_front",
+      "name": "F2 / gable_front",
+      "level": "F2",
+      "kind": "roof"
+    },
+    {
+      "id": "gable_back",
+      "name": "F2 / gable_back",
+      "level": "F2",
+      "kind": "roof"
+    },
+    {
+      "id": "eave_w_north",
+      "name": "F2 / 서측 처마벽 north",
+      "level": "F2",
+      "kind": "roof"
+    },
+    {
+      "id": "eave_w_south",
+      "name": "F2 / 서측 처마벽 south",
+      "level": "F2",
+      "kind": "roof"
+    },
+    {
+      "id": "eave_wing_e",
+      "name": "F2 / 서측 날개 동쪽 처마벽",
+      "level": "F2",
+      "kind": "roof"
+    },
+    {
+      "id": "east_gable_s",
+      "name": "F2 / 낮은 지붕 단부 east_gable_s",
+      "level": "F2",
+      "kind": "roof"
+    },
+    {
+      "id": "east_gable_n",
+      "name": "F2 / 낮은 지붕 단부 east_gable_n",
+      "level": "F2",
+      "kind": "roof"
+    },
+    {
+      "id": "roof_junction",
+      "name": "F2 / 두 지붕 사이 상부 접합벽",
+      "level": "F2",
+      "kind": "roof"
+    },
+    {
+      "id": "eave_east",
+      "name": "F2 / 동측 처마벽",
+      "level": "F2",
+      "kind": "roof"
+    },
+    {
+      "id": "b1_wc",
+      "name": "B1 / WC",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "b1_basin",
+      "name": "B1 / 세면대",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "f1_wc",
+      "name": "F1 / WC",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "f1_basin",
+      "name": "F1 / 세면대",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "f1_washer",
+      "name": "F1 / 세탁기",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "f2_wc",
+      "name": "F2 / 공용 WC",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "f2_basin",
+      "name": "F2 / 공용 세면대",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "f2_shower",
+      "name": "F2 / 공용 샤워",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "master_bath",
+      "name": "F2 / 안방 욕조",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "master_basin",
+      "name": "F2 / 안방 세면대",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "island",
+      "name": "F1 / 주방 아일랜드",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "kitchen",
+      "name": "F1 / 조리대",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "guestbed",
+      "name": "F1 / 게스트 침대",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "masterbed",
+      "name": "F2 / 안방 침대",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "childbed1",
+      "name": "F2 / 침실02 침대",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "childbed2",
+      "name": "F2 / 침실03 침대",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "workbench",
+      "name": "B1 / 작업실 긴 작업대",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "b1sofa",
+      "name": "B1 / 지하 라운지",
+      "level": "furniture",
+      "kind": "furniture"
+    },
+    {
+      "id": "tree_0",
+      "name": "SITE / 수목 1",
+      "level": "garden",
+      "kind": "tree"
+    },
+    {
+      "id": "tree_1",
+      "name": "SITE / 수목 2",
+      "level": "garden",
+      "kind": "tree"
+    },
+    {
+      "id": "tree_2",
+      "name": "SITE / 수목 3",
+      "level": "garden",
+      "kind": "tree"
+    },
+    {
+      "id": "tree_3",
+      "name": "SITE / 수목 4",
+      "level": "garden",
+      "kind": "tree"
+    },
+    {
+      "id": "trunk_0",
+      "name": "SITE / 나무 줄기 1",
+      "level": "garden",
+      "kind": "tree"
+    },
+    {
+      "id": "trunk_1",
+      "name": "SITE / 나무 줄기 2",
+      "level": "garden",
+      "kind": "tree"
+    },
+    {
+      "id": "trunk_2",
+      "name": "SITE / 나무 줄기 3",
+      "level": "garden",
+      "kind": "tree"
+    },
+    {
+      "id": "trunk_3",
+      "name": "SITE / 나무 줄기 4",
+      "level": "garden",
+      "kind": "tree"
+    },
+    {
+      "id": "f1_p5",
+      "name": "F1 / f1_p5 · 누락 구획 보완",
+      "level": "F1",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_p6",
+      "name": "B1 / b1_p6 · 누락 구획 보완",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "b1_p7",
+      "name": "B1 / b1_p7 · 누락 구획 보완",
+      "level": "B1",
+      "kind": "wall"
+    },
+    {
+      "id": "interior_1",
+      "name": "F1 / 소파 하부",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_2",
+      "name": "F1 / 소파 등받이",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_3",
+      "name": "F1 / 소파 팔걸이",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_4",
+      "name": "F1 / 소파 팔걸이",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_5",
+      "name": "F1 / 소파 좌방석",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_6",
+      "name": "F1 / 소파 좌방석",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_7",
+      "name": "F1 / 소파 좌방석",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_8",
+      "name": "F1 / 상판 dining",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_9",
+      "name": "F1 / 다리 dining",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_10",
+      "name": "F1 / 다리 dining",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_11",
+      "name": "F1 / 다리 dining",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_12",
+      "name": "F1 / 다리 dining",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_13",
+      "name": "F1 / 상판 sofa_low",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_14",
+      "name": "F1 / 다리 sofa_low",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_15",
+      "name": "F1 / 다리 sofa_low",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_16",
+      "name": "F1 / 다리 sofa_low",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_17",
+      "name": "F1 / 다리 sofa_low",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_18",
+      "name": "F2 / 상판 desk1",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_19",
+      "name": "F2 / 다리 desk1",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_20",
+      "name": "F2 / 다리 desk1",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_21",
+      "name": "F2 / 다리 desk1",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_22",
+      "name": "F2 / 다리 desk1",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_23",
+      "name": "F2 / 상판 desk2",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_24",
+      "name": "F2 / 다리 desk2",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_25",
+      "name": "F2 / 다리 desk2",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_26",
+      "name": "F2 / 다리 desk2",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_27",
+      "name": "F2 / 다리 desk2",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_28",
+      "name": "B1 / 상판 hobbytable",
+      "level": "B1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_29",
+      "name": "B1 / 다리 hobbytable",
+      "level": "B1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_30",
+      "name": "B1 / 다리 hobbytable",
+      "level": "B1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_31",
+      "name": "B1 / 다리 hobbytable",
+      "level": "B1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_32",
+      "name": "B1 / 다리 hobbytable",
+      "level": "B1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_33",
+      "name": "F1 / 식탁 의자 좌판",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_34",
+      "name": "F1 / 식탁 의자 등받이",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_35",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_36",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_37",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_38",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_39",
+      "name": "F1 / 식탁 의자 좌판",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_40",
+      "name": "F1 / 식탁 의자 등받이",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_41",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_42",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_43",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_44",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_45",
+      "name": "F1 / 식탁 의자 좌판",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_46",
+      "name": "F1 / 식탁 의자 등받이",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_47",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_48",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_49",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_50",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_51",
+      "name": "F1 / 식탁 의자 좌판",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_52",
+      "name": "F1 / 식탁 의자 등받이",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_53",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_54",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_55",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_56",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_57",
+      "name": "F1 / 식탁 의자 좌판",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_58",
+      "name": "F1 / 식탁 의자 등받이",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_59",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_60",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_61",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_62",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_63",
+      "name": "F1 / 식탁 의자 좌판",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_64",
+      "name": "F1 / 식탁 의자 등받이",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_65",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_66",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_67",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_68",
+      "name": "F1 / 식탁 의자 다리",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_69",
+      "name": "F1 / 침대 헤드보드 guestbed",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_70",
+      "name": "F1 / 침구 guestbed",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_71",
+      "name": "F1 / 베개 guestbed",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_72",
+      "name": "F1 / 베개 guestbed",
+      "level": "F1",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_73",
+      "name": "F2 / 침대 헤드보드 masterbed",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_74",
+      "name": "F2 / 침구 masterbed",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_75",
+      "name": "F2 / 베개 masterbed",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_76",
+      "name": "F2 / 베개 masterbed",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_77",
+      "name": "F2 / 침대 헤드보드 childbed1",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_78",
+      "name": "F2 / 침구 childbed1",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_79",
+      "name": "F2 / 베개 childbed1",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_80",
+      "name": "F2 / 침대 헤드보드 childbed2",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_81",
+      "name": "F2 / 침구 childbed2",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "interior_82",
+      "name": "F2 / 베개 childbed2",
+      "level": "F2",
+      "kind": "furniture"
+    },
+    {
+      "id": "ext_skin_f1_w0",
+      "name": "F1 / 석재 외벽 1",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_skin_f1_w1",
+      "name": "F1 / 석재 외벽 2",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_skin_f1_w2",
+      "name": "F1 / 석재 외벽 3",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_skin_f1_w3",
+      "name": "F1 / 석재 외벽 4",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_skin_f1_w4",
+      "name": "F1 / 석재 외벽 5",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_skin_f1_w5",
+      "name": "F1 / 석재 외벽 6",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_skin_f2_w0",
+      "name": "F2 / 목재 외벽 1",
+      "level": "F2",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_skin_f2_w1",
+      "name": "F2 / 목재 외벽 2",
+      "level": "F2",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_skin_f2_w2",
+      "name": "F2 / 목재 외벽 3",
+      "level": "F2",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_skin_f2_w3",
+      "name": "F2 / 목재 외벽 4",
+      "level": "F2",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_skin_f2_w4",
+      "name": "F2 / 목재 외벽 5",
+      "level": "F2",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_skin_f2_w5",
+      "name": "F2 / 목재 외벽 6",
+      "level": "F2",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_base_f1_w0",
+      "name": "F1 / 기단 마감 1",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_base_f1_w1",
+      "name": "F1 / 기단 마감 2",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_base_f1_w2",
+      "name": "F1 / 기단 마감 3",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_base_f1_w3",
+      "name": "F1 / 기단 마감 4",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_base_f1_w4",
+      "name": "F1 / 기단 마감 5",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_base_f1_w5",
+      "name": "F1 / 기단 마감 6",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_band_f1_w0",
+      "name": "F1 / 층간 물끊기 1",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_band_f1_w1",
+      "name": "F1 / 층간 물끊기 2",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_band_f1_w2",
+      "name": "F1 / 층간 물끊기 3",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_band_f1_w3",
+      "name": "F1 / 층간 물끊기 4",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_band_f1_w4",
+      "name": "F1 / 층간 물끊기 5",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_band_f1_w5",
+      "name": "F1 / 층간 물끊기 6",
+      "level": "F1",
+      "kind": "facade"
+    },
+    {
+      "id": "ext_sill_kitchenCorner",
+      "name": "F1 / kitchenCorner 경사 전 물끊기",
+      "level": "F1",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_head_kitchenCorner",
+      "name": "F1 / kitchenCorner 창 상부 후드",
+      "level": "F1",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_sill_kitchenLight",
+      "name": "F1 / kitchenLight 경사 전 물끊기",
+      "level": "F1",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_head_kitchenLight",
+      "name": "F1 / kitchenLight 창 상부 후드",
+      "level": "F1",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_sill_northGuest",
+      "name": "F1 / northGuest 경사 전 물끊기",
+      "level": "F1",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_head_northGuest",
+      "name": "F1 / northGuest 창 상부 후드",
+      "level": "F1",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_entry_door",
+      "name": "F1 / 현관 원목 문짝 · 닫힘",
+      "level": "F1",
+      "kind": "door"
+    },
+    {
+      "id": "ext_sill_diningLight",
+      "name": "F1 / diningLight 경사 전 물끊기",
+      "level": "F1",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_head_diningLight",
+      "name": "F1 / diningLight 창 상부 후드",
+      "level": "F1",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_sill_masterSouth",
+      "name": "F2 / masterSouth 경사 전 물끊기",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_head_masterSouth",
+      "name": "F2 / masterSouth 창 상부 후드",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_sill_bedroomEast",
+      "name": "F2 / bedroomEast 경사 전 물끊기",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_head_bedroomEast",
+      "name": "F2 / bedroomEast 창 상부 후드",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_sill_childNorth",
+      "name": "F2 / childNorth 경사 전 물끊기",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_head_childNorth",
+      "name": "F2 / childNorth 창 상부 후드",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_sill_galleryWest",
+      "name": "F2 / galleryWest 경사 전 물끊기",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_head_galleryWest",
+      "name": "F2 / galleryWest 창 상부 후드",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_sill_masterWest",
+      "name": "F2 / masterWest 경사 전 물끊기",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_head_masterWest",
+      "name": "F2 / masterWest 창 상부 후드",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_240_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 240",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_660_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 660",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_1080_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 1080",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_1500_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 1500",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_1500_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 1500",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_1920_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 1920",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_1920_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 1920",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_2340_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 2340",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_2340_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 2340",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_2760_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 2760",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_2760_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 2760",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_3180_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 3180",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_3180_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 3180",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_3600_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 3600",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_3600_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 3600",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_4020_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 4020",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_4020_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 4020",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_4440_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 4440",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_4860_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 4860",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w0_5280_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w0 5280",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_240_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 240",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_660_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 660",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_1080_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 1080",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_1500_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 1500",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_1920_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 1920",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_2340_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 2340",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_2760_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 2760",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_3180_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 3180",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_3600_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 3600",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_3600_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 3600",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_4020_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 4020",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_4020_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 4020",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_4440_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 4440",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_4440_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 4440",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_4860_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 4860",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_4860_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 4860",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_5280_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 5280",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_5700_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 5700",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_6120_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 6120",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_6540_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 6540",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_6960_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 6960",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_7380_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 7380",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_7800_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 7800",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_8220_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 8220",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_8220_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 8220",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_8640_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 8640",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_8640_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 8640",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_9060_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 9060",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_9060_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 9060",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_9480_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 9480",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_9480_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 9480",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_9900_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 9900",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_9900_1",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 9900",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_10320_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 10320",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_10740_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 10740",
+      "level": "F2",
+      "kind": "frame"
+    },
+    {
+      "id": "ext_batten_f2_w5_11160_0",
+      "name": "F2 / 삼나무 세로 줄눈 f2_w5 11160",
+      "level": "F2",
+      "kind": "frame"
+    }
+  ],
+  "furniture": [
+    {
+      "level": "B1",
+      "id": "b1_wc",
+      "x": 10000,
+      "y": 18800,
+      "w": 400,
+      "d": 650
+    },
+    {
+      "level": "B1",
+      "id": "b1_basin",
+      "x": 10600,
+      "y": 18800,
+      "w": 500,
+      "d": 480
+    },
+    {
+      "level": "F1",
+      "id": "f1_wc",
+      "x": 9750,
+      "y": 20200,
+      "w": 400,
+      "d": 650
+    },
+    {
+      "level": "F1",
+      "id": "f1_basin",
+      "x": 10500,
+      "y": 20200,
+      "w": 550,
+      "d": 480
+    },
+    {
+      "level": "F1",
+      "id": "f1_washer",
+      "x": 9750,
+      "y": 20550,
+      "w": 650,
+      "d": 650
+    },
+    {
+      "level": "F2",
+      "id": "f2_wc",
+      "x": 9700,
+      "y": 20200,
+      "w": 400,
+      "d": 650
+    },
+    {
+      "level": "F2",
+      "id": "f2_basin",
+      "x": 10400,
+      "y": 20200,
+      "w": 550,
+      "d": 480
+    },
+    {
+      "level": "F2",
+      "id": "f2_shower",
+      "x": 9500,
+      "y": 18400,
+      "w": 900,
+      "d": 1000
+    },
+    {
+      "level": "F2",
+      "id": "master_bath",
+      "x": 5500,
+      "y": 14700,
+      "w": 1700,
+      "d": 800
+    },
+    {
+      "level": "F2",
+      "id": "master_basin",
+      "x": 5500,
+      "y": 15800,
+      "w": 900,
+      "d": 500
+    },
+    {
+      "level": "F1",
+      "id": "sofa",
+      "x": 6100,
+      "y": 10800,
+      "w": 2900,
+      "d": 950
+    },
+    {
+      "level": "F1",
+      "id": "sofa_low",
+      "x": 7100,
+      "y": 12300,
+      "w": 1400,
+      "d": 700
+    },
+    {
+      "level": "F1",
+      "id": "dining",
+      "x": 6600,
+      "y": 14100,
+      "w": 2200,
+      "d": 950
+    },
+    {
+      "level": "F1",
+      "id": "island",
+      "x": 14000,
+      "y": 14600,
+      "w": 2000,
+      "d": 900
+    },
+    {
+      "level": "F1",
+      "id": "kitchen",
+      "x": 16400,
+      "y": 15900,
+      "w": 650,
+      "d": 1900
+    },
+    {
+      "level": "F1",
+      "id": "guestbed",
+      "x": 5600,
+      "y": 18400,
+      "w": 1500,
+      "d": 2100
+    },
+    {
+      "level": "F2",
+      "id": "masterbed",
+      "x": 6500,
+      "y": 11200,
+      "w": 1800,
+      "d": 2100
+    },
+    {
+      "level": "F2",
+      "id": "childbed1",
+      "x": 5600,
+      "y": 18800,
+      "w": 1100,
+      "d": 2000
+    },
+    {
+      "level": "F2",
+      "id": "childbed2",
+      "x": 15600,
+      "y": 18600,
+      "w": 1100,
+      "d": 2000
+    },
+    {
+      "level": "F2",
+      "id": "desk1",
+      "x": 7500,
+      "y": 20500,
+      "w": 1400,
+      "d": 600
+    },
+    {
+      "level": "F2",
+      "id": "desk2",
+      "x": 14500,
+      "y": 20500,
+      "w": 1500,
+      "d": 600
+    },
+    {
+      "level": "B1",
+      "id": "workbench",
+      "x": 5500,
+      "y": 13400,
+      "w": 850,
+      "d": 2900
+    },
+    {
+      "level": "B1",
+      "id": "hobbytable",
+      "x": 12500,
+      "y": 14400,
+      "w": 2000,
+      "d": 1000
+    },
+    {
+      "level": "B1",
+      "id": "b1sofa",
+      "x": 6500,
+      "y": 10800,
+      "w": 2800,
+      "d": 900
+    }
+  ],
+  "trees": [
+    {
+      "x": 3000,
+      "y": 5800,
+      "r": 1400
+    },
+    {
+      "x": 18500,
+      "y": 7600,
+      "r": 1500
+    },
+    {
+      "x": 19300,
+      "y": 19000,
+      "r": 1300
+    },
+    {
+      "x": 3000,
+      "y": 25700,
+      "r": 1200
+    }
+  ],
+  "stairLayouts": [
+    {
+      "riser": 166.66666666666666,
+      "perFlight": 9,
+      "run": 2000,
+      "length": 3050,
+      "width": 2200,
+      "steps": [
+        {
+          "number": 1,
+          "z": 166.66666666666666,
+          "flight": 0,
+          "tread": 0
+        },
+        {
+          "number": 2,
+          "z": 333.3333333333333,
+          "flight": 0,
+          "tread": 1
+        },
+        {
+          "number": 3,
+          "z": 500,
+          "flight": 0,
+          "tread": 2
+        },
+        {
+          "number": 4,
+          "z": 666.6666666666666,
+          "flight": 0,
+          "tread": 3
+        },
+        {
+          "number": 5,
+          "z": 833.3333333333333,
+          "flight": 0,
+          "tread": 4
+        },
+        {
+          "number": 6,
+          "z": 1000,
+          "flight": 0,
+          "tread": 5
+        },
+        {
+          "number": 7,
+          "z": 1166.6666666666665,
+          "flight": 0,
+          "tread": 6
+        },
+        {
+          "number": 8,
+          "z": 1333.3333333333333,
+          "flight": 0,
+          "tread": 7
+        },
+        {
+          "number": 9,
+          "z": 1500,
+          "flight": 0,
+          "tread": 8
+        },
+        {
+          "number": 10,
+          "z": 1666.6666666666665,
+          "flight": 1,
+          "tread": 0
+        },
+        {
+          "number": 11,
+          "z": 1833.3333333333333,
+          "flight": 1,
+          "tread": 1
+        },
+        {
+          "number": 12,
+          "z": 2000,
+          "flight": 1,
+          "tread": 2
+        },
+        {
+          "number": 13,
+          "z": 2166.6666666666665,
+          "flight": 1,
+          "tread": 3
+        },
+        {
+          "number": 14,
+          "z": 2333.333333333333,
+          "flight": 1,
+          "tread": 4
+        },
+        {
+          "number": 15,
+          "z": 2500,
+          "flight": 1,
+          "tread": 5
+        },
+        {
+          "number": 16,
+          "z": 2666.6666666666665,
+          "flight": 1,
+          "tread": 6
+        },
+        {
+          "number": 17,
+          "z": 2833.333333333333,
+          "flight": 1,
+          "tread": 7
+        },
+        {
+          "number": 18,
+          "z": 3000,
+          "flight": 1,
+          "tread": 8
+        }
+      ]
+    },
+    {
+      "riser": 165,
+      "perFlight": 10,
+      "run": 2070,
+      "length": 3120,
+      "width": 2200,
+      "steps": [
+        {
+          "number": 1,
+          "z": 165,
+          "flight": 0,
+          "tread": 0
+        },
+        {
+          "number": 2,
+          "z": 330,
+          "flight": 0,
+          "tread": 1
+        },
+        {
+          "number": 3,
+          "z": 495,
+          "flight": 0,
+          "tread": 2
+        },
+        {
+          "number": 4,
+          "z": 660,
+          "flight": 0,
+          "tread": 3
+        },
+        {
+          "number": 5,
+          "z": 825,
+          "flight": 0,
+          "tread": 4
+        },
+        {
+          "number": 6,
+          "z": 990,
+          "flight": 0,
+          "tread": 5
+        },
+        {
+          "number": 7,
+          "z": 1155,
+          "flight": 0,
+          "tread": 6
+        },
+        {
+          "number": 8,
+          "z": 1320,
+          "flight": 0,
+          "tread": 7
+        },
+        {
+          "number": 9,
+          "z": 1485,
+          "flight": 0,
+          "tread": 8
+        },
+        {
+          "number": 10,
+          "z": 1650,
+          "flight": 0,
+          "tread": 9
+        },
+        {
+          "number": 11,
+          "z": 1815,
+          "flight": 1,
+          "tread": 0
+        },
+        {
+          "number": 12,
+          "z": 1980,
+          "flight": 1,
+          "tread": 1
+        },
+        {
+          "number": 13,
+          "z": 2145,
+          "flight": 1,
+          "tread": 2
+        },
+        {
+          "number": 14,
+          "z": 2310,
+          "flight": 1,
+          "tread": 3
+        },
+        {
+          "number": 15,
+          "z": 2475,
+          "flight": 1,
+          "tread": 4
+        },
+        {
+          "number": 16,
+          "z": 2640,
+          "flight": 1,
+          "tread": 5
+        },
+        {
+          "number": 17,
+          "z": 2805,
+          "flight": 1,
+          "tread": 6
+        },
+        {
+          "number": 18,
+          "z": 2970,
+          "flight": 1,
+          "tread": 7
+        },
+        {
+          "number": 19,
+          "z": 3135,
+          "flight": 1,
+          "tread": 8
+        },
+        {
+          "number": 20,
+          "z": 3300,
+          "flight": 1,
+          "tread": 9
+        }
+      ]
+    }
+  ]
+}

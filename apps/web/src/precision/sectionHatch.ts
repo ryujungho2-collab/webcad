@@ -1,14 +1,19 @@
 import type {SectionDrawing} from "./modelSection";
 import {ambiguousSectionBoundary} from "./sectionBoundary";
+import {curvedSectionHatch} from "./sectionCurveBoundary";
 type Point=number[];
 const tau=Math.PI*2,norm=(a:number)=>(a%tau+tau)%tau,near=(a:Point,b:Point)=>Math.hypot(a[0]-b[0],a[1]-b[1])<1e-6;
 /** Analytic even/odd intersections of verified closed line/circle/arc boundaries.
  * Separate rings of the same part are handled together, so holes remain empty. */
 export function sectionHatch(curves:SectionDrawing[],origin:number[],spacing:number,angle:number){
+ if(origin.length<2||!origin.every(Number.isFinite)||!Number.isFinite(spacing)||spacing<=0||!Number.isFinite(angle))throw Error("Invalid section hatch origin, spacing or angle.");
  const output:{key:string;partId:string;points:number[][]}[]=[],warnings:string[]=[],rad=angle*Math.PI/180,c=Math.cos(rad),s=Math.sin(rad);
  const rotate=(p:Point)=>[(p[0]-origin[0])*c+(p[1]-origin[1])*s,-(p[0]-origin[0])*s+(p[1]-origin[1])*c],restore=(x:number,y:number)=>[origin[0]+x*c-y*s,origin[1]+x*s+y*c,0];
  for(const partId of new Set(curves.map(g=>g.partId))){const group=curves.filter(g=>g.partId===partId),vertices:Point[]=[],degrees:number[]=[];let closed=true;
-  if(group.some(g=>g.kind==="spline"||g.kind==="ellipse"||g.kind==="elliptic-arc")){warnings.push(`${partId}: ${group.some(g=>g.kind==="spline")?"spline":"ellipse"} cut hatch is unsupported; hatch omitted.`);continue;}
+  if(group.some(g=>g.kind==="spline"||g.kind==="ellipse"||g.kind==="elliptic-arc")){
+   try{output.push(...curvedSectionHatch(group,origin,spacing,angle));}catch(reason){const message=reason instanceof Error?reason.message:String(reason);if(message.startsWith("Section hatch exceeds"))throw reason;warnings.push(`${partId}: ${message}; hatch omitted.`);}
+   if(output.length>20000)throw Error("Section hatch exceeds 20,000 strokes; increase spacing.");continue;
+  }
   for(const g of group){if(g.kind==="circle")continue;const p=g.params,points=g.kind==="line"?p.points as Point[]:[Number(p.startAngle),Number(p.endAngle)].map(a=>[(p.center as Point)[0]+Number(p.radius)*Math.cos(a),(p.center as Point)[1]+Number(p.radius)*Math.sin(a)]);
    for(const point of points){let i=vertices.findIndex(v=>near(v,point));if(i<0){i=vertices.length;vertices.push(point);degrees.push(0);}degrees[i]++;}
   }

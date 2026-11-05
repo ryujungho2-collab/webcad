@@ -1,7 +1,9 @@
 ﻿import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import {localCopilotPlugin} from "./server/localCopilot";
+import {cadMcpPlugin} from "./server/cadMcpBroker";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(),localCopilotPlugin(),cadMcpPlugin()],
   worker: { format: "es" },
 });

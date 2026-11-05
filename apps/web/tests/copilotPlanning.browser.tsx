@@ -1,0 +1,43 @@
+import {createRoot} from "react-dom/client";
+import {App} from "../src/App";
+import "../src/styles.css";import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+import {cadDocument} from "../src/state/cadDocument";
+import {cadHistory} from "../src/state/history";
+import {dispatchCadCommand} from "../src/state/dispatchCadCommand";
+import {measureDocumentObject} from "../src/state/documentQuery";
+import {serializeDocument} from "@agent-webcad/cad-document";
+import {installBrowserChecks} from "./helpers/browserChecks";
+import {click,find,text,choose,waitFor,input,physical} from "./helpers/physicalInput";
+createRoot(document.getElementById("root")!).render(<App/>);
+const button=document.getElementById("run-planning") as HTMLButtonElement,output=document.getElementById("planning-result")!;
+const state=()=>{const {revision:_,...rest}=cadDocument;return JSON.stringify(rest);};
+const question=()=>document.querySelector('[aria-label="Copilot clarification"]');
+const ready=()=>waitFor(()=>[...document.querySelectorAll<HTMLButtonElement>('[aria-label="Shared proposal review"] button')].some(button=>button.textContent==="Apply"&&!button.disabled));
+let reply:unknown, sent:any[]=[];
+const originalFetch=window.fetch.bind(window);
+window.fetch=async(url,init)=>{if(String(url).endsWith("/api/copilot/plan")){sent.push(JSON.parse(String(init?.body)));return new Response(JSON.stringify(reply),{headers:{"Content-Type":"application/json"}});}return originalFetch(url,init);};
+button.onclick=async()=>{button.disabled=true;const checks:string[]=[];const check=(v:unknown,s:string)=>{if(!v)throw Error(s);checks.push(`PASS: ${s}`);output.textContent=checks.join("\n");};
+try{
+ await waitFor(()=>!!document.querySelector("canvas"));await click("New document");await click("3D");await click("Copilot");await choose("Copilot planner",0);
+ const before=state();await text("Copilot prompt","통풍 덮개");await click("Plan");await waitFor(()=>!!question());
+ check(state()===before&&!document.querySelector('[aria-label="Shared proposal review"]'),"Incomplete intent asks before creating a plan or modifying CAD");
+ check(find("답변으로 계획 계속").disabled,"Unanswered required fields cannot continue");
+ for(const answers of [{width:"100",depth:"70",thickness:"3"},{margin:"12",holeDiameter:"6",rows:"3"},{columns:"5"}]){
+  for(const [key,value]of Object.entries(answers))await text(`Answer ${key}`,value);
+  await click("답변으로 계획 계속");if("columns" in answers)await ready();else await waitFor(()=>!!document.querySelector(`[aria-label="Answer ${"width" in answers?"margin":"columns"}"]`));
+  check(state()===before,"Answer round preserves the document while retaining earlier parameters");
+ }
+ check(document.body.innerText.includes("템플릿 체적 검증 통과")&&document.body.innerText.includes("배치 기본값"),"Review exposes placement defaults and native/analytic verification");
+ await click("Apply");await waitFor(()=>cadHistory.getPastLabels().length===1);const applied=state(),id=Object.values(cadDocument.features).find(f=>f.type==="extrude")!.output;
+ const measured=await measureDocumentObject(cadDocument,id);check(measured.validity==="valid"&&Math.abs(measured.volume!-(7000-15*Math.PI*9)*3)<.01,"Real browser worker creates 15 through holes with exact analytical volume");
+ await click("Undo");check(state()===before,"Recipe applies as one Undo");await click("Redo");check(state()===applied,"Redo restores the complete parametric source graph");
+ await click("Fit all geometry");const hover=document.querySelector<HTMLInputElement>('[aria-label="Enable hover distance"]');if(hover?.checked)await physical(hover);await input({type:"key",key:"Escape"});await new Promise(resolve=>setTimeout(resolve,200));(output.closest("aside") as HTMLElement).hidden=true;const screenshot=await(await input({type:"screenshot"})).json();(output.closest("aside") as HTMLElement).hidden=false;
+ (globalThis as any).cadTestArtifacts={"lid.png":screenshot.data,"lid.webcad.json":serializeDocument(cadDocument)};
+ await text("Copilot prompt","핀");await click("Plan");await waitFor(()=>!!question());await text("Copilot prompt","핀 지름 6 길이 30");check(!question(),"Changing the prompt invalidates pending questions");
+ await text("Copilot prompt","핀");await click("Plan");await waitFor(()=>!!question());await dispatchCadCommand({type:"rename-object",objectId:id,name:"Changed during question"});await waitFor(()=>!question());check(!question(),"Document changes invalidate pending clarification");
+ await choose("Copilot planner",1);reply={version:1,clarification:{summary:"위치를 확인합니다",questions:[{id:"placement",prompt:"어디에 새 핀을 만들까요?",options:["월드 XY 원점","다른 위치"]}]}};
+ await text("Copilot prompt","핀 지름 6 길이 30 만들어줘");const stable=state();await click("Plan");await waitFor(()=>!!question());check(state()===stable&&sent[0].recipes.length===3,"Model clarification uses the same UI and receives registered macros");
+ reply={version:1,recipe:{id:"pin",parameters:{diameter:6,length:30}}};await click("월드 XY 원점");await click("답변으로 계획 계속");await ready();check(sent[1].prompt.includes("어디에 새 핀을 만들까요?: 월드 XY 원점")&&state()===stable,"Explicit answer returns to the model and its recipe remains a detached review (mock response)");
+ await click("Clear");reply={version:1,clarification:{summary:"bad",questions:[{id:"q",prompt:"?",options:[]}]},toolCalls:[]};await text("Copilot prompt","잘못된 복합 응답");await click("Plan");await waitFor(()=>document.body.innerText.includes("exactly one recipe or clarification"));check(!question()&&state()===stable,"Mixed clarification and executable response is rejected");
+ output.textContent=checks.join("\n")+`\nALL ${checks.length} CHECKS PASSED`;
+}catch(e){output.textContent=checks.join("\n")+"\nFAIL: "+String(e);}};installBrowserChecks(button,output);

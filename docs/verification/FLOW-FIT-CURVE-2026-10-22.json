@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-22",
+  "functionalStatus": "passed",
+  "architecturalDesignStatus": "R1 rejected in aesthetic review; redesign required",
+  "nodeTests": {
+    "total": 1551,
+    "passed": 1551,
+    "failed": 0,
+    "log": "output/flow-court-all-unit.log"
+  },
+  "targetedCurveTests": {
+    "passed": 16,
+    "log": "output/flow-court-unit.log"
+  },
+  "nativeFlowUI": {
+    "passed": 16,
+    "report": "output/projects/flow-court/browser-report.json"
+  },
+  "nativeSplineRegression": {
+    "passed": 19,
+    "log": "output/flow-court-spline-browser.log",
+    "testMaintenance": "Removed obsolete exact schema39 UI assumption; tests compatible schema and lossless native serialization including newer UI canvas state."
+  },
+  "build": {
+    "passed": true,
+    "log": "output/flow-court-build.log",
+    "warning": "Existing >500kB bundle warning remains."
+  },
+  "referenceReview": "output/projects/flow-court/reference-review.html",
+  "limits": [
+    "No final architectural approval or final issue package.",
+    "R1 placement checks cover seats; exhibit/core clashes remain and are recorded.",
+    "Curve layout outputs are snapshots; closed spline-to-solid requires explicit polyline approximation."
+  ]
+}

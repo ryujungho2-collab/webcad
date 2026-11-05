@@ -53,9 +53,9 @@ button.onclick=async()=>{
   const reimported=await measureDocumentObject(cadDocument,cadDocument.rootObjects[1]);check(Math.abs(reimported.length!-measure.length!)<1e-7,"Downloaded file reimport preserves measured curvature and length");
   await click("Undo");await file(curvedDxfFixture());await ready();await dispatchCadCommand({type:"rename-object",objectId:joined,name:"Changed source"});await waitFor(()=>find("Apply DXF import").disabled);
   const stale=state();check(document.querySelector('.dxf-review-dialog')?.textContent?.includes('Document changed'),"A changed document blocks the previous reviewed import with recovery guidance");await click("Cancel DXF review");check(state()===stale,"Stale import rejection creates no partial document change");
-  const extra="0\nLWPOLYLINE\n8\nUnsupported\n90\n2\n43\n5\n10\n0\n20\n0\n10\n1\n20\n0\n";
+  const extra="0\nLWPOLYLINE\n8\nUnsupported\n90\n2\n43\n-5\n10\n0\n20\n0\n10\n1\n20\n0\n";
   await file(curvedDxfFixture(4,extra));await waitFor(()=>!!document.querySelector('.dxf-review-dialog'));
-  check(find("Apply DXF import").disabled&&document.querySelector('[aria-label="DXF exclusions"]')?.textContent?.includes('width'),"Unsupported width is listed and requires explicit subset acceptance");
+  check(find("Apply DXF import").disabled&&document.querySelector('[aria-label="DXF exclusions"]')?.textContent?.includes('width'),"Negative width is listed and requires explicit subset acceptance");
   await physical(document.querySelector('[aria-label="Accept DXF exclusions"]')!);await ready();await click("Cancel DXF review");
   check(state()===stale,"Accepting exclusions without Apply still leaves the document unchanged");
   output.textContent=checks.join('\n')+`\nALL ${checks.length} CHECKS PASSED`;

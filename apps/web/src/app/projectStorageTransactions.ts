@@ -3,7 +3,7 @@ import { DURABLE_KEY } from "./durableRecovery";
 import { DOCUMENT_BACKUP_KEY, DOCUMENT_CACHE_KEY, DOCUMENT_RASTER_ASSET_PREFIX } from "../state/documentRecovery";
 import { WORKSPACE_BACKUP_KEY, WORKSPACE_KEY } from "./projectWorkspaceStore";
 
-export type StorageUndo = { id: string; target: string; committed: boolean; durableToken?: string; rollingBack?:boolean; before: Record<string, string | null>; after: Record<string, string | null> };
+export type StorageUndo = { id: string; target: string; targets?: string[]; committed: boolean; durableToken?: string; rollingBack?:boolean; before: Record<string, string | null>; after: Record<string, string | null> };
 export type StorageJournal = { list(): Promise<StorageUndo[]>; put(value: StorageUndo): Promise<void>; remove(id: string): Promise<void> };
 
 /** Journal and durable deletion commit atomically in the same database. */
@@ -32,8 +32,10 @@ function assertJournalRecord(record:StorageUndo) {
   if(record?.durableToken!==undefined&&typeof record.durableToken!=="string")throw Error("Invalid durable deletion token.");
   if(!record||typeof record.id!=="string"||!record.id||typeof record.target!=="string"||!/^(legacy|[a-z0-9-]{1,80})$/.test(record.target)
     ||typeof record.committed!=="boolean"||record.rollingBack!==undefined&&typeof record.rollingBack!=="boolean"||!object(record.before)||!object(record.after))throw Error("Invalid storage recovery record. Download recovery data before manual repair.");
-  const owns=(key:string)=>key===WORKSPACE_KEY||key===WORKSPACE_BACKUP_KEY||(record.target==="legacy"?
-    key===DOCUMENT_CACHE_KEY||key===DOCUMENT_BACKUP_KEY||key===DURABLE_KEY||key.startsWith(DOCUMENT_RASTER_ASSET_PREFIX):key.startsWith(`agent-webcad-project:${record.target}:`));
+  const targets=record.targets??[record.target];
+  if(!Array.isArray(targets)||!targets.length||targets.length>20||new Set(targets).size!==targets.length||!targets.includes(record.target)||targets.some(id=>typeof id!=="string"||!/^[a-z0-9-]{1,80}$/.test(id))||record.durableToken&&targets.length>1)throw Error("Invalid project transaction targets.");
+  const owns=(key:string)=>key===WORKSPACE_KEY||key===WORKSPACE_BACKUP_KEY||targets.some(target=>(target==="legacy"?
+    key===DOCUMENT_CACHE_KEY||key===DOCUMENT_BACKUP_KEY||key===DURABLE_KEY||key.startsWith(DOCUMENT_RASTER_ASSET_PREFIX):key.startsWith(`agent-webcad-project:${target}:`)));
   if(Object.keys(record.before).length!==Object.keys(record.after).length||Object.entries(record.before).some(([key,value])=>!owns(key)
     ||!(key in record.after)||(value!==null&&typeof value!=="string")||(record.after[key]!==null&&typeof record.after[key]!=="string")))throw Error("Storage recovery record crosses project ownership boundaries. Original copies have been kept.");
 }
@@ -60,9 +62,9 @@ export async function recoverStorageTransactions(storage: MutableStorage, journa
 
 /** Writes and deletion are journalled before mutation. A crash replays the full original data. */
 export async function transactStorage(storage: MutableStorage, journal: StorageJournal, target: string,
-  changes: Record<string, string | null>, guards: Record<string, string | null>, validate?:()=>void, durableToken?:string) {
+  changes: Record<string, string | null>, guards: Record<string, string | null>, validate?:()=>void, durableToken?:string, targets?:string[]) {
   const before = Object.fromEntries(Object.keys(changes).map(key => [key, storage.getItem(key)]));
-  const record: StorageUndo = { id: crypto.randomUUID(), target, committed: false, before, after: changes, ...(durableToken?{durableToken}:{}) };
+  const record: StorageUndo = { id: crypto.randomUUID(), target, ...(targets?{targets}:{}), committed: false, before, after: changes, ...(durableToken?{durableToken}:{}) };
   assertJournalRecord(record);
   await journal.put(record); // IndexedDB is separate from the localStorage per-area quota.
   try {

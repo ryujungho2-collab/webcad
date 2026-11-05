@@ -5,6 +5,7 @@ import { dispatchCadCommand } from "../../state/dispatchCadCommand";
 import { commandInteraction } from "../../state/commandInteraction";
 import { CommandReview } from "../../ui/CommandReview";
 import { PrecisionField } from "../../ui/PrecisionField";
+import { PropertySection } from "../../ui/PropertySection";
 import { parsePointEntry } from "../../precision/pointInput";
 import { planeToWorld, WORK_PLANES, type WorkPlaneId } from "../../precision/workPlane";
 
@@ -21,6 +22,7 @@ export function ComponentsPanel({ query, revision, selectedObjectIds, activeWork
   const [error, setError] = useState("");
   const [applying, setApplying] = useState(false);
   const [createdId, setCreatedId] = useState<string | null>(null);
+  const [memberOverrides, setMemberOverrides] = useState<Record<string, { stroke: string; fill: string | null; opacity: number; strokeWidth: number }>>({});
   const selected = selectedId ? cadDocument.blocks?.[selectedId] : undefined;
   const plane = mode === "create" ? activeWorkPlane : selected?.workPlane ?? activeWorkPlane;
   const point = parsePointEntry(basePoint);

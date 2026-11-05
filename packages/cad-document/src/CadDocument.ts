@@ -4,8 +4,15 @@ import { CadLayer } from "./Layer";
 import { Sketch } from "./Sketch";
 
 export interface CadDocument {
+  /** Immutable embedded GLB bytes; placements are external-scene features. */
+  externalSceneAssets?: Record<string, import('./ExternalSceneAsset').ExternalSceneAsset>;
+  interferenceIntents?:Record<string,import("./InterferenceIntent").PairIntent>;
+  assembly?:import("./Assembly").CadAssembly;
+  savedMeasurements?:Record<string,import("./SavedMeasurement").SavedMeasurement>;
   id: string;
   revision: number;
+  /** Explicit organizational ownership and presentation references; no implicit geometry transforms. */
+  canvases?:Record<string,import("./Canvas").CadCanvas>;
   componentLibrary?:Record<string,import("./ArchitectureContent").ComponentDefinition>;
 
   objects: Record<string, CadObject>;
@@ -54,7 +61,7 @@ export type CadBlock = {
   overrides?: Record<string, CadBlockOverride>;
 };
 
-export type CadDrawingFrame = { stitch?:import("./FrameStitch").CadFrameStitch; memberIds: string[]; sourceOrigin: [number, number]; denominator: number };
+export type CadDrawingFrame = { paperStrokeScale?:number; paperTextScale?:number; stitch?:import("./FrameStitch").CadFrameStitch; memberIds: string[]; sourceOrigin: [number, number]; denominator: number };
 export type CadArtboard = {
   frameSheet?: import("./FrameSheet").CadFrameSheet;
   /** Presentation references; never object parenting or model transforms. */

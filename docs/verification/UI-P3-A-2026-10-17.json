@@ -1,0 +1,46 @@
+{
+  "card": "UI-P3-A",
+  "date": "2026-10-17",
+  "status": "complete-first-supported-scope",
+  "implementation": "../implementation/UI-P3-A-PROJECT-COMPARISON-2026-10-17.md",
+  "scope": [
+    "Two distinct open project editors displayed side by side without cloning or reparenting iframes",
+    "Pointer/focus activation, per-project commands, selection, Undo/Redo and live file downloads",
+    "Pointer and keyboard divider, single-view return, pair replacement/swap, checkpoint-before-close",
+    "1440/960px with on-demand compact Explorer/Properties panels",
+    "Pair/ratio/active project restore; document recovery starts fresh Undo sessions"
+  ],
+  "environment": {
+    "platform": "Windows",
+    "browser": "Microsoft Edge",
+    "renderer": "SwiftShader",
+    "server": "Vite, isolated temporary browser profile",
+    "newExternalDependencies": 0
+  },
+  "checks": {
+    "targetNode": {"passed": 33, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/projectComparison.test.ts tests/projectWorkspaceStore.test.ts tests/projectSession.test.ts tests/projectActivity.test.ts tests/projectManagerStore.test.ts tests/shortcutRouter.test.ts"},
+    "allNode": {"passed": 1291, "suites": 54, "failed": 0, "durationMs": 47275.1191, "command": "pnpm --filter @agent-webcad/web test"},
+    "comparisonBrowser": {"passed": 25, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectComparison --artifacts", "report": "../../output/verification/project-comparison/native-report.json"},
+    "projectTabsBrowser": {"passed": 19, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectTabs"},
+    "projectRecoveryBrowser": {"passed": 24, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectRecovery"},
+    "projectManagerBrowser": {"passed": 30, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectManager"},
+    "typecheck": {"status": "passed", "command": "pnpm --filter @agent-webcad/web exec tsc --noEmit -p tsconfig.json"},
+    "architecture": {"status": "passed", "modules": 600, "command": "pnpm --filter @agent-webcad/web check:architecture"},
+    "build": {"status": "passed", "modules": 431, "command": "pnpm --filter @agent-webcad/web build", "warning": "Existing chunks larger than 500 kB"}
+  },
+  "artifacts": [
+    "../../output/verification/project-comparison/comparison-1440.png",
+    "../../output/verification/project-comparison/comparison-960.png",
+    "../../output/verification/project-comparison/comparison-reopened.png",
+    "../../output/verification/project-comparison/comparison-a.webcad.json",
+    "../../output/verification/project-comparison/comparison-b.webcad.json"
+  ],
+  "geometryInvariant": "Both document revisions and submitted kernel task counts are unchanged by comparison toggle, keyboard/pointer resize and single-view return in the browser fixture.",
+  "boundaries": [
+    "No synchronized cameras, duplicate views of one document or arbitrary multi-pane docking",
+    "UI-P3-B pinning, ordering and tab search remain separate",
+    "No hour-scale or full-process memory/performance guarantee for two large documents",
+    "960px is the smallest validated host viewport",
+    "Actual downloads verify the UI-produced portable file contents, not OS download completion"
+  ]
+}

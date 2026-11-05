@@ -10,6 +10,7 @@ export function registerVectorCommandHandlers(bus: CommandBus, document: CadDocu
     if (!object || !layer || !object.visible || !layer.visible || layer.locked || feature?.type !== "drawing") return;
     if (JSON.stringify(feature.params.vectorStyle) === JSON.stringify(command.style)) return;
     feature.params = { ...feature.params, vectorStyle: structuredClone(command.style) };
+    delete feature.params.dxfStyle;
     document.revision++;
   });
 }

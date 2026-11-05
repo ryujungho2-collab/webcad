@@ -1,0 +1,120 @@
+{
+  "card": "G6-D4-H2",
+  "date": "2026-10-18",
+  "status": "complete-first-supported-scope",
+  "implementation": "../implementation/G6-D4-H2-CURVE-HATCH-2026-10-18.md",
+  "environment": {
+    "platform": "Windows",
+    "timezone": "Asia/Seoul",
+    "browser": "Microsoft Edge",
+    "renderer": "SwiftShader",
+    "pdfDpi": 96,
+    "independentPdfRenderDpi": 144,
+    "newExternalDependencies": 0
+  },
+  "checks": {
+    "allNode": {
+      "passed": 1323,
+      "suites": 54,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web test",
+      "log": "../../output/verification/curve-hatch/all-node.log",
+      "durationMs": 56423.0772
+    },
+    "focusedNode": {
+      "passed": 32,
+      "newTests": 12,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/curveHatch.test.ts tests/curveHatchIntegration.test.ts tests/ellipseSection.test.ts tests/sectionPresentation.test.ts tests/splineIntegration.test.ts",
+      "log": "../../output/verification/curve-hatch/node.log"
+    },
+    "r5Browser": {
+      "passed": 28,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=curveHatch --artifacts",
+      "report": "../../output/projects/curve-hatch-r5/native-report.json"
+    },
+    "independentPdf": {
+      "passed": 3,
+      "command": "python apps/web/scripts/verifyCurveHatchArtifacts.py",
+      "report": "../../output/projects/curve-hatch-r5/artifact-verification.json",
+      "executable": "C:/Users/thefi/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe"
+    },
+    "typecheck": {
+      "status": "passed",
+      "command": "pnpm --filter @agent-webcad/web exec tsc --noEmit -p tsconfig.json"
+    },
+    "architecture": {
+      "status": "passed",
+      "modules": 631,
+      "command": "pnpm --filter @agent-webcad/web check:architecture"
+    },
+    "build": {
+      "status": "passed",
+      "modules": 451,
+      "command": "pnpm --filter @agent-webcad/web build",
+      "warning": "Existing chunks larger than 500 kB"
+    },
+    "nativeRegressions": {
+      "passed": 78,
+      "failed": 0,
+      "pages": [
+        {
+          "page": "sectionPresentation",
+          "passed": 17,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=sectionPresentation --artifacts",
+          "log": "../../output/verification/curve-hatch/sectionPresentation-regression.log"
+        },
+        {
+          "page": "ellipseSection",
+          "passed": 18,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=ellipseSection --artifacts",
+          "log": "../../output/verification/curve-hatch/ellipseSection-regression.log"
+        },
+        {
+          "page": "spline",
+          "passed": 19,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=spline --artifacts",
+          "log": "../../output/verification/curve-hatch/spline-regression.log"
+        },
+        {
+          "page": "modelSheetSet",
+          "passed": 24,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=modelSheetSet --artifacts",
+          "log": "../../output/verification/curve-hatch/modelSheetSet-regression.log"
+        }
+      ]
+    }
+  },
+  "r5": {
+    "original": {
+      "parts": 56,
+      "drawings": 14,
+      "sheets": 10
+    },
+    "extended": {
+      "parts": 58,
+      "drawings": 16,
+      "sheets": 11
+    },
+    "originalDefinitionsUnchanged": true
+  },
+  "artifacts": [
+    "../../output/projects/curve-hatch-r5/curve-r5.webcad.json",
+    "../../output/projects/curve-hatch-r5/curve-01-1.pdf",
+    "../../output/projects/curve-hatch-r5/curve-02-1.pdf",
+    "../../output/projects/curve-hatch-r5/curve-03-2.pdf",
+    "../../output/projects/curve-hatch-r5/curve-01-1.svg",
+    "../../output/projects/curve-hatch-r5/curve-02-1.svg",
+    "../../output/projects/curve-hatch-r5/curve-03-2.svg",
+    "../../output/projects/curve-hatch-r5/curve-preview.png"
+  ],
+  "boundaries": [
+    "Positive rational finite domains under existing degree 1-8 / 256-pole schema; no periodic or fit-only DXF extension",
+    "Conservative boundary certification at 1e-7 paper mm and interior root brackets at 1e-9 paper mm; uncertified parts omit hatch with warnings",
+    "No polygon repair or invented crop cap; original BRep and exact curve source remain unchanged",
+    "Ambiguous source correspondence retains explicit Review/rebind policy",
+    "PDF is the existing 96 dpi raster path, independently rerendered at 144 dpi; spline display/export outline retains its separate 0.02 mm chord tolerance",
+    "Three representative PDFs from the added A3 page; original ten R5 page definitions preserved, not a new full ten-page publication run"
+  ]
+}

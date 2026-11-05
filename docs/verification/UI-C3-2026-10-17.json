@@ -1,0 +1,26 @@
+{
+  "card": "UI-C3",
+  "date": "2026-10-17",
+  "status": "complete-first-supported-scope",
+  "implementation": "../implementation/UI-C3-INSPECTOR-2026-10-17.md",
+  "scope": ["Selection overview before values, appearance and advanced relationships", "Scoped persistent UI disclosures without document/history mutation", "Unit-aware field-only primitive and axis editing, explicit mixed values and errors", "Selection-scoped drafts, Escape cancellation and IME protection", "Sketch driving values, frame paper values and existing Review/Apply entry points"],
+  "environment": {"platform": "Windows", "browser": "Microsoft Edge", "renderer": "SwiftShader", "server": "Vite with isolated browser profile", "newExternalDependencies": 0},
+  "checks": {
+    "allNode": {"passed": 1303, "suites": 54, "failed": 0, "durationMs": 72628.4401, "command": "pnpm --filter @agent-webcad/web test", "log": "../../output/verification/inspector-properties/all-node.log"},
+    "newNode": {"passed": 3, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/inspectorProperties.test.ts"},
+    "inspectorBrowser": {"passed": 28, "failed": 0, "report": "../../output/verification/inspector-properties/native-report.json", "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=inspectorProperties --artifacts"},
+    "numericBrowser": {"passed": 21, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=numericPilot"},
+    "sketchBrowser": {"passed": 28, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=editSketchVertices"},
+    "selectionBrowser": {"passed": 23, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=selectionToolbar --artifacts"},
+    "annotationBrowser": {"passed": 24, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=angularWorkflow"},
+    "comparisonBrowser": {"passed": 25, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectComparison --artifacts"},
+    "frameSheetsBrowser": {"passed": 24, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=frameSheets"},
+    "shellBrowser": {"passed": 6, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=b5Shell"},
+    "typecheck": {"status": "passed", "command": "pnpm --filter @agent-webcad/web exec tsc --noEmit -p tsconfig.json"},
+    "architecture": {"status": "passed", "modules": 615, "command": "pnpm --filter @agent-webcad/web check:architecture"},
+    "build": {"status": "passed", "modules": 441, "command": "pnpm --filter @agent-webcad/web build", "warning": "Existing chunks larger than 500 kB"}
+  },
+  "artifacts": ["../../output/verification/inspector-properties/inspector-frame.png", "../../output/verification/inspector-properties/inspector-960.png", "../../output/verification/inspector-properties/inspector-style.svg", "../../output/verification/inspector-properties/inspector-style.pdf"],
+  "outputValidation": "Actual UI appearance Apply changes stroke width to 2 mm; exact source coordinates stay unchanged. Shared SVG contains stroke-width=2. Downloaded 96 dpi raster PDF JPEG is decoded independently and sampled at the geometrically derived line position to confirm the thicker stroke.",
+  "boundaries": ["Existing feature-specific numeric drivers and Review/Apply semantics remain authoritative", "Basic primitive/axis fields apply on Enter/blur to the original target; reviewed drafts reset across target changes", "No bulk style editor across mixed feature types", "Small fixture and 960px host viewport; no large-document or hour-scale memory guarantee"]
+}

@@ -1,0 +1,143 @@
+/*
+ * 시각 다듬기 레이어 (T-036).
+ * 기존 레이아웃·크기·클래스 이름은 바꾸지 않고, 색 강조·전환·등장 애니메이션만 얹는다.
+ * CAD 관례(고증)를 유지한다:
+ *   - 축 색: X 빨강 / Y 초록 / Z 파랑 (tokens.css 의 --axis-*)
+ *   - 도면 느낌: 제도 격자와 모서리 눈금, 치수/좌표는 고정폭 숫자 글꼴
+ *   - 선택은 파랑(윈도 선택) / 초록 점선(걸침 선택) 관례를 그대로 둔다
+ * 움직임은 짧고 절제한다. prefers-reduced-motion 이면 전부 끈다.
+ */
+:root {
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --dur-fast: 120ms;
+  --dur-mid: 200ms;
+  --accent-glow: 0 0 0 1px #64d6c555, 0 0 14px #64d6c52e;
+}
+
+/* ---------- 기본 전환 ---------- */
+.ribbon-tab, .ribbon-command, .ribbon-command-icon, .activity-button,
+.app-menu summary, .menu-static, .menu-save-as, .menu-popover button,
+.tree-row, .tree-root, .tree-visibility, .layer-row, .layer-add-button,
+.layer-icon-button, .layer-delete-button, .panel-toggle, .workspace-switch button,
+.explorer-search, .cad-context-menu button, .project-home button {
+  transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out), box-shadow var(--dur-mid) var(--ease-out),
+    opacity var(--dur-mid) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+
+/* ---------- 상단 메뉴 · 브랜드 ---------- */
+.menu-bar { background-image: linear-gradient(180deg, #ffffff08, transparent); }
+.brand-mark {
+  background: linear-gradient(135deg, #8cf0e0, var(--accent) 55%, #3fb7a8);
+  box-shadow: 0 0 10px #64d6c540;
+  transition: transform var(--dur-mid) var(--ease-out), box-shadow var(--dur-mid) var(--ease-out);
+}
+.menu-brand:hover .brand-mark { transform: rotate(-8deg) scale(1.08); box-shadow: 0 0 14px #64d6c58a; }
+.menu-popover { animation: menu-pop var(--dur-mid) var(--ease-out); transform-origin: top left; box-shadow: 0 14px 32px #000a, 0 0 0 1px #ffffff0a; }
+.menu-popover button:hover:not(:disabled) { background: linear-gradient(90deg, #2b5878, #294c68); }
+.document-state { animation: state-breathe 3.2s ease-in-out infinite; }
+.document-state-modified { animation-duration: 1.6s; }
+
+/* ---------- 리본 ---------- */
+.ribbon { background-image: linear-gradient(180deg, #ffffff06, transparent 60%); }
+.ribbon-tab-active::after { animation: tab-underline var(--dur-mid) var(--ease-out); transform-origin: center; box-shadow: 0 0 8px #64d6c58a; }
+.ribbon-command:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 3px 8px #0006; }
+.ribbon-command:hover:not(:disabled) .ribbon-command-icon { color: var(--accent); transform: scale(1.12); }
+.ribbon-command:active:not(:disabled) { transform: translateY(0) scale(.97); box-shadow: none; }
+.ribbon-command-active:not(:disabled) { box-shadow: inset 0 0 0 1px #3d7fb1, 0 0 12px #3d7fb133; }
+.ribbon-command-active:not(:disabled) .ribbon-command-icon { color: #9fd8ff; }
+.ribbon-body { animation: fade-slide var(--dur-mid) var(--ease-out); }
+
+/* ---------- 활동 바 ---------- */
+.activity-button:hover { transform: scale(1.06); }
+.activity-button-active::before { box-shadow: 0 0 10px var(--accent); animation: bar-grow var(--dur-mid) var(--ease-out); }
+.activity-button-active { background: linear-gradient(90deg, #64d6c514, #1b2027 60%); }
+
+/* ---------- 탐색기 · 레이어 · 이력 ---------- */
+.explorer-search:focus-within { box-shadow: var(--accent-glow); }
+.tree-row-selected { background: linear-gradient(90deg, #2a5a7e, #214562 70%); box-shadow: inset 2px 0 var(--accent); }
+.tree-row-selected, .layer-row-selected { animation: select-flash 360ms var(--ease-out); }
+.tree-view, .history-list, .layers-panel { animation: fade-slide var(--dur-mid) var(--ease-out); }
+.history-row:last-of-type .history-node { animation: node-pulse 2.4s ease-out infinite; }
+.history-row { transition: background-color var(--dur-fast) var(--ease-out); }
+.history-row:hover { background: #1f262e; }
+
+/* ---------- 뷰포트 ---------- */
+.viewport-label, .navigation-hint, .cad-tool-readout { box-shadow: 0 4px 14px #0006; }
+.viewport-label { animation: fade-slide var(--dur-mid) var(--ease-out); }
+.cad-tool-readout { animation: fade-in var(--dur-fast) linear; font-family: var(--font-numeric); }
+.cad-cursor-tag { animation: fade-in var(--dur-fast) linear; }
+.cad-context-menu { animation: menu-pop var(--dur-fast) var(--ease-out); transform-origin: top left; box-shadow: 0 10px 26px #000a; }
+.cad-selection-box { box-shadow: inset 0 0 0 1px #5b9dff33; }
+.cad-selection-box-crossing { box-shadow: inset 0 0 0 1px #65d6ad33; }
+.panel-toggle:hover { box-shadow: 0 0 10px #64d6c533; }
+
+/* 축 삼각대: 관례색(X 빨강, Y 초록, Z 파랑)을 유지하고 은은한 발광만 더한다 */
+.view-triad { filter: drop-shadow(0 1px 3px #0009); }
+.view-triad i { box-shadow: 0 0 6px #ffffff66; }
+.axis-x { text-shadow: 0 0 6px #f06f7066; }
+.axis-y { text-shadow: 0 0 6px #62bb7966; }
+.axis-z { text-shadow: 0 0 6px #64a9ff66; }
+
+/* 로딩: 제도 격자 위에서 호흡하는 문구 */
+.viewport-loading {
+  background-image:
+    linear-gradient(#ffffff08 1px, transparent 1px), linear-gradient(90deg, #ffffff08 1px, transparent 1px),
+    radial-gradient(ellipse at center, #64d6c50f, transparent 60%);
+  background-size: 24px 24px, 24px 24px, 100% 100%;
+  color: #8fa0ad;
+  animation: grid-drift 8s linear infinite, text-breathe 1.8s ease-in-out infinite;
+}
+
+/* ---------- 인스펙터 ---------- */
+.inspector-empty-icon { animation: float-y 3.6s ease-in-out infinite; }
+.properties-content { animation: fade-slide var(--dur-mid) var(--ease-out); }
+
+/* ---------- 상태 표시줄 ---------- */
+.status-ready i { animation: state-breathe 2.4s ease-in-out infinite; }
+.status-kernel-loading, .status-kernel-working { animation: status-working 1.2s ease-in-out infinite; }
+
+/* ---------- 프로젝트 홈: 제도 도면(표제란) 느낌 ---------- */
+.project-home {
+  background:
+    linear-gradient(#ffffff06 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, #ffffff06 1px, transparent 1px) 0 0 / 32px 32px,
+    radial-gradient(ellipse at top right, #1c323066, transparent 65%),
+    var(--bg-0);
+  animation: fade-in 320ms linear;
+}
+.project-home-heading { animation: fade-slide 420ms var(--ease-out) both; }
+.project-home-actions { animation: fade-slide 420ms 70ms var(--ease-out) both; }
+.project-home-body { animation: fade-slide 420ms 140ms var(--ease-out) both; }
+.project-home-templates { animation: fade-slide 420ms 210ms var(--ease-out) both; }
+.project-home h1 { background: linear-gradient(90deg, #f2fbf9, #9fe9dd); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.project-home-actions button:hover:not(:disabled),
+.project-home-templates button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px #0007, var(--accent-glow); }
+.project-home-actions button:active:not(:disabled) { transform: translateY(0) scale(.99); }
+.project-home-list > button:hover:not(:disabled) { transform: translateX(3px); }
+.project-home-detail { box-shadow: 0 10px 30px #0005; position: relative; }
+/* 도면 모서리 눈금(corner tick) */
+.project-home-detail::before, .project-home-detail::after {
+  content: ""; position: absolute; width: 10px; height: 10px; pointer-events: none; border: 0 solid var(--accent); opacity: .7;
+}
+.project-home-detail::before { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 7px; }
+.project-home-detail::after { right: -1px; bottom: -1px; border-right-width: 2px; border-bottom-width: 2px; border-bottom-right-radius: 7px; }
+
+/* ---------- 키프레임 ---------- */
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-slide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes menu-pop { from { opacity: 0; transform: translateY(-4px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes tab-underline { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes bar-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes select-flash { 0% { filter: brightness(1.45); } 100% { filter: none; } }
+@keyframes state-breathe { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+@keyframes node-pulse { 0% { box-shadow: 0 0 0 0 #64d6c566; } 70%, 100% { box-shadow: 0 0 0 7px #64d6c500; } }
+@keyframes text-breathe { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes grid-drift { to { background-position: 24px 24px, 24px 24px, 0 0; } }
+@keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes status-working { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.3); } }
+
+/* ---------- 움직임 줄이기 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

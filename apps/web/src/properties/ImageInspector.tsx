@@ -1,3 +1,4 @@
+import { imageFillCrop } from "./imagePlacement";
 import { useEffect, useRef, useState } from "react";
 import { DEFAULT_CAD_IMAGE_ADJUSTMENTS, type CadImageNodeParams, type CadRasterAsset } from "@agent-webcad/cad-document";
 import { applyCadPlan, discardCadPlan, previewCadCommand, type CadPlanPreview } from "../state/documentPlans";
@@ -29,6 +30,7 @@ export function ImageInspector({ objectId, params, asset, disabled, revision, on
   const [review, setReview] = useState<{ key: string; preview: CadPlanPreview } | null>(null);
   const [error, setError] = useState("");
   const [applying, setApplying] = useState(false);
+  const [order, setOrder] = useState<"front" | "back" | "forward" | "backward" | null>(null);
   const [replacement, setReplacement] = useState<RasterImport | null>(null);
   const [loadingSource, setLoadingSource] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -38,10 +40,10 @@ export function ImageInspector({ objectId, params, asset, disabled, revision, on
   const cropDraftUpdate = useRef<(next: CadImageNodeParams["crop"]) => void>(() => {});
   cropDraftUpdate.current = next => { setError(""); setCrop(cropDraft(next)); };
   const placementKey = JSON.stringify([width, height, crop, mask, opacity, adjustments]);
-  const draftKey = JSON.stringify([placementKey, replacement?.asset.id]);
+  const draftKey = JSON.stringify([placementKey, replacement?.asset.id, order]);
   const baselineKey = JSON.stringify([String(params.width), String(params.height), cropDraft(params.crop), params.mask ?? "rect", String((params.opacity ?? 1) * 100), adjustmentDraft(params.adjustments)]);
   const placementDirty = placementKey !== baselineKey;
-  const dirty = placementDirty || !!replacement;
+  const dirty = placementDirty || !!replacement || !!order;
   const nextWidth = parseLength(width), nextHeight = parseLength(height);
   const numbers = Object.values(crop).map(value => value.trim() === "" ? Number.NaN : Number(value));
   const cropInputError = numbers.some(value => !Number.isFinite(value) || value < 0 || value >= 100) ? "Crop insets must be percentages from 0 to less than 100." : numbers[0] + numbers[2] >= 100 || numbers[1] + numbers[3] >= 100 ? "Crop insets must leave a visible width and height." : undefined;
@@ -55,7 +57,7 @@ export function ImageInspector({ objectId, params, asset, disabled, revision, on
   const nextAdjustments = adjustmentInputError ? params.adjustments ?? DEFAULT_CAD_IMAGE_ADJUSTMENTS : adjustmentNumbers;
   const interaction = commandInteraction({ command: "Edit image size and crop", targets: [objectId], draftKey, reviewedKey: review?.key, preview: review?.preview, inputError: disabled ? "Unlock and show the image's layer before editing it." : dirty ? inputError || error : error || undefined, pending: applying || loadingSource, idle: disabled || !dirty && !error && !loadingSource });
 
-  useEffect(() => { decodeRequest.current++; sourceAbort.current?.abort(); setLoadingSource(false); setReplacement(null); setWidth(String(params.width)); setHeight(String(params.height)); setCrop(cropDraft(params.crop)); setMask(params.mask ?? "rect"); setOpacity(String((params.opacity ?? 1) * 100)); setAdjustments(adjustmentDraft(params.adjustments)); setReview(null); setError(""); onCropHandleModeChange?.(objectId, false); }, [objectId, paramsKey, revision]);
+  useEffect(() => { decodeRequest.current++; sourceAbort.current?.abort(); setLoadingSource(false); setReplacement(null); setOrder(null); setWidth(String(params.width)); setHeight(String(params.height)); setCrop(cropDraft(params.crop)); setMask(params.mask ?? "rect"); setOpacity(String((params.opacity ?? 1) * 100)); setAdjustments(adjustmentDraft(params.adjustments)); setReview(null); setError(""); onCropHandleModeChange?.(objectId, false); }, [objectId, paramsKey, revision]);
   useEffect(() => () => { decodeRequest.current++; sourceAbort.current?.abort(); }, []);
   useEffect(() => { setLockedAspectRatio(null); }, [objectId]);
   useEffect(() => { const update = (next: CadImageNodeParams["crop"]) => cropDraftUpdate.current(next); onCropDraftRegister?.(objectId, update); return () => onCropDraftRegister?.(objectId, null); }, [objectId, onCropDraftRegister]);
@@ -65,7 +67,11 @@ export function ImageInspector({ objectId, params, asset, disabled, revision, on
     onCropPreview({ objectId, crop: previewCrop, mask, opacity: nextOpacity, adjustments: nextAdjustments, revealSource: cropHandlesEnabled, asset: replacement?.asset });
     const edit: CadCommand = { type: "update-image", objectId, width: nextWidth!, height: nextHeight!, crop: previewCrop, mask, opacity: nextOpacity, adjustments: nextAdjustments };
     const source: CadCommand | undefined = replacement ? { type: "replace-image-source", objectId, asset: replacement.asset } : undefined;
-    const command: CadCommand = source ? placementDirty ? { type: "batch", label: "Replace image source and edit placement", commands: [source, edit] } : source : edit;
+    const commands: Exclude<CadCommand, { type: "batch" }>[] = [];
+    if (source) commands.push(source);
+    if (placementDirty) commands.push(edit);
+    if (order) commands.push({ type: "reorder-image", objectId, direction: order });
+    const command: CadCommand = commands.length === 1 ? commands[0] : { type: "batch", label: "Edit image placement", commands };
     let cancelled = false, planId: string | undefined;
     const timer = setTimeout(() => {
       void previewCadCommand(command)
@@ -103,7 +109,7 @@ export function ImageInspector({ objectId, params, asset, disabled, revision, on
     if (currentWidth !== null && currentHeight !== null && currentWidth > 0 && currentHeight > 0) setLockedAspectRatio(currentWidth / currentHeight);
   }
   function toggleCropHandles(active: boolean) { onCropHandleModeChange?.(objectId, active); }
-  function cancel() { decodeRequest.current++; sourceAbort.current?.abort(); setLoadingSource(false); setReplacement(null); setWidth(String(params.width)); setHeight(String(params.height)); setCrop(cropDraft(params.crop)); setMask(params.mask ?? "rect"); setOpacity(String((params.opacity ?? 1) * 100)); setAdjustments(adjustmentDraft(params.adjustments)); onCropHandleModeChange?.(objectId, false); setReview(null); setError(""); onCropPreview(null); }
+  function cancel() { decodeRequest.current++; sourceAbort.current?.abort(); setLoadingSource(false); setReplacement(null); setOrder(null); setWidth(String(params.width)); setHeight(String(params.height)); setCrop(cropDraft(params.crop)); setMask(params.mask ?? "rect"); setOpacity(String((params.opacity ?? 1) * 100)); setAdjustments(adjustmentDraft(params.adjustments)); onCropHandleModeChange?.(objectId, false); setReview(null); setError(""); onCropPreview(null); }
   async function replaceSource(file: File | undefined) {
     if (!file || disabled || applying) return;
     const ticket = ++decodeRequest.current, version = documentVersion();
@@ -131,7 +137,8 @@ export function ImageInspector({ objectId, params, asset, disabled, revision, on
     finally { setApplying(false); }
   }
 
-  return <PropertySection title="Image" meta={`${effectiveAsset.width} × ${effectiveAsset.height} px`}>
+  return <PropertySection title="Image" active={cropHandlesActive} meta={`${effectiveAsset.width} × ${effectiveAsset.height} px`}>
+    <figure style={{ margin: "0 0 8px" }}><img alt="Image source preview" src={effectiveAsset.dataUrl} style={{ width: "100%", height: 88, objectFit: "contain" }} /><figcaption className="property-hint">{effectiveAsset.name}</figcaption></figure>
     <p className="property-hint">Original source stays embedded. Size and crop are editable placement settings.</p>
     <input ref={fileInput} type="file" accept={RASTER_FILE_ACCEPT} aria-label="Replace image source file" style={{ display: "none" }} onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ""; void replaceSource(file); }} />
     <div className="property-actions"><button type="button" aria-label="Replace image source" disabled={disabled || applying || loadingSource} onClick={() => fileInput.current?.click()}>Replace source…</button></div>
@@ -145,12 +152,16 @@ export function ImageInspector({ objectId, params, asset, disabled, revision, on
     <label className="image-aspect-lock"><input aria-label="Keep image aspect ratio" type="checkbox" checked={lockedAspectRatio !== null} disabled={disabled} onChange={event => toggleAspectRatio(event.target.checked)} />Keep aspect ratio</label>
     <label className="property-row">Mask<select aria-label="Image mask" value={mask} disabled={disabled} onChange={event => { setError(""); setMask(event.target.value as NonNullable<CadImageNodeParams["mask"]>); }}><option value="rect">Rectangle</option><option value="ellipse">Ellipse</option></select></label>
     <label className="image-opacity-row">Opacity<input aria-label="Image opacity" type="number" min="0" max="100" step="1" value={opacity} aria-invalid={!!opacityInputError} title={opacityInputError} disabled={disabled} onChange={event => { setError(""); setOpacity(event.target.value); }} /><span>%</span></label>
+    <input aria-label="Image opacity slider" type="range" min="0" max="100" step="1" value={Number.isFinite(opacityPercent) ? opacityPercent : 100} disabled={disabled} onChange={event => { setError(""); setOpacity(event.target.value); }} />
     <div className="image-crop-grid" aria-label="Crop insets">
       {(["left", "top", "right", "bottom"] as const).map(side => <label key={side}>{side}<input aria-label={`Crop ${side}`} type="number" min="0" max="99.9" step="0.1" value={crop[side]} disabled={disabled} onChange={event => { setError(""); setCrop(current => ({ ...current, [side]: event.target.value })); }} /><span>%</span></label>)}
     </div>
     <div className="property-actions"><button type="button" aria-label="Edit crop on canvas" aria-pressed={cropHandlesEnabled} disabled={disabled} onClick={() => toggleCropHandles(!cropHandlesEnabled)}>{cropHandlesEnabled ? "Done cropping" : "Edit crop on canvas"}</button></div>
     {cropHandlesEnabled && <p className="property-hint">Drag a crop edge or corner over the full source preview. The placement frame keeps its size.</p>}
-    <div className="property-actions"><button type="button" disabled={disabled} onClick={resetFromSource}>Fit source</button></div>
+    <div className="property-actions"><button type="button" disabled={disabled} onClick={resetFromSource}>Fit source</button><button type="button" disabled={disabled || nextWidth === null || nextHeight === null || nextWidth <= 0 || nextHeight <= 0} onClick={() => { setCrop(cropDraft(imageFillCrop(effectiveAsset.width, effectiveAsset.height, nextWidth!, nextHeight!))); setError(""); }}>Fill frame</button><button type="button" disabled={disabled} onClick={() => { setCrop(cropDraft({ x: 0, y: 0, width: 1, height: 1 })); setError(""); }}>Reset crop</button></div>
+    <p className="property-hint">Fit source keeps width and restores source proportions. Fill frame centers a crop inside the current size. Reset crop reveals the full source at the current size.</p>
+    <label className="property-row">Image order<select aria-label="Image stacking order" value={order ?? ""} disabled={disabled} onChange={event => { setOrder(event.target.value === "" ? null : event.target.value as NonNullable<typeof order>); setError(""); }}><option value="">Keep current order</option><option value="front">Bring to front</option><option value="forward">Bring forward</option><option value="backward">Send backward</option><option value="back">Send to back</option></select></label>
+    <p className="property-hint">Order applies between images on this work plane. Apply saves all placement changes together; Cancel restores the saved placement.</p>
     <fieldset className="image-adjustments" aria-label="Image color adjustments" disabled={disabled}>
       <legend>Color adjustments</legend>
       <p className="property-hint">Adjustments affect this placement. Original source pixels stay unchanged.</p>

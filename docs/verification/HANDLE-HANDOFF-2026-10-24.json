@@ -1,0 +1,121 @@
+{
+  "id": "HANDLE-HANDOFF-2026-10-24",
+  "status": "verified",
+  "task": "Arched furniture handle, turned feet, bored installation plate and two separate headed pins",
+  "canonicalTools": 39,
+  "mcpTools": 42,
+  "humanFormTools": [
+    "solid.primitive",
+    "solid.parameter",
+    "solid.extrude",
+    "solid.boolean",
+    "curve.circle",
+    "solid.loft",
+    "solid.sweep",
+    "solid.revolve",
+    "curve.polyline"
+  ],
+  "improvements": [
+    "Human revolve, sweep and numeric polyline forms use existing canonical tools.",
+    "Selected-plane revolve axis is explained in world direction through the world origin.",
+    "Sweep section/path roles can be swapped through actual native selection; common planner explains reversed role errors.",
+    "Exact ID then exact name outrank partial matches; new searches reset the browsed candidate without granting edit selection."
+  ],
+  "browserChecks": {
+    "handleHandoff": 42,
+    "ductHandoff": 45,
+    "enclosureHandoff": 52,
+    "sharedToolHandoff": 38,
+    "mcpBridge": 24,
+    "cadToolsAdvanced": 17
+  },
+  "unitChecks": 57,
+  "productionBuild": "passed; existing chunk-size warning",
+  "architectureModules": 795,
+  "modelRequests": 0,
+  "expectedVolumesMm3": {
+    "grip": 21318.345506353013,
+    "foot": 3317.5218421908216,
+    "shaft": 122.14512237157116,
+    "pin": 272.9415697438812,
+    "main": 50836.30955805517
+  },
+  "actualFitSections": {
+    "handleFootFit": {
+      "-60.000,-100.000": [
+        2,
+        8,
+        1.8
+      ],
+      "60.000,-100.000": [
+        2,
+        8,
+        1.8
+      ]
+    },
+    "handlePlateFit": {
+      "-60.000,-160.000": [
+        2.5,
+        1.8
+      ],
+      "60.000,-160.000": [
+        2.5,
+        1.8
+      ]
+    }
+  },
+  "radialClearanceMm": {
+    "foot": 0.2,
+    "plate": 0.7
+  },
+  "reopen": "Native part identities, source graphs, finishes and linked sections retained.",
+  "files": {
+    "handle.webcad.json": {
+      "bytes": 337410,
+      "sha256": "e124d92b6cc59969cde583dcc031d71b938adb2725d8f5d16abf0a9662f59e21"
+    },
+    "handle.step": {
+      "bytes": 70478,
+      "sha256": "31bc898cca152f82aba6cb233d0fc037d2e001bb1419dc89bede6b3f9dfbc45f"
+    },
+    "handoff.json": {
+      "bytes": 14178,
+      "sha256": "5b3bd29e90fc08e181363aea44ad19ab5b50ed20128a7c054c0f40ce62382372"
+    },
+    "handleFootFit.svg": {
+      "bytes": 8790,
+      "sha256": "230dc48f8f6ffefd78dedbffee52a2b1e689514076af4e4b6b225ae72218688d"
+    },
+    "handleFootFit.dxf": {
+      "bytes": 1762,
+      "sha256": "4fd9f8abc742f354f046b9da75f17a384ade49a8df883b750b1841ec809969cb"
+    },
+    "handlePlateFit.svg": {
+      "bytes": 6448,
+      "sha256": "82a822cfcdfc6433e2c340b3cbe9537688023773c1f8c5e65914b73f5c085d0e"
+    },
+    "handlePlateFit.dxf": {
+      "bytes": 1983,
+      "sha256": "cb4cac251134e9ebb1265afee776366c6ef86b49aa62a0aa3b5d468cf64bf305"
+    },
+    "handleLong.svg": {
+      "bytes": 8829,
+      "sha256": "b2c2b49a363565ebbdd105b468530026753863a490cf13769df971fed903d00b"
+    },
+    "handleLong.dxf": {
+      "bytes": 9537,
+      "sha256": "30c4bbc73a0a50c51d35af79c0908a6bf05236bea232f31ea41cc4a51a08410d"
+    },
+    "native-editor.png": {
+      "bytes": 152237,
+      "sha256": "b9ac6fd4667bf3021c70bb620da33b283a547b89e683bedf562932fbe4ee2a89"
+    }
+  },
+  "limits": [
+    "No thread geometry, standard fastener fit, structural, ergonomic, retention or manufacturing-tolerance verification.",
+    "Pin clearances are measured at two explicit native section heights, not a full assembly interference proof.",
+    "Existing arc sweep paths retain polyline approximation; the handle curve here is an exact revolve.",
+    "Agent supplied dimensions and call sequence; no autonomous design claim.",
+    "Not all manual tools are exposed through MCP."
+  ]
+}

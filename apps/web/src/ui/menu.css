@@ -39,3 +39,5 @@
   .menu-quick-actions { grid-column: 2; }
   .menu-bar .menu-save-as { grid-column: 4; padding: 0 6px; }
 }
+.menu-radio-group { display: grid; border-top: 1px solid var(--line); margin-top: 4px; padding-top: 4px; }
+.menu-group-label { padding: 4px 9px 2px; font-size: 10px; letter-spacing: .04em; color: var(--muted); }

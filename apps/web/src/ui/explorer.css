@@ -45,6 +45,8 @@
 .tree-visibility:hover { background: var(--bg-3); color: var(--text); }
 .tree-visibility-off { color: #66747e; }
 .tree-row-hidden .tree-label { color: var(--muted); font-style: italic; }
+/* Display-only duplicate-name ordinal; textContent stays the saved name. */
+.tree-label[data-ordinal]::after { content: attr(data-ordinal); color: var(--muted); font-variant-numeric: tabular-nums; }
 .tree-layer { max-width: 72px; font-size: 9px; }
 .tree-row-sketch .tree-layer { color: var(--accent); }
 .tree-type-heading { grid-template-columns: 17px minmax(0, 1fr) auto; }
@@ -68,3 +70,6 @@ button.layer-name { min-width: 0; padding: 5px 0; border: 0; border-radius: 0; b
 .operation-log .history-row::after { display: none; }
 .operation-log .history-row > span { min-width: 0; overflow-wrap: anywhere; line-height: 1.35; }
 .operation-log .operation-number { align-self: start; padding-top: 1px; color: var(--muted); font: 10px/1.4 var(--font-numeric); text-align: right; }
+/* Source-expansion toggle rendered as the browser's default grey button. */
+.tree-chevron { width: 16px; height: 21px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: var(--radius); }
+.tree-chevron:hover { color: var(--text); background: var(--line-soft); }

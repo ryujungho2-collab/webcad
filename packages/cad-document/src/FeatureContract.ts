@@ -1,5 +1,12 @@
+import {validReconstructionReceipt} from "./PlanarReconstruction";
+import {validHybridFeature} from "./HybridReference";
+import {validateGeometryGraph,geometryGraphInputs,type GeometryNodeGraph} from "./GeometryNodes";
+import {validMeshEvaluation} from "./MeshModifiers";
+import {validDxfStyle} from "./DxfStyle";
+import {validateEditableMesh} from "./EditableMesh";
 import {validSolidFinish,validArchitecturalSlab,validComponentContent} from "./ArchitectureContent";
 import {validSpline} from "./Spline";
+import {validFeatureSplineProfiles} from "./SplineProfile";
 import {validArchitectureWall} from "./ArchitectureWall";
 import {validEllipse} from "./Ellipse";
 import type { CadFeature } from "./Feature";
@@ -18,6 +25,8 @@ const length=(key:string):ParameterContract=>({key,quantity:"length",unit:"mm",e
 const primitiveParameters:Record<string,ParameterContract[]>={box:[length("width"),length("depth"),length("height")],cylinder:[length("radius"),length("height")],sphere:[length("radius")],cone:[length("radius1"),length("radius2"),length("height")],torus:[length("majorRadius"),length("minorRadius")]};
 
 export function featureContract(feature:CadFeature):FeatureContract {
+  if(feature.type==='external-scene')return {representation:'external-reference',parameters:[],supportsExactMeasurement:false};
+  if(feature.type==="mesh"||feature.type==="geometry-nodes")return {representation:"polygon-mesh",parameters:[],supportsExactMeasurement:false};
   if(feature.params.architecturalSlab||feature.params.componentContent)return {...featureContract({...feature,params:{...feature.params,architecturalSlab:undefined,componentContent:undefined}}),parameters:[]};
   if(feature.params.architecturalWall)return {representation:"brep",parameters:[],supportsExactMeasurement:true};
   const solid=SOLID_FEATURE_TYPES.includes(feature.type as SolidFeatureType);
@@ -34,6 +43,13 @@ export function featureContract(feature:CadFeature):FeatureContract {
 }
 
 export function validateFeatureParameters(feature:CadFeature):boolean {
+  if(feature.type==='external-scene')return feature.inputs.length===0&&feature.dependencyMode==='snapshot'&&Object.keys(feature.params).length===1&&typeof feature.params.assetId==='string'&&/^glb-[a-f0-9]{64}$/.test(feature.params.assetId);
+  if(!validHybridFeature(feature))return false;
+  if(feature.params.kind==="planar-reconstruction")return feature.type==="primitive"&&feature.dependencyMode==="snapshot"&&feature.inputs.length===0&&validReconstructionReceipt(feature.params);
+  if(feature.params.reconstruction!==undefined||feature.params.reconstructionReceipt!==undefined)return false;
+  if(feature.type==="geometry-nodes")return feature.dependencyMode==="live"&&Object.keys(feature.params).every(k=>k==="graph")&&validateGeometryGraph(feature.params.graph).valid&&JSON.stringify(feature.inputs)===JSON.stringify(geometryGraphInputs(feature.params.graph as GeometryNodeGraph));
+  if(feature.type==="mesh")return feature.inputs.length===0 && feature.dependencyMode==="snapshot" && feature.params.kind==="editable-mesh" && validateEditableMesh(feature.params.mesh) && validMeshEvaluation(feature.params.mesh);
+  if(!validFeatureSplineProfiles(feature.params))return false;
   if(feature.params.solidFinish!==undefined&&!validSolidFinish(feature.params.solidFinish))return false;
   if(feature.params.architecturalSlab!==undefined&&!validArchitecturalSlab(feature.params.architecturalSlab))return false;
   if(feature.params.componentContent!==undefined){if(!validComponentContent(feature.params.componentContent))return false;const {componentContent:_,...params}=feature.params;return validateFeatureParameters({...feature,params,inputs:[],dependencyMode:"snapshot"});}
@@ -45,7 +61,7 @@ export function validateFeatureParameters(feature:CadFeature):boolean {
   if(feature.params.profileRegionIds!==undefined&&(feature.type!=="extrude"||!Array.isArray(feature.params.profileRegionIds)||!feature.params.profileRegionIds.length||!feature.params.profileRegionIds.every(id=>typeof id==="string")))return false;
   if(feature.params.kind==="face"){
     const p=feature.params,vec=(v:unknown)=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite);
-    const boundary=(v:any):boolean=>!!v&&typeof v==="object"&&typeof v.id==="string"&&vec(v.normal)&&Array.isArray(v.segments)&&v.segments.length>0&&v.segments.length<=4000&&v.segments.every((s:any)=>s&&s.kind==="circle"?vec(s.center)&&typeof s.radius==="number"&&Number.isFinite(s.radius)&&s.radius>0:s&&(s.kind==="line"||s.kind==="arc")&&vec(s.start)&&vec(s.end)&&(s.kind!=="arc"||vec(s.mid)));
+    const boundary=(v:any):boolean=>!!v&&typeof v==="object"&&typeof v.id==="string"&&vec(v.normal)&&Array.isArray(v.segments)&&v.segments.length>0&&v.segments.length<=4000&&v.segments.every((s:any)=>s&&s.kind==="spline"?validSpline(s):s&&s.kind==="circle"?vec(s.center)&&typeof s.radius==="number"&&Number.isFinite(s.radius)&&s.radius>0:s&&(s.kind==="line"||s.kind==="arc")&&vec(s.start)&&vec(s.end)&&(s.kind!=="arc"||vec(s.mid)));
     if(feature.type!=="drafting"||!["XY","XZ","YZ"].includes(String(p.workPlane))||!Array.isArray(p.sourceObjectIds)||!p.sourceObjectIds.length||p.sourceObjectIds.length>4000||!p.sourceObjectIds.every(id=>typeof id==="string")||JSON.stringify(feature.inputs)!==JSON.stringify(p.sourceObjectIds)||!Array.isArray(p.regions)||!p.regions.length||p.regions.length>2000||!p.regions.every((r:any)=>r.workPlane===p.workPlane&&boundary(r)&&(r.holes===undefined||Array.isArray(r.holes)&&r.holes.every(boundary))))return false;
   }
   if(feature.params.modelMeasurementScale!==undefined&&(!Number.isFinite(feature.params.modelMeasurementScale)||Number(feature.params.modelMeasurementScale)<=0))return false;
@@ -63,6 +79,7 @@ export function validateFeatureParameters(feature:CadFeature):boolean {
   if(feature.type === "dimension" && feature.params.style !== undefined && !validDimensionStyle(feature.params.style)) return false;
   if(feature.type === "dimension" && feature.params.kind === "angular") return validAngularParams(feature.params);
   if(feature.type === "image") return validImageNodeParams(feature.params);
+  if(feature.params.dxfStyle!==undefined&&(!["drawing","drafting"].includes(feature.type)||!validDxfStyle(feature.params.dxfStyle)))return false;
   if(feature.params.vectorStyle!==undefined&&(feature.type!=="drawing"||!validVectorStyle(feature.params.vectorStyle)))return false;
   if(feature.type==="primitive"&&!primitiveParameters[String(feature.params.kind??"box")])return false;
   for(const field of featureContract(feature).parameters){

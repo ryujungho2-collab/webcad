@@ -1,0 +1,94 @@
+{
+  "id": "CAD-MCP-01",
+  "date": "2026-10-23",
+  "status": "passed-with-declared-scope",
+  "scope": "Official SDK stdio MCP adapter to opt-in browser CAD tool sessions and native Review/Apply; no remote Apply or model requirement",
+  "sdk": {
+    "server": "@modelcontextprotocol/server@2.3.1",
+    "client": "@modelcontextprotocol/client@2.3.1",
+    "transport": "stdio"
+  },
+  "tools": {
+    "canonicalCadTools": 37,
+    "mcpTools": 40,
+    "bridgeTools": [
+      "cad.context",
+      "cad.propose",
+      "cad.proposal"
+    ]
+  },
+  "modelRequests": 0,
+  "unit": {
+    "passed": 1602,
+    "suites": 54,
+    "failed": 0,
+    "log": "output/mcp-all-tests.log"
+  },
+  "targeted": {
+    "passed": 10,
+    "failed": 0,
+    "log": "output/mcp-targeted-tests.log",
+    "includes": [
+      "real stdio SDK initialize/list/call/cancellation",
+      "schema validation and error results",
+      "broker Origin/auth/editor scope/revocation",
+      "captured context invalidation",
+      "native preview and one Undo"
+    ]
+  },
+  "browser": {
+    "page": "mcpBridge",
+    "passed": 24,
+    "failed": 0,
+    "log": "output/mcp-browser.log",
+    "report": "output/verification/cad-mcp/browser-report.json",
+    "fixture": "Official SDK MCP host process connected to the real React/Worker editor via stdio and loopback bridge"
+  },
+  "regression": [
+    {
+      "page": "localCopilot",
+      "passed": 29,
+      "log": "output/mcp-regression-localCopilot.log"
+    },
+    {
+      "page": "nativeArchitectureCopilot",
+      "passed": 29,
+      "log": "output/mcp-regression-nativeArchitectureCopilot.log"
+    },
+    {
+      "page": "copilotApply",
+      "passed": 26,
+      "log": "output/mcp-regression-copilotApply.log"
+    },
+    {
+      "page": "copilotGateway",
+      "passed": 13,
+      "log": "output/mcp-regression-copilotGateway.log"
+    }
+  ],
+  "build": {
+    "status": "passed",
+    "log": "output/mcp-build.log"
+  },
+  "serverTypecheck": {
+    "status": "passed",
+    "log": "output/mcp-server-typecheck.log"
+  },
+  "architecture": {
+    "status": "passed",
+    "log": "output/mcp-architecture.log",
+    "modules": 784
+  },
+  "artifacts": [
+    "output/verification/cad-mcp/mcp-native-result.webcad.json",
+    "output/verification/cad-mcp/mcp-native-result.png"
+  ],
+  "limits": [
+    "37 shared tools, not every manual CAD feature",
+    "Local stdio host with dev/preview browser bridge",
+    "No public remote HTTP MCP, OAuth or headless CAD server",
+    "No arbitrary scripts, raw commands or remote Apply",
+    "No model installation, third-party host configuration or provider authentication changed",
+    "No architectural/aesthetic quality verdict"
+  ]
+}

@@ -7,6 +7,10 @@ import { ToolDisclosure } from "../ui/ToolDisclosure";
 import { interactionTools } from "../commands/interactionTools";
 
 type RibbonProps = {
+  onCurveLayout?:()=>void;
+  editingCommands?:import("../commands/paletteCommands").PaletteCommand[];
+  /** Always-visible annotation entry points; selection toolbars change with context. */
+  annotationCommands?:import("../commands/paletteCommands").PaletteCommand[];
   onAssembly?:()=>void;
   onModelViews?: () => void;
   onCurveWorkflow?: () => void;
@@ -169,9 +173,15 @@ export function Ribbon(props: RibbonProps) {
         </ToolGroup>}
 
         {tab === "draw" && <>
+          {!!props.annotationCommands?.length&&<ToolGroup label="Annotate">
+            {props.annotationCommands.map(command=><RibbonButton key={command.id} icon={command.id==="add-text"?"T":"▨"} label={command.id==="add-text"?"Text":"Hatch · Dims"} title={command.disabledReason??command.label} disabled={!!command.disabledReason} onClick={command.run}/>)}
+          </ToolGroup>}
+          <ToolGroup label="Editing actions" compact>
+            {props.editingCommands?.map(command=><RibbonButton key={command.id} icon="↻" label={command.id==="drafting"?"Drafting":command.label} title={command.disabledReason??command.label} disabled={!!command.disabledReason} onClick={command.run}/>)}
+          </ToolGroup>
           <ToolGroup label={props.activeSketchId ? "Sketch geometry" : "Drawing geometry"}>
             <RibbonButton icon="╱" label="Line" title="Draw line (L)" active={props.drawingTool === "line"} disabled={!props.canCreateBox} onClick={() => props.onDrawingTool("line")} />
-            <RibbonButton icon="⌁" label="Polyline" title="Draw polyline (P) · Enter to finish" active={props.drawingTool === "polyline"} disabled={!props.canCreateBox} onClick={() => props.onDrawingTool("polyline")} />
+            <RibbonButton icon="⌁" label="Polyline" title="Draw polyline (P) · Enter or Esc to finish" active={props.drawingTool === "polyline"} disabled={!props.canCreateBox} onClick={() => props.onDrawingTool("polyline")} />
             <RibbonButton icon="▭" label="Rectangle" title="Draw rectangle (R) · selection does not change the shortcut" active={props.drawingTool === "rectangle"} disabled={!props.canCreateBox} onClick={() => props.onDrawingTool("rectangle")} />
             <RibbonButton icon="○" label="Circle" title="Draw circle (C)" active={props.drawingTool === "circle"} disabled={!props.canCreateBox} onClick={() => props.onDrawingTool("circle")} />
             <RibbonButton icon="⌒" label="Arc" title="Draw arc (A)" active={props.drawingTool === "arc"} disabled={!props.canCreateBox} onClick={() => props.onDrawingTool("arc")} />
@@ -183,6 +193,7 @@ export function Ribbon(props: RibbonProps) {
             <RibbonButton icon="○" label="Two Line Tangent Circle" disabled={!props.canCreateBox} onClick={()=>props.onCadPilot?.("tangent-circle")}/>
             <RibbonButton icon="◜" label="Endpoint Radius Arc" title="Two endpoints, radius, centre side and CW / CCW direction" disabled={!props.canCreateBox} onClick={() => props.onEndpointRadiusArc?.()} />
             <RibbonButton icon="∿" label="Spline / NURBS" title="Create or edit exact finite spline/NURBS" disabled={!props.canCreateBox} onClick={()=>props.onSpline?.()}/>
+            <RibbonButton icon="∷" label="Curve layout" title="Divide a curve with normal ticks or place blocks along its length" disabled={!props.canCreateBox} onClick={()=>props.onCurveLayout?.()}/>
             <RibbonButton icon="⬭" label="Ellipse / Arc" title="Create or numerically edit the selected ellipse" disabled={!props.canCreateBox} onClick={()=>props.onEllipse?.()}/>
             <RibbonButton icon="⬡" label="Regular Polygon" title="Centre, sides, inscribed / circumscribed radius and rotation" disabled={!props.canCreateBox} onClick={() => props.onRegularPolygon?.()} />
           </ToolGroup>
@@ -215,6 +226,10 @@ export function Ribbon(props: RibbonProps) {
             <RibbonButton icon="↻" label="Rotate" title="Rotate selection with gizmo · Shift+R uses a chosen centre in 2D" active={props.transformMode === "rotate"} disabled={!props.canTransform} onClick={() => props.onTransformMode("rotate")} />
             <RibbonButton icon="⤢" label="Scale" title="Scale selection (S)" active={props.transformMode === "scale"} disabled={!props.canTransform} onClick={() => props.onTransformMode("scale")} />
           </ToolGroup>
+          {/* Point transforms switch the ribbon to Modify, so they must stay reachable here as well as under Draw › Editing actions. */}
+          {props.workspaceMode === "2d" && !!props.editingCommands?.some(command => command.id.startsWith("points-")) && <ToolGroup label="By points" compact>
+            {props.editingCommands.filter(command => command.id.startsWith("points-")).map(command => <RibbonButton key={command.id} icon={command.id === "points-rotate" ? "↻" : command.id === "points-copy" ? "⧉" : "→"} label={command.label} title={command.disabledReason ?? `${command.label}${command.shortcut ? ` (${command.shortcut})` : ""}`} disabled={!!command.disabledReason} onClick={command.run} />)}
+          </ToolGroup>}
           <ToolGroup label="Edit" compact>
             <RibbonButton icon="⌁" label="Curve workflow" title="Connected Offset, Trim/Extend, Fillet/Chamfer and Join with exact previews and next actions" disabled={!props.canCurveWorkflow} onClick={() => props.onCurveWorkflow?.()} />
             <RibbonButton icon="⤳" label="Join" title="Join connected lines, arcs and open polylines; preview before replacing" disabled={!props.canContour?.join} onClick={() => props.onContour?.("join")} />

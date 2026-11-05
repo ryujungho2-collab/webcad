@@ -1,0 +1,30 @@
+{
+  "id": "EXT-CIVIL-02",
+  "date": "2026-10-19",
+  "status": "passed-with-explicit-exclusions",
+  "node": {
+    "passed": 1500,
+    "failed": 0
+  },
+  "browser": {
+    "new": 16,
+    "regression": 116,
+    "total": 132
+  },
+  "build": "passed",
+  "typescript": "passed",
+  "architectureModules": 709,
+  "hatch": {
+    "source": 61,
+    "recovered": 46,
+    "excludedGradient": 11,
+    "excludedCurved": 4
+  },
+  "evidenceDirectory": "output/external/civil-projects/phase-02",
+  "limitations": [
+    "11 gradient and 4 curved HATCH excluded",
+    "static fill/strokes; no associative HATCH",
+    "large Chrome import ~37s; Edge timeout unresolved",
+    "external DWG conversion not asserted lossless"
+  ]
+}

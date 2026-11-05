@@ -1,0 +1,44 @@
+import {createRoot} from "react-dom/client";
+import {App} from "../src/App";
+import {deserializeDocument,serializeDocument,type ComponentContent} from "@agent-webcad/cad-document";
+import {cadDocument} from "../src/state/cadDocument";
+import {cadHistory} from "../src/state/history";
+import {dispatchCadCommand} from "../src/state/dispatchCadCommand";
+import {saveDocumentToCache,openDocumentFile} from "../src/state/documentFile";
+import {restoreTestDocument} from "./helpers/documentHarness";
+import {residentialMeasurementDefinition,residentialMeasurementSource} from "./helpers/residentialMeasurementFixture";
+import {collectArtboardExportItems} from "../src/export/exportModel";
+import {encodeSvg} from "../src/export/svgWriter";
+import {artboardPngSvg} from "../src/export/artboardPng";
+import {renderArtboardPdfPageInWorker} from "../src/export/artboardPngRenderer";
+import {encodePdfRasterPages} from "../src/plot/pdfWriter";
+import {click,physical,choose,input,pause,waitFor} from "./helpers/physicalInput";
+import {installBrowserChecks} from "./helpers/browserChecks";
+import "../src/styles.css";import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+const run=async(c:Parameters<typeof dispatchCadCommand>[0])=>{const r=await dispatchCadCommand(c);if(!r.ok)throw Error(r.reason);};
+
+const original=await(await fetch(residentialMeasurementSource)).text();
+restoreTestDocument(deserializeDocument(original));cadHistory.clear();
+const definition=await residentialMeasurementDefinition(cadDocument);
+await run({type:"upsert-saved-measurement",measurement:{...definition,drawingId:undefined}});saveDocumentToCache();
+createRoot(document.getElementById("root")!).render(<App/>);
+const button=document.getElementById("run") as HTMLButtonElement,output=document.getElementById("output")!,artifacts:Record<string,string>={};
+const saved=()=>cadDocument.savedMeasurements![definition.id],sheet=()=>Object.values(cadDocument.modelPresentation!.sheets!)[0],items=()=>collectArtboardExportItems(sheet().artboardId),value=()=>saved().result!.distance;
+const base64=(bytes:Uint8Array)=>{let s="";for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s);};
+async function issue(name:string){const board=cadDocument.artboards![sheet().artboardId],scene=items();artifacts[name+".svg"]=encodeSvg([],{items:scene,viewBox:board,background:"#ffffff"});const svg=artboardPngSvg({board,items:scene},{width:1587,height:1123}),page=await renderArtboardPdfPageInWorker(svg,1587,1123),jpeg=new Uint8Array(await page.blob.arrayBuffer());artifacts[name+".jpg"]=base64(jpeg);artifacts[name+".pdf"]=base64(encodePdfRasterPages([{widthMm:420,heightMm:297,raster:{width:1587,height:1123,jpeg}}]));}
+button.onclick=async()=>{const lines:string[]=[],check=(v:unknown,label:string)=>{if(!v)throw Error(label);lines.push("PASS "+label);output.textContent=lines.join("\n");};try{
+ await waitFor(()=>!!document.querySelector("canvas"));check(!items().some(i=>i.type==="text"&&i.text.text.includes("Living gap")),"Original model-coordinate measurement is outside the existing A3 sheet");
+ await click("Direct");await physical(document.querySelector('.saved-measurements-panel summary')!);await click("편집·재지정");await physical(document.querySelector('.saved-measurements-panel summary')!);
+ await waitFor(()=>!!document.querySelector('[aria-label="Saved measurement drawing"]'));
+ const select=document.querySelector<HTMLSelectElement>('[aria-label="Saved measurement drawing"]')!;await choose("Saved measurement drawing",[...select.options].findIndex(o=>o.value===definition.drawingId));await click("측정 갱신");await waitFor(()=>saved().drawingId===definition.drawingId);
+ check(Math.abs(value()-3395)<.001,"UI binds the real wall-face to sofa-edge clearance: 3395 mm");
+ const label=items().find(i=>i.type==="text"&&i.text.text.includes("Living gap"));check(label?.type==="text"&&label.text.size===2.5,"Existing 1:100 A3 sheet includes 2.5 mm paper text");await click("Object");await issue("issue-01");
+ const feature=Object.values(cadDocument.features).find(f=>f.output===definition.target.objectId)!,content=structuredClone(feature.params.componentContent) as ComponentContent;if(content.slot.kind!=="space")throw Error("Missing sofa slot");content.slot.origin[0]+=100;await run({type:"update-component-content",objectId:definition.target.objectId,content});check(Math.abs(value()-3295)<.001,"Moving the furniture slot 100 mm updates the dimension to 3295 mm");await click("Undo");check(Math.abs(value()-3395)<.001,"Undo restores the original clearance");await click("Redo");check(Math.abs(value()-3295)<.001,"Redo restores the updated clearance");await issue("issue-02");
+ const file=serializeDocument(cadDocument);check(JSON.parse(file).version===47,"Drawing-bound measurement uses portable version 47");await openDocumentFile(new File([file],"residential-measurements.webcad.json",{type:"application/json"}));await waitFor(()=>cadHistory.getPastLabels().length===0&&!!cadDocument.savedMeasurements);check(saved().drawingId===definition.drawingId&&Math.abs(value()-3295)<.001&&Object.values(cadDocument.modelPresentation!.sections!).every(v=>v.status==="resolved"),"Reopen preserves native references, furniture, resolved drawings and the bound result");
+ await click("2D");await click("Fit active artboard");await new Promise(r=>setTimeout(r,500));check(!!document.querySelector('[data-measurement-id="residential-living-gap"]'),"Reopened dimension is rendered on the paper viewport");button.closest("aside")!.style.visibility="hidden";artifacts["reopened.png"]=(await(await input({type:"screenshot"})).json()).data;button.closest("aside")!.style.visibility="";
+ const hit=document.querySelector('[data-measurement-id="residential-living-gap"] [data-dimension-label-hit]')!,box=hit.getBoundingClientRect(),x=box.left+box.width/2,y=box.top+box.height/2,beforeOffset=[...saved().offset];
+ await input({type:"mousePressed",x,y,button:"left",buttons:1});await input({type:"mouseMoved",x,y:y-12,button:"left",buttons:1});await pause();check(saved().offset[1]===beforeOffset[1]&&!!document.querySelector('[data-preview="residential-living-gap"]'),"Paper drag previews without changing the saved model offset");await input({type:"mouseReleased",x,y:y-12,button:"left",buttons:0});await waitFor(()=>saved().offset[1]!==beforeOffset[1]);check(Math.abs(saved().offset[0]-beforeOffset[0])<.001&&Math.abs(value()-3295)<.001,"Paper-plane drag maps through 1:100 to model offsets without changing the measured value");await click("Undo");check(Math.abs(saved().offset[1]-beforeOffset[1])<.001,"One Undo restores the paper placement");
+ artifacts["source.webcad.json"]=file;check(deserializeDocument(original).revision<cadDocument.revision,"Validation works on a separate document snapshot");
+ (globalThis as any).cadTestArtifacts=artifacts;(globalThis as any).cadTestMetrics={source:"Self-authored Q1 residential task; not a certified survey",beforeMm:3395,afterMm:3295,paperMm:[420,297],scale:100};output.textContent=lines.join("\n")+`\nALL ${lines.length} CHECKS PASSED`;
+ }catch(e){(globalThis as any).cadTestArtifacts=artifacts;output.textContent=lines.join("\n")+"\nFAIL: "+(e instanceof Error?e.stack:String(e));}};
+installBrowserChecks(button,output);

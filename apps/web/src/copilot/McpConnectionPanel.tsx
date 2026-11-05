@@ -1,0 +1,5 @@
+import {PropertySection} from "../ui/PropertySection";
+import type {CadMcpBridgeControls} from "./useCadMcpBridge";
+export function McpConnectionPanel({bridge}:{bridge:CadMcpBridgeControls}){
+ return <PropertySection title="CAD MCP" meta={bridge.status}><div className="copilot-query architecture-read"><p>현재 편집기의 도구 조회·변경 제안을 표준 MCP 클라이언트에 연결합니다. 모델이나 모델 API 키 없이 연결을 확인할 수 있습니다. 변경은 기존 Review에서 확인한 뒤 Apply합니다.</p>{bridge.status==="disabled"?<button onClick={bridge.enable}>Enable CAD MCP</button>:<button onClick={bridge.disable}>Disconnect CAD MCP</button>}{bridge.activity&&<p role="status">MCP · {bridge.activity}</p>}{bridge.error&&<p role="alert">{bridge.error}</p>}{bridge.configuration&&<details><summary>MCP client configuration</summary><label>이 편집기 전용 · 연결 중에만 유효<textarea aria-label="CAD MCP client configuration" rows={9} readOnly value={bridge.configuration} style={{width:"100%",boxSizing:"border-box"}}/></label><p className="property-hint">원하는 MCP 클라이언트의 서버 설정에 복사하세요. 연결 토큰은 도면·브라우저 저장소에 저장하지 않습니다. 연결 해제·서버 재시작 후에는 새 설정이 필요합니다. 원격 Apply·스크립트 실행은 제공하지 않습니다.</p></details>}</div></PropertySection>;
+}

@@ -1,0 +1,12 @@
+/* Compact panels belong only to the two displayed comparison editors. */
+html[data-project-comparison=true] .app-shell .workbench.project-comparison-compact { position: relative; grid-template-columns: var(--rail-width) 0 minmax(0, 1fr) 0; }
+.project-comparison-compact > .workbench-viewport { grid-column: 3; grid-row: 1; }
+.project-comparison-compact .panel-toggle { z-index: 45; }
+.project-comparison-compact > .side-bar { position: absolute; top: 0; bottom: 0; left: var(--rail-width); width: min(230px, calc(100% - 70px)); z-index: 40; box-shadow: 6px 0 18px #0006; }
+.project-comparison-compact > .workbench-properties { position: absolute; top: 0; bottom: 0; right: 0; width: min(270px, calc(100% - 70px)); z-index: 40; box-shadow: -6px 0 18px #0006; }
+@media(max-width:900px) {
+  [data-project-comparison=true] .menu-bar { gap: 4px; padding: 0 4px; }
+  html[data-project-comparison=true] .app-shell .menu-bar .menu-save-as { display: none; }
+  [data-project-comparison=true] .ribbon-tabs { gap: 5px; padding-left: 6px; }
+  [data-project-comparison=true] .navigation-hint { display: none; }
+}

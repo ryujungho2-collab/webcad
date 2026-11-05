@@ -28,7 +28,7 @@ export function searchPaletteCommands(commands: PaletteCommand[], query: string)
  * mutations continue through dispatchCadCommand, including its Undo boundary. */
 export function createPaletteCommands(
   props: AppShellProps,
-  panels: { toggleExplorer: () => void; toggleProperties: () => void; openActivity?: AppShellProps["onChangeActivity"] },
+  panels: { toggleExplorer: () => void; toggleProperties: () => void; inspectSelection?:()=>void; openActivity?: AppShellProps["onChangeActivity"] },
 ): PaletteCommand[] {
   const commands: PaletteCommand[] = [];
   function add(id: string, label: string, category: string, keywords: string, run: () => void, disabledReason?: string, shortcut?: string) {
@@ -36,6 +36,17 @@ export function createPaletteCommands(
     commands.push({ id, label, category, keywords, run, disabledReason, shortcut: pointTransformOnly ? undefined : COMMAND_SHORTCUTS[id] ?? shortcut });
   }
   const createReason = !props.canCreateBox ? "Unlock the active layer first." : undefined;
+  if(props.onRepeatCommand)add("repeat-command","Repeat command","Edit","반복 재실행",props.onRepeatCommand);
+  add("inspect-image","Image placement · source, crop & order","Inspect","이미지 교체 맞춤 자르기 투명도 순서",()=>{ (panels.inspectSelection??panels.toggleProperties)(); requestAnimationFrame(()=>{ const section=document.querySelector<HTMLElement>('[data-inspector-section="Image"]'); const trigger=section?.querySelector<HTMLButtonElement>(".property-section-trigger"); if(trigger?.getAttribute("aria-expanded")==="false")trigger.click(); section?.scrollIntoView({block:"nearest"}); section?.querySelector<HTMLButtonElement>('button[aria-label="Replace image source"]')?.focus(); }); },props.selectedObjectIds.length!==1||!Object.values(cadDocument.features).some(f=>f.output===props.selectedObjectIds[0]&&f.type==="image")?"Select one image placement first.":undefined);
+  add("inspect-selection","Edit selection properties","Inspect","선택 수치 내용 참조 스타일 속성",panels.inspectSelection??panels.toggleProperties);
+  for(const [id,label,callback] of [["draw-spline","Edit / draw spline",props.onSpline],["draw-ellipse","Edit / draw ellipse",props.onEllipse]] as const)
+    add(id,label,"Draw","곡선 편집 스플라인 타원",()=>callback?.(),createReason??(!callback?"Tool unavailable.":undefined));
+  const board=props.activeArtboardId?cadDocument.artboards?.[props.activeArtboardId]:undefined;
+  add("inspect-frame","Frame properties","Frames","프레임 속성",()=>panels.openActivity?.("artboards"),!board?"Activate a frame first.":!panels.openActivity?"Frame properties unavailable.":undefined);
+  const frameReason=props.frameToolsBusy?"Finish or cancel the current frame tool first.":!props.onFrameAction?"Frame tools unavailable.":props.workspaceMode!=="2d"?"Switch to the 2D workspace first.":props.activeSketchId?"Finish the active sketch first.":!board?.frame?"Activate a drawing frame first.":board.locked?"Unlock this frame first.":!board.visible?"Show this frame first.":undefined;
+  for(const [action,label] of [["edit","Crop & scale frame"],["links","Connect frames"],["sheets","Prepare frame sheets"]] as const)
+    add(`frame-${action}`,label,"Frames","프레임 자르기 축척 연결 시트",()=>props.onFrameAction?.(action),frameReason??(action==="links"&&Object.values(cadDocument.artboards??{}).filter(b=>b.frame&&!b.frame.stitch&&b.workPlane===board?.workPlane).length<2?"Create another frame on this plane first.":undefined));
+  add("fit-active-frame","Fit active frame","Frames","프레임 보기",()=>props.onViewAction("fit-active-artboard",props.activeArtboardId!),board?undefined:"Activate a frame first.");
   add("floor-plan-tasks","Floor plan cleanup / Make face","Workflow","PURGE make face 평면도 면 생성 도면 정리",()=>props.onFloorTasks?.(),props.onFloorTasks?undefined:"Floor plan tasks unavailable.");
   add("assembly-drawings","Assembly parts exploded views and projections","Model","부품 조립 분해도 정투영 도면",()=>props.onAssembly?.(),!props.onAssembly?"Assembly unavailable.":undefined);
   for(const [id,label,mode] of [["start-tangent-arc","Draw start tangent arc","tangent-arc"],["two-line-tangent-circle","Draw two line tangent circle","tangent-circle"],["base-point-clipboard","Base point copy paste","clipboard"],["ucs-pilot","Active UCS WCS pilot","ucs"]] as const)add(id,label,"Draw","접선 원호 원 기준점 복사 붙여넣기 UCS WCS local",()=>props.onCadPilot?.(mode),!props.onCadPilot?"Pilot unavailable.":undefined);
@@ -138,10 +149,17 @@ export function createPaletteCommands(
   add("import-image", "Import image", "File", "이미지 사진 그림 가져오기 image png jpg tiff", () => props.onImportImage?.(), props.onImportImage ? createReason : "Image import unavailable.");
   for (const [format, run] of [["svg", props.onExportArtboardSvg], ["png", props.onExportArtboardPng], ["pdf", props.onExportArtboardPdf]] as const)
     add(`export-artboard-${format}`, `Export active artboard (.${format})`, "File", `아트보드 내보내기 출력 ${format}`, () => run?.(), props.activeArtboardId && run ? undefined : "Activate an artboard first.");
+  add("output-preflight", "Output preflight", "File", "출력 전 점검 시트 누락 축척 주석 폰트 검사", ()=>props.onOutputPreflight?.(), props.onOutputPreflight?undefined:"Output preflight unavailable.");
   add("fit-artboard", "Fit active artboard", "View", "아트보드 맞춤 보기", () => props.onViewAction("fit-active-artboard"), props.activeArtboardId ? undefined : "Activate an artboard first.");
   add("fit-artboards", "Fit visible artboards", "View", "전체 아트보드 맞춤 보기", () => props.onViewAction("fit-visible-artboards"), props.hasVisibleArtboards ? undefined : "Show an artboard first.");
   for (const [activity, label, keywords] of [["model", "Model tree", "객체 모델 트리"], ["layers", "Layers", "레이어"], ["artboards", "Artboards", "아트보드"], ["components", "Components", "컴포넌트 심볼 블록"], ["scenes", "Scenes", "씬 장면"], ["history", "Operation log", "작업 기록 히스토리"], ["copilot", "Copilot", "코파일럿 ai"]] as const)
     add(`panel-${activity}`, `Open ${label}`, "Panels", keywords, () => (panels.openActivity ?? props.onChangeActivity)(activity));
-  for (const entry of NAVIGATION_SHORTCUTS) commands.push({ ...entry, category: "Navigation", reference: true, run: () => {} });
+  // A reference row whose id matches a runnable command enriches that command
+  // instead of duplicating its id (duplicate React keys, inert ribbon button).
+  for (const entry of NAVIGATION_SHORTCUTS) {
+    const runnable = commands.find((command) => command.id === entry.id);
+    if (runnable) Object.assign(runnable, { shortcut: runnable.shortcut ?? entry.shortcut, description: runnable.description ?? entry.description, keywords: `${runnable.keywords} ${entry.keywords}` });
+    else commands.push({ ...entry, category: "Navigation", reference: true, run: () => {} });
+  }
   return commands;
 }

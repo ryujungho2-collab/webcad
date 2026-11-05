@@ -1,3 +1,4 @@
+import {resolveHybridReference} from "./hybridReferences";
 import * as THREE from "three";
 import type { CadDocument, CadWorkPlane, CadWorkPlaneFaceSource, CadWorkPlaneFrame } from "@agent-webcad/cad-document";
 import { featureContract } from "@agent-webcad/cad-document";
@@ -46,5 +47,6 @@ export async function resolveFaceWorkPlane(document:CadDocument,source:CadWorkPl
 }
 
 export async function resolveStoredWorkPlane(document:CadDocument,plane:CadWorkPlane):Promise<WorkPlaneResolution> {
+  if(plane.hybrid){const r=resolveHybridReference(document,plane.hybrid);return plane.hybrid.datumEnabled&&"frame" in r?{status:"resolved",frame:r.frame}:{status:"unsupported",reason:"frame" in r?"Enable this reference through Hybrid datum Review.":r.reason};}
   return plane.source?resolveFaceWorkPlane(document,plane.source):{status:"resolved",frame:plane};
 }

@@ -11,7 +11,7 @@ const data=deserializeDocument(JSON.stringify(fixture));
 const resumed=sessionStorage.getItem("durable-r5-reload");
 if(!resumed)for(const id of ['r5-a','r5-b'])writeRecoveryCheckpoint(projectStorage(localStorage,id),data);
 if(!resumed)localStorage.setItem('agent-webcad-project-workspace-v1',JSON.stringify({version:1,active:'r5-a',projects:['r5-a','r5-b'].map(id=>({id,title:id,closed:false}))}));
-const start=performance.now();createRoot(document.getElementById('root')!).render(<ProjectWorkspace/>);
+const start=performance.now();createRoot(document.getElementById('root')!).render(<ProjectWorkspace startOnHome={false}/>);
 const button=document.getElementById('run') as HTMLButtonElement,output=document.getElementById('output')!;
 async function until(check:()=>boolean,label:string){const deadline=performance.now()+180000;while(!check()){if(performance.now()>deadline)throw Error(label);await pause();}}
 const frame=(id:string)=>document.querySelector<HTMLIFrameElement>(`#project-panel-${id} iframe`)!;

@@ -1,0 +1,138 @@
+{
+  "id": "KIOSK-HANDOFF-2026-10-24",
+  "status": "verified",
+  "task": "Organic exhibition kiosk; human / bounded internal language / real SDK MCP fitted-point handoff",
+  "canonicalTools": 39,
+  "mcpTools": 42,
+  "humanFormTools": 12,
+  "nativeFileVersion": 50,
+  "browserChecks": {
+    "kioskHandoff": 48,
+    "handleHandoff": 42,
+    "ductHandoff": 45,
+    "sharedToolHandoff": 38,
+    "mcpBridge": 24,
+    "cadToolsAdvanced": 17,
+    "spline": 19
+  },
+  "unitChecks": 88,
+  "productionBuild": "passed; existing chunk-size warning",
+  "architecture": "passed",
+  "modelRequests": 0,
+  "mcpReviewedAndAppliedProposals": 5,
+  "stepSolidCount": 7,
+  "sourcePointCount": 8,
+  "finalPoints": [
+    [
+      -3000,
+      -1500,
+      0
+    ],
+    [
+      -1000,
+      -1850,
+      0
+    ],
+    [
+      1600,
+      -1500,
+      0
+    ],
+    [
+      2700,
+      -400,
+      0
+    ],
+    [
+      2700,
+      1100,
+      0
+    ],
+    [
+      800,
+      1700,
+      0
+    ],
+    [
+      -1700,
+      1300,
+      0
+    ],
+    [
+      -3000,
+      200,
+      0
+    ]
+  ],
+  "expectedVolumesMm3": {
+    "model-e62ca81a": 2077339249.9999998,
+    "kioskCounter": 2345204812.5,
+    "kioskCanopy": 2033185525.71332
+  },
+  "validationOracle": "Independent 3-node exact Gaussian integration of cubic cardinal section area; extrusion / homothetic frustum volume formulas",
+  "drawingStatuses": {
+    "kioskPlatformPlan": "resolved",
+    "kioskPlan": "resolved",
+    "kioskSection": "resolved"
+  },
+  "mainCadProjectTab": "936f678f-3ce2-4c0e-9e7e-3d06655c4275",
+  "mainCadUrl": "http://127.0.0.1:5188/",
+  "limits": [
+    "Schematic CAD workflow verification, not architectural aesthetic grading, fabrication or engineering certification.",
+    "One closed spline per profile; mixed spline boundaries / holes require separate solid operations.",
+    "Spline drawing correspondence changes require explicit reviewed rebind; no guessed ID matching.",
+    "Kernel sections retain OCCT intersection tolerance; no mesh-silhouette substitution.",
+    "No open spline sweep path support added."
+  ],
+  "files": {
+    "browser-report.json": {
+      "bytes": 4152,
+      "sha256": "54fd430ab9b944891c9c0521a1cd35554217fcdb5d74bf0c71aebfd1ad105782"
+    },
+    "handoff.json": {
+      "bytes": 14063,
+      "sha256": "a8e770af3808053ace984aa26541f389fd3a9253db4e53e5e2124aac14dbae1d"
+    },
+    "kiosk.step": {
+      "bytes": 290682,
+      "sha256": "5963ef972d322394a3fb6050d22e07ca20599e102a25b269b24ddcb2180fa044"
+    },
+    "kiosk.webcad.json": {
+      "bytes": 1305546,
+      "sha256": "63788aa7db68c69ff03f03eee2ec3a91c2d0a6515d1c75ca6c08e2d545e8d8e7"
+    },
+    "kioskPlan.dxf": {
+      "bytes": 102827,
+      "sha256": "a361d14a341de690a4323b4fd5d5185f5ec7cd002570ef80cbb00e798345e51d"
+    },
+    "kioskPlan.svg": {
+      "bytes": 26022,
+      "sha256": "9a282173832164b89f74da4b40d15f70fa42f9acb9303ed84283b403c66a9194"
+    },
+    "kioskPlatformPlan.dxf": {
+      "bytes": 136011,
+      "sha256": "7addae073154a56199272e44096e527b3ebfeb48a16a9a2d7b05665d9e73e50d"
+    },
+    "kioskPlatformPlan.svg": {
+      "bytes": 33405,
+      "sha256": "bb9394eb70a6b7aaf8f120e7ce438d221ce0eb8193f85263e7edcba35bdef2ee"
+    },
+    "kioskSection.dxf": {
+      "bytes": 31009,
+      "sha256": "14bd2845862a0946dabb9a07541611e3b3f88a60ba82b2af2f05fcba74bb68b9"
+    },
+    "kioskSection.svg": {
+      "bytes": 5329,
+      "sha256": "28d5f0596904370e4f531a6a59db0fd57e3fe190bfc90727922b3b07f4cf3e44"
+    },
+    "native-editor.png": {
+      "bytes": 171866,
+      "sha256": "91fb42885f18a9ad7688c685be88e01c549e692ecdbf903cdfd9e4ab31b40f14"
+    },
+    "viewport.png": {
+      "bytes": 258899,
+      "sha256": "5fc29e2cfea8cfcd3d7cc1ca1413a719f36f866af5a80252e3310910d2674af8"
+    }
+  },
+  "architectureModules": 799
+}

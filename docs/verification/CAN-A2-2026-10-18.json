@@ -1,0 +1,32 @@
+{
+  "task": "CAN-A2",
+  "date": "2026-10-18",
+  "scope": "Explicit reviewed Flex layout with source-preserving placement and schema v44",
+  "checks": {
+    "fullNode": { "passed": 1392, "suites": 54, "note": "Before final fixed-member boundary correction and regression; covered by final focused run." },
+    "focusedNode": { "passed": 34, "canvasFlex": 13, "canvasHierarchy": 10, "workspaceSections": 11 },
+    "nativeBrowser": { "canvasFlex": 24, "canvasHierarchy": 28 },
+    "build": "passed",
+    "architecture": { "modules": 669, "passed": true }
+  },
+  "artifacts": [
+    "output/verification/canvas-flex/flex.webcad.json",
+    "output/verification/canvas-flex/frame.svg",
+    "output/verification/canvas-flex/flex-1440.png",
+    "output/verification/canvas-flex/flex-960.png",
+    "output/verification/canvas-flex/native-report.json"
+  ],
+  "invariants": [
+    "Review and cancel do not mutate the source document; apply is one undoable operation.",
+    "Frame dimensions, crop, scale and local exported linework remain unchanged.",
+    "Paper-only placement submits no extra native geometry tasks.",
+    "Model translation requires explicit opt-in and preserves dimensions."
+  ],
+  "limits": [
+    "Reflow is explicit through Review Flex layout, not continuous.",
+    "Fill sizes layout slots; proportional source scaling belongs to CAN-A3.",
+    "References stay pinned; connected frames must move together.",
+    "Flow overflow blocks apply; absolute overflow is reported.",
+    "PDF not separately reissued in this change."
+  ]
+}

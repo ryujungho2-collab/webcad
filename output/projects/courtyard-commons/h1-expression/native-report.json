@@ -1,104 +1,107 @@
 {
-  "status": "passed",
-  "checks": 21,
-  "message": "PASS 56 architectural parts reach actual Three.js scene\nPASS All plan/section views load resolved\nPASS All five views include owned architectural hatch and retained background\nPASS Extruded stair flights are present in the rendered model\nPASS Both Boolean/stair assembly elevations load resolved\nPASS Analytic hidden edges reach the canvas scene\nPASS Native opening edit commits one history entry\nPASS Affected plan retains proven edge correspondence\nPASS Unchanged upper-floor plan remains resolved\nPASS Reference-status changes reuse existing canvas geometry while stale outputs hide\nPASS Native Undo restores geometry and all drawing references\nPASS Native Redo restores edited opening\nPASS Saved custom-layer section Review allows Apply\nPASS Saved section Apply preserves custom layer and owning sheet placement\nPASS Saved section UI Apply is exactly reversible\nPASS Five A2 pages at96dpi receive an explicit aggregate budget diagnostic\nPASS PDF preview includes full drawing set\nPASS Downloaded PDF contains every issued page\nPASS Model views and sheet-set schema serialize\nPASS Real cache reload preserves project, sheets and source references\nPASS Reload starts clean history\nALL 21 CHECKS PASSED",
+  "status": "failed",
+  "checks": 0,
+  "message": "PASS 56 architectural parts reach actual Three.js scene\nPASS All plan/section views load resolved\nPASS All five views include owned architectural hatch and retained background\nPASS Extruded stair flights are present in the rendered model\nPASS Both Boolean/stair assembly elevations load resolved\nPASS Analytic hidden edges reach the canvas scene\nPASS Native opening edit commits one history entry\nPASS Affected plan retains proven edge correspondence\nPASS Unchanged upper-floor plan remains resolved\nPASS Reference-status changes reuse existing canvas geometry while stale outputs hide\nPASS Native Undo restores geometry and all drawing references\nPASS Native Redo restores edited opening\nPASS Saved custom-layer section Review allows Apply\nPASS Saved section Apply preserves custom layer and owning sheet placement\nPASS Saved section UI Apply is exactly reversible\nFAIL: Error: Five A2 pages at96dpi receive an explicit aggregate budget diagnostic\n    at check (http://127.0.0.1:5174/tests/courtyardH1.browser.tsx:61:20)\n    at button.onclick (http://127.0.0.1:5174/tests/courtyardH1.browser.tsx:149:5)",
   "artifacts": [
-    "axonometric.png",
-    "courtyard-commons.pdf"
+    "axonometric.png"
   ],
   "metrics": {
-    "initialSceneMs": 24552,
-    "nativeWidthEditMs": 54578,
+    "initialSceneMs": 71426,
+    "nativeWidthEditMs": 142304,
     "kernelEditTasks": [
       {
         "operation": "solid",
-        "ms": 1713
+        "ms": 1672
       },
       {
         "operation": "solid",
-        "ms": 1622
+        "ms": 1724
       },
       {
         "operation": "solid",
-        "ms": 1565
+        "ms": 1788
       },
       {
         "operation": "solid",
-        "ms": 1671
+        "ms": 2053
       },
       {
         "operation": "solid",
-        "ms": 1639
+        "ms": 3140
       },
       {
         "operation": "projection",
-        "ms": 2424
+        "ms": 2320
       },
       {
         "operation": "projection",
-        "ms": 3567
+        "ms": 1956
       },
       {
         "operation": "section",
-        "ms": 1623
+        "ms": 1787
       },
       {
         "operation": "projection",
-        "ms": 1916
+        "ms": 2736
       },
       {
         "operation": "section",
-        "ms": 1651
+        "ms": 1815
       },
       {
         "operation": "projection",
-        "ms": 4399
+        "ms": 2918
       },
       {
         "operation": "section",
-        "ms": 1654
+        "ms": 11197
       },
       {
         "operation": "projection",
-        "ms": 3138
+        "ms": 3911
       },
       {
         "operation": "inspect",
-        "ms": 1563
+        "ms": 56
       },
       {
         "operation": "inspect",
-        "ms": 1602
+        "ms": 256
       },
       {
         "operation": "inspect",
-        "ms": 1589
+        "ms": 3089
       },
       {
         "operation": "inspect",
-        "ms": 1636
+        "ms": 2123
       },
       {
         "operation": "inspect",
-        "ms": 1615
+        "ms": 1887
       },
       {
         "operation": "inspect",
-        "ms": 1677
+        "ms": 1666
+      },
+      {
+        "operation": "solid",
+        "ms": 44143
       },
       {
         "operation": "primitive",
-        "ms": 6620
+        "ms": 65721
+      },
+      {
+        "operation": "primitive",
+        "ms": 45833
       }
     ],
-    "commandEditMs": 39061.89999999851,
+    "commandEditMs": 49111.89999999991,
     "savedSectionReview": {
       "applyEnabled": true,
       "alert": ""
-    },
-    "pdfBudgetDiagnostic": "The PDF would contain 17,814,075 raster pixels; the export limit is 16,000,000. Lower dpi or export fewer/smaller boards.",
-    "pdfDpi": 72,
-    "pdfPages": 5,
-    "pdfBytes": 596201
+    }
   }
 }

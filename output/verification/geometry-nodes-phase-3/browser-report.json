@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "checks": 27,
+  "message": "PASS: Worker-backed graph preview does not publish document\nPASS: UI creates actual Mesh Primitive plus Subdivision geometry\nPASS: Inspector receives actual Worker evaluation metrics\nPASS: Native viewport hit selects the rendered procedural mesh\nPASS: Node parameter preview preserves source graph\nPASS: Parameter editing changes evaluated geometry\nPASS: Node Undo restores exact graph\nPASS: Node Redo restores graph and evaluation\nPASS: UI adds a typed inactive node\nPASS: Typed connection replacement executes Transform Geometry\nPASS: Unused draft input can be explicitly disconnected\nPASS: UI deletes a disconnected node\nPASS: Mismatched curve-to-mesh socket is rejected atomically\nPASS: UI generates a swept profile along a bent 3D polyline\nPASS: Curve profile parameter edit regenerates sweep topology\nPASS: Instance on Points realizes three actual meshes\nPASS: Resample change updates only its downstream repeated geometry\nPASS: UI binds a live external Mesh through Group Input\nPASS: UI can add another Group Input with an explicit source binding\nPASS: Real Worker cancellation prevents publication and preserves document\nPASS: Real Worker result is rejected by stale revision guard\nPASS: Persistent Worker reuses node cache after successful computation\nPASS: OpenCascade solid creation coexists with procedural output\nPASS: Graph source persists in explicit v57 file\nPASS: Browser reload restores authoritative graph and links\nPASS: Reload reproduces procedural output\nPASS: BRep remains in the same reloaded document\nALL 27 CHECKS PASSED",
+  "metrics": {
+    "warmWorkerRoundTripMs": 13.599999999860302,
+    "workerEvaluationMs": 12.5,
+    "estimatedValueBytes": 52442
+  }
+}

@@ -1,3 +1,4 @@
+import {evaluateDocumentGeometryGraph} from "@agent-webcad/cad-document";
 import type {SheetSetReport} from "./modelSheetSetService";
 import type {SheetLayoutReport} from "../precision/modelSheetLayout";
 import {getObjectTransform} from "../precision/objectTransform";
@@ -16,18 +17,18 @@ import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 
 export type PlanChange={objectId:string;kind:"created"|"modified"|"deleted";name:string;before?:GeometryMeasurement;after?:GeometryMeasurement;measurementError?:string};
 export type PlanImpact = { kind: string; before: number; after: number; modified: number; created?: number; deleted?: number };
-export type CadPlanPreview={frameStitch?:import("../precision/frameStitch").FrameStitchReport;frameSheets?:ReturnType<typeof import("../precision/frameSheetLayout").layoutFrameSheets>;frameLayout?:import("../precision/frameLinks").FrameLinkLayout;sheetSet?:SheetSetReport;sheetLayout?:SheetLayoutReport;planId:string;baseVersion:DocumentVersion;result:CommandResult;changes:PlanChange[];impact?:PlanImpact[];stale:boolean;variables:{before:Record<string,EvaluatedVariable>;after:Record<string,EvaluatedVariable>};variableChanges:{name:string;before?:CadVariable;after?:CadVariable}[];bindingChanges:{id:string;before?:CadParameterBinding;after?:CadParameterBinding}[]};
+export type CadPlanPreview={assemblyPlacement?:ReturnType<typeof import("./assemblyCommands").inspectAssemblyPlacement>;canvasScale?:Omit<import("../canvas/canvasScalePlan").CanvasScaleReport,"commands">;canvasFlex?:Omit<import("../canvas/canvasFlexPlan").CanvasFlexReport,"commands">;frameStitch?:import("../precision/frameStitch").FrameStitchReport;frameSheets?:ReturnType<typeof import("../precision/frameSheetLayout").layoutFrameSheets>;frameLayout?:import("../precision/frameLinks").FrameLinkLayout;sheetSet?:SheetSetReport;sheetLayout?:SheetLayoutReport;planId:string;baseVersion:DocumentVersion;result:CommandResult;changes:PlanChange[];impact?:PlanImpact[];stale:boolean;variables:{before:Record<string,EvaluatedVariable>;after:Record<string,EvaluatedVariable>};variableChanges:{name:string;before?:CadVariable;after?:CadVariable}[];bindingChanges:{id:string;before?:CadParameterBinding;after?:CadParameterBinding}[]};
 type FeatureIndex=Map<string,import("@agent-webcad/cad-document").CadFeature>;
 type DrawingPaths={before?:[number,number,number][];after?:[number,number,number][];beforeClosed:boolean;afterClosed:boolean};
-type StoredPlan={before:CadDocument;version:DocumentVersion;prepared:PreparedCadCommand;beforeFeatures:FeatureIndex;afterFeatures:FeatureIndex;paths:Map<string,DrawingPaths>;applied?:CommandResult};
+type StoredPlan={placementIntentAcknowledged?:boolean;before:CadDocument;version:DocumentVersion;prepared:PreparedCadCommand;beforeFeatures:FeatureIndex;afterFeatures:FeatureIndex;paths:Map<string,DrawingPaths>;applied?:CommandResult};
 const plans=new Map<string,StoredPlan>();
 
-export async function previewCadCommand(payload:unknown,options:{signal?:AbortSignal}={}):Promise<CadPlanPreview> {
+export async function previewCadCommand(payload:unknown,options:import("./cooperativeTask").CooperativeTask={}):Promise<CadPlanPreview> {
   if(!validateCommand(payload))throw new Error("Invalid CAD command payload.");
   options.signal?.throwIfAborted();
   const started=performance.now();
   const before=structuredClone(cadDocument),version=documentVersion();
-  const prepared=await prepareCadCommand(before,payload);
+  const prepared=await prepareCadCommand(before,payload,options);
   const preparedAt=performance.now();
   performance.measure("agent-webcad:preview-prepare",{start:started,end:preparedAt});
   options.signal?.throwIfAborted();
@@ -39,12 +40,12 @@ export async function previewCadCommand(payload:unknown,options:{signal?:AbortSi
     const compareStart=performance.now();
     const a=before.objects[id],b=prepared.proposed.objects[id];
     const af=beforeFeatures.get(id),bf=afterFeatures.get(id);
-    const same=JSON.stringify([a,af])===JSON.stringify([b,bf]);comparisonMs+=performance.now()-compareStart;
+    const same=JSON.stringify([a,af])===JSON.stringify([b,bf])&&(af?.type!=="geometry-nodes"||bf?.type!=="geometry-nodes"||JSON.stringify(evaluateDocumentGeometryGraph(before,af).output)===JSON.stringify(evaluateDocumentGeometryGraph(prepared.proposed,bf).output));comparisonMs+=performance.now()-compareStart;
     if(same)continue;
     const change:PlanChange={objectId:id,name:(b??a).name,kind:!a?"created":!b?"deleted":"modified"};
     if(af||bf)try{
-      if(af&&["brep","analytic-curve","planar-region"].includes(featureContract(af).representation))change.before=await measureDocumentObject(before,id,beforeFeatures);
-      if(bf&&["brep","analytic-curve","planar-region"].includes(featureContract(bf).representation))change.after=await measureDocumentObject(prepared.proposed,id,afterFeatures);
+      if(af&&["brep","analytic-curve","planar-region","polygon-mesh"].includes(featureContract(af).representation))change.before=await measureDocumentObject(before,id,beforeFeatures);
+      if(bf&&["brep","analytic-curve","planar-region","polygon-mesh"].includes(featureContract(bf).representation))change.after=await measureDocumentObject(prepared.proposed,id,afterFeatures);
     }catch(e){change.measurementError=e instanceof Error?e.message:String(e);}
     changes.push(change);
   }
@@ -55,6 +56,10 @@ export async function previewCadCommand(payload:unknown,options:{signal?:AbortSi
   if(plans.size>=16)plans.delete(plans.keys().next().value!);
   plans.set(planId,{before,version,prepared,beforeFeatures,afterFeatures,paths:new Map()});
   const {raw:_,...result}=prepared.result;
+  const scaleRaw=_ as {canvasScale?:CadPlanPreview["canvasScale"];results?:{canvasScale?:CadPlanPreview["canvasScale"]}[]}|undefined;
+  const canvasScale=scaleRaw?.canvasScale??scaleRaw?.results?.slice().reverse().find(r=>r?.canvasScale)?.canvasScale;
+  const flexRaw=_ as {canvasFlex?:CadPlanPreview["canvasFlex"];results?:{canvasFlex?:CadPlanPreview["canvasFlex"]}[]}|undefined;
+  const canvasFlex=flexRaw?.canvasFlex??flexRaw?.results?.slice().reverse().find(r=>r?.canvasFlex)?.canvasFlex;
   const frameStitch=(_ as {frameStitch?:CadPlanPreview["frameStitch"]}|undefined)?.frameStitch;
   const frameSheets=(_ as {frameSheets?:CadPlanPreview["frameSheets"]}|undefined)?.frameSheets;
   const frameLayout=(_ as {frameLayout?:import("../precision/frameLinks").FrameLinkLayout}|undefined)?.frameLayout;
@@ -80,6 +85,9 @@ export async function previewCadCommand(payload:unknown,options:{signal?:AbortSi
     impact.push({ kind: `Constraints · ${id}`, before: old?.constraints.length ?? 0, after: sketch.constraints.length, modified: sketch.constraints.filter(c => JSON.stringify(old?.constraints.find(p => p.id === c.id)) !== JSON.stringify(c)).length });
     impact.push({ kind: `Driving dimensions · ${id}`, before: old?.dimensions.length ?? 0, after: sketch.dimensions.length, modified: 0 });
   }
+  const oldCanvases=before.canvases??{},newCanvases=prepared.proposed.canvases??{};
+  const canvasChanges=[...new Set([...Object.keys(oldCanvases),...Object.keys(newCanvases)])].filter(id=>JSON.stringify(oldCanvases[id])!==JSON.stringify(newCanvases[id]));
+  if(canvasChanges.length)impact.push({kind:"Canvases",before:Object.keys(oldCanvases).length,after:Object.keys(newCanvases).length,created:canvasChanges.filter(id=>!oldCanvases[id]).length,deleted:canvasChanges.filter(id=>!newCanvases[id]).length,modified:canvasChanges.filter(id=>oldCanvases[id]&&newCanvases[id]).length});
   const oldSections=before.workspaceSections??{},newSections=prepared.proposed.workspaceSections??{};
   const sectionChanges=[...new Set([...Object.keys(oldSections),...Object.keys(newSections)])].filter(id=>JSON.stringify(oldSections[id])!==JSON.stringify(newSections[id]));
   if(sectionChanges.length)impact.push({kind:"Workspace sections",before:Object.keys(oldSections).length,after:Object.keys(newSections).length,created:sectionChanges.filter(id=>!oldSections[id]).length,deleted:sectionChanges.filter(id=>!newSections[id]).length,modified:sectionChanges.filter(id=>oldSections[id]&&newSections[id]).length});
@@ -110,6 +118,8 @@ export async function previewCadCommand(payload:unknown,options:{signal?:AbortSi
   const viewIds = new Set([...Object.keys(before.modelViews ?? {}), ...Object.keys(prepared.proposed.modelViews ?? {})]);
   const viewChanges = [...viewIds].filter(id => JSON.stringify(before.modelViews?.[id]) !== JSON.stringify(prepared.proposed.modelViews?.[id]));
   if (viewChanges.length) impact.push({ kind: "Model views", before: Object.keys(before.modelViews ?? {}).length, after: Object.keys(prepared.proposed.modelViews ?? {}).length, modified: viewChanges.filter(id => before.modelViews?.[id] && prepared.proposed.modelViews?.[id]).length, created: viewChanges.filter(id => !before.modelViews?.[id]).length, deleted: viewChanges.filter(id => !prepared.proposed.modelViews?.[id]).length });
+  if(JSON.stringify(before.assembly)!==JSON.stringify(prepared.proposed.assembly))impact.push({kind:"Assembly joints/grounding",modified:1,before:Object.keys(before.assembly?.joints??{}).length,after:Object.keys(prepared.proposed.assembly?.joints??{}).length});
+  if(JSON.stringify(before.interferenceIntents)!==JSON.stringify(prepared.proposed.interferenceIntents))impact.push({kind:"Pair design intent (metadata only)",before:Object.keys(before.interferenceIntents??{}).length,after:Object.keys(prepared.proposed.interferenceIntents??{}).length,modified:1});
   const planeIds = new Set([...Object.keys(before.workPlanes ?? {}), ...Object.keys(prepared.proposed.workPlanes ?? {})]);
   const planeChanges = [...planeIds].filter(id => JSON.stringify(before.workPlanes?.[id]) !== JSON.stringify(prepared.proposed.workPlanes?.[id]));
   if(planeChanges.length)impact.push({kind:"Work planes",before:Object.keys(before.workPlanes??{}).length,after:Object.keys(prepared.proposed.workPlanes??{}).length,modified:planeChanges.filter(id=>before.workPlanes?.[id]&&prepared.proposed.workPlanes?.[id]).length,created:planeChanges.filter(id=>!before.workPlanes?.[id]).length,deleted:planeChanges.filter(id=>!prepared.proposed.workPlanes?.[id]).length});
@@ -119,10 +129,21 @@ export async function previewCadCommand(payload:unknown,options:{signal?:AbortSi
   const deletedBlocks = [...blockIds].filter(id => beforeBlocks[id] && !afterBlocks[id]).length;
   const modifiedBlocks = [...blockIds].filter(id => beforeBlocks[id] && afterBlocks[id] && JSON.stringify(beforeBlocks[id]) !== JSON.stringify(afterBlocks[id])).length;
   if (createdBlocks || modifiedBlocks || deletedBlocks) impact.push({ kind: "Components", before: Object.keys(beforeBlocks).length, after: Object.keys(afterBlocks).length, created: createdBlocks, modified: modifiedBlocks, deleted: deletedBlocks });
-  return structuredClone({frameStitch,frameSheets,frameLayout,sheetSet,sheetLayout,planId,baseVersion:version,result,changes,impact,variableChanges,bindingChanges,variables:{before:evaluateVariables(before.variables),after:evaluateVariables(prepared.proposed.variables)},stale:!sameDocumentVersion(version)||JSON.stringify(before)!==JSON.stringify(cadDocument)});
+  return structuredClone({assemblyPlacement:(_ as any)?.assemblyPlacement,canvasScale,canvasFlex,frameStitch,frameSheets,frameLayout,sheetSet,sheetLayout,planId,baseVersion:version,result,changes,impact,variableChanges,bindingChanges,variables:{before:evaluateVariables(before.variables),after:evaluateVariables(prepared.proposed.variables)},stale:!sameDocumentVersion(version)||JSON.stringify(before)!==JSON.stringify(cadDocument)});
 }
 
 export function discardCadPlan(planId:string){plans.delete(planId);}
+/** Visible changed solids from the evaluated proposal. Never exposes mutable plan state. */
+export function getCadPlanSolidGhosts(planId: string) {
+  const stored = plans.get(planId);
+  if (!stored?.prepared.result.ok) return [];
+  const document = stored.prepared.proposed;
+  return [...stored.afterFeatures.values()].filter(feature => {
+    const object = document.objects[feature.output];
+    return object?.visible && document.layers[object.layerId]?.visible && featureContract(feature).representation === "brep" &&
+      JSON.stringify([feature, object]) !== JSON.stringify([stored.beforeFeatures.get(feature.output), stored.before.objects[feature.output]]);
+  }).map(feature => ({ kind: "solid" as const, key: `plan-solid-${feature.output}`, featureType: feature.type, params: structuredClone(feature.params), transform: structuredClone(getObjectTransform(document.objects[feature.output], feature)) }));
+}
 /** Detached architectural solids from the actual evaluated proposal, for viewport ghosts. */
 export function getCadPlanWallGhosts(planId:string){const stored=plans.get(planId);if(!stored?.prepared.result.ok)return [];return [...stored.afterFeatures.values()].filter(f=>(f.params.architecturalWall||f.params.architecturalSlab||f.params.componentContent&&featureContract(f).representation==="brep")&&JSON.stringify([f,stored.prepared.proposed.objects[f.output]])!==JSON.stringify([stored.beforeFeatures.get(f.output),stored.before.objects[f.output]])).map(f=>({kind:"solid" as const,featureType:f.type,key:`wall-review-${f.output}`,params:structuredClone(f.params),transform:getObjectTransform(stored.prepared.proposed.objects[f.output],f)}));}
 
@@ -164,6 +185,8 @@ export async function applyCadPlan(planId:string,options:{signal?:AbortSignal;va
     const {prepared,before,version}=stored;
     if(!sameDocumentVersion(version)||JSON.stringify(before)!==JSON.stringify(cadDocument))return failedResult(prepared.command,"The document changed; preview the edit again.");
     if(!prepared.result.ok)return structuredClone(prepared.result);
+    const placement=(prepared.result.raw as any)?.assemblyPlacement;
+    if(placement?.requiresIntentReview&&!stored.placementIntentAcknowledged)return failedResult(prepared.command,'Review changed world anchors and explicitly reconfirm the existing design intent before Apply.');
     // Recheck the owner's authoritative review after queueing. No await may
     // separate this check from publication; Cancel can abort until this point.
     const reason=options.validate?.();
@@ -208,3 +231,6 @@ export function getCadPlanFrameDocument(planId:string):CadDocument|undefined {co
 
 
 
+
+/** User review state belongs to this exact native preview, never document/AI arguments. */
+export function acknowledgeAssemblyPlacementIntent(planId:string,confirmed:boolean){const stored=plans.get(planId);if(!stored||!sameDocumentVersion(stored.version))throw Error('Preview changed; review again.');stored.placementIntentAcknowledged=confirmed;}

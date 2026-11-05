@@ -1,0 +1,41 @@
+{
+  "task": "MEAS-H1 BRep follow-up",
+  "date": "2026-10-18",
+  "scope": "Closed-solid BRep boundary distance, real support witnesses and material/relationship classification",
+  "checks": {
+    "fullNode": {"passed": 1437, "suites": 54, "note": "Before final tolerance cache/guard regressions; covered by final focused checks."},
+    "finalFocusedNode": {"passed": 46, "brepDistance": 13, "finiteHover": 18, "workerClient": 15},
+    "nativeBrowser": {"brepDistance": 16, "finiteHover": 19},
+    "build": "passed",
+    "architecture": {"passed": true, "modules": 679}
+  },
+  "artifacts": [
+    "output/verification/brep-distance/native-report.json",
+    "output/verification/brep-distance/node-regression.log",
+    "output/verification/brep-distance/final-focused-node.log",
+    "output/verification/brep-distance/brep-1440.png",
+    "output/verification/brep-distance/brep-960.png",
+    "output/verification/brep-distance/contained.png",
+    "output/verification/brep-distance/distance.json",
+    "output/verification/brep-distance/source.webcad.json"
+  ],
+  "invariants": [
+    "Distances use original transformed BRep boundaries; no render mesh or AABB approximation.",
+    "Boundary witness separation is distinct from material separation and overlap/containment.",
+    "Numerical kernel tolerance and volume classification tolerance are explicit, not certified intervals.",
+    "Queries preserve source data, selection and history; edited/Undo/tolerance changes invalidate cached results.",
+    "Actual active Worker cancellation is recoverable on a fresh Worker.",
+    "Repeated queries reuse retained sources and do not grow render mesh cache."
+  ],
+  "limits": [
+    "Whole closed positive-volume solids; not directly selected subfaces/edges, meshes or open shells.",
+    "3D boundary minimum only; no projected/axis solid metrics or mixed drawing/solid pairs.",
+    "Layer nearest uses boundary distance; up to 8 eligible targets.",
+    "32 solids / 4096 faces per object; 16 compound nesting levels.",
+    "Contained positive boundary gap is not free clearance; no signed penetration depth.",
+    "Containment/coincidence are volume-tolerance classifications; ambiguous/failed classifications stay indeterminate.",
+    "Exploded displays and model clipping must be disabled before measurement.",
+    "Support signatures are read-only revision-scoped identities, not editable persistent topology references.",
+    "No document schema change or PDF reissue."
+  ]
+}

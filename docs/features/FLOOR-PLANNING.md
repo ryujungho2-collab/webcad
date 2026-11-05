@@ -1,5 +1,7 @@
 # 평면도와 건축 콘텐츠
 
+기존 벽·호스트 개구부·슬래브·연관 절단을 내부 코파일럿에서도 사용할 수 있다. [Native architecture 명령과 Wall path clearance](COPILOT.md#native-벽문창바닥연관-도면), [실제 기능 연습 원본](../../output/projects/native-architecture-lesson/README.md)을 참고한다. 직선 중심선 벽의 명시적 생성/수정 범위이며 공간 자동 설계가 아니다.
+
 [기능 가이드](README.md) · [후속 설계](../product/FLOOR-PLAN-COPILOT-CANVAS-2026-10-14.md)
 
 DXF 준비→면→벽/개구부→콘텐츠·바닥/천장을 같은 프로젝트에서 연결한다. **File → Floor plan tasks…**, **Copilot → Clean / Make face…**, Ctrl+K의 평면도 작업 검색은 같은 로컬 작업 패널을 연다. 임의 자연어 자동 설계를 의미하지 않는다.
@@ -19,6 +21,8 @@ DXF 준비→면→벽/개구부→콘텐츠·바닥/천장을 같은 프로젝�
 **Walls & openings**에서 직선 XY 중심선(한 batch 최대 32개) 또는 준비된 footprint/face를 선택하고 높이·두께·기준 레벨을 입력한다. Review는 실제 solid ghost·체적·영향 도면을 표시한다. **Use last applied wall height**는 같은 문서/세션의 마지막 확정 높이를 사용한다.
 
 벽을 선택하고 문/창, 좌우 측면, 원본 시작점에서 **개구부 중앙까지 거리**, 폭·높이·창턱을 지정한다. 문 창턱은 0이며 창 상단은 창턱+높이다. 개구부는 현재 두께를 관통하고 호스트 이동/치수 수정을 추종한다. 삭제하면 벽 재료가 복원된다. 한 host 최대 100개이며 벽 밖·겹침/접촉·상단 초과는 거부한다.
+
+**벽체 이동**에서 월드 X/Y/Z 또는 벽 길이·직각 방향을 고르고 거리(mm/cm/m)를 입력한다. **Review wall move → Apply wall review**로 실제 형상과 연관 도면을 검토한다. 거리는 현재 배치에 더하며 음수는 반대 방향이다. 직각 양수는 원본 시작→끝 기준 왼쪽이고, 호스트 회전도 반영한다. 문·창문과 벽은 함께 이동하며 한 Undo로 복구된다. 원본 참조 중심선/윤곽과 인접 벽은 이동시키지 않는다. 따라서 이동 후 접합부는 별도로 확인한다. 복잡한 footprint에서 길이 방향이 유일하지 않으면 월드 축을 사용한다. 내부 코파일럿에서도 `선택한 벽 Y 300mm 이동`, `선택한 벽 직각 방향 -30cm 이동`을 같은 계획으로 처리한다. [구현·검증](../implementation/WALL-MOVE-01-2026-10-24.md).
 
 벽은 독립 butt end 또는 준비된 footprint를 사용한다. 자동 코너 융합·곡선 host 개구부·커서 면 pick은 후속이다. 개구부는 직선 중심선 벽/단일 직사각형 띠 footprint의 직사각형 관통 범위다. 복잡한 footprint 벽을 만들 수 있다는 것이 그 벽의 개구부 지원을 뜻하지 않는다.
 
@@ -43,6 +47,6 @@ DXF 준비→면→벽/개구부→콘텐츠·바닥/천장을 같은 프로젝�
 
 ## 구현·검증 근거
 
-[도면 준비](../implementation/WF-A1-FLOOR-PLAN-PREPARATION-2026-10-14.md) → [정리·진단·면](../implementation/WF-C0-A2-B1-2026-10-16.md) → [벽·개구부](../implementation/WF-B2-B3-2026-10-16.md) → [콘텐츠·마감](../implementation/CMP-S1-WF-D1-2026-10-16.md), [최신 대상 검증](../verification/CMP-S1-WF-D1-2026-10-16.json).
+[도면 준비](../implementation/WF-A1-FLOOR-PLAN-PREPARATION-2026-10-14.md) → [정리·진단·면](../implementation/WF-C0-A2-B1-2026-10-16.md) → [벽·개구부](../implementation/WF-B2-B3-2026-10-16.md) → [콘텐츠·마감](../implementation/CMP-S1-WF-D1-2026-10-16.md) → [전체 발행 검증](../implementation/WF-Q1-RESIDENTIAL-2026-10-17.md), [최신 대상 검증](../verification/WF-Q1-2026-10-17.json).
 
-각 기능의 첫 지원 범위는 구현됐지만 **전체 주거 과제 발행 검증(WF-Q1)은 미완료**다. 다음 완료 조건은 [실행 큐](../../NEXT-STEPS.md#wf-q1-완료-조건)를 따른다. 네이티브 DWG/SKP 지원은 [교환 경계](DRAWINGS-OUTPUT.md#형식별-지원과-손실)를 따른다.
+각 기능의 첫 지원 범위는 구현됐고 **소형 주거 과제 발행 검증(WF-Q1)도 2026-10-17 첫 지원 범위로 완료**했다. [기록](../../NEXT-STEPS.md#wf-q1-완료-조건)·[지원 한계](../implementation/WF-Q1-RESIDENTIAL-2026-10-17.md)를 따르며, 네이티브 DWG/SKP 지원은 [교환 경계](DRAWINGS-OUTPUT.md#형식별-지원과-손실)를 따른다.

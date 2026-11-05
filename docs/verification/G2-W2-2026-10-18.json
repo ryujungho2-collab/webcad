@@ -1,0 +1,103 @@
+{
+  "card": "G2-W2",
+  "date": "2026-10-18",
+  "status": "complete-first-supported-scope",
+  "implementation": "../implementation/G2-W2-REUSABLE-LIBRARY-2026-10-18.md",
+  "environment": {
+    "platform": "Windows",
+    "browser": "Microsoft Edge / isolated Chromium",
+    "renderer": "SwiftShader",
+    "server": "Vite local HTTP",
+    "widths": [
+      1440,
+      960
+    ],
+    "newDependencies": 0
+  },
+  "checks": {
+    "allNode": {
+      "passed": 1355,
+      "failed": 0,
+      "suites": 54,
+      "durationMs": 59224.7128,
+      "command": "pnpm --filter @agent-webcad/web test",
+      "log": "../../output/verification/library/all-node.log"
+    },
+    "focused": {
+      "passed": 6,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/library.test.ts",
+      "log": "../../output/verification/library/focused.log"
+    },
+    "nativeUI": {
+      "passed": 17,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web test:browser --page=library",
+      "report": "../../output/verification/library/native-report.json",
+      "log": "../../output/verification/library/native.log"
+    },
+    "nativeRegressions": {
+      "passed": 51,
+      "failed": 0,
+      "pages": [
+        {
+          "page": "componentsWorkflow",
+          "passed": 13,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=componentsWorkflow",
+          "log": "../../output/verification/library/componentsWorkflow-regression.log"
+        },
+        {
+          "page": "projectTree",
+          "passed": 17,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectTree",
+          "log": "../../output/verification/library/projectTree-regression.log"
+        },
+        {
+          "page": "keyboardActivation",
+          "passed": 21,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=keyboardActivation",
+          "log": "../../output/verification/library/keyboardActivation-regression.log"
+        }
+      ]
+    },
+    "build": {
+      "passed": true,
+      "includesTypeScript": true,
+      "command": "pnpm build",
+      "log": "../../output/verification/library/build.log",
+      "warnings": [
+        "Existing bundle chunks above 500kB"
+      ]
+    },
+    "architecture": {
+      "passed": true,
+      "command": "pnpm --filter @agent-webcad/web check:architecture",
+      "log": "../../output/verification/library/architecture.log"
+    }
+  },
+  "artifacts": [
+    "../../output/verification/library/library-1440.png",
+    "../../output/verification/library/library-960.png"
+  ],
+  "provenance": {
+    "builtins": "Self-authored Agent WebCAD original samples; no third party source/assets/dependencies added",
+    "fileImports": "File name retained in definition name; no assumed license grant"
+  },
+  "scope": {
+    "builtins": {
+      "blocks": 4,
+      "linePresets": 2,
+      "hatchPresets": 1
+    },
+    "units": "WebCAD coordinates in mm, unit-aware insertion point",
+    "remapping": "Fresh block/member IDs, nested references, transform/vector overrides; layers map to active layer",
+    "transaction": "Detached review; batch import and insertion use one Undo; stale/locked failures atomic"
+  },
+  "limitations": [
+    "First scope is 2D block/drafting/style library, not a new 3D slot-content library",
+    "External raster/source geometry dependencies are rejected explicitly, not silently omitted; no raster asset remap claim",
+    "20 MiB files, at most 500 copied members / 100 definitions",
+    "Category/search/file selection are panel state; inserted definitions persist in portable documents",
+    "Original layer style cloning, custom font/LTYPE catalog and cloud personal storage are follow-up"
+  ]
+}

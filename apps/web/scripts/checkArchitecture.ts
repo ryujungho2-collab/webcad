@@ -93,7 +93,8 @@ export function inspectSourceTree(webRoot: string) {
     const name = slash(relative(webRoot, file)), source = ts.createSourceFile(file, readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true);
     const dependencies = imports(source).map(dependency => {
       if (!dependency.module.startsWith(".")) return dependency;
-      const base = resolve(dirname(file), dependency.module), extension = extname(base);
+      // Vite raw/url imports still refer to a real file; check that file's existence.
+      const base = resolve(dirname(file), dependency.module.replace(/\?(?:raw|url)$/,"")), extension = extname(base);
       const target = [base, `${base}.ts`, `${base}.tsx`, join(base, "index.ts"), join(base, "index.tsx"),
         ...(extension === ".js" ? [base.slice(0, -3) + ".ts", base.slice(0, -3) + ".tsx"] : [])].find(path => existsSync(path) && extname(path));
       if (!target) issues.push({ code: "missing-import", file: name, detail: dependency.module });

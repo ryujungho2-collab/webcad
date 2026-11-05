@@ -1,6 +1,8 @@
 import { CadEngine } from "../runtime/CadEngine";
+import {splineEdges,type KernelSpline} from "./spline";
 
 export type ExtrudeProfileSegment =
+  | (KernelSpline & {topologyReference:string})
   | {
       kind: "line";
       topologyReference: string;
@@ -43,6 +45,7 @@ function validateProfile(profile: ExtrudeProfile, distance: number) {
   }
   if (!profile.segments.length || profile.segments.some((segment) => {
     if (!segment.topologyReference) return true;
+    if (segment.kind === "spline") return false; // splineEdges validates the exact basis before allocation.
     if (segment.kind === "line") return !finitePoint(segment.start) || !finitePoint(segment.end);
     if (segment.kind === "arc") return !finitePoint(segment.start) || !finitePoint(segment.mid) || !finitePoint(segment.end);
     return !finitePoint(segment.center) || !finitePoint(segment.normal) || !finitePoint(segment.xAxis) || !Number.isFinite(segment.radius) || segment.radius <= 1e-9;
@@ -67,7 +70,9 @@ export function buildProfileWire(
   temporaries.push(wireMaker);
   for (const segment of profile.segments) {
     let edgeMaker: any;
-    if (segment.kind === "line") {
+    if(segment.kind === "spline") {
+      for(const maker of splineEdges(oc,segment,temporaries)){if(!maker.IsDone())throw Error("OpenCascade rejected an exact spline span.");const edge=maker.Edge();temporaries.push(edge);wireMaker.Add_1(edge);}continue;
+    } else if (segment.kind === "line") {
       const start = new oc.gp_Pnt_3(...segment.start);
       const end = new oc.gp_Pnt_3(...segment.end);
       temporaries.push(start, end);
@@ -92,7 +97,7 @@ export function buildProfileWire(
     }
     temporaries.push(edgeMaker);
     if (!edgeMaker.IsDone()) throw new Error(`OpenCascade rejected profile edge ${segment.topologyReference}.`);
-    wireMaker.Add_1(edgeMaker.Edge());
+    const edge=edgeMaker.Edge();temporaries.push(edge);wireMaker.Add_1(edge);
   }
   if (!wireMaker.IsDone()) throw new Error("OpenCascade could not form a closed profile wire.");
   return wireMaker;

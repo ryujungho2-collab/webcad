@@ -1,0 +1,46 @@
+# CI 초안 (T-021). 로컬 `pnpm qa` / `pnpm audit` 와 같은 게이트를 실행한다.
+# 브라우저 점검(test:browser)은 로컬 Chrome/CDP 환경이 필요해 이 초안에 포함하지 않는다.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qa:
+    name: QA (test + check:architecture + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm 버전은 루트 package.json 의 packageManager 필드를 따른다.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm qa
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    # 초안 단계: 취약점 보고는 하되 병합을 막지는 않는다. 정책 확정 후 제거.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit

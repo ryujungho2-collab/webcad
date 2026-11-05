@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { cadDocument } from "../state/cadDocument";
-import { isCadKeyboardBlocked } from "../input/shortcutRouter";
+import { isCompositionKey, isCadKeyboardBlocked } from "../input/shortcutRouter";
 import { parseAngle, parseLength } from "../precision/units";
 import { applyPolarLocks, emptyPolarLocks, resolvePointInput } from "../precision/pointInput";
 import { querySnap, type SnapEntity, type SnapResult } from "../precision/snapEngine";
@@ -156,7 +156,7 @@ export function PointTransformTool(props: Props) {
       }
     };
     const key = (event: KeyboardEvent) => {
-      if (isCadKeyboardBlocked(event.target, event.key) || event.ctrlKey || event.metaKey || pending) return;
+      if (isCompositionKey(event) || isCadKeyboardBlocked(event.target, event.key) || event.ctrlKey || event.metaKey || pending) return;
       if (event.key === "Alt") { event.preventDefault(); suppressed = true; refresh(); return; }
       if (event.altKey) return;
       if (event.key === "Escape") {

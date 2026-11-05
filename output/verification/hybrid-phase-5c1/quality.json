@@ -1,0 +1,712 @@
+{
+  "date": "2026-10-29",
+  "options": {
+    "absoluteTolerance": 0.00001,
+    "relativeTolerance": 1e-8,
+    "angleDegrees": 1
+  },
+  "correctedClassificationOnly": {
+    "status": "valid-solid"
+  },
+  "cases": [
+    {
+      "name": "triangle cube 10 mm",
+      "status": "passed",
+      "elapsedMs": 2225.3883,
+      "healing": {
+        "status": "validated",
+        "applied": false,
+        "correctedVertices": 0,
+        "correctedEdges": 0,
+        "maxVertexMovement": 0,
+        "maxInputMovement": 0,
+        "maxPlaneResidual": 0,
+        "maxBoundaryGapBefore": 0,
+        "toleranceUtilization": 0,
+        "minFeatureClearance": 10,
+        "retainedHoleCount": 0,
+        "reason": "Shared boundaries already consistent; no measurable vertex correction required."
+      },
+      "report": {
+        "version": 1,
+        "method": "merged-planar-regions",
+        "classification": "merged-planar",
+        "mergedTriangles": 6,
+        "healing": {
+          "status": "validated",
+          "applied": false,
+          "correctedVertices": 0,
+          "correctedEdges": 0,
+          "maxVertexMovement": 0,
+          "maxInputMovement": 0,
+          "maxPlaneResidual": 0,
+          "maxBoundaryGapBefore": 0,
+          "toleranceUtilization": 0,
+          "minFeatureClearance": 10,
+          "retainedHoleCount": 0,
+          "reason": "Shared boundaries already consistent; no measurable vertex correction required."
+        },
+        "sourceObjectId": "source",
+        "sourceGeometryId": "geometry-source",
+        "sourceDocumentId": "test-document",
+        "sourceRevision": 1,
+        "sourceFingerprint": "a2b4b7326e768baa",
+        "options": {
+          "absoluteTolerance": 0.00001,
+          "relativeTolerance": 1e-8,
+          "angleDegrees": 1
+        },
+        "effectiveTolerance": 0.00001,
+        "sewingTolerance": 0.00002,
+        "sampledAcceptance": 0.000040100000000000006,
+        "sourceTriangles": 12,
+        "sourceFaces": 12,
+        "brepFaces": 6,
+        "components": 1,
+        "shellClosed": true,
+        "manifold": true,
+        "winding": "outward",
+        "kernelValidity": "valid",
+        "kernelSelfInterference": "valid",
+        "sourceArea": 600,
+        "resultArea": 600,
+        "absoluteAreaDifference": 0,
+        "relativeAreaDifference": 0,
+        "sourceVolume": 999.9999999999999,
+        "resultVolume": 1000.0000000000003,
+        "absoluteVolumeDifference": 4.547473508864641e-13,
+        "relativeVolumeDifference": 4.547473508864641e-16,
+        "sampledMaxDistance": 1.88411095042053e-15,
+        "sampledRmsDistance": 3.597533769998862e-16,
+        "sourceToBrep": {
+          "max": 1.88411095042053e-15,
+          "rms": 4.111467165712985e-16,
+          "samples": 56
+        },
+        "brepToSource": {
+          "max": 1.2560739669470201e-15,
+          "rms": 3.1401849173675503e-16,
+          "samples": 72
+        },
+        "faceMap": {
+          "region-0": {
+            "brepFaceKey": "face:4:2:5.000000,5.000000,0.000000|0.000000,0.000000,-1.000000|100.000000",
+            "sourceFaceIds": [
+              "f0",
+              "f1"
+            ]
+          },
+          "region-1": {
+            "brepFaceKey": "face:4:2:0.000000,5.000000,5.000000|-1.000000,0.000000,0.000000|100.000000",
+            "sourceFaceIds": [
+              "f10",
+              "f11"
+            ]
+          },
+          "region-2": {
+            "brepFaceKey": "face:4:2:5.000000,5.000000,10.000000|0.000000,0.000000,1.000000|100.000000",
+            "sourceFaceIds": [
+              "f2",
+              "f3"
+            ]
+          },
+          "region-3": {
+            "brepFaceKey": "face:4:2:5.000000,0.000000,5.000000|0.000000,-1.000000,0.000000|100.000000",
+            "sourceFaceIds": [
+              "f4",
+              "f5"
+            ]
+          },
+          "region-4": {
+            "brepFaceKey": "face:4:2:10.000000,5.000000,5.000000|1.000000,0.000000,0.000000|100.000000",
+            "sourceFaceIds": [
+              "f6",
+              "f7"
+            ]
+          },
+          "region-5": {
+            "brepFaceKey": "face:4:2:5.000000,10.000000,5.000000|0.000000,1.000000,0.000000|100.000000",
+            "sourceFaceIds": [
+              "f8",
+              "f9"
+            ]
+          }
+        },
+        "definitionFingerprint": "ddee51bf14b0a973",
+        "distancePolicy": "Bidirectional samples of vertices, triangle centroids and edge midpoints (≤512 per direction) to planar BRep tessellation. Approximate, not certified Hausdorff.",
+        "losses": [
+          "original per-triangle topology",
+          "editable mesh modifiers/history",
+          "unrecovered design intent and constraints"
+        ]
+      }
+    },
+    {
+      "name": "rectangular prism 4 × 6 × 5 mm",
+      "status": "passed",
+      "elapsedMs": 51.009599999999864,
+      "healing": {
+        "status": "validated",
+        "applied": false,
+        "correctedVertices": 0,
+        "correctedEdges": 0,
+        "maxVertexMovement": 0,
+        "maxInputMovement": 0,
+        "maxPlaneResidual": 0,
+        "maxBoundaryGapBefore": 0,
+        "toleranceUtilization": 0,
+        "minFeatureClearance": 4,
+        "retainedHoleCount": 0,
+        "reason": "Shared boundaries already consistent; no measurable vertex correction required."
+      },
+      "report": {
+        "version": 1,
+        "method": "merged-planar-regions",
+        "classification": "merged-planar",
+        "mergedTriangles": 6,
+        "healing": {
+          "status": "validated",
+          "applied": false,
+          "correctedVertices": 0,
+          "correctedEdges": 0,
+          "maxVertexMovement": 0,
+          "maxInputMovement": 0,
+          "maxPlaneResidual": 0,
+          "maxBoundaryGapBefore": 0,
+          "toleranceUtilization": 0,
+          "minFeatureClearance": 4,
+          "retainedHoleCount": 0,
+          "reason": "Shared boundaries already consistent; no measurable vertex correction required."
+        },
+        "sourceObjectId": "source",
+        "sourceGeometryId": "geometry-source",
+        "sourceDocumentId": "test-document",
+        "sourceRevision": 1,
+        "sourceFingerprint": "0ea593b2d16fab4a",
+        "options": {
+          "absoluteTolerance": 0.00001,
+          "relativeTolerance": 1e-8,
+          "angleDegrees": 1
+        },
+        "effectiveTolerance": 0.00001,
+        "sewingTolerance": 0.00002,
+        "sampledAcceptance": 0.000040100000000000006,
+        "sourceTriangles": 12,
+        "sourceFaces": 12,
+        "brepFaces": 6,
+        "components": 1,
+        "shellClosed": true,
+        "manifold": true,
+        "winding": "outward",
+        "kernelValidity": "valid",
+        "kernelSelfInterference": "valid",
+        "sourceArea": 148,
+        "resultArea": 148,
+        "absoluteAreaDifference": 0,
+        "relativeAreaDifference": 0,
+        "sourceVolume": 120,
+        "resultVolume": 120.00000000000003,
+        "absoluteVolumeDifference": 2.842170943040401e-14,
+        "relativeVolumeDifference": 2.3684757858670006e-16,
+        "sampledMaxDistance": 6.280369834735101e-16,
+        "sampledRmsDistance": 1.2719202621569003e-16,
+        "sourceToBrep": {
+          "max": 4.965068306494546e-16,
+          "rms": 1.1102230246251565e-16,
+          "samples": 56
+        },
+        "brepToSource": {
+          "max": 6.280369834735101e-16,
+          "rms": 1.384691393685075e-16,
+          "samples": 72
+        },
+        "faceMap": {
+          "region-0": {
+            "brepFaceKey": "face:4:2:0.000000,3.000000,2.500000|-1.000000,0.000000,0.000000|30.000000",
+            "sourceFaceIds": [
+              "f10",
+              "f11"
+            ]
+          },
+          "region-2": {
+            "brepFaceKey": "face:4:2:2.000000,3.000000,0.000000|0.000000,0.000000,-1.000000|24.000000",
+            "sourceFaceIds": [
+              "f0",
+              "f1"
+            ]
+          },
+          "region-1": {
+            "brepFaceKey": "face:4:2:4.000000,3.000000,2.500000|1.000000,0.000000,0.000000|30.000000",
+            "sourceFaceIds": [
+              "f6",
+              "f7"
+            ]
+          },
+          "region-3": {
+            "brepFaceKey": "face:4:2:2.000000,3.000000,5.000000|0.000000,0.000000,1.000000|24.000000",
+            "sourceFaceIds": [
+              "f2",
+              "f3"
+            ]
+          },
+          "region-4": {
+            "brepFaceKey": "face:4:2:2.000000,0.000000,2.500000|0.000000,-1.000000,0.000000|20.000000",
+            "sourceFaceIds": [
+              "f4",
+              "f5"
+            ]
+          },
+          "region-5": {
+            "brepFaceKey": "face:4:2:2.000000,6.000000,2.500000|0.000000,1.000000,0.000000|20.000000",
+            "sourceFaceIds": [
+              "f8",
+              "f9"
+            ]
+          }
+        },
+        "definitionFingerprint": "06b47ac41c080908",
+        "distancePolicy": "Bidirectional samples of vertices, triangle centroids and edge midpoints (≤512 per direction) to planar BRep tessellation. Approximate, not certified Hausdorff.",
+        "losses": [
+          "original per-triangle topology",
+          "editable mesh modifiers/history",
+          "unrecovered design intent and constraints"
+        ]
+      }
+    },
+    {
+      "name": "sheared planar polyhedron",
+      "status": "passed",
+      "elapsedMs": 50.714600000000246,
+      "healing": {
+        "status": "validated",
+        "applied": false,
+        "correctedVertices": 0,
+        "correctedEdges": 0,
+        "maxVertexMovement": 2.5121479338940403e-15,
+        "maxInputMovement": 2.5121479338940403e-15,
+        "maxPlaneResidual": 4.440892098500626e-16,
+        "maxBoundaryGapBefore": 2.676208884809056e-15,
+        "toleranceUtilization": 2.51214793389404e-10,
+        "minFeatureClearance": 9.578262852211513,
+        "retainedHoleCount": 0,
+        "reason": "Shared boundaries already consistent; no measurable vertex correction required."
+      },
+      "report": {
+        "version": 1,
+        "method": "merged-planar-regions",
+        "classification": "merged-planar",
+        "mergedTriangles": 6,
+        "healing": {
+          "status": "validated",
+          "applied": false,
+          "correctedVertices": 0,
+          "correctedEdges": 0,
+          "maxVertexMovement": 2.5121479338940403e-15,
+          "maxInputMovement": 2.5121479338940403e-15,
+          "maxPlaneResidual": 4.440892098500626e-16,
+          "maxBoundaryGapBefore": 2.676208884809056e-15,
+          "toleranceUtilization": 2.51214793389404e-10,
+          "minFeatureClearance": 9.578262852211513,
+          "retainedHoleCount": 0,
+          "reason": "Shared boundaries already consistent; no measurable vertex correction required."
+        },
+        "sourceObjectId": "source",
+        "sourceGeometryId": "geometry-source",
+        "sourceDocumentId": "test-document",
+        "sourceRevision": 1,
+        "sourceFingerprint": "fa418666fe11e14e",
+        "options": {
+          "absoluteTolerance": 0.00001,
+          "relativeTolerance": 1e-8,
+          "angleDegrees": 1
+        },
+        "effectiveTolerance": 0.00001,
+        "sewingTolerance": 0.00002,
+        "sampledAcceptance": 0.000040100000000000006,
+        "sourceTriangles": 12,
+        "sourceFaces": 12,
+        "brepFaces": 6,
+        "components": 1,
+        "shellClosed": true,
+        "manifold": true,
+        "winding": "outward",
+        "kernelValidity": "valid",
+        "kernelSelfInterference": "valid",
+        "sourceArea": 612.7669107219224,
+        "resultArea": 612.7669107219224,
+        "absoluteAreaDifference": 0,
+        "relativeAreaDifference": 0,
+        "sourceVolume": 999.9999999999999,
+        "resultVolume": 1000.0000000000002,
+        "absoluteVolumeDifference": 3.410605131648481e-13,
+        "relativeVolumeDifference": 3.4106051316484815e-16,
+        "sampledMaxDistance": 3.66205343881779e-15,
+        "sampledRmsDistance": 1.3052763245276386e-15,
+        "sourceToBrep": {
+          "max": 2.6645352591003757e-15,
+          "rms": 1.2168180377499885e-15,
+          "samples": 56
+        },
+        "brepToSource": {
+          "max": 3.66205343881779e-15,
+          "rms": 1.3701345260392004e-15,
+          "samples": 72
+        },
+        "faceMap": {
+          "region-1": {
+            "brepFaceKey": "face:4:2:11.500000,6.000000,5.000000|0.957826,0.000000,-0.287348|104.403065",
+            "sourceFaceIds": [
+              "f6",
+              "f7"
+            ]
+          },
+          "region-2": {
+            "brepFaceKey": "face:4:2:6.500000,1.000000,5.000000|0.000000,-0.980581,0.196116|101.980390",
+            "sourceFaceIds": [
+              "f4",
+              "f5"
+            ]
+          },
+          "region-0": {
+            "brepFaceKey": "face:4:2:1.500000,6.000000,5.000000|-0.957826,0.000000,0.287348|104.403065",
+            "sourceFaceIds": [
+              "f10",
+              "f11"
+            ]
+          },
+          "region-3": {
+            "brepFaceKey": "face:4:2:6.500000,11.000000,5.000000|0.000000,0.980581,-0.196116|101.980390",
+            "sourceFaceIds": [
+              "f8",
+              "f9"
+            ]
+          },
+          "region-4": {
+            "brepFaceKey": "face:4:2:5.000000,5.000000,0.000000|0.000000,0.000000,-1.000000|100.000000",
+            "sourceFaceIds": [
+              "f0",
+              "f1"
+            ]
+          },
+          "region-5": {
+            "brepFaceKey": "face:4:2:8.000000,7.000000,10.000000|0.000000,0.000000,1.000000|100.000000",
+            "sourceFaceIds": [
+              "f2",
+              "f3"
+            ]
+          }
+        },
+        "definitionFingerprint": "9676de6d6974c475",
+        "distancePolicy": "Bidirectional samples of vertices, triangle centroids and edge midpoints (≤512 per direction) to planar BRep tessellation. Approximate, not certified Hausdorff.",
+        "losses": [
+          "original per-triangle topology",
+          "editable mesh modifiers/history",
+          "unrecovered design intent and constraints"
+        ]
+      }
+    },
+    {
+      "name": "square tube with planar holes",
+      "status": "passed",
+      "elapsedMs": 96.63840000000027,
+      "healing": {
+        "status": "validated",
+        "applied": false,
+        "correctedVertices": 0,
+        "correctedEdges": 0,
+        "maxVertexMovement": 0,
+        "maxInputMovement": 0,
+        "maxPlaneResidual": 0,
+        "maxBoundaryGapBefore": 0,
+        "toleranceUtilization": 0,
+        "minFeatureClearance": 3,
+        "retainedHoleCount": 2,
+        "reason": "Shared boundaries already consistent; no measurable vertex correction required."
+      },
+      "report": {
+        "version": 1,
+        "method": "merged-planar-regions",
+        "classification": "merged-planar",
+        "mergedTriangles": 22,
+        "healing": {
+          "status": "validated",
+          "applied": false,
+          "correctedVertices": 0,
+          "correctedEdges": 0,
+          "maxVertexMovement": 0,
+          "maxInputMovement": 0,
+          "maxPlaneResidual": 0,
+          "maxBoundaryGapBefore": 0,
+          "toleranceUtilization": 0,
+          "minFeatureClearance": 3,
+          "retainedHoleCount": 2,
+          "reason": "Shared boundaries already consistent; no measurable vertex correction required."
+        },
+        "sourceObjectId": "source",
+        "sourceGeometryId": "geometry-source",
+        "sourceDocumentId": "test-document",
+        "sourceRevision": 1,
+        "sourceFingerprint": "a356992c94d85ee8",
+        "options": {
+          "absoluteTolerance": 0.00001,
+          "relativeTolerance": 1e-8,
+          "angleDegrees": 1
+        },
+        "effectiveTolerance": 0.00001,
+        "sewingTolerance": 0.00002,
+        "sampledAcceptance": 0.000040100000000000006,
+        "sourceTriangles": 32,
+        "sourceFaces": 32,
+        "brepFaces": 10,
+        "components": 1,
+        "shellClosed": true,
+        "manifold": true,
+        "winding": "outward",
+        "kernelValidity": "valid",
+        "kernelSelfInterference": "valid",
+        "sourceArea": 448,
+        "resultArea": 448,
+        "absoluteAreaDifference": 0,
+        "relativeAreaDifference": 0,
+        "sourceVolume": 420.00000000000006,
+        "resultVolume": 420.0000000000002,
+        "absoluteVolumeDifference": 1.7053025658242404e-13,
+        "relativeVolumeDifference": 4.060244204343429e-16,
+        "sampledMaxDistance": 1.2560739669470201e-15,
+        "sampledRmsDistance": 2.8824402474442617e-16,
+        "sourceToBrep": {
+          "max": 1.2560739669470201e-15,
+          "rms": 3.198253887179167e-16,
+          "samples": 144
+        },
+        "brepToSource": {
+          "max": 1.047382306668854e-15,
+          "rms": 2.5956219128654597e-16,
+          "samples": 176
+        },
+        "faceMap": {
+          "region-0": {
+            "brepFaceKey": "face:4:2:10.000000,5.000000,2.500000|1.000000,0.000000,0.000000|50.000000",
+            "sourceFaceIds": [
+              "t12",
+              "t13"
+            ]
+          },
+          "region-1": {
+            "brepFaceKey": "face:4:2:5.000000,10.000000,2.500000|0.000000,1.000000,0.000000|50.000000",
+            "sourceFaceIds": [
+              "t20",
+              "t21"
+            ]
+          },
+          "region-2": {
+            "brepFaceKey": "face:4:2:0.000000,5.000000,2.500000|-1.000000,0.000000,0.000000|50.000000",
+            "sourceFaceIds": [
+              "t28",
+              "t29"
+            ]
+          },
+          "region-3": {
+            "brepFaceKey": "face:4:2:5.000000,0.000000,2.500000|0.000000,-1.000000,0.000000|50.000000",
+            "sourceFaceIds": [
+              "t4",
+              "t5"
+            ]
+          },
+          "region-4": {
+            "brepFaceKey": "face:8:8:5.000000,5.000000,0.000000|0.000000,0.000000,-1.000000|84.000000",
+            "sourceFaceIds": [
+              "t0",
+              "t1",
+              "t16",
+              "t17",
+              "t24",
+              "t25",
+              "t8",
+              "t9"
+            ]
+          },
+          "region-5": {
+            "brepFaceKey": "face:8:8:5.000000,5.000000,5.000000|0.000000,0.000000,1.000000|84.000000",
+            "sourceFaceIds": [
+              "t10",
+              "t11",
+              "t18",
+              "t19",
+              "t2",
+              "t26",
+              "t27",
+              "t3"
+            ]
+          },
+          "region-6": {
+            "brepFaceKey": "face:4:2:7.000000,5.000000,2.500000|-1.000000,0.000000,0.000000|20.000000",
+            "sourceFaceIds": [
+              "t14",
+              "t15"
+            ]
+          },
+          "region-7": {
+            "brepFaceKey": "face:4:2:5.000000,7.000000,2.500000|0.000000,-1.000000,0.000000|20.000000",
+            "sourceFaceIds": [
+              "t22",
+              "t23"
+            ]
+          },
+          "region-8": {
+            "brepFaceKey": "face:4:2:3.000000,5.000000,2.500000|1.000000,0.000000,0.000000|20.000000",
+            "sourceFaceIds": [
+              "t30",
+              "t31"
+            ]
+          },
+          "region-9": {
+            "brepFaceKey": "face:4:2:5.000000,3.000000,2.500000|0.000000,1.000000,0.000000|20.000000",
+            "sourceFaceIds": [
+              "t6",
+              "t7"
+            ]
+          }
+        },
+        "definitionFingerprint": "89eaf36f7966c4fb",
+        "distancePolicy": "Bidirectional samples of vertices, triangle centroids and edge midpoints (≤512 per direction) to planar BRep tessellation. Approximate, not certified Hausdorff.",
+        "losses": [
+          "original per-triangle topology",
+          "editable mesh modifiers/history",
+          "unrecovered design intent and constraints"
+        ]
+      }
+    },
+    {
+      "name": "tiny-face normal noise (1e-6 mm height)",
+      "status": "passed",
+      "elapsedMs": 49.69439999999986,
+      "healing": {
+        "status": "validated",
+        "applied": true,
+        "correctedVertices": 4,
+        "correctedEdges": 8,
+        "maxVertexMovement": 3.3333333249174757e-7,
+        "maxInputMovement": 6.66666666759852e-7,
+        "maxPlaneResidual": 0,
+        "maxBoundaryGapBefore": 3.3333333249174757e-7,
+        "toleranceUtilization": 0.0666666666759852,
+        "minFeatureClearance": 10,
+        "retainedHoleCount": 0,
+        "reason": "Incident planes reconciled with shared source vertex/edge identities; movement bounded by the unchanged effective tolerance."
+      },
+      "report": {
+        "version": 1,
+        "method": "merged-planar-regions",
+        "classification": "merged-planar",
+        "mergedTriangles": 8,
+        "healing": {
+          "status": "validated",
+          "applied": true,
+          "correctedVertices": 4,
+          "correctedEdges": 8,
+          "maxVertexMovement": 3.3333333249174757e-7,
+          "maxInputMovement": 6.66666666759852e-7,
+          "maxPlaneResidual": 0,
+          "maxBoundaryGapBefore": 3.3333333249174757e-7,
+          "toleranceUtilization": 0.0666666666759852,
+          "minFeatureClearance": 10,
+          "retainedHoleCount": 0,
+          "reason": "Incident planes reconciled with shared source vertex/edge identities; movement bounded by the unchanged effective tolerance."
+        },
+        "sourceObjectId": "source",
+        "sourceGeometryId": "geometry-source",
+        "sourceDocumentId": "test-document",
+        "sourceRevision": 1,
+        "sourceFingerprint": "8167d436c29723c2",
+        "options": {
+          "absoluteTolerance": 0.00001,
+          "relativeTolerance": 1e-8,
+          "angleDegrees": 1
+        },
+        "effectiveTolerance": 0.00001,
+        "sewingTolerance": 0.00002,
+        "sampledAcceptance": 0.000040100000000000006,
+        "sourceTriangles": 14,
+        "sourceFaces": 9,
+        "brepFaces": 6,
+        "components": 1,
+        "shellClosed": true,
+        "manifold": true,
+        "winding": "outward",
+        "kernelValidity": "valid",
+        "kernelSelfInterference": "valid",
+        "sourceArea": 600.0000004987567,
+        "resultArea": 600.0000133333333,
+        "absoluteAreaDifference": 0.000012834576637033024,
+        "relativeAreaDifference": 2.139096104394023e-8,
+        "sourceVolume": 1000.0000333333334,
+        "resultVolume": 1000.0000333333335,
+        "absoluteVolumeDifference": 1.1368683772161603e-13,
+        "relativeVolumeDifference": 1.136868339320549e-16,
+        "sampledMaxDistance": 6.66666666759852e-7,
+        "sampledRmsDistance": 1.4650642539244641e-7,
+        "sourceToBrep": {
+          "max": 6.66666666759852e-7,
+          "rms": 1.012739366325732e-7,
+          "samples": 65
+        },
+        "brepToSource": {
+          "max": 3.3333333249174757e-7,
+          "rms": 1.7771385832230137e-7,
+          "samples": 72
+        },
+        "faceMap": {
+          "region-0": {
+            "brepFaceKey": "face:4:2:5.000000,5.000000,0.000000|0.000000,0.000000,-1.000000|100.000000",
+            "sourceFaceIds": [
+              "f0"
+            ]
+          },
+          "region-1": {
+            "brepFaceKey": "face:4:2:5.000000,0.000000,5.000000|0.000000,-1.000000,0.000000|100.000003",
+            "sourceFaceIds": [
+              "f2"
+            ]
+          },
+          "region-2": {
+            "brepFaceKey": "face:4:2:10.000000,5.000000,5.000000|1.000000,0.000000,0.000000|100.000003",
+            "sourceFaceIds": [
+              "f3"
+            ]
+          },
+          "region-3": {
+            "brepFaceKey": "face:4:2:5.000000,10.000000,5.000000|0.000000,1.000000,0.000000|100.000003",
+            "sourceFaceIds": [
+              "f4"
+            ]
+          },
+          "region-4": {
+            "brepFaceKey": "face:4:2:0.000000,5.000000,5.000000|-1.000000,0.000000,0.000000|100.000003",
+            "sourceFaceIds": [
+              "f5"
+            ]
+          },
+          "region-5": {
+            "brepFaceKey": "face:4:2:5.000000,5.000000,10.000000|0.000000,0.000000,1.000000|100.000000",
+            "sourceFaceIds": [
+              "noise0",
+              "noise1",
+              "noise2",
+              "noise3"
+            ]
+          }
+        },
+        "definitionFingerprint": "95612e0e43645ffe",
+        "distancePolicy": "Bidirectional samples of vertices, triangle centroids and edge midpoints (≤512 per direction) to planar BRep tessellation. Approximate, not certified Hausdorff.",
+        "losses": [
+          "original per-triangle topology",
+          "editable mesh modifiers/history",
+          "unrecovered design intent and constraints"
+        ]
+      }
+    }
+  ],
+  "openInput": "Open Mesh: analysis only; this MVP does not publish open Shells.",
+  "note": "Bounded Node fixture observations; first case includes cold WASM startup. Distances sampled in both directions, not certified Hausdorff. Not a large-mesh performance or memory benchmark."
+}

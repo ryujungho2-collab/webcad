@@ -1,0 +1,23 @@
+{
+  "card": "UI-C4",
+  "date": "2026-10-17",
+  "status": "complete-first-supported-scope",
+  "implementation": "../implementation/UI-C4-PROJECT-HOME-2026-10-17.md",
+  "environment": {"platform": "Windows", "browser": "Microsoft Edge", "renderer": "SwiftShader", "newExternalDependencies": 0},
+  "checks": {
+    "allNode": {"passed": 1309, "suites": 54, "failed": 0, "durationMs": 46067.3937, "command": "pnpm --filter @agent-webcad/web test", "log": "../../output/verification/project-home/all-node.log"},
+    "newNode": {"passed": 6, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/projectHome.test.ts", "log": "../../output/verification/project-home/node.log"},
+    "homeBrowser": {"passed": 26, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectHome --artifacts", "report": "../../output/verification/project-home/native-report.json"},
+    "projectTabs": {"passed": 19, "failed": 0},
+    "projectRecovery": {"passed": 24, "failed": 0},
+    "projectTabNavigation": {"passed": 27, "failed": 0},
+    "projectManager": {"passed": 30, "failed": 0},
+    "projectComparison": {"passed": 25, "failed": 0},
+    "regressionCommandPattern": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=<check key> --artifacts",
+    "typecheck": {"status": "passed", "command": "pnpm --filter @agent-webcad/web exec tsc --noEmit -p tsconfig.json"},
+    "architecture": {"status": "passed", "modules": 621, "command": "pnpm --filter @agent-webcad/web check:architecture"},
+    "build": {"status": "passed", "modules": 446, "command": "pnpm --filter @agent-webcad/web build", "warning": "Existing chunks larger than 500 kB"}
+  },
+  "artifacts": ["../../output/verification/project-home/home-1440.png", "../../output/verification/project-home/home-960.png"],
+  "boundaries": ["Saved supported XY outlines only; no 3D thumbnail or live unsaved geometry", "Bounded metadata preview submits no Worker/BRep requests", "Template copies have independent project/document identities and asset storage namespaces", "Home retains existing comparison iframe documents, Undo and revision; reload starts fresh Undo", "Small fixtures and 1440/960px host viewports; no large-document or hour-scale guarantee"]
+}

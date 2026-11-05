@@ -1,0 +1,145 @@
+{
+  "card": "G6-D6-P4",
+  "date": "2026-10-18",
+  "status": "complete-first-supported-scope",
+  "implementation": "../implementation/G6-D6-P4-CACHE-COLD-HLR-2026-10-18.md",
+  "environment": {
+    "platform": "Windows",
+    "timezone": "Asia/Seoul",
+    "browser": "Microsoft Edge / isolated Chromium",
+    "renderer": "SwiftShader",
+    "opencascadeJs": "2.0.0-beta.b5ff984",
+    "newExternalDependencies": 0,
+    "nativeDetails": "Windows / Microsoft Edge / SwiftShader; Vite development; native OCCT Worker; alternating modes"
+  },
+  "checks": {
+    "allNode": {
+      "passed": 1345,
+      "suites": 54,
+      "failed": 0,
+      "durationMs": 47407.6493,
+      "command": "pnpm --filter @agent-webcad/web test",
+      "log": "../../output/verification/kernel-p4/all-node.log"
+    },
+    "focusedNode": {
+      "passed": 33,
+      "newTests": 10,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/kernelResources.test.ts tests/retainedSlab.test.ts tests/retainedOutputPerformance.test.ts tests/kernelWorkerClient.test.ts tests/cacheBudget.test.ts",
+      "log": "../../output/verification/kernel-p4/focused.log"
+    },
+    "nativeUI": {
+      "passed": 70,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web test:browser --page=kernelResources",
+      "report": "../../output/verification/kernel-p4/native-report.json",
+      "log": "../../output/verification/kernel-p4/native.log"
+    },
+    "nativeRegressions": {
+      "passed": 128,
+      "failed": 0,
+      "pages": [
+        {
+          "page": "conicProjection",
+          "passed": 22,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=conicProjection",
+          "log": "../../output/verification/kernel-p4/conicProjection-regression.log"
+        },
+        {
+          "page": "sectionPresentation",
+          "passed": 17,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=sectionPresentation",
+          "log": "../../output/verification/kernel-p4/sectionPresentation-regression.log"
+        },
+        {
+          "page": "ellipseSection",
+          "passed": 18,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=ellipseSection",
+          "log": "../../output/verification/kernel-p4/ellipseSection-regression.log"
+        },
+        {
+          "page": "spline",
+          "passed": 19,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=spline",
+          "log": "../../output/verification/kernel-p4/spline-regression.log"
+        },
+        {
+          "page": "modelSheetSet",
+          "passed": 24,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=modelSheetSet",
+          "log": "../../output/verification/kernel-p4/modelSheetSet-regression.log"
+        },
+        {
+          "page": "taskScope",
+          "passed": 6,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=taskScope",
+          "log": "../../output/verification/kernel-p4/taskScope-regression.log"
+        },
+        {
+          "page": "projectPerformance",
+          "passed": 22,
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectPerformance",
+          "log": "../../output/verification/kernel-p4/projectPerformance-regression.log"
+        }
+      ]
+    },
+    "architecture": {
+      "passed": true,
+      "modules": 639,
+      "command": "pnpm --filter @agent-webcad/web check:architecture",
+      "log": "../../output/verification/kernel-p4/architecture.log"
+    },
+    "build": {
+      "passed": true,
+      "includesTypeScript": true,
+      "command": "pnpm build",
+      "log": "../../output/verification/kernel-p4/build.log",
+      "warnings": [
+        "Existing bundle chunks over 500kB"
+      ]
+    }
+  },
+  "budgets": {
+    "nativeSource": {
+      "estimatedBytes": 67108864,
+      "count": 128
+    },
+    "nativeSlab": {
+      "estimatedBytes": 67108864,
+      "count": 128
+    },
+    "oversize": "Exact computation without retention",
+    "ownership": "Cache owns retained handle; tasks own clones; eviction does not mutate document/history"
+  },
+  "benchmark": {
+    "summary": "../../output/verification/kernel-p4/benchmark-summary.json",
+    "raw": "../../output/verification/kernel-p4/native-report.json",
+    "beforeBooleanCleanup": "../../output/verification/kernel-p4/pre-boolean-cleanup-report.json",
+    "partitionOnlyDiagnostic": "../../output/verification/kernel-p4/partition-only-report.json",
+    "aggregationCommand": "python apps/web/scripts/summarizeKernelP4.py",
+    "independentWorkersPerMode": 5,
+    "stages": [
+      "fresh source",
+      "same source / HLR recomputed",
+      "changed source",
+      "clear then regenerate"
+    ],
+    "comparison": "Exact serialized curves/sourceIndex/hidden/edgeClass; R5 has 56 parts",
+    "cacheScope": "Same isolated browser/Vite session; network and compiled-code caches not reset",
+    "separatedColdMedianReductionPercent": 61.297071129721246,
+    "r5GlobalBeforeAfterMedianReductionPercent": 31.600082137490105,
+    "beforeAfterIncludes": "Boolean redundant Build removal and native builder lifetime cleanup"
+  },
+  "multiProject": {
+    "report": "../../output/verification/kernel-p4/multi-project-report.json",
+    "scopeReport": "../../output/verification/kernel-p4/task-scope-report.json",
+    "fixture": "Two R5 projects, each 56 parts / 14 views / 10 sheets"
+  },
+  "limitations": [
+    "Native byte accounting is an estimate, not actual malloc or an upper bound on total process RSS",
+    "Transient operations, document/Undo and active GPU working set are outside retained native cache budgets",
+    "Connected R5 HLR Update/Hide and hour-scale soak remain follow-up work",
+    "Five samples describe these fixtures, not stable p95 or universal performance gains",
+    "Boolean before/after observations use separate five-Worker runs, not randomized binary A/B"
+  ]
+}

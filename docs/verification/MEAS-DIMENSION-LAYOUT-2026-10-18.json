@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-18",
+  "feature": "MEAS dimension alignment snap and spacing review",
+  "status": "passed",
+  "schema": "Existing v46 offsets only",
+  "node": {
+    "full": {
+      "passed": 1476,
+      "suites": 54,
+      "log": "output/verification/measurement-layout/node-full.log",
+      "note": "Final Shift-latch refinement additionally covered by focused suite"
+    },
+    "focused": {
+      "passed": 84,
+      "layout": 8,
+      "placement": 6,
+      "savedMeasurements": 10,
+      "selectedDistance": 14,
+      "brepDistance": 13,
+      "finiteHover": 18,
+      "worker": 15,
+      "log": "output/verification/measurement-layout/node-focused.log"
+    }
+  },
+  "browser": {
+    "layout": 15,
+    "placementRegression": 17,
+    "savedMeasurementRegression": 14,
+    "selectedDistanceRegression": 25,
+    "nativeReport": "output/verification/measurement-layout/native-report.json"
+  },
+  "architecture": {
+    "status": "passed",
+    "modules": 694
+  },
+  "build": {
+    "status": "passed",
+    "command": "pnpm build",
+    "log": "output/verification/measurement-layout/build-final.log"
+  },
+  "artifacts": [
+    "output/verification/measurement-layout/snap-preview.png",
+    "output/verification/measurement-layout/layout-preview.png",
+    "output/verification/measurement-layout/layout-960.png",
+    "output/verification/measurement-layout/layout.webcad.json"
+  ],
+  "behavior": [
+    "8px parallel baseline alignment in same saved plane",
+    "Shift latches initial dominant plane axis until released",
+    "Alt or checkbox bypasses snap",
+    "Screen label-label and foreign-line warning",
+    "Selected anchor remains fixed while normal spacing preserves tangent placement",
+    "Spacing preview/cancel is read-only",
+    "Group apply is one atomic command and Undo without kernel calls",
+    "Document/camera changes discard stale plans",
+    "Changing spacing invalidates its prior preview",
+    "960px toolbar reserves navigation-button space"
+  ],
+  "limitations": [
+    "Viewport text bounds are estimates, not PDF font collision certification",
+    "Spacing does not guarantee elimination of all long-label or extension-line crossings",
+    "No cross-plane or nonparallel automatic organization",
+    "Text and baseline still move together"
+  ]
+}

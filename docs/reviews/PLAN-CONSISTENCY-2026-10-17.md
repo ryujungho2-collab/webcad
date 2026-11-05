@@ -4,7 +4,7 @@
 
 ## 실행 기준과 문서 역할
 
-- **실행 순서:** [NEXT-STEPS 현재 실행 큐](../../NEXT-STEPS.md#현재-실행-큐). 다음은 **WF-Q1 실제 주거 과제 검증**이다.
+- **실행 순서:** [NEXT-STEPS 현재 실행 큐](../../NEXT-STEPS.md#현재-실행-큐). WF-Q1·UI-P3-A/B·UI-C2/C3/C4는 2026-10-17 첫 지원 범위로 완료했다. UI-C5·G6-D4-H2·G6-D5-E2는 2026-10-18 첫 지원 범위로 완료했으며 G6-D6-P4도 [첫 지원 범위로 완료](../implementation/G6-D6-P4-CACHE-COLD-HLR-2026-10-18.md)했고 G2-W1도 [첫 지원 범위로 완료](../implementation/G2-W1-PROJECT-NAVIGATION-2026-10-18.md)했고 G2-W2도 [첫 지원 범위로 완료](../implementation/G2-W2-REUSABLE-LIBRARY-2026-10-18.md)했고 G6-D5-Q1도 [완료](../implementation/G6-D5-Q1-OUTPUT-PREFLIGHT-2026-10-18.md)했고 다음은 **I-UX1 이미지 배치 경험**이다.
 - **현재 사실과 이력:** [PROJECT-STATE](../../PROJECT-STATE.md). 날짜별 ‘다음/현재’와 테스트 수는 당시 기록이며 현재 큐를 덮어쓰지 않는다.
 - **카드 범위와 완료 조건:** [평면도 계획](../product/FLOOR-PLAN-COPILOT-CANVAS-2026-10-14.md), [워크스페이스 계획](../product/WORKSPACE-UX-AGENT-PLAN-2026-10-14.md). 완료는 명시한 지원 범위에 한한다.
 - **제품 목표:** PRODUCT-ROADMAP과 UNIFIED-CREATIVE-SUITE-ROADMAP. 단계 번호·목표 타입은 구현 여부나 우선순위가 아니다.
@@ -19,9 +19,10 @@
 | WF-A1·C0/A2/B1 | [준비](../implementation/WF-A1-FLOOR-PLAN-PREPARATION-2026-10-14.md)·[guided 작업/PURGE/진단/면](../implementation/WF-C0-A2-B1-2026-10-16.md) 지원 범위 완료 | 임의 자연어·자동 교차 분할/일괄 수리·임의 UCS/spline 면 |
 | WF-B2/B3 | [직선 벽/준비된 footprint·연관 개구부](../implementation/WF-B2-B3-2026-10-16.md) 지원 범위 완료 | 자동 코너 융합·곡선 host·커서 면 pick |
 | CMP-S1/WF-D1 | [단일 슬롯·수평 slab·단색 마감](../implementation/CMP-S1-WF-D1-2026-10-16.md), [검증 JSON](../verification/CMP-S1-WF-D1-2026-10-16.json) 첫 범위 완료 | 다중 슬롯/assembly·중첩 정의·외부 remap·텍스처·정확 거리/문짝 sweep |
-| WF-Q1 | **미완료·바로 다음** | 실제 주거 파일로 전체 발행·수정/재발행·재열기 증거 필요 |
+| WF-Q1 | **2026-10-17 [첫 지원 범위로 완료](../implementation/WF-Q1-RESIDENTIAL-2026-10-17.md), [검증 JSON](../verification/WF-Q1-2026-10-17.json)** | 자체 소형 과제 범위. 외부 실측/고객 도면 상호운용·코드 판정 제외 |
 | CAN-A1/A2/A3·MEAS-H1 | 계획/대기 | 단일 슬롯의 fit·AABB 경고로 상위 Flex/호버 측정을 완료 처리하지 않음 |
-| UI-P3-A/B·UI-C2/C3 및 CAD 보충 | 현재 큐의 후속/병행 후보 | 병행 가능 표시는 착수/완료 증거가 아님 |
+| UI-P3-A | [좌우 비교 첫 범위 완료](../implementation/UI-P3-A-PROJECT-COMPARISON-2026-10-17.md) | 카메라 동기화·임의 다중 docking·장시간 대형 문서 성능 |
+| CAD 보충 | 현재 큐의 후속/병행 후보 | 병행 가능 표시는 착수/완료 증거가 아님 |
 | IO-DWG1 | 별도 대기 | 네이티브 DWG/SKP·DWG2010·3D Warehouse 지원으로 확대하지 않음 |
 
 콘텐츠 schema의 `ContentSlot`은 space/opening 중 하나이며 인스턴스는 슬롯 하나를 가진다. `ArchitecturalSlab`은 floor/ceiling·source IDs·level·thickness를 저장한다. 이를 [문서 계약 코드](../../packages/cad-document/src/ArchitectureContent.ts), [콘텐츠 명령](../../apps/web/src/state/architectureContentCommands.ts), [작업 UI](../../apps/web/src/interop/ArchitectureContentPanel.tsx), [대상 검사](../../apps/web/tests/architectureContent.test.ts)와 대조했다. 기존 1,274 Node·native 16/14/32 등의 수치는 10-16 기록이며 이번 실행 결과가 아니다.

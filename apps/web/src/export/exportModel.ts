@@ -1,3 +1,8 @@
+import {assertHybridFeatureResolved} from "../state/hybridReferences";
+import {resolveDxfStyle,dxfVectorStyle} from "../precision/dxfStyle";
+import type {CadDxfStyle} from "@agent-webcad/cad-document";
+import {measurementPresentation} from "../precision/measurementPresentation";
+import {savedMeasurementGeometry} from "../precision/savedMeasurementGeometry";
 import {modelDrawingStyle} from "../precision/layerStyle";
 import {collectFrameStitchScene} from "./frameStitchScene";
 import {collectFrameSheetItems} from "./frameSheetScene";
@@ -36,7 +41,8 @@ import type { CadImageNodeParams } from "@agent-webcad/cad-document";
 
 export const EXPORTABLE_SOLID_TYPES = ["primitive", "extrude", "boolean", "fillet", "chamfer", "revolve", "sweep", "loft","shell"];
 
-function assertResolvedFaceSource(feature:CadFeature,document:CadDocument,seen=new Set<string>()){
+export function assertResolvedFaceSource(feature:CadFeature,document:CadDocument,seen=new Set<string>()){
+  assertHybridFeatureResolved(document,feature.output);
   if(seen.has(feature.id))return;seen.add(feature.id);
   if(feature.type==="shell"&&feature.params.referenceStatus!=="resolved")throw Error(`Cannot export ${feature.output}: Shell removed faces are unresolved. Rebind explicitly.`);
   const sketchId=feature.params.faceSketchId??(feature.params.faceCut as {sketchId?:string}|undefined)?.sketchId;
@@ -52,7 +58,7 @@ function isVisible(objectId: string, document: CadDocument = cadDocument): boole
 }
 
 /** Same builder dispatch as the viewport sync, so export can never disagree with the render. */
-function meshForFeature(feature: CadFeature): Promise<MeshData> {
+export function meshForFeature(feature: CadFeature): Promise<MeshData> {
   return feature.type === "shell" ? buildShellMesh(feature.params) : feature.type === "boolean"
     ? buildBooleanMesh(feature.params)
     : feature.type === "extrude"
@@ -125,8 +131,8 @@ export function collectExportDrawings(plane: WorkPlaneId, document: CadDocument 
     const world = getWorldDrawingGeometry(object, feature);
     if (!world?.points?.length || world.workPlane !== plane) continue;
     if(world.spline&&!world.planeAligned)throw Error("SVG/PDF needs a spline aligned with the output plane; use exact WCS DXF for spatial curves.");
-    const vectorStyle = feature.params.vectorStyle && typeof feature.params.vectorStyle === "object" ? feature.params.vectorStyle as { stroke?: string; fill?: string | null; opacity?: number; strokeWidth?: number } : undefined;
-    const layer = modelDrawingStyle(feature.params,layerStyle(document.layers[object.layerId]));
+    const layer = resolveDxfStyle(modelDrawingStyle(feature.params,layerStyle(document.layers[object.layerId])),feature.params.dxfStyle as CadDxfStyle|undefined).style;
+    const vectorStyle = dxfVectorStyle(feature.params,layer);
     lines.push({
       objectId:id,
       ...(world.spline?{spline:{...world.spline,controlPoints:world.spline.controlPoints.map(p=>[...worldToPlane(p,frame),0] as [number,number,number])},tolerance:.02}:{}),
@@ -174,6 +180,14 @@ export function collectExportAnnotations(plane: WorkPlaneId, document: CadDocume
     const axes=[u.divideScalar(scale).toArray(),v.divideScalar(scale).toArray()] as [import("../precision/workPlane").Vec3,import("../precision/workPlane").Vec3];
     lines.push(...annotation.segments.map(segment=>({ objectId:id, points:segment.map(map), closed:false, color:style.color, lineWeight:style.lineWeight, dash:paperDash(style.lineType) })));
     texts.push({objectId:id,position:map(annotation.textPosition),text:annotation.text,color:style.color,size:annotation.textHeight*scale,...(angle?{angle}:{}),...textBasis(axes,frame,object.name)});
+  }
+  for(const m of Object.values(document.savedMeasurements??{})){
+    if(!m.visible)continue;const presentation=measurementPresentation(document,m);
+    if(!presentation){if(m.drawingId)throw Error(`Cannot export saved measurement ${m.name}: repair its drawing link or hide it.`);continue;}
+    if(presentation.plane!==plane||objectIds&&(m.drawingId?!objectIds.includes(presentation.anchorId):![m.source.objectId,m.target.objectId].every(id=>objectIds.includes(id))))continue;
+    const geometry=savedMeasurementGeometry(document,m);if(!geometry)throw Error(`Cannot export saved measurement ${m.name}: refresh or rebind its references, or hide it.`);
+    lines.push(...geometry.outputLines.map(points=>({objectId:geometry.anchorId,points,closed:false,color:"#303030",lineWeight:.25})));
+    texts.push({objectId:geometry.anchorId,position:geometry.outputPosition,text:geometry.text,color:"#303030",size:m.textHeight,align:"center"});
   }
   return { lines, texts };
 }
@@ -315,8 +329,8 @@ export function collectFrameExportItems(board:CadArtboard,document:CadDocument=c
  const frame=board.frame;if(!validDrawingFrame(frame)||!board.origin.every(Number.isFinite)||!board.size.every(v=>Number.isFinite(v)&&v>0))throw Error("Frame requires valid members, finite position, positive size and scale.");
  assertFrameMembers(document,frame.memberIds,board.workPlane);assertProjectionExport(document,frame.memberIds);
  const mapping=frameSourceMapping(document,frame.memberIds),scale=1/(frame.denominator*mapping.scale),p=(v:number[]):[number,number]=>[board.origin[0]+(v[0]-mapping.origin[0]-frame.sourceOrigin[0]*mapping.scale)*scale,board.origin[1]+(v[1]-mapping.origin[1]-frame.sourceOrigin[1]*mapping.scale)*scale];
- const a=collectExportAnnotations(board.workPlane,document,frame.memberIds),lines=[...collectExportDrawings(board.workPlane,document,frame.memberIds),...a.lines].map(l=>({...l,points:l.points.map(p),holes:l.holes?.map(ring=>ring.map(p)),...(l.spline?{spline:{...l.spline,controlPoints:l.spline.controlPoints.map(q=>[...p(q),0] as [number,number,number])}}:{}),...(l.ellipse?{ellipse:{...l.ellipse,center:[...p(l.ellipse.center),0] as [number,number,number],axisU:l.ellipse.axisU.map(v=>v*scale) as [number,number,number],axisV:l.ellipse.axisV.map(v=>v*scale) as [number,number,number]}}:{})}));
- const texts=a.texts.map(t=>({...t,position:p(t.position),size:(t.size??3.5)*scale}));
+ const a=collectExportAnnotations(board.workPlane,document,frame.memberIds),lines=[...collectExportDrawings(board.workPlane,document,frame.memberIds),...a.lines].map(l=>({...l,lineWeight:(l.lineWeight??.5)*(frame.paperStrokeScale??1),dash:l.dash?.map(n=>n*(frame.paperStrokeScale??1)),points:l.points.map(p),holes:l.holes?.map(ring=>ring.map(p)),...(l.spline?{spline:{...l.spline,controlPoints:l.spline.controlPoints.map(q=>[...p(q),0] as [number,number,number])}}:{}),...(l.ellipse?{ellipse:{...l.ellipse,center:[...p(l.ellipse.center),0] as [number,number,number],axisU:l.ellipse.axisU.map(v=>v*scale) as [number,number,number],axisV:l.ellipse.axisV.map(v=>v*scale) as [number,number,number]}}:{})}));
+ const texts=a.texts.map(t=>({...t,position:p(t.position),size:(t.size??3.5)*scale*(frame.paperTextScale??1)}));
  const clipped=clipSvgPolylinesToArtboard(lines,board),items:SvgExportItem[]=[];
  for(const id of frame.memberIds){for(const polyline of clipped.filter(l=>l.objectId===id))items.push({type:"polyline",polyline});for(const text of texts.filter(t=>t.objectId===id))items.push({type:"text",text});}
  const refs=frameLinkAnnotations({...document,artboards:{...document.artboards,[board.id]:board}},board);

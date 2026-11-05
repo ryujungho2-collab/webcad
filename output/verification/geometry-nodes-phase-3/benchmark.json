@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-25T10:13:57.127Z",
+  "runtime": "v24.19.0",
+  "platform": "win32",
+  "scope": "15 samples per case, synchronous evaluator including output intersection validation; excludes browser startup, Worker transfer and GPU rendering",
+  "rows": [
+    {
+      "preset": "subdivision",
+      "vertices": 26,
+      "faces": 24,
+      "estimatedValueBytes": 52442,
+      "cold": {
+        "medianMs": 7.1281999999999925,
+        "p95Ms": 16.024900000000002
+      },
+      "warm": {
+        "medianMs": 4.920700000000011,
+        "p95Ms": 9.730400000000031
+      },
+      "partial": {
+        "medianMs": 7.021200000000022,
+        "p95Ms": 12.791500000000042
+      },
+      "recomputed": [
+        "primitive",
+        "subdivision",
+        "output"
+      ]
+    },
+    {
+      "preset": "sweep",
+      "vertices": 24,
+      "faces": 18,
+      "estimatedValueBytes": 20288,
+      "cold": {
+        "medianMs": 5.258100000000013,
+        "p95Ms": 11.525700000000029
+      },
+      "warm": {
+        "medianMs": 3.5471999999999753,
+        "p95Ms": 8.199200000000019
+      },
+      "partial": {
+        "medianMs": 4.663199999999961,
+        "p95Ms": 12.143599999999992
+      },
+      "recomputed": [
+        "profile",
+        "sweep",
+        "output"
+      ]
+    },
+    {
+      "preset": "instances",
+      "vertices": 24,
+      "faces": 18,
+      "estimatedValueBytes": 22072,
+      "cold": {
+        "medianMs": 3.3795000000000073,
+        "p95Ms": 8.114599999999996
+      },
+      "warm": {
+        "medianMs": 2.738900000000058,
+        "p95Ms": 4.729100000000017
+      },
+      "partial": {
+        "medianMs": 3.1521000000000186,
+        "p95Ms": 7.08420000000001
+      },
+      "recomputed": [
+        "primitive",
+        "instances",
+        "realize",
+        "output"
+      ]
+    }
+  ]
+}

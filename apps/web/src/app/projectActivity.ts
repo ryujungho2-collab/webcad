@@ -51,6 +51,7 @@ if (browser) {
     if (!embeddedProjectId() || event.source !== window.parent || event.origin !== location.origin || data?.channel !== PROJECT_CHANNEL
       || data.id !== embeddedProjectId() || data.generation !== projectSessionGeneration() || data.type !== "activity" || typeof data.active !== "boolean") return;
     hostActive = data.active; update();
+    document.documentElement.dataset.projectComparison=data.comparison===true?"true":"false";
   });
 }
 export const requestProjectFrame = (callback: FrameRequestCallback) => scheduler.schedule(callback);

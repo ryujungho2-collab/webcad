@@ -10,6 +10,7 @@ import "./ui/commands.css";
 import "./ui/menu.css";
 import "./ui/explorer.css";
 import "./ui/inspector.css";
+import "./ui/polish.css";
 
 const bootstrapStartedAt = performance.now();
 

@@ -1,0 +1,89 @@
+{
+  "status": "passed",
+  "date": "2026-10-25",
+  "part": "Small sensor L bracket",
+  "dimensionsMm": [
+    60,
+    40,
+    45
+  ],
+  "thicknessMm": 3,
+  "browserChecks": 38,
+  "nativeFormat": 42,
+  "visibleModelSolidCount": 1,
+  "expectedVolumeMm3": 14425.14824629442,
+  "freshStepVolumeMm3": 14425.148246294415,
+  "actualSectionBoresChecked": 4,
+  "modelEndpointRequests": 0,
+  "typecheck": "passed",
+  "architectureModules": 851,
+  "productRuntimeChanges": "None required by this task",
+  "testImprovements": [
+    "Read actual Model tree aria-pressed state before opening the tree after reload",
+    "Use the same 1440 x 1000 test window as other CAD handoff tasks"
+  ],
+  "scope": "Human form creation and initial parameter edit, internal-language edit of the same source, real SDK MCP machining, human Boolean finish, Cancel/Undo/Redo, actual native sections, browser reopen and STEP reimport",
+  "limits": "Does not validate arbitrary reparameterization of the completed Boolean, sheet-metal unfolding, manufacturing tolerances or mechanical load rating",
+  "artifacts": [
+    {
+      "name": "bracket-model.webcad.json",
+      "bytes": 72140,
+      "sha256": "ca6f95d3be617dbba1ea732e97b3d1c49a885d1b4bd2fe014e1577b65df111c7"
+    },
+    {
+      "name": "bracket.step",
+      "bytes": 65950,
+      "sha256": "d70a5733bb5bfc835f5468ce2865b3ab1b680be1b4262f1b8c039914cf754a7a"
+    },
+    {
+      "name": "bracket.webcad.json",
+      "bytes": 128257,
+      "sha256": "e0d6550d68c583b3a6d0117b49dcd0b73cf8d064a2e8a344e00e15edccf6ceeb"
+    },
+    {
+      "name": "bracketFront.dxf",
+      "bytes": 2389,
+      "sha256": "9aeba60b5098ee391f5f9da27a6c2a06ebc13f610f39c21d772a59755a57939c"
+    },
+    {
+      "name": "bracketFront.svg",
+      "bytes": 4043,
+      "sha256": "a8d25e1c7383d68842bfbeebff3efe4ab018f7d26444ffcc8b43bd1a7811fdf9"
+    },
+    {
+      "name": "bracketTop.dxf",
+      "bytes": 1939,
+      "sha256": "de4e519ede416e88f4cf1dbf4ff45b670d4c0abefac6d32bff20e306aa923850"
+    },
+    {
+      "name": "bracketTop.svg",
+      "bytes": 3335,
+      "sha256": "572cbda226a9dd6f4ab16a3a5d2e0e50b8457bd0725ace214f776a55ac8b8fec"
+    },
+    {
+      "name": "browser-report.json",
+      "bytes": 3540,
+      "sha256": "a01b88d26af7f9dfd7a11b0b9352d5832c383f8b643f3191e495649f711dbdc2"
+    },
+    {
+      "name": "handoff.json",
+      "bytes": 6958,
+      "sha256": "5e909005a63be1bc928fb143fc61658033a2c5eb1adbc6aa9e591a2be337c09a"
+    },
+    {
+      "name": "README.md",
+      "bytes": 2420,
+      "sha256": "27e8b9cb1e64b1bd1319392bd41221e29b68c7906f95fe043267bf20dc337596"
+    },
+    {
+      "name": "step-inspection.json",
+      "bytes": 1292,
+      "sha256": "2bc8c324d3621dfb5d9c41845f86a2be3d0bb2cd9ee74fa60c3d6823c04d2dda"
+    },
+    {
+      "name": "viewport.png",
+      "bytes": 280102,
+      "sha256": "4a7bdf7383453b73081bc372ac3f3b38d00ade655f48ff796bfd1084cdb9067c"
+    }
+  ]
+}

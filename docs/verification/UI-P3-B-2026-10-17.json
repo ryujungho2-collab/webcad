@@ -1,0 +1,39 @@
+{
+  "card": "UI-P3-B",
+  "date": "2026-10-17",
+  "status": "complete-first-supported-scope",
+  "implementation": "../implementation/UI-P3-B-TAB-NAVIGATION-2026-10-17.md",
+  "scope": [
+    "Persistent pinned group and pointer/keyboard ordering within each group",
+    "Open-project name/ID search with keyboard navigation and IME protection",
+    "Overflow controls and active-tab reveal at 1440/960px",
+    "Stable editor DOM order, per-project Undo, revisions and comparison positions",
+    "Preference write failure/Retry, pinned close/reopen and page reload recovery"
+  ],
+  "environment": {"platform": "Windows", "browser": "Microsoft Edge", "renderer": "SwiftShader", "server": "Vite, isolated browser profile", "newExternalDependencies": 0},
+  "checks": {
+    "allNode": {"passed": 1297, "suites": 54, "failed": 0, "durationMs": 57153.5735, "command": "pnpm --filter @agent-webcad/web test", "log": "../../output/verification/project-tab-navigation/all-node.log"},
+    "targetNode": {"passed": 23, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/projectTabNavigation.test.ts tests/projectWorkspaceStore.test.ts tests/projectComparison.test.ts tests/projectSession.test.ts tests/shortcutRouter.test.ts"},
+    "navigationBrowser": {"passed": 27, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectTabNavigation --artifacts", "report": "../../output/verification/project-tab-navigation/native-report.json"},
+    "comparisonBrowser": {"passed": 25, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectComparison --artifacts"},
+    "tabsBrowser": {"passed": 19, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectTabs"},
+    "recoveryBrowser": {"passed": 24, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectRecovery"},
+    "managerBrowser": {"passed": 30, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectManager"},
+    "typecheck": {"status": "passed", "command": "pnpm --filter @agent-webcad/web exec tsc --noEmit -p tsconfig.json"},
+    "architecture": {"status": "passed", "modules": 605, "command": "pnpm --filter @agent-webcad/web check:architecture"},
+    "build": {"status": "passed", "modules": 434, "command": "pnpm --filter @agent-webcad/web build", "warning": "Existing chunks larger than 500 kB"}
+  },
+  "artifacts": [
+    "../../output/verification/project-tab-navigation/tabs-search-1440.png",
+    "../../output/verification/project-tab-navigation/tabs-search-960.png",
+    "../../output/verification/project-tab-navigation/tabs-reopened-search.png"
+  ],
+  "invariants": "A/B iframe and contentDocument identity, document revisions and Undo histories remain unchanged by tab metadata edits; no additional submitted kernel tasks. Reload restores each checkpoint with fresh Undo sessions.",
+  "boundaries": [
+    "Moves remain within the pinned or ordinary group; pin/unpin changes group",
+    "Search includes open projects only; existing Projects manager searches closed projects",
+    "Ctrl+Tab remains browser-owned",
+    "No synchronized cameras, arbitrary docking or duplicate editable views of one document",
+    "960px is the smallest validated host viewport; no hour-scale memory guarantee"
+  ]
+}

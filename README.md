@@ -4,6 +4,10 @@
 
 확장 목표는 CAD·벡터·이미지·레이아웃이 문서·선택·명령·이력을 공유하는 통합 제작 엔진이다. **[NEXT-STEPS 통합 안내](NEXT-STEPS.md)**에서 기능별 가이드·계획·진행 상태·검증 근거와 다음 작업을 함께 찾는다.
 
+Copilot의 **Open design study…**에서 의도·미확정 조건·보존 객체를 기록하고 실제 2D/3D 대안을 비교할 수 있다. [사용법과 지원 범위](docs/features/COPILOT.md#의도를-구체화하고-대안을-비교하기).
+
+[대표 성과와 다운로드](docs/verification/SHOWCASE-2026-11-06.md): 3층 주택의 편집 가능한 CAD·STEP·도면, 회전식 거치대의 Joint·간섭 검사와 기존 검증 근거를 선별했다. 릴리스 인증이나 물리 해석 완료를 뜻하지 않는다.
+
 ## 시작
 
 ```sh
@@ -29,7 +33,7 @@ Node 테스트는 기하·명령·문서 관계와 실패 원자성을 검사한
 
 - [현재 상태](PROJECT-STATE.md)와 [다음 작업](NEXT-STEPS.md): 재시작할 때 먼저 읽는 최신 기록.
 - [초기 기획·공통 검증 계약](docs/IMPLEMENTATION-READINESS-2026-10-05.md): G0–G6 설계·인계 이력. 현재 실행 순서는 NEXT-STEPS를 따른다.
-- [계획서 정합성 정리](docs/reviews/PLAN-CONSISTENCY-2026-10-17.md): 완료 범위·대기 카드·다음 WF-Q1과 문서별 근거.
+- [계획서 정합성 정리](docs/reviews/PLAN-CONSISTENCY-2026-10-17.md): 완료 범위·대기 카드와 문서별 근거.
 - [수정 위치·영향·문서 역할](docs/architecture/CHANGE-GUIDE.md): 무엇을 고치면 어떤 동작이 바뀌고, 어떤 테스트와 문서를 함께 확인하는지 찾는 지도.
 - [디렉토리와 의존 규칙](docs/architecture/DIRECTORY-STRUCTURE.md): 기능 추가 위치와 공용 경계.
 - [문서 안내](docs/README.md): 목적별 진입점과 분류별 전체 색인.

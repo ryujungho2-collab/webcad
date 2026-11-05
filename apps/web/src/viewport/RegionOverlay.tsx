@@ -10,7 +10,7 @@ export function RegionOverlay({loops, selected, toggle, project}: {loops:SketchL
     let frame=0;
     const update=()=>{
       const values=loops.map(loop=>[loop,...(loop.holes??[])].map(boundary=>{
-        const segment=boundary.segments[0], origin=segment.kind==="circle"?segment.center:segment.start, plane=WORK_PLANES[loop.workPlane];
+        const segment=boundary.segments[0], origin=segment.kind==="circle"?segment.center:segment.kind==="spline"?segment.controlPoints[0]:segment.start, plane=WORK_PLANES[loop.workPlane];
         const elevation=origin.reduce((sum,value,i)=>sum+value*plane.normal[i],0);
         return profileBoundaryPoints(boundary,loop.workPlane).map((point,i)=>{
           const p=planeToWorld(point,plane).map((value,j)=>value+plane.normal[j]*elevation) as Vec3;

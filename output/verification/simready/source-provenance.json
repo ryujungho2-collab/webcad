@@ -1,0 +1,17 @@
+{
+  "verifiedDate": "2026-10-31",
+  "dataset": "codepawl/simready-glb",
+  "file": "glb/arm_articulated_support_a01.glb",
+  "url": "https://huggingface.co/datasets/codepawl/simready-glb/resolve/e52172290393dde80e8d383861db94b8d0e92ec3/glb/arm_articulated_support_a01.glb",
+  "revision": "e52172290393dde80e8d383861db94b8d0e92ec3",
+  "author": "NVIDIA",
+  "converter": "codepawl",
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "originalUrl": "https://huggingface.co/datasets/nvidia/simready-assets",
+  "coordinateConvention": "simready-model-rest",
+  "byteLength": 2674208,
+  "sha256": "ea517115d26fa35270eea13d7a612813d19612aac80230bd3bc1a34331ada356",
+  "evidence": "Dataset API cardData and pinned repository README; original source bytes verified after browser tests",
+  "datasetCard": "https://huggingface.co/datasets/codepawl/simready-glb/blob/e52172290393dde80e8d383861db94b8d0e92ec3/README.md"
+}

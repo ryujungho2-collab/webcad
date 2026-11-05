@@ -1,0 +1,1144 @@
+{
+  "format": "agent-webcad",
+  "version": 62,
+  "document": {
+    "id": "document-774fb9cd-5099-4987-890a-d39ae8303acd",
+    "revision": 50,
+    "objects": {
+      "stand-base": {
+        "id": "stand-base",
+        "geometryId": "geometry-stand-base",
+        "name": "Cylinder",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "stand-shaft": {
+        "id": "stand-shaft",
+        "geometryId": "geometry-stand-shaft",
+        "name": "Cylinder",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            8
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "stand-turntable": {
+        "id": "stand-turntable",
+        "geometryId": "geometry-stand-turntable",
+        "name": "Turntable D120x6",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            20
+          ],
+          "rotation": [
+            0,
+            0,
+            180
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "stand-support": {
+        "id": "stand-support",
+        "geometryId": "geometry-stand-support",
+        "name": "Support H100 tilt15",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            25,
+            6,
+            26
+          ],
+          "rotation": [
+            -14.999999999999998,
+            -5.29668755766019e-31,
+            180
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "stand-plate": {
+        "id": "stand-plate",
+        "geometryId": "geometry-stand-plate",
+        "name": "Laptop plate 240x200x6",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            119.99999999999999,
+            73.20508099999999,
+            126.00000000000001
+          ],
+          "rotation": [
+            1.1179326710683829e-47,
+            1.8257226031974783e-31,
+            180
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "stand-lip": {
+        "id": "stand-lip",
+        "geometryId": "geometry-stand-lip",
+        "name": "Front lip H15",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            120,
+            73.205081,
+            132
+          ],
+          "rotation": [
+            -3.3764806552727446e-63,
+            -1.96016816025331e-47,
+            180
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "converted-4ce43e0c-db44-4747-9b58-86866fff7cac": {
+        "id": "converted-4ce43e0c-db44-4747-9b58-86866fff7cac",
+        "geometryId": "geometry-converted-4ce43e0c-db44-4747-9b58-86866fff7cac",
+        "name": "Front lip H15 · Editable mesh",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            -120,
+            -73.205081,
+            132
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "reconstructed-209c1e21-0260-4ddc-801a-6fc4c493f207": {
+        "id": "reconstructed-209c1e21-0260-4ddc-801a-6fc4c493f207",
+        "geometryId": "geometry-reconstructed-209c1e21-0260-4ddc-801a-6fc4c493f207",
+        "name": "Front lip H15 · Editable mesh · 6 planar BRep faces",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    "features": {
+      "feature-stand-base": {
+        "id": "feature-stand-base",
+        "type": "primitive",
+        "inputs": [],
+        "output": "stand-base",
+        "params": {
+          "kind": "cylinder",
+          "radius": 80,
+          "height": 8
+        }
+      },
+      "feature-stand-shaft": {
+        "id": "feature-stand-shaft",
+        "type": "primitive",
+        "inputs": [],
+        "output": "stand-shaft",
+        "params": {
+          "kind": "cylinder",
+          "radius": 10,
+          "height": 12
+        }
+      },
+      "feature-stand-turntable": {
+        "id": "feature-stand-turntable",
+        "type": "primitive",
+        "inputs": [],
+        "output": "stand-turntable",
+        "params": {
+          "kind": "cylinder",
+          "radius": 60,
+          "height": 6
+        }
+      },
+      "feature-stand-support": {
+        "id": "feature-stand-support",
+        "type": "primitive",
+        "inputs": [],
+        "output": "stand-support",
+        "params": {
+          "kind": "box",
+          "width": 50,
+          "depth": 12,
+          "height": 103.527618
+        }
+      },
+      "feature-stand-plate": {
+        "id": "feature-stand-plate",
+        "type": "primitive",
+        "inputs": [],
+        "output": "stand-plate",
+        "params": {
+          "kind": "box",
+          "width": 240,
+          "depth": 200,
+          "height": 6
+        }
+      },
+      "feature-stand-lip": {
+        "id": "feature-stand-lip",
+        "type": "primitive",
+        "inputs": [],
+        "output": "stand-lip",
+        "params": {
+          "kind": "box",
+          "width": 240,
+          "depth": 6,
+          "height": 15
+        }
+      },
+      "feature-converted-4ce43e0c-db44-4747-9b58-86866fff7cac": {
+        "id": "feature-converted-4ce43e0c-db44-4747-9b58-86866fff7cac",
+        "type": "mesh",
+        "output": "converted-4ce43e0c-db44-4747-9b58-86866fff7cac",
+        "inputs": [],
+        "dependencyMode": "snapshot",
+        "params": {
+          "kind": "editable-mesh",
+          "mesh": {
+            "version": 2,
+            "vertices": [
+              {
+                "id": "v0",
+                "position": [
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "id": "v1",
+                "position": [
+                  0,
+                  0,
+                  15
+                ]
+              },
+              {
+                "id": "v2",
+                "position": [
+                  0,
+                  6,
+                  0
+                ]
+              },
+              {
+                "id": "v3",
+                "position": [
+                  0,
+                  6,
+                  15
+                ]
+              },
+              {
+                "id": "v4",
+                "position": [
+                  240,
+                  0,
+                  0
+                ]
+              },
+              {
+                "id": "v5",
+                "position": [
+                  240,
+                  0,
+                  15
+                ]
+              },
+              {
+                "id": "v6",
+                "position": [
+                  240,
+                  6,
+                  0
+                ]
+              },
+              {
+                "id": "v7",
+                "position": [
+                  240,
+                  6,
+                  15
+                ]
+              }
+            ],
+            "faces": [
+              {
+                "id": "f0",
+                "vertices": [
+                  "v2",
+                  "v0",
+                  "v1"
+                ]
+              },
+              {
+                "id": "f1",
+                "vertices": [
+                  "v3",
+                  "v2",
+                  "v1"
+                ]
+              },
+              {
+                "id": "f2",
+                "vertices": [
+                  "v5",
+                  "v4",
+                  "v6"
+                ]
+              },
+              {
+                "id": "f3",
+                "vertices": [
+                  "v5",
+                  "v6",
+                  "v7"
+                ]
+              },
+              {
+                "id": "f4",
+                "vertices": [
+                  "v1",
+                  "v0",
+                  "v4"
+                ]
+              },
+              {
+                "id": "f5",
+                "vertices": [
+                  "v1",
+                  "v4",
+                  "v5"
+                ]
+              },
+              {
+                "id": "f6",
+                "vertices": [
+                  "v6",
+                  "v2",
+                  "v3"
+                ]
+              },
+              {
+                "id": "f7",
+                "vertices": [
+                  "v7",
+                  "v6",
+                  "v3"
+                ]
+              },
+              {
+                "id": "f8",
+                "vertices": [
+                  "v0",
+                  "v2",
+                  "v6"
+                ]
+              },
+              {
+                "id": "f9",
+                "vertices": [
+                  "v4",
+                  "v0",
+                  "v6"
+                ]
+              },
+              {
+                "id": "f10",
+                "vertices": [
+                  "v7",
+                  "v3",
+                  "v1"
+                ]
+              },
+              {
+                "id": "f11",
+                "vertices": [
+                  "v7",
+                  "v1",
+                  "v5"
+                ]
+              }
+            ],
+            "edit": {
+              "enabled": false,
+              "mode": "face",
+              "ids": []
+            }
+          },
+          "hybridConversion": {
+            "version": 1,
+            "sourceObjectId": "stand-lip",
+            "sourceDocumentId": "document-774fb9cd-5099-4987-890a-d39ae8303acd",
+            "sourceRevision": 12,
+            "sourceFingerprint": "02d976777eadbe53",
+            "sourceRepresentation": "brep",
+            "resultRepresentation": "editable-mesh",
+            "linearDeflection": 0.1,
+            "angularDeflection": 0.5,
+            "relative": false,
+            "weldTolerance": 1e-7,
+            "maxWeldDistance": 0,
+            "faceMap": {
+              "face:4:2:0.000000,3.000000,7.500000|1.000000,0.000000,0.000000|90.000000": [
+                "f0",
+                "f1"
+              ],
+              "face:4:2:240.000000,3.000000,7.500000|1.000000,0.000000,0.000000|90.000000": [
+                "f2",
+                "f3"
+              ],
+              "face:4:2:120.000000,0.000000,7.500000|0.000000,1.000000,0.000000|3600.000000": [
+                "f4",
+                "f5"
+              ],
+              "face:4:2:120.000000,6.000000,7.500000|0.000000,1.000000,0.000000|3600.000000": [
+                "f6",
+                "f7"
+              ],
+              "face:4:2:120.000000,3.000000,0.000000|0.000000,0.000000,1.000000|1440.000000": [
+                "f8",
+                "f9"
+              ],
+              "face:4:2:120.000000,3.000000,15.000000|0.000000,0.000000,1.000000|1440.000000": [
+                "f10",
+                "f11"
+              ]
+            },
+            "resultTopologyFingerprint": "6ad36f949ba3aad8",
+            "accuracy": "Planar-only tessellation; zero analytic chord error. Numeric seam displacement measured, not a certified Hausdorff bound.",
+            "lost": [
+              "parametric feature history",
+              "analytic BRep topology ownership"
+            ]
+          }
+        }
+      },
+      "feature-reconstructed-209c1e21-0260-4ddc-801a-6fc4c493f207": {
+        "id": "feature-reconstructed-209c1e21-0260-4ddc-801a-6fc4c493f207",
+        "type": "primitive",
+        "inputs": [],
+        "dependencyMode": "snapshot",
+        "output": "reconstructed-209c1e21-0260-4ddc-801a-6fc4c493f207",
+        "params": {
+          "kind": "planar-reconstruction",
+          "reconstruction": {
+            "version": 1,
+            "tolerance": 0.00001,
+            "regions": [
+              {
+                "id": "region-0",
+                "origin": [
+                  0,
+                  -73.20508099999999,
+                  139.5
+                ],
+                "normal": [
+                  0,
+                  -1,
+                  0
+                ],
+                "loops": [
+                  [
+                    [
+                      -120,
+                      -73.20508099999999,
+                      132
+                    ],
+                    [
+                      120,
+                      -73.20508099999999,
+                      132
+                    ],
+                    [
+                      120,
+                      -73.20508099999999,
+                      147
+                    ],
+                    [
+                      -120,
+                      -73.20508099999999,
+                      147
+                    ]
+                  ]
+                ],
+                "sourceFaceIds": [
+                  "f4",
+                  "f5"
+                ],
+                "triangleCount": 2,
+                "maxPlaneResidual": 1.4210854715202004e-14,
+                "maxNormalAngleDegrees": 0,
+                "area": 3600,
+                "adjacent": [
+                  "region-2",
+                  "region-3",
+                  "region-4",
+                  "region-5"
+                ]
+              },
+              {
+                "id": "region-1",
+                "origin": [
+                  0,
+                  -67.205081,
+                  139.5
+                ],
+                "normal": [
+                  0,
+                  1,
+                  0
+                ],
+                "loops": [
+                  [
+                    [
+                      -120,
+                      -67.205081,
+                      132
+                    ],
+                    [
+                      -120,
+                      -67.205081,
+                      147
+                    ],
+                    [
+                      120,
+                      -67.205081,
+                      147
+                    ],
+                    [
+                      120,
+                      -67.205081,
+                      132
+                    ]
+                  ]
+                ],
+                "sourceFaceIds": [
+                  "f6",
+                  "f7"
+                ],
+                "triangleCount": 2,
+                "maxPlaneResidual": 0,
+                "maxNormalAngleDegrees": 0,
+                "area": 3600,
+                "adjacent": [
+                  "region-2",
+                  "region-3",
+                  "region-4",
+                  "region-5"
+                ]
+              },
+              {
+                "id": "region-2",
+                "origin": [
+                  0,
+                  -70.205081,
+                  147
+                ],
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "loops": [
+                  [
+                    [
+                      -120,
+                      -73.205081,
+                      147
+                    ],
+                    [
+                      120,
+                      -73.205081,
+                      147
+                    ],
+                    [
+                      120,
+                      -67.205081,
+                      147
+                    ],
+                    [
+                      -120,
+                      -67.205081,
+                      147
+                    ]
+                  ]
+                ],
+                "sourceFaceIds": [
+                  "f10",
+                  "f11"
+                ],
+                "triangleCount": 2,
+                "maxPlaneResidual": 0,
+                "maxNormalAngleDegrees": 0,
+                "area": 1440,
+                "adjacent": [
+                  "region-0",
+                  "region-1",
+                  "region-4",
+                  "region-5"
+                ]
+              },
+              {
+                "id": "region-3",
+                "origin": [
+                  0,
+                  -70.205081,
+                  132
+                ],
+                "normal": [
+                  0,
+                  0,
+                  -1
+                ],
+                "loops": [
+                  [
+                    [
+                      -120,
+                      -73.205081,
+                      132
+                    ],
+                    [
+                      -120,
+                      -67.205081,
+                      132
+                    ],
+                    [
+                      120,
+                      -67.205081,
+                      132
+                    ],
+                    [
+                      120,
+                      -73.205081,
+                      132
+                    ]
+                  ]
+                ],
+                "sourceFaceIds": [
+                  "f8",
+                  "f9"
+                ],
+                "triangleCount": 2,
+                "maxPlaneResidual": 0,
+                "maxNormalAngleDegrees": 0,
+                "area": 1440,
+                "adjacent": [
+                  "region-0",
+                  "region-1",
+                  "region-4",
+                  "region-5"
+                ]
+              },
+              {
+                "id": "region-4",
+                "origin": [
+                  -120,
+                  -70.205081,
+                  139.5
+                ],
+                "normal": [
+                  -1,
+                  0,
+                  0
+                ],
+                "loops": [
+                  [
+                    [
+                      -120,
+                      -73.205081,
+                      132
+                    ],
+                    [
+                      -120,
+                      -73.205081,
+                      147
+                    ],
+                    [
+                      -120,
+                      -67.205081,
+                      147
+                    ],
+                    [
+                      -120,
+                      -67.205081,
+                      132
+                    ]
+                  ]
+                ],
+                "sourceFaceIds": [
+                  "f0",
+                  "f1"
+                ],
+                "triangleCount": 2,
+                "maxPlaneResidual": 0,
+                "maxNormalAngleDegrees": 0,
+                "area": 90,
+                "adjacent": [
+                  "region-0",
+                  "region-1",
+                  "region-2",
+                  "region-3"
+                ]
+              },
+              {
+                "id": "region-5",
+                "origin": [
+                  120,
+                  -70.205081,
+                  139.5
+                ],
+                "normal": [
+                  1,
+                  0,
+                  0
+                ],
+                "loops": [
+                  [
+                    [
+                      120,
+                      -73.205081,
+                      132
+                    ],
+                    [
+                      120,
+                      -67.205081,
+                      132
+                    ],
+                    [
+                      120,
+                      -67.205081,
+                      147
+                    ],
+                    [
+                      120,
+                      -73.205081,
+                      147
+                    ]
+                  ]
+                ],
+                "sourceFaceIds": [
+                  "f2",
+                  "f3"
+                ],
+                "triangleCount": 2,
+                "maxPlaneResidual": 0,
+                "maxNormalAngleDegrees": 0,
+                "area": 90,
+                "adjacent": [
+                  "region-0",
+                  "region-1",
+                  "region-2",
+                  "region-3"
+                ]
+              }
+            ]
+          },
+          "reconstructionReceipt": {
+            "version": 1,
+            "method": "merged-planar-regions",
+            "classification": "merged-planar",
+            "mergedTriangles": 6,
+            "sourceObjectId": "converted-4ce43e0c-db44-4747-9b58-86866fff7cac",
+            "sourceGeometryId": "geometry-converted-4ce43e0c-db44-4747-9b58-86866fff7cac",
+            "sourceDocumentId": "document-774fb9cd-5099-4987-890a-d39ae8303acd",
+            "sourceRevision": 13,
+            "sourceFingerprint": "8d8df0c59e4a5d6d",
+            "options": {
+              "absoluteTolerance": 0.00001,
+              "relativeTolerance": 1e-8,
+              "angleDegrees": 1
+            },
+            "effectiveTolerance": 0.00001,
+            "sewingTolerance": 0.00002,
+            "sampledAcceptance": 0.000040100000000000006,
+            "sourceTriangles": 12,
+            "sourceFaces": 12,
+            "brepFaces": 6,
+            "components": 1,
+            "shellClosed": true,
+            "manifold": true,
+            "winding": "outward",
+            "kernelValidity": "valid",
+            "kernelSelfInterference": "valid",
+            "sourceArea": 10260,
+            "resultArea": 10259.999999999996,
+            "absoluteAreaDifference": 3.637978807091713e-12,
+            "relativeAreaDifference": 3.545788311005568e-16,
+            "sourceVolume": 21600,
+            "resultVolume": 21599.999999999967,
+            "absoluteVolumeDifference": 3.2741809263825417e-11,
+            "relativeVolumeDifference": 1.5158245029548805e-15,
+            "sampledMaxDistance": 0,
+            "sampledRmsDistance": 0,
+            "sourceToBrep": {
+              "max": 0,
+              "rms": 0,
+              "samples": 56
+            },
+            "brepToSource": {
+              "max": 0,
+              "rms": 0,
+              "samples": 72
+            },
+            "faceMap": {
+              "region-0": {
+                "brepFaceKey": "face:4:2:0.000000,-73.205081,139.500000|0.000000,-1.000000,0.000000|3600.000000",
+                "sourceFaceIds": [
+                  "f4",
+                  "f5"
+                ]
+              },
+              "region-2": {
+                "brepFaceKey": "face:4:2:0.000000,-70.205081,147.000000|0.000000,0.000000,1.000000|1440.000000",
+                "sourceFaceIds": [
+                  "f10",
+                  "f11"
+                ]
+              },
+              "region-1": {
+                "brepFaceKey": "face:4:2:0.000000,-67.205081,139.500000|0.000000,1.000000,0.000000|3600.000000",
+                "sourceFaceIds": [
+                  "f6",
+                  "f7"
+                ]
+              },
+              "region-3": {
+                "brepFaceKey": "face:4:2:0.000000,-70.205081,132.000000|0.000000,0.000000,-1.000000|1440.000000",
+                "sourceFaceIds": [
+                  "f8",
+                  "f9"
+                ]
+              },
+              "region-4": {
+                "brepFaceKey": "face:4:2:-120.000000,-70.205081,139.500000|-1.000000,0.000000,0.000000|90.000000",
+                "sourceFaceIds": [
+                  "f0",
+                  "f1"
+                ]
+              },
+              "region-5": {
+                "brepFaceKey": "face:4:2:120.000000,-70.205081,139.500000|1.000000,0.000000,0.000000|90.000000",
+                "sourceFaceIds": [
+                  "f2",
+                  "f3"
+                ]
+              }
+            },
+            "definitionFingerprint": "859560d9119c120d",
+            "distancePolicy": "Bidirectional samples of vertices, triangle centroids and edge midpoints (≤512 per direction) to planar BRep tessellation. Approximate, not certified Hausdorff.",
+            "losses": [
+              "original per-triangle topology",
+              "editable mesh modifiers/history",
+              "unrecovered design intent and constraints"
+            ]
+          },
+          "bounds": {
+            "min": [
+              -120,
+              -73.205081,
+              132
+            ],
+            "max": [
+              120,
+              -67.205081,
+              147
+            ]
+          }
+        }
+      }
+    },
+    "sketches": {},
+    "layers": {
+      "layer-default": {
+        "id": "layer-default",
+        "name": "Default",
+        "visible": true,
+        "locked": false,
+        "objectIds": [
+          "stand-base",
+          "stand-shaft",
+          "stand-turntable",
+          "stand-support",
+          "stand-plate",
+          "stand-lip",
+          "converted-4ce43e0c-db44-4747-9b58-86866fff7cac",
+          "reconstructed-209c1e21-0260-4ddc-801a-6fc4c493f207"
+        ]
+      }
+    },
+    "rootObjects": [
+      "stand-base",
+      "stand-shaft",
+      "stand-turntable",
+      "stand-support",
+      "stand-plate",
+      "stand-lip",
+      "converted-4ce43e0c-db44-4747-9b58-86866fff7cac",
+      "reconstructed-209c1e21-0260-4ddc-801a-6fc4c493f207"
+    ],
+    "rootLayers": [
+      "layer-default"
+    ],
+    "assembly": {
+      "version": 1,
+      "grounded": [
+        "stand-base"
+      ],
+      "joints": {
+        "bearing": {
+          "id": "bearing",
+          "parentId": "stand-base",
+          "childId": "stand-turntable",
+          "type": "revolute",
+          "origin": [
+            0,
+            0,
+            20
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "angle": 0,
+          "rest": {
+            "translation": [
+              0,
+              0,
+              20
+            ],
+            "rotation": [
+              0,
+              0,
+              180
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "shaft": {
+          "id": "shaft",
+          "parentId": "stand-base",
+          "childId": "stand-shaft",
+          "type": "fixed",
+          "origin": [
+            0,
+            0,
+            20
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "angle": 0,
+          "rest": {
+            "translation": [
+              0,
+              0,
+              8
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "support": {
+          "id": "support",
+          "parentId": "stand-turntable",
+          "childId": "stand-support",
+          "type": "fixed",
+          "origin": [
+            0,
+            0,
+            20
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "angle": 0,
+          "rest": {
+            "translation": [
+              -25,
+              -6.000000000000003,
+              6
+            ],
+            "rotation": [
+              14.999999999999998,
+              1.816058000408775e-15,
+              -2.3908857151738787e-16
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "plate": {
+          "id": "plate",
+          "parentId": "stand-support",
+          "childId": "stand-plate",
+          "type": "fixed",
+          "origin": [
+            0,
+            0,
+            20
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "angle": 0,
+          "rest": {
+            "translation": [
+              -94.99999999999999,
+              -39.0332188854967,
+              113.98653751936439
+            ],
+            "rotation": [
+              -14.999999999999998,
+              -1.8160580004087756e-15,
+              -2.3908857151738733e-16
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "lip": {
+          "id": "lip",
+          "parentId": "stand-plate",
+          "childId": "stand-lip",
+          "type": "fixed",
+          "origin": [
+            0,
+            0,
+            20
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "angle": 0,
+          "rest": {
+            "translation": [
+              -1.4210854715202004e-14,
+              -1.4210854715202004e-14,
+              5.999999999999986
+            ],
+            "rotation": [
+              -1.1179326710683824e-47,
+              1.8257226031974783e-31,
+              1.7811389981669142e-80
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    }
+  }
+}

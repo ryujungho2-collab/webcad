@@ -11,7 +11,14 @@ import type {Vec3} from "../precision/workPlane";
 import {ArchitectureWallPanel} from "./ArchitectureWallPanel";
 
 /** Local guided intents; UI and Copilot open this same revision-bound planner. */
-export function FloorPlanTaskPanel({selectedIds,layerId,revision,onClose,onApplied,onInspect,onImport,onExtrude,onWallPreview}:{selectedIds:string[];layerId:string;revision:number;onClose:()=>void;onApplied:(ids:string[])=>void;onInspect:(ids:string[],point?:Vec3)=>void;onImport:()=>void;onExtrude:()=>void;onWallPreview?:(ghosts:import("../copilot/copilotPlan").CopilotGhost[]|null)=>void}){
+export function FloorPlanTaskPanel({selectedIds:editorSelection,layerId,revision,onClose,onApplied,onInspect,onImport,onExtrude,onWallPreview}:{selectedIds:string[];layerId:string;revision:number;onClose:()=>void;onApplied:(ids:string[])=>void;onInspect:(ids:string[],point?:Vec3)=>void;onImport:()=>void;onExtrude:()=>void;onWallPreview?:(ghosts:import("../copilot/copilotPlan").CopilotGhost[]|null)=>void}){
+  // Task inputs may read locked references; the editor selection continues to
+  // exclude them so move/delete/direct-edit tools never gain write access.
+  const editorKey=`${cadDocument.id}\0${editorSelection.join("\0")}`;
+  const [referenceSelection,setReferenceSelection]=useState<{key:string;ids:string[]}|null>(null);
+  useEffect(()=>setReferenceSelection(null),[editorKey]);
+  const lockedSources=Object.values(cadDocument.features).filter(f=>f.type==="drawing"&&!f.params.construction&&cadDocument.objects[f.output]?.visible&&cadDocument.layers[cadDocument.objects[f.output].layerId]?.visible&&cadDocument.layers[cadDocument.objects[f.output].layerId]?.locked);
+  const selectedIds=referenceSelection?.key===editorKey?referenceSelection.ids:editorSelection;
   const [tolerance,setTolerance]=useState("0.1mm"),[repair,setRepair]=useState(false),[analysis,setAnalysis]=useState<FloorAnalysis|null>(null),[summary,setSummary]=useState<string[]>([]),[preview,setPreview]=useState<CadPlanPreview|null>(null),[error,setError]=useState(""),[busy,setBusy]=useState(false),[done,setDone]=useState(false);
   const serial=useRef(0),plan=useRef<string|undefined>(undefined),controller=useRef<AbortController|undefined>(undefined),baseline=useRef(documentVersion()),selection=selectedIds.join("\0");
   const invalidate=()=>{serial.current++;controller.current?.abort();if(plan.current)discardCadPlan(plan.current);plan.current=undefined;setPreview(null);setSummary([]);setAnalysis(null);setDone(false);setBusy(false);};
@@ -38,6 +45,7 @@ export function FloorPlanTaskPanel({selectedIds,layerId,revision,onClose,onAppli
     <header><strong>Floor plan · 평면도 작업</strong><button onClick={onClose} disabled={busy}>Close floor tasks</button></header>
     <p>Local guided Copilot intents. Review fixes targets, units and document revision; Apply is one Undo.</p>
     <button onClick={onImport} disabled={busy}>Prepare / import DXF…</button>
+    {!!lockedSources.length&&<details><summary>Choose locked reference sources</summary><p>Choose source boundaries for faces, walls or surfaces. Results use the active editable layer; source locks stay unchanged.</p><div style={{maxHeight:180,overflow:"auto"}}>{lockedSources.map(f=>{const o=cadDocument.objects[f.output];return <label key={o.id} style={{display:"block"}}><input type="checkbox" aria-label={`Floor reference source ${o.id}`} checked={selectedIds.includes(o.id)} disabled={busy} onChange={e=>{edit();setReferenceSelection({key:editorKey,ids:e.target.checked?[...selectedIds,o.id]:selectedIds.filter(id=>id!==o.id)});}}/>{cadDocument.layers[o.layerId].name} · {o.name} · {o.id}</label>;})}</div><button disabled={busy} onClick={()=>{edit();setReferenceSelection({key:editorKey,ids:[]});}}>Clear task sources</button></details>}
     <ArchitectureWallPanel selectedIds={selectedIds} layerId={layerId} revision={revision} onApplied={onApplied} onPreview={onWallPreview}/>
     <details><summary>Content, floors & finishes…</summary><ArchitectureContentPanel selectedIds={selectedIds} layerId={layerId} revision={revision} onApplied={onApplied} onPreview={onWallPreview}/></details>
     <button onClick={()=>void review("purge")} disabled={busy}>Review PURGE</button>

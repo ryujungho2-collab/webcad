@@ -1,3 +1,4 @@
+import type {CadDxfStyle} from "@agent-webcad/cad-document";
 import {cropSectionGeometry} from "../precision/modelSection";
 import {trimSpline,splineClosed,cropSpline} from "../precision/splineGeometry";
 import {principalEllipse,ellipseClosed} from "../precision/ellipseGeometry";
@@ -32,12 +33,19 @@ export function encodeDxf(document:CadDocument,objectIds?:string[],options:{pape
     target.push(0,"SEQEND",100,"AcDbEntity",8,name);
   };
   const write=(target:(string|number)[],object:CadObject,feature:CadFeature,count:boolean)=>{
-    const name=layer(object.layerId),baseStyle=modelDrawingStyle(feature.params,layerStyle(document.layers[object.layerId])),style={...baseStyle,lineType:feature.type==="drawing"?drawingLineType(feature.params.construction,baseStyle):baseStyle.lineType},common=[100,"AcDbEntity",8,name,...styled(style)];
+    const policy=feature.params.dxfStyle as CadDxfStyle|undefined;
+    const properties=policy?[6,policy.lineType===undefined?"BYLAYER":policy.lineType==="by-block"?"BYBLOCK":types[policy.lineType],370,policy.lineWeight===undefined?-1:policy.lineWeight==="by-block"?-2:Math.round(policy.lineWeight*100),...(policy.color===undefined?[62,256]:policy.color==="by-block"?[62,0]:[420,parseInt(policy.color.slice(1),16)])]:undefined;
+    const name=policy?.layer0?"0":layer(object.layerId),baseStyle=modelDrawingStyle(feature.params,layerStyle(document.layers[object.layerId])),style={...baseStyle,lineType:feature.type==="drawing"?drawingLineType(feature.params.construction,baseStyle):baseStyle.lineType},common=[100,"AcDbEntity",8,name,...properties??styled(style)];
     const reject=(reason:string)=>{if(!count)throw new Error(`Cannot export component ${object.name}: ${reason}.`);skipped++;warnings.push(`${object.name}: ${reason}.`);};
     if(feature.type==="drawing"){
       const world=getWorldDrawingGeometry(object,feature);if(!world){reject("no supported drawing geometry");return;}
       if (["point", "infinite-line", "ray"].includes(world.kind)) { reject("point and unbounded construction geometry need a separate DXF adapter");return; }
-      if(world.spline){const pieces=options.paperBounds&&count?cropSpline(world.spline,options.paperBounds):[world.spline];for(const piece of pieces){const n=trimSpline(piece);target.push(0,"SPLINE",...common,100,"AcDbSpline",70,(splineClosed(n)?1:0)|(n.weights?.some(w=>Math.abs(w-1)>1e-12)?4:0),71,n.degree,72,n.knots.length,73,n.controlPoints.length,74,0,...n.knots.flatMap(k=>[40,format(k)]),...(n.weights??[]).flatMap(w=>[41,format(w)]),...n.controlPoints.flatMap(p=>point(p)));if(count)entities++;}return;}
+      if(policy?.fill&&world.closed&&world.points){
+        const points=[...world.points];if(points.length>1&&Math.hypot(...points[0].map((v,j)=>v-points.at(-1)![j]))<1e-7)points.pop();
+        if(points.length<3||points.length>4||points.some(p=>Math.abs(p[2]-points[0][2])>1e-7)){reject("filled DXF export requires a planar XY triangle/quad");return;}
+        target.push(0,"SOLID",...common,100,"AcDbTrace",...point(points[0]),...point(points[1],11),...point(points.length===4?points[3]:points[2],12),...point(points[2],13));if(count)entities++;return;
+      }
+      if(world.spline){const pieces=options.paperBounds&&count?cropSpline(world.spline,options.paperBounds):[world.spline];for(const piece of pieces){const n=trimSpline(piece);target.push(0,"SPLINE",...common,100,"AcDbSpline",70,(splineClosed(n)?1:0)|(n.weights?.some(w=>w!==1)?4:0),71,n.degree,72,n.knots.length,73,n.controlPoints.length,74,0,...n.knots.flatMap(k=>[40,String(k)]),...(n.weights??[]).flatMap(w=>[41,String(w)]),...n.controlPoints.flatMap(p=>[10,String(p[0]),20,String(p[1]),30,String(p[2])]));if(count)entities++;}return;}
       if(world.ellipse){const pieces=options.paperBounds&&count?cropSectionGeometry({kind:ellipseClosed(world.ellipse)?"ellipse":"elliptic-arc",params:world.ellipse},options.paperBounds).map(p=>p.params as import("@agent-webcad/cad-document").CadEllipse):[world.ellipse];for(const piece of pieces){const e=principalEllipse(piece),u=e.axisU,v=e.sweep<0?e.axisV.map(x=>-x):e.axisV,normal=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],nl=Math.hypot(...normal),tau=2*Math.PI,start=ellipseClosed(e)?0:(((e.sweep<0?-e.startParam:e.startParam)%tau)+tau)%tau,end=ellipseClosed(e)?tau:(start+Math.abs(e.sweep))%tau;target.push(0,"ELLIPSE",...common,100,"AcDbEllipse",...point(e.center),...point(u,11),40,format(Math.hypot(...v)/Math.hypot(...u)),41,format(start),42,format(end),210,format(normal[0]/nl),220,format(normal[1]/nl),230,format(normal[2]/nl));if(count)entities++;}return;}
       if(world.kind==="line"&&world.points?.length===2)target.push(0,"LINE",...common,100,"AcDbLine",...point(world.points[0]),...point(world.points[1],11));
       else if(["circle","arc","polyline","rectangle"].includes(world.kind)){
@@ -59,7 +67,6 @@ export function encodeDxf(document:CadDocument,objectIds?:string[],options:{pape
       let data=worldDraftingGeometry(document,object,feature);
       if(feature.type==="dimension"){
         const dimension=resolveDimension(feature.params);if(!dimension){reject("invalid annotation parameters");return;}
-        data={lines:dimension.segments.map(points=>({points,closed:false,style})),texts:[{point:dimension.textPosition,text:dimension.text,height:3.5,angle:0,style}]};
       }
       for(const line of data.lines)for(const ring of [line.points,...(line.holes??[])]){poly(target,ring,line.closed,name,line.style);if(count)entities++;}
       if(feature.params.kind==="face")warnings.push(`${object.name}: planar face exported as boundary polylines (0.02 mm curve display tolerance); fill/association remain in WebCAD JSON.`);

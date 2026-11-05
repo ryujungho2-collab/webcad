@@ -1,0 +1,88 @@
+{
+  "card": "G2-W1",
+  "date": "2026-10-18",
+  "status": "complete-first-supported-scope",
+  "implementation": "../implementation/G2-W1-PROJECT-NAVIGATION-2026-10-18.md",
+  "environment": {
+    "platform": "Windows",
+    "browser": "Microsoft Edge / isolated Chromium",
+    "renderer": "SwiftShader",
+    "server": "Vite local HTTP",
+    "viewportWidths": [
+      1440,
+      960
+    ],
+    "newDependencies": 0
+  },
+  "checks": {
+    "allNode": {
+      "passed": 1349,
+      "failed": 0,
+      "suites": 54,
+      "durationMs": 50663.0625,
+      "command": "pnpm --filter @agent-webcad/web test",
+      "log": "../../output/verification/project-tree/all-node.log"
+    },
+    "focusedNode": {
+      "passed": 4,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/projectTree.test.ts",
+      "log": "../../output/verification/project-tree/focused.log"
+    },
+    "nativeUI": {
+      "passed": 17,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web test:browser --page=projectTree",
+      "report": "../../output/verification/project-tree/native-report.json",
+      "log": "../../output/verification/project-tree/native.log"
+    },
+    "nativeRegressions": {
+      "passed": 70,
+      "failed": 0,
+      "pages": [
+        {
+          "page": "modelSheetSet",
+          "passed": 24,
+          "log": "../../output/verification/project-tree/modelSheetSet-regression.log",
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=modelSheetSet"
+        },
+        {
+          "page": "projectComparison",
+          "passed": 25,
+          "log": "../../output/verification/project-tree/projectComparison-regression.log",
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectComparison"
+        },
+        {
+          "page": "keyboardActivation",
+          "passed": 21,
+          "log": "../../output/verification/project-tree/keyboardActivation-regression.log",
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=keyboardActivation"
+        }
+      ]
+    },
+    "build": {
+      "passed": true,
+      "includesTypeScript": true,
+      "command": "pnpm build",
+      "log": "../../output/verification/project-tree/build.log",
+      "warnings": [
+        "Existing bundle chunks over 500kB"
+      ]
+    },
+    "architecture": {
+      "passed": true,
+      "command": "pnpm --filter @agent-webcad/web check:architecture",
+      "log": "../../output/verification/project-tree/architecture.log"
+    }
+  },
+  "screenshots": [
+    "../../output/verification/project-tree/project-tree-1440.png",
+    "../../output/verification/project-tree/project-tree-960.png"
+  ],
+  "boundaries": [
+    "Navigation references existing entities and changes screen state only; no document revision or Undo",
+    "Search/collapse state is local to the mounted panel, not persisted document data",
+    "Hidden/missing/collapsed targets report why unavailable; locked targets may be viewed",
+    "Named camera snapshots, sketch/source editing and creating views retain their existing tools"
+  ]
+}

@@ -50,7 +50,19 @@ export function sectionDrawingGeometry(view:ModelSection,partId:string,curves:Se
   const all=drawings.flatMap(g=>g.kind==="spline"?g.params.controlPoints as number[][]:g.kind==="line"?g.params.points as number[][]:[g.params.center as number[]]),min=[0,1].map(i=>Math.min(...all.map(p=>p[i]))),max=[0,1].map(i=>Math.max(...all.map(p=>p[i])));
   const descriptor=(g:typeof drawings[number])=>{const pts=g.kind==="spline"?g.params.controlPoints as number[][]:g.kind==="line"?g.params.points as number[][]:[g.params.center as number[]];const normalized=pts.map(p=>p.slice(0,2).map((v,i)=>Number(((v-min[i])/Math.max(max[i]-min[i],1e-9)).toFixed(6)))).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)));return `${g.kind}:${JSON.stringify(normalized)}${g.kind==="spline"?`:${JSON.stringify([g.params.degree,g.params.knots,g.params.weights,g.params.domain])}`:g.kind==="arc"?`:${Number(g.params.startAngle).toFixed(9)}:${Number(g.params.endAngle).toFixed(9)}`:g.kind==="elliptic-arc"?`:${Number(g.params.startParam).toFixed(6)}:${Number(g.params.sweep).toFixed(6)}`:""}`;};
   const sorted=drawings.map(g=>({g,key:descriptor(g)})).sort((a,b)=>a.key.localeCompare(b.key));
+  // Concentric closed conics share a centre descriptor. Distinguish nested
+  // rings by area order; previously rejected collisions have no saved IDs.
+  for(const key of new Set(sorted.map(g=>g.key))){const same=sorted.filter(g=>g.key===key);if(same.length<2||same.some(({g})=>g.kind!=="ellipse"&&g.kind!=="circle"))continue;
+   const area=({g}:typeof same[number])=>g.kind==="circle"?Math.PI*Number(g.params.radius)**2:Math.PI*Math.abs((g.params.axisU as number[])[0]*(g.params.axisV as number[])[1]-(g.params.axisU as number[])[1]*(g.params.axisV as number[])[0]);
+   same.sort((a,b)=>area(a)-area(b));if(same.some((g,i)=>i&&Math.abs(area(g)-area(same[i-1]))<=1e-10*Math.max(1,area(g))))throw Error("Ambiguous coincident section edges; explicitly choose a simpler source.");
+   same.forEach((g,i)=>{g.key+=`:ring:${i}`;});
+  }
+  // Symmetric freeform parts project front and back silhouettes onto the same
+  // 2D curve. Identical descriptors are the same drawn geometry: keep one.
+  // Previously these were rejected, so no saved output ID depends on the dropped copy.
+  for(let i=sorted.length-1;i>0;i--)if(sorted[i].key===sorted[i-1].key&&sorted[i].g.kind===sorted[i-1].g.kind)sorted.splice(i,1);
   if(new Set(sorted.map(g=>g.key)).size!==sorted.length)throw Error("Ambiguous coincident section edges; explicitly choose a simpler source.");
+  sorted.sort((a,b)=>a.key.localeCompare(b.key));
   for(const {g,key} of sorted)for(const [index,piece] of cropSectionGeometry(g,view.range).entries()){
    const params:Record<string,unknown>={...piece.params,workPlane:"XY"};if(piece.kind==="spline")params.controlPoints=(params.controlPoints as number[][]).map(p=>[view.origin[0]+p[0]*view.scale,view.origin[1]+p[1]*view.scale,0]);else if(piece.kind==="line")params.points=(params.points as number[][]).map(p=>[view.origin[0]+p[0]*view.scale,view.origin[1]+p[1]*view.scale,0]);else{const c=params.center as number[];params.center=[view.origin[0]+c[0]*view.scale,view.origin[1]+c[1]*view.scale,0];if(piece.kind==="ellipse"||piece.kind==="elliptic-arc"){params.axisU=(params.axisU as number[]).map(x=>x*view.scale);params.axisV=(params.axisV as number[]).map(x=>x*view.scale);}else params.radius=Number(params.radius)*view.scale;}
    result.push({kind:piece.kind,params,sourceKey:`${partId}:${piece.kind==="spline"?`spline:${fingerprint(key)}`:key}:crop:${index}:${piece.kind}`,partId});

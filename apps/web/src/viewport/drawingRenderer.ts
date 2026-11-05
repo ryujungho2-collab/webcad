@@ -1,3 +1,5 @@
+import {resolveDxfStyle,dxfVectorStyle} from "../precision/dxfStyle";
+import type {CadDxfStyle} from "@agent-webcad/cad-document";
 import {validSpline} from "@agent-webcad/cad-document";
 import {sampleSpline,splineClosed} from "../precision/splineGeometry";
 import {modelDrawingStyle} from "../precision/layerStyle";
@@ -65,7 +67,8 @@ export function createDrawingRenderObject(
   const planeId = (params.workPlane === "XZ" || params.workPlane === "YZ" ? params.workPlane : "XY") as WorkPlaneId;
   const points = drawingRenderPoints(params, planeId);
   const origin = drawingRenderOrigin(params, planeId);
-  const vectorStyle = params.vectorStyle && typeof params.vectorStyle === "object" ? params.vectorStyle as Partial<CadVectorStyle> : undefined;
+  style=resolveDxfStyle(style??DEFAULT_LAYER_STYLE,params.dxfStyle as CadDxfStyle|undefined).style;
+  const vectorStyle = dxfVectorStyle(params,style);
   const pivot = new THREE.Vector3(...origin);
   const local=points.map(point=>new THREE.Vector3(...point).sub(pivot));
   if (params.kind === "point") {
@@ -114,7 +117,8 @@ export function createDrawingRenderObject(
 
 /** Add a real triangulated fill under a closed CAD path, with the same object identity. */
 export function createDrawingSceneObject(objectId: string, params: Record<string, unknown>, color = 0x4f8cff, style?: LayerStyle): DrawingRenderObject | THREE.Group {
-  const vectorStyle = params.vectorStyle && typeof params.vectorStyle === "object" ? params.vectorStyle as Partial<CadVectorStyle> : undefined;
+  style=resolveDxfStyle(style??DEFAULT_LAYER_STYLE,params.dxfStyle as CadDxfStyle|undefined).style;
+  const vectorStyle = dxfVectorStyle(params,style);
   const line = createDrawingRenderObject(objectId, params, color, style);
   const closed = params.kind === "rectangle" || params.kind === "circle" || validSpline(params)&&splineClosed(params) || validEllipse(params)&&ellipseClosed(params) || params.closed === true;
   const hasSolidFill = typeof vectorStyle?.fill === "string" && /^#[0-9a-f]{6}$/i.test(vectorStyle.fill);

@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-22",
+  "scope": "Editable design intent, protected CAD anchors, visual regions, actual 2D/3D candidate comparison, human feedback, bounded gateway read/model contract and native single-Undo publication",
+  "status": "passed",
+  "environment": {"os":"Windows", "browser":"Microsoft Edge headless", "viewport":"1440x1000", "renderer":"SwiftShader", "server":"Vite development", "geometry":"OpenCascade BRep / actual Worker"},
+  "checks": {
+    "fullNodeRegression": {"passed":1564,"failed":0,"durationMs":81775.8552},
+    "targetedDesignStudyNode": {"passed":13,"failed":0,"includedInFullRun":true},
+    "browserDesignStudy": {"passed":26,"failed":0},
+    "browserRegression": {"copilotGateway":13,"copilotConversation":15},
+    "buildAndTypecheck": "passed; existing Vite chunk-size warning remains",
+    "architectureAndDocumentationLinks": "passed"
+  },
+  "numericOracles": {
+    "primitiveDimensionsMm": [100,60,30],
+    "heightAlternativesMm": [25.5,32.25,34.5],
+    "selectedVolumeMm3": 207000,
+    "volumeToleranceMm3": 0.001,
+    "translatedSplinePlacementToleranceMm": 1e-9,
+    "undoRedo": "Every persisted native field except monotonic revision matches the captured document exactly.",
+    "reopen": "Native serialization and actual browser page reload retain source IDs and dimensions; intent/decisions reopen separately by document ID."
+  },
+  "gatewayEvidence": "Controlled JSON gateway fixture plus native CAD tool execution and visual request payload checks. No live model provider/authentication, aesthetic benchmark or external Blender/FreeCAD session was tested.",
+  "artifacts": [
+    "../../output/verification/design-study/browser-report.json",
+    "../../output/verification/design-study/curves.png",
+    "../../output/verification/design-study/solid.png",
+    "../../output/verification/design-study/gateway.png",
+    "../../output/verification/design-study/model.webcad.json",
+    "../../output/verification/design-study/design-study.json"
+  ],
+  "observedFailuresAndRepairs": [
+    "Initial browser check found missing optional onDesignStudy prop forwarding through ExplorerPanel; repaired and verified through the real App entry point.",
+    "Native spline matrix normalization differed by approximately 1e-12 mm; placement test uses a 1e-9 mm geometric tolerance. Exact native Undo remains tested separately.",
+    "Visual inspection showed oversized cards and a scrolling header; adjusted independent intent/review scroll areas, stable header, three candidate columns and compact baseline.",
+    "Concurrent cold-kernel browser regression exceeded the existing 18-second wait; isolated copilotConversation rerun passed all 15 checks without a production timeout change."
+  ],
+  "limits": [
+    "Local alternatives are explicit geometric transformations, not natural-language architectural reasoning or aesthetic approval.",
+    "Gateway interpretation is separate until explicitly accepted; model notes are not certified numeric or aesthetic facts.",
+    "Comparison uses bounded native tessellation and curve sampling, not photorealistic rendering or exact hidden-line output.",
+    "External Blender/FreeCAD MCP bridges, IFC authoring, model training and automated VLM critique remain separate work.",
+    "Architectural R1 remains aesthetically unaccepted; these tests do not validate that design's beauty or building compliance.",
+    "No new external dependency or copied third-party source code was introduced."
+  ]
+}

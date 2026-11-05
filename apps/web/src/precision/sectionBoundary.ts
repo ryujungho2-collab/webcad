@@ -1,9 +1,11 @@
 import type {SectionDrawing} from "./modelSection";
+import {sectionCurvePieces,verifySectionCurveBoundary} from "./sectionCurveBoundary";
 const tau=2*Math.PI,norm=(a:number)=>(a%tau+tau)%tau,near=(a:number[],b:number[])=>Math.hypot(a[0]-b[0],a[1]-b[1])<1e-6;
 const ends=(g:SectionDrawing):number[][]=>g.kind==="circle"?[]:g.kind==="line"?g.params.points as number[][]:[Number(g.params.startAngle),Number(g.params.endAngle)].map(a=>[(g.params.center as number[])[0]+Number(g.params.radius)*Math.cos(a),(g.params.center as number[])[1]+Number(g.params.radius)*Math.sin(a)]);
 const on=(g:SectionDrawing,p:number[])=>{if(g.kind==="line"){const [a,b]=ends(g),d=[b[0]-a[0],b[1]-a[1]],t=((p[0]-a[0])*d[0]+(p[1]-a[1])*d[1])/(d[0]**2+d[1]**2);return t>=-1e-8&&t<=1+1e-8;}if(g.kind==="circle")return true;const c=g.params.center as number[],t=norm(Math.atan2(p[1]-c[1],p[0]-c[0])-Number(g.params.startAngle));return t<=Number(g.params.endAngle)-Number(g.params.startAngle)+1e-8||tau-t<1e-8;};
 /** Reject intersecting/touching rings or coincident pieces, retaining ordinary shared vertices. */
 export function ambiguousSectionBoundary(curves:SectionDrawing[]):boolean{
+ if(curves.some(g=>g.kind==="ellipse"||g.kind==="elliptic-arc"||g.kind==="spline")){try{verifySectionCurveBoundary(sectionCurvePieces(curves));return false;}catch{return true;}}
  for(let i=0;i<curves.length;i++)for(let j=i+1;j<curves.length;j++){const a=curves[i],b=curves[j];let points:number[][]=[];
   if(a.kind==="line"&&b.kind==="line"){
    const [p,q]=ends(a),[r,s]=ends(b),u=[q[0]-p[0],q[1]-p[1]],v=[s[0]-r[0],s[1]-r[1]],cross=(x:number[],y:number[])=>x[0]*y[1]-x[1]*y[0],w=[r[0]-p[0],r[1]-p[1]],den=cross(u,v);

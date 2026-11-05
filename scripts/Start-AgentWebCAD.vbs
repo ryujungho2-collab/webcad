@@ -5,7 +5,7 @@ Option Explicit
 Dim shell, fso, repo, command
 Set shell = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
-repo = fso.GetParentFolderName(WScript.ScriptFullName)
+repo = fso.GetParentFolderName(fso.GetParentFolderName(WScript.ScriptFullName))
 
 command = "cmd /c cd /d """ & repo & """ && pnpm --filter @agent-webcad/web dev --host 127.0.0.1"
 shell.Run command, 0, False

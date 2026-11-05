@@ -1,3 +1,6 @@
+import {cadPreviewEvidence} from "./copilot/cadPreviewEvidence";
+import {OutputPreflightDialog} from "./export/OutputPreflightDialog";
+import {projectTargets} from "./explorer/projectTree";
 import type {SplineSession} from "./viewport/SplineTool";
 import type {EllipseSession} from "./viewport/EllipseTool";
 import {hasExplodedDisplay} from "./precision/modelPresentation";
@@ -18,12 +21,23 @@ import { dispatchCadCommand } from "./state/dispatchCadCommand";
 import { documentExportSnapshot, documentFingerprint, loadDocumentFromCache, newDocument, openDocumentFile, saveDocumentAsFile, saveDocumentRecovery,startDocumentAutosave } from "./state/documentFile";
 import { embeddedProjectId, notifyProjectHost, projectErrorMessage, projectSessionGeneration, PROJECT_CHANNEL } from "./app/projectSession";
 import {recoveryStatus,subscribeRecoveryStatus,reportRecoveryStatus} from "./state/documentRecovery";
-import {previewCadCommand,applyCadPlan,discardCadPlan,getCadPlanDrawingPaths,type CadPlanPreview} from "./state/documentPlans";
+import {previewCadCommand,applyCadPlan,discardCadPlan,getCadPlanDrawingPaths,getCadPlanSolidGhosts,type CadPlanPreview} from "./state/documentPlans";
+import {useCadMcpBridge} from "./copilot/useCadMcpBridge";
+import type {McpProposalStatus} from "./copilot/cadMcpRuntime";
+import type {CadToolCall} from "./copilot/cadToolContract";
 import {documentVersion,sameDocumentVersion,subscribeDocumentChanges} from "./state/documentSession";
+import {loadCopilotSettings,saveCopilotSettings} from "./copilot/copilotSettings";
+import {validateAgentProposal} from "./copilot/validateAgentProposal";
+import {copilotDeadline} from "./copilot/designIntent";
 import {copilotRequest,requestCopilotPlan,type CopilotConnection} from "./copilot/copilotConnection";
 import {captureCopilotContext,copilotContextChange,type CopilotContextInputs,type CopilotPlanningContext} from "./copilot/copilotContext";
 import { useCopilotQuery } from "./copilot/useCopilotQuery";
 import { validateCopilotEdit } from "./copilot/copilotEdit";
+import { copilotSolidContract } from "./copilot/copilotSolid";
+import { createCadToolSession } from "./copilot/cadToolSession";
+import { planCadToolPrompt } from "./copilot/cadToolPrompts";
+import { CopilotClarificationRequired, planRecipePrompt, type PlanningClarification } from "./copilot/copilotPlanning";
+import { verifyRecipeMeasurement } from "./copilot/cadRecipes";
 import { cadHistory, redoDocument, undoDocument } from "./state/history";
 import type { HistoryStateToken } from "@agent-webcad/cad-history";
 import { reduceSelection, selectAllIds, validSelection as validDocumentSelection, type SelectionState, type TopologySelectionRef } from "./state/selection";
@@ -33,14 +47,14 @@ import { repeatDuplicateOffset, type DuplicateSeries } from "./state/duplicateWo
 import { planAlignment, planDistribution, planGroupTransform } from "./state/selectionCommands";
 import { boundsCenter, getSelectionWorldBounds } from "./precision/worldBounds";
 import { parseAngle, parseLength } from "./precision/units";
-import { isCadKeyboardBlocked, isCadHistoryBlocked, numericShortcutCharacter, routeCadShortcut, routeHistoryShortcut } from "./input/shortcutRouter";
+import { isCompositionKey, isCadKeyboardBlocked, isCadHistoryBlocked, numericShortcutCharacter, routeCadShortcut, routeHistoryShortcut } from "./input/shortcutRouter";
 import { DOCUMENT_BUSY_REASON, isDocumentCommandPending } from "./state/documentCommandQueue";
 import type { DrawingTool, MeasurementTool, ObjectTransformValue, PointMeasurement, TransformMode, ViewportAction, ViewportActionType } from "./viewport/CadViewport";
 import type { WorkPlaneId } from "./precision/workPlane";
 import type { AngularDimensionSession } from "./viewport/AngularDimensionTool";
 import type { WorkspaceMode } from "./viewport/workspaceTransition";
 import type { KernelStatus } from "./cad/kernelGeometryService";
-import { enumerateSolidTopology } from "./cad/kernelGeometryService";
+import { enumerateSolidTopology, warmKernel } from "./cad/kernelGeometryService";
 import { buildPavilionBatch, PAVILION_ROOF_FILLET_RADIUS, PAVILION_ROOF_ID } from "./samples/pavilion";
 import { ruleCopilotBackend, withCopilotLayer, type CopilotPlan } from "./copilot/copilotPlan";
 import {commandInteraction} from "./state/commandInteraction";
@@ -49,6 +63,7 @@ import { loftReady, sweepReady } from "./state/profileSelection";
 import { planDimensionFromSelection } from "./state/dimensionCommands";
 import { collectArtboardExportItems, collectExportAnnotations, collectExportDrawings, collectExportImages, collectExportSolids, collectStepSolids, downloadFile, exportStepBytes } from "./export/exportModel";
 import { encodeBinaryStl } from "./export/stlWriter";
+import {exportGlbBytes} from "./export/glbExport";
 import { encodeSvg } from "./export/svgWriter";
 import { ArtboardPngDialog } from "./export/ArtboardPngDialog";
 import type { ArtboardPngScene } from "./export/artboardPng";
@@ -62,6 +77,7 @@ import {getWorldDrawingGeometry} from "./precision/worldGeometry";
 import { DxfReviewDialog, type DxfReview } from "./interop/DxfReviewDialog";
 import { PlotDialog } from "./plot/PlotDialog";
 import { DraftingPanel } from "./properties/DraftingPanel";
+import { viewFocusPoint } from "./viewport/viewFocus";
 import { isKernelCancelled } from "./cad/kernelGeometryService";
 import { extractSketchLoops, extrusionProfileParams, type SketchLoop } from "./precision/sketchProfiles";
 import { drawingToSketchGeometry, sketchPlane } from "./precision/sketchAdapter";
@@ -81,6 +97,8 @@ import type { PointTransformSession } from "./viewport/PointTransformTool";
 import { inferSketchConstraints, type SketchSnapBinding } from "./precision/automaticSketchConstraints";
 import "./styles.css";
 import { ModelViewsDialog } from "./viewport/ModelViewsDialog";
+import {CurveLayoutDialog} from "./viewport/CurveLayoutDialog";
+import {DesignStudyDialog} from "./copilot/DesignStudyDialog";
 import type { ModelViewBridge, ModelViewRequest } from "./viewport/CadViewport";
 import type { CadModelView } from "@agent-webcad/cad-document";
 
@@ -100,6 +118,7 @@ function axisLabel(axis: 0 | 1 | 2 | null) {
 }
 
 export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
+  const [preflightIds,setPreflightIds]=useState<string[]|null>(null);
   const [assemblyOpen,setAssemblyOpen]=useState(false);
   const [modelViewsOpen, setModelViewsOpen] = useState(false);
   const [modelViewRequest, setModelViewRequest] = useState<ModelViewRequest | null>(null);
@@ -140,13 +159,17 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   const [downloadedFingerprint, setDownloadedFingerprint] = useState<string | null>(null);
   const pendingFileExport=useRef<{requestId:string;fingerprint:string}|null>(null);
   useEffect(()=>{const stop=subscribeRecoveryStatus(value => { setRecovery(value); if(value.fingerprint && (value.state === "saved" || value.state === "recovered")) setSavedFingerprint(value.fingerprint); }),autosave=startDocumentAutosave();return ()=>{stop();autosave();};},[]);
+  const [frameToolsBusy,setFrameToolsBusy]=useState(false);
+  const [frameToolRequest,setFrameToolRequest]=useState<{action:"edit"|"links"|"sheets";id:string;sequence:number}|null>(null);
   const [activeArtboardId, setActiveArtboardId] = useState<string | null>(null);
+
   const artboardMemory = useRef(new WeakMap<HistoryStateToken, string | null>());
   useEffect(() => { artboardMemory.current.set(selectionStateToken, activeArtboardId); }, [activeArtboardId, selectionStateToken]);
   const [artboardPngScene, setArtboardPngScene] = useState<ArtboardPngScene | null>(null);
   const [artboardPdfExport, setArtboardPdfExport] = useState<{ boards: ArtboardPdfBoard[]; activeBoardId: string | null; documentId: string } | null>(null);
   const [projectionMode, setProjectionMode] = useState<"perspective" | "orthographic">("perspective");
   const [gridVisible, setGridVisible] = useState(true);
+  const [solidEdgesVisible,setSolidEdgesVisible]=useState(true);
   const [offsetDistance, setOffsetDistance] = useState("10");
   const [offsetSide, setOffsetSide] = useState<"left" | "right">("left");
   const [offsetActive, setOffsetActive] = useState(false);
@@ -157,6 +180,8 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   const [viewAction, setViewAction] = useState<ViewportAction | null>(null);
   const [transformMode, setTransformMode] = useState<TransformMode | null>(null);
   const [pointTransform, setPointTransform] = useState<PointTransformSession | null>(null);
+  const pointTransformActiveRef = useRef(false);
+  pointTransformActiveRef.current = pointTransform !== null;
   const [patternSession,setPatternSession]=useState<PatternSession|null>(null);
   const [contourSession, setContourSession] = useState<ContourSession | null>(null);
   const [blockSession, setBlockSession] = useState<BlockSession | null>(null);
@@ -165,6 +190,9 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   const [cadPilotSession,setCadPilotSession]=useState<CadPilotSession|null>(null),[activeUcsId,setActiveUcsId]=useState("WCS");
   const [endpointRadiusArcSession,setEndpointRadiusArcSession]=useState<EndpointRadiusArcSession|null>(null);
   const [splineSession,setSplineSession]=useState<SplineSession|null>(null);
+  const [curveLayoutOpen,setCurveLayoutOpen]=useState(false);
+  const [designStudyOpen,setDesignStudyOpen]=useState(false);
+  const [designStudyPreview,setDesignStudyPreview]=useState<CopilotPlan["ghosts"]|null>(null);
   const [ellipseSession,setEllipseSession]=useState<EllipseSession|null>(null);
   const [regularPolygonSession,setRegularPolygonSession]=useState<RegularPolygonSession|null>(null);
   const [constructionSession, setConstructionSession] = useState<ConstructionSession | null>(null);
@@ -173,6 +201,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   const pointCommitPending = useRef(false);
   const [extrusion, setExtrusion] = useState<{loops:SketchLoop[]; chosen:string[]; distance:string; layerId:string; revision:number; previousMode:WorkspaceMode} | null>(null);
   const [extrusionStatus, setExtrusionStatus] = useState("Preparing preview…");
+  const extrusionApplying=useRef(false);
   const [draftingOpen,setDraftingOpen]=useState(false);
   const [addingText,setAddingText]=useState(false);
   const [draftingInitialBlockId,setDraftingInitialBlockId]=useState<string|null>(null);
@@ -190,16 +219,37 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   const [automaticConstraints, setAutomaticConstraints] = useState(true);
   const [orthoEnabled, setOrthoEnabled] = useState(false);
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>("3d");
+  useEffect(()=>setFrameToolRequest(null),[activeArtboardId,workspaceMode]);
   const [directSelectMode, setDirectSelectMode] = useState(false);
   const [, setPrecisionTransform] = useState<PrecisionTransformSession | null>(null);
   const [shortcutReadout, setShortcutReadout] = useState("");
+  // Completion notices ("Extrusion applied") used to stay on the canvas until
+  // the next message. Let them fade, but keep guidance for an active precision
+  // or point transform, which refreshes the readout while it runs.
+  useEffect(() => {
+    if (!shortcutReadout) return;
+    const timer = setTimeout(() => {
+      if (precisionTransformRef.current || pointTransformActiveRef.current) return;
+      setShortcutReadout(current => current === shortcutReadout ? "" : current);
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [shortcutReadout]);
   const [kernelStatus, setKernelStatus] = useState<KernelStatus>("deferred");
+  // Warm the kernel shortly after the 3D workspace is shown, so the first Box,
+  // Cylinder or Extrude does not wait on worker start-up. 2D-only sessions stay lazy.
+  useEffect(() => {
+    if (workspaceMode !== "3d") return;
+    const timer = setTimeout(warmKernel, 1500);
+    return () => clearTimeout(timer);
+  }, [workspaceMode]);
   const [copilotPlan, setCopilotPlan] = useState<CopilotPlan | null>(null);
   const [copilotDraft,setCopilotDraft]=useState("");
-  const [copilotConnection,setCopilotConnection]=useState<CopilotConnection>({mode:"rules",endpoint:"/api/copilot/plan"});
+  const [copilotConnection,setCopilotConnection]=useState<CopilotConnection>(loadCopilotSettings);
+  useEffect(()=>saveCopilotSettings(copilotConnection),[copilotConnection]);
   const [copilotRequestContext,setCopilotRequestContext]=useState<CopilotPlanningContext|null>(null);
   const [copilotReviewedKey,setCopilotReviewedKey]=useState<string>();
   const [copilotError, setCopilotError] = useState("");
+  const [copilotClarification, setCopilotClarification] = useState<PlanningClarification|null>(null);
   const [copilotPreviewFailed, setCopilotPreviewFailed] = useState(0);
   const [copilotPreviewVisible, setCopilotPreviewVisible] = useState(true);
   const [copilotApplying, setCopilotApplying] = useState(false);
@@ -209,6 +259,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   const copilotAbort=useRef<AbortController|null>(null);
   const copilotPublishing=useRef(false);
   const copilotApplyOperation=useRef<{controller:AbortController;sequence:number}|null>(null);
+  const mcpActiveProposal=useRef<string|null>(null),mcpProposals=useRef(new Map<string,McpProposalStatus>());
   useEffect(()=>()=>{copilotAbort.current?.abort();copilotApplyOperation.current?.controller.abort();},[]);
   const viewActionId = useRef(0);
   const lastDuplicate = useRef<DuplicateSeries | null>(null);
@@ -310,7 +361,14 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
     return distance !== null && Math.abs(distance) > 1e-9 && loops.length ? {kind:"extrude", distance, ...extrusionProfileParams(loops)} : null;
   }, [extrusion]);
   useEffect(() => {
-    if (extrusion && extrusion.revision !== documentRevision) { setExtrusion(null); setShortcutReadout("Extrusion cancelled because the source document changed"); }
+    if (!extrusion || extrusionApplying.current || extrusion.revision === documentRevision) return;
+    // An unrelated edit (or a finishing background task) should not throw away
+    // the session: when the same profile loops still resolve, rebind them to the
+    // new revision and let the preview rebuild. Only a changed source cancels.
+    const same = extrudeProfile.ok && extrudeProfile.loops.length === extrusion.loops.length
+      && extrudeProfile.loops.every((loop, index) => loop.id === extrusion.loops[index].id);
+    if (same) { setExtrusion({ ...extrusion, loops: extrudeProfile.loops, revision: documentRevision }); setExtrusionStatus("Preparing preview…"); return; }
+    setExtrusion(null); setShortcutReadout("Extrusion cancelled because its source profiles changed");
   }, [documentRevision]);
 
   useEffect(() => subscribeCommandResults((result) => {
@@ -365,11 +423,13 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   }
 
   function clearCommandTools(resetSelectionMode = true) {
+    setDesignStudyOpen(false);setDesignStudyPreview(null);
     setCornerPreview(null);
     setConstraintReviewReset(v=>v+1);setConstraintReview(undefined);
     setCadPilotSession(null);
     setEndpointRadiusArcSession(null);
     setSplineSession(null);
+    setCurveLayoutOpen(false);
     setEllipseSession(null);
     setRegularPolygonSession(null);
     setConstructionSession(null);
@@ -489,7 +549,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   function issueViewAction(type: ViewportActionType, artboardId?: string) {
     if (["top", "front", "right"].includes(type) && workspaceMode === "3d") setProjectionMode("orthographic");
     viewActionId.current += 1;
-    setViewAction({ id: viewActionId.current, type, artboardId });
+    setViewAction({ id: viewActionId.current, type, ...(type==="fit-canvas"?{canvasId:artboardId}:{artboardId}) });
   }
 
   const clearCommandToolsRef = useRef(clearCommandTools);
@@ -500,11 +560,13 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
     setCornerPreview(current => current?.review && !request?.review ? current : request);
   }, []);
 
-  function activateArtboard(id: string | null) {
+  function activateArtboard(id: string | null, options?: { keepSelection?: boolean }) {
     if (!id) { setActiveArtboardId(null); return; }
     const board = cadDocument.artboards?.[id];
     if (!board?.visible) return;
     clearCommandTools();
+    // Scenes open their frame without discarding the objects the user is composing with.
+    if (!options?.keepSelection) setSelection({ids:[],primaryId:null,subObjects:[]});
     setActiveSketchId(null);
     setActiveArtboardId(id);
     setActiveWorkPlane(board.workPlane);
@@ -758,6 +820,15 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
     }
   }
 
+  async function handleExportGlb(){
+    if(documentBusy())return;
+    try{
+      const bytes=await exportGlbBytes(selectedObjectIds.length?selectedObjectIds:undefined);
+      downloadFile(bytes,`${cadDocument.id}.glb`,"model/gltf-binary");
+      setShortcutReadout(`Exported GLB with materials (${(bytes.length/1024).toFixed(1)} KB) · assembled model · metres / Y up`);
+    }catch(error){setShortcutReadout(`GLB export failed: ${error instanceof Error?error.message:String(error)}`);}
+  }
+
   async function handleImportFixtureFile(file: File | undefined) {
     if (!file || documentBusy()) return;
     const baseVersion = documentVersion();
@@ -828,6 +899,15 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
     }
   }
 
+  // Primitives appear at the point the view orbits around, on the ground plane.
+  // Boxes are positioned by their minimum corner, so centre them on that point.
+  function placementOrigin(width = 0, depth = 0): [number, number, number] | null {
+    const focus = viewFocusPoint();
+    if (!focus) return null;
+    const snap = (v: number) => Math.round(v * 1000) / 1000;
+    return [snap(focus[0] - width / 2), snap(focus[1] - depth / 2), 0];
+  }
+
   async function handleCreateBox() {
     const generatedObjectCount = Object.values(cadDocument.features).filter(
       (feature) => feature.type === "primitive"
@@ -839,7 +919,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       depth: 8,
       height: 6,
       layerId: selectedLayerId,
-      position: [14 + generatedObjectCount * 10, 0, 0],
+      position: placementOrigin(8, 8) ?? [14 + generatedObjectCount * 10, 0, 0],
     });
     const newId = result.createdIds[0];
     if (newId) selectObject(newId);
@@ -853,7 +933,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       : primitive === "sphere" ? { radius: 5 }
       : primitive === "cone" ? { radius1: 5, radius2: 2, height: 8 }
       : { majorRadius: 5, minorRadius: 1.5 };
-    const result = await dispatchCadCommand({ type: "create-primitive", primitive, params, layerId: selectedLayerId, position: [14 + count * 12, 0, 0] });
+    const result = await dispatchCadCommand({ type: "create-primitive", primitive, params, layerId: selectedLayerId, position: placementOrigin() ?? [14 + count * 12, 0, 0] });
     const newId = result.createdIds[0];
     if (newId) selectObject(newId);
     else if (!result.ok) setShortcutReadout(result.reason ?? "Primitive creation rejected");
@@ -926,6 +1006,8 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   }
 
   function clearCopilot() {
+    setCopilotClarification(null);
+    if(mcpActiveProposal.current){const id=mcpActiveProposal.current;mcpProposals.current.set(id,{proposalId:id,status:"cancelled",reason:"The review was cleared, its context changed or the MCP bridge disconnected."});mcpActiveProposal.current=null;}
     copilotSequence.current++;copilotAbort.current?.abort();copilotAbort.current=null;
     copilotApplyOperation.current?.controller.abort();copilotApplyOperation.current=null;copilotPublishing.current=false;
     if(copilotValidated)discardCadPlan(copilotValidated.planId);
@@ -938,13 +1020,19 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
     setCopilotError(copilotContextError);
   },[copilotContextError,copilotApplying]);
 
-  async function handleCopilotSubmit(input: string,connection:CopilotConnection={mode:"rules",endpoint:""}) {
+  async function handleCopilotSubmit(input: string,connection:CopilotConnection={mode:"rules",endpoint:""},toolCalls?:CadToolCall[],externalSignal?:AbortSignal) {
+    setCopilotClarification(null);
+    if(mcpActiveProposal.current)clearCopilot();
     copilotApplyOperation.current?.controller.abort();copilotApplyOperation.current=null;copilotPublishing.current=false;
     const sequence=++copilotSequence.current;
     copilotAbort.current?.abort();const controller=new AbortController();copilotAbort.current=controller;
-    const context=captureCopilotContext(cadDocument,{version:documentVersion(),selectionIds:selectedObjectIds,workPlane:activeWorkPlane,layerId:selectedLayerId,prompt:input,connection});
-    setCopilotDraft(input);setCopilotConnection(connection);
-    liveCopilotContextRef.current={...liveCopilotContextRef.current,prompt:input,connection};
+    const abortExternal=()=>controller.abort(externalSignal?.reason);externalSignal?.addEventListener("abort",abortExternal,{once:true});if(externalSignal?.aborted)abortExternal();
+    // Explicit tools already carry their arguments. Preserve the user's language
+    // draft while binding review invalidation to the draft that is actually visible.
+    const requestDraft=toolCalls?copilotDraft:input;
+    const context=captureCopilotContext(cadDocument,{version:documentVersion(),selectionIds:selectedObjectIds,workPlane:activeWorkPlane,layerId:selectedLayerId,prompt:requestDraft,connection});
+    setCopilotDraft(requestDraft);setCopilotConnection(connection);
+    liveCopilotContextRef.current={...liveCopilotContextRef.current,prompt:requestDraft,connection};
     if(copilotValidated)discardCadPlan(copilotValidated.planId);
     setCopilotValidated(null);
     setCopilotCompletedIds([]);
@@ -955,19 +1043,25 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
     setActiveActivity("copilot");
     setCopilotApplying(true);
     try{
-      const result=connection.mode==="gateway"?{ok:true as const,plan:await requestCopilotPlan(connection.endpoint,copilotRequest(input,cadDocument,context.selectionIds,context.workPlane),{signal:controller.signal,baseUrl:location.href})}:ruleCopilotBackend.plan(input);
+      const toolContext={document:cadDocument,selectionIds:context.selectionIds,layerId:context.layerId,workPlane:context.workPlane};
+      const toolOptions={signal:controller.signal,isCurrent:()=>!copilotContextChange(context,liveCopilotContextRef.current)};
+      controller.signal.throwIfAborted();
+      const recipe=!toolCalls&&(input.trim().startsWith("{")||input.trim().startsWith("템플릿 · "))?planRecipePrompt(input):undefined;
+      let agentPreview:CadPlanPreview|undefined;
+      const result=recipe?{ok:true as const,plan:recipe}:toolCalls?{ok:true as const,plan:await createCadToolSession(toolContext,toolOptions).plan(toolCalls,controller.signal)}:connection.mode==="gateway"?{ok:true as const,plan:await requestCopilotPlan(connection.endpoint,copilotRequest(input,cadDocument,context.selectionIds,context.workPlane,context.layerId,connection.model),{signal:controller.signal,baseUrl:location.href,timeoutMs:copilotDeadline(connection.endpoint),toolSession:createCadToolSession(toolContext,toolOptions),validatePlan:async(plan,signal,evidence)=>{plan.command=withCopilotLayer(plan.command,context.layerId);agentPreview=await validateAgentProposal(plan,cadDocument,context.selectionIds,context.workPlane,input,evidence,signal);}})}:await planCadToolPrompt(input,toolContext,toolOptions)??ruleCopilotBackend.plan(input,{document:cadDocument,selection:context.selectionIds});
       if(sequence!==copilotSequence.current)return;
       const changed=copilotContextChange(context,liveCopilotContextRef.current);
       if(changed)throw new Error(changed);
-      if(!result.ok){setCopilotError(result.reason);return;}
-      const planned={...result.plan,command:withCopilotLayer(result.plan.command,context.layerId)};
+      if(!result.ok){setCopilotError(result.reason);return {ok:false as const,reason:result.reason};}
+      const planned={...result.plan,...toolCalls?{summary:[input,...result.plan.summary]}:{},command:withCopilotLayer(result.plan.command,context.layerId)};
       validateCopilotEdit(planned.command,cadDocument,context.selectionIds,context.workPlane);
       setCopilotPlan(planned);
-      const preview=await previewCadCommand(planned.command,{signal:controller.signal});
+      const preview=agentPreview??await previewCadCommand(planned.command,{signal:controller.signal});
       if(sequence!==copilotSequence.current){discardCadPlan(preview.planId);return;}
       const changedDuringPreview=copilotContextChange(context,liveCopilotContextRef.current);
       if(changedDuringPreview){discardCadPlan(preview.planId);throw new Error(changedDuringPreview);}
-      if(!preview.result.ok||preview.stale){setCopilotError(preview.result.reason??"The document changed; plan again.");discardCadPlan(preview.planId);return;}
+      if(!preview.result.ok||preview.stale){const reason=preview.result.reason??"The document changed; plan again.";setCopilotError(reason);discardCadPlan(preview.planId);return {ok:false as const,reason};}
+      if(planned.recipe){try{planned.summary.push(verifyRecipeMeasurement(planned.recipe,preview.changes.find(change=>change.objectId===planned.resultObjectIds?.[0])?.after));}catch(error){discardCadPlan(preview.planId);throw error;}}
       setCopilotValidated(preview);
       setCopilotReviewedKey(JSON.stringify(planned.command));
       if(planned.command.type==="move-object"){
@@ -981,10 +1075,30 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
         }
         planned.ghosts=ghosts;
       }
-      setCopilotPlan({...planned,summary:[...planned.summary,...preview.changes.filter(change=>change.after?.volume!==undefined).map(change=>`${change.name}: ${change.after!.volume!.toFixed(4)} mm³`)]});
-    }catch(error){if(sequence===copilotSequence.current){setCopilotPlan(null);setCopilotError(error instanceof Error?error.message:"Preview failed.");}}
-    finally{if(sequence===copilotSequence.current){setCopilotApplying(false);if(copilotAbort.current===controller)copilotAbort.current=null;}}
+      if(planned.resultObjectIds){const solids=getCadPlanSolidGhosts(preview.planId);if(solids.length)planned.ghosts=solids;}
+      const summary=[...planned.summary,...cadPreviewEvidence(preview.changes)];
+      setCopilotPlan({...planned,summary});
+      return {ok:true as const,proposalId:preview.planId,summary};
+    }catch(error){const reason=error instanceof Error?error.message:"Preview failed.";if(sequence===copilotSequence.current){setCopilotPlan(null);if(error instanceof CopilotClarificationRequired&&!controller.signal.aborted&&!copilotContextChange(context,liveCopilotContextRef.current)){setCopilotClarification(error.clarification);setCopilotError("");}else setCopilotError(reason);}return {ok:false as const,reason};}
+    finally{externalSignal?.removeEventListener("abort",abortExternal);if(sequence===copilotSequence.current){setCopilotApplying(false);if(copilotAbort.current===controller)copilotAbort.current=null;}}
   }
+
+  const mcpBridge=useCadMcpBridge({
+    scopeKey:cadDocument.id,
+    context:()=>({document:cadDocument,selectionIds:selectedObjectIds,layerId:selectedLayerId,workPlane:activeWorkPlane}),
+    review:async(calls,signal)=>{
+      if(copilotApplying||copilotPlan||mcpActiveProposal.current||designStudyOpen||activeSketchId||activeLayerLocked||documentBusy())throw Error("CAD is busy or another review is open. Finish or clear it in the app first.");
+      signal.throwIfAborted();
+      const result=await handleCopilotSubmit(`MCP proposal · ${calls.map(c=>c.name).join(", ")}`,copilotConnection,calls,signal);
+      if(!result?.ok)throw Error(result?.reason??"CAD context changed or proposal was cancelled.");
+      const receipt:McpProposalStatus={proposalId:result.proposalId,status:"pending-review",summary:result.summary};
+      mcpActiveProposal.current=receipt.proposalId;mcpProposals.current.set(receipt.proposalId,receipt);
+      if(mcpProposals.current.size>20)mcpProposals.current.delete(mcpProposals.current.keys().next().value!);
+      return receipt;
+    },
+    proposal:id=>{const value=mcpProposals.current.get(id);if(!value)throw Error("Unknown or expired proposal ID.");return value;},
+    disconnect:()=>{if(mcpActiveProposal.current)clearCopilot();mcpProposals.current.clear();},
+  });
 
   const dimensionCommand = selectedObjectId && !activeSketchId
     ? planDimensionFromSelection(cadDocument, selectedObjectId)
@@ -1030,9 +1144,10 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       if(operation.sequence!==copilotSequence.current)return;
       if (result.ok) {
         const moved=copilotPlan?.command.type==="move-object"?[copilotPlan.command.objectId]:[];
-        const created = [...result.createdIds,...moved].filter((id) => Boolean(cadDocument.objects[id]));
+        const created = (copilotPlan?.resultObjectIds ?? [...result.createdIds,...moved]).filter((id) => Boolean(cadDocument.objects[id]));
+        if(mcpActiveProposal.current){const id=mcpActiveProposal.current;mcpProposals.current.set(id,{proposalId:id,status:"applied",resultObjectIds:created});mcpActiveProposal.current=null;}
         if (created.length) selectObjects(created);
-        setShortcutReadout(`Copilot: ${moved.length?"moved":"created"} ${created.length} object${created.length === 1 ? "" : "s"}`);
+        setShortcutReadout(`Copilot: completed on ${created.length} object${created.length === 1 ? "" : "s"}`);
         setCopilotPlan(null);
         setCopilotValidated(null);
         setCopilotRequestContext(null);
@@ -1112,6 +1227,9 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
 
   async function applyExtrusion() {
     if (!extrusion || !extrusionPreview || extrusionStatus !== "Preview ready" || documentBusy()) return;
+    if(extrusion.revision!==cadDocument.revision){setExtrusion(null);setShortcutReadout("Extrusion cancelled because the source document changed");return;}
+    extrusionApplying.current=true;
+    try{
     const result = await dispatchCadCommand({
       type: "create-extrude",
       profileObjectIds: [...new Set(extrusion.loops.filter(loop=>extrusion.chosen.includes(loop.id)).flatMap(loop=>loop.sourceObjectIds))],
@@ -1124,8 +1242,10 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       setExtrusion(null);
       setWorkspaceMode("3d");
       selectObject(newId);
+      setShortcutReadout("Extrusion applied");
     } else if (!result.ok) setShortcutReadout(result.reason ?? "Extrude rejected");
-    syncRevision();
+    }catch(error){setShortcutReadout(error instanceof Error?error.message:"Extrude rejected");}
+    finally{extrusionApplying.current=false;syncRevision();}
   }
 
   async function handleRevolve() {
@@ -1518,7 +1638,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       action === "undo" ? handleUndo() : handleRedo();
     }
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.defaultPrevented || event.isComposing || isCadKeyboardBlocked(event.target, event.key)) return;
+      if (event.defaultPrevented || isCompositionKey(event) || isCadKeyboardBlocked(event.target, event.key)) return;
       if(cadPilotSession){if(event.key==="Escape"){event.preventDefault();setCadPilotSession(null);}return;}
       if(endpointRadiusArcSession){if(event.key==="Escape"){event.preventDefault();setEndpointRadiusArcSession(null);}return;}
       if(regularPolygonSession){if(event.key==="Escape"){event.preventDefault();setRegularPolygonSession(null);}return;}
@@ -1647,8 +1767,8 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
     return () => { window.removeEventListener("keydown", handleHistoryKeyDown, true); window.removeEventListener("keydown", handleKeyDown); };
   }, [currentFingerprint, selectedObjectId, selectedObjectIds, selectedFeature, selectedLayerLocked, selectionEditable, selectedSketchOwned, activeSketchId, activeLayerLocked, extrudeProfile.ok, drawingTool, measurementTool, transformMode, directSelectMode, lineEditTool, offsetActive, workspaceMode, pointTransform, extrusion,cadPilotSession,endpointRadiusArcSession,regularPolygonSession,patternSession,contourSession,blockSession,curveSession,constructionVisible,activeArtboardId]);
 
-  const properties = activeSketch ? <SketchInspector reviewResetKey={constraintReviewReset} onConstraintReview={setConstraintReview} onVariables={()=>setActiveActivity("variables")} onFaceExtruded={id=>{setActiveSketchId(null);selectObject(id);changeWorkspace("3d");}} selectedConstraintId={selectedSketchConstraintId} onSelectConstraint={setSelectedSketchConstraintId} diagnostic={sketchDiagnostic} offsetDistance={offsetDistance} onOffsetDistanceChange={setOffsetDistance} offsetSide={offsetSide} onOffsetSideChange={setOffsetSide} onOffset={() => void commitOffsetFromViewport()} sketch={activeSketch} selectedObjectIds={selectedObjectIds} selectedSubObjects={selection.subObjects ?? []} onDocumentChange={syncRevision} /> : selectedFeature?.params.sketchId ? <div className="properties-content"><section className="property-section"><h3>Sketch geometry</h3><div className="property-row"><span>Entity</span><strong>{selectedObject?.name}</strong></div><div className="property-row"><span>Owner</span><strong>{String(selectedFeature.params.sketchId)}</strong></div><button type="button" className="sketch-edit-button" onClick={() => editSketch(String(selectedFeature.params.sketchId))}>Edit Sketch</button></section>{selectedObjectId && <DependencyNotice objectId={selectedObjectId} revision={documentRevision}/>}</div> : (
-    <PropertiesPanel
+  const properties = activeSketch ? <SketchInspector key={activeSketch.id} reviewResetKey={constraintReviewReset} onConstraintReview={setConstraintReview} onVariables={()=>setActiveActivity("variables")} onFaceExtruded={id=>{setActiveSketchId(null);selectObject(id);changeWorkspace("3d");}} selectedConstraintId={selectedSketchConstraintId} onSelectConstraint={setSelectedSketchConstraintId} diagnostic={sketchDiagnostic} offsetDistance={offsetDistance} onOffsetDistanceChange={setOffsetDistance} offsetSide={offsetSide} onOffsetSideChange={setOffsetSide} onOffset={() => void commitOffsetFromViewport()} sketch={activeSketch} selectedObjectIds={selectedObjectIds} selectedSubObjects={selection.subObjects ?? []} onDocumentChange={syncRevision} /> : selectedFeature?.params.sketchId ? <div className="properties-content"><section className="property-section"><h3>Sketch geometry</h3><div className="property-row"><span>Entity</span><strong>{selectedObject?.name}</strong></div><div className="property-row"><span>Owner</span><strong>{String(selectedFeature.params.sketchId)}</strong></div><button type="button" className="sketch-edit-button" onClick={() => editSketch(String(selectedFeature.params.sketchId))}>Edit Sketch</button></section>{selectedObjectId && <DependencyNotice objectId={selectedObjectId} revision={documentRevision}/>}</div> : (
+    <PropertiesPanel activeArtboardId={workspaceMode==="2d"?activeArtboardId:null} onEditFrame={()=>{if(activeArtboardId&&!frameToolsBusy){clearCommandTools();setFrameToolRequest({action:"edit",id:activeArtboardId,sequence:Date.now()});}}}
       onFaceSketchCreated={editSketch}
       onEditAngularDimension={id=>beginAngularDimension(id)}
       onEditPattern={id=>beginPattern(Object.values(cadDocument.features).find(f=>f.pattern?.id===id)!.pattern!.spec.kind,id)}
@@ -1680,12 +1800,15 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       onOffsetCancel={() => setOffsetActive(false)}
       onCornerPreview={handleCornerPreview}
       onFilletPreview={setFilletPreview}
+      onReviewCadTools={calls=>{if(!documentBusy()&&!copilotApplying)void handleCopilotSubmit("형상 편집 · 연결 방식",copilotConnection,calls);}}
       onChamferPreview={setChamferPreview}
     />
   );
 
   return (
     <>
+      {curveLayoutOpen&&<CurveLayoutDialog selectedId={selectedObjectId??undefined} onClose={()=>setCurveLayoutOpen(false)} onApplied={ids=>{syncRevision();setSelection({ids,primaryId:ids[0]??null});}}/>}
+      {designStudyOpen&&<DesignStudyDialog key={cadDocument.id} selectionIds={selectedObjectIds} plane={activeWorkPlane} layerId={selectedLayerId} connection={copilotConnection} onConnectionChange={value=>{clearCopilot();setCopilotConnection(value);}} initialGoal={copilotDraft} disabledReason={activeSketchId?"Finish the active sketch first.":activeLayerLocked?"Unlock the active layer first.":undefined} onClose={()=>setDesignStudyOpen(false)} onPreview={setDesignStudyPreview} onApplied={ids=>{syncRevision();selectObjects(ids);}}/>}
       {plotOpen && (
         <PlotDialog
           activeWorkPlane={activeWorkPlane}
@@ -1699,6 +1822,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
         onClose={() => setArtboardPngScene(null)}
         onExported={message => setShortcutReadout(message)}
       />}
+      {preflightIds&&<OutputPreflightDialog initialIds={preflightIds} onClose={()=>setPreflightIds(null)} onInspect={issue=>{activateArtboard(issue.boardId);const b=cadDocument.artboards?.[issue.boardId];if(issue.objectId&&cadDocument.objects[issue.objectId]&&!b?.frame&&!b?.frameSheet){selectObjects([issue.objectId]);issueViewAction("fit-selection");}setShortcutReadout(issue.message);}}/>}
       {artboardPdfExport && <ArtboardPdfDialog
         boards={artboardPdfExport.boards}
         activeBoardId={artboardPdfExport.activeBoardId}
@@ -1739,8 +1863,8 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
         }}
       />
       <input ref={imageFileInput} type="file" accept={RASTER_FILE_ACCEPT} aria-label="Import image file" tabIndex={-1} style={{ display: "none" }} onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ""; void handleImportImageFile(file); }} />
-      <AppShell
-      onCadPilot={beginCadPilot} activeUcsName={cadDocument.workPlanes?.[activeUcsId]?.name??activeUcsId} onEndpointRadiusArc={beginEndpointRadiusArc} onSpline={()=>{clearCommandTools();setSplineSession({id:`spline-${crypto.randomUUID()}`,objectId:selectedFeature?.params.kind==="spline"?selectedObjectId??undefined:undefined,workPlane:activeWorkPlane,layerId:selectedLayerId});}} onEllipse={()=>{clearCommandTools();setEllipseSession({id:`ellipse-${crypto.randomUUID()}`,objectId:selectedFeature&&["ellipse","elliptic-arc"].includes(String(selectedFeature.params.kind))?selectedObjectId??undefined:undefined,workPlane:activeWorkPlane,layerId:selectedLayerId});}} onRegularPolygon={beginRegularPolygon} onConstruction={beginConstruction} constructionVisible={constructionVisible} onToggleConstruction={toggleConstruction}
+      <AppShell frameToolsBusy={frameToolsBusy} onRepeatCommand={repeatLastCommand} onFrameAction={action=>{if(!activeArtboardId)return;clearCommandTools();setFrameToolRequest({action,id:activeArtboardId,sequence:Date.now()});}}
+      onCadPilot={beginCadPilot} activeUcsName={cadDocument.workPlanes?.[activeUcsId]?.name??activeUcsId} onEndpointRadiusArc={beginEndpointRadiusArc} onCurveLayout={()=>{clearCommandTools();setCurveLayoutOpen(true);}} onSpline={()=>{clearCommandTools();setSplineSession({id:`spline-${crypto.randomUUID()}`,objectId:selectedFeature?.params.kind==="spline"?selectedObjectId??undefined:undefined,fitSourceId:selectedFeature?.params.kind==="polyline"?selectedObjectId??undefined:undefined,workPlane:activeWorkPlane,layerId:selectedLayerId});}} onEllipse={()=>{clearCommandTools();setEllipseSession({id:`ellipse-${crypto.randomUUID()}`,objectId:selectedFeature&&["ellipse","elliptic-arc"].includes(String(selectedFeature.params.kind))?selectedObjectId??undefined:undefined,workPlane:activeWorkPlane,layerId:selectedLayerId});}} onRegularPolygon={beginRegularPolygon} onConstruction={beginConstruction} constructionVisible={constructionVisible} onToggleConstruction={toggleConstruction}
       onAngularDimension={()=>beginAngularDimension()}
       onCurveWorkflow={beginCurveWorkflow} canCurveWorkflow={!activeSketch}
       canContour={canContour} onContour={beginContour}
@@ -1748,10 +1872,22 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       activeActivity={activeActivity}
       activeArtboardId={activeArtboardId}
       activeArtboardName={activeArtboardId ? cadDocument.artboards?.[activeArtboardId]?.name : undefined}
+      onOutputPreflight={()=>setPreflightIds(activeArtboardId?[activeArtboardId]:Object.values(cadDocument.artboards??{}).filter(b=>b.visible).map(b=>b.id))}
       onExportArtboardSvg={handleExportArtboardSvg}
       onExportArtboardPng={handleExportArtboardPng}
       onExportArtboardPdf={handleExportArtboardPdf}
       hasVisibleArtboards={Object.values(cadDocument.artboards ?? {}).some(board => board.visible)}
+      onNavigateProject={key=>{
+        if(frameToolsBusy)return;
+        const target=projectTargets(cadDocument).find(row=>row.key===key);
+        if(!target||target.unavailable)return;
+        if(target.canvasId){clearCommandTools();setActiveSketchId(null);setActiveArtboardId(null);selectObjects([]);setWorkspaceMode("2d");setProjectionMode("orthographic");if(target.plane)setActiveWorkPlane(target.plane);issueViewAction("fit-canvas",target.canvasId);return;}
+        if(target.artboardId){activateArtboard(target.artboardId);return;}
+        clearCommandTools();setActiveSketchId(null);setActiveArtboardId(null);
+        setWorkspaceMode(target.workspace);setProjectionMode("orthographic");
+        if(target.plane)setActiveWorkPlane(target.plane);
+        selectObjects(target.objectIds);issueViewAction("fit-selection");
+      }}
       onActivateArtboard={activateArtboard}
       onInsertComponent={(blockId) => { setAddingText(false); setDraftingInitialBlockId(blockId); setDraftingOpen(true); }}
       onAddText={() => { clearCommandTools(); setDraftingInitialBlockId(null); setAddingText(true); setDraftingOpen(true); }}
@@ -1852,6 +1988,9 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       onExportSvg={handleExportSvg}
       onExportDxf={handleExportDxf}
       onExportStep={() => void handleExportStep()}
+      onExportGlb={()=>void handleExportGlb()}
+      solidEdgesVisible={solidEdgesVisible}
+      onToggleSolidEdges={()=>setSolidEdgesVisible(v=>!v)}
       onImportFixture={()=>{if(!documentBusy())fixtureFileInput.current?.click();}}
       onExportFixture={handleExportFixture}
       onImportDxf={handleImportDxf}
@@ -1865,7 +2004,11 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       onDimension={() => void handleDimensionFromSelection()}
       onInsertPavilion={() => void handleInsertPavilion()}
       copilot={{
-        query: { state: copilotQuery.state, selectionCount: selectedObjectIds.length,
+        mcpBridge,
+        onSelectTargets:ids=>{if(documentBusy()||ids.length===selectedObjectIds.length&&ids.every((id,i)=>id===selectedObjectIds[i]))return;clearCopilot();clearCommandTools();selectObjects(ids);},
+        onDesignStudy:()=>{clearCopilot();clearCommandTools();setDesignStudyOpen(true);},
+        solid:activeActivity==="copilot"?copilotSolidContract(cadDocument,selectedObjectIds):undefined,
+        query: { state: copilotQuery.state, selectionIds:selectedObjectIds, selectionCount: selectedObjectIds.length,
           targetId: copilotQuery.targetId, onTargetChange: copilotQuery.setTargetId,
           onOpenLayers: () => setActiveActivity("layers"),
           onRead: () => void copilotQuery.read(), onCancel: copilotQuery.cancel,
@@ -1877,6 +2020,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
         interaction:copilotInteraction,
         plan: copilotPlan,
         error: copilotError,
+        clarification: copilotClarification,
         previewFailed: copilotPreviewFailed,
         previewVisible: copilotPreviewVisible,
         applying: copilotApplying,
@@ -1900,7 +2044,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       properties={properties}
     >
       <Suspense fallback={<div className="viewport-loading" role="status">Preparing viewport…</div>}>
-        <CadViewport
+        <CadViewport solidEdgesVisible={solidEdgesVisible} onFrameToolsBusy={setFrameToolsBusy} frameToolRequest={frameToolRequest}
           activeArtboardId={activeArtboardId}
           imageCropPreview={imageCropPreview}
           imageCropEditingId={imageCropEditingId}
@@ -2001,7 +2145,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
           onCornerApplied={ids => { syncRevision(); selectObject(ids[0] ?? null); }}
           filletPreview={filletPreview}
           chamferPreview={chamferPreview}
-          copilotPreview={wallPreview??(copilotPreviewVisible ? copilotPlan?.ghosts ?? null : null)}
+          copilotPreview={designStudyPreview??wallPreview??(copilotPreviewVisible ? copilotPlan?.ghosts ?? null : null)}
           onCopilotPreviewStatus={(failed) => setCopilotPreviewFailed(failed)}
           onKernelStatus={setKernelStatus}
           onTransformCommit={(objectId, mode, transform) => void commitViewportTransform(objectId, mode, transform)}
@@ -2029,7 +2173,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
           onDirectSelectSubObject={(ref, additive) => selectSubObject(ref, additive)}
         />
       </Suspense>
-      {draftingOpen && <DraftingPanel key={addingText ? "add-text" : draftingInitialBlockId ?? "default"} ids={addingText ? [] : selectedObjectIds} layerId={selectedLayerId} plane={activeWorkPlane} initialBlockId={draftingInitialBlockId ?? undefined} onChange={syncRevision} onSelect={selectObject} onClose={()=>{setDraftingOpen(false);setDraftingInitialBlockId(null);setAddingText(false);}}/>}
+      {draftingOpen && <DraftingPanel key={addingText ? "add-text" : draftingInitialBlockId ?? JSON.stringify([cadDocument.id,selectedObjectIds])} ids={addingText ? [] : selectedObjectIds} layerId={selectedLayerId} plane={activeWorkPlane} initialBlockId={draftingInitialBlockId ?? undefined} onChange={syncRevision} onSelect={selectObject} onClose={()=>{setDraftingOpen(false);setDraftingInitialBlockId(null);setAddingText(false);}}/>}
       {(recovery.state==="failed"||recovery.state==="recovered")&&<div className="recovery-notice" role={recovery.state==="failed"?"alert":"status"}>{recovery.state==="failed"?"Recovery save failed: ":""}{recovery.message}{recovery.state==="failed"&&<button onClick={async()=>{try{await saveDocumentRecovery();}catch{/* Status retains the failure and a retry path. */}}}>Retry recovery save</button>}</div>}
       {extrusion && <form className="extrusion-session" data-cad-editor onSubmit={(event)=>{event.preventDefault();void applyExtrusion();}} onKeyDown={(event)=>{if(event.key==="Escape"){event.preventDefault();event.stopPropagation();cancelExtrusion();}}}>
         <strong>Extrusion preview</strong><span>Click a shaded region to include or exclude it.</span>
@@ -2038,17 +2182,10 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
         <span role="status">{extrusionPreview ? extrusionStatus : "Choose a region and enter a non-zero depth, e.g. 8mm or -2cm."}</span>
         <div><button type="submit" disabled={!extrusionPreview || extrusionStatus!=="Preview ready"}>Apply extrusion</button><button type="button" onClick={cancelExtrusion}>Cancel extrusion</button></div>
       </form>}
-      {workspaceMode === "2d" && <div className="point-operations" data-cad-editor>
-        <button type="button" disabled={Boolean(activeSketch)||activeLayerLocked} onClick={()=>{clearCommandTools();setAddingText(false);setDraftingOpen(true);}}>Drafting</button>
-        <button type="button" title="Move by base and target points (M or G)" disabled={!selectionEditable || !canModifySelection} onClick={() => beginPointTransform("move")}>Move by points</button>
-        <button type="button" title="Place multiple copies from one base point (Shift+C)" disabled={!selectionEditable || !canModifySelection} onClick={() => beginPointTransform("copy")}>Copy by points</button>
-        <button type="button" title="Rotate around a chosen centre (Shift+R)" disabled={!selectionEditable || !canModifySelection} onClick={() => beginPointTransform("rotate")}>Rotate about point</button>
-        <button type="button" onClick={repeatLastCommand}>Repeat command</button>
-        {activeSketch && <label><input type="checkbox" aria-label="Automatic sketch constraints" checked={automaticConstraints} onChange={(event) => setAutomaticConstraints(event.target.checked)} />Auto constraints · Alt suppress</label>}
-      </div>}
+      {workspaceMode === "2d" && activeSketch && <div className="point-operations" data-cad-editor><label><input type="checkbox" aria-label="Automatic sketch constraints" checked={automaticConstraints} onChange={event=>setAutomaticConstraints(event.target.checked)}/>Auto constraints · Alt suppress</label></div>}
       </AppShell>
       {modelViewError && !modelViewsOpen && <div className="recovery-notice" role="alert">{modelViewError}<button type="button" onClick={() => setModelViewError("")}>Dismiss view error</button></div>}
-      {assemblyOpen&&<ModelPresentationDialog revision={documentRevision} selectedIds={selectedObjectIds} onChanged={syncRevision} onClose={()=>setAssemblyOpen(false)} onSelect={id=>setSelection({ids:[id],primaryId:id})}/>}
+      {assemblyOpen&&<ModelPresentationDialog onPreflight={ids=>{setAssemblyOpen(false);setPreflightIds(ids);}} revision={documentRevision} selectedIds={selectedObjectIds} onChanged={syncRevision} onClose={()=>setAssemblyOpen(false)} onSelect={id=>setSelection({ids:[id],primaryId:id})}/>}
       {modelViewsOpen && <ModelViewsDialog revision={documentRevision} capture={captureModelView} recall={recallModelView}
         onViewAction={action => { setWorkspaceMode("3d"); if (["top", "front", "right"].includes(action)) setProjectionMode("orthographic"); issueViewAction(action); }}
         onChanged={syncRevision} onClose={() => setModelViewsOpen(false)} recallReason={activeSketchId ? "Finish the active sketch before changing model views." : undefined} error={modelViewError} />}

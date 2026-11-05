@@ -32,10 +32,19 @@ describe("artboard PDF preflight", () => {
   });
 
   test("preflights aggregate raster pixels and page count across all selected boards", () => {
-    const tooManyPixels = planArtboardPdf([scene("a", "A", [1200, 900]), scene("b", "B", [1200, 900])], 72);
+    const tooManyPixels = planArtboardPdf(Array.from({length:9},(_,i)=>scene(`a${i}`,`A${i}`,[1200,900])),72);
     assert.ok("error" in tooManyPixels && /raster pixels/.test(tooManyPixels.error));
     const tooManyPages = planArtboardPdf(Array.from({ length: ARTBOARD_PDF_MAX_PAGES + 1 }, (_, index) => scene(`board-${index}`, `Board ${index}`, [25.4, 25.4])), 96);
     assert.ok("error" in tooManyPages && /32 pages/.test(tooManyPages.error));
+  });
+
+  test("a real twelve-sheet mixed A2/A3 interior issue fits at 96dpi while page, memory and file budgets remain enforced",()=>{
+    const sheets=Array.from({length:12},(_,i)=>scene(`cafe-${i}`,`Cafe ${i}`,i<5?[594,420]:[420,297]));
+    const result=planArtboardPdf(sheets,96);assert.ok(!("error" in result));
+    assert.ok(result.totalPixels>16_000_000);assert.ok(result.estimatedPeakBytes<256*1024*1024);assert.ok(result.estimatedFileBytes<128*1024*1024);
+    const oversized=planArtboardPdf(sheets,150);assert.ok("error" in oversized&&/memory|size|pixels/.test(oversized.error));
+    const single=planArtboardPdf([scene("single","Single",[2000,1200])],96);assert.ok("error" in single&&/PNG output/.test(single.error));
+    const memory=planArtboardPdf(Array.from({length:6},(_,i)=>scene(`m${i}`,`M${i}`,[594,420])),150);assert.ok("error" in memory&&/memory/.test(memory.error));
   });
 
   test("uses the explicit white-page alpha policy while preserving the scene background", () => {

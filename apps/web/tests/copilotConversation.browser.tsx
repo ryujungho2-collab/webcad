@@ -1,0 +1,37 @@
+import "../src/styles.css";
+import {createRoot} from "react-dom/client";import {App} from "../src/App";
+import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+import {cadDocument} from "../src/state/cadDocument";import {cadHistory} from "../src/state/history";
+import {copilotSolidContract} from "../src/copilot/copilotSolid";
+import {measureDocumentObject} from "../src/state/documentQuery";
+import {serializeDocument} from "@agent-webcad/cad-document";
+import {saveDocumentToCache} from "../src/state/documentFile";
+import {exportStepBytes} from "../src/export/exportModel";
+import {click,text,waitFor,physical,input} from "./helpers/physicalInput";
+import {installBrowserChecks} from "./helpers/browserChecks";
+createRoot(document.getElementById("root")!).render(<App/>);
+const button=document.getElementById("run-solid") as HTMLButtonElement,output=document.getElementById("solid-result")!;
+const panel=()=>document.querySelector('[data-testid="copilot-panel"]')!;
+const apply=()=>[...panel().querySelectorAll<HTMLButtonElement>("button")].find(b=>b.textContent?.trim()==="Apply");
+const ready=()=>waitFor(()=>!!apply()&&!apply()!.disabled);
+const state=()=>{const{revision:_,...d}=cadDocument;return JSON.stringify(d);};
+const prompt="가로 100mm, 세로 60mm, 두께 5mm 판에 지름 8mm 구멍 네 개를 각 모서리에서 10mm 안쪽에 만들어줘";
+const follow="가로를 120mm로 늘려줘. 구멍은 모서리에서 10mm 간격을 유지해줘";
+const plan=async(s:string)=>{await text("Copilot prompt",s);await click("Plan");};
+button.onclick=async()=>{button.disabled=true;const checks:string[]=[],check=(ok:unknown,label:string)=>{if(!ok)throw Error(label);checks.push("PASS "+label);output.textContent=checks.join("\n");};try{
+ await waitFor(()=>!!document.querySelector("canvas"));const saved=sessionStorage.getItem("conversation-reopen");
+ if(saved){const old=JSON.parse(saved);checks.push(...old.checks);check(state()===old.state,"Actual page reload preserves the parametric source and IDs");check(Math.abs((await measureDocumentObject(cadDocument,old.id)).volume!-(120*80-64*Math.PI)*5)<.003,"Reopened solid rebuilds to independently expected volume");
+ await click("3D");await click("Copilot");await click("Model tree");await physical(document.querySelector(`[data-model-object-id="${old.id}"] .tree-label`)!);await click("Copilot");await click("Fit all geometry");
+ const toggle=document.querySelector<HTMLInputElement>('[aria-label="Enable hover distance"]');if(toggle?.checked)await physical(toggle);(output.closest("aside") as HTMLElement).hidden=true;
+ const shot=await(await input({type:"screenshot"})).json();(globalThis as any).cadTestArtifacts={"plate.webcad.json":serializeDocument(cadDocument),"plate.step":old.step,"viewport.png":shot.data};(globalThis as any).cadTestMetrics={prompts:[prompt,follow,"세로를 80mm로 바꿔줘. 구멍은 모서리에서 10mm 간격을 유지해줘"],final:{width:120,depth:80,thickness:5,holeDiameter:8,margin:10},planner:"bounded local rules; no provider"};sessionStorage.removeItem("conversation-reopen");output.textContent=checks.join("\n")+`\nALL ${checks.length} CHECKS PASSED`;return;}
+ await click("New document");await click("3D");await click("Copilot");check(cadDocument.rootObjects.length===0,"Conversation starts from an empty document");const before=state(),history=cadHistory.getPastLabels().length;
+ await plan(prompt);await ready();check(state()===before&&cadHistory.getPastLabels().length===history,"Full Korean creation request produces a detached real-kernel review");check(panel().textContent?.includes("100 × 60 × 5")&&panel().textContent?.includes("Four through holes Ø8"),"Review exposes the requested dimensions and hole relationship");
+ await click("Clear");check(state()===before,"Cancel discards the creation plan without changing the empty document");await click("Plan");await ready();await click("Apply");await waitFor(()=>Object.values(cadDocument.features).some(f=>f.type==="extrude"));
+ const id=Object.values(cadDocument.features).find(f=>f.type==="extrude")!.output;check(cadHistory.getPastLabels().length===history+1&&!!panel().querySelector('[aria-label="Editable solid dimensions"]'),"Creation is one Undo and leaves the final solid selected for follow-up");check(Math.abs((await measureDocumentObject(cadDocument,id)).volume!-(100*60-64*Math.PI)*5)<.003,"Created plate has the independently expected four-hole BRep volume");
+ const original=state(),ids=Object.keys(cadDocument.objects).sort().join();await plan(follow);await ready();check(state()===original&&panel().textContent?.includes("retain 10 mm"),"Follow-up explicitly reviews preserved margins without publication");await click("Apply");await waitFor(()=>copilotSolidContract(cadDocument,[id]).plate?.width===120);
+ const centers=()=>Object.values(cadDocument.sketches!)[0].geometry.filter(g=>g.kind==="circle").map(g=>g.kind==="circle"?g.center.map(v=>Math.round(v*1e6)/1e6):[]);
+ check(JSON.stringify(centers())==="[[10,10],[110,10],[10,50],[110,50]]"&&Object.keys(cadDocument.objects).sort().join()===ids,"Width edit retains all four margins and original object identities");const edited=state();await click("Undo");check(state()===original,"One Undo restores the creation state and all source bindings");await click("Redo");check(state()===edited,"Redo restores the same edited solid");
+ await plan(follow.replace("10mm","12mm"));await waitFor(()=>!!panel().querySelector('[role="alert"]'));check(state()===edited&&!apply(),"Contradictory preserved margin is rejected without mutation");
+ await plan("세로를 80mm로 바꿔줘. 구멍은 모서리에서 10mm 간격을 유지해줘");await ready();await click("Apply");await waitFor(()=>copilotSolidContract(cadDocument,[id]).plate?.depth===80);check(JSON.stringify(centers())==="[[10,10],[110,10],[10,70],[110,70]]","A different dimension and value follow the same parametric relationship");
+ const step=new TextDecoder().decode(await exportStepBytes());check(step.includes("ISO-10303-21"),"Result exports as an actual STEP BRep");saveDocumentToCache();sessionStorage.setItem("conversation-reopen",JSON.stringify({id,state:state(),checks,step}));location.reload();
+}catch(e){output.textContent=checks.join("\n")+"\nFAIL: "+String(e);}};installBrowserChecks(button,output);

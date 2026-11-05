@@ -1,0 +1,123 @@
+{
+  "status": "passed",
+  "checks": 31,
+  "message": "PASS: Ground preview leaves live document unchanged\nPASS: Native Ground Apply\nPASS: Native Revolute Joint creation\nPASS: Native Fixed Joint creation\nPASS: Angle Preview does not publish\nPASS: Native Cancel preserves angle\nPASS: All upper parts rotate together at 90 degrees\nPASS: All upper parts rotate together at 180 degrees\nPASS: All upper parts rotate together at 0 degrees\nPASS: Native Undo/Redo restores absolute Joint state\nPASS: All original BRep/Mesh geometry data retained\nPASS: v62 file load preserves full assembly\nPASS: Geometry preserved after reload\nPASS: Native sweep detects obstruction at0/180 and clears tested90\nPASS: Actual OCCT Common volume is200mm3\nPASS: Inspection leaves complete document, Joint angles and history unchanged\nPASS: Collision preview poses/highlights are detached from live Joint angle\nPASS: Clear inspection preview restores unchanged authoring state\nPASS: Read-only MCP and native UI classify identical samples\nPASS: Explicit exceptions retain raw penetration rather than skipping computation\nPASS: Triage orders motion-dependent penetration before invariant penetration and contact\nPASS: Fixed support/plate overlap gets a structural invariant explanation\nPASS: Intent Preview is metadata-only and does not publish\nPASS: Intent Cancel keeps raw measurements unchanged\nPASS: Intent Apply retains cached BRep rows and entire geometry without inspection rerun\nPASS: Intentional overlap is a user annotation, not a suppressed geometric penetration\nPASS: Intent uses explicit v63 serialization\nPASS: Removing final intent leaves measurements intact and retains v62 compatibility\nPASS: v63 native reload preserves intent and original geometry\nPASS: Real BRep Worker request cancellation rejects without document changes\nPASS: Document generation change discards inspection results and preview\nALL 31 CHECKS PASSED",
+  "artifacts": [
+    "assembly-90.png",
+    "assembly-180.png",
+    "assembly-0.png",
+    "assembly-motion-180.png",
+    "interference-triage.png"
+  ],
+  "metrics": {
+    "motion": {
+      "version": {
+        "documentId": "document-774fb9cd-5099-4987-890a-d39ae8303acd",
+        "revision": 53,
+        "generation": 14
+      },
+      "request": {
+        "jointId": "bearing",
+        "start": 0,
+        "end": 180,
+        "step": 90,
+        "partIds": [
+          "stand-plate",
+          "motion-obstacle"
+        ],
+        "exceptions": [],
+        "tolerance": 0.000001
+      },
+      "angles": [
+        0,
+        90,
+        180
+      ],
+      "rows": [
+        {
+          "relativeMotion": "motion-dependent",
+          "angle": 0,
+          "pair": [
+            "stand-plate",
+            "motion-obstacle"
+          ],
+          "baseStatus": "penetration",
+          "status": "penetration",
+          "method": "brep",
+          "exception": false,
+          "commonVolume": 200.00000000000006,
+          "distance": 0.9999999999999858,
+          "volumeTolerance": 2.0000000000000007e-7
+        },
+        {
+          "relativeMotion": "motion-dependent",
+          "angle": 90,
+          "pair": [
+            "stand-plate",
+            "motion-obstacle"
+          ],
+          "baseStatus": "no-penetration",
+          "status": "no-penetration",
+          "method": "aabb",
+          "exception": false
+        },
+        {
+          "relativeMotion": "motion-dependent",
+          "angle": 180,
+          "pair": [
+            "stand-plate",
+            "motion-obstacle"
+          ],
+          "baseStatus": "penetration",
+          "status": "penetration",
+          "method": "brep",
+          "exception": false,
+          "commonVolume": 200.00000000000006,
+          "distance": 0.9999999999999858,
+          "volumeTolerance": 2.0000000000000007e-7
+        }
+      ],
+      "parts": [
+        {
+          "id": "stand-plate",
+          "status": "supported"
+        },
+        {
+          "id": "motion-obstacle",
+          "status": "supported"
+        }
+      ],
+      "samplingFinished": true,
+      "state": "finished",
+      "elapsedMs": 202.09999999962747,
+      "stats": {
+        "possiblePairs": 3,
+        "aabbRejected": 1,
+        "candidates": 2,
+        "invariantReuse": 0,
+        "kernelCalls": 6,
+        "completedSamples": 3,
+        "estimatedInputBytes": 25330,
+        "wasmCapacityBytes": 104857600
+      },
+      "warning": "Discrete samples only; unchecked angular intervals are NOT certified collision-free. AABB is not a collision test. Exceptions retain their original result."
+    },
+    "phaseA": [
+      {
+        "angle": 90,
+        "maxPositionErrorMm": 3.4809342861069267e-14,
+        "reviewApplyMs": 329.69999999925494
+      },
+      {
+        "angle": 180,
+        "maxPositionErrorMm": 2.4613922385709617e-14,
+        "reviewApplyMs": 321.40000000037253
+      },
+      {
+        "angle": 0,
+        "maxPositionErrorMm": 2.4613922385709617e-14,
+        "reviewApplyMs": 349.3999999985099
+      }
+    ]
+  }
+}

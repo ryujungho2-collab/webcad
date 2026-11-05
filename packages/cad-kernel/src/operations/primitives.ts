@@ -35,7 +35,7 @@ export async function createBox(width: number, depth: number, height: number): P
     height
   );
   
-  return boxMaker.Shape();
+  try { return boxMaker.Shape(); } finally { boxMaker.delete(); }
 }
 
 /**
@@ -51,7 +51,7 @@ export async function createCylinder(radius: number, height: number): Promise<an
     height
   );
   
-  return cylMaker.Shape();
+  try { return cylMaker.Shape(); } finally { cylMaker.delete(); }
 }
 
 /**
@@ -66,17 +66,17 @@ export async function createSphere(radius: number): Promise<any> {
     radius
   );
   
-  return sphMaker.Shape();
+  try { return sphMaker.Shape(); } finally { sphMaker.delete(); }
 }
 
 export async function createCone(radius1: number, radius2: number, height: number): Promise<any> {
   const oc = (await CadEngine.create()).oc;
   const maker = new oc.BRepPrimAPI_MakeCone_1(radius1, radius2, height);
-  return maker.Shape();
+  try { return maker.Shape(); } finally { maker.delete(); }
 }
 
 export async function createTorus(majorRadius: number, minorRadius: number): Promise<any> {
   const oc = (await CadEngine.create()).oc;
   const maker = new oc.BRepPrimAPI_MakeTorus_1(majorRadius, minorRadius);
-  return maker.Shape();
+  try { return maker.Shape(); } finally { maker.delete(); }
 }

@@ -92,7 +92,7 @@ export function registerDraftingCommandHandlers(bus:CommandBus,document:CadDocum
     if(command.type!=="insert-block")return;
     const block=document.blocks?.[command.blockId];if(!block)return;
     const normal=WORK_PLANES[block.workPlane].normal;if(Math.abs(command.position.reduce((sum,v,i)=>sum+v*normal[i],0))>1e-6)return;
-    const id=create(command.id??`instance-${crypto.randomUUID()}`,command.layerId??"layer-default",{kind:"block",blockId:block.id,workPlane:block.workPlane});
+    const id=create(command.id??`instance-${crypto.randomUUID()}`,command.layerId??"layer-default",{kind:"block",blockId:block.id,workPlane:block.workPlane,...(command.dxfStyle?{dxfStyle:structuredClone(command.dxfStyle)}:{})});
     if(id){const transform=document.objects[id].transform!;transform.translation=[...command.position];if(command.scale)transform.scale=[...command.scale];transform.rotation=normal.map(v=>v*(command.angle??0)) as Vec3;return id;}
   });
 }

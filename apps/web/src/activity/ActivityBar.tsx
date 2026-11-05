@@ -1,4 +1,4 @@
-export type ActivityId = "scenes" | "model" | "layers" | "artboards" | "components" | "type" | "history" | "copilot" | "variables";
+export type ActivityId = "library" | "project" | "scenes" | "model" | "layers" | "artboards" | "components" | "type" | "history" | "copilot" | "variables";
 
 type ActivityBarProps = {
   activeActivity: ActivityId;
@@ -7,6 +7,8 @@ type ActivityBarProps = {
 };
 
 const items: { id: ActivityId; label: string; path: string }[] = [
+  {id:"library",label:"Component and style library",path:"M3 3h7v7H3Z M14 3h7v7h-7Z M3 14h7v7H3Z M14 14h7v7h-7Z"},
+  {id:"project",label:"Project navigation",path:"M3 4h7l2 3h9v14H3Z M7 11h10 M7 15h10"},
   { id: "model", label: "Model tree", path: "m12 3 8 4.5v9L12 21l-8-4.5v-9Z m-8 4.5 8 4.5 8-4.5 M12 12v9" },
   { id: "layers", label: "Layers", path: "m3 8 9-5 9 5-9 5Z m-9 5 9 5 9-5 m-18 5 9 5 9-5" },
   { id: "artboards", label: "Artboards", path: "M3 5h18v14H3Z M7 9h5v5H7Z M15 9h3 M15 13h3" },

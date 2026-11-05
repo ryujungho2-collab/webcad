@@ -1,4 +1,5 @@
 import {createRoot} from "react-dom/client";
+import { openDisclosureFor } from "./helpers/physicalInput";
 import {App} from "../src/App";
 import "../src/styles.css";
 import "../src/ui/tokens.css";
@@ -31,7 +32,7 @@ const state=()=>{const {revision:_,...doc}=cadDocument;return JSON.stringify(doc
 const find=(name:string)=>Array.from(document.querySelectorAll<HTMLButtonElement>("#root button")).find(b=>(b.getAttribute("aria-label")??b.textContent?.trim())===name);
 async function waitFor(test:()=>boolean){const deadline=Date.now()+12000;while(!test()){if(Date.now()>deadline)throw new Error("UI timeout: "+editor()?.textContent);await pause();}await pause();}
 async function input(action:Record<string,unknown>){const run=new URLSearchParams(location.search).get("run"),r=await fetch(`/__browser_input?run=${run}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(action)});if(!r.ok)throw new Error(await r.text());return r;}
-async function physical(element:HTMLElement){const rect=element.getBoundingClientRect(),x=rect.left+rect.width/2,y=rect.top+rect.height/2;if(!element.contains(document.elementFromPoint(x,y)))throw new Error("Obscured control: "+element.outerHTML);await input({type:"mousePressed",x,y,button:"left",buttons:1});await input({type:"mouseReleased",x,y,button:"left",buttons:0});await pause();}
+async function physical(element:HTMLElement){ if (element) await openDisclosureFor(element);const rect=element.getBoundingClientRect(),x=rect.left+rect.width/2,y=rect.top+rect.height/2;if(!element.contains(document.elementFromPoint(x,y)))throw new Error("Obscured control: "+element.outerHTML);await input({type:"mousePressed",x,y,button:"left",buttons:1});await input({type:"mouseReleased",x,y,button:"left",buttons:0});await pause();}
 async function click(name:string){const b=find(name);if(!b||b.disabled)throw new Error(`Missing or disabled ${name}`);await physical(b);await waitFor(()=>!isDocumentCommandPending());}
 async function field(name:string,value:string){const target=editor()?.querySelector<HTMLInputElement>(`[data-pattern-field="${name}"]`);if(!target)throw new Error("Missing field "+name);await physical(target);await input({type:"key",key:"a",modifiers:2});await input({type:"text",text:value});await pause();}
 async function select(id:string){const row=document.querySelector<HTMLElement>(`[data-model-object-id="${id}"] .tree-label`);if(!row)throw new Error("Missing model row "+id);await physical(row);}

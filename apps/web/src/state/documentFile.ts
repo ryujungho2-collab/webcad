@@ -1,3 +1,4 @@
+import {geometryEvaluationClient} from "../cad/geometryEvaluationClient";
 import {
   serializeDocument,
   deserializeDocument,
@@ -12,6 +13,7 @@ import {
   cadHistory,
 } from "./history";
 import { assertDocumentIdle,isDocumentCommandPending } from "./documentCommandQueue";
+import {assertAssemblyPose} from "./assemblyCommands";
 import { documentVersion, sameDocumentVersion, notifyDocumentChanged, subscribeDocumentChanges } from "./documentSession";
 import { readRecoveryCheckpoint,writeRecoveryCheckpoint,reportRecoveryStatus,recoveryStatus } from "./documentRecovery";
 import { assertConstructionEvaluation } from "../precision/constructionGeometry";
@@ -157,10 +159,13 @@ export async function openDocumentFile(
   const text =
     await file.text();
 
-  const loaded =
-    deserializeDocument(
-      text
-    );
+  // Bounded hybrid documents validate cold geometry in the Worker. Large legacy
+  // documents retain their existing loader rather than acquiring a new size limit.
+  const header=text.length<4_000_000?JSON.parse(text):undefined;
+  const version=documentVersion();
+  const loaded=header?.version>=55
+    ? await geometryEvaluationClient.evaluate({kind:"document",text},{scope:"open-hybrid-document",isCurrent:()=>sameDocumentVersion(version)}) as CadDocument
+    : deserializeDocument(text);
 
   restoreLoadedDocument(
     loaded
@@ -216,6 +221,7 @@ function restoreLoadedDocument(
   loaded: CadDocument, persist = true
 ) {
   assertDocumentIdle();
+  assertAssemblyPose(loaded);
   assertConstructionEvaluation(loaded);
   assertAngularEvaluation(loaded);
   recoveryLoadBlocked = false;
@@ -238,13 +244,18 @@ function restoreLoadedDocument(
   if(loaded.variables) cadDocument.variables = structuredClone(loaded.variables); else delete cadDocument.variables;
   if(loaded.parameterBindings) cadDocument.parameterBindings = structuredClone(loaded.parameterBindings); else delete cadDocument.parameterBindings;
   if(loaded.frameLinks) cadDocument.frameLinks = structuredClone(loaded.frameLinks); else delete cadDocument.frameLinks;
+  if(loaded.savedMeasurements)cadDocument.savedMeasurements=structuredClone(loaded.savedMeasurements);else delete cadDocument.savedMeasurements;
+  if(loaded.canvases)cadDocument.canvases=structuredClone(loaded.canvases);else delete cadDocument.canvases;
   if(loaded.workspaceSections) cadDocument.workspaceSections = structuredClone(loaded.workspaceSections); else delete cadDocument.workspaceSections;
   if(loaded.artboards) cadDocument.artboards = structuredClone(loaded.artboards); else delete cadDocument.artboards;
   if(loaded.scenes) cadDocument.scenes = structuredClone(loaded.scenes); else delete cadDocument.scenes;
   if(loaded.exchangeImports) cadDocument.exchangeImports = structuredClone(loaded.exchangeImports); else delete cadDocument.exchangeImports;
   if(loaded.modelViews) cadDocument.modelViews = structuredClone(loaded.modelViews); else delete cadDocument.modelViews;
   if(loaded.modelPresentation) cadDocument.modelPresentation=structuredClone(loaded.modelPresentation); else delete cadDocument.modelPresentation;
+  if(loaded.interferenceIntents)cadDocument.interferenceIntents=structuredClone(loaded.interferenceIntents);else delete cadDocument.interferenceIntents;
+  if(loaded.assembly)cadDocument.assembly=structuredClone(loaded.assembly);else delete cadDocument.assembly;
   if(loaded.workPlanes) cadDocument.workPlanes = structuredClone(loaded.workPlanes); else delete cadDocument.workPlanes;
+  if(loaded.externalSceneAssets) cadDocument.externalSceneAssets = structuredClone(loaded.externalSceneAssets); else delete cadDocument.externalSceneAssets;
   if(loaded.rasterAssets) cadDocument.rasterAssets = structuredClone(loaded.rasterAssets); else delete cadDocument.rasterAssets;
 
   cadDocument.layers =

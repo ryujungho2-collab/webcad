@@ -1,0 +1,4166 @@
+{
+ "version": "webcad-capability-ontology-v1",
+ "source": "apps/web/src/ontology/capabilities",
+ "note": "Descriptive inventory. Execution is decided by validateCommand, CommandBus handlers and Copilot planners.",
+ "summary": {
+  "capabilities": 87,
+  "bySupport": {
+   "supported": 44,
+   "partial": 23,
+   "unconfirmed": 20
+  },
+  "byKind": {
+   "document-edit": 57,
+   "interaction": 19,
+   "io": 6,
+   "inspection": 5
+  },
+  "byExecutor": {
+   "command-bus": 43,
+   "history": 2,
+   "ui-state": 15,
+   "none": 20,
+   "file-io": 4,
+   "read-only": 3
+  },
+  "shortcutItems": 120,
+  "shortcutVerdicts": {
+   "same-input": 16,
+   "different-input": 50,
+   "unconfirmed": 23,
+   "partial": 31
+  },
+  "commandTypesReferenced": 62,
+  "mcpToolsReferenced": 14
+ },
+ "capabilities": [
+  {
+   "id": "draw-2d-curve",
+   "label": "Create 2D line / polyline / rectangle / circle / arc",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-drawing"
+   ],
+   "mcpTools": [
+    "curve.polyline",
+    "curve.circle"
+   ],
+   "targetKinds": [
+    "analytic-curve:line",
+    "analytic-curve:polyline",
+    "analytic-curve:rectangle",
+    "analytic-curve:circle",
+    "analytic-curve:arc"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "draw-line",
+     "draw-polyline",
+     "draw-rectangle",
+     "draw-circle",
+     "draw-arc",
+     "draw-circle-3point",
+     "draw-arc-3point"
+    ],
+    "shortcutActions": [
+     "line",
+     "polyline",
+     "rectangle",
+     "circle",
+     "arc"
+    ],
+    "surfaces": [
+     "Ribbon → Draw"
+    ]
+   },
+   "preconditions": [
+    "2D workspace",
+    "active layer is visible and unlocked (routeCadShortcut drawingAvailable)",
+    "MCP: output layer visible and unlocked; new ID not in use"
+   ],
+   "limitations": [
+    "MCP curve.polyline needs coplanar vertices parallel to its origin plane, distinct consecutive points, ≥3 points when closed",
+    "MCP has no arc tool; arcs are created only through UI tools"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/App.tsx",
+     "symbol": "type: \"create-drawing\", drawing, params"
+    },
+    {
+     "file": "apps/web/src/input/shortcutRouter.ts",
+     "symbol": "routeCadShortcut"
+    },
+    {
+     "file": "apps/web/src/copilot/cadModelingTools.ts",
+     "symbol": "call.name === \"curve.circle\" || call.name === \"curve.polyline\""
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "apps/web/tests/shortcutRouter.test.ts",
+     "scope": "key routing"
+    },
+    {
+     "file": "apps/web/tests/cadToolsAdvanced.test.ts",
+     "scope": "curve.polyline planning"
+    },
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "scope": "2026-11-05 browser: shortcutGuide 13, cadPilots 30, draftingWorkflow 16 checks (not re-run here)"
+    }
+   ]
+  },
+  {
+   "id": "move",
+   "label": "Move selection",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "move-object",
+    "move-in-ucs"
+   ],
+   "mcpTools": [
+    "scene.objects"
+   ],
+   "targetKinds": [
+    "analytic-curve",
+    "brep",
+    "annotation",
+    "planar-region",
+    "polygon-mesh",
+    "external-reference"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "translate",
+     "points-move"
+    ],
+    "shortcutActions": [
+     "move"
+    ],
+    "surfaces": [
+     "3D gizmo translate",
+     "2D base-point move (planPointTransform)",
+     "UCS Pilot → Move"
+    ]
+   },
+   "preconditions": [
+    "selection exists and is editable (routeCadShortcut: hasSelection && selectionEditable)"
+   ],
+   "limitations": [
+    "assertEditableCommandTargets rejects derived outputs: model projections/sections, construction outputs, pattern instances, planar faces, published sheet geometry",
+    "MCP scene.objects refuses one derived output: 'Move the owning sketch or drawing view, not one derived output.'",
+    "Direct transforms are rejected while an exploded display offset applies to the part"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/App.tsx",
+     "symbol": "type: \"move-object\", objectId, translation"
+    },
+    {
+     "file": "apps/web/src/state/pointTransformCommands.ts",
+     "symbol": "planPointTransform"
+    },
+    {
+     "file": "apps/web/src/state/commandBus.ts",
+     "symbol": "function assertEditableCommandTargets"
+    },
+    {
+     "file": "apps/web/src/copilot/sceneTools.ts",
+     "symbol": "Move the owning sketch or drawing view"
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "apps/web/tests/sceneTools.test.ts",
+     "scope": "scene.objects move"
+    },
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "scope": "2026-11-05 browser: shortcutGuide 13, cadPilots 30, draftingWorkflow 16 checks (not re-run here)"
+    }
+   ]
+  },
+  {
+   "id": "base-point-clipboard",
+   "label": "Base-point copy and paste (Clipboard pilot)",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "paste-drawing-snapshot"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve:line",
+    "analytic-curve:polyline",
+    "analytic-curve:rectangle",
+    "analytic-curve:circle",
+    "analytic-curve:arc",
+    "analytic-curve:point"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "base-point-clipboard"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "UCS / Clipboard pilot → Copy base point, then Paste at target → Review/Apply"
+    ]
+   },
+   "preconditions": [
+    "copy: 1–64 objects and a finite world base point",
+    "copy: each object visible on a visible layer, a `drawing` feature with no inputs (independent)",
+    "paste: clipboard came from the same document ID; every member layer is visible and unlocked"
+   ],
+   "limitations": [
+    "only line, polyline, rectangle, circle, arc and point drawings",
+    "rejects sketch-owned, model-projection, construction, pattern and parameter-bound drawings ('need X4-A2')",
+    "same document only: copyDrawingClipboard stores documentId and both clipboardPasteCommand and the handler reject another document",
+    "in-memory module clipboard, not the OS clipboard; it does not survive a reload and is per editor iframe",
+    "pasted members are new independent drawings with new IDs and regenerated topology"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/state/cadPilotCommands.ts",
+     "symbol": "export function copyDrawingClipboard"
+    },
+    {
+     "file": "apps/web/src/state/cadPilotCommands.ts",
+     "symbol": "Clipboard pilot is limited to the same document"
+    },
+    {
+     "file": "apps/web/src/state/cadPilotCommands.ts",
+     "symbol": "bus.registerHandler(\"paste-drawing-snapshot\""
+    },
+    {
+     "file": "apps/web/src/viewport/CadPilotTool.tsx",
+     "symbol": "clipboardPasteCommand"
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "apps/web/tests/cadPilots.test.ts",
+     "scope": "clipboard pilot Node tests"
+    },
+    {
+     "file": "docs/verification/X-TANGENT-CLIPBOARD-UCS-PILOTS-2026-10-11.json",
+     "scope": "pilot verification record"
+    },
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "scope": "2026-11-05 browser: shortcutGuide 13, cadPilots 30, draftingWorkflow 16 checks (not re-run here)"
+    }
+   ],
+   "needsVerification": [
+    "no Ctrl+Shift+C / Ctrl+V key routing found; only the pilot tool path"
+   ]
+  },
+  {
+   "id": "dimension-annotation",
+   "label": "Create dimension annotation (linear / aligned / radius)",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-dimension"
+   ],
+   "mcpTools": [
+    "draft.linearDimension"
+   ],
+   "targetKinds": [
+    "analytic-curve:line",
+    "analytic-curve:circle",
+    "annotation:dimension"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "dimension"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Properties → Add dimension",
+     "Annotation → Orientation (Horizontal/Vertical/Aligned)"
+    ]
+   },
+   "preconditions": [
+    "one supported source selected (planDimensionFromSelection)"
+   ],
+   "limitations": [
+    "MCP draft.linearDimension creates a static measured dimension and needs a nonzero span in its orientation"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/state/dimensionCommands.ts",
+     "symbol": "export function planDimensionFromSelection"
+    },
+    {
+     "file": "apps/web/src/state/registerDimensionCommandHandlers.ts",
+     "symbol": "registerHandler(\"create-dimension\""
+    },
+    {
+     "file": "apps/web/src/copilot/cadModelingTools.ts",
+     "symbol": "call.name===\"draft.linearDimension\""
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "apps/web/tests/dimensionWorkflow.test.ts",
+     "scope": "dimension create/update"
+    }
+   ]
+  },
+  {
+   "id": "dimension-edit",
+   "label": "Edit dimension text, orientation, offset and style",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "update-dimension"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "annotation:dimension"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": [
+     "Properties → Annotation"
+    ]
+   },
+   "preconditions": [
+    "a dimension annotation is selected"
+   ],
+   "limitations": [
+    "no named dimension-style manager (coverage item 032)",
+    "angular dimensions use their own edit path"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/state/registerDimensionCommandHandlers.ts",
+     "symbol": "registerHandler(\"update-dimension\""
+    },
+    {
+     "file": "apps/web/src/properties/PropertiesPanel.tsx",
+     "symbol": "update-dimension"
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "apps/web/tests/dimensionWorkflow.test.ts",
+     "scope": "dimension create/update"
+    }
+   ]
+  },
+  {
+   "id": "driving-dimension-edit",
+   "label": "Change a driving dimension (solid parameter, sketch dimension, variable)",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "update-primitive",
+    "update-extrude",
+    "set-sketch-dimension",
+    "set-variable"
+   ],
+   "mcpTools": [
+    "solid.parameter"
+   ],
+   "targetKinds": [
+    "brep",
+    "sketch",
+    "variable"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "variables"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Properties → numeric model edit",
+     "Sketch Inspector → dimension",
+     "Variables panel"
+    ]
+   },
+   "preconditions": [
+    "MCP solid.parameter: exactly one selected supported solid; standalone proposal"
+   ],
+   "limitations": [
+    "dependent features regenerate inside the same transaction; a regeneration failure rejects the whole edit"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/copilot/copilotSolid.ts",
+     "symbol": "export function solidParameterPlan"
+    },
+    {
+     "file": "apps/web/src/copilot/cadModelingTools.ts",
+     "symbol": "calls.some(call=>call.name===\"solid.parameter\")"
+    },
+    {
+     "file": "apps/web/src/state/featureRegeneration.ts",
+     "symbol": "export async function regenerateDependentFeatures"
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "apps/web/tests/copilotSolid.test.ts",
+     "scope": "solid.parameter planning"
+    }
+   ]
+  },
+  {
+   "id": "extrude",
+   "label": "Extrude closed profiles",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-extrude",
+    "update-extrude"
+   ],
+   "mcpTools": [
+    "solid.extrude"
+   ],
+   "targetKinds": [
+    "analytic-curve",
+    "planar-region",
+    "brep"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "extrude"
+    ],
+    "shortcutActions": [
+     "extrude"
+    ],
+    "surfaces": [
+     "Properties → Extrude"
+    ]
+   },
+   "preconditions": [
+    "selected closed profile(s) (routeCadShortcut: canExtrude)",
+    "MCP: profiles are selected visible unlocked sources or outputs of earlier steps"
+   ],
+   "limitations": [
+    "MCP profile references must be unique",
+    "an open profile passes MCP planning and is rejected at Preview by the create-extrude handler ('Selected geometry does not form a closed loop')",
+    "the result must pass BRep measurement in prepareCadCommand"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/App.tsx",
+     "symbol": "type: \"create-extrude\""
+    },
+    {
+     "file": "apps/web/src/copilot/cadModelingTools.ts",
+     "symbol": "call.name === \"solid.extrude\""
+    },
+    {
+     "file": "apps/web/src/state/dispatchCadCommand.ts",
+     "symbol": "Invalid solid geometry"
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "apps/web/tests/cadToolsAdvanced.test.ts",
+     "scope": "tool planning incl. extrude"
+    }
+   ]
+  },
+  {
+   "id": "undo",
+   "label": "Undo",
+   "kind": "document-edit",
+   "executor": "history",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "document"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "undo"
+    ],
+    "shortcutActions": [
+     "undo"
+    ],
+    "surfaces": [
+     "Ctrl+Z / Cmd+Z"
+    ]
+   },
+   "preconditions": [
+    "no document command pending (isDocumentCommandPending)",
+    "a past snapshot exists"
+   ],
+   "limitations": [
+    "whole-document snapshots, at most 100 entries",
+    "session only: cleared on document load, not saved",
+    "not exposed to MCP/Copilot; remote Apply is also disallowed"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/state/history.ts",
+     "symbol": "export function undoDocument"
+    },
+    {
+     "file": "apps/web/src/input/shortcutRouter.ts",
+     "symbol": "routeHistoryShortcut"
+    },
+    {
+     "file": "packages/cad-history/src/HistoryStack.ts",
+     "symbol": "maxEntries = 100"
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "apps/web/tests/shortcutRouter.test.ts",
+     "scope": "Ctrl+Z routing"
+    }
+   ]
+  },
+  {
+   "id": "redo",
+   "label": "Redo",
+   "kind": "document-edit",
+   "executor": "history",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "document"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "redo"
+    ],
+    "shortcutActions": [
+     "redo"
+    ],
+    "surfaces": [
+     "Ctrl+Y / Ctrl+Shift+Z"
+    ]
+   },
+   "preconditions": [
+    "no document command pending",
+    "a future snapshot exists (cleared by any new edit)"
+   ],
+   "limitations": [
+    "same as Undo"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/state/history.ts",
+     "symbol": "export function redoDocument"
+    },
+    {
+     "file": "apps/web/src/input/shortcutRouter.ts",
+     "symbol": "return key === \"y\" ? \"redo\" : null"
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "apps/web/tests/shortcutRouter.test.ts",
+     "scope": "Ctrl+Y routing"
+    }
+   ]
+  },
+  {
+   "id": "trim",
+   "label": "Trim",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "trim-contour",
+    "trim-drawing"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "trim"
+    ],
+    "shortcutActions": [
+     "trim"
+    ],
+    "surfaces": [
+     "Modify → Trim"
+    ]
+   },
+   "preconditions": [
+    "boundaries then target segment (routeCadShortcut: canTrim)"
+   ],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/features/drawing-editing/ui/CurveWorkbench.tsx",
+     "symbol": "trim-contour"
+    },
+    {
+     "file": "apps/web/src/input/shortcutRouter.ts",
+     "symbol": "case \"x\": return context.canTrim ? \"trim\" : null"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "extend",
+   "label": "Extend",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "extend-drawing"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "extend"
+    ],
+    "shortcutActions": [
+     "extend"
+    ],
+    "surfaces": [
+     "Modify → Extend"
+    ]
+   },
+   "preconditions": [
+    "boundary chosen (canTrim)"
+   ],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/input/shortcutRouter.ts",
+     "symbol": "return context.canTrim ? \"extend\" : null"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "curve-corner",
+   "label": "2D fillet / chamfer of curve corners",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "edit-drawing-corner"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "curve-workflow"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Curve workflow → Fillet / Chamfer"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "F is Fit view, not fillet"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/features/drawing-editing/ui/CurveWorkbench.tsx",
+     "symbol": "edit-drawing-corner"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "offset",
+   "label": "Offset",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "offset-drawing",
+    "offset-sketch-geometry"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "offset"
+    ],
+    "shortcutActions": [
+     "offset"
+    ],
+    "surfaces": []
+   },
+   "preconditions": [
+    "editable drawing selected (canOffset)"
+   ],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/features/drawing-editing/ui/CurveWorkbench.tsx",
+     "symbol": "offset-drawing"
+    },
+    {
+     "file": "apps/web/src/input/shortcutRouter.ts",
+     "symbol": "case \"o\": return context.canOffset ? \"offset\" : null"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "copy-by-points",
+   "label": "Copy by points / duplicate",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "duplicate-object"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve",
+    "brep",
+    "annotation"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "points-copy",
+     "duplicate"
+    ],
+    "shortcutActions": [
+     "copy"
+    ],
+    "surfaces": [
+     "Shift+C (2D)",
+     "Ctrl+D duplicate in place"
+    ]
+   },
+   "preconditions": [
+    "2D workspace and editable selection for Shift+C"
+   ],
+   "limitations": [
+    "sketch-owned geometry is not duplicated (handler returns without change)",
+    "a duplicate is an independent snapshot with new topology IDs"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/state/pointTransformCommands.ts",
+     "symbol": "\"duplicate-object\""
+    },
+    {
+     "file": "apps/web/src/state/commandBus.ts",
+     "symbol": "Sketch geometry is owned by its sketch"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "hatch",
+   "label": "Associative hatch create / edit",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-drafting",
+    "update-drafting"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "annotation:hatch"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "drafting"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Drafting → Associative hatch"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "H is Hide selection"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/properties/DraftingPanel.tsx",
+     "symbol": "value=\"hatch\""
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "scope": "2026-11-05 browser: shortcutGuide 13, cadPilots 30, draftingWorkflow 16 checks (not re-run here)"
+    }
+   ]
+  },
+  {
+   "id": "scale",
+   "label": "Scale selection",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "scale-object"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve",
+    "brep"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "scale"
+    ],
+    "shortcutActions": [
+     "scale"
+    ],
+    "surfaces": []
+   },
+   "preconditions": [
+    "editable selection"
+   ],
+   "limitations": [
+    "S is Scale, not STRETCH"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/input/shortcutRouter.ts",
+     "symbol": "case \"s\": return context.hasSelection"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "rotate",
+   "label": "Rotate selection",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "rotate-object"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve",
+    "brep"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "rotate",
+     "points-rotate"
+    ],
+    "shortcutActions": [
+     "rotate"
+    ],
+    "surfaces": []
+   },
+   "preconditions": [
+    "editable selection"
+   ],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/input/shortcutRouter.ts",
+     "symbol": "\"rotate\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "pattern",
+   "label": "Mirror and linear / radial array (live pattern)",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-pattern",
+    "update-pattern",
+    "detach-pattern",
+    "delete-pattern"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "pattern-linear",
+     "pattern-radial",
+     "pattern-mirror"
+    ],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "no path array (coverage item 053)"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/state/patternCommands.ts",
+     "symbol": "create-pattern"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "delete",
+   "label": "Delete selection",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "delete-object"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve",
+    "brep",
+    "annotation"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "delete"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Delete key",
+     "Inspector → Delete"
+    ]
+   },
+   "preconditions": [
+    "selected editable object"
+   ],
+   "limitations": [
+    "E is Extrude; no MCP delete tool"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/App.tsx",
+     "symbol": "event.key === \"Delete\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "cancel-tool",
+   "label": "Cancel tool / clear selection",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "selection"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "cancel-tool"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Esc"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/App.tsx",
+     "symbol": "event.key === \"Escape\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "selection",
+   "label": "Pick, Shift toggle and window / crossing selection",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "selection"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "object-select"
+    ],
+    "shortcutActions": [
+     "select"
+    ],
+    "surfaces": [
+     "left→right window, right→left crossing"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/state/selection.ts"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "repeat-command",
+   "label": "Repeat last command",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "selection"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "repeat-command"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Enter / Space on idle canvas"
+    ]
+   },
+   "preconditions": [
+    "a supported previous command"
+   ],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/commands/paletteCommands.ts",
+     "symbol": "\"repeat-command\""
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "apps/web/tests/paletteCommandIds.test.ts",
+     "scope": "repeat-command runnable"
+    }
+   ]
+  },
+  {
+   "id": "double-click-edit",
+   "label": "Double-click to edit by object type",
+   "kind": "interaction",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "selection"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "Inspector, F2 and Edit Sketch paths exist separately"
+   ],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 023 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "diameter-dimension",
+   "label": "Diameter dimension",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-dimension"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve:circle",
+    "analytic-curve:arc"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": [
+     "Add diameter dimension"
+    ]
+   },
+   "preconditions": [
+    "circle or arc with uniform transform"
+   ],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/state/dimensionCommands.ts",
+     "symbol": "export function planDiameterFromSelection"
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "apps/web/tests/diameterDimension.test.ts",
+     "scope": "diameter"
+    }
+   ]
+  },
+  {
+   "id": "angular-dimension",
+   "label": "Angular dimension between two edges",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-dimension",
+    "update-dimension"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve:line"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "angular-dimension"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Draw → Angular Dimension"
+    ]
+   },
+   "preconditions": [
+    "two straight edges"
+   ],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/viewport/AngularDimensionTool.tsx",
+     "symbol": "create-dimension"
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "apps/web/tests/angularDimensionWorkflow.test.ts",
+     "scope": "angular"
+    }
+   ]
+  },
+  {
+   "id": "continuous-dimension",
+   "label": "Continuous (chain) dimensions",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-drafting"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve:line",
+    "analytic-curve:polyline"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "drafting"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Drafting → Continuous dimensions"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "chains line/polyline segments; continuing from an existing dimension end was not found"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/properties/DraftingPanel.tsx",
+     "symbol": "value=\"chain\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "baseline-dimension",
+   "label": "Baseline dimensions",
+   "kind": "document-edit",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "annotation:dimension"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 028 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "text",
+   "label": "Single-line text create / edit",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-drafting",
+    "update-drafting"
+   ],
+   "mcpTools": [
+    "draft.text"
+   ],
+   "targetKinds": [
+    "annotation:text"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "add-text"
+    ],
+    "shortcutActions": [
+     "text"
+    ],
+    "surfaces": [
+     "T",
+     "Draw → Text"
+    ]
+   },
+   "preconditions": [
+    "2D workspace",
+    "active layer is visible and unlocked (routeCadShortcut drawingAvailable)"
+   ],
+   "limitations": [
+    "no MTEXT paragraph formatting or MT alias",
+    "no named text styles (item 090)"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/properties/DraftingPanel.tsx",
+     "symbol": "value=\"text\""
+    },
+    {
+     "file": "apps/web/src/copilot/cadModelingTools.ts",
+     "symbol": "call.name===\"draft.text\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "layer-management",
+   "label": "Layer create / rename / visibility / lock / style / delete",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-layer",
+    "rename-layer",
+    "set-layer-visible",
+    "set-layer-locked",
+    "set-layer-style",
+    "delete-layer"
+   ],
+   "mcpTools": [
+    "scene.layer"
+   ],
+   "targetKinds": [
+    "layer"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "panel-layers"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Explorer → Layers"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "MCP scene.layer creates layers only",
+    "no one-step 'turn all layers on' (item 100)"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/explorer/views/LayersPanel.tsx",
+     "symbol": "set-layer-visible"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "active-layer",
+   "label": "Set active drawing layer",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "layer"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "panel-layers"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Layers row click"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "no 'pick an object to make its layer current'"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/explorer/views/LayersPanel.tsx"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "move-to-layer",
+   "label": "Move objects to a layer",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "move-object-to-layer"
+   ],
+   "mcpTools": [
+    "scene.objects"
+   ],
+   "targetKinds": [
+    "analytic-curve",
+    "brep",
+    "annotation"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "properties"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Properties → layer"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/properties/PropertiesPanel.tsx",
+     "symbol": "move-object-to-layer"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "match-properties",
+   "label": "Match properties from a source object",
+   "kind": "document-edit",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "selection"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "library style application is separate"
+   ],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 038 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "view-navigation",
+   "label": "Fit, pan, zoom and orbit the view",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "viewport"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "fit-all",
+     "fit-selection",
+     "fit-context",
+     "wheel-pan",
+     "wheel-zoom",
+     "middle-pan",
+     "middle-orbit",
+     "wheel-rotate"
+    ],
+    "shortcutActions": [
+     "fit"
+    ],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "P is Polyline, not pan"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/input/shortcutCatalog.ts",
+     "symbol": "\"middle-pan\""
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "scope": "2026-11-05 browser: shortcutGuide 13, cadPilots 30, draftingWorkflow 16 checks (not re-run here)"
+    }
+   ]
+  },
+  {
+   "id": "panel-visibility",
+   "label": "Show / hide Explorer and Properties",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "ui-panel"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "explorer",
+     "properties"
+    ],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "no single clean-screen toggle"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/commands/paletteCommands.ts",
+     "symbol": "\"explorer\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "command-line-toggle",
+   "label": "Command line show / hide",
+   "kind": "interaction",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "ui-panel"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [
+     "command-search"
+    ],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "Ctrl+K opens the command search palette, not a command line"
+   ],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 044 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "library-browse",
+   "label": "Browse components and styles from the project and other files",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "component-instance",
+    "block-definition"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "not a DWG DesignCenter"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/library/LibraryPanel.tsx"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "regen",
+   "label": "Regenerate display (REGEN)",
+   "kind": "interaction",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "viewport"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 046 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "project-tabs",
+   "label": "Switch open project tabs",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "project"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "project-search",
+     "project-tabs"
+    ],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "Ctrl+Tab is left to the browser"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/input/shortcutCatalog.ts",
+     "symbol": "\"project-search\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "block-define",
+   "label": "Define block / component from selection",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "define-block",
+    "define-component-content"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "block-definition"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "drafting",
+     "panel-components"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Components → Create",
+     "Drafting → Define block"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/explorer/views/ComponentsPanel.tsx",
+     "symbol": "define-block"
+    },
+    {
+     "file": "apps/web/src/properties/DraftingPanel.tsx",
+     "symbol": "define-block"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "block-insert",
+   "label": "Insert block / component",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "insert-block",
+    "place-component-content"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "block-instance",
+    "component-instance"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "drafting",
+     "panel-components"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Components → Insert",
+     "Drafting → Insert block"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "I is Measure distance"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/properties/DraftingPanel.tsx",
+     "symbol": "insert-block"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "block-update",
+   "label": "Update block definition from selection",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "update-block"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "block-definition"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "panel-components"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Components → Update from selection"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "no in-place block editor session (items 105–106)"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/explorer/views/ComponentsPanel.tsx",
+     "symbol": "update-block"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "block-attributes",
+   "label": "Block attribute edit / sync",
+   "kind": "document-edit",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "block-instance"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 107 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "block-editor-session",
+   "label": "Block editor open / close",
+   "kind": "interaction",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "block-definition"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 106 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "write-block-file",
+   "label": "Write selection / block to a separate file (WBLOCK)",
+   "kind": "io",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "file"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "WebCAD and DXF export of the whole document are separate"
+   ],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 051 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "explode",
+   "label": "Explode polyline / rectangle, disband block",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "explode-drawings",
+    "explode-block"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve:polyline",
+    "analytic-curve:rectangle",
+    "block-instance"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "contour-explode",
+     "disband-block"
+    ],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "X is Trim"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/features/drawing-editing/ui/ContourTool.tsx",
+     "symbol": "explode-drawings"
+    },
+    {
+     "file": "apps/web/src/features/drawing-editing/commands/blockCommands.ts",
+     "symbol": "explode-block"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "paste-as-block",
+   "label": "Paste clipboard as block",
+   "kind": "document-edit",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "block-definition"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 056 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "save-local",
+   "label": "Save local recovery checkpoint",
+   "kind": "io",
+   "executor": "file-io",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "project"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "save-local",
+     "save"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Ctrl+S"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "saves in this browser, not to the downloaded file"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/App.tsx",
+     "symbol": "if (key === \"s\")"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "download-file",
+   "label": "Download WebCAD file",
+   "kind": "io",
+   "executor": "file-io",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "file"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "download-file",
+     "save-as"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Ctrl+Shift+S"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "no file name / format chooser like SAVEAS"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/input/shortcutCatalog.ts",
+     "symbol": "\"download-file\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "dxf-reference-import",
+   "label": "Import DXF as a locked reference layer",
+   "kind": "io",
+   "executor": "file-io",
+   "commandTypes": [
+    "record-dxf-source"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "layer",
+    "file"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "import-dxf"
+    ],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "no reload / detach link to the source DWG"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/interop/DxfPreparationDialog.tsx"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "measure-distance",
+   "label": "Measure distance",
+   "kind": "inspection",
+   "executor": "read-only",
+   "commandTypes": [],
+   "mcpTools": [
+    "cad.measure"
+   ],
+   "targetKinds": [
+    "analytic-curve",
+    "brep"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "measure"
+    ],
+    "shortcutActions": [
+     "measure"
+    ],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "saving a measurement is a separate document edit (upsert-saved-measurement)"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/input/shortcutRouter.ts",
+     "symbol": "case \"i\": return \"measure\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "inspect-properties",
+   "label": "Inspect selection type, geometry, area / perimeter",
+   "kind": "inspection",
+   "executor": "read-only",
+   "commandTypes": [],
+   "mcpTools": [
+    "cad.inspect",
+    "cad.objects"
+   ],
+   "targetKinds": [
+    "analytic-curve",
+    "brep",
+    "annotation"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "inspect-selection",
+     "properties"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Properties"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "area is shown only for supported closed objects; no pick-points AREA tool (item 062)"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/properties/PropertiesPanel.tsx"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "point-coordinate",
+   "label": "Point coordinate readout (ID)",
+   "kind": "inspection",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "work-plane"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "ucs-pilot"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "UCS Pilot local U,V"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "no dedicated XYZ point query"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/viewport/CadPilotTool.tsx"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "variables-expressions",
+   "label": "Variables and unit-aware expressions",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "set-variable",
+    "remove-variable",
+    "set-parameter-binding",
+    "remove-parameter-binding"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "variable"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "variables"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Variables panel",
+     "numeric fields"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "no standalone CAL / quick calculator (items 066–067)"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/properties/VariablesPanel.tsx",
+     "symbol": "set-variable"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "quick-calculator",
+   "label": "Quick calculator panel",
+   "kind": "interaction",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "ui-panel"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 067 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "snap-settings",
+   "label": "Object snap settings and F3 toggle",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "viewport"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "snap"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Status bar → Snaps",
+     "F3"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/status/SnapSettings.tsx"
+    },
+    {
+     "file": "apps/web/src/App.tsx",
+     "symbol": "event.key === \"F3\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "ortho-toggle",
+   "label": "Ortho mode (F8)",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "viewport"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "ortho"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "F8"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/App.tsx",
+     "symbol": "event.key === \"F8\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "tracking-dynamic-input",
+   "label": "Snap tracking, polar lock and dynamic numeric input",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "viewport"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "tab-context"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Shift+A tracking",
+     "Shift+L axis",
+     "Tab fields"
+    ]
+   },
+   "preconditions": [
+    "while a drawing tool is active"
+   ],
+   "limitations": [
+    "no F10/F11/F12 toggles"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/viewport/CadViewport.tsx"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "regular-polygon",
+   "label": "Regular polygon",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-regular-polygon"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve:polyline"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "regular-polygon"
+    ],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [
+    "2D workspace",
+    "active layer is visible and unlocked (routeCadShortcut drawingAvailable)"
+   ],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/state/regularPolygonCommands.ts",
+     "symbol": "create-regular-polygon"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "ellipse",
+   "label": "Ellipse draw / edit",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-drawing",
+    "update-ellipse"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve:ellipse"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "draw-ellipse"
+    ],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/viewport/EllipseTool.tsx",
+     "symbol": "update-ellipse"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "spline",
+   "label": "Spline / NURBS by fit or control points",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-drawing",
+    "update-spline"
+   ],
+   "mcpTools": [
+    "curve.fitted",
+    "curve.reshape",
+    "curve.adjust"
+   ],
+   "targetKinds": [
+    "analytic-curve:spline"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "draw-spline"
+    ],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/viewport/SplineTool.tsx",
+     "symbol": "update-spline"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "construction-line",
+   "label": "Independent infinite construction line",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-construction",
+    "create-drawing"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve:infinite-line"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "construction"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Construction → Independent infinite line"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/viewport/ConstructionTool.tsx",
+     "symbol": "create-construction"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "make-face",
+   "label": "Make planar face from a selected closed boundary",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "create-drawing"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "planar-region"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "floor-plan-tasks"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Floor plan tasks → Make face"
+    ]
+   },
+   "preconditions": [
+    "selected closed boundary"
+   ],
+   "limitations": [
+    "not BOUNDARY's pick-inside-point polyline output"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/precision/floorPlanWorkflow.ts",
+     "symbol": "kind:\"face\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "stretch",
+   "label": "Stretch vertices inside a crossing window",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "stretch-drawings"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "contour-stretch"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Modify → Stretch"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "S key is Scale"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/features/drawing-editing/ui/BasicEditTool.tsx",
+     "symbol": "stretch-drawings"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "join",
+   "label": "Join open curves",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "join-drawings",
+    "connect-drawings"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "contour-join"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Modify → Join"
+    ]
+   },
+   "preconditions": [
+    "joinable open curves"
+   ],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/features/drawing-editing/ui/ContourTool.tsx",
+     "symbol": "join-drawings"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "edit-polyline",
+   "label": "Edit polyline vertices, open/close, line↔arc",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "edit-polyline",
+    "convert-contour-edge"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve:polyline"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "contour-polyline",
+     "contour-convert"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Modify → Edit polyline"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/features/drawing-editing/ui/BasicEditTool.tsx",
+     "symbol": "edit-polyline"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "break-contour",
+   "label": "Break at one point or between two points",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "break-drawing"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "contour-break"
+    ],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/features/drawing-editing/ui/ContourTool.tsx",
+     "symbol": "break-drawing"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "lengthen",
+   "label": "Lengthen by total / delta / percent",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "lengthen-drawing"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "contour-lengthen"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Modify → Lengthen"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/features/drawing-editing/ui/BasicEditTool.tsx",
+     "symbol": "lengthen-drawing"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "arrange-align",
+   "label": "Align and distribute selection",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "move-object"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve",
+    "brep"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "align-left",
+     "align-center-x",
+     "align-right",
+     "align-top",
+     "align-center-y",
+     "align-bottom",
+     "distribute-horizontal",
+     "distribute-vertical"
+    ],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "no point-pair ALIGN with rotate/scale"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/state/selectionCommands.ts",
+     "symbol": "export function planAlignment"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "duplicate-boundary-diagnosis",
+   "label": "Diagnose duplicate boundaries in floor plan tasks",
+   "kind": "inspection",
+   "executor": "read-only",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "analytic-curve"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "floor-plan-tasks"
+    ],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "diagnosis only; no general OVERKILL cleanup"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/precision/floorPlanWorkflow.ts",
+     "symbol": "duplicate"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "image-draw-order",
+   "label": "Image bring forward / send back",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "reorder-image"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "image"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "inspect-image"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Image Inspector"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "images only; no general vector / hatch draw order (items 087, 089)"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/properties/ImageInspector.tsx",
+     "symbol": "reorder-image"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "general-draw-order",
+   "label": "Draw order for vectors and hatches (DRAWORDER / HATCHTOBACK)",
+   "kind": "document-edit",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "annotation:hatch"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 089 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "text-style",
+   "label": "Named text styles (ST)",
+   "kind": "document-edit",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "annotation:text"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "text height and rotation are editable per object"
+   ],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 090 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "model-note",
+   "label": "Model-linked leader note",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "upsert-model-note"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "annotation",
+    "brep"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "assembly-drawings"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Assembly and drawings → Model note"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "no general multileader or leader styles (items 091–092)"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/viewport/ModelDrawingPanel.tsx",
+     "symbol": "upsert-model-note"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "leader-style",
+   "label": "Multileader style manager",
+   "kind": "document-edit",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "annotation"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 092 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "dimension-spacing",
+   "label": "Re-space existing dimensions (DIMSPACE)",
+   "kind": "document-edit",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "annotation:dimension"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 094 |"
+    }
+   ],
+   "priorVerification": [],
+   "needsVerification": [
+    "candidate not checked: layout-saved-measurements spaces saved-measurement dimensions only (docs/implementation/MEAS-DIMENSION-LAYOUT-2026-10-18.md)"
+   ]
+  },
+  {
+   "id": "dimension-break",
+   "label": "Dimension break (DIMBREAK)",
+   "kind": "document-edit",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "annotation:dimension"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 095 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "center-mark",
+   "label": "Center mark annotation (DIMCENTER)",
+   "kind": "document-edit",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "annotation"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "center snap is a point-picking aid"
+   ],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 096 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "layer-isolate",
+   "label": "Layer isolate / unisolate",
+   "kind": "interaction",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "layer"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "Isolate selection works per object"
+   ],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 097 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "layer-freeze",
+   "label": "Layer freeze / thaw",
+   "kind": "document-edit",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "layer"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "visibility and lock exist; freeze state not found"
+   ],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 101 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "purge",
+   "label": "Purge unused blocks and empty layers",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "purge-unused"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "block-definition",
+    "layer"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "floor-plan-tasks"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Floor plan tasks → Review PURGE"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "unused block definitions and empty unreferenced layers only"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/precision/floorPlanWorkflow.ts",
+     "symbol": "type:\"purge-unused\""
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "document-audit",
+   "label": "Audit and repair a drawing (AUDIT)",
+   "kind": "inspection",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "document"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "output preflight and load validation are separate"
+   ],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 110 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "recover-file",
+   "label": "Open and repair a damaged file (RECOVER)",
+   "kind": "io",
+   "executor": "none",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "file"
+   ],
+   "support": "unconfirmed",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "restoring the previous valid local checkpoint is separate"
+   ],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 111 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "units",
+   "label": "Document units",
+   "kind": "document-edit",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "document"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [],
+    "shortcutActions": [],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "the model is millimetres; per-field unit input and dimension display units exist; no document-wide UNITS setting"
+   ],
+   "evidence": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "symbol": "| 112 |"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "ucs",
+   "label": "User coordinate system (saved work planes, UCS pilot)",
+   "kind": "document-edit",
+   "executor": "command-bus",
+   "commandTypes": [
+    "upsert-work-plane",
+    "create-ucs-drawing",
+    "move-in-ucs"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "work-plane"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "work-plane",
+     "ucs-pilot"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "Inspector → work plane",
+     "UCS Pilot"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "UCS pilot covers line, circle and move; it does not change every tool's coordinates"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/state/cadPilotCommands.ts",
+     "symbol": "bus.registerHandler(\"create-ucs-drawing\""
+    }
+   ],
+   "priorVerification": [
+    {
+     "file": "docs/verification/AUTOCAD-SHORTCUT-COVERAGE-2026-11-05.md",
+     "scope": "2026-11-05 browser: shortcutGuide 13, cadPilots 30, draftingWorkflow 16 checks (not re-run here)"
+    }
+   ]
+  },
+  {
+   "id": "ucs-look-at",
+   "label": "Look at active UCS (PLAN)",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "viewport",
+    "work-plane"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "ucs-pilot"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "UCS Pilot → Look at active UCS"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [],
+   "evidence": [
+    {
+     "file": "apps/web/src/viewport/CadPilotTool.tsx"
+    }
+   ],
+   "priorVerification": []
+  },
+  {
+   "id": "isolate-selection",
+   "label": "Isolate selection / exit isolation / show all",
+   "kind": "interaction",
+   "executor": "ui-state",
+   "commandTypes": [
+    "show-all-objects"
+   ],
+   "mcpTools": [],
+   "targetKinds": [
+    "selection",
+    "viewport"
+   ],
+   "support": "supported",
+   "ui": {
+    "paletteIds": [
+     "isolate",
+     "show-all",
+     "hide"
+    ],
+    "shortcutActions": [
+     "hide"
+    ],
+    "surfaces": []
+   },
+   "preconditions": [],
+   "limitations": [
+    "isolation is viewport-only React state; document visibility is untouched",
+    "Show all objects is a document edit (show-all-objects)"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/App.tsx",
+     "symbol": "Temporary viewport-only isolation"
+    },
+    {
+     "file": "apps/web/src/App.tsx",
+     "symbol": "async function handleIsolateObject"
+    }
+   ],
+   "priorVerification": [],
+   "needsVerification": [
+    "isolate-object has a command handler but no UI caller was found"
+   ]
+  },
+  {
+   "id": "plot-pdf",
+   "label": "Plot / export PDF (active plane or artboards)",
+   "kind": "io",
+   "executor": "file-io",
+   "commandTypes": [],
+   "mcpTools": [],
+   "targetKinds": [
+    "artboard",
+    "file"
+   ],
+   "support": "partial",
+   "ui": {
+    "paletteIds": [
+     "plot",
+     "export-artboard-pdf"
+    ],
+    "shortcutActions": [],
+    "surfaces": [
+     "File → Plot PDF",
+     "Artboard PDF"
+    ]
+   },
+   "preconditions": [],
+   "limitations": [
+    "no Ctrl+P routing",
+    "no named page setups or plotter manager",
+    "artboard PDF previews the first page"
+   ],
+   "evidence": [
+    {
+     "file": "apps/web/src/plot/PlotDialog.tsx"
+    },
+    {
+     "file": "apps/web/src/export/ArtboardPdfDialog.tsx"
+    }
+   ],
+   "priorVerification": []
+  }
+ ],
+ "autocadShortcuts": [
+  {
+   "no": 1,
+   "autocadInput": "L",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "draw-2d-curve"
+   ]
+  },
+  {
+   "no": 2,
+   "autocadInput": "PL",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "draw-2d-curve"
+   ]
+  },
+  {
+   "no": 3,
+   "autocadInput": "C",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "draw-2d-curve"
+   ]
+  },
+  {
+   "no": 4,
+   "autocadInput": "REC",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "draw-2d-curve"
+   ]
+  },
+  {
+   "no": 5,
+   "autocadInput": "TR",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "trim"
+   ]
+  },
+  {
+   "no": 6,
+   "autocadInput": "EX",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "extend"
+   ]
+  },
+  {
+   "no": 7,
+   "autocadInput": "F",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "curve-corner"
+   ],
+   "note": "F key is Fit view"
+  },
+  {
+   "no": 8,
+   "autocadInput": "O",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "offset"
+   ]
+  },
+  {
+   "no": 9,
+   "autocadInput": "M",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "move"
+   ]
+  },
+  {
+   "no": 10,
+   "autocadInput": "CO / CP",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "copy-by-points"
+   ]
+  },
+  {
+   "no": 11,
+   "autocadInput": "H",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "hatch"
+   ],
+   "note": "H key is Hide"
+  },
+  {
+   "no": 12,
+   "autocadInput": "SC",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "scale"
+   ]
+  },
+  {
+   "no": 13,
+   "autocadInput": "MI",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "pattern"
+   ]
+  },
+  {
+   "no": 14,
+   "autocadInput": "E",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "delete"
+   ],
+   "note": "E key is Extrude"
+  },
+  {
+   "no": 15,
+   "autocadInput": "U / Ctrl+Z",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "undo"
+   ],
+   "note": "U alias not routed"
+  },
+  {
+   "no": 16,
+   "autocadInput": "Ctrl+Y",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "redo"
+   ]
+  },
+  {
+   "no": 17,
+   "autocadInput": "Esc",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "cancel-tool"
+   ]
+  },
+  {
+   "no": 18,
+   "autocadInput": "Delete",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "delete"
+   ]
+  },
+  {
+   "no": 19,
+   "autocadInput": "Shift+클릭",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "selection"
+   ]
+  },
+  {
+   "no": 20,
+   "autocadInput": "왼쪽→오른쪽",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "selection"
+   ]
+  },
+  {
+   "no": 21,
+   "autocadInput": "오른쪽→왼쪽",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "selection"
+   ]
+  },
+  {
+   "no": 22,
+   "autocadInput": "Enter / Space",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "repeat-command"
+   ]
+  },
+  {
+   "no": 23,
+   "autocadInput": "더블클릭",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "double-click-edit"
+   ]
+  },
+  {
+   "no": 24,
+   "autocadInput": "RO",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "rotate"
+   ]
+  },
+  {
+   "no": 25,
+   "autocadInput": "DLI",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "dimension-annotation"
+   ]
+  },
+  {
+   "no": 26,
+   "autocadInput": "DAL",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "dimension-annotation"
+   ]
+  },
+  {
+   "no": 27,
+   "autocadInput": "DCO",
+   "verdict": "partial",
+   "capabilityIds": [
+    "continuous-dimension"
+   ]
+  },
+  {
+   "no": 28,
+   "autocadInput": "DBA",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "baseline-dimension"
+   ]
+  },
+  {
+   "no": 29,
+   "autocadInput": "DRA",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "dimension-annotation"
+   ]
+  },
+  {
+   "no": 30,
+   "autocadInput": "DDI",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "diameter-dimension"
+   ]
+  },
+  {
+   "no": 31,
+   "autocadInput": "DAN",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "angular-dimension"
+   ]
+  },
+  {
+   "no": 32,
+   "autocadInput": "D",
+   "verdict": "partial",
+   "capabilityIds": [
+    "dimension-edit"
+   ],
+   "note": "no named dimension-style manager"
+  },
+  {
+   "no": 33,
+   "autocadInput": "DIM",
+   "verdict": "partial",
+   "capabilityIds": [
+    "dimension-annotation",
+    "diameter-dimension",
+    "angular-dimension"
+   ]
+  },
+  {
+   "no": 34,
+   "autocadInput": "T / MT",
+   "verdict": "partial",
+   "capabilityIds": [
+    "text"
+   ]
+  },
+  {
+   "no": 35,
+   "autocadInput": "DT",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "text"
+   ]
+  },
+  {
+   "no": 36,
+   "autocadInput": "TEXTEDIT",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "text",
+    "dimension-edit"
+   ]
+  },
+  {
+   "no": 37,
+   "autocadInput": "LA",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "layer-management"
+   ]
+  },
+  {
+   "no": 38,
+   "autocadInput": "MA",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "match-properties"
+   ]
+  },
+  {
+   "no": 39,
+   "autocadInput": "Z → Enter → E → Enter",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "view-navigation"
+   ]
+  },
+  {
+   "no": 40,
+   "autocadInput": "P",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "view-navigation"
+   ],
+   "note": "P key is Polyline"
+  },
+  {
+   "no": 41,
+   "autocadInput": "휠 회전",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "view-navigation"
+   ]
+  },
+  {
+   "no": 42,
+   "autocadInput": "휠 버튼 드래그",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "view-navigation"
+   ]
+  },
+  {
+   "no": 43,
+   "autocadInput": "Ctrl+0",
+   "verdict": "partial",
+   "capabilityIds": [
+    "panel-visibility"
+   ]
+  },
+  {
+   "no": 44,
+   "autocadInput": "Ctrl+9",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "command-line-toggle"
+   ]
+  },
+  {
+   "no": 45,
+   "autocadInput": "Ctrl+2",
+   "verdict": "partial",
+   "capabilityIds": [
+    "library-browse"
+   ]
+  },
+  {
+   "no": 46,
+   "autocadInput": "RE",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "regen"
+   ]
+  },
+  {
+   "no": 47,
+   "autocadInput": "Ctrl+Tab",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "project-tabs"
+   ]
+  },
+  {
+   "no": 48,
+   "autocadInput": "3DO",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "view-navigation"
+   ]
+  },
+  {
+   "no": 49,
+   "autocadInput": "B",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "block-define"
+   ]
+  },
+  {
+   "no": 50,
+   "autocadInput": "I",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "block-insert"
+   ],
+   "note": "I key is Measure"
+  },
+  {
+   "no": 51,
+   "autocadInput": "W",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "write-block-file"
+   ]
+  },
+  {
+   "no": 52,
+   "autocadInput": "X",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "explode"
+   ],
+   "note": "X key is Trim"
+  },
+  {
+   "no": 53,
+   "autocadInput": "AR",
+   "verdict": "partial",
+   "capabilityIds": [
+    "pattern"
+   ]
+  },
+  {
+   "no": 54,
+   "autocadInput": "Ctrl+Shift+C",
+   "verdict": "partial",
+   "capabilityIds": [
+    "base-point-clipboard"
+   ]
+  },
+  {
+   "no": 55,
+   "autocadInput": "Ctrl+V",
+   "verdict": "partial",
+   "capabilityIds": [
+    "base-point-clipboard"
+   ]
+  },
+  {
+   "no": 56,
+   "autocadInput": "Ctrl+Shift+V",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "paste-as-block"
+   ]
+  },
+  {
+   "no": 57,
+   "autocadInput": "PASTEORIG",
+   "verdict": "partial",
+   "capabilityIds": [
+    "base-point-clipboard"
+   ]
+  },
+  {
+   "no": 58,
+   "autocadInput": "Ctrl+S",
+   "verdict": "partial",
+   "capabilityIds": [
+    "save-local"
+   ]
+  },
+  {
+   "no": 59,
+   "autocadInput": "Ctrl+Shift+S",
+   "verdict": "partial",
+   "capabilityIds": [
+    "download-file"
+   ]
+  },
+  {
+   "no": 60,
+   "autocadInput": "XR",
+   "verdict": "partial",
+   "capabilityIds": [
+    "dxf-reference-import"
+   ]
+  },
+  {
+   "no": 61,
+   "autocadInput": "DI",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "measure-distance"
+   ]
+  },
+  {
+   "no": 62,
+   "autocadInput": "AA",
+   "verdict": "partial",
+   "capabilityIds": [
+    "inspect-properties"
+   ]
+  },
+  {
+   "no": 63,
+   "autocadInput": "LI",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "inspect-properties"
+   ]
+  },
+  {
+   "no": 64,
+   "autocadInput": "ID",
+   "verdict": "partial",
+   "capabilityIds": [
+    "point-coordinate"
+   ]
+  },
+  {
+   "no": 65,
+   "autocadInput": "PR / Ctrl+1",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "inspect-properties",
+    "panel-visibility"
+   ]
+  },
+  {
+   "no": 66,
+   "autocadInput": "CAL",
+   "verdict": "partial",
+   "capabilityIds": [
+    "variables-expressions"
+   ]
+  },
+  {
+   "no": 67,
+   "autocadInput": "Ctrl+8",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "quick-calculator"
+   ]
+  },
+  {
+   "no": 68,
+   "autocadInput": "OS",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "snap-settings"
+   ]
+  },
+  {
+   "no": 69,
+   "autocadInput": "F3",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "snap-settings"
+   ]
+  },
+  {
+   "no": 70,
+   "autocadInput": "F8",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "ortho-toggle"
+   ]
+  },
+  {
+   "no": 71,
+   "autocadInput": "F10 / F11",
+   "verdict": "partial",
+   "capabilityIds": [
+    "tracking-dynamic-input"
+   ]
+  },
+  {
+   "no": 72,
+   "autocadInput": "F12",
+   "verdict": "partial",
+   "capabilityIds": [
+    "tracking-dynamic-input"
+   ]
+  },
+  {
+   "no": 73,
+   "autocadInput": "A",
+   "verdict": "same-input",
+   "capabilityIds": [
+    "draw-2d-curve"
+   ]
+  },
+  {
+   "no": 74,
+   "autocadInput": "POL",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "regular-polygon"
+   ]
+  },
+  {
+   "no": 75,
+   "autocadInput": "EL",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "ellipse"
+   ]
+  },
+  {
+   "no": 76,
+   "autocadInput": "XL",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "construction-line"
+   ]
+  },
+  {
+   "no": 77,
+   "autocadInput": "SPL",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "spline"
+   ]
+  },
+  {
+   "no": 78,
+   "autocadInput": "BO",
+   "verdict": "partial",
+   "capabilityIds": [
+    "make-face"
+   ]
+  },
+  {
+   "no": 79,
+   "autocadInput": "S",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "stretch"
+   ],
+   "note": "S key is Scale"
+  },
+  {
+   "no": 80,
+   "autocadInput": "CHA",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "curve-corner"
+   ]
+  },
+  {
+   "no": 81,
+   "autocadInput": "J",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "join"
+   ]
+  },
+  {
+   "no": 82,
+   "autocadInput": "PE",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "edit-polyline"
+   ]
+  },
+  {
+   "no": 83,
+   "autocadInput": "BR",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "break-contour"
+   ]
+  },
+  {
+   "no": 84,
+   "autocadInput": "LEN",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "lengthen"
+   ]
+  },
+  {
+   "no": 85,
+   "autocadInput": "AL",
+   "verdict": "partial",
+   "capabilityIds": [
+    "arrange-align"
+   ]
+  },
+  {
+   "no": 86,
+   "autocadInput": "OVERKILL",
+   "verdict": "partial",
+   "capabilityIds": [
+    "duplicate-boundary-diagnosis"
+   ]
+  },
+  {
+   "no": 87,
+   "autocadInput": "DRAWORDER",
+   "verdict": "partial",
+   "capabilityIds": [
+    "image-draw-order"
+   ]
+  },
+  {
+   "no": 88,
+   "autocadInput": "HATCHEDIT",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "hatch"
+   ]
+  },
+  {
+   "no": 89,
+   "autocadInput": "HATCHTOBACK",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "general-draw-order"
+   ]
+  },
+  {
+   "no": 90,
+   "autocadInput": "ST",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "text-style"
+   ]
+  },
+  {
+   "no": 91,
+   "autocadInput": "MLEADER",
+   "verdict": "partial",
+   "capabilityIds": [
+    "model-note"
+   ]
+  },
+  {
+   "no": 92,
+   "autocadInput": "MLEADERSTYLE",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "leader-style"
+   ]
+  },
+  {
+   "no": 93,
+   "autocadInput": "DIMEDIT",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "dimension-edit"
+   ]
+  },
+  {
+   "no": 94,
+   "autocadInput": "DIMSPACE",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "dimension-spacing"
+   ]
+  },
+  {
+   "no": 95,
+   "autocadInput": "DIMBREAK",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "dimension-break"
+   ]
+  },
+  {
+   "no": 96,
+   "autocadInput": "DIMCENTER",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "center-mark"
+   ]
+  },
+  {
+   "no": 97,
+   "autocadInput": "LAYISO",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "layer-isolate"
+   ]
+  },
+  {
+   "no": 98,
+   "autocadInput": "LAYUNISO",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "layer-isolate"
+   ]
+  },
+  {
+   "no": 99,
+   "autocadInput": "LAYOFF",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "layer-management"
+   ]
+  },
+  {
+   "no": 100,
+   "autocadInput": "LAYON",
+   "verdict": "partial",
+   "capabilityIds": [
+    "layer-management"
+   ]
+  },
+  {
+   "no": 101,
+   "autocadInput": "LAYFRZ",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "layer-freeze"
+   ]
+  },
+  {
+   "no": 102,
+   "autocadInput": "LAYTHW",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "layer-freeze"
+   ]
+  },
+  {
+   "no": 103,
+   "autocadInput": "LAYMCUR",
+   "verdict": "partial",
+   "capabilityIds": [
+    "active-layer"
+   ]
+  },
+  {
+   "no": 104,
+   "autocadInput": "LAYCUR",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "move-to-layer"
+   ]
+  },
+  {
+   "no": 105,
+   "autocadInput": "BEDIT",
+   "verdict": "partial",
+   "capabilityIds": [
+    "block-update"
+   ]
+  },
+  {
+   "no": 106,
+   "autocadInput": "BCLOSE",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "block-editor-session"
+   ]
+  },
+  {
+   "no": 107,
+   "autocadInput": "ATTEDIT",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "block-attributes"
+   ]
+  },
+  {
+   "no": 108,
+   "autocadInput": "ATTSYNC",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "block-attributes"
+   ]
+  },
+  {
+   "no": 109,
+   "autocadInput": "PU",
+   "verdict": "partial",
+   "capabilityIds": [
+    "purge"
+   ]
+  },
+  {
+   "no": 110,
+   "autocadInput": "AUDIT",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "document-audit"
+   ]
+  },
+  {
+   "no": 111,
+   "autocadInput": "RECOVER",
+   "verdict": "unconfirmed",
+   "capabilityIds": [
+    "recover-file"
+   ]
+  },
+  {
+   "no": 112,
+   "autocadInput": "UNITS",
+   "verdict": "partial",
+   "capabilityIds": [
+    "units"
+   ]
+  },
+  {
+   "no": 113,
+   "autocadInput": "UCS",
+   "verdict": "partial",
+   "capabilityIds": [
+    "ucs"
+   ]
+  },
+  {
+   "no": 114,
+   "autocadInput": "PLAN",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "ucs-look-at"
+   ]
+  },
+  {
+   "no": 115,
+   "autocadInput": "ISOLATEOBJECTS",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "isolate-selection"
+   ]
+  },
+  {
+   "no": 116,
+   "autocadInput": "UNISOLATEOBJECTS",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "isolate-selection"
+   ]
+  },
+  {
+   "no": 117,
+   "autocadInput": "Ctrl+P",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "plot-pdf"
+   ]
+  },
+  {
+   "no": 118,
+   "autocadInput": "PAGESETUP",
+   "verdict": "partial",
+   "capabilityIds": [
+    "plot-pdf"
+   ]
+  },
+  {
+   "no": 119,
+   "autocadInput": "PREVIEW",
+   "verdict": "partial",
+   "capabilityIds": [
+    "plot-pdf"
+   ]
+  },
+  {
+   "no": 120,
+   "autocadInput": "EXPORTPDF",
+   "verdict": "different-input",
+   "capabilityIds": [
+    "plot-pdf"
+   ]
+  }
+ ]
+}

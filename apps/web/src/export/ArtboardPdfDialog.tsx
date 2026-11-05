@@ -1,3 +1,6 @@
+import {documentVersion,sameDocumentVersion} from "../state/documentSession";
+import {checkOutputPage} from "./outputPreflight";
+import {cadDocument} from "../state/cadDocument";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { encodePdfRasterPages } from "../plot/pdfWriter";
 import { downloadBlob } from "./exportModel";
@@ -13,16 +16,18 @@ function isPdfPlan(value: ReturnType<typeof planArtboardPdf>): value is Artboard
   return !("error" in value);
 }
 
-export function ArtboardPdfDialog({ boards, activeBoardId, documentId, onClose, onExported }: {
+export function ArtboardPdfDialog({ boards, activeBoardId, documentId, onClose, onExported, initialDpi=96 }: {
+  initialDpi?: ArtboardPdfDpi;
   boards: ArtboardPdfBoard[];
   activeBoardId: string | null;
   documentId: string;
   onClose: () => void;
   onExported: (message: string) => void;
 }) {
+  const sourceVersion=useRef(documentVersion());
   const dialog = useRef<HTMLDialogElement>(null);
   const [scope, setScope] = useState<string>(boards.length > 1 ? "visible" : "active");
-  const [dpiInput, setDpiInput] = useState<ArtboardPdfDpi>(96);
+  const [dpiInput, setDpiInput] = useState<ArtboardPdfDpi>(initialDpi);
   const [rendered, setRendered] = useState<RenderedPdf | null>(null);
   const [rendering, setRendering] = useState(false);
   const [progress, setProgress] = useState("");
@@ -104,6 +109,7 @@ export function ArtboardPdfDialog({ boards, activeBoardId, documentId, onClose, 
 
   function close() { dialog.current?.close(); onClose(); }
   function exportPdf() {
+    if(!sameDocumentVersion(sourceVersion.current)){setRenderError("Document changed. Reopen PDF export from a fresh preflight.");return;}
     if (!currentPreview) return;
     const name = selectedBoards.length === 1
       ? selectedBoards[0].board.name.trim().replace(/[^a-z0-9._-]+/gi, "-").replace(/^-+|-+$/g, "") || selectedBoards[0].board.id
@@ -122,6 +128,7 @@ export function ArtboardPdfDialog({ boards, activeBoardId, documentId, onClose, 
     </div>
     <div className="artboard-png-body">
       <section className="artboard-png-settings" aria-label="PDF output settings">
+        <details><summary>Output preflight notes</summary>{selectedBoards.map(b=><div key={b.board.id}><strong>{b.board.name}</strong><ul>{checkOutputPage(cadDocument,b.board.id,"pdf",()=>b.scene?.items??[]).issues.map((i,n)=><li key={n}>{i.severity}: {i.message}</li>)}</ul></div>)}</details>
         {selectedBoards.some(b=>b.scene?.items.some(i=>i.type==="polyline"&&i.polyline.spline))&&<p aria-label="Spline output tolerance">Spline curves: 0.02 mm paper chord tolerance. PDF is raster output; exact editable curves remain available in DXF SPLINE.</p>}
         <label><span>Boards</span><select aria-label="PDF artboard scope" value={scope} onChange={event => setScope(event.target.value)}>
           {boards.length > 1 && <option value="visible">All visible boards ({boards.length})</option>}

@@ -5,10 +5,14 @@ import { cadHistory } from "../../src/state/history";
 import { meshPositionsBounds, type MeshData } from "../../src/cad/kernelGeometryService";
 
 export function restoreTestDocument(snapshot: CadDocument) {
+  delete cadDocument.interferenceIntents;
+  delete cadDocument.assembly;
   delete cadDocument.blocks;
   delete cadDocument.variables;
   delete cadDocument.parameterBindings;
   delete cadDocument.artboards;
+  delete cadDocument.savedMeasurements;
+  delete cadDocument.canvases;
   delete cadDocument.workspaceSections;
   delete cadDocument.frameLinks;
   delete cadDocument.rasterAssets;
