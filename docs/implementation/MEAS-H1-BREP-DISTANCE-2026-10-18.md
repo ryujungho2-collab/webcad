@@ -28,4 +28,4 @@ OCCT 기본 deflection은 1e-6 mm, 지원 입력은 1e-7–0.01 mm다. 결과의
 - 기존 finite hover browser 19개 회귀 통과. 최종 build와 architecture 679 모듈 검증도 통과했고 [manifest](../verification/MEAS-H1-BREP-2026-10-18.json)에 기록했다.
 - 960px/포함 스크린샷에서 경계 간격과 재료 분리 거리 0이 함께 표시됨을 확인했다. viewport query이며 파일 schema·PDF 출력은 변경하지 않았다.
 
-[960px](../../output/verification/brep-distance/brep-960.png) · [포함 상태](../../output/verification/brep-distance/contained.png) · [메타데이터](../../output/verification/brep-distance/distance.json) · [원본 파일](../../output/verification/brep-distance/source.webcad.json) · [native report](../../output/verification/brep-distance/native-report.json).
+960px (local-only, not in repository: `output/verification/brep-distance/brep-960.png`) · 포함 상태 (local-only, not in repository: `output/verification/brep-distance/contained.png`) · 메타데이터 (local-only, not in repository: `output/verification/brep-distance/distance.json`) · 원본 파일 (local-only, not in repository: `output/verification/brep-distance/source.webcad.json`) · native report (local-only, not in repository: `output/verification/brep-distance/native-report.json`).

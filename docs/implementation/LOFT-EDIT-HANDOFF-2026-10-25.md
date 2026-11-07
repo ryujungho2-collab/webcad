@@ -18,7 +18,7 @@
 - 실제 Chrome UI/Worker 13개: 속성 버튼 → 자연어로 역변환 → stdio MCP로 재변환 → 사람 공통 폼 → 속성 재편집 → 저장/재열기. 모델 응답 mock 없이 로컬 명시 문법과 실제 SDK MCP stdio를 사용했다. 자유 문장 모델 성능 검증은 아니다.
 - TypeScript/Vite 빌드 및 architecture 검사 통과. 기존 큰 chunk 경고는 유지된다.
 
-결과: [브라우저 보고서](../../output/verification/loft-edit/browser-report.json), [화면](../../output/verification/loft-edit/loft.png), [편집 가능한 문서](../../output/verification/loft-edit/loft.webcad.json).
+결과: 브라우저 보고서 (local-only, not in repository: `output/verification/loft-edit/browser-report.json`), 화면 (local-only, not in repository: `output/verification/loft-edit/loft.png`), 편집 가능한 문서 (local-only, not in repository: `output/verification/loft-edit/loft.webcad.json`).
 
 ## 지원 경계
 

@@ -22,9 +22,9 @@ VectorStyleEditor는 기본 스타일을 앞에, gradient 상세를 펼침 영�
 
 Appearance에서 `.2cm` 선 두께를 입력해 Apply한 뒤 exact 선 좌표를 비교했다. 실제 SVG의 `stroke-width="2"`와 실제 다운로드된 raster PDF 내부 JPEG를 독립 디코딩해 해당 선 위치의 두께를 검사했다. 문서 스타일만 확인하고 출력 검증을 생략하지 않았다. PDF는 기존 96 dpi JPEG 평탄화 경로다.
 
-- [프레임 속성 요약](../../output/verification/inspector-properties/inspector-frame.png)
-- [960px 속성 패널](../../output/verification/inspector-properties/inspector-960.png)
-- [스타일 적용 SVG](../../output/verification/inspector-properties/inspector-style.svg)
-- [동일 프레임의 PDF](../../output/verification/inspector-properties/inspector-style.pdf)
+- 프레임 속성 요약 (local-only, not in repository: `output/verification/inspector-properties/inspector-frame.png`)
+- 960px 속성 패널 (local-only, not in repository: `output/verification/inspector-properties/inspector-960.png`)
+- 스타일 적용 SVG (local-only, not in repository: `output/verification/inspector-properties/inspector-style.svg`)
+- 동일 프레임의 PDF (local-only, not in repository: `output/verification/inspector-properties/inspector-style.pdf`)
 
 Architecture 615 modules, production 441 modules. 기존 큰 chunk 경고는 남아 있다. 모든 솔리드의 새 driver·혼합 종류의 스타일 일괄 편집·새 문서 schema·외부 파일 상호운용 확대는 이번 범위가 아니다.

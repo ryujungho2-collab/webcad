@@ -21,7 +21,7 @@
 - 전체 Node 회귀: 1,368개 / 54 suites 통과. 이후 비교 키 순서 처리·용량 검증 2개 추가를 포함한 관련 Node 30개 통과(중복 집계하지 않음).
 - 신규 네이티브 브라우저 projectBundle: 열린/닫힌 프로젝트 export, 실제 파일 import, 충돌 Review, 이미지 보존, 기존 편집기 유지, 새로고침 복구. 결과 수는 [manifest](../verification/UI-P4-2026-10-18.json) 참조.
 - 프로젝트 관리/좌우 비교 브라우저 회귀와 전체 build/architecture 결과는 manifest에 기록한다. 기존 빈 문서 테스트는 현재 시작 모드에 맞춰 네이티브 3D 버튼을 누른 뒤 Box를 사용하도록 보완했다.
-- [실제 묶음](../../output/verification/project-bundle/Projects.webcad.bundle.json), [Review 화면](../../output/verification/project-bundle/bundle-review.png), [브라우저 보고서](../../output/verification/project-bundle/native-report.json).
+- 실제 묶음 (local-only, not in repository: `output/verification/project-bundle/Projects.webcad.bundle.json`), Review 화면 (local-only, not in repository: `output/verification/project-bundle/bundle-review.png`), 브라우저 보고서 (local-only, not in repository: `output/verification/project-bundle/native-report.json`).
 
 ## 지원 경계
 

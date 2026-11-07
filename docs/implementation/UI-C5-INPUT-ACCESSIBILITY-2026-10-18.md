@@ -26,10 +26,10 @@
 
 ## 화면과 경계
 
-![저장 실패와 별도 다운로드 상태](../../output/verification/accessibility-input/accessibility-1440.png)
+!저장 실패와 별도 다운로드 상태 (local-only, not in repository: `output/verification/accessibility-input/accessibility-1440.png`)
 
-![960px 상태 메뉴](../../output/verification/accessibility-input/accessibility-960.png)
+!960px 상태 메뉴 (local-only, not in repository: `output/verification/accessibility-input/accessibility-960.png`)
 
-![150% 상당 화면](../../output/verification/accessibility-input/accessibility-zoom-150.png)
+!150% 상당 화면 (local-only, not in repository: `output/verification/accessibility-input/accessibility-zoom-150.png`)
 
 Edge/SwiftShader의 작은 프로젝트 fixture를 기준으로 한다. 실제 스크린리더 음성·모든 브라우저·모든 CAD pointer 제스처의 키보드 대체나 접근성 인증은 포함하지 않는다. 기하 취소는 프로젝트 내 기하 작업 범위이며 저장소 transaction/파일 다운로드 취소와 구분한다.

@@ -1,6 +1,6 @@
 # 비정형 전시 키오스크 · 곡선 수정 인계
 
-2026-10-24. [원본·STEP·도면](../../output/projects/organic-kiosk/README.md).
+2026-10-24. 원본·STEP·도면 (local-only, not in repository: `output/projects/organic-kiosk/README.md`).
 
 약 6 m급 유기적 전시 키오스크를 2D 맞춤 곡선부터 작성했다. 120 mm 바닥, 900 mm 안내 데스크, Z2700–2850의 테이퍼 캐노피, Ø120 기둥 세 개와 전시 패널을 독립 BRep 일곱 개로 구성한다. 설계 품질이나 법규 적합성의 인증이 아니라, 사람·내부 자연어·실제 MCP 사이에서 수정 작업을 이어가는 검증 과제다.
 

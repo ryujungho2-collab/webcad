@@ -20,6 +20,6 @@
 
 비교 회귀에서 비활성 iframe 클릭 후 다운로드 단축키가 동작하지 않는 문제를 발견했다. 활성 전환에도 Home 복귀용 탭 포커스를 적용한 것이 원인이었다. 포커스 복귀를 실제 Home 종료에만 제한한 뒤 두 창 다운로드를 포함한 비교 25개 검사가 통과했다.
 
-![1440px 시작 화면](../../output/verification/project-home/home-1440.png)
+!1440px 시작 화면 (local-only, not in repository: `output/verification/project-home/home-1440.png`)
 
-![960px 시작 화면](../../output/verification/project-home/home-960.png)
+!960px 시작 화면 (local-only, not in repository: `output/verification/project-home/home-960.png`)

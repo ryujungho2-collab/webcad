@@ -45,7 +45,7 @@
 | 아키텍처 검사 | 964 모듈 통과 |
 | `git diff --check` | 통과. 기존 CRLF 안내 유지 |
 
-[제어된 브라우저 보고서](../../output/verification/auto-ontology-pilot-01/autoOntologyPilot/browser-report.json) · [실제 연결 보고서](../../output/verification/auto-ontology-pilot-01/autoOntologyPilotLive/browser-report.json) · [실제 게이트웨이 SQL 기록](../../output/verification/auto-ontology-pilot-01/live-provider-trace.log) · [실제 Inspector 화면](../../output/verification/auto-ontology-pilot-01/autoOntologyPilotLive/verified-inspector.png)
+[제어된 브라우저 보고서](../../output/verification/auto-ontology-pilot-01/autoOntologyPilot/browser-report.json) · [실제 연결 보고서](../../output/verification/auto-ontology-pilot-01/autoOntologyPilotLive/browser-report.json) · 실제 게이트웨이 SQL 기록 (local-only, not in repository: `output/verification/auto-ontology-pilot-01/live-provider-trace.log`) · [실제 Inspector 화면](../../output/verification/auto-ontology-pilot-01/autoOntologyPilotLive/verified-inspector.png)
 
 실제 SQL은 각각 `source_id = 'profile'` 또는 `target_id = 'solid'`와 함께 `document_id = 'test-document' AND revision = 2`를 포함했다. 실제 배포에는 앞선 실험에서 검증한 SQLite 패치 두 개를 일시 적용했다. 검증 후 원본 파일을 복구하고 실험 token을 폐기했으며 서비스를 정지했다.
 

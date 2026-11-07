@@ -40,7 +40,7 @@ Copilot의 **실무 검토 · 간격과 도면** 패널과 공통 read 도구 **
 
 ## 실제 주택에서 발견한 결함과 수정
 
-[검토 화면](../../output/projects/three-storey-house/coordination/review.html) · [원본 CAD](../../output/projects/three-storey-house/coordination/house.webcad.json) · [요구조건](../../output/projects/three-storey-house/coordination/requirements.json) · [수정 전](../../output/projects/three-storey-house/coordination/r1-review.json) · [수정 후](../../output/projects/three-storey-house/coordination/repaired-review.json).
+검토 화면 (local-only, not in repository: `output/projects/three-storey-house/coordination/review.html`) · 원본 CAD (local-only, not in repository: `output/projects/three-storey-house/coordination/house.webcad.json`) · 요구조건 (local-only, not in repository: `output/projects/three-storey-house/coordination/requirements.json`) · 수정 전 (local-only, not in repository: `output/projects/three-storey-house/coordination/r1-review.json`) · 수정 후 (local-only, not in repository: `output/projects/three-storey-house/coordination/repaired-review.json`).
 
 1. R1 생성 코드는 주방 통로를 1200mm로 설명했으나, 아일랜드 상판과 벽측 상판의 실제 간격은 **1120mm**였다. 기존 검사는 관통 여부만 확인하므로 통과했다. 1200mm는 이 과제의 설계 목표이며 법정 최소치가 아니다.
 2. 아일랜드 본체와 상판의 원본 2D를 Y+80mm 이동하는 단일 native batch로 **1200mm**를 확보했다. 주변 1층 벽 9개와의 상판 관통도 재검사했다. 이 수정은 실제 통행 경로 전체나 가구 사용성 승인이 아니다.

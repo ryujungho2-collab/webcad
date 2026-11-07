@@ -1,6 +1,7 @@
+import {localTestArtifactUrl} from "./helpers/localTestArtifacts";
 import * as THREE from 'three';
-import sceneUrl from '../../../output/projects/courtyard-pavilion/mesh-scene.json?url';
-import documentUrl from '../../../output/projects/courtyard-pavilion/pavilion.webcad.json?url';
+const sceneUrl = localTestArtifactUrl('courtyard-scene');
+const documentUrl = localTestArtifactUrl('courtyard-document');
 import {installBrowserChecks} from './helpers/browserChecks';
 const sceneData:{meshes:{id:string;name:string;positions:number[];indices:number[];transform:{translation:number[];rotation:number[];scale:number[]}}[]}=await(await fetch(sceneUrl)).json();
 const nativeDocument:{document:{features:Record<string,unknown>}}=await(await fetch(documentUrl)).json();

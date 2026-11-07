@@ -43,4 +43,4 @@
 - `pnpm --filter @agent-webcad/web exec tsx scripts/repairSchoolVerification.ts`: 실제 내부 도구/preview/Apply 13개 검증과 산출물 작성.
 - `pnpm --filter @agent-webcad/web test:browser --page=graduationCopilot --artifacts`: 실제 Copilot UI 23개 제안·54개 검사.
 - 전체 Node 1583개 통과. 신규 범위/주석/구조화 입력 3개, 관련 내부 엔진/도구 회귀 20개 검증 포함.
-- [검증 manifest](../verification/COPILOT-GRADUATION-TASK-01-2026-10-23.json), [산출물 안내](../../output/projects/repair-school/README.md), [비교·판정 페이지](../../output/projects/repair-school/index.html).
+- [검증 manifest](../verification/COPILOT-GRADUATION-TASK-01-2026-10-23.json), 산출물 안내 (local-only, not in repository: `output/projects/repair-school/README.md`), 비교·판정 페이지 (local-only, not in repository: `output/projects/repair-school/index.html`).

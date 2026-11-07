@@ -12,7 +12,7 @@ View 메뉴의 **Material view / CAD edge view**는 솔리드의 모서리 표�
 
 File의 **Export GLB**는 선택한 보이는 솔리드 또는 전체 보이는 솔리드를 정확한 CAD 형상에서 메시로 변환해 PBR 재료와 함께 내보낸다. CAD ID를 node extras에 보존하며 glTF 표준인 m/Y-up으로 변환한다. STEP은 mm/Z-up BRep를 유지한다. 두 출력 모두 조립 좌표를 사용하며 화면 클리핑·분해 위치는 굽지 않는다.
 
-실제 도면→3D 기능 검증 사례는 [2층 카페 3D 변환](../implementation/CAFE-2F-02-2026-10-20.md)과 [열기/편집 안내](../../output/projects/large-cafe/3d/README.md)를 따른다. 역할·높이를 명시한 변환이며 범용 도면 추론이나 양방향 BIM 변환을 뜻하지 않는다.
+실제 도면→3D 기능 검증 사례는 [2층 카페 3D 변환](../implementation/CAFE-2F-02-2026-10-20.md)과 열기/편집 안내 (local-only, not in repository: `output/projects/large-cafe/3d/README.md`)를 따른다. 역할·높이를 명시한 변환이며 범용 도면 추론이나 양방향 BIM 변환을 뜻하지 않는다.
 
 ## 작업면에서 시작하기
 

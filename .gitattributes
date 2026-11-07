@@ -7,3 +7,6 @@
 *.wasm binary
 *.step binary
 *.stp binary
+
+# Required regression inputs have recorded byte hashes on Windows and Linux.
+apps/web/tests/fixtures/assembly/*.json -text

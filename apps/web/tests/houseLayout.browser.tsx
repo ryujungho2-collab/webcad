@@ -1,7 +1,8 @@
+import {localTestArtifactUrl} from "./helpers/localTestArtifacts";
 import {createRoot} from "react-dom/client";
 import {App} from "../src/App";
 import "../src/styles.css";import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
-import baseNative from "../../../output/projects/lightwell-house/review-house.webcad.json?raw";
+const baseNative = await (await fetch(localTestArtifactUrl('house-review'))).text();
 import baseTrace from "../../../output/projects/lightwell-house/review-mcp-trace.json";
 import {gardenHouseInterior} from "../scripts/gardenHouseInterior";
 import reviewDesign from "../../../output/projects/lightwell-house/review-design.json";

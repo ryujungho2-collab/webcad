@@ -24,9 +24,9 @@ Single view는 활성 창 하나를 표시하며 다른 열린 편집기는 해�
 
 실제 Edge/SwiftShader/React/Worker 검사 **25 checks**: A/B 작성·Undo와 키보드 Undo 격리, 양쪽 실시간 렌더, 활성 표시, compact 패널, pointer/keyboard 구분선, 단일 복귀·선택/Undo 보존, 두 문서 source revision과 kernel 제출 작업 불변, 960px 캔버스 공간/overflow, 세 번째 프로젝트 교체·비표시 세션 정지, 반대 창 선택의 교환, 양쪽 실제 WebCAD 다운로드, 닫기/저장·살아남은 iframe 보존, 새로고침 비교/비율/복구/새 Undo를 검증했다.
 
-- [실제 UI report](../../output/verification/project-comparison/native-report.json)
-- [1440px](../../output/verification/project-comparison/comparison-1440.png) · [960px](../../output/verification/project-comparison/comparison-960.png) · [재열기](../../output/verification/project-comparison/comparison-reopened.png)
-- [A 다운로드 원본](../../output/verification/project-comparison/comparison-a.webcad.json) · [B 다운로드 원본](../../output/verification/project-comparison/comparison-b.webcad.json)
+- 실제 UI report (local-only, not in repository: `output/verification/project-comparison/native-report.json`)
+- 1440px (local-only, not in repository: `output/verification/project-comparison/comparison-1440.png`) · 960px (local-only, not in repository: `output/verification/project-comparison/comparison-960.png`) · 재열기 (local-only, not in repository: `output/verification/project-comparison/comparison-reopened.png`)
+- A 다운로드 원본 (local-only, not in repository: `output/verification/project-comparison/comparison-a.webcad.json`) · B 다운로드 원본 (local-only, not in repository: `output/verification/project-comparison/comparison-b.webcad.json`)
 - [실행 manifest](../verification/UI-P3-A-2026-10-17.json)
 
 대상 Node **33/33**, 전체 Node **1,291 tests / 54 suites / 실패 0**(약 47.3초), TypeScript·architecture **600 modules**·production **431 modules** 통과. 기존 큰 chunk 경고는 유지한다. 기존 native 프로젝트 탭 **19**·복구 **24**·관리 **30 checks**도 통과했다.

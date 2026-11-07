@@ -6,11 +6,11 @@
 
 Assembly joints → **Place Joint-owned part**에서 Child, 목표 XYZ(mm)·Euler XYZ(degrees), 명시적 descendant policy를 입력하고 Review part placement를 누른다. Preview는 source와 History를 변경하지 않는다. 바뀌는 world anchors나 기존 intent가 있으면 checkbox로 설계 의도를 재확인한 후 Apply한다. Cancel은 Preview와 ghost를 폐기한다.
 
-- [실제 Native Preview 스크린샷](../../output/verification/assembly-placement/placement-preview.png)
-- [브라우저 저장 문서](../../output/verification/assembly-placement/placement.webcad.json)
-- [별도 거치대 후보 문서](../../output/verification/assembly-placement/laptop-candidate.webcad.json)
-- [World Matrix / Rest / anchor / Motion 원시 보고서](../../output/verification/assembly-placement/laptop-report.json)
-- [브라우저 검사](../../output/verification/assembly-placement/browser-report.json), [기계 판독 summary](../../output/verification/assembly-placement/summary.json)
+- 실제 Native Preview 스크린샷 (local-only, not in repository: `output/verification/assembly-placement/placement-preview.png`)
+- 브라우저 저장 문서 (local-only, not in repository: `output/verification/assembly-placement/placement.webcad.json`)
+- 별도 거치대 후보 문서 (local-only, not in repository: `output/verification/assembly-placement/laptop-candidate.webcad.json`)
+- World Matrix / Rest / anchor / Motion 원시 보고서 (local-only, not in repository: `output/verification/assembly-placement/laptop-report.json`)
+- 브라우저 검사 (local-only, not in repository: `output/verification/assembly-placement/browser-report.json`), 기계 판독 summary (local-only, not in repository: `output/verification/assembly-placement/summary.json`)
 
 스크린샷은 테스트 배치에서 제품 CadViewport와 실제 편집 패널을 실행한 것이다. 브라우저 Apply/Undo/Redo는 평가 복사본에서만 수행했다. v63 원본 파일은 보존했다.
 

@@ -11,7 +11,7 @@
 | C 오류 환류 | 3 | 1 | 2 | valid-native-preview-not-applied | 1289,1083,1363 | 58,32,61 |
 | D 반복 중단 | 3 | 1 | 1 | rejected | 1282,1076,1349 | 58,32,32 |
 
-- **A:** 모델 cad.inspect(box) → solid.parameter(width60) → update-primitive → validateCopilotEdit → previewCadCommand. Preview의 width60/depth30/height20, 객체 ID/Transform 보존 확인. [원본](../../output/verification/ai-agent-phase-1a-final/A-input.webcad.json), [Preview 문서](../../output/verification/ai-agent-phase-1a-final/A-preview.webcad.json).
+- **A:** 모델 cad.inspect(box) → solid.parameter(width60) → update-primitive → validateCopilotEdit → previewCadCommand. Preview의 width60/depth30/height20, 객체 ID/Transform 보존 확인. 원본 (local-only, not in repository: `output/verification/ai-agent-phase-1a-final/A-input.webcad.json`), Preview 문서 (local-only, not in repository: `output/verification/ai-agent-phase-1a-final/A-preview.webcad.json`).
 - **B:** 모델이 실제 assembly.inspect / cad.inspect / assembly.motion.inspect 등을 실행했다. 실제 bearing ID와 명시적 step90, exceptions[], tolerance1e-6를 사용했다. 최종 summary는 “지지대 위치 편집은 지원되지 않습니다”라고 응답했다. 치수·받침판 pose·Joint/축 보존 조건 아래 위치만 바꾸는 write 도구는 제공하지 않는다. 관통 감소를 달성했다고 집계하지 않는다.
 - **C:** 평가자가 의도적으로 “먼저 현재 값50을 제안하고 native no-op 거부 후60으로 재계획”하는 오류 경로를 요청했다. 실제 모델이 width50을 제출하여 기존 planner의 `The dimension is unchanged`를 받고, 후속 모델 응답 width60이 Native Preview를 통과했다. 자연 발생 오류 복구와 구분하는 **명시적 오류 주입 실험**이다.
 - **D:** 평가자가 실패 후에도50만 반복하도록 요청했다. 실제 모델의 같은 제안을 call ID/인자 순서와 무관하게 식별하여 두 번째 native 계획 실행 전에 중단했다. 실제 모델3회(조회/첫 제안/반복), native 계획 시도1회다. 승인·적용으로 우회하지 않았다.
@@ -24,9 +24,9 @@
 
 초과 입력에 대해 fullPromptLimit=numCtx−1을 검사한 다음 context-shift 정책 `numCtx − max((numCtx−numKeep)/2,1)`을 사용한다. numCtx16384, numKeep4이면 **8194**다. Phase0의 입력17418/17490은16383을 넘어서 이 정책을 발동시켰다. num_ctx 무시나 모델 이름32k의 고정 한도, 출력4096 예약 때문으로 설명하지 않는다.
 
-이번 실제 runner는 `-c 16384 -np 1 --context-shift --keep 4`, `/api/ps.context_length=16384`다. [런타임 기록](../../output/verification/ai-agent-phase-1a-final/runtime.json)에 모델·버전·process args를 보관했다. 요청은 truncate:false, num_predict1024, task별 server-owned catalog/schema, 보수적 UTF-8 ceiling을 사용한다. 바이트를 정확한 tokens로 표시하지 않는다.
+이번 실제 runner는 `-c 16384 -np 1 --context-shift --keep 4`, `/api/ps.context_length=16384`다. 런타임 기록 (local-only, not in repository: `output/verification/ai-agent-phase-1a-final/runtime.json`)에 모델·버전·process args를 보관했다. 요청은 truncate:false, num_predict1024, task별 server-owned catalog/schema, 보수적 UTF-8 ceiling을 사용한다. 바이트를 정확한 tokens로 표시하지 않는다.
 
-이번 최종 근거18회 호출의 실제 prompt_eval_count는 1056–2651 tokens, 입력 합30,561 / 출력 합1,271 tokens다. 모든 응답 done=true이고 입력이15360보다 작았다. 정확한 요청/응답이 [live.json](../../output/verification/ai-agent-phase-1a-final/live.json), [B-position-live.json](../../output/verification/ai-agent-phase-1a-final/B-position-live.json), [repeat-live.json](../../output/verification/ai-agent-phase-1a-final/repeat-live.json)에 있다. 실행 중 서버 stdout 로그는 수집하지 못했으므로 “truncation warning0”이라는 로그 계측 수치는 주장하지 않는다. truncate:false 요청·작은 실제 입력·runner context를 근거로 판단했다.
+이번 최종 근거18회 호출의 실제 prompt_eval_count는 1056–2651 tokens, 입력 합30,561 / 출력 합1,271 tokens다. 모든 응답 done=true이고 입력이15360보다 작았다. 정확한 요청/응답이 live.json (local-only, not in repository: `output/verification/ai-agent-phase-1a-final/live.json`), B-position-live.json (local-only, not in repository: `output/verification/ai-agent-phase-1a-final/B-position-live.json`), repeat-live.json (local-only, not in repository: `output/verification/ai-agent-phase-1a-final/repeat-live.json`)에 있다. 실행 중 서버 stdout 로그는 수집하지 못했으므로 “truncation warning0”이라는 로그 계측 수치는 주장하지 않는다. truncate:false 요청·작은 실제 입력·runner context를 근거로 판단했다.
 
 ## 재사용과 변경
 
@@ -44,7 +44,7 @@ MCP 전체 registry, CadToolSession의 bounded cad.inspect, v64 포맷, GLB 원�
 
 ## Motion과 Test B의 기능 제약
 
-평가자 별도 read에서 이전과 같은6개 부품/0·90·180도를 실제 커널로 재조회했다. native report45 rows / 10,018 bytes → 대상 support/plate3 rows / 1,377 bytes. 모델용 복사본만 투영하고 Native 원본은 불변이다. [원본 report](../../output/verification/ai-agent-phase-1a-final/native-motion-full.json), [제한된 요약](../../output/verification/ai-agent-phase-1a-final/native-motion-summary.json).
+평가자 별도 read에서 이전과 같은6개 부품/0·90·180도를 실제 커널로 재조회했다. native report45 rows / 10,018 bytes → 대상 support/plate3 rows / 1,377 bytes. 모델용 복사본만 투영하고 Native 원본은 불변이다. 원본 report (local-only, not in repository: `output/verification/ai-agent-phase-1a-final/native-motion-full.json`), 제한된 요약 (local-only, not in repository: `output/verification/ai-agent-phase-1a-final/native-motion-summary.json`).
 
 이45-row 검사1회는 **평가자의 검사이며 모델의 read 성과에 더하지 않았다**. 실제 B 모델은 처음부터2개 부품으로 Motion을 좁혀 조회했고 그 summary를 후속 요청에서 받았다. 상태·각도·Common 체적·tolerance·상대 운동·의도·source version·생략 row 수를 유지한다.
 
@@ -54,16 +54,16 @@ support/plate의 Common은 원본0/90/180에서964.6170736148283mm³다. 의도 
 
 ## 진단 중 발견과 실패도 보존
 
-- 첫 재개 실행은 작은 catalog만으로 반복 조회가 멈추지 않아 A read-round limit, B context ceiling에서 종료했다. [진단 로그](../../output/verification/ai-agent-phase-1a-resume/live.json). 이것을 성공 횟수에 포함하지 않았다.
-- 다음 진단에서 모델의 B height95 수정이 실제 관통을 줄여 Preview까지 갔지만 “위치만, 치수 유지”와 충돌했다. 해당 Preview를 성공으로 인정하지 않고 [진단 자료](../../output/verification/ai-agent-phase-1a-final/conflict-diagnostic/live.json)에 격리한 뒤 Native 보존 gate를 추가했다. 최종 B Preview는 생성하지 않았다.
+- 첫 재개 실행은 작은 catalog만으로 반복 조회가 멈추지 않아 A read-round limit, B context ceiling에서 종료했다. 진단 로그 (local-only, not in repository: `output/verification/ai-agent-phase-1a-resume/live.json`). 이것을 성공 횟수에 포함하지 않았다.
+- 다음 진단에서 모델의 B height95 수정이 실제 관통을 줄여 Preview까지 갔지만 “위치만, 치수 유지”와 충돌했다. 해당 Preview를 성공으로 인정하지 않고 진단 자료 (local-only, not in repository: `output/verification/ai-agent-phase-1a-final/conflict-diagnostic/live.json`)에 격리한 뒤 Native 보존 gate를 추가했다. 최종 B Preview는 생성하지 않았다.
 - 미지원 설명의 후속 옵션에 Joint axis/origin 변경을 끼우는 문제도 발견해 native clarification 충돌 검사를 추가했다. 원 응답은 진단 자료로 유지했다.
-- 전체 호출·token 비용은 [summary.json의 diagnosticAndFinalLedger](../../output/verification/ai-agent-phase-1a-final/summary.json)에 별도로 적었다. 최종 근거18회 중 이전 B 질문 품질이 낮은5회가 포함되며, 최종 채택 A/C/D/B는13회다. 이전 시도의 실제 모델 비용을 숨기지 않는다.
+- 전체 호출·token 비용은 summary.json의 diagnosticAndFinalLedger (local-only, not in repository: `output/verification/ai-agent-phase-1a-final/summary.json`)에 별도로 적었다. 최종 근거18회 중 이전 B 질문 품질이 낮은5회가 포함되며, 최종 채택 A/C/D/B는13회다. 이전 시도의 실제 모델 비용을 숨기지 않는다.
 
 ## 집중 회귀와 제한
 
 - agentContext / agentNativePreview / localCopilot / copilotPlanning / simready / projectBundle / historyState: **49 tests 통과**.
 - `tsc -b`: 통과.
-- SimReady B1 대표 hardware 브라우저: **57 checks 통과**. 실제 자원·공유·삭제·저장·Unmount 회귀를 재실행했다. [로그](../../output/verification/ai-agent-phase-1a-final/simready-b1-browser.log).
+- SimReady B1 대표 hardware 브라우저: **57 checks 통과**. 실제 자원·공유·삭제·저장·Unmount 회귀를 재실행했다. 로그 (local-only, not in repository: `output/verification/ai-agent-phase-1a-final/simready-b1-browser.log`).
 - 전체 suite와 전체 브라우저 감사는 실행하지 않았다. 이번 모델 제안의 Native Preview는 API/분리 문서에서 검증했으며, Copilot UI Review 버튼의 새 브라우저 클릭을 했다고 주장하지 않는다.
 - A는 한 종류 Box 치수 변경 사례다. 일반 CAD 과제 성공률이나 완전한 자연어 보존 의미 해석을 뜻하지 않는다. 위치 전용 감지와 질문 충돌 검사는 명시적 문구에 대한 제한된 검사이며 모든 자연어를 포괄하지 않는다.
 - 다음 최소 단계는 이미 조회한 사실을 사용자 질문으로 다시 내보내는 clarification 품질을 개선하고, 기존 inspect의 world pose 설명과 편집 가능 범위를 더 명확하게 하는 것이다. Joint rest 위치 편집을 지원할지는 별도 구현 결정이며 이번에 새 커널·solver를 만들지 않았다.

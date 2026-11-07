@@ -8,4 +8,4 @@
 
 STEP을 새 OCCT reader로 읽어 솔리드 수·유효성·체적을 확인한다. 체적의 독립 기준은 두 직육면체의 합집합에서 네 원기둥과 직육면체 홈을 뺀 14425.148246 mm³다. 연관 BRep 절단의 원 네 개에 대해서는 반지름과 실제 위치를 별도로 검사하고 원본에서 SVG·DXF를 출력한다.
 
-[산출물과 재현 결과](../../output/projects/light-sensor-bracket/README.md). 최종 수치와 해시는 산출물 verification.json에 기록한다. 완성 Boolean의 모든 치수를 재설계하는 기능이나 판금·공차·하중 검증은 이번 시험 범위에 포함하지 않는다.
+산출물과 재현 결과 (local-only, not in repository: `output/projects/light-sensor-bracket/README.md`). 최종 수치와 해시는 산출물 verification.json에 기록한다. 완성 Boolean의 모든 치수를 재설계하는 기능이나 판금·공차·하중 검증은 이번 시험 범위에 포함하지 않는다.

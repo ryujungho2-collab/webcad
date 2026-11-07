@@ -1,6 +1,6 @@
 # C2 라운지체어 · 곡률 연속과 편집 정책
 
-2026-10-24. [CAD 원본·STEP·2D 윤곽·실제 단면](../../output/projects/c2-lounge-chair/README.md).
+2026-10-24. CAD 원본·STEP·2D 윤곽·실제 단면 (local-only, not in repository: `output/projects/c2-lounge-chair/README.md`).
 
 앞선 S자 조명은 열린 NURBS를 실제 스윕에 연결했다. 이번 라운지체어는 좌판에서 등받이로 이어지는 12점 윤곽과 양쪽 루프 프레임을 C2로 보간한다. 사람은 C1 윤곽과 600 mm 돌출을 만들고, 공통 폼과 내부 자연어로 같은 점을 C2로 변환한다. 사람·실제 SDK stdio MCP가 같은 등받이 점을 옮긴 결과도 비교한다. 이후 MCP가 구멍을 가진 두 프레임, 가로대, 레이어·마감과 실제 단면을 작성한다.
 

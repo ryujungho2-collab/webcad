@@ -26,7 +26,7 @@ native 추정식은 base16KiB + face4KiB·edge1KiB·vertex128B 방문 비용, sp
 
 현재 OCCT binding의 Fuse/Cut/Common 생성자가 실제 Boolean을 완료한다는 것을 native `IsDone()`으로 확인했다. 기존 코드는 생성자 뒤에 `Build`를 다시 실행하고 builder와 두 progress range를 반환하지 않았다. 완료된 작업은 다시 Build하지 않으며, 미완료인 경우에만 한 번 Build를 시도한다. 반환 shape의 독립 handle을 얻은 뒤 builder/progress를 finally에서 delete한다. 실패·cache 퇴출·clear 뒤에 이 객체가 source/result를 계속 붙잡는 문제도 제거했다. placement 실패의 task wrapper와 HMR 종료 후 늦은 source/slab 등록도 정리한다.
 
-이 변경 전의 독립 5회 원시값은 [Boolean 정리 전 보고서](../../output/verification/kernel-p4/pre-boolean-cleanup-report.json)로 보존한다. 최종 연결 R5의 source 구간을 따로 비교해 분리 그룹 cache hit와 Boolean 최초 계산 비용을 혼용하지 않는다.
+이 변경 전의 독립 5회 원시값은 Boolean 정리 전 보고서 (local-only, not in repository: `output/verification/kernel-p4/pre-boolean-cleanup-report.json`)로 보존한다. 최종 연결 R5의 source 구간을 따로 비교해 분리 그룹 cache hit와 Boolean 최초 계산 비용을 혼용하지 않는다.
 
 ## 첫 source의 정확 HLR
 
@@ -36,7 +36,7 @@ OCCT의 tolerance를 포함하는 analytic BRep box를 실제 observer 평면으
 
 ## 계측 결과
 
-[중앙값·min/max와 원시 표본](../../output/verification/kernel-p4/benchmark-summary.json). 각 칸은 중앙값 (최소–최대), ms다. global 대조군은 같은 byte accounting을 켠 기존 전체 assembly HLR 경로이며 P3의 예전 binary와 비교한 값이 아니다.
+중앙값·min/max와 원시 표본 (local-only, not in repository: `output/verification/kernel-p4/benchmark-summary.json`). 각 칸은 중앙값 (최소–최대), ms다. global 대조군은 같은 byte accounting을 켠 기존 전체 assembly HLR 경로이며 P3의 예전 binary와 비교한 값이 아니다.
 
 | 조건 · 각 mode 5회 | Global 대조군 | 분리·동일 배치 재사용 |
 | --- | --- | --- |
@@ -53,9 +53,9 @@ Boolean·기본 형상 builder 수명 정리 전후의 **R5 global 경로**를 �
 
 ## 계측 조건과 지원 경계
 
-[실제 Worker 원시 보고서](../../output/verification/kernel-p4/native-report.json). 16 solids/8개 독립 occlusion 그룹은 각 mode에 독립 Worker 5개를 사용한다. mode 순서를 교대하며 fresh cold·같은 source에서 HLR 재계산·변경 source·명시적 회수 후 재생성을 구분한다. 같은 격리 브라우저/Vite 세션에서 Worker를 독립 생성하며 network/compiled-code cache는 초기화하지 않는다. Worker/WASM 초기화와 전송을 포함하는 wallColdMs, 초기화를 제외한 source/HLR phase를 따로 기록한다. 중앙값과 min/max·모든 원시 표본을 남기며 5표본 p95는 주장하지 않는다.
+실제 Worker 원시 보고서 (local-only, not in repository: `output/verification/kernel-p4/native-report.json`). 16 solids/8개 독립 occlusion 그룹은 각 mode에 독립 Worker 5개를 사용한다. mode 순서를 교대하며 fresh cold·같은 source에서 HLR 재계산·변경 source·명시적 회수 후 재생성을 구분한다. 같은 격리 브라우저/Vite 세션에서 Worker를 독립 생성하며 network/compiled-code cache는 초기화하지 않는다. Worker/WASM 초기화와 전송을 포함하는 wallColdMs, 초기화를 제외한 source/HLR phase를 따로 기록한다. 중앙값과 min/max·모든 원시 표본을 남기며 5표본 p95는 주장하지 않는다.
 
-실제 R5 56부품도 독립 Worker 5개에서 mode 순서를 교대한 paired run으로 비교한다. 각 mode 직전에 source/slab을 clear하지만 두 번째 mode의 WASM/JIT는 warm이다. 전체 R5는 한 연결 그룹이므로 분리된 반복 배치의 개선율을 R5 전체에 적용하지 않는다. 분리만 적용했던 초기 계측도 [별도 원시값](../../output/verification/kernel-p4/partition-only-report.json)으로 보존한다.
+실제 R5 56부품도 독립 Worker 5개에서 mode 순서를 교대한 paired run으로 비교한다. 각 mode 직전에 source/slab을 clear하지만 두 번째 mode의 WASM/JIT는 warm이다. 전체 R5는 한 연결 그룹이므로 분리된 반복 배치의 개선율을 R5 전체에 적용하지 않는다. 분리만 적용했던 초기 계측도 별도 원시값 (local-only, not in repository: `output/verification/kernel-p4/partition-only-report.json`)으로 보존한다.
 
 기존 문서/Undo·실행 중 source/출력·active GPU working set·WASM allocator capacity와 전체 프로세스 RSS는 이 cache 예산의 상한이 아니다. source 추정은 엄밀한 native live allocation의 upper bound나 allocator 측정이 아니다. 시간 단위 soak·남은 연결 조립체의 HLR Update/Hide 병목·전역 다중 문서/Undo byte 제한은 후속이다. cache 부담이 큰 경우 정확한 재계산으로 성능과 메모리 재사용을 절충한다.
 

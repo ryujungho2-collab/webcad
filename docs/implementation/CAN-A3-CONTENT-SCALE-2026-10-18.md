@@ -26,6 +26,6 @@ Frame 스타일 계수와 발행/연속 프레임 snapshot은 v45 판별에 포�
 - 실제 PDF와 page JPEG를 생성했다. SVG와 PDF는 같은 collectArtboardExportItems → artboardPngSvg 입력으로 analytic ellipse/글자와 종이 크기를 공유한다. 생성 page JPEG의 곡선·글자·선 배치를 시각적으로 확인했다. PDF는 기존 래스터 발행 형식이며 새 벡터 PDF 구현이 아니다.
 - 최종 빌드와 아키텍처 672 모듈 검증, 기존 Flex browser 회귀 24개 통과. 결과는 [manifest](../verification/CAN-A3-2026-10-18.json)에 기록했다.
 
-[v45 파일](../../output/verification/canvas-scale/scale.webcad.json) · [SVG](../../output/verification/canvas-scale/scale.svg) · [PDF](../../output/verification/canvas-scale/scale.pdf) · [PDF 페이지](../../output/verification/canvas-scale/scale-page.jpg) · [960px](../../output/verification/canvas-scale/scale-960.png) · [native report](../../output/verification/canvas-scale/native-report.json).
+v45 파일 (local-only, not in repository: `output/verification/canvas-scale/scale.webcad.json`) · SVG (local-only, not in repository: `output/verification/canvas-scale/scale.svg`) · PDF (local-only, not in repository: `output/verification/canvas-scale/scale.pdf`) · PDF 페이지 (local-only, not in repository: `output/verification/canvas-scale/scale-page.jpg`) · 960px (local-only, not in repository: `output/verification/canvas-scale/scale-960.png`) · native report (local-only, not in repository: `output/verification/canvas-scale/native-report.json`).
 
 직접 원본 CAD의 물리 치수 확대, 다른 단위로의 변환, 비균등 변환, 연결/연속 프레임·발행 시트의 그룹 확대는 이 지원 범위에 포함하지 않는다. 각 소유 도구가 있는 배치를 변경하려면 먼저 해당 도구에서 편집/해제한다.

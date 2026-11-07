@@ -40,11 +40,11 @@
 
 ## 증거와 재현
 
-- [실제 화면](../../output/verification/copilot-conversation/viewport.png)
-- [편집 가능한 최종 원본](../../output/verification/copilot-conversation/plate.webcad.json)
-- [최종 STEP](../../output/verification/copilot-conversation/plate.step)
-- [브라우저 보고서](../../output/verification/copilot-conversation/native-report.json)
-- [STEP 왕복](../../output/verification/copilot-conversation/step-roundtrip-report.json)
+- 실제 화면 (local-only, not in repository: `output/verification/copilot-conversation/viewport.png`)
+- 편집 가능한 최종 원본 (local-only, not in repository: `output/verification/copilot-conversation/plate.webcad.json`)
+- 최종 STEP (local-only, not in repository: `output/verification/copilot-conversation/plate.step`)
+- 브라우저 보고서 (local-only, not in repository: `output/verification/copilot-conversation/native-report.json`)
+- STEP 왕복 (local-only, not in repository: `output/verification/copilot-conversation/step-roundtrip-report.json`)
 
 ```powershell
 pnpm --filter @agent-webcad/web exec tsx --test tests/copilotConversation.test.ts tests/copilotSolid.test.ts tests/cadTools.test.ts

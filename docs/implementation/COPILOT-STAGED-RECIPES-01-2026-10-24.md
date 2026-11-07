@@ -56,7 +56,7 @@
 - 실제 React/Worker 브라우저 14개 검사: 빈 문서에서 3회 질문→15홀 덮개 미리보기→Apply→Undo/Redo, 문맥 변경 무효화, 모델 질문/답변 경로를 확인했다.
 - 기존 gateway 13개·대화 생성/수정 15개 UI 회귀 검사도 통과했다. 빌드/타입 검사와 804개 모듈의 아키텍처·문서 링크 검사를 통과했다. 기존 번들 크기 경고는 유지한다.
 - 브라우저 모델 응답과 Ollama 응답은 통제된 fixture다. 실제 LLM의 자유 문장 성공률을 측정한 결과가 아니다. CAD 형상은 실제 커널로 생성한다.
-- [브라우저 검사 기록](../../output/verification/copilot-planning/browser-report.json), [생성 문서](../../output/verification/copilot-planning/lid.webcad.json), [화면](../../output/verification/copilot-planning/lid.png), [Node 로그](../../output/verification/copilot-planning/node-tests.log).
+- 브라우저 검사 기록 (local-only, not in repository: `output/verification/copilot-planning/browser-report.json`), 생성 문서 (local-only, not in repository: `output/verification/copilot-planning/lid.webcad.json`), 화면 (local-only, not in repository: `output/verification/copilot-planning/lid.png`), Node 로그 (local-only, not in repository: `output/verification/copilot-planning/node-tests.log`).
 - 브래킷, 덮개 턱/슬롯, 나사산, 조립체, Blender 연산은 이 템플릿 묶음의 범위가 아니다. 일반 도구 조합과 별도 형상 검증이 필요하다. 체적 일치만으로 제조/구조 적합성을 주장하지 않는다.
 
 ## 더 나은 확장 방향

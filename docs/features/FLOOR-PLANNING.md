@@ -1,6 +1,6 @@
 # 평면도와 건축 콘텐츠
 
-기존 벽·호스트 개구부·슬래브·연관 절단을 내부 코파일럿에서도 사용할 수 있다. [Native architecture 명령과 Wall path clearance](COPILOT.md#native-벽문창바닥연관-도면), [실제 기능 연습 원본](../../output/projects/native-architecture-lesson/README.md)을 참고한다. 직선 중심선 벽의 명시적 생성/수정 범위이며 공간 자동 설계가 아니다.
+기존 벽·호스트 개구부·슬래브·연관 절단을 내부 코파일럿에서도 사용할 수 있다. [Native architecture 명령과 Wall path clearance](COPILOT.md#native-벽문창바닥연관-도면), 실제 기능 연습 원본 (local-only, not in repository: `output/projects/native-architecture-lesson/README.md`)을 참고한다. 직선 중심선 벽의 명시적 생성/수정 범위이며 공간 자동 설계가 아니다.
 
 [기능 가이드](README.md) · [후속 설계](../product/FLOOR-PLAN-COPILOT-CANVAS-2026-10-14.md)
 

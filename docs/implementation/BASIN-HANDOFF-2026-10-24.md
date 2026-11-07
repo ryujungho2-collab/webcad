@@ -1,6 +1,6 @@
 # 비정형 세면 볼 · 혼합 윤곽과 배수구 인계
 
-2026-10-24. [CAD 원본·STEP·도면](../../output/projects/organic-basin/README.md).
+2026-10-24. CAD 원본·STEP·도면 (local-only, not in repository: `output/projects/organic-basin/README.md`).
 
 약 700 mm급 비정형 세면 볼과 분리형 배수 부품으로, 닫힌 NURBS와 원을 함께 선택하는 실제 작업을 검증한다. 사람은 외곽 곡선과 배수구 원을 만들고, 공통 돌출 폼과 내부 자연어로 구멍이 있는 바닥을 작성한다. 실제 MCP는 내부 곡선, 배수구 자리, 솔리드 결합, 별도 배수 부품과 연관 단면을 이어서 작성한다. 후속 내부 곡선 수정도 사람·자연어·MCP의 동일 도구를 사용한다.
 

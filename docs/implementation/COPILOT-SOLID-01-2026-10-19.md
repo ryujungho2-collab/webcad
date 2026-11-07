@@ -20,10 +20,10 @@ Node의 신규 6개 검사는 detached preview·체적·중심/반지름·관계
 
 실제 React/Worker와 브라우저 입력으로 18개 검사를 통과했다. 요청 입력·Plan·Clear·Apply·치수 요청 작성·후속 수정·Undo/Redo·잘못된 입력·mock gateway·STEP 내보내기·페이지 reload 후 캐시 원본과 정확 체적 재계산을 확인했다. 브라우저에서 생성한 최종 원본·STEP·화면과 raw report를 보존했다.
 
-- [최종 WebCAD 원본](../../output/verification/copilot-solid/plate.webcad.json)
-- [STEP 형상](../../output/verification/copilot-solid/plate.step)
-- [실제 브라우저 화면](../../output/verification/copilot-solid/viewport.png)
-- [브라우저 보고서](../../output/verification/copilot-solid/native-report.json)
+- 최종 WebCAD 원본 (local-only, not in repository: `output/verification/copilot-solid/plate.webcad.json`)
+- STEP 형상 (local-only, not in repository: `output/verification/copilot-solid/plate.step`)
+- 실제 브라우저 화면 (local-only, not in repository: `output/verification/copilot-solid/viewport.png`)
+- 브라우저 보고서 (local-only, not in repository: `output/verification/copilot-solid/native-report.json`)
 
 첫 브라우저 검사에서 치수 props 전달 누락을 찾아 수정했다. 테스트 보고 패널과 기본 active tree 토글이 검사 입력을 가리던 문제는 테스트 배치/탐색 절차를 수정했다. 최종 1440×1000 화면에서 모델과 편집 가능한 치수를 직접 확인했다.
 

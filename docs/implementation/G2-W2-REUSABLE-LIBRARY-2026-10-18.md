@@ -30,4 +30,4 @@
 
 신규 Node 6개에서 모든 기본 block proposal, 미리보기 불변성·한 Undo/Redo·portable reopen, stale/잠금, 중첩 ID remap과 transform/override, 누락·순환·외부 asset 거절, 현재 정의 재사용을 확인했다. 실제 Edge/SwiftShader UI·Worker 17개에서 기본 카탈로그/한글 검색, mm/cm 위치·배율·각도, detached 실제 미리보기, Cancel, 선/해치 적용, 파일 선택·독립 가져오기·출처 보존, 1440/960px를 검증했다. 전체 Node·기존 component/project tree/keyboard 회귀와 build/architecture 결과는 manifest에 남긴다.
 
-[1440px 화면](../../output/verification/library/library-1440.png) · [960px 화면](../../output/verification/library/library-960.png).
+1440px 화면 (local-only, not in repository: `output/verification/library/library-1440.png`) · 960px 화면 (local-only, not in repository: `output/verification/library/library-960.png`).

@@ -17,7 +17,7 @@ NVIDIA Auto Ontology `1.2.0`의 인증된 `POST /api/chat/completions`를 사용
 | 정방향 `profile` → Extrude | 34.905초 | 21.114초 | 미생성 | 미수집 | `information_agent`의 카탈로그 설명 |
 | 역방향 `solid` → Profile | 28.109초 | 38.387초 | 미생성 | 미수집 | `information_agent`의 구조화 응답 검증 실패 |
 
-두 요청 모두 HTTP 200과 SSE 종료가 관측됐다. 실제 원본 행을 조회하는 SQL 이벤트는 두 방향에서 모두 없었다. 각 조건·방향에서 한 번씩 측정한 시간이므로 성능 차이로 해석하지 않는다. [정방향 캡처](../../output/verification/auto-ontology-routing-01/forward-live.json) · [역방향 캡처](../../output/verification/auto-ontology-routing-01/reverse-live.json) · [라우팅 로그](../../output/verification/auto-ontology-routing-01/routing-trace.log)
+두 요청 모두 HTTP 200과 SSE 종료가 관측됐다. 실제 원본 행을 조회하는 SQL 이벤트는 두 방향에서 모두 없었다. 각 조건·방향에서 한 번씩 측정한 시간이므로 성능 차이로 해석하지 않는다. [정방향 캡처](../../output/verification/auto-ontology-routing-01/forward-live.json) · [역방향 캡처](../../output/verification/auto-ontology-routing-01/reverse-live.json) · 라우팅 로그 (local-only, not in repository: `output/verification/auto-ontology-routing-01/routing-trace.log`)
 
 ## 비교 점수
 
@@ -29,7 +29,7 @@ NVIDIA Auto Ontology `1.2.0`의 인증된 `POST /api/chat/completions`를 사용
 
 ## 후속 원인 분리 (2026-11-07 KST)
 
-**기존 양방향 질문의 최초 차단점은 의도 분류다.** 두 요청의 서버 로그는 `type=information`, `subtype=None`, `target_db=source`를 기록했다. `route_after_candidate_retrieval`은 해당 요청을 SQL 준비 전에 `information_agent`로 보내며, 이 노드는 `END`로 연결된다. 역방향의 `InformationAgentAction` 검증 오류는 그 경로에서 추가로 발생했다. SQLite 연결에 같은 컨테이너의 SQL 실행 함수를 직접 호출한 대조군은 `profile → solid`, `live`, `resolved` 행을 8.912ms에 반환했다. 이 대조군은 수동 SQL 실행 결과다. [그래프 라우팅 코드](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/retrieval/text_to_sql/text_to_sql_graph.py#L259-L263) · [종료 간선](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/retrieval/text_to_sql/text_to_sql_graph.py#L468-L476) · [분류와 검증 로그](../../output/verification/auto-ontology-routing-01/diagnostic-trace.log) · [수동 실행 결과](../../output/verification/auto-ontology-routing-01/diagnostic-direct-sql.json)
+**기존 양방향 질문의 최초 차단점은 의도 분류다.** 두 요청의 서버 로그는 `type=information`, `subtype=None`, `target_db=source`를 기록했다. `route_after_candidate_retrieval`은 해당 요청을 SQL 준비 전에 `information_agent`로 보내며, 이 노드는 `END`로 연결된다. 역방향의 `InformationAgentAction` 검증 오류는 그 경로에서 추가로 발생했다. SQLite 연결에 같은 컨테이너의 SQL 실행 함수를 직접 호출한 대조군은 `profile → solid`, `live`, `resolved` 행을 8.912ms에 반환했다. 이 대조군은 수동 SQL 실행 결과다. [그래프 라우팅 코드](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/retrieval/text_to_sql/text_to_sql_graph.py#L259-L263) · [종료 간선](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/retrieval/text_to_sql/text_to_sql_graph.py#L468-L476) · 분류와 검증 로그 (local-only, not in repository: `output/verification/auto-ontology-routing-01/diagnostic-trace.log`) · [수동 실행 결과](../../output/verification/auto-ontology-routing-01/diagnostic-direct-sql.json)
 
 **SQL 경로에서는 별도의 두 문제가 재현됐다.** 공개 API에서 행 수를 묻는 질문과 `source_id`의 NULL이 아닌 값 수를 묻는 질문은 모두 `calculation/counting`으로 분류됐다. 각각 60.690초와 58.673초 뒤 SQL 및 행 없이 종료됐다. 로그에 남은 재작성 SQL은 `SELECT COUNT(*) FROM source.main.cad_relation;`이었다. [행 수 캡처](../../output/verification/auto-ontology-routing-01/diagnostic-public-count-live.json) · [열 값 개수 캡처](../../output/verification/auto-ontology-routing-01/diagnostic-public-count-column-live.json)
 

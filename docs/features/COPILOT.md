@@ -63,7 +63,7 @@ Copilot은 선택/대상을 읽고 제한된 계획을 검토·적용하는 경�
 - 부재 선택 후 `선택한 부재 평면 높이 1200`, `선택한 부재 단면 XZ 위치 0`: 실제 BRep 절단을 생성한다. XY는 world Z, XZ는 world Y 좌표다.
 - `선택한 부재 도면 갱신`: 선택 부재의 기존 연관 도면을 명시적으로 재연결한다.
 
-기존 편집 대상은 표시·잠금 해제·독립 원본을 선택해야 한다. 잘못된 문 크기/중복/잠긴 관련 출력은 전체 변경을 거절한다. [작은 공간 native 파일과 직접 수정 순서](../../output/projects/native-architecture-lesson/README.md).
+기존 편집 대상은 표시·잠금 해제·독립 원본을 선택해야 한다. 잘못된 문 크기/중복/잠긴 관련 출력은 전체 변경을 거절한다. 작은 공간 native 파일과 직접 수정 순서 (local-only, not in repository: `output/projects/native-architecture-lesson/README.md`).
 
 **Wall path clearance**에서 `x,y; x,y` 형식 XY 경로와 몸체 반경/높이/보행 레벨을 입력하고 **Check wall path**한다. 기본 범위는 표시된 native 벽 전체이며 최대 64개다. 범위를 줄일 때는 현재 선택을 명시한다. 문 폭·문서·경로·선택이 바뀌면 이전 결과를 폐기한다. 직선·수직·단위 축척 벽과 호스트 문의 실제 정의에 대한 제한된 평면 거리 검사로, 가구·문짝 회전·바닥/계단·범위 밖 객체와 피난/접근성 적합성을 검사하지 않는다. 기울거나 축척된 벽과 임의 외곽 벽은 미지원을 표시한다.
 
@@ -152,7 +152,7 @@ gateway 요청의 `solid`에 선택 대상과 지원 `parameters`를 제공한�
 
 공통 도구/MCP는 `scene.layer`, `scene.objects`로 레이어·부재 이름·표시·3D 마감을 기존 Review에 포함한다. 새 XY polyline 외곽/홀과 `slab.create`를 함께 제안할 수 있다. 기존 부재 수정은 계속 현재 선택과 잠금 조건을 따른다. 평면/단면 생성은 선택한 실제 BRep 최대 64개를 사용한다.
 
-[틈마당집 과제](../../output/projects/lightwell-house/README.md)는 지하 1층+지상 2층을 실제 MCP로 작성하고, 내부 코파일럿의 `선택한 벽 문 폭 1400`으로 같은 집의 현관을 수정해 체적·경로·Undo를 확인한 예다. 원본 파일은 File/Open 또는 프로젝트 홈 Open project로 새 프로젝트로 열 수 있다. 층은 모델 트리의 층 레이어로 구분하고, Default에는 숨긴 원본과 별도 배치한 실제 절단·정적 주석이 있다. 실명과 가구 기호는 편집 가능한 정적 CAD 요소이며 실/층 관계 엔진이 아니다.
+틈마당집 과제 (local-only, not in repository: `output/projects/lightwell-house/README.md`)는 지하 1층+지상 2층을 실제 MCP로 작성하고, 내부 코파일럿의 `선택한 벽 문 폭 1400`으로 같은 집의 현관을 수정해 체적·경로·Undo를 확인한 예다. 원본 파일은 File/Open 또는 프로젝트 홈 Open project로 새 프로젝트로 열 수 있다. 층은 모델 트리의 층 레이어로 구분하고, Default에는 숨긴 원본과 별도 배치한 실제 절단·정적 주석이 있다. 실명과 가구 기호는 편집 가능한 정적 CAD 요소이며 실/층 관계 엔진이 아니다.
 
 
 벽 끝 접합은 기본 맞대기 외에 명시한 `startMiter/endMiter` 각도(±80°, 도)를 지원한다. 90° 모서리는 두 벽을 대응하는 45° 절단으로 검토한다. Walls & openings 패널에도 두 각도 입력이 있다. 인접 벽을 자동 탐색·유지하는 접합 그래프는 아니다. `wall.update`의 선택적 `start/end`는 변환 없는 독립 원본 중심선의 끝점을 바꾸며 호스트·개구부 ID와 마감을 유지한다. 마이터를 사용한 파일은 v49다. 제한된 벽 통과 조회도 사선 끝 경계를 포함한다. 기존 도면에 새 외벽을 포함하려면 `drawing.section`의 `replaceExisting:true`로 해당 view의 원본 집합을 검토해 갱신한다.

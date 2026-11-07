@@ -1,5 +1,6 @@
 import {mcpBrowserClientFixture} from "./mcpBrowserClient.mjs";
 import {autoOntologyBrowserFixture} from "./autoOntologyBrowserFixture.mjs";
+import {localTestArtifactMiddleware, missingLocalTestArtifacts} from "./localTestArtifacts.mjs";
 import {gunzipSync} from "node:zlib";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -26,7 +27,7 @@ const reportMiddleware = (request, response) => {
   request.on("end", () => { try {const raw=Buffer.concat(chunks),body=request.headers["content-encoding"]==="gzip"?gunzipSync(raw,{maxOutputLength:192000000}):raw;pending.get(run)(JSON.parse(body.toString("utf8"))); response.end("ok"); } catch { response.statusCode = 400; response.end(); } });
 };
 const server = await createServer({ cacheDir: process.env.CAD_TEST_CACHE_DIR ?? resolve(process.cwd(),"node_modules/.vite-browser-checks"), server: { host: "127.0.0.1", port: 0 }, logLevel: "error",
-  plugins: [...(process.argv.includes("--page=autoOntologyPilot") || !process.argv.some(arg => arg.startsWith("--page=")) ? [autoOntologyBrowserFixture()] : []), { name: "browser-check-report", configureServer(server) { server.middlewares.use("/__browser_result", reportMiddleware); server.middlewares.use("/__browser_input", browserInputMiddleware); server.middlewares.use((req,res,next)=>void mcpFixture.middleware(req,res,next)); } }],
+  plugins: [...(process.argv.includes("--page=autoOntologyPilot") || !process.argv.some(arg => arg.startsWith("--page=")) ? [autoOntologyBrowserFixture()] : []), { name: "browser-check-report", configureServer(server) { server.middlewares.use(localTestArtifactMiddleware(resolve(process.cwd(), "../.."))); server.middlewares.use("/__browser_result", reportMiddleware); server.middlewares.use("/__browser_input", browserInputMiddleware); server.middlewares.use((req,res,next)=>void mcpFixture.middleware(req,res,next)); } }],
 });
 await server.listen();
 const port = server.httpServer.address().port;
@@ -107,6 +108,8 @@ try {
   if(selected&&!pages.includes(selected))throw new Error("Unknown browser check page");
   const cases=benchmark?["mechanical","drawing"].flatMap(task=>[0,250,1000].map(count=>({page:"editPerformance",task,count}))):(selected?[selected]:[...new Set(pages)]).map(page=>({page}));
   const reports=[];
+  const missingInputs = missingLocalTestArtifacts(resolve(process.cwd(), "../.."), cases.map(item => item.page));
+  if (missingInputs.length) throw new Error(`Missing optional project-test inputs (not skipped):\n${missingInputs.map(item => `${item.page}: ${item.path}`).join("\n")}\nSee docs/verification/TEST-INPUTS-AND-ARTIFACTS.md`);
   for (const {page,task,count} of cases) {
     const run = randomUUID(), profile = await mkdtemp(join(tmpdir(), "agent-webcad-browser-check-"));
     let timer;

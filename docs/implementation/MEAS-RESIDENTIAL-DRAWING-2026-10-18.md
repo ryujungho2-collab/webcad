@@ -21,9 +21,9 @@
 - 기존 A3 SVG와 실제 Worker 래스터 PDF 경로로 수정 전/후 두 발행본을 생성했다. PDF MediaBox는 1190.551×841.89pt, 420×297mm다. Poppler로 두 PDF를 독립 렌더링하고 치수·글자·시트 경계를 검수했다.
 - Node 신규 4개, 전체 1480개/54 suites 통과. 새 브라우저 13개, 기존 저장 14개·직접 배치 17개·스냅/정리 15개 회귀를 확인했다. 지정 측정 25개도 단독 재실행에서 통과했다. architecture 698모듈·최종 production build와 whitespace 검사를 통과했다. 기존 큰 chunk 경고는 남아 있다. 상세 결과는 [검증 manifest](../verification/MEAS-RESIDENTIAL-2026-10-18.json)에 기록한다.
 
-[수정 후 A3 PDF](../../output/verification/residential-measurements/issue-02.pdf) · [WebCAD 원본](../../output/verification/residential-measurements/source.webcad.json) · [브라우저 보고서](../../output/verification/residential-measurements/native-report.json)
+수정 후 A3 PDF (local-only, not in repository: `output/verification/residential-measurements/issue-02.pdf`) · WebCAD 원본 (local-only, not in repository: `output/verification/residential-measurements/source.webcad.json`) · 브라우저 보고서 (local-only, not in repository: `output/verification/residential-measurements/native-report.json`)
 
-![재열기 후 시트](../../output/verification/residential-measurements/reopened.png)
+!재열기 후 시트 (local-only, not in repository: `output/verification/residential-measurements/reopened.png`)
 
 ## 범위
 

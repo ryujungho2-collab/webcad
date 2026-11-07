@@ -1,6 +1,6 @@
 # 공간 곡선 파빌리온 · XYZ와 단면 방향 인계
 
-2026-10-25. [원본·STEP·3D 경로와 실제 단면](../../output/projects/spatial-pavilion/README.md).
+2026-10-25. 원본·STEP·3D 경로와 실제 단면 (local-only, not in repository: `output/projects/spatial-pavilion/README.md`).
 
 라운지체어 다음 과제는 3D로 휘는 세 아치와 유기적 loft 캐노피의 11부품 파빌리온이다. 기존 cubic 계산은 XYZ를 지원했지만 공통 fitted 도구는 평면 좌표만 허용했다. 이를 선택적인 `space:"spatial"`로 연결하고, 원형 단면을 처음 경로 접선에 수직으로 맞추는 기존 커널 옵션을 `alignToPath`로 연결한다. 현재 공통 목록은 canonical 40 / MCP 43 / 사람 폼 14종이다. 이 과제의 공간 곡선과 접선 정렬은 기존 도구의 선택 인자로 연결했다.
 

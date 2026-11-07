@@ -49,12 +49,12 @@
 
 ## 산출물·재현
 
-- [2D 시작 화면](../../output/verification/copilot-enclosure/sketch-2d.png)
-- [완성 케이스 화면](../../output/verification/copilot-enclosure/enclosure-3d.png)
-- [편집 원본](../../output/verification/copilot-enclosure/model.webcad.json)
-- [STEP](../../output/verification/copilot-enclosure/model.step)
-- [실제 UI 결과](../../output/verification/copilot-enclosure/native-report.json)
-- [STEP 재검사](../../output/verification/copilot-enclosure/step-roundtrip-report.json)
+- 2D 시작 화면 (local-only, not in repository: `output/verification/copilot-enclosure/sketch-2d.png`)
+- 완성 케이스 화면 (local-only, not in repository: `output/verification/copilot-enclosure/enclosure-3d.png`)
+- 편집 원본 (local-only, not in repository: `output/verification/copilot-enclosure/model.webcad.json`)
+- STEP (local-only, not in repository: `output/verification/copilot-enclosure/model.step`)
+- 실제 UI 결과 (local-only, not in repository: `output/verification/copilot-enclosure/native-report.json`)
+- STEP 재검사 (local-only, not in repository: `output/verification/copilot-enclosure/step-roundtrip-report.json`)
 
 ```powershell
 pnpm --filter @agent-webcad/web exec tsx --test tests/copilotEnclosure.test.ts tests/b5FaceCut.test.ts tests/b5FaceHole.test.ts

@@ -1,8 +1,9 @@
+import {localTestArtifactUrl} from "./helpers/localTestArtifacts";
 import {createRoot} from "react-dom/client";
 import {App} from "../src/App";
 import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
 import fixture from "../../../output/projects/large-cafe/3d/large-cafe-3d.webcad.json";
-import viewer from "../../../output/projects/large-cafe/3d/viewer.html?raw";
+const viewer = await (await fetch(localTestArtifactUrl('cafe-viewer'))).text();
 import {cadDocument} from "../src/state/cadDocument";
 import {openDocumentFile,saveDocumentToCache,loadDocumentFromCache} from "../src/state/documentFile";
 import {cadHistory} from "../src/state/history";

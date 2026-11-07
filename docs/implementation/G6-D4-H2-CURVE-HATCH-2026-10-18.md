@@ -1,6 +1,6 @@
 # G6-D4-H2 곡선 단면 해치
 
-2026-10-18 · 첫 지원 범위 완료. [현재 사용법](../features/DRAWINGS-OUTPUT.md) · [검증 manifest](../verification/G6-D4-H2-2026-10-18.json) · [R5 확장 산출물](../../output/projects/curve-hatch-r5/README.md)
+2026-10-18 · 첫 지원 범위 완료. [현재 사용법](../features/DRAWINGS-OUTPUT.md) · [검증 manifest](../verification/G6-D4-H2-2026-10-18.json) · R5 확장 산출물 (local-only, not in repository: `output/projects/curve-hatch-r5/README.md`)
 
 타원·유한 elliptic arc·spline/NURBS가 포함된 단면의 해치 생략 경로를 보충했다. 원본 곡선을 폴리라인으로 바꾸지 않고, 정확한 유리 Bézier 표현과 유한 source domain에서 해치 교차를 구한다. 기존 line/circle/arc 전용 analytic 경로와 소유 출력·Review/Apply·Undo·저장 계약은 유지한다.
 
@@ -23,10 +23,10 @@
 
 실제 R5는 기존 **56부품·14도면·10페이지**를 그대로 두고 native 타원 링과 torus/box cap 두 부품·두 단면·A3 한 페이지를 추가했다. 실제 UI **28개** 검사는 해치 Review/Apply, 원본/ID 보존, 실제 Three.js, 잘림 경계 생략/Undo, 단면 높이 편집·Undo/Redo, 1:1/1:2 발행과 실제 durable reload를 포함한다. 확장 문서는 **58부품·16도면·11페이지**다. 기존 sectionPresentation 17개·ellipseSection 18개·spline 19개·modelSheetSet 24개, 총 **78개 UI 회귀**도 통과했다. TypeScript 검사, 아키텍처 검사 631모듈, 프로덕션 빌드 451모듈을 통과했으며 기존 500kB chunk 경고는 남아 있다.
 
-PDF 스킬의 읽기 전용 검수 방식으로 실제 다운로드 PDF 3건을 Poppler 144dpi로 독립 렌더링했다. A3 크기·하얀 타원 홀·재료 내부 stroke·편집 전후 차이와 SHA-256을 확인했다. 최종 WebCAD의 모든 해치 선분이 타원 홀을 가로지르지 않는지와 종이 2mm 간격을 독립 계산하며, 기존 R5의 parts/projections/sections/sheets 정의가 동일함도 비교한다. [정량 검수](../../output/projects/curve-hatch-r5/artifact-verification.json).
+PDF 스킬의 읽기 전용 검수 방식으로 실제 다운로드 PDF 3건을 Poppler 144dpi로 독립 렌더링했다. A3 크기·하얀 타원 홀·재료 내부 stroke·편집 전후 차이와 SHA-256을 확인했다. 최종 WebCAD의 모든 해치 선분이 타원 홀을 가로지르지 않는지와 종이 2mm 간격을 독립 계산하며, 기존 R5의 parts/projections/sections/sheets 정의가 동일함도 비교한다. 정량 검수 (local-only, not in repository: `output/projects/curve-hatch-r5/artifact-verification.json`).
 
 R5 자동 입력은 기존 R5 workflow와 같은 30초 CDP 응답 제한을 사용한다. 대형 React/저장 갱신의 5초 응답 초과를 허용한 것이며 기하 오차나 hit test를 완화하지 않는다. 성능 개선 카드나 전체 브라우저/임의 spline의 무제한 지원을 뜻하지 않는다. 기본 degree 1–8·256-pole·양의 가중치 계약, periodic/fit-only DXF와 미수렴 접선의 한계는 유지한다.
 
-![독립 렌더한 1:1 곡선 해치](../../output/projects/curve-hatch-r5/curve-01-1.png)
+!독립 렌더한 1:1 곡선 해치 (local-only, not in repository: `output/projects/curve-hatch-r5/curve-01-1.png`)
 
-![실제 R5 확장 화면](../../output/projects/curve-hatch-r5/curve-preview.png)
+!실제 R5 확장 화면 (local-only, not in repository: `output/projects/curve-hatch-r5/curve-preview.png`)

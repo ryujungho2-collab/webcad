@@ -7,7 +7,7 @@
 | 필요한 정보 | 문서 |
 | --- | --- |
 | 현재 단계의 제품 목적·개발 판단 기준 | [자연어 CAD·코파일럿 목적](product/NATURAL-LANGUAGE-CAD-PURPOSE-2026-10-19.md) |
-| Native 건축 코파일럿 기능 개선과 실습 | [구현·기존 기능 감사](implementation/COPILOT-NATIVE-ARCHITECTURE-01-2026-10-23.md) · [native 실습 파일](../output/projects/native-architecture-lesson/README.md) |
+| Native 건축 코파일럿 기능 개선과 실습 | [구현·기존 기능 감사](implementation/COPILOT-NATIVE-ARCHITECTURE-01-2026-10-23.md) · native 실습 파일 (local-only, not in repository: `output/projects/native-architecture-lesson/README.md`) |
 | CAD 기능과 모델 독립 MCP 연결 | [설정·도구 계약](architecture/CAD-MCP.md) · [실제 검증](implementation/CAD-MCP-01-2026-10-23.md) |
 | 실행·검증 명령 | [프로젝트 README](../README.md) |
 | 지금 지원하는 기능과 사용법 | [기능별 가이드](features/README.md) |

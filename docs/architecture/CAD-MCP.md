@@ -82,7 +82,7 @@ MCP는 모델의 추론 능력을 제공하지 않는다. 외부 모델/로컬 �
 
 `curve.polyline → slab.create → scene.objects`를 한 제안에 담아 닫힌 XY 외곽과 계단 구멍, 지하 레벨, 층 레이어와 재료를 함께 검토할 수 있다. `scene.layer`는 보이는 잠금 해제 레이어를 만들며 현재 작업 레이어를 바꾸지 않는다. `scene.objects`는 명시한 새 결과 또는 선택한 독립 개체의 이름·레이어·표시·솔리드 재료를 기존 native 명령으로 수정한다. geometry 호출 뒤에 두며 한 제안의 실패·Undo 경계를 공유한다.
 
-실제 주택 과제는 [틈마당집](../../output/projects/lightwell-house/README.md)을 참고한다. 실제 SDK stdio 클라이언트로 제안하고 편집기 UI에서 Apply한 결과이며, 실행 기록에는 연결 토큰을 넣지 않는다. 이는 내부 엔진이 자유로운 주택 의도를 스스로 해석해 설계했다는 증거가 아니다. 설계자가 정한 치수와 배치를 공통 도구로 실행·수정·측정한 과제다.
+실제 주택 과제는 틈마당집 (local-only, not in repository: `output/projects/lightwell-house/README.md`)을 참고한다. 실제 SDK stdio 클라이언트로 제안하고 편집기 UI에서 Apply한 결과이며, 실행 기록에는 연결 토큰을 넣지 않는다. 이는 내부 엔진이 자유로운 주택 의도를 스스로 해석해 설계했다는 증거가 아니다. 설계자가 정한 치수와 배치를 공통 도구로 실행·수정·측정한 과제다.
 
 ## 사람과 에이전트의 작업 인계
 

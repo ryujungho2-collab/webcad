@@ -1,0 +1,38 @@
+{
+  "courtyard-scene": {
+    "page": "courtyardPresentation",
+    "path": "output/projects/courtyard-pavilion/mesh-scene.json"
+  },
+  "courtyard-document": {
+    "page": "courtyardPresentation",
+    "path": "output/projects/courtyard-pavilion/pavilion.webcad.json"
+  },
+  "house-base": {
+    "page": "houseFacade",
+    "path": "output/projects/lightwell-house/base-house.webcad.json"
+  },
+  "house-review": {
+    "page": "houseLayout",
+    "path": "output/projects/lightwell-house/review-house.webcad.json"
+  },
+  "cafe-viewer": {
+    "page": "largeCafe3d",
+    "path": "output/projects/large-cafe/3d/viewer.html"
+  },
+  "civil-source": {
+    "page": "externalCivil",
+    "path": "output/external/civil-projects/converted.dxf"
+  },
+  "civil-speed-source": {
+    "page": "externalCivilSpeed",
+    "path": "output/external/civil-projects/converted.dxf"
+  },
+  "civil-style-source": {
+    "page": "externalCivilStyle",
+    "path": "output/external/civil-projects/converted.dxf"
+  },
+  "restoration-source": {
+    "page": "residentialRestoration",
+    "path": "output/external/civil-projects/restoration-01/baseline.webcad.json"
+  }
+}

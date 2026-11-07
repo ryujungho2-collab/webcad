@@ -6,13 +6,13 @@
 
 Library → External GLB references → Display quality에서 Original(기본), Balanced, Low Memory를 선택한다. 옵션은 현재 뷰포트의 표시 설정이며 문서나 원본에 저장하지 않는다. 페이지를 새로 로드하면 Original이다. 같은 실행 중 문서를 바꾸면 표시 선호는 유지된다.
 
-- [두 placement 실제 CadViewport](../../output/verification/simready-b1/hardware/two-placements.png)
-- [Balanced 실제 CadViewport](../../output/verification/simready-b1/hardware/balanced-viewport.png)
-- [두 placement v64 문서](../../output/verification/simready-b1/hardware/two.webcad.json)
-- [SwiftShader 원시 보고서](../../output/verification/simready-b1/swiftshader/browser-report.json)
-- [RTX 5080 원시 보고서](../../output/verification/simready-b1/hardware/browser-report.json)
-- [비교 데이터](../../output/verification/simready-b1/comparison.json)
-- [Original](../../output/verification/simready-b1/hardware/quality-Original.png) / [Balanced](../../output/verification/simready-b1/hardware/quality-Balanced.png) / [Low Memory](../../output/verification/simready-b1/hardware/quality-Low-Memory.png) 동일 카메라 700×700 비교
+- 두 placement 실제 CadViewport (local-only, not in repository: `output/verification/simready-b1/hardware/two-placements.png`)
+- Balanced 실제 CadViewport (local-only, not in repository: `output/verification/simready-b1/hardware/balanced-viewport.png`)
+- 두 placement v64 문서 (local-only, not in repository: `output/verification/simready-b1/hardware/two.webcad.json`)
+- SwiftShader 원시 보고서 (local-only, not in repository: `output/verification/simready-b1/swiftshader/browser-report.json`)
+- RTX 5080 원시 보고서 (local-only, not in repository: `output/verification/simready-b1/hardware/browser-report.json`)
+- 비교 데이터 (local-only, not in repository: `output/verification/simready-b1/comparison.json`)
+- Original (local-only, not in repository: `output/verification/simready-b1/hardware/quality-Original.png`) / Balanced (local-only, not in repository: `output/verification/simready-b1/hardware/quality-Balanced.png`) / Low Memory (local-only, not in repository: `output/verification/simready-b1/hardware/quality-Low-Memory.png`) 동일 카메라 700×700 비교
 
 ## 조사한 기존 생명주기와 변경 코드
 
@@ -77,7 +77,7 @@ Meshopt는 기존 async decoder를 감싸 각 decode promise의 경과 합(`mesh
 - Balanced: 최대 변 512, 종횡비 유지·확대하지 않음. 32×512², bitmap 약 32 MiB, mip 포함 42.67 MiB (**75% 감소**).
 - Low Memory: 최대 변 256. 32×256², bitmap 약 8 MiB, mip 포함 10.67 MiB (**93.75% 감소**).
 - 기존 WebP를 먼저 디코딩한 다음 createImageBitmap으로 resize하고 원래 bitmap을 닫는다. 원본 파일을 바꾸지 않는다. 따라서 **최초 원본 디코딩 비용과 peak가 제거되지는 않는다**. resize는 추가 CPU 비용이다.
-- 동일 700×700 카메라의 PNG와 [정량 이미지 비교](../../output/verification/simready-b1/hardware/image-quality.json)를 제공한다. 배경 제외 foreground MAE/RMS도 포함한다. 전체 형상과 파트 배치는 보존되며 이 에셋의 overview에서 차이는 작다. 텍스트·얇은 무늬의 확대 품질을 일반적으로 보장하지 않는다.
+- 동일 700×700 카메라의 PNG와 정량 이미지 비교 (local-only, not in repository: `output/verification/simready-b1/hardware/image-quality.json`)를 제공한다. 배경 제외 foreground MAE/RMS도 포함한다. 전체 형상과 파트 배치는 보존되며 이 에셋의 overview에서 차이는 작다. 텍스트·얇은 무늬의 확대 품질을 일반적으로 보장하지 않는다.
 
 KTX2/Basis는 설치된 Three.js 0.180.0에 GLTFLoader.setKTX2Loader / KHR_texture_basisu와 KTX2Loader, Basis transcoder가 있는 것을 조사했다. [공식 KTX2Loader 문서](https://threejs.org/docs/pages/KTX2Loader.html)는 GPU 지원 형식으로 transcode하기 전 detectSupport(renderer)를 요구한다. 현재 에셋은 WebP이므로 연결만으로 GPU 압축이 되지 않는다. 새 변환·배포 파이프라인을 만들지 않았고 기존 preflight의 미지원 required extension 거부도 유지했다.
 

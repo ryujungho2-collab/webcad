@@ -2,7 +2,7 @@ import {StrictMode,useEffect,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import raw from '../../../output/verification/assembly-b25/annotated-laptop.webcad.json?raw';
 import synthetic from '../../../output/verification/ai-agent-phase-1b2/B.json';
-import syntheticRaw from '../../../output/verification/ai-agent-phase-1b2/B-input.webcad.json?raw';
+import syntheticRaw from './fixtures/assembly/candidate-synthetic.webcad.json?raw';
 import saved from '../../../output/verification/ai-agent-phase-1b2/A.json';
 import {deserializeDocument,serializeDocument} from '@agent-webcad/cad-document';
 import {cadDocument} from '../src/state/cadDocument';

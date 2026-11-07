@@ -4,7 +4,7 @@
 
 사용자 요청으로 agent-webcad의 **실제 UI만** 조작해 졸업작품 세 점을 만들었다. 그 과정에서 드러난 사용성 문제를 원본 작업 트리에서 직접 고쳤다. 커밋은 하지 않았다. 사용자가 원본 수정을 승인했고, 이 문서는 Codex와 공유할 기록이다. 실패한 시도도 다음 작업자가 반복하지 않도록 그대로 남긴다.
 
-- 결과물·이미지·자동화 스크립트: [output/projects/claude-graduation-2026-10-31](../../output/projects/claude-graduation-2026-10-31/)
+- 결과물·이미지·자동화 스크립트: output/projects/claude-graduation-2026-10-31 (local-only, not in repository: `output/projects/claude-graduation-2026-10-31`)
 - 제출 보고서(claude.ai 아티팩트, 비공개): https://claude.ai/artifact/Kgkz1iMbdcYZdMLWB1CSzr
 
 | 작품 | 구분 | 결과 | 객체 |

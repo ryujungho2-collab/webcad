@@ -9,12 +9,12 @@ WebCAD에 SimReady GLB를 **외부 시각 참조**로 삽입하는 경로를 구
 3. Placement의 XYZ 위치(mm)·회전(degrees)을 기존 명령으로 변경한다. Undo/Redo와 일반 프로젝트 저장을 그대로 사용한다.
 4. Metadata와 Assembly mapping preview를 펼쳐 값의 존재/유효성, 원본 데이터, 후보 또는 거부 사유를 확인한다.
 
-- [실제 CadViewport 스크린샷](../../output/verification/simready/viewport.png)
-- [파트 선택·메타데이터 스크린샷](../../output/verification/simready/part-inspector.png)
-- [재열기 가능한 WebCAD 문서](../../output/verification/simready/reference.webcad.json)
-- [검증 보고서와 관측 원시 수치](../../output/verification/simready/browser-report.json)
+- 실제 CadViewport 스크린샷 (local-only, not in repository: `output/verification/simready/viewport.png`)
+- 파트 선택·메타데이터 스크린샷 (local-only, not in repository: `output/verification/simready/part-inspector.png`)
+- 재열기 가능한 WebCAD 문서 (local-only, not in repository: `output/verification/simready/reference.webcad.json`)
+- 검증 보고서와 관측 원시 수치 (local-only, not in repository: `output/verification/simready/browser-report.json`)
 - [출처·버전·라이선스·해시](../../output/verification/simready/source-provenance.json)
-- [분리된 Assembly Preview](../../output/verification/simready/mapping-preview.json)
+- 분리된 Assembly Preview (local-only, not in repository: `output/verification/simready/mapping-preview.json`)
 
 스크린샷은 테스트 전용 배치 안에서 **제품의 실제 CadViewport와 ExternalScenePanel**을 실행한 것이다. 별도의 Three.js 데모 뷰어를 만든 것이 아니다. 제품 LibraryPanel에도 같은 컴포넌트가 연결되어 있다. 전체 워크벤치 브라우저 감사는 실행하지 않았다.
 

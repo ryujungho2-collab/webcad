@@ -8,9 +8,9 @@
 
 콘텐츠는 빈 box placeholder가 아니다. Boolean으로 만든 문틀+문짝(890×140×2,090), 관통 창틀+중간틀(1,490×140×1,190), 좌판+등받이+팔걸이+하부 받침 소파(1,800×800×900)를 사용했다. 테스트 시작 시 이 **라이브러리 원본 3개만 명령으로 준비**하고, 정의 캡처와 네 인스턴스 배치는 실제 UI로 수행했다. 단일 완성 solid 지원 범위를 사용하며 다중 부품 assembly나 유리·힌지 상세 제품 모델은 아니다.
 
-- [제출 묶음 및 재실행 안내](../../output/projects/residential-q1/README.md)
-- [WebCAD v42 원본](../../output/projects/residential-q1/residential.webcad.json) · [입력 DXF](../../output/projects/residential-q1/source.dxf)
-- [최초 A3 1:50 PDF](../../output/projects/residential-q1/issue-01-50.pdf) · [수정 A3 1:50 PDF](../../output/projects/residential-q1/issue-02-50.pdf) · [수정 A3 1:100 PDF](../../output/projects/residential-q1/issue-03-100.pdf)
+- 제출 묶음 및 재실행 안내 (local-only, not in repository: `output/projects/residential-q1/README.md`)
+- [WebCAD v42 원본](../../output/projects/residential-q1/residential.webcad.json) · 입력 DXF (local-only, not in repository: `output/projects/residential-q1/source.dxf`)
+- 최초 A3 1:50 PDF (local-only, not in repository: `output/projects/residential-q1/issue-01-50.pdf`) · 수정 A3 1:50 PDF (local-only, not in repository: `output/projects/residential-q1/issue-02-50.pdf`) · 수정 A3 1:100 PDF (local-only, not in repository: `output/projects/residential-q1/issue-03-100.pdf`)
 - 각 PDF와 같은 이름의 SVG/DXF 및 Poppler PNG를 함께 제출했다. 최종 원본은 수정된 1:100 시트다.
 
 ## 실제 UI에서 수행한 경로
@@ -48,7 +48,7 @@ PDF와 SVG에서 한글 제목·뷰 이름, 1:50/1:100, 절단/배경/해치 0.5
 
 최종 제출 파일은 발행 대조 후 Poppler로 다시 렌더해 독립 검사 스크립트를 재실행했고, 3개 PDF·SVG/DXF·원본·입력 DXF의 SHA-256이 재검산과 일치한다. 잠긴 참조 입력 경로 누수와 기존 Q1 테스트 결함 수정 외에 개발 디버그 스크래치(tmpDebug·check-validator·debug-override)는 병합 전에 제거했다.
 
-기계 판독 증거: [검증 manifest](../verification/WF-Q1-2026-10-17.json), [UI report](../../output/projects/residential-q1/native-report.json), [독립 검사 및 SHA-256](../../output/projects/residential-q1/independent-report.json).
+기계 판독 증거: [검증 manifest](../verification/WF-Q1-2026-10-17.json), UI report (local-only, not in repository: `output/projects/residential-q1/native-report.json`), 독립 검사 및 SHA-256 (local-only, not in repository: `output/projects/residential-q1/independent-report.json`).
 
 ## 지원 범위와 남은 항목
 

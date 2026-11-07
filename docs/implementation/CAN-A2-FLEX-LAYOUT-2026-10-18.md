@@ -25,6 +25,6 @@ Canvas editor의 Enable Flex, 축별 제약, 멤버 규칙 disclosure, Earlier/L
 - 전체 Node 회귀 1,392개/54 suites 통과. 이후 Fixed parent boundary 회귀 추가를 포함한 CanvasFlex/CanvasHierarchy/workspaceSections 집중 34개 통과. 이 수치는 중복 합산하지 않는다.
 - 신규 네이티브 canvasFlex 24개: row/wrap/Hug, column, ordering, Fill max redistribution, absolute, 순환/overflow 오류, detached/cancel/one Undo/Redo, 원본 crop/scale 보존, native task 증가 0, local SVG linework 동일, 960px, v44 save/reload.
 - 기존 canvasHierarchy 28개 회귀 통과. 최종 build/architecture와 결과는 [manifest](../verification/CAN-A2-2026-10-18.json) 참조.
-- [portable v44](../../output/verification/canvas-flex/flex.webcad.json), [원본 프레임 SVG](../../output/verification/canvas-flex/frame.svg), [1440px](../../output/verification/canvas-flex/flex-1440.png), [960px](../../output/verification/canvas-flex/flex-960.png), [native report](../../output/verification/canvas-flex/native-report.json).
+- portable v44 (local-only, not in repository: `output/verification/canvas-flex/flex.webcad.json`), 원본 프레임 SVG (local-only, not in repository: `output/verification/canvas-flex/frame.svg`), 1440px (local-only, not in repository: `output/verification/canvas-flex/flex-1440.png`), 960px (local-only, not in repository: `output/verification/canvas-flex/flex-960.png`), native report (local-only, not in repository: `output/verification/canvas-flex/native-report.json`).
 
 자동 상시 reflow나 내용 비례 scale은 하지 않는다. 사용자가 Review Flex로 재계산/적용한다. 배치 상자의 한계는 Canvas의 1e7 mm 크기/위치 예산과 기존 계층 한도를 따른다. source bounds는 layout용 외접 경계이며 정확 CAD 거리/witness가 아니다. PDF는 별도로 재발행하지 않았다. 다음 CAN-A3가 콘텐츠 비례 확대를 소유한다.

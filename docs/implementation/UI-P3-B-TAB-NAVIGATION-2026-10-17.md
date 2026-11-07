@@ -12,8 +12,8 @@
 
 검증: 전체 Node 1,297 / 54 suites / 실패 0, 대상 Node 23, 탭 탐색 native 27 checks. 기존 비교·탭·복구·관리 회귀와 빌드 수치는 manifest에 기록한다. Architecture 605 modules, production 434 modules. 기존 500 kB 초과 chunk 경고는 남아 있다.
 
-- [1440px 검색](../../output/verification/project-tab-navigation/tabs-search-1440.png)
-- [960px 검색](../../output/verification/project-tab-navigation/tabs-search-960.png)
-- [새로고침 후 검색](../../output/verification/project-tab-navigation/tabs-reopened-search.png)
+- 1440px 검색 (local-only, not in repository: `output/verification/project-tab-navigation/tabs-search-1440.png`)
+- 960px 검색 (local-only, not in repository: `output/verification/project-tab-navigation/tabs-search-960.png`)
+- 새로고침 후 검색 (local-only, not in repository: `output/verification/project-tab-navigation/tabs-reopened-search.png`)
 
 고정/일반 그룹 사이 직접 드래그는 지원하지 않는다. 그룹 변경은 고정 버튼으로 한다. 닫힌 프로젝트 검색은 기존 Projects 관리 화면을 사용한다. 카메라 동기화·같은 문서의 복수 편집 뷰·임의 도킹은 이번 범위가 아니다. 960px 미만과 시간 단위 대형 문서 메모리 보장은 이번 검증에 포함하지 않는다.

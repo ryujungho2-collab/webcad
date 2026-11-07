@@ -4,7 +4,7 @@
 
 이 문서는 모델 뷰·부품·연관 도면·프레임·시트와 CAD 교환을 관리한다. 원본 작도는 [정밀 작도](DRAWING-EDITING.md), 일반 이미지 아트보드와 Scene 출력은 [이미지와 장면](IMAGES-SCENES.md)을 따른다.
 
-[2층 카페 과제](../../output/projects/large-cafe/README.md)에서 12장 2D 발행과 재사용 CAD 에셋, 실제 UI 편집/저장/재열기를 검증했다. 모델 공간 DXF의 치수는 원본 표시 높이와 이동·회전·균등 축척을 보존한다. 시트 DXF의 종이 좌표·표현 축척과 구분한다. [과제와 출력 보완 기록](../implementation/CAFE-2F-01-2026-10-20.md).
+2층 카페 과제 (local-only, not in repository: `output/projects/large-cafe/README.md`)에서 12장 2D 발행과 재사용 CAD 에셋, 실제 UI 편집/저장/재열기를 검증했다. 모델 공간 DXF의 치수는 원본 표시 높이와 이동·회전·균등 축척을 보존한다. 시트 DXF의 종이 좌표·표현 축척과 구분한다. [과제와 출력 보완 기록](../implementation/CAFE-2F-01-2026-10-20.md).
 
 ## 모델 뷰와 연관 도면
 

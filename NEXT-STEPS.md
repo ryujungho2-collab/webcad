@@ -28,7 +28,7 @@
 
 최신 연결 검증(2026-10-24): [센서 브래킷 · 사람–Copilot–MCP 인계](docs/implementation/SHARED-TOOL-HANDOFF-2026-10-24.md). 새 형상 기능 대신 네 canonical 도구의 사람용 폼과 동일 Review/Apply/Undo 연결을 제공했다. 자연어 초안·gateway 설정을 유지하며 실제 SDK로 사람이 만든 부재의 수정·조회·가공과 사람의 후속 Boolean을 수행한다. coplanar face 선택을 위한 명시적 tessellation bounds를 보완했다. 전체 수동 도구의 MCP 노출이나 자율 설계 완성은 아니다.
 
-최신 주택 과제(2026-10-24): [틈마당집](output/projects/lightwell-house/README.md)을 공통 MCP와 내부 코파일럿으로 실제 작성·수정·검증했다. [보완 내용](docs/implementation/HOUSE-MCP-01-2026-10-24.md)은 층 레이어/이름/마감과 새 슬래브 윤곽·계단 홀 조합을 기존 Review에 연결하는 범위다. 다음 확대에서는 이 원본의 벽·계단·실·마당 관계와 변경 후 정적 주석/창호 상세의 동기화 격차를 기준으로 기능을 고른다. 추가 객체 수나 테스트 통과를 건축적 품질 점수로 대체하지 않는다. 아래 과거 전시관/졸업설계 과제 기록은 이 주택 과제와 구분한다.
+최신 주택 과제(2026-10-24): 틈마당집 (local-only, not in repository: `output/projects/lightwell-house/README.md`)을 공통 MCP와 내부 코파일럿으로 실제 작성·수정·검증했다. [보완 내용](docs/implementation/HOUSE-MCP-01-2026-10-24.md)은 층 레이어/이름/마감과 새 슬래브 윤곽·계단 홀 조합을 기존 Review에 연결하는 범위다. 다음 확대에서는 이 원본의 벽·계단·실·마당 관계와 변경 후 정적 주석/창호 상세의 동기화 격차를 기준으로 기능을 고른다. 추가 객체 수나 테스트 통과를 건축적 품질 점수로 대체하지 않는다. 아래 과거 전시관/졸업설계 과제 기록은 이 주택 과제와 구분한다.
 
 
 최신 사용자 우선순위(2026-10-23): 개별 기능 추가보다 공통 도구와 MCP 연결을 먼저 정비한다. [CAD MCP](docs/architecture/CAD-MCP.md)는 기존 37개 도구를 모델과 독립된 stdio 연결로 제공하며 문맥·검토·게시·오류·취소 경계를 공유한다. 이후 수동 기능을 노출할 때도 이 계약과 실제 클라이언트 검증을 먼저 갖춘다. 외부/로컬 모델은 MCP 호스트가 선택 연결하며 내부 기하 실행기를 복제하지 않는다.
@@ -85,7 +85,7 @@
 
 ## 현재 실행 큐
 
-2026-10-20 **CAFE-2F-02 도면→3D CAD·모델링**. 사용자 지시에 따라 공간 배치 재설계는 차후로 미루고 [완성한 R0 도면의 3D 변환](output/projects/large-cafe/3d/README.md)을 수행했다. 1,114개 BRep·STEP·재료 GLB·층별/분리 뷰어·정확 단면과 원본을 작성했다. [구현·검증 기록](docs/implementation/CAFE-2F-02-2026-10-20.md)을 따른다. 후속 기능 후보는 가구 조합의 live source 연결·선택 기반 변환 UI·대형 STEP 성능이다. 원래 2D 12장/20종 에셋과 배치 검토는 [CAFE-2F-01](docs/implementation/CAFE-2F-01-2026-10-20.md)을 보존하며, 배치 재설계나 실시설계 완료로 처리하지 않는다.
+2026-10-20 **CAFE-2F-02 도면→3D CAD·모델링**. 사용자 지시에 따라 공간 배치 재설계는 차후로 미루고 완성한 R0 도면의 3D 변환 (local-only, not in repository: `output/projects/large-cafe/3d/README.md`)을 수행했다. 1,114개 BRep·STEP·재료 GLB·층별/분리 뷰어·정확 단면과 원본을 작성했다. [구현·검증 기록](docs/implementation/CAFE-2F-02-2026-10-20.md)을 따른다. 후속 기능 후보는 가구 조합의 live source 연결·선택 기반 변환 UI·대형 STEP 성능이다. 원래 2D 12장/20종 에셋과 배치 검토는 [CAFE-2F-01](docs/implementation/CAFE-2F-01-2026-10-20.md)을 보존하며, 배치 재설계나 실시설계 완료로 처리하지 않는다.
 
 2026-10-19 **CAD-TOOLS-02 도구 확대 지원 범위 완료**. 공통 23개 도구로 world 단면/경로·정확한 모서리 조회·회전/스윕/로프트·필렛/모따기/셸을 연결했다. [구현·검증](docs/implementation/CAD-TOOLS-02-2026-10-19.md) · [연동 계약](docs/architecture/CAD-TOOL-INTERFACE.md). 실제 Worker에서 6종 연산·한 Undo·재열기·STEP 독립 재검사를 확인했다. 다음 후보는 실제 판단 모델 연결과 더 다양한 연속 설계·수정 과제, 명시적 면/모서리 인계 확대다.
 

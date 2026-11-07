@@ -37,11 +37,11 @@
 
 ## 산출물·재현
 
-- [기준/수정/복원 비교](../../output/external/civil-projects/restoration-01/comparison.png) — 선 굵기를 1:150 종이 표현으로 보정한 미리보기, 저장 기하를 바꾸지 않는다.
-- [복원 문서](../../output/external/civil-projects/restoration-01/restored.webcad.json)
-- [명령 검증](../../output/external/civil-projects/restoration-01/report.json)
-- [실제 UI 검증](../../output/external/civil-projects/restoration-01/native-report.json)
-- [전체 경로 왕복](../../output/external/civil-projects/restoration-01/geometry-roundtrip-report.json)
+- 기준/수정/복원 비교 (local-only, not in repository: `output/external/civil-projects/restoration-01/comparison.png`) — 선 굵기를 1:150 종이 표현으로 보정한 미리보기, 저장 기하를 바꾸지 않는다.
+- 복원 문서 (local-only, not in repository: `output/external/civil-projects/restoration-01/restored.webcad.json`)
+- 명령 검증 (local-only, not in repository: `output/external/civil-projects/restoration-01/report.json`)
+- 실제 UI 검증 (local-only, not in repository: `output/external/civil-projects/restoration-01/native-report.json`)
+- 전체 경로 왕복 (local-only, not in repository: `output/external/civil-projects/restoration-01/geometry-roundtrip-report.json`)
 - [검증 기록](../verification/EXT-CIVIL-RESTORE-01-2026-10-19.json)
 
 ```powershell

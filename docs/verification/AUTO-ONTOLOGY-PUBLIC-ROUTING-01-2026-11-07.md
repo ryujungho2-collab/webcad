@@ -15,7 +15,7 @@ NVIDIA Auto Ontology 1.2.0, `qwen3:14b`, 이전의 격리 SQL 패치 두 개, �
 | 명시적 행 필터 | 정방향 | `calculation/match_based` | `source_id = 'profile'`, 1행 완전 일치 | 18.347초 |
 | 명시적 행 필터 | 역방향 | `calculation/match_based` | `target_id = 'solid'`, 1행 완전 일치 | 23.122초 |
 
-명시적 요청의 두 SQL은 모두 `main.cad_profile_extrude`를 조회했다. 실제 반환 행은 `test-document`, revision `2`, `profile → solid`, `profile-to-extrude`, `live`, `resolved`, 양 끝의 누락 플래그와 스케치 소유자 목록을 포함했다. 기존 비교기에서 양방향 완전 일치 1건씩과 나머지 오류 0건을 확인했다. 기존 문장의 HTTP 200과 SSE 종료는 DB 실행 성공을 뜻하지 않는다. [분류 로그](../../output/verification/auto-ontology-public-routing-01/routing-trace.log) · [정방향 SQL](../../output/verification/auto-ontology-public-routing-01/explicit-filter-forward.sql) · [역방향 SQL](../../output/verification/auto-ontology-public-routing-01/explicit-filter-reverse.sql) · [실제 행과 점수](../../output/verification/auto-ontology-public-routing-01/evaluation.json)
+명시적 요청의 두 SQL은 모두 `main.cad_profile_extrude`를 조회했다. 실제 반환 행은 `test-document`, revision `2`, `profile → solid`, `profile-to-extrude`, `live`, `resolved`, 양 끝의 누락 플래그와 스케치 소유자 목록을 포함했다. 기존 비교기에서 양방향 완전 일치 1건씩과 나머지 오류 0건을 확인했다. 기존 문장의 HTTP 200과 SSE 종료는 DB 실행 성공을 뜻하지 않는다. 분류 로그 (local-only, not in repository: `output/verification/auto-ontology-public-routing-01/routing-trace.log`) · [정방향 SQL](../../output/verification/auto-ontology-public-routing-01/explicit-filter-forward.sql) · [역방향 SQL](../../output/verification/auto-ontology-public-routing-01/explicit-filter-reverse.sql) · [실제 행과 점수](../../output/verification/auto-ontology-public-routing-01/evaluation.json)
 
 ## 제품 진입 조건
 

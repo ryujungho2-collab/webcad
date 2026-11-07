@@ -30,4 +30,4 @@
 - 기존 native 회귀 70개: modelSheetSet 24, projectComparison 25, keyboardActivation 21. 기존 시트 출력/프로젝트별 명령·Undo 격리/키보드 활성화 유지.
 - TypeScript 포함 프로덕션 build와 architecture 검사 통과. 기존 큰 bundle chunk 경고는 유지한다.
 
-[1440px 화면](../../output/verification/project-tree/project-tree-1440.png) · [960px 화면](../../output/verification/project-tree/project-tree-960.png) · [native 보고서](../../output/verification/project-tree/native-report.json).
+1440px 화면 (local-only, not in repository: `output/verification/project-tree/project-tree-1440.png`) · 960px 화면 (local-only, not in repository: `output/verification/project-tree/project-tree-960.png`) · native 보고서 (local-only, not in repository: `output/verification/project-tree/native-report.json`).

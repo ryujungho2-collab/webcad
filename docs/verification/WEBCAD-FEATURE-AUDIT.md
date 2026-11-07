@@ -59,14 +59,14 @@ flowchart LR
 
 | Page | 이번 결과 | 종료 시점 | 근거 |
 |---|---|---|---|
-| polygonEditing | 통과 27 checks | 2026-10-29 06:56:04 KST | [실행 로그](../../output/verification/webcad-feature-audit/browser-polygonEditing.log) |
-| geometryNodes | 통과 27 checks | 2026-10-29 06:56:19 KST | [실행 로그](../../output/verification/webcad-feature-audit/browser-geometryNodes.log) |
-| sculpt | 통과 37 checks | 2026-10-29 06:56:35 KST | [실행 로그](../../output/verification/webcad-feature-audit/browser-sculpt.log) |
-| hybridGeometry | 통과 19 checks | 2026-10-29 06:56:43 KST | [실행 로그](../../output/verification/webcad-feature-audit/browser-hybridGeometry.log) |
-| planarReconstruction | 통과 25 checks | 2026-10-29 06:56:56 KST | [실행 로그](../../output/verification/webcad-feature-audit/browser-planarReconstruction.log) |
-| b5FaceSketch | 통과 5 checks | 2026-10-29 06:57:04 KST | [실행 로그](../../output/verification/webcad-feature-audit/browser-b5FaceSketch.log) |
-| mcpBridge | 통과 24 checks | 2026-10-29 06:59:24 KST | [실행 로그](../../output/verification/webcad-feature-audit/browser-mcpBridge.log) |
-| b5WorkPlanes | 실패; 앞선 3 checks 부분 통과 | 2026-10-29 06:59:14 KST | [실행 로그](../../output/verification/webcad-feature-audit/browser-b5WorkPlanes.log) |
+| polygonEditing | 통과 27 checks | 2026-10-29 06:56:04 KST | 실행 로그 (local-only, not in repository: `output/verification/webcad-feature-audit/browser-polygonEditing.log`) |
+| geometryNodes | 통과 27 checks | 2026-10-29 06:56:19 KST | 실행 로그 (local-only, not in repository: `output/verification/webcad-feature-audit/browser-geometryNodes.log`) |
+| sculpt | 통과 37 checks | 2026-10-29 06:56:35 KST | 실행 로그 (local-only, not in repository: `output/verification/webcad-feature-audit/browser-sculpt.log`) |
+| hybridGeometry | 통과 19 checks | 2026-10-29 06:56:43 KST | 실행 로그 (local-only, not in repository: `output/verification/webcad-feature-audit/browser-hybridGeometry.log`) |
+| planarReconstruction | 통과 25 checks | 2026-10-29 06:56:56 KST | 실행 로그 (local-only, not in repository: `output/verification/webcad-feature-audit/browser-planarReconstruction.log`) |
+| b5FaceSketch | 통과 5 checks | 2026-10-29 06:57:04 KST | 실행 로그 (local-only, not in repository: `output/verification/webcad-feature-audit/browser-b5FaceSketch.log`) |
+| mcpBridge | 통과 24 checks | 2026-10-29 06:59:24 KST | 실행 로그 (local-only, not in repository: `output/verification/webcad-feature-audit/browser-mcpBridge.log`) |
+| b5WorkPlanes | 실패; 앞선 3 checks 부분 통과 | 2026-10-29 06:59:14 KST | 실행 로그 (local-only, not in repository: `output/verification/webcad-feature-audit/browser-b5WorkPlanes.log`) |
 
 각 페이지는 한 번 실행했고 실패를 재시도하지 않았다. WorkPlanes는 frame 생성·v18 직렬화·Undo3 checks 뒤 UI ready timeout이었다. 출력 화면에는 Datum이 복원돼 있었고 Direct face→Create plane 버튼을 기다리는 경로와 맞지만, 정확한 event/카메라/선택자 원인은 이번에 특정하지 못했다. 이 실패 때문에 attach backend나 전역 Undo/Redo 전체가 고장났다고 판단하지 않는다. 동일 감사의 b5FaceSketch와 다른 history 경로는 통과했다.
 
@@ -77,7 +77,7 @@ pnpm exec tsx --test tests/parametricSketch.test.ts tests/featureRegeneration.te
 44 tests / 2 suites; fail=0, cancelled=0, skipped=0
 ```
 
-[이번 단위·통합 로그](../../output/verification/webcad-feature-audit/unit-parametric-mcp.log). 별도 source 진단은 validator가 true인 boolean-cut을 실제 executor가 No handler registered로 거부하고 document는 불변인 것을 확인했다. exportStep/exportStl/exportIges는 null shape와 unused 경로에도 true, importStep은 null이었다. [격리 진단 결과](../../output/verification/webcad-feature-audit/diagnostic-command-io.log).
+이번 단위·통합 로그 (local-only, not in repository: `output/verification/webcad-feature-audit/unit-parametric-mcp.log`). 별도 source 진단은 validator가 true인 boolean-cut을 실제 executor가 No handler registered로 거부하고 document는 불변인 것을 확인했다. exportStep/exportStl/exportIges는 null shape와 unused 경로에도 true, importStep은 null이었다. 격리 진단 결과 (local-only, not in repository: `output/verification/webcad-feature-audit/diagnostic-command-io.log`).
 
 | 시나리오 | 판정 | 이번 근거 | 확인한 경로 | 미검증 / 미지원 |
 |---|---|---|---|---|
@@ -315,7 +315,7 @@ pnpm exec tsx --test tests/parametricSketch.test.ts tests/featureRegeneration.te
 
 ## 6. 과거 검증 기록과 미해결 목록
 
-과거 Phase5C-1 기록은 **1,753 tests /54 suites 통과**, 집중35개, Reconstruction browser25/Hybrid19, workspace build 통과 및 architecture877 modules다. 이번44개 성공에 합산하지 않는다. 과거 사용자 언급1,717개보다 후속 기록의1,753개가 있으므로 실제 로그를 기준으로 적었다. [과거 전체 단위 로그](../../output/verification/hybrid-phase-5c1/all-tests.log), [과거 closeout](../../docs/verification/HYBRID-GEOMETRY-PHASE-5C1.md).
+과거 Phase5C-1 기록은 **1,753 tests /54 suites 통과**, 집중35개, Reconstruction browser25/Hybrid19, workspace build 통과 및 architecture877 modules다. 이번44개 성공에 합산하지 않는다. 과거 사용자 언급1,717개보다 후속 기록의1,753개가 있으므로 실제 로그를 기준으로 적었다. 과거 전체 단위 로그 (local-only, not in repository: `output/verification/hybrid-phase-5c1/all-tests.log`), [과거 closeout](../../docs/verification/HYBRID-GEOMETRY-PHASE-5C1.md).
 
 과거 전체 browser 감사는 2026-10-27 20:39:40 KST의 **119통과 /53실패 /pending0 /skip0**였다. 당시 분류는 timeout32, 미확인16, test code2, UI/selector2, 환경·통신1이다. 이번에 그53건 중 MCP bridge1건은 통과했고 WorkPlanes1건은 다시 실패했으며51건은 재실행하지 않았다. MCP 과거 timeout이 이번 통과했다고 원인이 영구 해결됐다고 선언하지 않는다. 172페이지 전체 결과를 이번 전체 통과로 바꾸지 않았다.
 
@@ -423,11 +423,11 @@ serializeDocument는 내용에 맞는 최소 version1–61을 선택한다. 모�
 
 | 순위 | 문제 | 확실성 / 재현 범위 | 다음 조사·수정 방향 / 근거 |
 |---|---|---|---|
-| 1 | Face → Work Plane native UI 흐름 실패 | 이번 브라우저 실패 확정; 제품/테스트 근본 원인은 미확인 | 카메라·Direct selection·viewport revision과 버튼 표시를 좁은 재현에서 추적; backend attach 기능 재구현 금지<br>[browser-b5WorkPlanes.log](../../output/verification/webcad-feature-audit/browser-b5WorkPlanes.log), [b5WorkPlanes.browser.tsx](../../apps/web/tests/b5WorkPlanes.browser.tsx) |
-| 2 | validator가 수락하는 legacy boolean-cut에 handler 없음 | 이번 isolated 진단 재현; UI Boolean Cut 전체 결함으로 확대하지 않음 | 이전 command contract의 지원/명시 거부 정책을 정하고 기존 boolean-operation 경로와 정합<br>[diagnostic-command-io.log](../../output/verification/webcad-feature-audit/diagnostic-command-io.log), [CommandBus.ts](../../packages/cad-commands/src/CommandBus.ts) |
-| 3 | 공개 STEP/STL/IGES io scaffold가 가짜 성공 반환 | 이번 null-shape/unused-path 진단에서 true 반환; 실제 앱 exporter는 다른 경로 | 스텁을 명시적 unsupported 또는 실제 경로로 정리하고 facade 계약 테스트<br>[diagnostic-command-io.log](../../output/verification/webcad-feature-audit/diagnostic-command-io.log), [index.ts](../../packages/cad-kernel/src/index.ts) |
+| 1 | Face → Work Plane native UI 흐름 실패 | 이번 브라우저 실패 확정; 제품/테스트 근본 원인은 미확인 | 카메라·Direct selection·viewport revision과 버튼 표시를 좁은 재현에서 추적; backend attach 기능 재구현 금지<br>browser-b5WorkPlanes.log (local-only, not in repository: `output/verification/webcad-feature-audit/browser-b5WorkPlanes.log`), [b5WorkPlanes.browser.tsx](../../apps/web/tests/b5WorkPlanes.browser.tsx) |
+| 2 | validator가 수락하는 legacy boolean-cut에 handler 없음 | 이번 isolated 진단 재현; UI Boolean Cut 전체 결함으로 확대하지 않음 | 이전 command contract의 지원/명시 거부 정책을 정하고 기존 boolean-operation 경로와 정합<br>diagnostic-command-io.log (local-only, not in repository: `output/verification/webcad-feature-audit/diagnostic-command-io.log`), [CommandBus.ts](../../packages/cad-commands/src/CommandBus.ts) |
+| 3 | 공개 STEP/STL/IGES io scaffold가 가짜 성공 반환 | 이번 null-shape/unused-path 진단에서 true 반환; 실제 앱 exporter는 다른 경로 | 스텁을 명시적 unsupported 또는 실제 경로로 정리하고 facade 계약 테스트<br>diagnostic-command-io.log (local-only, not in repository: `output/verification/webcad-feature-audit/diagnostic-command-io.log`), [index.ts](../../packages/cad-kernel/src/index.ts) |
 | 4 | browser runner의 18개 중복 page 등록 | 현재 소스 정적 확인: 192 entries / 174 unique, 기본 cases 생성 시 dedup 없음; 전체 runner 재실행 안 함 | 동일 case 반복이 의도인지 확인하고 runner 등록을 단일화하여 불필요한 실행비용 방지<br>[browserChecks.mjs](../../apps/web/scripts/browserChecks.mjs) |
-| 5 | synthetic pointer capture와 오래된 UI 계약의 테스트 신뢰성 | 과거 synthetic pointer2 / selector명칭2 확인 기록; 이번 4개 페이지 미재실행 | 현재 UI 동작과 assertion 의도를 유지하며 native input/semantic locator로 보정; 제품기능 제거/무조건skip 금지<br>[final-browser-audit.json](../../output/verification/sculpt-phase-4/final-browser-audit.json), [draftingWorkflow.browser.tsx](../../apps/web/tests/draftingWorkflow.browser.tsx), [sketchCanvas.browser.tsx](../../apps/web/tests/sketchCanvas.browser.tsx), [pointWorkflow.browser.tsx](../../apps/web/tests/pointWorkflow.browser.tsx), [deliveryWorkflow.browser.tsx](../../apps/web/tests/deliveryWorkflow.browser.tsx) |
+| 5 | synthetic pointer capture와 오래된 UI 계약의 테스트 신뢰성 | 과거 synthetic pointer2 / selector명칭2 확인 기록; 이번 4개 페이지 미재실행 | 현재 UI 동작과 assertion 의도를 유지하며 native input/semantic locator로 보정; 제품기능 제거/무조건skip 금지<br>final-browser-audit.json (local-only, not in repository: `output/verification/sculpt-phase-4/final-browser-audit.json`), [draftingWorkflow.browser.tsx](../../apps/web/tests/draftingWorkflow.browser.tsx), [sketchCanvas.browser.tsx](../../apps/web/tests/sketchCanvas.browser.tsx), [pointWorkflow.browser.tsx](../../apps/web/tests/pointWorkflow.browser.tsx), [deliveryWorkflow.browser.tsx](../../apps/web/tests/deliveryWorkflow.browser.tsx) |
 
 **핵심 교환 공백:** 일반 editable Mesh와 Nodes 출력은 현재 STL/GLB/STEP export 수집 필터에서 제외된다. Mesh JSON 저장이 가능하다는 사실과 3D 교환 파일 출력 가능 여부는 다르다. 이는 이번 source 감사로 확인한 미지원 범위이며 새 exporter를 만들지 않았다.
 

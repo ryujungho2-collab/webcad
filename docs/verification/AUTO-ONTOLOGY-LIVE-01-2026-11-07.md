@@ -6,7 +6,7 @@
 
 `webcad-ao-live01` Compose 프로젝트에서 NVIDIA 백엔드·게이트웨이 `1.2.0`과 전용 pgvector 카탈로그를 실행했다. 게이트웨이와 백엔드 공개 포트는 Windows 루프백에 바인딩했다. 수집기와 백엔드에 합성 SQLite 파일 하나를 `RW=false`로 마운트했고, 양쪽에서 무결성 검사와 `SQLITE_READONLY` 쓰기 거부를 확인했다. 원본 SHA-256은 실험 후에도 동일했다. [배포 이미지 다이제스트](../../output/verification/auto-ontology-live-01/live-deployment.json) · [마운트 검사](../../output/verification/auto-ontology-live-01/live-mount.json)
 
-추론·비추론 역할에는 Ollama `qwen3:14b`와 별도 비교 프로필 `qwen3-coder-32k:latest`를 사용했다. 임베딩은 `nomic-embed-text`, 재순위는 로컬 ONNX `cross-encoder/ms-marco-MiniLM-L6-v2`였다. 두 프로필 모두 백엔드 컨테이너 내부에서 역할별 HTTP 200과 실제 응답을 확인했다. 카탈로그의 고정 2,048차원과 Nomic의 768차원 차이로 첫 수집이 실패했다. 모든 검색·수집 벡터에 동일하게 0을 추가하는 실험용 어댑터로 코사인 유사도를 보존하며 연결했다. 초기 컴파일에서는 로컬 채팅 응답이 시간 한도를 넘겼다. 어댑터에서 토큰 필드 호환, 최대 2,400토큰, 구조화 응답의 thinking 비활성화를 적용했다. 성공한 컴파일은 4개 테이블에서 36.9초 걸렸다. 대체 모델은 같은 컴파일 결과를 사용했다. [역할 검사](../../output/verification/auto-ontology-live-01/live-model-roles.json) · [컴파일 로그](../../output/verification/auto-ontology-live-01/compilation-summary.log)
+추론·비추론 역할에는 Ollama `qwen3:14b`와 별도 비교 프로필 `qwen3-coder-32k:latest`를 사용했다. 임베딩은 `nomic-embed-text`, 재순위는 로컬 ONNX `cross-encoder/ms-marco-MiniLM-L6-v2`였다. 두 프로필 모두 백엔드 컨테이너 내부에서 역할별 HTTP 200과 실제 응답을 확인했다. 카탈로그의 고정 2,048차원과 Nomic의 768차원 차이로 첫 수집이 실패했다. 모든 검색·수집 벡터에 동일하게 0을 추가하는 실험용 어댑터로 코사인 유사도를 보존하며 연결했다. 초기 컴파일에서는 로컬 채팅 응답이 시간 한도를 넘겼다. 어댑터에서 토큰 필드 호환, 최대 2,400토큰, 구조화 응답의 thinking 비활성화를 적용했다. 성공한 컴파일은 4개 테이블에서 36.9초 걸렸다. 대체 모델은 같은 컴파일 결과를 사용했다. [역할 검사](../../output/verification/auto-ontology-live-01/live-model-roles.json) · 컴파일 로그 (local-only, not in repository: `output/verification/auto-ontology-live-01/compilation-summary.log`)
 
 | 모델 | 방향 | HTTP / SSE | 생성 SQL | DB 반환 행 | 소요 시간 |
 | --- | --- | --- | --- | --- | --- |
@@ -15,7 +15,7 @@
 | `qwen3-coder-32k` | 정방향 `profile` | 200 / 종료 | 미생성 | 미수집 | 118.611초 |
 | `qwen3-coder-32k` | 역방향 `solid` | 200 / 종료 | 미생성 | 미수집 | 109.574초 |
 
-네 실행 모두 메타데이터를 조회하는 `information_agent`로 라우팅됐다. 이 경로는 원본 행을 조회하지 않는다. `qwen3:14b`는 도구 액션에 `answer`를 포함했고, `qwen3-coder-32k`는 답변 액션에 도구 필드를 포함해 `InformationAgentAction` 검증에 실패했다. 게이트웨이는 완료 이벤트와 함께 원본 데이터가 조회되지 않았다고 응답했다. 일치·누락·추가·방향·live/snapshot·소유·누락 상태·revision은 양방향 모두 미채점이다. 반환이 없었던 결과를 빈 SQL 결과 집합으로 간주하지 않았다. [NVIDIA 정보 에이전트 코드](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/retrieval/text_to_sql/agents/information_agent.py) · [최초 모델 검증 로그](../../output/verification/auto-ontology-live-01/attempt-qwen3-14b/routing-validation.log) · [대체 모델 검증 로그](../../output/verification/auto-ontology-live-01/routing-validation.log)
+네 실행 모두 메타데이터를 조회하는 `information_agent`로 라우팅됐다. 이 경로는 원본 행을 조회하지 않는다. `qwen3:14b`는 도구 액션에 `answer`를 포함했고, `qwen3-coder-32k`는 답변 액션에 도구 필드를 포함해 `InformationAgentAction` 검증에 실패했다. 게이트웨이는 완료 이벤트와 함께 원본 데이터가 조회되지 않았다고 응답했다. 일치·누락·추가·방향·live/snapshot·소유·누락 상태·revision은 양방향 모두 미채점이다. 반환이 없었던 결과를 빈 SQL 결과 집합으로 간주하지 않았다. [NVIDIA 정보 에이전트 코드](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/retrieval/text_to_sql/agents/information_agent.py) · 최초 모델 검증 로그 (local-only, not in repository: `output/verification/auto-ontology-live-01/attempt-qwen3-14b/routing-validation.log`) · 대체 모델 검증 로그 (local-only, not in repository: `output/verification/auto-ontology-live-01/routing-validation.log`)
 
 네 캡처의 요청 본문이 `questions.json`의 해당 `request`와 일치함을 확인했다. 채점기 구조를 확인하는 준비 과정에서 기준 답안 파일을 로컬에서 미리 열었다. 질의 본문이나 카탈로그 마운트에 기준 답안을 포함한 적은 없고, 답안에서 채운 반환 값도 없다. 사용자 도면과 저장소 데이터는 외부로 전송하지 않았다.
 

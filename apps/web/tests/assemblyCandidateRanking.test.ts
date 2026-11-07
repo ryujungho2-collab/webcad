@@ -5,7 +5,7 @@ import {deserializeDocument} from '@agent-webcad/cad-document';
 import {rankNativeCandidates} from '../src/copilot/assemblyCandidateRanking';
 import {axisCoverage,SEARCH_PART_IDS} from '../src/copilot/assemblySearchPolicy';
 import {validateSearchProposal,validateCandidateComparison,type Candidate} from '../src/copilot/assemblyCandidateSearch';
-const dir=new URL('../../../output/verification/ai-agent-phase-1b2/',import.meta.url),load=async(name:string)=>JSON.parse(await readFile(new URL(name,dir),'utf8'));
+const dir=new URL('../../../output/verification/ai-agent-phase-1b2/',import.meta.url),load=async(name:string)=>JSON.parse(await readFile(name==='B-oracle.json'?new URL('./fixtures/assembly/candidate-synthetic-oracle.json',import.meta.url):new URL(name,dir),'utf8'));
 const source=async()=>deserializeDocument(await readFile(new URL('../assembly-b25/annotated-laptop.webcad.json',dir),'utf8'));
 
 test('real Test A: XYZ, six complete parts, fixed/moving pairs and Native rank are authoritative',async()=>{

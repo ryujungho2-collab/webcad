@@ -1,6 +1,6 @@
 # S자 조명 · 열린 곡선의 실제 3D 인계
 
-2026-10-24. [원본과 STEP](../../output/projects/curve-lamp/README.md).
+2026-10-24. 원본과 STEP (local-only, not in repository: `output/projects/curve-lamp/README.md`).
 
 새 과제는 약 755 mm 높이의 조명이다. 일곱 통과점을 가진 S자 지지대, 원형 받침, 네 단면을 부드럽게 연결한 속 빈 갓, 오팔 확산판, 하단 링의 다섯 부품으로 구성한다. 사람은 XZ 평면의 열린 맞춤 곡선과 R8 단면을 만든다. 공통 스윕 폼과 내부 자연어로 동일한 실제 BRep를 만들고, 접선 강도를 조절한다. 실제 SDK stdio MCP가 곡선의 허리를 수정하고 나머지 부품과 마감을 작성한다. 모델 엔드포인트 호출 없이 이 과정을 검증한다.
 

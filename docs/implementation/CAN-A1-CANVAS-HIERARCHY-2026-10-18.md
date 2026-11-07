@@ -25,6 +25,6 @@ Project navigation에 계층 생성·검색·소유/참조 편집·부모 이동
 - 전체 Node 회귀 1,379개 / 54 suites 통과. 이후 prototype-property 회귀를 포함한 Canvas 집중 10개 통과. 독립/공유 소유, cycle/단위/잠금, batch rollback/Undo, 원본 삭제 guard, stale/cancel, 구버전 load 및 v43/bundle 왕복을 확인했다.
 - 모델+투영+단면+시트+프레임+작업 구역 fixture에서 source fields·출력 장면 불변과 추가 native task 0을 확인했다.
 - 실제 브라우저 canvasHierarchy에서 migration→부모 변경→오류 Review→공유 참조→잠금/해제→삭제/Undo→960px 경계 맞춤→SVG 비교→save/reload를 수행했다. 최종 수치와 회귀 결과는 [manifest](../verification/CAN-A1-2026-10-18.json)를 따른다.
-- [portable 문서](../../output/verification/canvas-hierarchy/canvas.webcad.json), [SVG](../../output/verification/canvas-hierarchy/paper.svg), [1440px](../../output/verification/canvas-hierarchy/canvas-1440.png), [960px](../../output/verification/canvas-hierarchy/canvas-960.png), [네이티브 보고서](../../output/verification/canvas-hierarchy/native-report.json).
+- portable 문서 (local-only, not in repository: `output/verification/canvas-hierarchy/canvas.webcad.json`), SVG (local-only, not in repository: `output/verification/canvas-hierarchy/paper.svg`), 1440px (local-only, not in repository: `output/verification/canvas-hierarchy/canvas-1440.png`), 960px (local-only, not in repository: `output/verification/canvas-hierarchy/canvas-960.png`), 네이티브 보고서 (local-only, not in repository: `output/verification/canvas-hierarchy/native-report.json`).
 
 Flex/reflow, 콘텐츠 비례 scale, CAD 부모 변환 상속, PDF 신규 발행 검증은 이번 범위가 아니다. 기존 Section/Frame 표현과 저장 좌표를 보존하는 계층 기반을 완료했다.

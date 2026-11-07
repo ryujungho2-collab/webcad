@@ -6,7 +6,7 @@
 
 승인된 단일 문서 합성 SQLite에서 별도 실험 파일을 만들었다. 원본 SHA-256을 확인하고 문서가 한 건일 때만 내보내기 문맥의 문서 ID를 관계에 붙인다. `cad_relation.document_id`는 `cad_document.document_id`를 참조한다. 조회용 투영에서 기존 선택 객체 필드를 제거했고, `cad_profile_extrude` 뷰는 외래 키로 문서와 결합한다. 소유자 목록은 양 끝에서 별도로 집계한다. 빈 목록은 SQLite가 `[]`로 반환한다. 이 모델은 합성 스냅샷에서 검증했다. 여러 제품 문서의 객체 ID 범위와 통합 저장 정책은 별도 설계가 필요하다. [합성 파일 생성기](../../output/verification/auto-ontology-join-01/build_fixture.py)
 
-새 NVIDIA Auto Ontology 1.2.0 카탈로그에 파생 파일을 읽기 전용으로 마운트했다. 테이블·뷰 5개를 51.5초에 컴파일했다. 이전의 두 SQL 안정화 패치와 로컬 `qwen3:14b` 내부 계산 경로를 재사용했다. 질문 원문은 유지했고, `evidence`에 조회할 뷰와 필드·방향의 의미만 추가했다. 기준 답안과 예상 행은 모델 요청에 포함되지 않았다. 이 결과는 파생 스키마와 조회 안내를 함께 적용한 실험이다. [질의와 스키마 안내](../../output/verification/auto-ontology-join-01/questions-with-schema-evidence.json) · [컴파일 기록](../../output/verification/auto-ontology-join-01/compilation-summary.log)
+새 NVIDIA Auto Ontology 1.2.0 카탈로그에 파생 파일을 읽기 전용으로 마운트했다. 테이블·뷰 5개를 51.5초에 컴파일했다. 이전의 두 SQL 안정화 패치와 로컬 `qwen3:14b` 내부 계산 경로를 재사용했다. 질문 원문은 유지했고, `evidence`에 조회할 뷰와 필드·방향의 의미만 추가했다. 기준 답안과 예상 행은 모델 요청에 포함되지 않았다. 이 결과는 파생 스키마와 조회 안내를 함께 적용한 실험이다. [질의와 스키마 안내](../../output/verification/auto-ontology-join-01/questions-with-schema-evidence.json) · 컴파일 기록 (local-only, not in repository: `output/verification/auto-ontology-join-01/compilation-summary.log`)
 
 ## 검증 결과
 

@@ -28,6 +28,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Explicit files: shell glob expansion differs between Windows and Linux.
+      - run: pnpm --filter @agent-webcad/web test:fixtures
+
       - run: pnpm qa
 
   audit:

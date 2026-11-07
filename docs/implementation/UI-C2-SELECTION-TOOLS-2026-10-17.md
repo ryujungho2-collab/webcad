@@ -14,8 +14,8 @@
 
 전체 Node 1,300 / 54 suites / 실패 0. 신규 분류 테스트 3개와 interaction/shortcut 대상 8개 통과. 문맥 UI 23 checks와 기존 비교·탭 탐색·시트·수치·각도 주석 회귀, 타입·architecture·build 결과는 manifest를 따른다. 기존 큰 chunk 경고는 남아 있다.
 
-- [곡선 Preview/Apply 화면](../../output/verification/selection-toolbar/selection-curve-review.png)
-- [960px 프레임 도구](../../output/verification/selection-toolbar/selection-frame-960.png)
-- [150% 상당 메뉴](../../output/verification/selection-toolbar/selection-zoom-150.png)
+- 곡선 Preview/Apply 화면 (local-only, not in repository: `output/verification/selection-toolbar/selection-curve-review.png`)
+- 960px 프레임 도구 (local-only, not in repository: `output/verification/selection-toolbar/selection-frame-960.png`)
+- 150% 상당 메뉴 (local-only, not in repository: `output/verification/selection-toolbar/selection-zoom-150.png`)
 
 새 geometry/명령/저장 schema를 추가하지 않는다. 모든 솔리드에 새로운 수치 driver를 제공하는 범위가 아니며 기존 Properties의 지원 종류를 따른다. stitch·종이 시트 전용 편집, 속성 패널의 정보 재배치와 새로운 주석 참조 편집은 후속/기존 전용 도구 범위다.

@@ -12,4 +12,4 @@
 
 판넬은 A1 가로 841 × 594 mm다. 실제 CAD BRep tessellation과 source transform / solidFinish로 만든 외부·진입·내부·정투영 뷰, 실제 BRep 횡단면 SVG를 사용한다. 판넬용 단면 선은 가독성을 위해 색과 인쇄 굵기만 조정하며 좌표·형상은 바꾸지 않는다. 수공간·진입축·재료·단면 높이를 설명하고 구조 안전이나 미적 점수를 자동 판정하지 않는다.
 
-산출물: [과제 README](../../output/projects/courtyard-pavilion/README.md), [A1 판넬](../../output/pdf/courtyard-pavilion-A1.pdf). 최종 수치와 해시는 산출물 verification.json에 기록한다.
+산출물: 과제 README (local-only, not in repository: `output/projects/courtyard-pavilion/README.md`), A1 판넬 (local-only, not in repository: `output/pdf/courtyard-pavilion-A1.pdf`). 최종 수치와 해시는 산출물 verification.json에 기록한다.

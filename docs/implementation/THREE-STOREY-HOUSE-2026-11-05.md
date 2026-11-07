@@ -25,6 +25,6 @@
 
 ## 결과물과 재현
 
-[인터랙티브 검토 화면](../../output/projects/three-storey-house/review.html) · [최초 2D 원본](../../output/projects/three-storey-house/01-source-2d.webcad.json) · [최종 CAD](../../output/projects/three-storey-house/house.webcad.json) · [STEP](../../output/projects/three-storey-house/house.step) · [검증 보고서](../../output/projects/three-storey-house/verification.json) · [STEP 재읽기](../../output/projects/three-storey-house/step-inspection.json).
+인터랙티브 검토 화면 (local-only, not in repository: `output/projects/three-storey-house/review.html`) · 최초 2D 원본 (local-only, not in repository: `output/projects/three-storey-house/01-source-2d.webcad.json`) · 최종 CAD (local-only, not in repository: `output/projects/three-storey-house/house.webcad.json`) · STEP (local-only, not in repository: `output/projects/three-storey-house/house.step`) · 검증 보고서 (local-only, not in repository: `output/projects/three-storey-house/verification.json`) · STEP 재읽기 (local-only, not in repository: `output/projects/three-storey-house/step-inspection.json`).
 
 `pnpm --filter @agent-webcad/web exec tsx scripts/verifyThreeStoreyHouse.ts`, 이어서 `inspectThreeStoreyStep.ts`, `buildThreeStoreyReview.ts`를 같은 방식으로 실행한다. 검토 화면에서 전체·각층·층 분리를 볼 수 있다. 뷰어는 GLB 검토용이며 직접 모델 편집은 CAD 원본에서 수행한다.
