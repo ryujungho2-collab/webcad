@@ -43,10 +43,12 @@ export { validWorkPlaneId, validWorkPlaneFrame, validWorkPlaneFaceSource, validC
 export type { CadWorkPlane, CadWorkPlaneFrame, CadWorkPlaneFaceSource, WorkPlaneVector } from "./WorkPlane";
 export { validAngularReference, validAngularBranch, validAngularDefinition, validAngularParams } from "./AngularDimension";
 export type { AngularDimensionReference, AngularDimensionBranch, AngularDimensionDefinition, AngularDimensionLine, AngularDimensionParams } from "./AngularDimension";
-export { validDimensionStyle } from "./DimensionStyle";
-export type { CadDimensionStyle } from "./DimensionStyle";
+export { validDimensionStyle, validDimensionStylePresets, validDimensionStylePresetName,
+  validLinearDimensionPresetStyle, dimensionStylePresetKey, DEFAULT_LINEAR_DIMENSION_PRESET,
+  MAX_DIMENSION_STYLE_PRESETS } from "./DimensionStyle";
+export type { CadDimensionStyle, CadDimensionStylePreset, LinearDimensionPresetStyle } from "./DimensionStyle";
 export type { LayerStyle } from "./Layer";
-export { DEFAULT_VECTOR_STYLE, validVectorStyle, validVectorGradient } from "./VectorStyle";
+export { DEFAULT_VECTOR_STYLE, validVectorStyle, validVectorStyleOverrides, validVectorGradient } from "./VectorStyle";
 export type { CadVectorStyle, CadVectorGradient } from "./VectorStyle";
 export { MAX_RASTER_ASSET_BYTES, MAX_RASTER_ASSET_PIXELS, MAX_RASTER_ASSET_AXIS, MAX_DOCUMENT_RASTER_BYTES, validRasterAsset } from "./RasterAsset";
 export type { CadRasterAsset, RasterMimeType } from "./RasterAsset";

@@ -1,0 +1,64 @@
+{
+  "schema": "webcad.profile-extrude-relations.v1",
+  "document": {
+    "id": "test-document",
+    "revision": 2
+  },
+  "selectedObjectId": "solid",
+  "role": "extrude",
+  "subject": {
+    "objectId": "solid",
+    "label": "Extrude",
+    "featureId": "feature-solid",
+    "representation": "brep",
+    "missing": false,
+    "layerId": "layer-default",
+    "sketchOwners": []
+  },
+  "relations": [
+    {
+      "direction": "profile-to-extrude",
+      "viewedFrom": "incoming",
+      "mode": "live",
+      "status": "resolved",
+      "source": {
+        "objectId": "profile",
+        "label": "Rectangle",
+        "featureId": "feature-profile",
+        "representation": "analytic-curve",
+        "missing": false,
+        "layerId": "layer-default",
+        "sketchOwners": []
+      },
+      "target": {
+        "objectId": "solid",
+        "label": "Extrude",
+        "featureId": "feature-solid",
+        "representation": "brep",
+        "missing": false,
+        "layerId": "layer-default",
+        "sketchOwners": []
+      },
+      "evidence": {
+        "graphRelation": "live-input",
+        "extrudeFeatureId": "feature-solid",
+        "recordedInputId": "profile",
+        "declaredDependencyMode": "live"
+      }
+    }
+  ],
+  "codeEvidence": [
+    {
+      "file": "apps/web/src/state/dependencyGraph.ts",
+      "symbol": "buildDependencyGraph"
+    },
+    {
+      "file": "apps/web/src/state/featureRegeneration.ts",
+      "symbol": "liveFeatureInputs"
+    },
+    {
+      "file": "packages/cad-document/src/FeatureContract.ts",
+      "symbol": "featureContract"
+    }
+  ]
+}

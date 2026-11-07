@@ -240,6 +240,7 @@ function restoreLoadedDocument(
 
   cadDocument.sketches = structuredClone(loaded.sketches ?? {});
   if(loaded.componentLibrary)cadDocument.componentLibrary=structuredClone(loaded.componentLibrary);else delete cadDocument.componentLibrary;
+  if(loaded.dimensionStylePresets)cadDocument.dimensionStylePresets=structuredClone(loaded.dimensionStylePresets);else delete cadDocument.dimensionStylePresets;
   if(loaded.blocks) cadDocument.blocks = structuredClone(loaded.blocks); else delete cadDocument.blocks;
   if(loaded.variables) cadDocument.variables = structuredClone(loaded.variables); else delete cadDocument.variables;
   if(loaded.parameterBindings) cadDocument.parameterBindings = structuredClone(loaded.parameterBindings); else delete cadDocument.parameterBindings;
@@ -279,7 +280,7 @@ function restoreLoadedDocument(
    * editing history session.
    */
   cadHistory.clear();
-  notifyDocumentChanged();
+  notifyDocumentChanged(true);
 
   if(persist)void saveDocumentRecovery().catch(()=>{});
 }

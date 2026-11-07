@@ -1,5 +1,7 @@
 # 날짜별 구현 기록
 
+- [CAD 기능 + 온톨로지 실행 가이드](CAD-FEATURE-ONTOLOGY-EXECUTION-GUIDE-2026-11-06.md) · 2026-11-06 · 구현 전 지시서, 첫 카드 CAD-LAYER-01
+
 - [ARC 1.7 전기주전자 2D/3D 검증 과제 (Claude)](ARC-KETTLE-2026-11-05.md) · 2026-11-05
 
 - [PRACTICE-REVIEW-01 실무 요구조건·간격/도면 공통 검사와 주택 결함 수정](PRACTICE-REVIEW-01-2026-11-05.md) · 2026-11-05

@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "checks": 10,
+  "message": "PASS: Actual pixels show blue fill with green hatch in front\nPASS: Hatch-back hides the hatch behind overlapping opaque vectors\nPASS: Downloaded SVG paints hatch behind both vectors\nPASS: Bring to front changes the overlap pixels to red\nPASS: Downloaded SVG paints the same red vector last\nPASS: Send to back restores the blue overlap\nPASS: Three commands create three undo entries and preserve root slots\nPASS: Undo restores red in front\nPASS: Redo restores blue in front\nPASS: Native reopen preserves painter priorities and the SVG order\nALL 10 CHECKS PASSED",
+  "artifacts": [
+    "red-in-front.png"
+  ]
+}

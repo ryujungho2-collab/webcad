@@ -1,0 +1,26 @@
+{
+  "id": "CAD-EVAL-03-loft-connection-intent-v1",
+  "dataClass": "synthetic",
+  "units": "mm",
+  "mode": "existing-design-redesign",
+  "objective": "Change an existing three-section ruled loft to smooth interpolation while preserving every source section and placement",
+  "budgets": {
+    "modelCalls": 3,
+    "replans": 2,
+    "elapsedMs": 180000
+  },
+  "excluded": [
+    "G1/G2 continuity certification",
+    "aerodynamic/thermal/strength analysis",
+    "source-section deformation",
+    "automatic editor Apply",
+    "model training"
+  ],
+  "selectedObjectId": "intent-loft",
+  "prompt": "선택된 기존 로프트 intent-loft를 cad.inspect로 먼저 조회해. 현재 세 단면 사이를 직선으로 연결한 상태를 기존 로프트의 부드러운 보간 연결로 바꿔줘.\n설계 의도: 원본 원형 단면 section0, section1, section2의 모양·고도·순서와 live 관계를 모두 보존해. 끝의 원형 단면도 그대로 유지해. 기존 객체 ID, 월드 배치, 마감, 보호 부품 protected-fixture를 보존해. 새 형상으로 대체하거나 원본 단면을 변형하지 마. 치수 하나를 조절하는 것으로 대신하지 마.\n지원되는 기존 편집 명령이 있을 때만 제안하고, 현재 제공된 도구에 없으면 해당 제한을 명시해. 검증 전 성공이나 G1/G2 연속성·유동/강도 성능을 보장하지 마. 승인 전 Apply 금지.\n{\"source\":\"Existing buildDependencyGraph\",\"document\":{\"id\":\"cad-eval-03-synthetic\",\"revision\":7},\"incoming\":[{\"from\":\"[\\\"object\\\",\\\"section0\\\"]\",\"to\":\"[\\\"object\\\",\\\"intent-loft\\\"]\",\"relation\":\"live-input\"},{\"from\":\"[\\\"object\\\",\\\"section1\\\"]\",\"to\":\"[\\\"object\\\",\\\"intent-loft\\\"]\",\"relation\":\"live-input\"},{\"from\":\"[\\\"object\\\",\\\"section2\\\"]\",\"to\":\"[\\\"object\\\",\\\"intent-loft\\\"]\",\"relation\":\"live-input\"}],\"note\":\"Stored dependency evidence, not a command or an already validated result\"}",
+  "grounding": true,
+  "compactRequest": false,
+  "replaySource": "C:\\Users\\thefi\\OneDrive\\Desktop\\agent-webcad\\output\\verification\\cad-eval-03\\2026-11-07T07-31-19.088Z",
+  "intentOrigin": "evaluator-authored",
+  "fixtureOrigin": "existing-native-planners-not-AI"
+}

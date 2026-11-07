@@ -1,0 +1,88 @@
+[
+  {
+    "sql": "SELECT COUNT(*) FROM cad_relation;",
+    "extractedTables": {},
+    "catalogValidated": false,
+    "catalogError": "SQL doesn't reference any table known to the catalog; check the query and available schema",
+    "catalogTables": null,
+    "sqliteRows": [
+      "[{\"COUNT(*)\":1}]"
+    ],
+    "sqliteError": null,
+    "elapsedMs": 14.997
+  },
+  {
+    "sql": "SELECT COUNT(*) FROM main.cad_relation;",
+    "extractedTables": {},
+    "catalogValidated": false,
+    "catalogError": "SQL doesn't reference any table known to the catalog; check the query and available schema",
+    "catalogTables": null,
+    "sqliteRows": [
+      "[{\"COUNT(*)\":1}]"
+    ],
+    "sqliteError": null,
+    "elapsedMs": 8.709
+  },
+  {
+    "sql": "SELECT COUNT(*) FROM source.main.cad_relation;",
+    "extractedTables": {},
+    "catalogValidated": false,
+    "catalogError": "SQL doesn't reference any table known to the catalog; check the query and available schema",
+    "catalogTables": null,
+    "sqliteRows": null,
+    "sqliteError": "near \".\": syntax error",
+    "elapsedMs": 10.438
+  },
+  {
+    "sql": "SELECT COUNT(source_id) FROM cad_relation;",
+    "extractedTables": {
+      "cad_relation": [
+        "source_id"
+      ]
+    },
+    "catalogValidated": true,
+    "catalogError": null,
+    "catalogTables": [
+      "main.cad_relation"
+    ],
+    "sqliteRows": [
+      "[{\"COUNT(source_id)\":1}]"
+    ],
+    "sqliteError": null,
+    "elapsedMs": 12.715
+  },
+  {
+    "sql": "SELECT COUNT(source_id) FROM main.cad_relation;",
+    "extractedTables": {
+      "main.cad_relation": [
+        "source_id"
+      ]
+    },
+    "catalogValidated": true,
+    "catalogError": null,
+    "catalogTables": [
+      "main.cad_relation"
+    ],
+    "sqliteRows": [
+      "[{\"COUNT(source_id)\":1}]"
+    ],
+    "sqliteError": null,
+    "elapsedMs": 12.71
+  },
+  {
+    "sql": "SELECT COUNT(source_id) FROM source.main.cad_relation;",
+    "extractedTables": {
+      "main.cad_relation": [
+        "source_id"
+      ]
+    },
+    "catalogValidated": true,
+    "catalogError": null,
+    "catalogTables": [
+      "main.cad_relation"
+    ],
+    "sqliteRows": null,
+    "sqliteError": "near \".\": syntax error",
+    "elapsedMs": 10.877
+  }
+]

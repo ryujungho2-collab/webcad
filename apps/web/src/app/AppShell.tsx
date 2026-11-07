@@ -22,6 +22,8 @@ import {cadDocument} from "../state/cadDocument";
 import {InspectorSectionScope} from "../ui/PropertySection";
 
 export type AppShellProps = {
+  onDrawingOrder?: (direction: "front" | "back" | "hatch-back") => void;
+  onMatchVectorAppearance?: () => void;
   onCurveLayout?:()=>void;
   onRepeatCommand?:()=>void;
   frameToolsBusy?:boolean;
@@ -66,6 +68,9 @@ export type AppShellProps = {
   selectedObjectId: string | null;
   selectedObjectIds: string[];
   isolationActive?: boolean;
+  layerIsolationActive?: boolean;
+  onIsolateLayers?: () => void;
+  onExitIsolation?: () => void;
   canUndo: boolean;
   canRedo: boolean;
   canCreateBox: boolean;
@@ -315,6 +320,8 @@ export function AppShell(props: AppShellProps) {
       <div className={`workbench${compact?" project-comparison-compact":""}${explorerCollapsed ? " explorer-collapsed" : ""}${propertiesCollapsed ? " properties-collapsed" : ""}`}>
         <ActivityBar activeActivity={props.activeActivity} workspaceMode={props.workspaceMode} onChange={changeActivity} />
         <ExplorerPanel
+          layerIsolationActive={props.layerIsolationActive}
+          onIsolateLayers={props.onIsolateLayers}
           navigationBusy={props.frameToolsBusy}
           onNavigateProject={props.onNavigateProject}
           activeActivity={props.activeActivity}
@@ -348,7 +355,7 @@ export function AppShell(props: AppShellProps) {
             {props.hasVisibleArtboards && <button type="button" title={props.workspaceMode === "2d" ? "Fit visible artboards on this plane" : "Fit all visible artboards in 3D"} aria-label="Fit visible artboards" onClick={() => props.onViewAction("fit-visible-artboards")}><ToolIcon name="Artboard" fallback="▱" /></button>}
           </div>
           {props.activeArtboardName && <div className="viewport-artboard-label" aria-label={`Active artboard ${props.activeArtboardName}`}>Canvas · {props.activeArtboardName}</div>}
-          {props.isolationActive && <div className="viewport-isolation">Isolated view <button type="button" onClick={props.onIsolate}>Exit isolation</button></div>}
+          {(props.isolationActive || props.layerIsolationActive) && <div className="viewport-isolation" role="status">{props.layerIsolationActive ? "Layer isolated view" : "Isolated view"} <button type="button" onClick={props.onExitIsolation ?? props.onIsolate}>Exit isolation</button></div>}
           <div className="navigation-hint"><span>Wheel</span> Up/down <b>·</b> <span>Shift Wheel</span> Left/right <b>·</b> <span>Ctrl Wheel</span> Zoom <b>·</b> <span>Alt Wheel</span> Rotate <b>·</b> <span>MMB</span> Pan <b>·</b> <span>Ctrl K</span> Commands / Shortcuts</div>
           </div>
         </section>

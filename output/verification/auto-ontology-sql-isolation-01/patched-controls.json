@@ -1,0 +1,34 @@
+{
+  "countStar": {
+    "sql": "SELECT COUNT(*) AS n FROM cad_relation",
+    "catalogValidated": true,
+    "catalogError": null,
+    "sqliteRows": [
+      "[{\"n\":1}]"
+    ],
+    "sqliteError": null
+  },
+  "unknownCountRejected": true,
+  "threePartAsWritten": {
+    "sql": "SELECT COUNT(source_id) AS n FROM source.main.cad_relation",
+    "catalogValidated": true,
+    "catalogError": null,
+    "sqliteRows": null,
+    "sqliteError": "near \".\": syntax error"
+  },
+  "threePartAfterNormalization": {
+    "sql": "SELECT COUNT(source_id) AS n FROM main.cad_relation",
+    "catalogValidated": true,
+    "catalogError": null,
+    "sqliteRows": [
+      "[{\"n\":1}]"
+    ],
+    "sqliteError": null
+  },
+  "rejectedQualifiers": [
+    "other.main.cad_relation",
+    "source.temp.cad_relation",
+    "source.main.nonexistent"
+  ],
+  "literalPreserved": true
+}

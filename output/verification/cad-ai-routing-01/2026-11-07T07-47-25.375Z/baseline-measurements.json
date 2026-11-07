@@ -1,0 +1,102 @@
+{
+  "status": "rejected",
+  "success": false,
+  "criteria": [
+    {
+      "id": "document-identity",
+      "status": "pass",
+      "source": "native-document"
+    },
+    {
+      "id": "smooth-existing-live-loft",
+      "status": "fail",
+      "source": "native-feature-contract"
+    },
+    {
+      "id": "ordered-source-sections",
+      "status": "pass",
+      "source": "native-feature-inputs-and-exact-profiles"
+    },
+    {
+      "id": "all-other-document-state-preserved",
+      "status": "pass",
+      "source": "exact-native-state-excluding-only-ruled-and-derived-bounds"
+    },
+    {
+      "id": "three-live-section-relations",
+      "status": "pass",
+      "source": "buildDependencyGraph"
+    },
+    {
+      "id": "valid-brep:intent-loft",
+      "status": "pass",
+      "source": "OpenCascade",
+      "actual": "valid",
+      "expected": "valid"
+    },
+    {
+      "id": "valid-brep:protected-fixture",
+      "status": "pass",
+      "source": "OpenCascade",
+      "actual": "valid",
+      "expected": "valid"
+    },
+    {
+      "id": "actual-geometric-change",
+      "status": "fail",
+      "source": "OpenCascade-before-after-not-a-curvature-certificate",
+      "actual": 0,
+      "expected": ">100 mm³ for this fixture"
+    },
+    {
+      "id": "serialization",
+      "status": "pass",
+      "source": "native-serialization-roundtrip"
+    }
+  ],
+  "metrics": {
+    "beforeVolumeMm3": 52621.676947629036,
+    "afterVolumeMm3": 52621.676947629036,
+    "absoluteVolumeChangeMm3": 0
+  },
+  "measurements": {
+    "intent-loft": {
+      "basis": "brep",
+      "lengthUnit": "mm",
+      "volume": 52621.676947629036,
+      "area": 9888.536683464747,
+      "bounds": {
+        "min": [
+          44.9999999,
+          14.9999999,
+          9.9999999
+        ],
+        "max": [
+          95.0000001,
+          65.0000001,
+          70.0000001
+        ]
+      },
+      "validity": "valid"
+    },
+    "protected-fixture": {
+      "basis": "brep",
+      "lengthUnit": "mm",
+      "volume": 32000.00000000001,
+      "area": 7200,
+      "bounds": {
+        "min": [
+          140,
+          0,
+          0
+        ],
+        "max": [
+          160,
+          20,
+          80
+        ]
+      },
+      "validity": "valid"
+    }
+  }
+}

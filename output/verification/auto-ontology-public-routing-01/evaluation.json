@@ -1,0 +1,194 @@
+{
+  "original": {
+    "forward": {
+      "request": {
+        "question": "For the profile whose object ID is 'profile', list its recorded direct extrusion relationships. Return the document ID and revision, both endpoint IDs in their stored source-to-target order, the recorded direction, live or snapshot mode, relationship status, each endpoint's missing flag, and any sketch owners with their missing flags. Preserve relationships with missing references. Return only relationships recorded for this profile.",
+        "prediction": false,
+        "evidence": "The SQLite view cad_profile_extrude is the source for recorded direct Profile/Extrude relations. It contains one row per relation and already joins the owning document by document_id, resolves both endpoint missing flags, and returns separate JSON arrays for source and target sketch owners. Use this view alone, with no extra join, and return all its columns with their existing names. Filter source_id for a profile request and target_id for an extrusion request. Keep stored source-to-target order and do not filter out missing endpoints."
+      },
+      "sql": "",
+      "rows": null,
+      "sqlEvents": [],
+      "answerText": "The requested information about direct extrusion relationships for the profile with object ID 'profile' is not available in the provided metadata. The available metadata includes attributes such as 'Source Sketch Owners', 'Target Sketch Owners', 'Operation Direction', 'Document ID', 'Revision Number', 'Operational Mode', 'Status', 'Current Status', 'Mode', and 'Data Missing Flag'. However, there is no explicit information about 'endpoint IDs', 'direction', 'mode', 'status', 'missing flags', or 'sketch owners' in the context of extrusion relationships.",
+      "httpStatus": 200,
+      "done": true,
+      "error": null,
+      "elapsedMs": 18109,
+      "nodes": [
+        "question_intent",
+        "question_extraction",
+        "retrieve_candidates",
+        "information_agent"
+      ],
+      "comparison": null,
+      "normalized": null
+    },
+    "reverse": {
+      "request": {
+        "question": "For the extrusion whose object ID is 'solid', list its recorded direct profile relationships. Return the document ID and revision, both endpoint IDs in their stored source-to-target order, the recorded direction, live or snapshot mode, relationship status, each endpoint's missing flag, and any sketch owners with their missing flags. Preserve relationships with missing references. Return only relationships recorded for this extrusion.",
+        "prediction": false,
+        "evidence": "The SQLite view cad_profile_extrude is the source for recorded direct Profile/Extrude relations. It contains one row per relation and already joins the owning document by document_id, resolves both endpoint missing flags, and returns separate JSON arrays for source and target sketch owners. Use this view alone, with no extra join, and return all its columns with their existing names. Filter source_id for a profile request and target_id for an extrusion request. Keep stored source-to-target order and do not filter out missing endpoints."
+      },
+      "sql": "",
+      "rows": null,
+      "sqlEvents": [],
+      "answerText": "Based on the provided metadata, the recorded direct profile relationships for extrusion with object ID 'solid' include the following attributes:\n\n- **Document ID**: A unique identifier assigned to each document, typically used for reference and tracking purposes. Sample values: test-document.\n- **Revision**: The revision number of the object, represented as an integer. Sample values: 2.\n- **Endpoint IDs (source-to-target order)**: Not explicitly identified in the metadata provided.\n- **Direction**: The direction of the operation or transformation, represented as text. Sample values: profile-to-extrude.\n- **Mode**: The operational mode of the object, represented as text. Sample values: live.\n- **Status**: The current state or resolution of an item or task, represented as text. Sample values: resolved.\n- **Missing Flag**: An integer value indicating the presence or absence of data. Sample values: 0.\n- **Sketch Owners**: A list of owners associated with the source and target sketches, represented as text. Sample values: [].\n\nThe metadata does not explicitly provide endpoint IDs in source-to-target order or the exact document ID and revision for the extrusion with object ID 'solid'.",
+      "httpStatus": 200,
+      "done": true,
+      "error": null,
+      "elapsedMs": 28860,
+      "nodes": [
+        "question_intent",
+        "question_extraction",
+        "retrieve_candidates",
+        "information_agent"
+      ],
+      "comparison": null,
+      "normalized": null
+    }
+  },
+  "explicit-filter": {
+    "forward": {
+      "request": {
+        "question": "Filter the actual data rows stored in the connected SQLite view cad_profile_extrude where source_id equals 'profile'. Run a read-only data query and return the matching rows with all their fields.",
+        "prediction": false,
+        "evidence": "The SQLite view cad_profile_extrude is the source for recorded direct Profile/Extrude relations. It contains one row per relation and already joins the owning document by document_id, resolves both endpoint missing flags, and returns separate JSON arrays for source and target sketch owners. Use this view alone, with no extra join, and return all its columns with their existing names. Filter source_id for a profile request and target_id for an extrusion request. Keep stored source-to-target order and do not filter out missing endpoints."
+      },
+      "sql": "SELECT * FROM main.cad_profile_extrude WHERE source_id = 'profile'",
+      "rows": [
+        "[{\"document_id\":\"test-document\",\"revision\":2,\"source_id\":\"profile\",\"target_id\":\"solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\",\"source_missing\":0,\"target_missing\":0,\"source_sketch_owners\":\"[]\",\"target_sketch_owners\":\"[]\"}]"
+      ],
+      "sqlEvents": [
+        {
+          "type": "sql",
+          "node": "validate_sql_query",
+          "sql": "SELECT * FROM main.cad_profile_extrude WHERE source_id = 'profile'"
+        }
+      ],
+      "answerText": "This query retrieves all rows from the cad_profile_extrude view where the source_id is 'profile'. It selects all columns from the view and applies a filter on the source_id column to return only the matching rows.",
+      "httpStatus": 200,
+      "done": true,
+      "error": null,
+      "elapsedMs": 18347,
+      "nodes": [
+        "question_intent",
+        "question_extraction",
+        "retrieve_candidates",
+        "prepare_candidates",
+        "refine_evidence",
+        "construct_sql_from_candidates",
+        "validate_sql_query",
+        "execute_sql_query",
+        "check_empty_like_result",
+        "check_value_repair",
+        "format_and_respond"
+      ],
+      "comparison": {
+        "exact": 1,
+        "omitted": 0,
+        "unsupportedAdded": 0,
+        "reversed": 0,
+        "modeMismatch": 0,
+        "ownershipMismatch": 0,
+        "missingStatusMismatch": 0,
+        "viewMismatch": 0,
+        "revisionMismatch": 0
+      },
+      "normalized": {
+        "document": {
+          "id": "test-document",
+          "revision": 2
+        },
+        "selectedObjectId": "profile",
+        "relations": [
+          {
+            "direction": "profile-to-extrude",
+            "mode": "live",
+            "status": "resolved",
+            "sourceId": "profile",
+            "targetId": "solid",
+            "sourceMissing": false,
+            "sourceSketchOwners": [],
+            "targetMissing": false,
+            "targetSketchOwners": [],
+            "viewedFrom": "outgoing"
+          }
+        ]
+      },
+      "missingFieldsByRow": [
+        []
+      ]
+    },
+    "reverse": {
+      "request": {
+        "question": "Filter the actual data rows stored in the connected SQLite view cad_profile_extrude where target_id equals 'solid'. Run a read-only data query and return the matching rows with all their fields.",
+        "prediction": false,
+        "evidence": "The SQLite view cad_profile_extrude is the source for recorded direct Profile/Extrude relations. It contains one row per relation and already joins the owning document by document_id, resolves both endpoint missing flags, and returns separate JSON arrays for source and target sketch owners. Use this view alone, with no extra join, and return all its columns with their existing names. Filter source_id for a profile request and target_id for an extrusion request. Keep stored source-to-target order and do not filter out missing endpoints."
+      },
+      "sql": "SELECT * FROM main.cad_profile_extrude WHERE target_id = 'solid'",
+      "rows": [
+        "[{\"document_id\":\"test-document\",\"revision\":2,\"source_id\":\"profile\",\"target_id\":\"solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\",\"source_missing\":0,\"target_missing\":0,\"source_sketch_owners\":\"[]\",\"target_sketch_owners\":\"[]\"}]"
+      ],
+      "sqlEvents": [
+        {
+          "type": "sql",
+          "node": "validate_sql_query",
+          "sql": "SELECT * FROM main.cad_profile_extrude WHERE target_id = 'solid'"
+        }
+      ],
+      "answerText": "This query retrieves all rows from the cad_profile_extrude view where the target_id is 'solid'. It uses the view directly without any additional joins and returns all columns with their original names. The filter ensures only rows with the specified target_id are included in the result.",
+      "httpStatus": 200,
+      "done": true,
+      "error": null,
+      "elapsedMs": 23122,
+      "nodes": [
+        "question_intent",
+        "question_extraction",
+        "retrieve_candidates",
+        "prepare_candidates",
+        "refine_evidence",
+        "construct_sql_from_candidates",
+        "validate_sql_query",
+        "execute_sql_query",
+        "check_empty_like_result",
+        "check_value_repair",
+        "format_and_respond"
+      ],
+      "comparison": {
+        "exact": 1,
+        "omitted": 0,
+        "unsupportedAdded": 0,
+        "reversed": 0,
+        "modeMismatch": 0,
+        "ownershipMismatch": 0,
+        "missingStatusMismatch": 0,
+        "viewMismatch": 0,
+        "revisionMismatch": 0
+      },
+      "normalized": {
+        "document": {
+          "id": "test-document",
+          "revision": 2
+        },
+        "selectedObjectId": "solid",
+        "relations": [
+          {
+            "direction": "profile-to-extrude",
+            "mode": "live",
+            "status": "resolved",
+            "sourceId": "profile",
+            "targetId": "solid",
+            "sourceMissing": false,
+            "sourceSketchOwners": [],
+            "targetMissing": false,
+            "targetSketchOwners": [],
+            "viewedFrom": "incoming"
+          }
+        ]
+      },
+      "missingFieldsByRow": [
+        []
+      ]
+    }
+  }
+}

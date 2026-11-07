@@ -20,6 +20,7 @@ export function restoreTestDocument(snapshot: CadDocument) {
   delete cadDocument.modelViews;
   delete cadDocument.modelPresentation;
   delete cadDocument.componentLibrary;
+  delete cadDocument.dimensionStylePresets;
   delete cadDocument.workPlanes;
   delete cadDocument.exchangeImports;
   Object.assign(cadDocument, structuredClone({ ...snapshot, sketches: snapshot.sketches ?? {} }));

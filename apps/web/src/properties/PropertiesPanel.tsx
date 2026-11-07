@@ -22,6 +22,8 @@ import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 import { resolveDimension } from "../precision/dimensionGeometry";
 import { planDiameterFromSelection, planDimensionFromSelection } from "../state/dimensionCommands";
 import { DiameterDimensionReview } from "./DiameterDimensionReview";
+import { DimensionStylePresets } from "./DimensionStylePresets";
+import { documentSessionIdentity } from "../state/documentSession";
 import { describeSubObject } from "../viewport/subObjectMeasure";
 import type { CornerPreviewRequest } from "../viewport/cornerPreview";
 import type { TopologySelectionRef } from "../state/selection";
@@ -813,6 +815,12 @@ function PropertiesContent({
         </PropertySection>
       )}
 
+      {selectedObjectIds.length > 0 && selectedObjects.length === selectedObjectIds.length &&
+        selectedObjects.every(entry => {
+          const dimension = featureByOutput.get(entry.id);
+          return dimension?.type === "dimension" && dimension.params.kind === "linear";
+        }) && <DimensionStylePresets key={documentSessionIdentity()} objectIds={selectedObjectIds}
+          presets={cadDocument.dimensionStylePresets ?? []} disabled={!allSelectedEditable} onDocumentChange={onDocumentChange} />}
       {isDrawing && selectedObjects.length === 1 && <VectorStyleEditor key={object.id} objectId={object.id} style={vectorStyle} disabled={isLocked || !object.visible || objectLayer?.visible === false} revision={documentRevision} onDocumentChange={onDocumentChange} />}
       {selectedObjects.length===1&&(isSolid||isDrawing)&&<ExactMeasurements objectId={object.id} revision={documentRevision}/>}
       {(selectedObjects.length > 0 && selectedObjects.every((entry) => featureByOutput.get(entry.id)?.type === "drawing")) && (

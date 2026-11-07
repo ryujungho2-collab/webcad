@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "checks": 10,
+  "message": "PASS: Saving from the Inspector records one preset and one History entry\nPASS: Two linear dimensions are selected in Explorer\nPASS: Applying to both dimensions records one additional History entry\nPASS: Only the four preset display fields changed, preserving measured points, links, gap and offset\nPASS: One Undo restores both annotations\nPASS: One Redo reapplies the preset to both dimensions\nPASS: Inspector displays the new unit and precision after Redo\nPASS: Downloaded SVG contains the formatted length and preset text height\nPASS: Native download and reopen retain the preset and applied styles\nPASS: Reopened preset remains available in the Inspector\nALL 10 CHECKS PASSED",
+  "artifacts": [
+    "dimension-style-preset.png"
+  ]
+}

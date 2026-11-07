@@ -18,7 +18,7 @@
 | 명령 실행 | `createDocumentCommandExecutor` (state/commandBus.ts) | 테스트가 `CommandBus.prototype.registerHandler`를 감시해 핸들러 등록을 실제로 수집 |
 | MCP 도구 | `CAD_TOOLS`, `CadToolName` (copilot/cadToolContract.ts) | `mcpTools`의 타입. `readOnly`와 `kind`의 일치를 테스트 |
 | 키 라우팅 | `routeCadShortcut`, `routeHistoryShortcut`, `CadShortcutAction` (input/shortcutRouter.ts) | `shortcutActions`의 타입. 실제 라우터로 도달 가능 여부 확인 |
-| 명령 팔레트 | `createPaletteCommands` (commands/paletteCommands.ts) | 142개 ID를 런타임에 열거해 `paletteIds` 확인 |
+| 명령 팔레트 | `createPaletteCommands` (commands/paletteCommands.ts) | ID를 런타임에 열거해 `paletteIds` 확인 |
 | 대상 분류 | `GeometryRepresentation`, `featureContract` (cad-document) | `targetKinds` 어휘와 객체 분류 브리지 |
 
 ## 초안 타입에서 바꾼 점
@@ -39,7 +39,7 @@
 
 판정(같은 조작 16 / 다른 조작 50 / 부분 31 / 미확인 23)은 대응표를 그대로 옮겼다. 테스트가 문서 표의 120행을 다시 읽어 번호·입력·판정을 한 줄씩 비교한다. 같은 기능을 가리키는 항목은 하나의 기능으로 묶었다. 예를 들어 007 `F`와 080 `CHA`는 `curve-corner`, 054·055·057은 `base-point-clipboard`, 020·021은 `selection`이다.
 
-기능은 87개다. 지원 44 / 부분 23 / 미확인 20이며, 실행 주체는 command-bus 43 / ui-state 15 / none 20 / file-io 4 / read-only 3 / history 2다. 참조하는 명령 타입은 62개, MCP 도구는 14개다. `extrude`와 `driving-dimension-edit`는 120개 항목에는 없지만 대표 기능 검증을 위해 추가했다.
+2026-11-07 CAD-LAYER-01, CAD-STYLE-01, CAD-ORDER-01, CAD-DIMSTYLE-01, CAD-COMPONENT-01, ONTOLOGY-RELATION-01 반영 후 기능은 88개다. 지원 48 / 부분 24 / 미확인 16이며, 실행 주체는 command-bus 45 / ui-state 17 / none 16 / file-io 4 / read-only 4 / history 2다. 2026-11-06 초기 인벤토리는 지원 44 / 부분 23 / 미확인 20이었다. 참조하는 명령 타입은 66개, MCP 도구는 14개다. `extrude`, `driving-dimension-edit`, `profile-extrude-relations`는 120개 항목 밖의 별도 기능이다.
 
 | 기능 ID | 지원 | 실행 | 명령 | MCP | 대응 항목 |
 | --- | --- | --- | --- | --- | --- |
@@ -47,7 +47,7 @@
 | `move` | supported | command-bus | `move-object` `move-in-ucs` | `scene.objects` | 009 |
 | `base-point-clipboard` | partial | command-bus | `paste-drawing-snapshot` | — | 054, 055, 057 |
 | `dimension-annotation` | supported | command-bus | `create-dimension` | `draft.linearDimension` | 025, 026, 029, 033 |
-| `dimension-edit` | supported | command-bus | `update-dimension` | — | 032, 036, 093 |
+| `dimension-edit` | supported | command-bus | `update-dimension`, `save-dimension-style-preset`, `apply-dimension-style-preset` | — | 032, 036, 093 |
 | `driving-dimension-edit` | supported | command-bus | `update-primitive` `update-extrude` `set-sketch-dimension` `set-variable` | `solid.parameter` | — |
 | `extrude` | supported | command-bus | `create-extrude` `update-extrude` | `solid.extrude` | — |
 | `undo` | supported | history | — | — | 015 |
@@ -74,7 +74,7 @@
 | `layer-management` | supported | command-bus | `create-layer` `rename-layer` `set-layer-visible` `set-layer-locked` `set-layer-style` `delete-layer` | `scene.layer` | 037, 099, 100 |
 | `active-layer` | partial | ui-state | — | — | 103 |
 | `move-to-layer` | supported | command-bus | `move-object-to-layer` | `scene.objects` | 104 |
-| `match-properties` | unconfirmed | none | — | — | 038 |
+| `match-properties` | supported | command-bus | `set-vector-style` | — | 038 |
 | `view-navigation` | supported | ui-state | — | — | 039, 040, 041, 042, 048 |
 | `panel-visibility` | partial | ui-state | — | — | 043, 065 |
 | `command-line-toggle` | unconfirmed | none | — | — | 044 |
@@ -85,7 +85,7 @@
 | `block-insert` | supported | command-bus | `insert-block` `place-component-content` | — | 050 |
 | `block-update` | partial | command-bus | `update-block` | — | 105 |
 | `block-attributes` | unconfirmed | none | — | — | 107, 108 |
-| `block-editor-session` | unconfirmed | none | — | — | 106 |
+| `block-editor-session` | partial | ui-state | — | — | 106 |
 | `write-block-file` | unconfirmed | none | — | — | 051 |
 | `explode` | supported | command-bus | `explode-drawings` `explode-block` | — | 052 |
 | `paste-as-block` | unconfirmed | none | — | — | 056 |
@@ -113,14 +113,14 @@
 | `arrange-align` | partial | command-bus | `move-object` | — | 085 |
 | `duplicate-boundary-diagnosis` | partial | read-only | — | — | 086 |
 | `image-draw-order` | partial | command-bus | `reorder-image` | — | 087 |
-| `general-draw-order` | unconfirmed | none | — | — | 089 |
+| `general-draw-order` | supported | command-bus | `reorder-drawing` | — | 089 (087 관련) |
 | `text-style` | unconfirmed | none | — | — | 090 |
 | `model-note` | partial | command-bus | `upsert-model-note` | — | 091 |
 | `leader-style` | unconfirmed | none | — | — | 092 |
 | `dimension-spacing` | unconfirmed | none | — | — | 094 |
 | `dimension-break` | unconfirmed | none | — | — | 095 |
 | `center-mark` | unconfirmed | none | — | — | 096 |
-| `layer-isolate` | unconfirmed | none | — | — | 097, 098 |
+| `layer-isolate` | supported | ui-state | — | — | 097, 098 |
 | `layer-freeze` | unconfirmed | none | — | — | 101, 102 |
 | `purge` | partial | command-bus | `purge-unused` | — | 109 |
 | `document-audit` | unconfirmed | none | — | — | 110 |
@@ -148,7 +148,7 @@
 
 ## 확인되지 않은 지원 범위
 
-- 대응표의 미확인 23개 항목(기능 20개)은 그대로 `unconfirmed`다. 실행 경로를 주장하지 않는다는 규칙을 테스트로 고정했다.
+- 당시 대응표의 미확인 23개 항목(기능 20개)은 `unconfirmed`였다. 2026-11-07에는 097/098의 `layer-isolate`, 038의 `match-properties`, 089의 `general-draw-order`를 지원으로, 106의 `block-editor-session`을 부분 지원으로 갱신했다. 역사적 매핑과 나머지 미확인 기능 16개의 상태는 테스트로 보존한다.
 - `dimension-spacing`: 저장된 측정 치수의 간격 정리(`layout-saved-measurements`)가 후보다. 일반 치수 DIMSPACE와 같은지는 확인하지 않았다.
 - `isolate-selection`: UI 격리는 뷰포트 React 상태다. `isolate-object` 명령 핸들러는 있지만 UI 호출 위치를 찾지 못했다.
 - `base-point-clipboard`: `Ctrl+Shift+C`/`Ctrl+V` 키 라우팅은 없다. 팔레트 `base-point-clipboard`의 Pilot 도구 경로만 확인했다. `Shift+C`는 점 기준 복사(`duplicate-object`)다.
@@ -180,3 +180,30 @@ shortcutMapping(no) / shortcutItemsForCapability(id)
 ## 갱신 방법
 
 레코드를 바꾸면 인벤토리 JSON을 다시 생성해야 테스트가 통과한다. 생성은 `capabilityInventory()`를 `JSON.stringify(value, null, 1)`로 쓰면 된다. 생성 스크립트는 파일 소유 범위 때문에 저장소에 넣지 않았다.
+
+## CAD-LAYER-01 갱신 (2026-11-07)
+
+기존 `layer-isolate`에 Layers 패널과 `layer-isolate` 명령 팔레트 경로를 연결했다. 선택 객체의 레이어를 임시 격리하며 문서 가시성·잠금·History·출력은 바꾸지 않는다. 객체 격리와 중첩하지 않고, 파일 교체·프로젝트 비활성화·재로드에서 해제한다. 새 CAD 명령이나 MCP 도구는 없다.
+
+`CAPABILITY_UPDATES`는 이번 097/098 승격의 날짜와 근거를 기록한다. 120개 단축키 감사의 16/50/31/23 합계는 2026-11-05 기준선이며 현재 기능 수와 구분한다. [이번 구현 및 검증 결과](../verification/CAD-LAYER-01-2026-11-07.md)를 참조한다.
+
+
+## CAD-STYLE-01 갱신 (2026-11-07)
+
+`match-properties`는 2D 작업 공간의 팔레트에서 사용할 수 있다. 원본의 선택된 필드만 현재 표시값으로 확정하고, 대상의 명시적 스타일에 병합한다. 기존 상속값은 해당 필드를 선택했을 때만 명시값으로 바뀐다. `set-vector-style` 배치를 검토하고 한 번의 Undo로 되돌릴 수 있다. 지원 범위와 실제 검증은 [CAD-STYLE-01 검증 기록](../verification/CAD-STYLE-01-2026-11-07.md)에 기록했다.
+
+## CAD-ORDER-01 갱신 (2026-11-07)
+
+2D 벡터와 해치의 표시 순서를 객체별 우선순위로 기록한다. 이 우선순위는 모델 소유나 형상 의존성과 별개다. 과거 087 이미지 경로 및 089 감사 판정은 보존한다. [CAD-ORDER-01 검증 기록](../verification/CAD-ORDER-01-2026-11-07.md)
+
+## CAD-DIMSTYLE-01 갱신 (2026-11-07)
+
+032의 기존 `dimension-edit`에 선형 치수 표시 프리셋 저장과 복사 적용을 연결했다. 길이 단위, 소수 자릿수, 문자 높이, 화살표 크기를 재사용하고 측정 및 구동 관계를 보존한다. 032의 과거 판정은 그대로 유지한다. [CAD-DIMSTYLE-01 검증 기록](../verification/CAD-DIMSTYLE-01-2026-11-07.md)
+
+## CAD-COMPONENT-01 갱신 (2026-11-07)
+
+`block-update`와 `block-editor-session`에 정의 내부의 직접 선 끝점 편집과 검토·취소 경로를 반영했다. 정의는 공유 배치에 반영되고 독립 복사본은 유지된다. 105/106의 역사적 판정은 보존했다. [CAD-COMPONENT-01 검증 기록](../verification/CAD-COMPONENT-01-2026-11-07.md)
+
+## ONTOLOGY-RELATION-01 갱신 (2026-11-07)
+
+`profile-extrude-relations`는 기존 의존성 그래프의 직접 2D 프로파일–Extrude 입력을 조회한다. 선택 방향, live/snapshot, 스케치 소유, 누락 상태와 문서 revision을 Inspector와 JSON에서 같은 보고서로 제공한다. [ONTOLOGY-RELATION-01 검증 기록](../verification/ONTOLOGY-RELATION-01-2026-11-07.md)

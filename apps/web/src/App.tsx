@@ -25,7 +25,8 @@ import {previewCadCommand,applyCadPlan,discardCadPlan,getCadPlanDrawingPaths,get
 import {useCadMcpBridge} from "./copilot/useCadMcpBridge";
 import type {McpProposalStatus} from "./copilot/cadMcpRuntime";
 import type {CadToolCall} from "./copilot/cadToolContract";
-import {documentVersion,sameDocumentVersion,subscribeDocumentChanges} from "./state/documentSession";
+import {createViewportIsolation, reconcileViewportIsolation, isolatedViewportObjectIds, type ViewportIsolation} from "./state/viewportIsolation";
+import {documentSessionIdentity,documentVersion,sameDocumentVersion,subscribeDocumentChanges} from "./state/documentSession";
 import {loadCopilotSettings,saveCopilotSettings} from "./copilot/copilotSettings";
 import {validateAgentProposal} from "./copilot/validateAgentProposal";
 import {copilotDeadline} from "./copilot/designIntent";
@@ -97,6 +98,7 @@ import type { PointTransformSession } from "./viewport/PointTransformTool";
 import { inferSketchConstraints, type SketchSnapBinding } from "./precision/automaticSketchConstraints";
 import "./styles.css";
 import { ModelViewsDialog } from "./viewport/ModelViewsDialog";
+import { MatchVectorAppearanceDialog } from "./properties/MatchVectorAppearanceDialog";
 import {CurveLayoutDialog} from "./viewport/CurveLayoutDialog";
 import {DesignStudyDialog} from "./copilot/DesignStudyDialog";
 import type { ModelViewBridge, ModelViewRequest } from "./viewport/CadViewport";
@@ -149,11 +151,14 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   // Temporary viewport-only isolation. Document visibility remains untouched,
   // so exiting isolation restores the exact pre-isolation state without a
   // history entry.
-  const [isolatedObjectIds, setIsolatedObjectIds] = useState<string[] | null>(null);
+  const [isolation, setIsolation] = useState<ViewportIsolation | null>(null);
   const [documentRevision, setDocumentRevision] = useState(() => {
     try{if(!recoveryReady)loadDocumentFromCache();}catch(error){reportRecoveryStatus({state:"failed",message:error instanceof Error?error.message:"Document recovery failed."});}
     return cadDocument.revision;
   });
+  const effectiveIsolation = useMemo(() => reconcileViewportIsolation(cadDocument, isolation, documentSessionIdentity()), [isolation, documentRevision]);
+  const isolatedObjectIds = useMemo(() => isolatedViewportObjectIds(cadDocument, effectiveIsolation), [effectiveIsolation, documentRevision]);
+  const isolatedObjectSet = useMemo(() => isolatedObjectIds ? new Set(isolatedObjectIds) : null, [isolatedObjectIds]);
   const [recovery,setRecovery]=useState(recoveryStatus);
   const [savedFingerprint, setSavedFingerprint] = useState<string | null>(() => recoveryStatus().fingerprint ?? null);
   const [downloadedFingerprint, setDownloadedFingerprint] = useState<string | null>(null);
@@ -190,6 +195,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   const [cadPilotSession,setCadPilotSession]=useState<CadPilotSession|null>(null),[activeUcsId,setActiveUcsId]=useState("WCS");
   const [endpointRadiusArcSession,setEndpointRadiusArcSession]=useState<EndpointRadiusArcSession|null>(null);
   const [splineSession,setSplineSession]=useState<SplineSession|null>(null);
+  const [matchAppearanceSource, setMatchAppearanceSource] = useState<string | null>(null);
   const [curveLayoutOpen,setCurveLayoutOpen]=useState(false);
   const [designStudyOpen,setDesignStudyOpen]=useState(false);
   const [designStudyPreview,setDesignStudyPreview]=useState<CopilotPlan["ghosts"]|null>(null);
@@ -197,7 +203,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   const [regularPolygonSession,setRegularPolygonSession]=useState<RegularPolygonSession|null>(null);
   const [constructionSession, setConstructionSession] = useState<ConstructionSession | null>(null);
   const [constructionVisible, setConstructionVisible] = useState(true);
-  function validSelection(state: SelectionState) { return validDocumentSelection(state,{constructionVisible}); }
+  function validSelection(state: SelectionState) { return validDocumentSelection(isolatedObjectSet ? {...state, ids: state.ids.filter(id => isolatedObjectSet.has(id))} : state,{constructionVisible}); }
   const pointCommitPending = useRef(false);
   const [extrusion, setExtrusion] = useState<{loops:SketchLoop[]; chosen:string[]; distance:string; layerId:string; revision:number; previousMode:WorkspaceMode} | null>(null);
   const [extrusionStatus, setExtrusionStatus] = useState("Preparing preview…");
@@ -335,8 +341,15 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   useEffect(() => {
     const receive = async (event: MessageEvent) => {
       if (event.source !== window.parent || event.origin !== location.origin || event.data?.channel !== PROJECT_CHANNEL
-        || event.data.id !== embeddedProjectId() || event.data.generation !== projectSessionGeneration()
-        || typeof event.data.requestId !== "string") return;
+        || event.data.id !== embeddedProjectId() || event.data.generation !== projectSessionGeneration()) return;
+      if (event.data.type === "activity") {
+        if (!event.data.active) {
+          setIsolation(null);
+          setMatchAppearanceSource(null);
+        }
+        return;
+      }
+      if (typeof event.data.requestId !== "string") return;
       const requestId = event.data.requestId;
       if(event.data.type==="export-started"){
         const pendingExport=pendingFileExport.current;
@@ -394,7 +407,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
     setActiveSketchId((current) => current && cadDocument.sketches?.[current] ? current : null);
     setSelectedLayerId((current) => cadDocument.layers[current] ? current : (cadDocument.rootLayers[0] ?? "layer-default"));
     setActiveArtboardId(current => resolveActiveArtboardId(current, Object.values(cadDocument.artboards ?? {})));
-  }, [documentRevision, constructionVisible]);
+  }, [isolatedObjectIds, documentRevision, constructionVisible]);
 
   // 2D drafting always uses an orthographic camera. Keep the React state in
   // sync as well as the viewport's defensive camera invariant so stale view
@@ -410,6 +423,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
     setDocumentRevision(cadDocument.revision);
   }
   useEffect(()=>subscribeDocumentChanges(()=>{
+    setIsolation(current => reconcileViewportIsolation(cadDocument, current, documentSessionIdentity()));
     // A point placement publishes before its promise completes. Its owner must
     // advance the repeat session and revision together, before invalidation.
     if(!pointCommitPending.current)setDocumentRevision(cadDocument.revision);
@@ -430,6 +444,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
     setEndpointRadiusArcSession(null);
     setSplineSession(null);
     setCurveLayoutOpen(false);
+    setMatchAppearanceSource(null);
     setEllipseSession(null);
     setRegularPolygonSession(null);
     setConstructionSession(null);
@@ -618,11 +633,12 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   }
 
   function resetWorkspaceSelection() {
+    setMatchAppearanceSource(null);
     setCornerPreview(null);
     setActiveSketchId(null);
     lastDuplicate.current = null;
     setSelection({ ids: [], primaryId: null });
-    setIsolatedObjectIds(null);
+    setIsolation(null);
     setSelectedLayerId(cadDocument.rootLayers[0] ?? "layer-default");
     setActiveArtboardId(null);
     setActiveActivity("model");
@@ -1613,17 +1629,23 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
   }
 
   async function handleIsolateObject() {
-    if (isolatedObjectIds) {
-      setIsolatedObjectIds(null);
+    if (effectiveIsolation?.mode === "objects") {
+      setIsolation(null);
       return;
     }
     const ids = selectedObjectIds.filter((id) => Boolean(cadDocument.objects[id]));
     if (!ids.length) return;
-    setIsolatedObjectIds(ids);
+    setIsolation(createViewportIsolation(cadDocument, "objects", ids, documentSessionIdentity()));
+  }
+
+  function handleIsolateLayers() {
+    if (effectiveIsolation?.mode === "layers") { setIsolation(null); return; }
+    const next = createViewportIsolation(cadDocument, "layers", selectedObjectIds, documentSessionIdentity());
+    if (next) setIsolation(next);
   }
 
   async function handleShowAllObjects() {
-    setIsolatedObjectIds(null);
+    setIsolation(null);
     await dispatchCadCommand({ type: "show-all-objects" });
     syncRevision();
   }
@@ -1781,7 +1803,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       documentRevision={documentRevision}
       selectedObjectId={selectedObjectId}
       selectedObjectIds={selectedObjectIds}
-      isolationActive={Boolean(isolatedObjectIds)}
+      isolationActive={effectiveIsolation?.mode === "objects"}
       selectedSubObjects={selection.subObjects}
       selectedLayerId={selectedLayerId}
       onDocumentChange={syncRevision}
@@ -1807,6 +1829,8 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
 
   return (
     <>
+      {matchAppearanceSource && <MatchVectorAppearanceDialog key={documentSessionIdentity()} sourceId={matchAppearanceSource}
+        visibleIds={isolatedObjectSet} onApplied={syncRevision} onClose={() => setMatchAppearanceSource(null)} />}
       {curveLayoutOpen&&<CurveLayoutDialog selectedId={selectedObjectId??undefined} onClose={()=>setCurveLayoutOpen(false)} onApplied={ids=>{syncRevision();setSelection({ids,primaryId:ids[0]??null});}}/>}
       {designStudyOpen&&<DesignStudyDialog key={cadDocument.id} selectionIds={selectedObjectIds} plane={activeWorkPlane} layerId={selectedLayerId} connection={copilotConnection} onConnectionChange={value=>{clearCopilot();setCopilotConnection(value);}} initialGoal={copilotDraft} disabledReason={activeSketchId?"Finish the active sketch first.":activeLayerLocked?"Unlock the active layer first.":undefined} onClose={()=>setDesignStudyOpen(false)} onPreview={setDesignStudyPreview} onApplied={ids=>{syncRevision();selectObjects(ids);}}/>}
       {plotOpen && (
@@ -1864,6 +1888,16 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       />
       <input ref={imageFileInput} type="file" accept={RASTER_FILE_ACCEPT} aria-label="Import image file" tabIndex={-1} style={{ display: "none" }} onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ""; void handleImportImageFile(file); }} />
       <AppShell frameToolsBusy={frameToolsBusy} onRepeatCommand={repeatLastCommand} onFrameAction={action=>{if(!activeArtboardId)return;clearCommandTools();setFrameToolRequest({action,id:activeArtboardId,sequence:Date.now()});}}
+      onMatchVectorAppearance={() => {
+        if (!selectedObjectId || selectedObjectIds.length !== 1 || workspaceMode !== "2d" || activeSketchId) return;
+        clearCommandTools();
+        setMatchAppearanceSource(selectedObjectId);
+      }}
+      onDrawingOrder={direction => {
+        if (workspaceMode !== "2d" || activeSketchId) return;
+        void dispatchCadCommand({ type: "reorder-drawing", direction, plane: activeWorkPlane, objectIds: selectedObjectIds })
+          .then(result => setShortcutReadout(result.ok ? "Drawing order updated" : result.reason ?? "Drawing order rejected"));
+      }}
       onCadPilot={beginCadPilot} activeUcsName={cadDocument.workPlanes?.[activeUcsId]?.name??activeUcsId} onEndpointRadiusArc={beginEndpointRadiusArc} onCurveLayout={()=>{clearCommandTools();setCurveLayoutOpen(true);}} onSpline={()=>{clearCommandTools();setSplineSession({id:`spline-${crypto.randomUUID()}`,objectId:selectedFeature?.params.kind==="spline"?selectedObjectId??undefined:undefined,fitSourceId:selectedFeature?.params.kind==="polyline"?selectedObjectId??undefined:undefined,workPlane:activeWorkPlane,layerId:selectedLayerId});}} onEllipse={()=>{clearCommandTools();setEllipseSession({id:`ellipse-${crypto.randomUUID()}`,objectId:selectedFeature&&["ellipse","elliptic-arc"].includes(String(selectedFeature.params.kind))?selectedObjectId??undefined:undefined,workPlane:activeWorkPlane,layerId:selectedLayerId});}} onRegularPolygon={beginRegularPolygon} onConstruction={beginConstruction} constructionVisible={constructionVisible} onToggleConstruction={toggleConstruction}
       onAngularDimension={()=>beginAngularDimension()}
       onCurveWorkflow={beginCurveWorkflow} canCurveWorkflow={!activeSketch}
@@ -1892,6 +1926,9 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       onInsertComponent={(blockId) => { setAddingText(false); setDraftingInitialBlockId(blockId); setDraftingOpen(true); }}
       onAddText={() => { clearCommandTools(); setDraftingInitialBlockId(null); setAddingText(true); setDraftingOpen(true); }}
       onDrafting={() => { clearCommandTools(); setAddingText(false); setDraftingInitialBlockId(null); setDraftingOpen(true); }}
+      layerIsolationActive={effectiveIsolation?.mode === "layers"}
+      onIsolateLayers={handleIsolateLayers}
+      onExitIsolation={() => setIsolation(null)}
       documentId={cadDocument.id}
       documentRevision={documentRevision}
       selectedLayerId={selectedLayerId}
@@ -1901,7 +1938,7 @@ export function App({recoveryReady=false}:{recoveryReady?:boolean}={}) {
       onEditSketch={editSketch}
       selectedObjectId={selectedObjectId}
       selectedObjectIds={selectedObjectIds}
-      isolationActive={Boolean(isolatedObjectIds)}
+      isolationActive={effectiveIsolation?.mode === "objects"}
       canUndo={cadHistory.canUndo()}
       canRedo={cadHistory.canRedo()}
       canCreateBox={!activeLayerLocked}

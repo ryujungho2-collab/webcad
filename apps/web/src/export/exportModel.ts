@@ -1,4 +1,5 @@
 import {assertHybridFeatureResolved} from "../state/hybridReferences";
+import {drawingOutputOrder} from "../precision/drawOrder";
 import {resolveDxfStyle,dxfVectorStyle} from "../precision/dxfStyle";
 import type {CadDxfStyle} from "@agent-webcad/cad-document";
 import {measurementPresentation} from "../precision/measurementPresentation";
@@ -117,7 +118,7 @@ export function collectExportDrawings(plane: WorkPlaneId, document: CadDocument 
   assertProjectionExport(document,objectIds);
   const frame = WORK_PLANES[plane];
   const lines: SvgPolyline[] = [];
-  for (const id of objectIds??document.rootObjects) {
+  for (const id of drawingOutputOrder(document, plane, objectIds)) {
     const object = document.objects[id];
     const feature = Object.values(document.features).find((entry) => entry.output === id);
     if (!object || !feature || !isVisible(id, document)) continue;
@@ -267,7 +268,7 @@ export function collectArtboardExportItems(artboardId: string): SvgExportItem[] 
   }
   const imageByObject = new Map(images.map(image => [image.id, image]));
   const items: SvgExportItem[] = [];
-  for (const id of scopedIds??cadDocument.rootObjects) {
+  for (const id of drawingOutputOrder(cadDocument, board.workPlane, scopedIds)) {
     const image = imageByObject.get(id);
     if (image) items.push({ type: "image", image });
     for (const polyline of drawingsByObject.get(id) ?? []) items.push({ type: "polyline", polyline });
@@ -332,7 +333,7 @@ export function collectFrameExportItems(board:CadArtboard,document:CadDocument=c
  const a=collectExportAnnotations(board.workPlane,document,frame.memberIds),lines=[...collectExportDrawings(board.workPlane,document,frame.memberIds),...a.lines].map(l=>({...l,lineWeight:(l.lineWeight??.5)*(frame.paperStrokeScale??1),dash:l.dash?.map(n=>n*(frame.paperStrokeScale??1)),points:l.points.map(p),holes:l.holes?.map(ring=>ring.map(p)),...(l.spline?{spline:{...l.spline,controlPoints:l.spline.controlPoints.map(q=>[...p(q),0] as [number,number,number])}}:{}),...(l.ellipse?{ellipse:{...l.ellipse,center:[...p(l.ellipse.center),0] as [number,number,number],axisU:l.ellipse.axisU.map(v=>v*scale) as [number,number,number],axisV:l.ellipse.axisV.map(v=>v*scale) as [number,number,number]}}:{})}));
  const texts=a.texts.map(t=>({...t,position:p(t.position),size:(t.size??3.5)*scale*(frame.paperTextScale??1)}));
  const clipped=clipSvgPolylinesToArtboard(lines,board),items:SvgExportItem[]=[];
- for(const id of frame.memberIds){for(const polyline of clipped.filter(l=>l.objectId===id))items.push({type:"polyline",polyline});for(const text of texts.filter(t=>t.objectId===id))items.push({type:"text",text});}
+ for(const id of drawingOutputOrder(document,board.workPlane,frame.memberIds)){for(const polyline of clipped.filter(l=>l.objectId===id))items.push({type:"polyline",polyline});for(const text of texts.filter(t=>t.objectId===id))items.push({type:"text",text});}
  const refs=frameLinkAnnotations({...document,artboards:{...document.artboards,[board.id]:board}},board);
  for(const line of clipSvgPolylinesToArtboard(refs.lines.map(l=>({...l,color:"#303030",strokeWidth:.25})),board))items.push({type:"polyline",polyline:line});
  for(const text of refs.texts)items.push({type:"text",text:{...text,color:"#303030"}});

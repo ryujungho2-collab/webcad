@@ -1,0 +1,20 @@
+{
+  "dataClass": "synthetic",
+  "document": {
+    "id": "test-document",
+    "revision": 2
+  },
+  "relations": [
+    {
+      "direction": "profile-to-extrude",
+      "mode": "live",
+      "status": "resolved",
+      "sourceId": "profile",
+      "targetId": "solid",
+      "sourceMissing": false,
+      "sourceSketchOwners": [],
+      "targetMissing": false,
+      "targetSketchOwners": []
+    }
+  ]
+}

@@ -98,6 +98,9 @@ export type CadCommand =
   | { type: "insert-image"; id?: string; layerId?: string; asset: import("@agent-webcad/cad-document").CadRasterAsset; workPlane: import("@agent-webcad/cad-document").SketchWorkPlane; center: [number, number, number]; width: number; height: number }
   | { type: "replace-image-source"; objectId: string; asset: import("@agent-webcad/cad-document").CadRasterAsset }
   | { type: "reorder-image"; objectId: string; direction: "front" | "back" | "forward" | "backward" }
+  | { type: "reorder-drawing"; plane: "XY" | "XZ" | "YZ"; direction: "front" | "back" | "hatch-back"; objectIds: string[] }
+  | { type: "save-dimension-style-preset"; objectId: string; name: string }
+  | { type: "apply-dimension-style-preset"; objectIds: string[]; name: string }
   | { type: "update-image"; objectId: string; width?: number; height?: number; crop?: import("@agent-webcad/cad-document").CadImageCrop; mask?: import("@agent-webcad/cad-document").CadImageMask; opacity?: number; adjustments?: import("@agent-webcad/cad-document").CadImageAdjustments }
   | { type: "update-construction"; objectId: string; definition: import("@agent-webcad/cad-document").CadConstructionDefinition }
   | { type: "create-construction"; id?: string; name?: string; definition: import("@agent-webcad/cad-document").CadConstructionDefinition; workPlane: SketchWorkPlane; construction?: boolean; layerId?: string }
@@ -117,11 +120,13 @@ export type CadCommand =
   | { type:"set-parameter-binding"; target:import("@agent-webcad/cad-document").ParameterTarget; expression:string }
   | { type:"remove-parameter-binding"; bindingId:string }
   | {type:"set-layer-style";layerId:string;style:import("@agent-webcad/cad-document").LayerStyle}
-  | {type:"set-vector-style";objectId:string;style:import("@agent-webcad/cad-document").CadVectorStyle}
+  | {type:"set-vector-style";objectId:string;style:import("@agent-webcad/cad-document").CadVectorStyle;merge?:false}
+  | {type:"set-vector-style";objectId:string;style:Partial<import("@agent-webcad/cad-document").CadVectorStyle>;merge:true}
   | {type:"create-drafting";id?:string;layerId?:string;params:Record<string,unknown>}
   | {type:"update-drafting";objectId:string;params:Record<string,unknown>}
   | {type:"define-block";id:string;name:string;objectIds:string[];base:[number,number,number]}
-  | {type:"update-block";blockId:string;name?:string;objectIds?:string[];base?:[number,number,number]}
+  | {type:"update-block";blockId:string;name?:string;objectIds?:string[];base?:[number,number,number];
+      lineEdit?: { memberId: string; endpoint: 0 | 1; point: [number, number] }}
   | {type:"set-block-override";blockId:string;objectId:string;vectorStyle?:import("@agent-webcad/cad-document").CadVectorStyle;clear?:boolean}
   | {type:"insert-block";dxfStyle?:import("@agent-webcad/cad-document").CadDxfStyle;id?:string;blockId:string;layerId?:string;position:[number,number,number];angle?:number;scale?:[number,number,number]}
   | {type:"explode-block";objectId:string;recursive?:boolean}

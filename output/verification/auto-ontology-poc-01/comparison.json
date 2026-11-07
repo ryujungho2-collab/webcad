@@ -1,0 +1,121 @@
+{
+  "inputSha256": "b903856b2bfa98bf481cc6ff8870a372ed1f34956ec6b3b607f582ea362b8bab",
+  "python": "3.14.7",
+  "sqlite": "3.50.4",
+  "localEngine": "Python standard library SQLite, reopened with mode=ro",
+  "localScore": {
+    "exact": 1,
+    "omitted": 0,
+    "unsupportedAdded": 0,
+    "reversed": 0,
+    "modeMismatch": 0,
+    "ownershipMismatch": 0,
+    "missingStatusMismatch": 0,
+    "viewMismatch": 0,
+    "revisionMismatch": 0
+  },
+  "comparatorControls": {
+    "omitted": {
+      "exact": 0,
+      "omitted": 1,
+      "unsupportedAdded": 0,
+      "reversed": 0,
+      "modeMismatch": 0,
+      "ownershipMismatch": 0,
+      "missingStatusMismatch": 0,
+      "viewMismatch": 0,
+      "revisionMismatch": 0
+    },
+    "unsupportedAdded": {
+      "exact": 1,
+      "omitted": 0,
+      "unsupportedAdded": 1,
+      "reversed": 0,
+      "modeMismatch": 0,
+      "ownershipMismatch": 0,
+      "missingStatusMismatch": 0,
+      "viewMismatch": 0,
+      "revisionMismatch": 0
+    },
+    "reversed": {
+      "exact": 0,
+      "omitted": 0,
+      "unsupportedAdded": 0,
+      "reversed": 1,
+      "modeMismatch": 0,
+      "ownershipMismatch": 0,
+      "missingStatusMismatch": 0,
+      "viewMismatch": 0,
+      "revisionMismatch": 0
+    },
+    "modeMismatch": {
+      "exact": 0,
+      "omitted": 0,
+      "unsupportedAdded": 0,
+      "reversed": 0,
+      "modeMismatch": 1,
+      "ownershipMismatch": 0,
+      "missingStatusMismatch": 0,
+      "viewMismatch": 0,
+      "revisionMismatch": 0
+    },
+    "ownershipMismatch": {
+      "exact": 0,
+      "omitted": 0,
+      "unsupportedAdded": 0,
+      "reversed": 0,
+      "modeMismatch": 0,
+      "ownershipMismatch": 1,
+      "missingStatusMismatch": 0,
+      "viewMismatch": 0,
+      "revisionMismatch": 0
+    },
+    "missingStatusMismatch": {
+      "exact": 0,
+      "omitted": 0,
+      "unsupportedAdded": 0,
+      "reversed": 0,
+      "modeMismatch": 0,
+      "ownershipMismatch": 0,
+      "missingStatusMismatch": 1,
+      "viewMismatch": 0,
+      "revisionMismatch": 0
+    },
+    "viewMismatch": {
+      "exact": 0,
+      "omitted": 0,
+      "unsupportedAdded": 0,
+      "reversed": 0,
+      "modeMismatch": 0,
+      "ownershipMismatch": 0,
+      "missingStatusMismatch": 0,
+      "viewMismatch": 1,
+      "revisionMismatch": 0
+    },
+    "revisionMismatch": {
+      "exact": 1,
+      "omitted": 0,
+      "unsupportedAdded": 0,
+      "reversed": 0,
+      "modeMismatch": 0,
+      "ownershipMismatch": 0,
+      "missingStatusMismatch": 0,
+      "viewMismatch": 0,
+      "revisionMismatch": 1
+    }
+  },
+  "syntheticAlternateRoundTrip": {
+    "exact": 1,
+    "omitted": 0,
+    "unsupportedAdded": 0,
+    "reversed": 0,
+    "modeMismatch": 0,
+    "ownershipMismatch": 0,
+    "missingStatusMismatch": 0,
+    "viewMismatch": 0,
+    "revisionMismatch": 0
+  },
+  "nvidiaExecution": "not-run",
+  "nvidiaScore": null,
+  "elapsedMs": 93.467
+}

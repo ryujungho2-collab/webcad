@@ -15,9 +15,12 @@ import { CopilotPanel, type CopilotPanelProps } from "../copilot/CopilotPanel";
 import {VariablesPanel} from "../properties/VariablesPanel";
 import { ArtboardsPanel } from "./views/ArtboardsPanel";
 import { ComponentsPanel } from "./views/ComponentsPanel";
+import { documentSessionIdentity } from "../state/documentSession";
 import type { WorkPlaneId } from "../precision/workPlane";
 
 type ExplorerPanelProps = {
+  layerIsolationActive?: boolean;
+  onIsolateLayers?: () => void;
   activeActivity: ActivityId;
   onNavigateProject: (key:string)=>void;
   navigationBusy?:boolean;
@@ -109,6 +112,9 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
         )}
         {props.activeActivity === "layers" && (
           <LayersPanel
+            selectedObjectIds={props.selectedObjectIds}
+            isolationActive={props.layerIsolationActive}
+            onIsolate={props.onIsolateLayers}
             query={normalizedQuery}
             documentRevision={props.documentRevision}
             selectedLayerId={props.selectedLayerId}
@@ -118,7 +124,7 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
         )}
         {props.activeActivity === "artboards" && <ArtboardsPanel query={normalizedQuery} documentRevision={props.documentRevision} onDocumentChange={props.onDocumentChange} activeArtboardId={props.activeArtboardId} onActivateArtboard={props.onActivateArtboard} />}
         {props.activeActivity === "scenes" && <ScenesPanel query={normalizedQuery} revision={props.documentRevision} selectedObjectIds={props.selectedObjectIds} activeArtboardId={props.activeArtboardId} onChange={props.onDocumentChange} onActivate={props.onActivateArtboard} onSelectObject={props.onSelectObject} />}
-        {props.activeActivity === "components" && <ComponentsPanel query={normalizedQuery} revision={props.documentRevision} selectedObjectIds={props.selectedObjectIds} activeWorkPlane={props.activeWorkPlane} onChange={props.onDocumentChange} onInsert={props.onInsertComponent} />}
+        {props.activeActivity === "components" && <ComponentsPanel key={documentSessionIdentity()} query={normalizedQuery} revision={props.documentRevision} selectedObjectIds={props.selectedObjectIds} activeWorkPlane={props.activeWorkPlane} onChange={props.onDocumentChange} onInsert={props.onInsertComponent} />}
         {props.activeActivity === "type" && (
           <TypePanel query={normalizedQuery} selectedObjectId={props.selectedObjectId} selectedObjectIds={props.selectedObjectIds} onSelectObject={props.onSelectObject} />
         )}

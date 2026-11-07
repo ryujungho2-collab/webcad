@@ -1,0 +1,21 @@
+{
+  "document": {
+    "id": "test-document",
+    "revision": 2
+  },
+  "selectedObjectId": "solid",
+  "relations": [
+    {
+      "direction": "profile-to-extrude",
+      "viewedFrom": "incoming",
+      "mode": "live",
+      "status": "resolved",
+      "sourceId": "profile",
+      "sourceMissing": false,
+      "sourceSketchOwners": [],
+      "targetId": "solid",
+      "targetMissing": false,
+      "targetSketchOwners": []
+    }
+  ]
+}

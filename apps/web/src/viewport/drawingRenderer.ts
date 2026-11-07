@@ -145,6 +145,7 @@ export function createDrawingSceneObject(objectId: string, params: Record<string
   geometry.computeVertexNormals();
   const fillColor = hasSolidFill ? vectorStyle.fill! : (vectorStyle.fillGradient?.stops[0]?.color ?? "#808080");
   const fill = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: fillColor, transparent: (vectorStyle.opacity ?? 1) < 1, opacity: vectorStyle.opacity ?? 1, side: THREE.DoubleSide, depthWrite: false }));
+  fill.material.userData.baseColor = fill.material.color.clone();
   fill.name = `Vector fill · ${objectId}`;
   fill.userData.cadObjectId = objectId;
   fill.renderOrder = -1;

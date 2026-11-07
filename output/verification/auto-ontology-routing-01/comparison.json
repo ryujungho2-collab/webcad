@@ -1,0 +1,20 @@
+{
+  "forward": {
+    "originalMs": 34905,
+    "originalHadSql": false,
+    "elapsedMs": 21114,
+    "generatedSql": null,
+    "returnedRows": null,
+    "normalized": null,
+    "comparison": null
+  },
+  "reverse": {
+    "originalMs": 28109,
+    "originalHadSql": false,
+    "elapsedMs": 38387,
+    "generatedSql": null,
+    "returnedRows": null,
+    "normalized": null,
+    "comparison": null
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "request": {
+    "question": "For the extrusion whose object ID is 'solid', list its recorded direct profile relationships. Return the document ID and revision, both endpoint IDs in their stored source-to-target order, the recorded direction, live or snapshot mode, relationship status, each endpoint's missing flag, and any sketch owners with their missing flags. Preserve relationships with missing references. Return only relationships recorded for this extrusion.",
+    "prediction": false,
+    "evidence": "The SQLite view cad_profile_extrude is the source for recorded direct Profile/Extrude relations. It contains one row per relation and already joins the owning document by document_id, resolves both endpoint missing flags, and returns separate JSON arrays for source and target sketch owners. Use this view alone, with no extra join, and return all its columns with their existing names. Filter source_id for a profile request and target_id for an extrusion request. Keep stored source-to-target order and do not filter out missing endpoints."
+  },
+  "sql": "",
+  "rows": null,
+  "sqlEvents": [],
+  "answerText": "Based on the provided metadata, the recorded direct profile relationships for extrusion with object ID 'solid' include the following attributes:\n\n- **Document ID**: A unique identifier assigned to each document, typically used for reference and tracking purposes. Sample values: test-document.\n- **Revision**: The revision number of the object, represented as an integer. Sample values: 2.\n- **Endpoint IDs (source-to-target order)**: Not explicitly identified in the metadata provided.\n- **Direction**: The direction of the operation or transformation, represented as text. Sample values: profile-to-extrude.\n- **Mode**: The operational mode of the object, represented as text. Sample values: live.\n- **Status**: The current state or resolution of an item or task, represented as text. Sample values: resolved.\n- **Missing Flag**: An integer value indicating the presence or absence of data. Sample values: 0.\n- **Sketch Owners**: A list of owners associated with the source and target sketches, represented as text. Sample values: [].\n\nThe metadata does not explicitly provide endpoint IDs in source-to-target order or the exact document ID and revision for the extrusion with object ID 'solid'.",
+  "httpStatus": 200,
+  "done": true,
+  "error": null,
+  "elapsedMs": 28860
+}

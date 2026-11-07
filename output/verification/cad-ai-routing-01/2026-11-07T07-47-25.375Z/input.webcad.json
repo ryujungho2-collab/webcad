@@ -1,0 +1,425 @@
+{
+  "format": "agent-webcad",
+  "version": 42,
+  "document": {
+    "id": "cad-eval-03-synthetic",
+    "revision": 7,
+    "objects": {
+      "section0": {
+        "id": "section0",
+        "geometryId": "geometry-section0",
+        "name": "Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section1": {
+        "id": "section1",
+        "geometryId": "geometry-section1",
+        "name": "Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "section2": {
+        "id": "section2",
+        "geometryId": "geometry-section2",
+        "name": "Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "intent-loft": {
+        "id": "intent-loft",
+        "geometryId": "geometry-intent-loft",
+        "name": "Loft",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            70,
+            40,
+            10
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "protected-fixture": {
+        "id": "protected-fixture",
+        "geometryId": "geometry-protected-fixture",
+        "name": "Box",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            140,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    "features": {
+      "feature-section0": {
+        "id": "feature-section0",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section0",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "center": [
+            0,
+            0,
+            0
+          ],
+          "radius": 20,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center-f7c5a309-fd3a-4ffb-a834-3493736baa01",
+                "role": "center"
+              },
+              {
+                "id": "radius-7fa97dbc-c535-4349-8f5c-29ec2960751f",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve-732a1027-ce20-457d-bc65-4ab5fe5c79bf",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-section1": {
+        "id": "feature-section1",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section1",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "center": [
+            0,
+            0,
+            30
+          ],
+          "radius": 10,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center-31492caa-142d-4261-b7f8-d161102cb962",
+                "role": "center"
+              },
+              {
+                "id": "radius-d24df290-1cc3-4a69-b1ff-6ff585880b08",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve-5503bda3-6003-40f8-8ebf-f97fbfde7794",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-section2": {
+        "id": "feature-section2",
+        "type": "drawing",
+        "inputs": [],
+        "output": "section2",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "center": [
+            0,
+            0,
+            60
+          ],
+          "radius": 25,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center-304569db-0c16-4d3a-978e-9b8019f8bd1e",
+                "role": "center"
+              },
+              {
+                "id": "radius-5b4eafc7-09ca-4d1d-af4e-b32fc17f9bf0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve-fb19d1e5-0854-483c-895f-1845e5641715",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-intent-loft": {
+        "id": "feature-intent-loft",
+        "type": "loft",
+        "dependencyMode": "live",
+        "inputs": [
+          "section0",
+          "section1",
+          "section2"
+        ],
+        "output": "intent-loft",
+        "params": {
+          "kind": "loft",
+          "ruled": true,
+          "profiles": [
+            {
+              "id": "loop:section0/curve-732a1027-ce20-457d-bc65-4ab5fe5c79bf",
+              "workPlane": "XY",
+              "normal": [
+                0,
+                0,
+                1
+              ],
+              "sourceObjectIds": [
+                "section0"
+              ],
+              "sourceTopologyIds": [
+                "section0/curve-732a1027-ce20-457d-bc65-4ab5fe5c79bf"
+              ],
+              "segments": [
+                {
+                  "kind": "circle",
+                  "topologyReference": "section0/curve-732a1027-ce20-457d-bc65-4ab5fe5c79bf",
+                  "center": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "radius": 20,
+                  "normal": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "xAxis": [
+                    1,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "loop:section1/curve-5503bda3-6003-40f8-8ebf-f97fbfde7794",
+              "workPlane": "XY",
+              "normal": [
+                0,
+                0,
+                1
+              ],
+              "sourceObjectIds": [
+                "section1"
+              ],
+              "sourceTopologyIds": [
+                "section1/curve-5503bda3-6003-40f8-8ebf-f97fbfde7794"
+              ],
+              "segments": [
+                {
+                  "kind": "circle",
+                  "topologyReference": "section1/curve-5503bda3-6003-40f8-8ebf-f97fbfde7794",
+                  "center": [
+                    0,
+                    0,
+                    30
+                  ],
+                  "radius": 10,
+                  "normal": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "xAxis": [
+                    1,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "loop:section2/curve-fb19d1e5-0854-483c-895f-1845e5641715",
+              "workPlane": "XY",
+              "normal": [
+                0,
+                0,
+                1
+              ],
+              "sourceObjectIds": [
+                "section2"
+              ],
+              "sourceTopologyIds": [
+                "section2/curve-fb19d1e5-0854-483c-895f-1845e5641715"
+              ],
+              "segments": [
+                {
+                  "kind": "circle",
+                  "topologyReference": "section2/curve-fb19d1e5-0854-483c-895f-1845e5641715",
+                  "center": [
+                    0,
+                    0,
+                    60
+                  ],
+                  "radius": 25,
+                  "normal": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "xAxis": [
+                    1,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            }
+          ],
+          "bounds": {
+            "min": [
+              -25,
+              -24.950668210706795,
+              0
+            ],
+            "max": [
+              25,
+              24.950668210706787,
+              60
+            ]
+          },
+          "solidFinish": {
+            "name": "Protected ceramic finish",
+            "color": "#dfddd4",
+            "roughness": 0.8,
+            "metalness": 0,
+            "opacity": 1
+          }
+        }
+      },
+      "feature-protected-fixture": {
+        "id": "feature-protected-fixture",
+        "type": "primitive",
+        "inputs": [],
+        "output": "protected-fixture",
+        "params": {
+          "kind": "box",
+          "width": 20,
+          "depth": 20,
+          "height": 80
+        }
+      }
+    },
+    "sketches": {},
+    "rootObjects": [
+      "section0",
+      "section1",
+      "section2",
+      "intent-loft",
+      "protected-fixture"
+    ],
+    "rootLayers": [
+      "layer-default"
+    ],
+    "layers": {
+      "layer-default": {
+        "id": "layer-default",
+        "name": "Default",
+        "visible": true,
+        "locked": false,
+        "objectIds": [
+          "section0",
+          "section1",
+          "section2",
+          "intent-loft",
+          "protected-fixture"
+        ]
+      }
+    }
+  }
+}

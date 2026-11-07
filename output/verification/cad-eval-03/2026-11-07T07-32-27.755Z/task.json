@@ -1,0 +1,25 @@
+{
+  "id": "CAD-EVAL-03-loft-connection-intent-v1",
+  "dataClass": "synthetic",
+  "units": "mm",
+  "mode": "existing-design-redesign",
+  "objective": "Change an existing three-section ruled loft to smooth interpolation while preserving every source section and placement",
+  "budgets": {
+    "modelCalls": 3,
+    "replans": 2,
+    "elapsedMs": 180000
+  },
+  "excluded": [
+    "G1/G2 continuity certification",
+    "aerodynamic/thermal/strength analysis",
+    "source-section deformation",
+    "automatic editor Apply",
+    "model training"
+  ],
+  "selectedObjectId": "intent-loft",
+  "prompt": "Inspect selected existing loft intent-loft with cad.inspect. Change its current ruled straight-section spans to the existing smooth interpolation mode.\nPreserve the exact circular source definitions section0,section1,section2, their elevations/order/end sections and live dependencies. Preserve the same object ID, world pose, finish and unrelated protected-fixture. Do not replace the object, deform sections or substitute a scalar dimension edit. Propose only a currently advertised editor; otherwise explain the catalog limitation. No Apply. Do not certify G1/G2, flow, strength, material or manufacturing suitability.\n{\"source\":\"buildDependencyGraph\",\"document\":{\"id\":\"cad-eval-03-synthetic\",\"revision\":7},\"sources\":[\"section0\",\"section1\",\"section2\"],\"incomingCount\":3,\"allLive\":true}",
+  "grounding": true,
+  "compactRequest": true,
+  "intentOrigin": "evaluator-authored",
+  "fixtureOrigin": "existing-native-planners-not-AI"
+}

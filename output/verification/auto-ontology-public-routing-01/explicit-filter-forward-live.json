@@ -1,0 +1,23 @@
+{
+  "request": {
+    "question": "Filter the actual data rows stored in the connected SQLite view cad_profile_extrude where source_id equals 'profile'. Run a read-only data query and return the matching rows with all their fields.",
+    "prediction": false,
+    "evidence": "The SQLite view cad_profile_extrude is the source for recorded direct Profile/Extrude relations. It contains one row per relation and already joins the owning document by document_id, resolves both endpoint missing flags, and returns separate JSON arrays for source and target sketch owners. Use this view alone, with no extra join, and return all its columns with their existing names. Filter source_id for a profile request and target_id for an extrusion request. Keep stored source-to-target order and do not filter out missing endpoints."
+  },
+  "sql": "SELECT * FROM main.cad_profile_extrude WHERE source_id = 'profile'",
+  "rows": [
+    "[{\"document_id\":\"test-document\",\"revision\":2,\"source_id\":\"profile\",\"target_id\":\"solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\",\"source_missing\":0,\"target_missing\":0,\"source_sketch_owners\":\"[]\",\"target_sketch_owners\":\"[]\"}]"
+  ],
+  "sqlEvents": [
+    {
+      "type": "sql",
+      "node": "validate_sql_query",
+      "sql": "SELECT * FROM main.cad_profile_extrude WHERE source_id = 'profile'"
+    }
+  ],
+  "answerText": "This query retrieves all rows from the cad_profile_extrude view where the source_id is 'profile'. It selects all columns from the view and applies a filter on the source_id column to return only the matching rows.",
+  "httpStatus": 200,
+  "done": true,
+  "error": null,
+  "elapsedMs": 18347
+}

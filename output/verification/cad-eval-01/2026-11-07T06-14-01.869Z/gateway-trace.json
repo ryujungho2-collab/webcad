@@ -1,0 +1,2079 @@
+[
+  {
+    "request": {
+      "version": 1,
+      "prompt": "기존 장비 케이스의 선택된 통풍 덮개를 개선해. 현재 문서를 cad.inspect로 조회한 뒤 지원되는 solid.parameter 한 개로만 수정안을 제안해.\n목표: 통풍구의 기하학적 총 개방 면적을 700–800 mm²로 만들어. 지름은 네가 정해. 냉각 성능을 보증하지 마.\n설계 의도: 덮개의 100×70 mm 외형, 두께 3 mm, 3행×5열의 15개 원형 구멍 중심과 대칭, 바깥쪽 구멍 중심 여백 12 mm, 객체 ID와 배치를 유지해. 경계까지 남는 재료 폭은 최소 8 mm, 구멍 사이 남는 재료 폭은 최소 10 mm여야 해. 케이스 위 2 mm 검사 간격과 내부 참조 부품 위 최소 10 mm Z 간격을 유지해.\n수정 대상 vent_2c5ce52fd06748d283c77ecef6acf22b_solid. 보호할 케이스 model-e8fa7dc5와 내부 참조 부품 protected-electronics-envelope 및 모든 원본은 바꾸지 마. 다른 부품을 추가하거나 대체하지 마. 선택된 덮개의 기존 통풍구 지름 driver만 변경해. 제조 공차·재료·하중·체결 방식은 미정이며 임의로 확정하지 마. 사용자 승인 전 Apply는 금지야.\n조회 근거(정답 지름이나 실행 결과는 아님): {\"capabilities\":[{\"id\":\"driving-dimension-edit\",\"support\":\"supported\",\"commandTypes\":[\"update-primitive\",\"update-extrude\",\"set-sketch-dimension\",\"set-variable\"],\"mcpTools\":[\"solid.parameter\"]},{\"id\":\"profile-extrude-relations\",\"support\":\"supported\",\"commandTypes\":[],\"mcpTools\":[]}],\"relations\":{\"total\":16,\"shown\":[{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_outline\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"},{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_hole0\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"}],\"omitted\":14,\"allLiveResolved\":true},\"document\":{\"id\":\"cad-eval-01-synthetic\",\"revision\":84},\"source\":\"Native capability records and stored dependency graph; not inferred by an LLM\"}",
+      "model": "qwen3-coder-32k:latest",
+      "recipes": [
+        {
+          "id": "mounting-plate",
+          "version": 1,
+          "label": "4홀 플레이트",
+          "description": "Rectangular plate with exactly four circular through holes; margin is hole-center distance from adjacent edges.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "pin",
+          "version": 1,
+          "label": "원통 핀",
+          "description": "Plain solid cylindrical pin without head, threads, taper or chamfer; base center at origin, axis +Z.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "diameter",
+              "length"
+            ],
+            "properties": {
+              "diameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "지름 (mm)"
+              },
+              "length": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "길이 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "vented-lid",
+          "version": 1,
+          "label": "통풍 덮개",
+          "description": "Flat rectangular lid with an evenly spaced rectangular grid of circular through vents, at most 64 holes. No rim, lip, slots or fasteners. Margin is outermost hole-center distance from each edge; a single row/column is centered.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter",
+              "rows",
+              "columns"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              },
+              "rows": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "행 (count)"
+              },
+              "columns": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "열 (count)"
+              }
+            }
+          }
+        }
+      ],
+      "planning": {
+        "stages": [
+          "intent",
+          "parameters",
+          "clarify-or-explicit-defaults",
+          "compile",
+          "native-preview",
+          "review-apply"
+        ],
+        "clarification": true
+      },
+      "capabilities": [
+        "create-drawing",
+        "create-primitive",
+        "move-object",
+        "update-primitive",
+        "update-extrude",
+        "set-variable"
+      ],
+      "tools": {
+        "version": 1,
+        "units": {
+          "length": "mm",
+          "area": "mm²",
+          "volume": "mm³"
+        },
+        "limits": {
+          "calls": 20,
+          "readRounds": 4,
+          "readCallsPerRound": 8,
+          "bytes": 65536
+        },
+        "tools": [
+          {
+            "name": "cad.objects",
+            "label": "Find model objects",
+            "readOnly": true,
+            "description": "Find up to 20 object IDs by name or ID. Reading a target does not select it for editing.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "search": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "limit": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 20
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.inspect",
+            "label": "Inspect objects and relationships",
+            "readOnly": true,
+            "description": "Read types, source IDs, sketch ownership, numeric source parameters and editability for up to 10 objects. External GLB references return bounded source, part/joint counts and physics availability summaries; no raw GLB or full hierarchy.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.measure",
+            "label": "Measure exact geometry",
+            "readOnly": true,
+            "description": "Measure original geometry, with basis, validity, bbox, volume or area. Units mm, mm² and mm³.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.parameters",
+            "label": "Inspect editable solid dimensions",
+            "readOnly": true,
+            "description": "Return the selected solid's supported length dimensions and drivers. Use the exact returned key with solid.parameter.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "solid.parameter",
+            "label": "Change a selected solid dimension",
+            "readOnly": false,
+            "description": "Change one advertised selected-solid length dimension. Use cad.parameters for its exact key. This edit must be a standalone modeling proposal.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "value": {
+                  "type": "number",
+                  "minimum": 0.001,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "key",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ]
+      },
+      "toolContext": {
+        "layerId": "layer-default",
+        "selectionIds": [
+          "vent_2c5ce52fd06748d283c77ecef6acf22b_solid"
+        ]
+      },
+      "edit": {
+        "command": "move-object",
+        "maximumTargets": 1,
+        "units": "mm",
+        "coordinates": "absolute-world-translation",
+        "limit": 1000000,
+        "disabledReason": "Move currently supports finite 2D drawings only. Use the object's manual editor for this representation."
+      },
+      "solid": {
+        "units": "mm",
+        "targetId": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+        "name": "Vented service lid",
+        "parameters": [
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+            "value": 100,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+              "quantity": "length",
+              "expression": "100mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+            "value": 70,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+              "quantity": "length",
+              "expression": "70mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+            "value": 3,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+              "quantity": "length",
+              "expression": "3mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+            "value": 12,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+              "quantity": "length",
+              "expression": "12mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+            "value": 6,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+              "quantity": "length",
+              "expression": "6mm"
+            }
+          }
+        ]
+      },
+      "context": {
+        "documentId": "cad-eval-01-synthetic",
+        "revision": 84,
+        "units": "mm",
+        "workPlane": "XY",
+        "selected": [
+          {
+            "id": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+            "name": "Vented service lid",
+            "type": "extrude",
+            "kind": "extrude",
+            "locked": false,
+            "inputs": [
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_outline",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole0",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole1",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole10",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole11",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole12",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole13",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole14",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole2",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole3",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole4",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole5",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole6",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole7",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole8",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole9"
+            ]
+          }
+        ],
+        "selectionTruncated": false
+      }
+    },
+    "response": {
+      "version": 1,
+      "toolCalls": [
+        {
+          "id": "read-1",
+          "name": "cad.inspect",
+          "arguments": {
+            "objectIds": [
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_solid"
+            ]
+          }
+        }
+      ],
+      "run": {
+        "provider": "Ollama",
+        "model": "qwen3-coder-32k:latest",
+        "elapsedMs": 2066,
+        "inputTokens": 2860,
+        "outputTokens": 58,
+        "repairs": 0,
+        "context": {
+          "numCtx": 16384,
+          "outputReserved": 1024,
+          "utf8Bytes": 8992,
+          "truncate": false,
+          "inferenceCalls": 1
+        }
+      }
+    },
+    "elapsedMs": 2065.9602999999997
+  },
+  {
+    "request": {
+      "version": 1,
+      "prompt": "기존 장비 케이스의 선택된 통풍 덮개를 개선해. 현재 문서를 cad.inspect로 조회한 뒤 지원되는 solid.parameter 한 개로만 수정안을 제안해.\n목표: 통풍구의 기하학적 총 개방 면적을 700–800 mm²로 만들어. 지름은 네가 정해. 냉각 성능을 보증하지 마.\n설계 의도: 덮개의 100×70 mm 외형, 두께 3 mm, 3행×5열의 15개 원형 구멍 중심과 대칭, 바깥쪽 구멍 중심 여백 12 mm, 객체 ID와 배치를 유지해. 경계까지 남는 재료 폭은 최소 8 mm, 구멍 사이 남는 재료 폭은 최소 10 mm여야 해. 케이스 위 2 mm 검사 간격과 내부 참조 부품 위 최소 10 mm Z 간격을 유지해.\n수정 대상 vent_2c5ce52fd06748d283c77ecef6acf22b_solid. 보호할 케이스 model-e8fa7dc5와 내부 참조 부품 protected-electronics-envelope 및 모든 원본은 바꾸지 마. 다른 부품을 추가하거나 대체하지 마. 선택된 덮개의 기존 통풍구 지름 driver만 변경해. 제조 공차·재료·하중·체결 방식은 미정이며 임의로 확정하지 마. 사용자 승인 전 Apply는 금지야.\n조회 근거(정답 지름이나 실행 결과는 아님): {\"capabilities\":[{\"id\":\"driving-dimension-edit\",\"support\":\"supported\",\"commandTypes\":[\"update-primitive\",\"update-extrude\",\"set-sketch-dimension\",\"set-variable\"],\"mcpTools\":[\"solid.parameter\"]},{\"id\":\"profile-extrude-relations\",\"support\":\"supported\",\"commandTypes\":[],\"mcpTools\":[]}],\"relations\":{\"total\":16,\"shown\":[{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_outline\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"},{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_hole0\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"}],\"omitted\":14,\"allLiveResolved\":true},\"document\":{\"id\":\"cad-eval-01-synthetic\",\"revision\":84},\"source\":\"Native capability records and stored dependency graph; not inferred by an LLM\"}",
+      "model": "qwen3-coder-32k:latest",
+      "recipes": [
+        {
+          "id": "mounting-plate",
+          "version": 1,
+          "label": "4홀 플레이트",
+          "description": "Rectangular plate with exactly four circular through holes; margin is hole-center distance from adjacent edges.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "pin",
+          "version": 1,
+          "label": "원통 핀",
+          "description": "Plain solid cylindrical pin without head, threads, taper or chamfer; base center at origin, axis +Z.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "diameter",
+              "length"
+            ],
+            "properties": {
+              "diameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "지름 (mm)"
+              },
+              "length": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "길이 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "vented-lid",
+          "version": 1,
+          "label": "통풍 덮개",
+          "description": "Flat rectangular lid with an evenly spaced rectangular grid of circular through vents, at most 64 holes. No rim, lip, slots or fasteners. Margin is outermost hole-center distance from each edge; a single row/column is centered.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter",
+              "rows",
+              "columns"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              },
+              "rows": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "행 (count)"
+              },
+              "columns": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "열 (count)"
+              }
+            }
+          }
+        }
+      ],
+      "planning": {
+        "stages": [
+          "intent",
+          "parameters",
+          "clarify-or-explicit-defaults",
+          "compile",
+          "native-preview",
+          "review-apply"
+        ],
+        "clarification": true
+      },
+      "capabilities": [
+        "create-drawing",
+        "create-primitive",
+        "move-object",
+        "update-primitive",
+        "update-extrude",
+        "set-variable"
+      ],
+      "tools": {
+        "version": 1,
+        "units": {
+          "length": "mm",
+          "area": "mm²",
+          "volume": "mm³"
+        },
+        "limits": {
+          "calls": 20,
+          "readRounds": 4,
+          "readCallsPerRound": 8,
+          "bytes": 65536
+        },
+        "tools": [
+          {
+            "name": "cad.objects",
+            "label": "Find model objects",
+            "readOnly": true,
+            "description": "Find up to 20 object IDs by name or ID. Reading a target does not select it for editing.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "search": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "limit": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 20
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.inspect",
+            "label": "Inspect objects and relationships",
+            "readOnly": true,
+            "description": "Read types, source IDs, sketch ownership, numeric source parameters and editability for up to 10 objects. External GLB references return bounded source, part/joint counts and physics availability summaries; no raw GLB or full hierarchy.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.measure",
+            "label": "Measure exact geometry",
+            "readOnly": true,
+            "description": "Measure original geometry, with basis, validity, bbox, volume or area. Units mm, mm² and mm³.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.parameters",
+            "label": "Inspect editable solid dimensions",
+            "readOnly": true,
+            "description": "Return the selected solid's supported length dimensions and drivers. Use the exact returned key with solid.parameter.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "solid.parameter",
+            "label": "Change a selected solid dimension",
+            "readOnly": false,
+            "description": "Change one advertised selected-solid length dimension. Use cad.parameters for its exact key. This edit must be a standalone modeling proposal.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "value": {
+                  "type": "number",
+                  "minimum": 0.001,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "key",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ]
+      },
+      "toolContext": {
+        "layerId": "layer-default",
+        "selectionIds": [
+          "vent_2c5ce52fd06748d283c77ecef6acf22b_solid"
+        ]
+      },
+      "edit": {
+        "command": "move-object",
+        "maximumTargets": 1,
+        "units": "mm",
+        "coordinates": "absolute-world-translation",
+        "limit": 1000000,
+        "disabledReason": "Move currently supports finite 2D drawings only. Use the object's manual editor for this representation."
+      },
+      "solid": {
+        "units": "mm",
+        "targetId": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+        "name": "Vented service lid",
+        "parameters": [
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+            "value": 100,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+              "quantity": "length",
+              "expression": "100mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+            "value": 70,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+              "quantity": "length",
+              "expression": "70mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+            "value": 3,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+              "quantity": "length",
+              "expression": "3mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+            "value": 12,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+              "quantity": "length",
+              "expression": "12mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+            "value": 6,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+              "quantity": "length",
+              "expression": "6mm"
+            }
+          }
+        ]
+      },
+      "context": {
+        "documentId": "cad-eval-01-synthetic",
+        "revision": 84,
+        "units": "mm",
+        "workPlane": "XY",
+        "selected": [
+          {
+            "id": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+            "name": "Vented service lid",
+            "type": "extrude",
+            "kind": "extrude",
+            "locked": false,
+            "inputs": [
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_outline",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole0",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole1",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole10",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole11",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole12",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole13",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole14",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole2",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole3",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole4",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole5",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole6",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole7",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole8",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole9"
+            ]
+          }
+        ],
+        "selectionTruncated": false
+      },
+      "toolResults": [
+        {
+          "id": "read-1",
+          "name": "cad.inspect",
+          "ok": true,
+          "version": {
+            "documentId": "cad-eval-01-synthetic",
+            "revision": 84,
+            "generation": 0
+          },
+          "result": [
+            {
+              "id": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+              "name": "Vented service lid",
+              "type": "extrude",
+              "representation": "brep",
+              "selected": true,
+              "visible": true,
+              "locked": false,
+              "layerId": "layer-default",
+              "sources": [
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_outline",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole0",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole1",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole10",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole11",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole12",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole13",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole14",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole2",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole3",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole4",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole5",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole6",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole7",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole8",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole9"
+              ],
+              "sourcesTruncated": false,
+              "parameters": [
+                {
+                  "name": "distance",
+                  "quantity": "length",
+                  "unit": "mm",
+                  "value": 3
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "response": {
+      "version": 1,
+      "toolCalls": [
+        {
+          "id": "call-1",
+          "name": "solid.parameter",
+          "arguments": {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+            "value": 7.2
+          }
+        }
+      ],
+      "run": {
+        "provider": "Ollama",
+        "model": "qwen3-coder-32k:latest",
+        "elapsedMs": 1825,
+        "inputTokens": 3170,
+        "outputTokens": 64,
+        "repairs": 0,
+        "context": {
+          "numCtx": 16384,
+          "outputReserved": 1024,
+          "utf8Bytes": 8663,
+          "truncate": false,
+          "inferenceCalls": 1
+        }
+      }
+    },
+    "elapsedMs": 1824.8791999999994
+  },
+  {
+    "request": {
+      "version": 1,
+      "prompt": "기존 장비 케이스의 선택된 통풍 덮개를 개선해. 현재 문서를 cad.inspect로 조회한 뒤 지원되는 solid.parameter 한 개로만 수정안을 제안해.\n목표: 통풍구의 기하학적 총 개방 면적을 700–800 mm²로 만들어. 지름은 네가 정해. 냉각 성능을 보증하지 마.\n설계 의도: 덮개의 100×70 mm 외형, 두께 3 mm, 3행×5열의 15개 원형 구멍 중심과 대칭, 바깥쪽 구멍 중심 여백 12 mm, 객체 ID와 배치를 유지해. 경계까지 남는 재료 폭은 최소 8 mm, 구멍 사이 남는 재료 폭은 최소 10 mm여야 해. 케이스 위 2 mm 검사 간격과 내부 참조 부품 위 최소 10 mm Z 간격을 유지해.\n수정 대상 vent_2c5ce52fd06748d283c77ecef6acf22b_solid. 보호할 케이스 model-e8fa7dc5와 내부 참조 부품 protected-electronics-envelope 및 모든 원본은 바꾸지 마. 다른 부품을 추가하거나 대체하지 마. 선택된 덮개의 기존 통풍구 지름 driver만 변경해. 제조 공차·재료·하중·체결 방식은 미정이며 임의로 확정하지 마. 사용자 승인 전 Apply는 금지야.\n조회 근거(정답 지름이나 실행 결과는 아님): {\"capabilities\":[{\"id\":\"driving-dimension-edit\",\"support\":\"supported\",\"commandTypes\":[\"update-primitive\",\"update-extrude\",\"set-sketch-dimension\",\"set-variable\"],\"mcpTools\":[\"solid.parameter\"]},{\"id\":\"profile-extrude-relations\",\"support\":\"supported\",\"commandTypes\":[],\"mcpTools\":[]}],\"relations\":{\"total\":16,\"shown\":[{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_outline\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"},{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_hole0\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"}],\"omitted\":14,\"allLiveResolved\":true},\"document\":{\"id\":\"cad-eval-01-synthetic\",\"revision\":84},\"source\":\"Native capability records and stored dependency graph; not inferred by an LLM\"}",
+      "model": "qwen3-coder-32k:latest",
+      "recipes": [
+        {
+          "id": "mounting-plate",
+          "version": 1,
+          "label": "4홀 플레이트",
+          "description": "Rectangular plate with exactly four circular through holes; margin is hole-center distance from adjacent edges.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "pin",
+          "version": 1,
+          "label": "원통 핀",
+          "description": "Plain solid cylindrical pin without head, threads, taper or chamfer; base center at origin, axis +Z.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "diameter",
+              "length"
+            ],
+            "properties": {
+              "diameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "지름 (mm)"
+              },
+              "length": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "길이 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "vented-lid",
+          "version": 1,
+          "label": "통풍 덮개",
+          "description": "Flat rectangular lid with an evenly spaced rectangular grid of circular through vents, at most 64 holes. No rim, lip, slots or fasteners. Margin is outermost hole-center distance from each edge; a single row/column is centered.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter",
+              "rows",
+              "columns"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              },
+              "rows": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "행 (count)"
+              },
+              "columns": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "열 (count)"
+              }
+            }
+          }
+        }
+      ],
+      "planning": {
+        "stages": [
+          "intent",
+          "parameters",
+          "clarify-or-explicit-defaults",
+          "compile",
+          "native-preview",
+          "review-apply"
+        ],
+        "clarification": true
+      },
+      "capabilities": [
+        "create-drawing",
+        "create-primitive",
+        "move-object",
+        "update-primitive",
+        "update-extrude",
+        "set-variable"
+      ],
+      "tools": {
+        "version": 1,
+        "units": {
+          "length": "mm",
+          "area": "mm²",
+          "volume": "mm³"
+        },
+        "limits": {
+          "calls": 20,
+          "readRounds": 4,
+          "readCallsPerRound": 8,
+          "bytes": 65536
+        },
+        "tools": [
+          {
+            "name": "cad.objects",
+            "label": "Find model objects",
+            "readOnly": true,
+            "description": "Find up to 20 object IDs by name or ID. Reading a target does not select it for editing.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "search": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "limit": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 20
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.inspect",
+            "label": "Inspect objects and relationships",
+            "readOnly": true,
+            "description": "Read types, source IDs, sketch ownership, numeric source parameters and editability for up to 10 objects. External GLB references return bounded source, part/joint counts and physics availability summaries; no raw GLB or full hierarchy.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.measure",
+            "label": "Measure exact geometry",
+            "readOnly": true,
+            "description": "Measure original geometry, with basis, validity, bbox, volume or area. Units mm, mm² and mm³.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.parameters",
+            "label": "Inspect editable solid dimensions",
+            "readOnly": true,
+            "description": "Return the selected solid's supported length dimensions and drivers. Use the exact returned key with solid.parameter.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "solid.parameter",
+            "label": "Change a selected solid dimension",
+            "readOnly": false,
+            "description": "Change one advertised selected-solid length dimension. Use cad.parameters for its exact key. This edit must be a standalone modeling proposal.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "value": {
+                  "type": "number",
+                  "minimum": 0.001,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "key",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ]
+      },
+      "toolContext": {
+        "layerId": "layer-default",
+        "selectionIds": [
+          "vent_2c5ce52fd06748d283c77ecef6acf22b_solid"
+        ]
+      },
+      "edit": {
+        "command": "move-object",
+        "maximumTargets": 1,
+        "units": "mm",
+        "coordinates": "absolute-world-translation",
+        "limit": 1000000,
+        "disabledReason": "Move currently supports finite 2D drawings only. Use the object's manual editor for this representation."
+      },
+      "solid": {
+        "units": "mm",
+        "targetId": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+        "name": "Vented service lid",
+        "parameters": [
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+            "value": 100,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+              "quantity": "length",
+              "expression": "100mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+            "value": 70,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+              "quantity": "length",
+              "expression": "70mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+            "value": 3,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+              "quantity": "length",
+              "expression": "3mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+            "value": 12,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+              "quantity": "length",
+              "expression": "12mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+            "value": 6,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+              "quantity": "length",
+              "expression": "6mm"
+            }
+          }
+        ]
+      },
+      "context": {
+        "documentId": "cad-eval-01-synthetic",
+        "revision": 84,
+        "units": "mm",
+        "workPlane": "XY",
+        "selected": [
+          {
+            "id": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+            "name": "Vented service lid",
+            "type": "extrude",
+            "kind": "extrude",
+            "locked": false,
+            "inputs": [
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_outline",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole0",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole1",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole10",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole11",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole12",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole13",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole14",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole2",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole3",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole4",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole5",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole6",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole7",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole8",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole9"
+            ]
+          }
+        ],
+        "selectionTruncated": false
+      },
+      "toolResults": [
+        {
+          "id": "read-1",
+          "name": "cad.inspect",
+          "ok": true,
+          "version": {
+            "documentId": "cad-eval-01-synthetic",
+            "revision": 84,
+            "generation": 0
+          },
+          "result": [
+            {
+              "id": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+              "name": "Vented service lid",
+              "type": "extrude",
+              "representation": "brep",
+              "selected": true,
+              "visible": true,
+              "locked": false,
+              "layerId": "layer-default",
+              "sources": [
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_outline",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole0",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole1",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole10",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole11",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole12",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole13",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole14",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole2",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole3",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole4",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole5",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole6",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole7",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole8",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole9"
+              ],
+              "sourcesTruncated": false,
+              "parameters": [
+                {
+                  "name": "distance",
+                  "quantity": "length",
+                  "unit": "mm",
+                  "value": 3
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "validationFeedback": [
+        {
+          "code": "NATIVE_VALIDATION",
+          "failed": [
+            {
+              "id": "call-1",
+              "name": "solid.parameter",
+              "arguments": {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+                "value": 7.2
+              }
+            }
+          ],
+          "reason": "DESIGN_INTENT: {\"failed\":[{\"id\":\"opening-area-goal\",\"status\":\"fail\",\"actual\":610.7256118260482,\"expected\":[700,800]}],\"geometryFeedback\":{\"source\":\"Measured candidate circle profiles; no evaluator solution supplied\",\"units\":\"mm and mm²\",\"holeCount\":15,\"diameters\":[7.2],\"openingAreaMm2\":610.7256118260482,\"formula\":\"For N equal circular openings of diameter d, A = N * pi * (d / 2)^2. Compare A with BOTH area limits and recompute all ligament limits. A rejected diameter must not be repeated.\",\"edgeLigamentMm\":8.400000000093748,\"betweenVentsLigamentMm\":11.800000000187495}}",
+          "current": {
+            "units": "mm",
+            "targetId": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+            "name": "Vented service lid",
+            "parameters": [
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+                "value": 100,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+                  "quantity": "length",
+                  "expression": "100mm"
+                }
+              },
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+                "value": 70,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+                  "quantity": "length",
+                  "expression": "70mm"
+                }
+              },
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+                "value": 3,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+                  "quantity": "length",
+                  "expression": "3mm"
+                }
+              },
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+                "value": 12,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+                  "quantity": "length",
+                  "expression": "12mm"
+                }
+              },
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+                "value": 6,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+                  "quantity": "length",
+                  "expression": "6mm"
+                }
+              }
+            ]
+          },
+          "requiredReads": [],
+          "preserveRequirements": "기존 장비 케이스의 선택된 통풍 덮개를 개선해. 현재 문서를 cad.inspect로 조회한 뒤 지원되는 solid.parameter 한 개로만 수정안을 제안해.\n목표: 통풍구의 기하학적 총 개방 면적을 700–800 mm²로 만들어. 지름은 네가 정해. 냉각 성능을 보증하지 마.\n설계 의도: 덮개의 100×70 mm 외형, 두께 3 mm, 3행×5열의 15개 원형 구멍 중심과 대칭, 바깥쪽 구멍 중심 여백 12 mm, 객체 ID와 배치를 유지해. 경계까지 남는 재료 폭은 최소 8 mm, 구멍 사이 남는 재료 폭은 최소 10 mm여야 해. 케이스 위 2 mm 검사 간격과 내부 참조 부품 위 최소 10 mm Z 간격을 유지해.\n수정 대상 vent_2c5ce52fd06748d283c77ecef6acf22b_solid. 보호할 케이스 model-e8fa7dc5와 내부 참조 부품 protected-electronics-envelope 및 모든 원본은 바꾸지 마. 다른 부품을 추가하거나 대체하지 마. 선택된 덮개의 기존 통풍구 지름 driver만 변경해. 제조 공차·재료·하중·체결 방식은 미정이며 임의로 확정하지 마. 사용자 승인 전 Apply는 금지야.\n조회 근거(정답 지름이나 실행 결과는 아님): {\"capabilities\":[{\"id\":\"driving-dimension-edit\",\"support\":\"supported\",\"commandTypes\":[\"update-primitive\",\"update-extrude\",\"set-sketch-dimension\",\"set-variable\"],\"mcpTools\":[\"solid.parameter\"]},{\"id\":\"profile-extrude-relations\",\"support\":\"supported\",\"commandTypes\":[],\"mcpTools\":[]}],\"relations\":{\"total\":16,\"shown\":[{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_outline\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"},{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_hole0\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"}],\"omitted\":14,\"allLiveResolved\":true},\"document\":{\"id\":\"cad-eval-01-synthetic\",\"revision\":84},\"source\":\"Native capability records and stored dependency graph; not inferred by an LLM\"}",
+          "support": "Only advertised commands and current selected source."
+        }
+      ]
+    },
+    "response": {
+      "version": 1,
+      "toolCalls": [
+        {
+          "id": "call-2",
+          "name": "solid.parameter",
+          "arguments": {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+            "value": 7.5
+          }
+        }
+      ],
+      "run": {
+        "provider": "Ollama",
+        "model": "qwen3-coder-32k:latest",
+        "elapsedMs": 1616,
+        "inputTokens": 4683,
+        "outputTokens": 64,
+        "repairs": 0,
+        "context": {
+          "numCtx": 16384,
+          "outputReserved": 1024,
+          "utf8Bytes": 12854,
+          "truncate": false,
+          "inferenceCalls": 1
+        }
+      }
+    },
+    "elapsedMs": 1616.2264000000014
+  },
+  {
+    "request": {
+      "version": 1,
+      "prompt": "기존 장비 케이스의 선택된 통풍 덮개를 개선해. 현재 문서를 cad.inspect로 조회한 뒤 지원되는 solid.parameter 한 개로만 수정안을 제안해.\n목표: 통풍구의 기하학적 총 개방 면적을 700–800 mm²로 만들어. 지름은 네가 정해. 냉각 성능을 보증하지 마.\n설계 의도: 덮개의 100×70 mm 외형, 두께 3 mm, 3행×5열의 15개 원형 구멍 중심과 대칭, 바깥쪽 구멍 중심 여백 12 mm, 객체 ID와 배치를 유지해. 경계까지 남는 재료 폭은 최소 8 mm, 구멍 사이 남는 재료 폭은 최소 10 mm여야 해. 케이스 위 2 mm 검사 간격과 내부 참조 부품 위 최소 10 mm Z 간격을 유지해.\n수정 대상 vent_2c5ce52fd06748d283c77ecef6acf22b_solid. 보호할 케이스 model-e8fa7dc5와 내부 참조 부품 protected-electronics-envelope 및 모든 원본은 바꾸지 마. 다른 부품을 추가하거나 대체하지 마. 선택된 덮개의 기존 통풍구 지름 driver만 변경해. 제조 공차·재료·하중·체결 방식은 미정이며 임의로 확정하지 마. 사용자 승인 전 Apply는 금지야.\n조회 근거(정답 지름이나 실행 결과는 아님): {\"capabilities\":[{\"id\":\"driving-dimension-edit\",\"support\":\"supported\",\"commandTypes\":[\"update-primitive\",\"update-extrude\",\"set-sketch-dimension\",\"set-variable\"],\"mcpTools\":[\"solid.parameter\"]},{\"id\":\"profile-extrude-relations\",\"support\":\"supported\",\"commandTypes\":[],\"mcpTools\":[]}],\"relations\":{\"total\":16,\"shown\":[{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_outline\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"},{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_hole0\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"}],\"omitted\":14,\"allLiveResolved\":true},\"document\":{\"id\":\"cad-eval-01-synthetic\",\"revision\":84},\"source\":\"Native capability records and stored dependency graph; not inferred by an LLM\"}",
+      "model": "qwen3-coder-32k:latest",
+      "recipes": [
+        {
+          "id": "mounting-plate",
+          "version": 1,
+          "label": "4홀 플레이트",
+          "description": "Rectangular plate with exactly four circular through holes; margin is hole-center distance from adjacent edges.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "pin",
+          "version": 1,
+          "label": "원통 핀",
+          "description": "Plain solid cylindrical pin without head, threads, taper or chamfer; base center at origin, axis +Z.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "diameter",
+              "length"
+            ],
+            "properties": {
+              "diameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "지름 (mm)"
+              },
+              "length": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "길이 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "vented-lid",
+          "version": 1,
+          "label": "통풍 덮개",
+          "description": "Flat rectangular lid with an evenly spaced rectangular grid of circular through vents, at most 64 holes. No rim, lip, slots or fasteners. Margin is outermost hole-center distance from each edge; a single row/column is centered.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter",
+              "rows",
+              "columns"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              },
+              "rows": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "행 (count)"
+              },
+              "columns": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "열 (count)"
+              }
+            }
+          }
+        }
+      ],
+      "planning": {
+        "stages": [
+          "intent",
+          "parameters",
+          "clarify-or-explicit-defaults",
+          "compile",
+          "native-preview",
+          "review-apply"
+        ],
+        "clarification": true
+      },
+      "capabilities": [
+        "create-drawing",
+        "create-primitive",
+        "move-object",
+        "update-primitive",
+        "update-extrude",
+        "set-variable"
+      ],
+      "tools": {
+        "version": 1,
+        "units": {
+          "length": "mm",
+          "area": "mm²",
+          "volume": "mm³"
+        },
+        "limits": {
+          "calls": 20,
+          "readRounds": 4,
+          "readCallsPerRound": 8,
+          "bytes": 65536
+        },
+        "tools": [
+          {
+            "name": "cad.objects",
+            "label": "Find model objects",
+            "readOnly": true,
+            "description": "Find up to 20 object IDs by name or ID. Reading a target does not select it for editing.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "search": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "limit": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 20
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.inspect",
+            "label": "Inspect objects and relationships",
+            "readOnly": true,
+            "description": "Read types, source IDs, sketch ownership, numeric source parameters and editability for up to 10 objects. External GLB references return bounded source, part/joint counts and physics availability summaries; no raw GLB or full hierarchy.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.measure",
+            "label": "Measure exact geometry",
+            "readOnly": true,
+            "description": "Measure original geometry, with basis, validity, bbox, volume or area. Units mm, mm² and mm³.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.parameters",
+            "label": "Inspect editable solid dimensions",
+            "readOnly": true,
+            "description": "Return the selected solid's supported length dimensions and drivers. Use the exact returned key with solid.parameter.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "solid.parameter",
+            "label": "Change a selected solid dimension",
+            "readOnly": false,
+            "description": "Change one advertised selected-solid length dimension. Use cad.parameters for its exact key. This edit must be a standalone modeling proposal.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "value": {
+                  "type": "number",
+                  "minimum": 0.001,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "key",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ]
+      },
+      "toolContext": {
+        "layerId": "layer-default",
+        "selectionIds": [
+          "vent_2c5ce52fd06748d283c77ecef6acf22b_solid"
+        ]
+      },
+      "edit": {
+        "command": "move-object",
+        "maximumTargets": 1,
+        "units": "mm",
+        "coordinates": "absolute-world-translation",
+        "limit": 1000000,
+        "disabledReason": "Move currently supports finite 2D drawings only. Use the object's manual editor for this representation."
+      },
+      "solid": {
+        "units": "mm",
+        "targetId": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+        "name": "Vented service lid",
+        "parameters": [
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+            "value": 100,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+              "quantity": "length",
+              "expression": "100mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+            "value": 70,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+              "quantity": "length",
+              "expression": "70mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+            "value": 3,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+              "quantity": "length",
+              "expression": "3mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+            "value": 12,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+              "quantity": "length",
+              "expression": "12mm"
+            }
+          },
+          {
+            "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+            "value": 6,
+            "command": {
+              "type": "set-variable",
+              "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+              "quantity": "length",
+              "expression": "6mm"
+            }
+          }
+        ]
+      },
+      "context": {
+        "documentId": "cad-eval-01-synthetic",
+        "revision": 84,
+        "units": "mm",
+        "workPlane": "XY",
+        "selected": [
+          {
+            "id": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+            "name": "Vented service lid",
+            "type": "extrude",
+            "kind": "extrude",
+            "locked": false,
+            "inputs": [
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_outline",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole0",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole1",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole10",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole11",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole12",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole13",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole14",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole2",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole3",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole4",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole5",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole6",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole7",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole8",
+              "vent_2c5ce52fd06748d283c77ecef6acf22b_hole9"
+            ]
+          }
+        ],
+        "selectionTruncated": false
+      },
+      "toolResults": [
+        {
+          "id": "read-1",
+          "name": "cad.inspect",
+          "ok": true,
+          "version": {
+            "documentId": "cad-eval-01-synthetic",
+            "revision": 84,
+            "generation": 0
+          },
+          "result": [
+            {
+              "id": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+              "name": "Vented service lid",
+              "type": "extrude",
+              "representation": "brep",
+              "selected": true,
+              "visible": true,
+              "locked": false,
+              "layerId": "layer-default",
+              "sources": [
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_outline",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole0",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole1",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole10",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole11",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole12",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole13",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole14",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole2",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole3",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole4",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole5",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole6",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole7",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole8",
+                "vent_2c5ce52fd06748d283c77ecef6acf22b_hole9"
+              ],
+              "sourcesTruncated": false,
+              "parameters": [
+                {
+                  "name": "distance",
+                  "quantity": "length",
+                  "unit": "mm",
+                  "value": 3
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "validationFeedback": [
+        {
+          "code": "NATIVE_VALIDATION",
+          "failed": [
+            {
+              "id": "call-1",
+              "name": "solid.parameter",
+              "arguments": {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+                "value": 7.2
+              }
+            }
+          ],
+          "reason": "DESIGN_INTENT: {\"failed\":[{\"id\":\"opening-area-goal\",\"status\":\"fail\",\"actual\":610.7256118260482,\"expected\":[700,800]}],\"geometryFeedback\":{\"source\":\"Measured candidate circle profiles; no evaluator solution supplied\",\"units\":\"mm and mm²\",\"holeCount\":15,\"diameters\":[7.2],\"openingAreaMm2\":610.7256118260482,\"formula\":\"For N equal circular openings of diameter d, A = N * pi * (d / 2)^2. Compare A with BOTH area limits and recompute all ligament limits. A rejected diameter must not be repeated.\",\"edgeLigamentMm\":8.400000000093748,\"betweenVentsLigamentMm\":11.800000000187495}}",
+          "current": {
+            "units": "mm",
+            "targetId": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+            "name": "Vented service lid",
+            "parameters": [
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+                "value": 100,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+                  "quantity": "length",
+                  "expression": "100mm"
+                }
+              },
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+                "value": 70,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+                  "quantity": "length",
+                  "expression": "70mm"
+                }
+              },
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+                "value": 3,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+                  "quantity": "length",
+                  "expression": "3mm"
+                }
+              },
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+                "value": 12,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+                  "quantity": "length",
+                  "expression": "12mm"
+                }
+              },
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+                "value": 6,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+                  "quantity": "length",
+                  "expression": "6mm"
+                }
+              }
+            ]
+          },
+          "requiredReads": [],
+          "preserveRequirements": "기존 장비 케이스의 선택된 통풍 덮개를 개선해. 현재 문서를 cad.inspect로 조회한 뒤 지원되는 solid.parameter 한 개로만 수정안을 제안해.\n목표: 통풍구의 기하학적 총 개방 면적을 700–800 mm²로 만들어. 지름은 네가 정해. 냉각 성능을 보증하지 마.\n설계 의도: 덮개의 100×70 mm 외형, 두께 3 mm, 3행×5열의 15개 원형 구멍 중심과 대칭, 바깥쪽 구멍 중심 여백 12 mm, 객체 ID와 배치를 유지해. 경계까지 남는 재료 폭은 최소 8 mm, 구멍 사이 남는 재료 폭은 최소 10 mm여야 해. 케이스 위 2 mm 검사 간격과 내부 참조 부품 위 최소 10 mm Z 간격을 유지해.\n수정 대상 vent_2c5ce52fd06748d283c77ecef6acf22b_solid. 보호할 케이스 model-e8fa7dc5와 내부 참조 부품 protected-electronics-envelope 및 모든 원본은 바꾸지 마. 다른 부품을 추가하거나 대체하지 마. 선택된 덮개의 기존 통풍구 지름 driver만 변경해. 제조 공차·재료·하중·체결 방식은 미정이며 임의로 확정하지 마. 사용자 승인 전 Apply는 금지야.\n조회 근거(정답 지름이나 실행 결과는 아님): {\"capabilities\":[{\"id\":\"driving-dimension-edit\",\"support\":\"supported\",\"commandTypes\":[\"update-primitive\",\"update-extrude\",\"set-sketch-dimension\",\"set-variable\"],\"mcpTools\":[\"solid.parameter\"]},{\"id\":\"profile-extrude-relations\",\"support\":\"supported\",\"commandTypes\":[],\"mcpTools\":[]}],\"relations\":{\"total\":16,\"shown\":[{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_outline\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"},{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_hole0\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"}],\"omitted\":14,\"allLiveResolved\":true},\"document\":{\"id\":\"cad-eval-01-synthetic\",\"revision\":84},\"source\":\"Native capability records and stored dependency graph; not inferred by an LLM\"}",
+          "support": "Only advertised commands and current selected source."
+        },
+        {
+          "code": "NATIVE_VALIDATION",
+          "failed": [
+            {
+              "id": "call-2",
+              "name": "solid.parameter",
+              "arguments": {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+                "value": 7.5
+              }
+            }
+          ],
+          "reason": "DESIGN_INTENT: {\"failed\":[{\"id\":\"opening-area-goal\",\"status\":\"fail\",\"actual\":662.6797003251806,\"expected\":[700,800]}],\"geometryFeedback\":{\"source\":\"Measured candidate circle profiles; no evaluator solution supplied\",\"units\":\"mm and mm²\",\"holeCount\":15,\"diameters\":[7.5],\"openingAreaMm2\":662.6797003251806,\"formula\":\"For N equal circular openings of diameter d, A = N * pi * (d / 2)^2. Compare A with BOTH area limits and recompute all ligament limits. A rejected diameter must not be repeated.\",\"edgeLigamentMm\":8.250000000117184,\"betweenVentsLigamentMm\":11.500000000234369}}",
+          "current": {
+            "units": "mm",
+            "targetId": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+            "name": "Vented service lid",
+            "parameters": [
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+                "value": 100,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_width",
+                  "quantity": "length",
+                  "expression": "100mm"
+                }
+              },
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+                "value": 70,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_depth",
+                  "quantity": "length",
+                  "expression": "70mm"
+                }
+              },
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+                "value": 3,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_thickness",
+                  "quantity": "length",
+                  "expression": "3mm"
+                }
+              },
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+                "value": 12,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_margin",
+                  "quantity": "length",
+                  "expression": "12mm"
+                }
+              },
+              {
+                "key": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+                "value": 6,
+                "command": {
+                  "type": "set-variable",
+                  "name": "vent_2c5ce52fd06748d283c77ecef6acf22b_holeDiameter",
+                  "quantity": "length",
+                  "expression": "6mm"
+                }
+              }
+            ]
+          },
+          "requiredReads": [],
+          "preserveRequirements": "기존 장비 케이스의 선택된 통풍 덮개를 개선해. 현재 문서를 cad.inspect로 조회한 뒤 지원되는 solid.parameter 한 개로만 수정안을 제안해.\n목표: 통풍구의 기하학적 총 개방 면적을 700–800 mm²로 만들어. 지름은 네가 정해. 냉각 성능을 보증하지 마.\n설계 의도: 덮개의 100×70 mm 외형, 두께 3 mm, 3행×5열의 15개 원형 구멍 중심과 대칭, 바깥쪽 구멍 중심 여백 12 mm, 객체 ID와 배치를 유지해. 경계까지 남는 재료 폭은 최소 8 mm, 구멍 사이 남는 재료 폭은 최소 10 mm여야 해. 케이스 위 2 mm 검사 간격과 내부 참조 부품 위 최소 10 mm Z 간격을 유지해.\n수정 대상 vent_2c5ce52fd06748d283c77ecef6acf22b_solid. 보호할 케이스 model-e8fa7dc5와 내부 참조 부품 protected-electronics-envelope 및 모든 원본은 바꾸지 마. 다른 부품을 추가하거나 대체하지 마. 선택된 덮개의 기존 통풍구 지름 driver만 변경해. 제조 공차·재료·하중·체결 방식은 미정이며 임의로 확정하지 마. 사용자 승인 전 Apply는 금지야.\n조회 근거(정답 지름이나 실행 결과는 아님): {\"capabilities\":[{\"id\":\"driving-dimension-edit\",\"support\":\"supported\",\"commandTypes\":[\"update-primitive\",\"update-extrude\",\"set-sketch-dimension\",\"set-variable\"],\"mcpTools\":[\"solid.parameter\"]},{\"id\":\"profile-extrude-relations\",\"support\":\"supported\",\"commandTypes\":[],\"mcpTools\":[]}],\"relations\":{\"total\":16,\"shown\":[{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_outline\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"},{\"source\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_hole0\",\"target\":\"vent_2c5ce52fd06748d283c77ecef6acf22b_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"}],\"omitted\":14,\"allLiveResolved\":true},\"document\":{\"id\":\"cad-eval-01-synthetic\",\"revision\":84},\"source\":\"Native capability records and stored dependency graph; not inferred by an LLM\"}",
+          "support": "Only advertised commands and current selected source."
+        }
+      ]
+    },
+    "error": "CONTEXT_BUDGET: conservative UTF-8 input ceiling exceeded. Narrow tools/results; no inference sent.",
+    "elapsedMs": 51.713700000000244
+  }
+]

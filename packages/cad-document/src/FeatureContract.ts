@@ -11,7 +11,7 @@ import {validArchitectureWall} from "./ArchitectureWall";
 import {validEllipse} from "./Ellipse";
 import type { CadFeature } from "./Feature";
 import type { GeometryRepresentation } from "./Precision";
-import { validVectorStyle } from "./VectorStyle";
+import { validVectorStyle, validVectorStyleOverrides } from "./VectorStyle";
 import { validImageNodeParams } from "./ImageNode";
 import { validAngularParams } from "./AngularDimension";
 import { validDimensionStyle } from "./DimensionStyle";
@@ -80,7 +80,7 @@ export function validateFeatureParameters(feature:CadFeature):boolean {
   if(feature.type === "dimension" && feature.params.kind === "angular") return validAngularParams(feature.params);
   if(feature.type === "image") return validImageNodeParams(feature.params);
   if(feature.params.dxfStyle!==undefined&&(!["drawing","drafting"].includes(feature.type)||!validDxfStyle(feature.params.dxfStyle)))return false;
-  if(feature.params.vectorStyle!==undefined&&(feature.type!=="drawing"||!validVectorStyle(feature.params.vectorStyle)))return false;
+  if(feature.params.vectorStyle!==undefined&&(feature.type!=="drawing"||!validVectorStyle(feature.params.vectorStyle)&&!validVectorStyleOverrides(feature.params.vectorStyle)))return false;
   if(feature.type==="primitive"&&!primitiveParameters[String(feature.params.kind??"box")])return false;
   for(const field of featureContract(feature).parameters){
     const value=feature.params[field.key];

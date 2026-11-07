@@ -12,6 +12,9 @@ export interface CadObject {
 
   layerId: string;
 
+  /** Optional 2D painter priority. Equal priorities follow document root order. */
+  drawOrder?: number;
+
   /** Object placement in document space. Rotation values are degrees. */
   transform?: CadObjectTransform;
 }

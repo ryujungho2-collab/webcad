@@ -65,6 +65,7 @@ import { refreshDrafting } from "../precision/draftingGeometry";
 import { registerParameterCommandHandlers,refreshParameterBindings,SketchParameterConflictError } from "./documentParameters";
 import { registerArtboardCommandHandlers } from "./artboardCommands";
 import { registerVectorCommandHandlers } from "./vectorCommands";
+import { registerDrawOrderCommands } from "./drawOrderCommands";
 import { registerImageCommandHandlers } from "./imageCommands";
 
 import {registerAssemblyCommands,evaluateAssembly} from "./assemblyCommands";
@@ -132,6 +133,7 @@ registerFaceHoleCommands(commandBus,cadDocument);
 registerShellCommands(commandBus,cadDocument);
 registerExchangeCommands(commandBus,cadDocument);
 registerVectorCommandHandlers(commandBus,cadDocument);
+registerDrawOrderCommands(commandBus,cadDocument);
 registerImageCommandHandlers(commandBus,cadDocument);
 
 function assertEditableCommandTargets(command: CadCommand) {
@@ -179,6 +181,7 @@ function restoreDocumentSnapshot(snapshot: typeof cadDocument) {
   cadDocument.features = structuredClone(snapshot.features);
   cadDocument.sketches = structuredClone(snapshot.sketches);
   if(snapshot.componentLibrary)cadDocument.componentLibrary=structuredClone(snapshot.componentLibrary);else delete cadDocument.componentLibrary;
+  if(snapshot.dimensionStylePresets)cadDocument.dimensionStylePresets=structuredClone(snapshot.dimensionStylePresets);else delete cadDocument.dimensionStylePresets;
   if(snapshot.blocks) cadDocument.blocks = structuredClone(snapshot.blocks); else delete cadDocument.blocks;
   if(snapshot.variables) cadDocument.variables = structuredClone(snapshot.variables); else delete cadDocument.variables;
   if(snapshot.parameterBindings) cadDocument.parameterBindings = structuredClone(snapshot.parameterBindings); else delete cadDocument.parameterBindings;

@@ -1,4 +1,5 @@
 import {validRigidWorldPose} from "@agent-webcad/cad-document";
+import { validDimensionStylePresetName } from "@agent-webcad/cad-document";
 import {validExternalSceneAsset} from "@agent-webcad/cad-document";
 import {validPairIntent,validJointEdit,validJointInput} from "@agent-webcad/cad-document";
 import {validReconstructionOptions} from "@agent-webcad/cad-document";
@@ -21,7 +22,7 @@ import {validModelPart,validExplodedView} from "@agent-webcad/cad-document";
 import { validExchangeImport } from "@agent-webcad/cad-document";
 import { validScene, validAngularDefinition, validAngularReference, validAngularBranch, validModelView, validModelViewId, validDimensionStyle, validCadWorkPlane, validWorkPlaneFaceSource, validWorkPlaneId } from "@agent-webcad/cad-document";
 import type { CadCommand } from "./commands";
-import {validVectorStyle,validVariableName,validParameterTarget,validPatternSpec,patternSlots,MAX_PATTERN_OUTPUTS,validRasterAsset,validImageNodeParams} from "@agent-webcad/cad-document";
+import {validVectorStyle,validVectorStyleOverrides,validVariableName,validParameterTarget,validPatternSpec,patternSlots,MAX_PATTERN_OUTPUTS,validRasterAsset,validImageNodeParams} from "@agent-webcad/cad-document";
 import { validConstructionDefinition, validSketchConstraint } from "@agent-webcad/cad-document";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -207,6 +208,7 @@ export function validateCommand(command: unknown): command is CadCommand {
     case "delete-artboard": return isString(command.artboardId);
     case "insert-image": return (command.id === undefined || isString(command.id)) && (command.layerId === undefined || isString(command.layerId)) && validRasterAsset(command.asset) && ["XY", "XZ", "YZ"].includes(String(command.workPlane)) && isVector3(command.center) && validImageNodeParams({ kind: "image", assetId: command.asset.id, workPlane: command.workPlane, width: command.width, height: command.height, crop: { x: 0, y: 0, width: 1, height: 1 } });
     case "reorder-image": return isString(command.objectId) && ["front", "back", "forward", "backward"].includes(String(command.direction));
+    case "reorder-drawing": return ["XY", "XZ", "YZ"].includes(String(command.plane)) && ["front", "back", "hatch-back"].includes(String(command.direction)) && Array.isArray(command.objectIds) && command.objectIds.every(isString);
     case "replace-image-source": return isString(command.objectId) && validRasterAsset(command.asset);
     case "update-image": return isString(command.objectId) && (command.width === undefined || isFiniteNumber(command.width) && command.width > 0 && command.width <= 1_000_000) && (command.height === undefined || isFiniteNumber(command.height) && command.height > 0 && command.height <= 1_000_000) && (command.crop === undefined || validImageNodeParams({ kind: "image", assetId: "asset", workPlane: "XY", width: 1, height: 1, crop: command.crop })) && (command.adjustments === undefined || validImageNodeParams({ kind: "image", assetId: "asset", workPlane: "XY", width: 1, height: 1, crop: { x: 0, y: 0, width: 1, height: 1 }, adjustments: command.adjustments }));
     case "update-construction": return isString(command.objectId) && validConstructionDefinition(command.definition);
@@ -229,7 +231,9 @@ export function validateCommand(command: unknown): command is CadCommand {
     case "remove-parameter-binding": return isString(command.bindingId);
     case "set-layer-style":
       return isString(command.layerId) && isRecord(command.style) && /^#[0-9a-f]{6}$/i.test(String(command.style.color)) && ["continuous","dashed","center"].includes(String(command.style.lineType)) && isFiniteNumber(command.style.lineWeight) && command.style.lineWeight > 0 && command.style.lineWeight <= 2;
-    case "set-vector-style": return isString(command.objectId) && validVectorStyle(command.style);
+    case "set-vector-style": return isString(command.objectId) && (command.merge === true
+      ? validVectorStyleOverrides(command.style)
+      : (command.merge === undefined || command.merge === false) && validVectorStyle(command.style));
     case "set-model-clipping": return validModelClip(command.clipping);
     case "upsert-model-section": return isRecord(command.view)&&validModelSection({...command.view,status:"resolved",outputs:{}});
     case "delete-model-section": return isString(command.viewId);
@@ -244,7 +248,17 @@ export function validateCommand(command: unknown): command is CadCommand {
       return isRecord(command.params) && ["face","text","chain","hatch","floor-plan","leader"].includes(String(command.params.kind)) && (command.id === undefined || isString(command.id)) && (command.layerId === undefined || isString(command.layerId));
     case "update-drafting": return isString(command.objectId) && isRecord(command.params);
     case "define-block": return isString(command.id) && isString(command.name) && Array.isArray(command.objectIds) && command.objectIds.length > 0 && command.objectIds.every(isString) && isVector3(command.base);
-    case "update-block": return isString(command.blockId) && (command.name === undefined || isString(command.name)) && (command.objectIds === undefined && command.base === undefined || Array.isArray(command.objectIds) && command.objectIds.length > 0 && command.objectIds.every(isString) && isVector3(command.base)) && (command.name !== undefined || command.objectIds !== undefined);
+    case "update-block":
+      if (!isString(command.blockId)) return false;
+      if (command.lineEdit !== undefined) {
+        const edit = command.lineEdit;
+        return command.name === undefined && command.objectIds === undefined && command.base === undefined &&
+          isRecord(edit) && isString(edit.memberId) && (edit.endpoint === 0 || edit.endpoint === 1) && isVector2(edit.point);
+      }
+      return (command.name === undefined || isString(command.name)) &&
+        (command.objectIds === undefined && command.base === undefined || Array.isArray(command.objectIds) &&
+          command.objectIds.length > 0 && command.objectIds.every(isString) && isVector3(command.base)) &&
+        (command.name !== undefined || command.objectIds !== undefined);
     case "set-block-override": return isString(command.blockId) && isString(command.objectId) && (command.vectorStyle === undefined || validVectorStyle(command.vectorStyle)) && (command.clear === undefined || typeof command.clear === "boolean");
     case "insert-block": return (command.dxfStyle===undefined||validDxfStyle(command.dxfStyle)) && isString(command.blockId) && (command.scale===undefined||isVector3(command.scale)&&command.scale.every(value=>Math.abs(value)>1e-12)) && isVector3(command.position) && (command.angle === undefined || isFiniteNumber(command.angle)) && (command.id === undefined || isString(command.id)) && (command.layerId === undefined || isString(command.layerId));
     case "explode-block": return isString(command.objectId) && (command.recursive === undefined || typeof command.recursive === "boolean");
@@ -297,6 +311,11 @@ export function validateCommand(command: unknown): command is CadCommand {
         (command.dimension === "linear" || command.dimension === "radius" || command.dimension === "diameter") && isDimensionParams(command.dimension, command.params)) &&
         (command.id === undefined || isString(command.id)) &&
         (command.layerId === undefined || isString(command.layerId));
+    case "save-dimension-style-preset":
+      return isString(command.objectId) && validDimensionStylePresetName(command.name);
+    case "apply-dimension-style-preset":
+      return Array.isArray(command.objectIds) && command.objectIds.length > 0 &&
+        command.objectIds.every(isString) && validDimensionStylePresetName(command.name);
     case "update-dimension":
       return isString(command.objectId) && isRecord(command.params) &&
         Object.keys(command.params).every((key) =>

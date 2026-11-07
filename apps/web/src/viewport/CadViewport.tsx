@@ -82,6 +82,8 @@ import { createImageSceneObject, updateImageSceneCrop } from "./imageRenderer";
 import { ImageCropHandles } from "./ImageCropHandles";
 import { createDimensionRenderObject } from "./dimensionRenderer";
 import { createDraftingRenderObject } from "./draftingRenderer";
+import { drawingStack } from "../precision/drawOrder";
+import { setDrawingStackOrder } from "./drawingStackRender";
 import { layerStyle } from "../precision/layerStyle";
 import { resolveCornerPreview, type CornerPreviewRequest } from "./cornerPreview";
 import { CornerTool } from "../features/drawing-editing/ui/CornerTool";
@@ -2825,6 +2827,9 @@ export function CadViewport({
         }
       }
 
+      const stack = workspaceMode === "2d" ? drawingStack(cadDocument, activeWorkPlane) : [];
+      const stackStep = 1 / (stack.length + 1);
+      const drawOrders = new Map(stack.map((id, i) => [id, (i + 1) * stackStep]));
       /* Document placement and visibility are authoritative. */
       for (
         const [
@@ -2846,6 +2851,7 @@ export function CadViewport({
           const order = -1 + (cadDocument.rootObjects.indexOf(objectId) + 1) / (cadDocument.rootObjects.length + 1);
           mesh.traverse(child => { if ((child as THREE.Mesh).isMesh) child.renderOrder = order; });
         }
+        setDrawingStackOrder(mesh, drawOrders.get(objectId), stackStep);
         const transform = getObjectTransform(cadObject, featuresByOutput.get(objectId));
         const displayOffset=explodedDisplayOffset(cadDocument,objectId);
         const transformSignature = JSON.stringify([transform,displayOffset]);
@@ -2932,7 +2938,7 @@ export function CadViewport({
       scope.abort();cancelled =
         true;
     };
-  }, [documentRevision, isolatedObjectIds, constructionVisible, projectActive,glbQuality]);
+  }, [documentRevision, isolatedObjectIds, constructionVisible, projectActive,glbQuality,workspaceMode,activeWorkPlane]);
 
   useEffect(() => {
     for (const [objectId, mesh] of meshesRef.current) {
@@ -3158,15 +3164,16 @@ export function CadViewport({
 
     let snapEntityRevision = -1;
     let cachedConstructionVisible = constructionVisibleRef.current;
+    let cachedIsolation = isolatedObjectIdsRef.current;
     let cachedSnapEntities: SnapEntity[] = [];
     function snapEntities(): SnapEntity[] {
-      if (snapEntityRevision === cadDocument.revision && cachedConstructionVisible === constructionVisibleRef.current) return cachedSnapEntities;
+      if (snapEntityRevision === cadDocument.revision && cachedConstructionVisible === constructionVisibleRef.current && cachedIsolation === isolatedObjectIdsRef.current) return cachedSnapEntities;
       const result: SnapEntity[] = [];
       for (const feature of Object.values(cadDocument.features)) {
         if (feature.type !== "drawing") continue;
         const object = cadDocument.objects[feature.output];
         const layer = object ? cadDocument.layers[object.layerId] : undefined;
-        if (!object || !object.visible || layer?.visible === false || !constructionVisibleRef.current && feature.params.construction) continue;
+        if (!object || !object.visible || layer?.visible === false || isolatedObjectIdsRef.current && !isolatedObjectIdsRef.current.has(object.id) || !constructionVisibleRef.current && feature.params.construction) continue;
         const kind = feature.params.kind;
         if (!(["line", "polyline", "rectangle", "circle", "arc", "point", "infinite-line", "ray"] as unknown[]).includes(kind)) continue;
         const world = getWorldDrawingGeometry(object, feature);
@@ -3188,6 +3195,7 @@ export function CadViewport({
       }
       snapEntityRevision = cadDocument.revision;
       cachedConstructionVisible = constructionVisibleRef.current;
+      cachedIsolation = isolatedObjectIdsRef.current;
       cachedSnapEntities = result;
       return cachedSnapEntities;
     }

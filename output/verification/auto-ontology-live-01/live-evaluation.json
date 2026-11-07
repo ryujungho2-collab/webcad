@@ -1,0 +1,77 @@
+{
+  "card": "AUTO-ONTOLOGY-LIVE-01",
+  "status": "partial",
+  "nvidiaVersion": "1.2.0",
+  "fixtureSha256After": "baaed1af1334c5e7ce76b3c72c17ba8a1f1494ba06285c97092e9eaf2348ce75",
+  "semanticCompilation": "succeeded",
+  "successfulCompilationSeconds": 36.9,
+  "compiledTables": 4,
+  "attempts": [
+    {
+      "chatModel": "qwen3:14b",
+      "directions": {
+        "forward": {
+          "elapsedMs": 34905,
+          "httpStatus": 200,
+          "sseDone": true,
+          "route": "information_agent",
+          "sourceQueryExecuted": false,
+          "generatedSql": null,
+          "returnedRows": null,
+          "normalization": null,
+          "comparison": null,
+          "capture": "attempt-qwen3-14b/forward-live.json",
+          "sse": "attempt-qwen3-14b/forward-live.sse"
+        },
+        "reverse": {
+          "elapsedMs": 28109,
+          "httpStatus": 200,
+          "sseDone": true,
+          "route": "information_agent",
+          "sourceQueryExecuted": false,
+          "generatedSql": null,
+          "returnedRows": null,
+          "normalization": null,
+          "comparison": null,
+          "capture": "attempt-qwen3-14b/reverse-live.json",
+          "sse": "attempt-qwen3-14b/reverse-live.sse"
+        }
+      }
+    },
+    {
+      "chatModel": "qwen3-coder-32k:latest",
+      "directions": {
+        "forward": {
+          "elapsedMs": 118611,
+          "httpStatus": 200,
+          "sseDone": true,
+          "route": "information_agent",
+          "sourceQueryExecuted": false,
+          "generatedSql": null,
+          "returnedRows": null,
+          "normalization": null,
+          "comparison": null,
+          "capture": "forward-live.json",
+          "sse": "forward-live.sse"
+        },
+        "reverse": {
+          "elapsedMs": 109574,
+          "httpStatus": 200,
+          "sseDone": true,
+          "route": "information_agent",
+          "sourceQueryExecuted": false,
+          "generatedSql": null,
+          "returnedRows": null,
+          "normalization": null,
+          "comparison": null,
+          "capture": "reverse-live.json",
+          "sse": "reverse-live.sse"
+        }
+      }
+    }
+  ],
+  "approvedFixtureOnly": true,
+  "baselineTransmitted": false,
+  "baselineReadLocallyBeforeQuery": true,
+  "productIntegration": "deferred"
+}

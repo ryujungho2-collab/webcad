@@ -1,4 +1,4 @@
-import type {CadDxfStyle,LayerStyle,CadVectorStyle} from "@agent-webcad/cad-document";
+import {DEFAULT_VECTOR_STYLE,type CadDxfStyle,type LayerStyle,type CadVectorStyle} from "@agent-webcad/cad-document";
 export type DxfInheritance={layer:LayerStyle;block:LayerStyle};
 export function resolveDxfStyle(base:LayerStyle,policy?:CadDxfStyle,inherited?:DxfInheritance){
  const layer=policy?.layer0&&inherited?inherited.layer:base,style={...layer};
@@ -8,6 +8,14 @@ export function resolveDxfStyle(base:LayerStyle,policy?:CadDxfStyle,inherited?:D
  return {layer,style};
 }
 export function dxfVectorStyle(params:Record<string,unknown>,style:LayerStyle):CadVectorStyle|undefined{
- const original=params.vectorStyle as CadVectorStyle|undefined,policy=params.dxfStyle as CadDxfStyle|undefined;
- return policy?{stroke:style.color,fill:policy.fill?style.color:original?.fill??null,fillGradient:original?.fillGradient??null,opacity:original?.opacity??1,strokeWidth:style.lineWeight}:original;
+ const original = params.vectorStyle as Partial<CadVectorStyle> | undefined;
+ const policy = params.dxfStyle as CadDxfStyle | undefined;
+ if (policy) return {
+   stroke: style.color,
+   fill: policy.fill ? style.color : original?.fill ?? null,
+   fillGradient: original?.fillGradient ?? null,
+   opacity: original?.opacity ?? 1,
+   strokeWidth: style.lineWeight,
+ };
+ if (original) return { ...DEFAULT_VECTOR_STYLE, stroke: style.color, strokeWidth: style.lineWeight, ...original };
 }

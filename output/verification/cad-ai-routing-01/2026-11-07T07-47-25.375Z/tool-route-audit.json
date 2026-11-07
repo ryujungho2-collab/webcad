@@ -1,0 +1,12 @@
+{
+  "source": "Existing taskToolScope / actual server-owned ordinary catalog",
+  "kind": "loft",
+  "advertisedTools": [
+    "cad.inspect",
+    "cad.measure",
+    "solid.loft.update"
+  ],
+  "nativeRegisteredTool": "solid.loft.update",
+  "advertised": true,
+  "productRoutingChanged": false
+}

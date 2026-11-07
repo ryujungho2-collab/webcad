@@ -13,6 +13,9 @@ import { ToolIcon } from "../../ui/ToolIcon";
 import { layerStyle } from "../../precision/layerStyle";
 
 type LayersPanelProps = {
+  selectedObjectIds?: string[];
+  isolationActive?: boolean;
+  onIsolate?: () => void;
   query: string;
 
   documentRevision: number;
@@ -27,6 +30,9 @@ type LayersPanelProps = {
 };
 
 export function LayersPanel({
+  selectedObjectIds = [],
+  isolationActive = false,
+  onIsolate,
   query,
   documentRevision,
   selectedLayerId,
@@ -168,6 +174,12 @@ export function LayersPanel({
           <span aria-hidden="true">+</span> New
         </button>
       </div>
+
+      {onIsolate && <div className="property-actions"><button type="button"
+        aria-label={isolationActive ? "Exit layer isolation" : "Isolate selected layers"}
+        disabled={!isolationActive && !selectedObjectIds.some(id => !!cadDocument.layers[cadDocument.objects[id]?.layerId])}
+        title={isolationActive ? "Remove the temporary layer filter" : selectedObjectIds.length ? "Show selected objects’ layers without changing visibility or locks" : "Select objects to isolate their layers"}
+        onClick={onIsolate}>{isolationActive ? "Exit layer isolation" : "Isolate selected layers"}</button></div>}
 
       {cadDocument.rootLayers.filter((layerId) => {
         const layer = cadDocument.layers[layerId];

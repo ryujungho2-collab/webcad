@@ -74,7 +74,9 @@ export async function prepareCadCommand(document:CadDocument, command:CadCommand
   let raw: unknown;
   try {
     raw = await createDocumentCommandExecutor(proposed,task)(detached);
-    if(proposed.revision!==document.revision && detached.type!=="assembly-pair-intent" && !isModelViewOnlyCommand(detached) && !isCanvasOnlyCommand(detached) && !isSavedMeasurementOnlyCommand(detached)){
+    const presentationOnly = detached.type === "reorder-drawing" ||
+      detached.type === "save-dimension-style-preset" || detached.type === "apply-dimension-style-preset";
+    if(proposed.revision!==document.revision && !presentationOnly && detached.type!=="assembly-pair-intent" && !isModelViewOnlyCommand(detached) && !isCanvasOnlyCommand(detached) && !isSavedMeasurementOnlyCommand(detached)){
       validateArchitectureContent(proposed);
       assertModelSheets(proposed);
       await refreshModelProjections(proposed,document);
@@ -93,7 +95,7 @@ export async function prepareCadCommand(document:CadDocument, command:CadCommand
         if(measured.validity!=="valid")throw new Error(`Invalid solid geometry: ${currentObject.name}`);
       }
     }
-    if(proposed.revision!==document.revision){await refreshSavedMeasurements(proposed);validateCanvasHierarchy(proposed);}
+    if(proposed.revision!==document.revision && !presentationOnly){await refreshSavedMeasurements(proposed);validateCanvasHierarchy(proposed);}
   } catch (error) {
     task.signal?.throwIfAborted();
     return {command:detached,proposed:structuredClone(document),result:failedResult(detached, error instanceof Error ? error.message : "Document operation failed.", undefined,
@@ -108,6 +110,7 @@ export function publishCadProposal(prepared:PreparedCadCommand,documentBefore:Ca
   if(JSON.stringify(cadDocument)!==JSON.stringify(documentBefore))throw new Error("The document changed; preview the edit again.");
   if(!prepared.result.ok||!prepared.result.changed)return;
   if(!prepared.proposed.componentLibrary)delete cadDocument.componentLibrary;
+  if(!prepared.proposed.dimensionStylePresets)delete cadDocument.dimensionStylePresets;
   if(!prepared.proposed.blocks)delete cadDocument.blocks;
   if(!prepared.proposed.variables)delete cadDocument.variables;
   if(!prepared.proposed.parameterBindings)delete cadDocument.parameterBindings;

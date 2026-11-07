@@ -1,0 +1,761 @@
+[
+  {
+    "request": {
+      "version": 1,
+      "prompt": "선택된 기존 로프트 intent-loft를 cad.inspect로 먼저 조회해. 현재 세 단면 사이를 직선으로 연결한 상태를 기존 로프트의 부드러운 보간 연결로 바꿔줘.\n설계 의도: 원본 원형 단면 section0, section1, section2의 모양·고도·순서와 live 관계를 모두 보존해. 끝의 원형 단면도 그대로 유지해. 기존 객체 ID, 월드 배치, 마감, 보호 부품 protected-fixture를 보존해. 새 형상으로 대체하거나 원본 단면을 변형하지 마. 치수 하나를 조절하는 것으로 대신하지 마.\n지원되는 기존 편집 명령이 있을 때만 제안하고, 현재 제공된 도구에 없으면 해당 제한을 명시해. 검증 전 성공이나 G1/G2 연속성·유동/강도 성능을 보장하지 마. 승인 전 Apply 금지.\n{\"source\":\"Existing buildDependencyGraph\",\"document\":{\"id\":\"cad-eval-03-synthetic\",\"revision\":7},\"incoming\":[{\"from\":\"[\\\"object\\\",\\\"section0\\\"]\",\"to\":\"[\\\"object\\\",\\\"intent-loft\\\"]\",\"relation\":\"live-input\"},{\"from\":\"[\\\"object\\\",\\\"section1\\\"]\",\"to\":\"[\\\"object\\\",\\\"intent-loft\\\"]\",\"relation\":\"live-input\"},{\"from\":\"[\\\"object\\\",\\\"section2\\\"]\",\"to\":\"[\\\"object\\\",\\\"intent-loft\\\"]\",\"relation\":\"live-input\"}],\"note\":\"Stored dependency evidence, not a command or an already validated result\"}",
+      "model": "qwen3-coder-32k:latest",
+      "recipes": [
+        {
+          "id": "mounting-plate",
+          "version": 1,
+          "label": "4홀 플레이트",
+          "description": "Rectangular plate with exactly four circular through holes; margin is hole-center distance from adjacent edges.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "pin",
+          "version": 1,
+          "label": "원통 핀",
+          "description": "Plain solid cylindrical pin without head, threads, taper or chamfer; base center at origin, axis +Z.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "diameter",
+              "length"
+            ],
+            "properties": {
+              "diameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "지름 (mm)"
+              },
+              "length": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "길이 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "vented-lid",
+          "version": 1,
+          "label": "통풍 덮개",
+          "description": "Flat rectangular lid with an evenly spaced rectangular grid of circular through vents, at most 64 holes. No rim, lip, slots or fasteners. Margin is outermost hole-center distance from each edge; a single row/column is centered.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter",
+              "rows",
+              "columns"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              },
+              "rows": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "행 (count)"
+              },
+              "columns": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "열 (count)"
+              }
+            }
+          }
+        }
+      ],
+      "planning": {
+        "stages": [
+          "intent",
+          "parameters",
+          "clarify-or-explicit-defaults",
+          "compile",
+          "native-preview",
+          "review-apply"
+        ],
+        "clarification": true
+      },
+      "capabilities": [
+        "create-drawing",
+        "create-primitive",
+        "move-object",
+        "update-primitive",
+        "update-extrude",
+        "set-variable"
+      ],
+      "tools": {
+        "version": 1,
+        "units": {
+          "length": "mm",
+          "area": "mm²",
+          "volume": "mm³"
+        },
+        "limits": {
+          "calls": 20,
+          "readRounds": 4,
+          "readCallsPerRound": 8,
+          "bytes": 65536
+        },
+        "tools": [
+          {
+            "name": "cad.objects",
+            "label": "Find model objects",
+            "readOnly": true,
+            "description": "Find up to 20 object IDs by name or ID. Reading a target does not select it for editing.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "search": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "limit": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 20
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.inspect",
+            "label": "Inspect objects and relationships",
+            "readOnly": true,
+            "description": "Read types, source IDs, sketch ownership, numeric source parameters and editability for up to 10 objects. External GLB references return bounded source, part/joint counts and physics availability summaries; no raw GLB or full hierarchy.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.measure",
+            "label": "Measure exact geometry",
+            "readOnly": true,
+            "description": "Measure original geometry, with basis, validity, bbox, volume or area. Units mm, mm² and mm³.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.faces",
+            "label": "Inspect solid faces",
+            "readOnly": true,
+            "description": "Return up to 64 face keys, world tessellation meshBounds (selection aid, not exact containment) and resolved planar world frames. Hole centers are in the chosen face's local x/y axes, in mm. Face keys belong to the captured revision.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                }
+              },
+              "required": [
+                "objectId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.edges",
+            "label": "Inspect solid edges",
+            "readOnly": true,
+            "description": "Return up to 64 stable edge keys and representative world XYZ points in mm. Samples describe geometry, not exact lengths. Keys belong to this captured revision; use them for fillet or chamfer.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                }
+              },
+              "required": [
+                "objectId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "curve.circle",
+            "label": "Create a planar circle",
+            "readOnly": false,
+            "description": "Create an editable circle with world XYZ center, origin-plane orientation and radius in mm. Center elevation allows loft sections at different heights.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,47}$",
+                  "maxLength": 48
+                },
+                "plane": {
+                  "type": "string",
+                  "enum": [
+                    "XY",
+                    "XZ",
+                    "YZ"
+                  ]
+                },
+                "center": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "radius": {
+                  "type": "number",
+                  "minimum": 0.001,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "id",
+                "plane",
+                "center",
+                "radius"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "curve.fitted",
+            "label": "Create a fitted spline",
+            "readOnly": false,
+            "description": "Create an exact editable spline through 3–60 world XYZ points with planar coordinates by default; optional space:spatial permits true XYZ. Plane remains the reference editing view. Omit repeated closing point. Optional continuity defaults to C1 cardinal interpolation with tangent strength. C2 uses natural open / periodic closed cubic interpolation with strength exactly 1. Original points and exact basis are retained. Units mm.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,47}$",
+                  "maxLength": 48
+                },
+                "plane": {
+                  "type": "string",
+                  "enum": [
+                    "XY",
+                    "XZ",
+                    "YZ"
+                  ]
+                },
+                "points": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": -1000000,
+                      "maximum": 1000000
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "minItems": 3,
+                  "maxItems": 60
+                },
+                "closed": {
+                  "type": "boolean"
+                },
+                "tension": {
+                  "type": "number",
+                  "minimum": 0.1,
+                  "maximum": 1.5
+                },
+                "continuity": {
+                  "type": "string",
+                  "enum": [
+                    "C1",
+                    "C2"
+                  ]
+                },
+                "space": {
+                  "type": "string",
+                  "enum": [
+                    "planar",
+                    "spatial"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "plane",
+                "points",
+                "closed",
+                "tension"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "curve.polyline",
+            "label": "Create a planar profile or path",
+            "readOnly": false,
+            "description": "Create 2–64 world XYZ vertices on one plane parallel to the given origin plane. Closed profiles require at least 3 vertices; omit a repeated closing vertex. Open paths can feed sweep. Units mm.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,47}$",
+                  "maxLength": 48
+                },
+                "plane": {
+                  "type": "string",
+                  "enum": [
+                    "XY",
+                    "XZ",
+                    "YZ"
+                  ]
+                },
+                "points": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": -1000000,
+                      "maximum": 1000000
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "minItems": 2,
+                  "maxItems": 64
+                },
+                "closed": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "plane",
+                "points",
+                "closed"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "solid.fillet",
+            "label": "Round selected edges",
+            "readOnly": false,
+            "description": "Round exact cad.edges keys on one selected existing solid. Apply new solids before querying edges. Radius in mm.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,47}$",
+                  "maxLength": 48
+                },
+                "targetId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "edgeKeys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048
+                  },
+                  "minItems": 1,
+                  "maxItems": 32
+                },
+                "radius": {
+                  "type": "number",
+                  "minimum": 0.001,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "id",
+                "targetId",
+                "edgeKeys",
+                "radius"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "solid.chamfer",
+            "label": "Chamfer selected edges",
+            "readOnly": false,
+            "description": "Apply a symmetric chamfer to exact cad.edges keys on one selected existing solid. Distance in mm; apply new solids before querying edges.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,47}$",
+                  "maxLength": 48
+                },
+                "targetId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "edgeKeys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048
+                  },
+                  "minItems": 1,
+                  "maxItems": 32
+                },
+                "distance": {
+                  "type": "number",
+                  "minimum": 0.001,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "id",
+                "targetId",
+                "edgeKeys",
+                "distance"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "solid.primitive",
+            "label": "Create a primitive solid",
+            "readOnly": false,
+            "description": "Create box(width,depth,height), cylinder(radius,height), sphere(radius), cone(radius1,radius2,height), or torus(majorRadius,minorRadius). Position is world XYZ in mm; provide exactly the parameters for that primitive.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,47}$",
+                  "maxLength": 48
+                },
+                "primitive": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "cone",
+                    "torus"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "width": {
+                      "type": "number",
+                      "minimum": 0.001,
+                      "maximum": 10000
+                    },
+                    "depth": {
+                      "type": "number",
+                      "minimum": 0.001,
+                      "maximum": 10000
+                    },
+                    "height": {
+                      "type": "number",
+                      "minimum": 0.001,
+                      "maximum": 10000
+                    },
+                    "radius": {
+                      "type": "number",
+                      "minimum": 0.001,
+                      "maximum": 10000
+                    },
+                    "radius1": {
+                      "type": "number",
+                      "minimum": 0.001,
+                      "maximum": 10000
+                    },
+                    "radius2": {
+                      "type": "number",
+                      "minimum": 0.001,
+                      "maximum": 10000
+                    },
+                    "majorRadius": {
+                      "type": "number",
+                      "minimum": 0.001,
+                      "maximum": 10000
+                    },
+                    "minorRadius": {
+                      "type": "number",
+                      "minimum": 0.001,
+                      "maximum": 10000
+                    }
+                  },
+                  "required": [],
+                  "additionalProperties": false
+                },
+                "position": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                }
+              },
+              "required": [
+                "id",
+                "primitive",
+                "params",
+                "position"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "solid.extrude",
+            "label": "Extrude closed profiles",
+            "readOnly": false,
+            "description": "Extrude selected or newly created profiles along their plane's positive normal, in mm. Source relationships remain editable. Closed planar spline, line/arc and circle boundaries classify exact holes and islands by containment, independent of selection order. Each spline must be a complete closed boundary; chained mixed spline edges are unsupported.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,47}$",
+                  "maxLength": 48
+                },
+                "profileObjectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                },
+                "distance": {
+                  "type": "number",
+                  "minimum": 0.001,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "id",
+                "profileObjectIds",
+                "distance"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "solid.boolean",
+            "label": "Combine solids",
+            "readOnly": false,
+            "description": "Union, cut (target minus tool), or intersect two selected/new solids. Inputs are hidden and the linked result is selected.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,47}$",
+                  "maxLength": 48
+                },
+                "operation": {
+                  "type": "string",
+                  "enum": [
+                    "union",
+                    "cut",
+                    "intersect"
+                  ]
+                },
+                "targetId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "toolId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                }
+              },
+              "required": [
+                "id",
+                "operation",
+                "targetId",
+                "toolId"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ]
+      },
+      "toolContext": {
+        "layerId": "layer-default",
+        "selectionIds": [
+          "intent-loft"
+        ]
+      },
+      "edit": {
+        "command": "move-object",
+        "maximumTargets": 1,
+        "units": "mm",
+        "coordinates": "absolute-world-translation",
+        "limit": 1000000,
+        "disabledReason": "Move currently supports finite 2D drawings only. Use the object's manual editor for this representation."
+      },
+      "solid": {
+        "units": "mm",
+        "parameters": [],
+        "disabledReason": "This solid has no supported editable length parameters. Select its source or inspect its bindings."
+      },
+      "context": {
+        "documentId": "cad-eval-03-synthetic",
+        "revision": 7,
+        "units": "mm",
+        "workPlane": "XY",
+        "selected": [
+          {
+            "id": "intent-loft",
+            "name": "Loft",
+            "type": "loft",
+            "kind": "loft",
+            "locked": false,
+            "inputs": [
+              "section0",
+              "section1",
+              "section2"
+            ]
+          }
+        ],
+        "selectionTruncated": false
+      }
+    },
+    "error": "CONTEXT_BUDGET: conservative UTF-8 input ceiling exceeded. Narrow tools/results; no inference sent.",
+    "elapsedMs": 53.41679999999997
+  }
+]

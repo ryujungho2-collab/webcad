@@ -11,13 +11,13 @@
 import { featureContract, type CadDocument } from "@agent-webcad/cad-document";
 import type { CadToolName } from "../../copilot/cadToolContract";
 import { AUTOCAD_SHORTCUT_MAPPINGS } from "./autocadShortcuts";
-import { CAPABILITIES } from "./records";
+import { CAPABILITIES, CAPABILITY_UPDATES } from "./records";
 import type {
   AutocadShortcutMapping, CadCommandType, CapabilityExecutor, CapabilityKind, CapabilityRecord, CapabilitySupport, ShortcutVerdict, TargetKind,
 } from "./types";
 
 export * from "./types";
-export { CAPABILITIES } from "./records";
+export { CAPABILITIES, CAPABILITY_UPDATES } from "./records";
 export { AUTOCAD_SHORTCUT_MAPPINGS } from "./autocadShortcuts";
 
 export const CAPABILITY_ONTOLOGY_VERSION = "webcad-capability-ontology-v1";
@@ -124,7 +124,9 @@ export function capabilityInventory() {
   return {
     version: CAPABILITY_ONTOLOGY_VERSION,
     source: "apps/web/src/ontology/capabilities",
-    note: "Descriptive inventory. Execution is decided by validateCommand, CommandBus handlers and Copilot planners.",
+    note: "Current capability support; shortcut verdicts are the historical 2026-11-05 audit. Execution is decided by validateCommand, CommandBus handlers and Copilot planners.",
+    shortcutBaselineDate: "2026-11-05",
+    supportUpdates: CAPABILITY_UPDATES,
     summary: {
       capabilities: CAPABILITIES.length,
       bySupport: count(CAPABILITIES.map(record => record.support)),

@@ -23,6 +23,14 @@ export const DEFAULT_VECTOR_STYLE: CadVectorStyle = {
   strokeWidth: 0.25,
 };
 
+/** A drawing can override individual fields while the rest follow its layer/defaults. */
+export function validVectorStyleOverrides(value: unknown): value is Partial<CadVectorStyle> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const keys = Object.keys(value);
+  return keys.length > 0 && keys.every(key => Object.hasOwn(DEFAULT_VECTOR_STYLE, key))
+    && validVectorStyle({ ...DEFAULT_VECTOR_STYLE, ...value });
+}
+
 function validGradientStop(value: unknown): value is { offset: number; color: string } {
   if (typeof value !== "object" || value === null) return false;
   const stop = value as Record<string, unknown>;

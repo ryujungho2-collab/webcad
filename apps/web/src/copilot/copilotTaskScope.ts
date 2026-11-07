@@ -1,7 +1,12 @@
 import {CAD_TOOLS,type CadToolName} from "./cadToolContract";
+export type RoutingSelection = { selected?: readonly { id: string; type?: string; dependencyMode?: string; locked?: boolean; visible?: boolean; independent?: boolean; inputs?: readonly string[] }[]; selectionCount?: number; selectionTruncated?: boolean };
 /** Route names through the existing registry; this grants no native edit permission. */
-export function taskToolScope(prompt:string,solid?:{targetId?:string}){
- const kind=/실무 검토|도면 검토|여유.*검사|coordination review|clearance review/i.test(prompt)?"review":/관통|간섭|interference|penetration/i.test(prompt)?"interference":solid?.targetId&&/치수|가로|세로|높이|폭|깊이|두께|반지름|지름|width|height|depth|radius|dimension|parameter/i.test(prompt)?"parameter":"general";
+export function taskToolScope(prompt:string,solid?:{targetId?:string},selection?:RoutingSelection){
+ const selected=selection?.selected??[],target=selected[0];
+ const loftRequest=selected.some(s=>s.type==="loft")&&/로프트|loft/i.test(prompt)&&/연결|보간|부드|smooth|ruled|interpolat/i.test(prompt);
+ const editableLoft=selected.length===1&&(selection?.selectionCount??selected.length)===1&&!selection?.selectionTruncated&&target?.type==="loft"&&target.dependencyMode==="live"&&target.locked===false&&target.visible===true&&target.independent===true&&!!target.inputs&&target.inputs.length>=2&&target.inputs.length<=10;
+ const kind=/실무 검토|도면 검토|여유.*검사|coordination review|clearance review/i.test(prompt)?"review":/관통|간섭|interference|penetration/i.test(prompt)?"interference":loftRequest?"loft":solid?.targetId&&/치수|가로|세로|높이|폭|깊이|두께|반지름|지름|width|height|depth|radius|dimension|parameter/i.test(prompt)?"parameter":"general";
+ if(kind==="loft")return {kind,names:["cad.inspect","cad.measure",...(editableLoft?["solid.loft.update"]:[])] as CadToolName[]};
  const names=kind==="review"?["cad.objects","cad.inspect","cad.coordinationReview","cad.architecture","cad.tools"]:kind==="interference"?["cad.objects","cad.inspect","cad.measure","cad.parameters","assembly.inspect","assembly.motion.inspect",...(solid?.targetId?["solid.parameter"]:[])]:kind==="parameter"?["cad.objects","cad.inspect","cad.measure","cad.parameters","solid.parameter"]:["cad.objects","cad.inspect","cad.measure","cad.faces","cad.edges","curve.circle","curve.fitted","curve.polyline","solid.primitive","solid.extrude","solid.boolean","solid.fillet","solid.chamfer"];
  return {kind,names:names.filter(n=>Object.hasOwn(CAD_TOOLS,n)) as CadToolName[]};
 }

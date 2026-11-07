@@ -1,0 +1,6 @@
+[
+  {
+    "kind": "evaluation-error",
+    "error": "CONTEXT_BUDGET: conservative UTF-8 input ceiling exceeded. Narrow tools/results; no inference sent."
+  }
+]

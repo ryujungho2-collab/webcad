@@ -1,0 +1,15 @@
+{
+  "request": {
+    "question": "For the profile whose object ID is 'profile', list its recorded direct extrusion relationships. Return the document ID and revision, both endpoint IDs in their stored source-to-target order, the recorded direction, live or snapshot mode, relationship status, each endpoint's missing flag, and any sketch owners with their missing flags. Preserve relationships with missing references. Return only relationships recorded for this profile.",
+    "prediction": false,
+    "evidence": "The SQLite view cad_profile_extrude is the source for recorded direct Profile/Extrude relations. It contains one row per relation and already joins the owning document by document_id, resolves both endpoint missing flags, and returns separate JSON arrays for source and target sketch owners. Use this view alone, with no extra join, and return all its columns with their existing names. Filter source_id for a profile request and target_id for an extrusion request. Keep stored source-to-target order and do not filter out missing endpoints."
+  },
+  "sql": "",
+  "rows": null,
+  "sqlEvents": [],
+  "answerText": "The requested information about direct extrusion relationships for the profile with object ID 'profile' is not available in the provided metadata. The available metadata includes attributes such as 'Source Sketch Owners', 'Target Sketch Owners', 'Operation Direction', 'Document ID', 'Revision Number', 'Operational Mode', 'Status', 'Current Status', 'Mode', and 'Data Missing Flag'. However, there is no explicit information about 'endpoint IDs', 'direction', 'mode', 'status', 'missing flags', or 'sketch owners' in the context of extrusion relationships.",
+  "httpStatus": 200,
+  "done": true,
+  "error": null,
+  "elapsedMs": 18109
+}

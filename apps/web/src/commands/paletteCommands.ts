@@ -1,6 +1,7 @@
 import type { AppShellProps } from "../app/AppShell";
 import { interactionTools, interactionToolReason } from "./interactionTools";
 import { cadDocument } from "../state/cadDocument";
+import { drawingStack } from "../precision/drawOrder";
 import { COMMAND_SHORTCUTS, NAVIGATION_SHORTCUTS } from "../input/shortcutCatalog";
 
 export type PaletteCommand = {
@@ -134,6 +135,28 @@ export function createPaletteCommands(
   add("projection", "Toggle perspective / orthographic", "View", "원근 직교 투영", props.onToggleProjection, viewReason);
   add("hide", "Hide selection", "View", "숨기기", props.onHide, props.selectedObjectId ? undefined : "Select objects to hide.");
   add("isolate", props.isolationActive ? "Exit isolation" : "Isolate selection", "View", "격리 선택만 보기", props.onIsolate, props.selectedObjectId || props.isolationActive ? undefined : "Select objects to isolate.");
+  const matchReason = !props.onMatchVectorAppearance ? "Appearance matching unavailable."
+    : props.workspaceMode !== "2d" ? "Switch to the 2D workspace first."
+    : props.activeSketchId ? "Finish the active sketch first."
+    : props.selectedObjectIds.length !== 1 ? "Select one source drawing first." : undefined;
+  add("match-vector-appearance", "Match vector appearance", "Edit", "특성 복사 MATCHPROP",
+    () => props.onMatchVectorAppearance?.(), matchReason);
+  const orderReason = !props.onDrawingOrder ? "Drawing order unavailable."
+    : props.workspaceMode !== "2d" ? "Switch to the 2D workspace first."
+    : props.activeSketchId ? "Finish the active sketch first." : undefined;
+  const stack = orderReason ? [] : drawingStack(cadDocument, props.activeWorkPlane);
+  const stackIds = new Set(stack);
+  const selectionOrderReason = orderReason ?? (!props.selectedObjectIds.length ||
+    props.selectedObjectIds.some(id => !stackIds.has(id)) ? "Select 2D vectors or hatches on this plane." : undefined);
+  for (const [direction, label, keywords] of [
+    ["front", "Bring drawings to front", "DRAWORDER 표시 순서 맨 앞으로"],
+    ["back", "Send drawings to back", "DRAWORDER 표시 순서 맨 뒤로"],
+    ["hatch-back", "Send hatches to back", "HATCHTOBACK 해치 맨 뒤로"],
+  ] as const) {
+    add(`drawing-order-${direction}`, label, "Edit", keywords, () => props.onDrawingOrder?.(direction),
+      direction === "hatch-back" ? orderReason : selectionOrderReason);
+  }
+  add("layer-isolate", props.layerIsolationActive ? "Exit layer isolation" : "Isolate selected layers", "View", "레이어 격리 복원 LAYISO LAYUNISO", () => props.onIsolateLayers?.(), !props.onIsolateLayers ? "Layer isolation unavailable." : props.layerIsolationActive || props.selectedObjectIds.some(id => !!cadDocument.layers[cadDocument.objects[id]?.layerId]) ? undefined : "Select objects to isolate their layers.");
   add("show-all", "Show all objects", "View", "모두 표시 숨김 해제", props.onShowAll);
   add("grid", "Toggle grid", "Precision", "격자 그리드", props.onToggleGrid);
   add("snap", "Toggle object snap", "Precision", "스냅", props.onToggleSnap, undefined, "F3");

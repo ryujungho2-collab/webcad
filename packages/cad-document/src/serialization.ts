@@ -32,6 +32,7 @@ import { validImageNodeParams } from "./ImageNode";
 import { validateAngularReferences } from "./AngularDimension";
 import { validateModelViews } from "./ModelView";
 import { validWorkPlaneFrame, validateCadWorkPlanes } from "./WorkPlane";
+import { validDimensionStylePresets } from "./DimensionStyle";
 
 function hasFramePaperStyling(document:CadDocument):boolean{
  const frame=(v:unknown,depth=0):boolean=>{if(depth>3||!v||typeof v!=="object")return false;const f=v as {paperStrokeScale?:unknown;paperTextScale?:unknown;stitch?:{parts?:{sourceFrame?:unknown}[]}};return f.paperStrokeScale!==undefined||f.paperTextScale!==undefined||Array.isArray(f.stitch?.parts)&&f.stitch.parts.some(p=>!!p&&(frame(p.sourceFrame,depth+1)));};
@@ -202,8 +203,10 @@ export function validateDocumentStructure(document:CadDocument){
   const fail=(reason:string):never=>{throw new Error(`Invalid CAD document: ${reason}`);};
   if(!record(document)||typeof document.id!=="string"||!document.id||!Number.isSafeInteger(document.revision)||document.revision<0||
     !record(document.objects)||!record(document.features)||!record(document.layers)||!strings(document.rootObjects)||!strings(document.rootLayers))fail("structure");
+  if(document.dimensionStylePresets!==undefined&&!validDimensionStylePresets(document.dimensionStylePresets))fail("dimension style presets");
   for(const [id,layer] of Object.entries(document.layers))if(!record(layer)||layer.id!==id||typeof layer.name!=="string"||typeof layer.visible!=="boolean"||typeof layer.locked!=="boolean"||!strings(layer.objectIds))fail(`layer ${id}`);
   for(const [id,object] of Object.entries(document.objects)){
+    if(object?.drawOrder!==undefined&&!Number.isSafeInteger(object.drawOrder))fail(`draw order ${id}`);
     if(!record(object)||object.id!==id||typeof object.geometryId!=="string"||typeof object.name!=="string"||typeof object.visible!=="boolean"||!document.layers[object.layerId])fail(`object ${id}`);
     if(object.transform){
       // DXF INSERT has signed scale factors. Keep this exception limited to

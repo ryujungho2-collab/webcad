@@ -17,7 +17,7 @@ import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
 import { applyCadPlan, discardCadPlan, previewCadCommand } from "../src/state/documentPlans";
 import { redoDocument, undoDocument } from "../src/state/history";
 import {
-  AUTOCAD_SHORTCUT_MAPPINGS, CAPABILITIES, candidateCapabilitiesForObject, capabilityInventory, documentObjectBridge, getCapability,
+  AUTOCAD_SHORTCUT_MAPPINGS, CAPABILITIES, CAPABILITY_UPDATES, candidateCapabilitiesForObject, capabilityInventory, documentObjectBridge, getCapability,
   type CapabilityRecord,
 } from "../src/ontology/capabilities";
 import { documentState, resetTestDocument } from "./helpers/documentHarness";
@@ -56,16 +56,22 @@ test("120 AutoCAD items: numbering, inputs and verdicts match AUTOCAD-SHORTCUT-C
   assert.deepEqual(totals, { "same-input": 16, "different-input": 50, partial: 31, unconfirmed: 23 });
 });
 
-test("capability records are unique, every item resolves, and unconfirmed items keep unconfirmed capabilities", () => {
+test("capability records are unique, every item resolves, and only dated capability updates advance beyond the historical audit", () => {
   assert.equal(new Set(CAPABILITIES.map(c => c.id)).size, CAPABILITIES.length);
   for (const item of AUTOCAD_SHORTCUT_MAPPINGS) {
     assert.ok(item.capabilityIds.length, `item ${item.no} has no capability`);
     for (const id of item.capabilityIds) assert.ok(getCapability(id), `item ${item.no} → unknown ${id}`);
-    if (item.verdict === "unconfirmed") for (const id of item.capabilityIds) assert.equal(record(id).support, "unconfirmed", `item ${item.no} must not be promoted`);
+    if (item.verdict === "unconfirmed") for (const id of item.capabilityIds) {
+      if ([97, 98].includes(item.no)) { assert.equal(id, "layer-isolate"); assert.equal(record(id).support, "supported"); }
+      else if (item.no === 38) { assert.equal(id, "match-properties"); assert.equal(record(id).support, "supported"); }
+      else if (item.no === 89) { assert.equal(id, "general-draw-order"); assert.equal(record(id).support, "supported"); }
+      else if (item.no === 106) { assert.equal(id, "block-editor-session"); assert.equal(record(id).support, "partial"); }
+      else assert.equal(record(id).support, "unconfirmed", `item ${item.no} must not be promoted`);
+    }
   }
   const used = new Set(AUTOCAD_SHORTCUT_MAPPINGS.flatMap(item => item.capabilityIds));
   const extra = CAPABILITIES.filter(c => !used.has(c.id)).map(c => c.id).sort();
-  assert.deepEqual(extra, ["driving-dimension-edit", "extrude"], "only the requested representative capabilities sit outside the 120 items");
+  assert.deepEqual(extra, ["driving-dimension-edit", "extrude", "profile-extrude-relations"], "only explicitly scoped capabilities sit outside the 120 items");
 });
 
 test("executor, command and support fields are mutually consistent", () => {
@@ -75,6 +81,16 @@ test("executor, command and support fields are mutually consistent", () => {
     if (c.executor === "none") { assert.deepEqual(c.mcpTools, [], c.id); assert.ok(["unconfirmed", "unsupported"].includes(c.support), c.id); }
     if (c.support === "unconfirmed") assert.deepEqual([c.commandTypes, c.mcpTools], [[], []], `${c.id}: unconfirmed capability claims an execution path`);
   }
+});
+
+test("profile and Extrude relationship inspection declares only its implemented read paths", () => {
+  const capability = record("profile-extrude-relations");
+  assert.equal(capability.kind, "inspection");
+  assert.equal(capability.executor, "read-only");
+  assert.equal(capability.support, "supported");
+  assert.deepEqual(capability.commandTypes, []);
+  assert.deepEqual(capability.mcpTools, []);
+  assert.ok(capability.ui.surfaces.some(surface => surface.includes("Download relation JSON")));
 });
 
 // ── 2. Every reference resolves against the authoritative contracts ──────────
@@ -283,4 +299,72 @@ test("ontology module imports no UI, state or kernel code at runtime", () => {
       assert.ok(specifier === "@agent-webcad/cad-document" || specifier.startsWith("./"), `${file} has runtime import ${specifier}`);
     }
   }
+});
+
+test("dated layer isolation promotion has exact scope and real UI/test evidence", () => {
+  assert.equal(CAPABILITY_UPDATES.length, 4);
+  const update=CAPABILITY_UPDATES[0];
+  assert.deepEqual({...update, evidence:undefined}, {date:"2026-11-07", capabilityId:"layer-isolate",baselineItems:[97,98],from:"unconfirmed",to:"supported",evidence:undefined});
+  for(const file of update.evidence) assert.ok(existsSync(resolve(root,file)),file);
+  assert.equal(record(update.capabilityId).executor,"ui-state");
+  assert.deepEqual(record(update.capabilityId).commandTypes,[]);
+  assert.deepEqual(record(update.capabilityId).mcpTools,[]);
+  assert.deepEqual(record(update.capabilityId).ui.paletteIds,["layer-isolate"]);
+  assert.ok(read("apps/web/src/explorer/views/LayersPanel.tsx").includes('onClick={onIsolate}'));
+  assert.ok(read("apps/web/src/App.tsx").includes('onIsolateLayers={handleIsolateLayers}'));
+  assert.ok(read("apps/web/tests/layerIsolation.browser.tsx").includes('click("Isolate selected layers")'));
+  assert.equal(capabilityInventory().shortcutBaselineDate,"2026-11-05");
+});
+
+
+test("dated appearance promotion preserves the historical 038 verdict", () => {
+  const update = CAPABILITY_UPDATES[1];
+  assert.equal(update.capabilityId, "match-properties");
+  assert.deepEqual(update.baselineItems, [38]);
+  assert.equal(update.from, "unconfirmed");
+  assert.equal(update.to, "supported");
+  assert.equal(AUTOCAD_SHORTCUT_MAPPINGS.find(item => item.no === 38)?.verdict, "unconfirmed");
+  const capability = record(update.capabilityId);
+  assert.equal(capability.executor, "command-bus");
+  assert.deepEqual(capability.commandTypes, ["set-vector-style"]);
+  assert.deepEqual(capability.ui.paletteIds, ["match-vector-appearance"]);
+  for (const file of update.evidence) assert.ok(existsSync(resolve(root, file)), file);
+});
+
+test("drawing order promotion preserves the historical image-only mapping and hatch verdict", () => {
+  const update = CAPABILITY_UPDATES[2];
+  assert.equal(update.capabilityId, "general-draw-order");
+  assert.deepEqual(update.baselineItems, [87, 89]);
+  assert.equal(update.to, "supported");
+  assert.equal(AUTOCAD_SHORTCUT_MAPPINGS.find(item => item.no === 87)?.verdict, "partial");
+  assert.deepEqual(AUTOCAD_SHORTCUT_MAPPINGS.find(item => item.no === 87)?.capabilityIds, ["image-draw-order"]);
+  assert.equal(AUTOCAD_SHORTCUT_MAPPINGS.find(item => item.no === 89)?.verdict, "unconfirmed");
+  const capability = record(update.capabilityId);
+  assert.equal(capability.support, "supported");
+  assert.deepEqual(capability.commandTypes, ["reorder-drawing"]);
+  assert.deepEqual(capability.ui.paletteIds, ["drawing-order-front", "drawing-order-back", "drawing-order-hatch-back"]);
+  for (const file of update.evidence) assert.ok(existsSync(resolve(root, file)), file);
+});
+
+test("linear dimension style presets extend the dimension edit capability without rewriting item 032", () => {
+  const baseline = AUTOCAD_SHORTCUT_MAPPINGS.find(item => item.no === 32);
+  assert.equal(baseline?.verdict, "partial");
+  assert.deepEqual(baseline?.capabilityIds, ["dimension-edit"]);
+  const capability = record("dimension-edit");
+  assert.deepEqual(capability.commandTypes, ["update-dimension", "save-dimension-style-preset", "apply-dimension-style-preset"]);
+  assert.deepEqual(capability.mcpTools, []);
+  assert.ok(capability.ui.surfaces.includes("Properties → Dimension styles"));
+});
+
+test("component line editing keeps 105 and 106 audit verdicts and records the partial session scope", () => {
+  const update = CAPABILITY_UPDATES[3];
+  assert.equal(update.capabilityId, "block-editor-session");
+  assert.deepEqual(update.baselineItems, [105, 106]);
+  assert.equal(update.from, "unconfirmed");
+  assert.equal(update.to, "partial");
+  assert.equal(AUTOCAD_SHORTCUT_MAPPINGS.find(item => item.no === 105)?.verdict, "partial");
+  assert.equal(AUTOCAD_SHORTCUT_MAPPINGS.find(item => item.no === 106)?.verdict, "unconfirmed");
+  assert.equal(record("block-editor-session").executor, "ui-state");
+  assert.deepEqual(record("block-update").commandTypes, ["update-block"]);
+  for (const file of update.evidence) assert.ok(existsSync(resolve(root, file)), file);
 });

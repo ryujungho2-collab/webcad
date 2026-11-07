@@ -5,3 +5,5 @@
 *.jpeg binary
 *.webp binary
 *.wasm binary
+*.step binary
+*.stp binary

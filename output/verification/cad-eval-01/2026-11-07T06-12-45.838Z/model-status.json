@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "provider": "Ollama",
+  "ready": true,
+  "models": [
+    "webcad-auto-ontology-coder:latest",
+    "webcad-auto-ontology-qwen3:14b",
+    "nomic-embed-text:latest",
+    "qwen3-coder-32k:latest",
+    "qwen3-coder:latest",
+    "qwen3:14b",
+    "gemma4:26b",
+    "qwen3.8:27b"
+  ],
+  "model": "qwen3-coder-32k:latest",
+  "vision": false,
+  "message": "Local model found. Requests run on this computer; first inference may need model loading."
+}

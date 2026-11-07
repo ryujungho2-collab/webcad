@@ -1,0 +1,427 @@
+{
+  "version": 1,
+  "taskId": "CAD-EVAL-03-loft-connection-intent-v1",
+  "liveRequested": true,
+  "maxModelCalls": 4,
+  "actualModelCalls": 2,
+  "modelCallAttempts": 2,
+  "grounding": true,
+  "sourceHashBefore": "7fb094206ee0388206352c63ad5bf7d07d9c6177a205f742708c976d6e56f1f9",
+  "sourceHashAfter": "7fb094206ee0388206352c63ad5bf7d07d9c6177a205f742708c976d6e56f1f9",
+  "visualEvidence": {
+    "status": "native-tessellation-projections-not-browser",
+    "paths": [
+      "baseline-iso.svg",
+      "baseline-top.svg",
+      "baseline-front.svg",
+      "evaluator-control-iso.svg",
+      "evaluator-control-top.svg",
+      "evaluator-control-front.svg"
+    ]
+  },
+  "elapsedMs": 21123.167999999998,
+  "nativePreflight": "passed",
+  "result": {
+    "taskId": "CAD-EVAL-03-loft-connection-intent-v1",
+    "status": "passed-native-preview-not-applied",
+    "mode": "isolated-native-evaluation",
+    "success": true,
+    "elapsedMs": 18227.120499999997,
+    "events": [
+      {
+        "kind": "model-usage",
+        "run": {
+          "context": {
+            "numCtx": 16384,
+            "outputReserved": 1024,
+            "utf8Bytes": 4826,
+            "truncate": false,
+            "inferenceCalls": 1
+          },
+          "provider": "Ollama",
+          "model": "qwen3-coder-32k:latest",
+          "elapsedMs": 17168,
+          "inputTokens": 1155,
+          "outputTokens": 60,
+          "repairs": 0
+        }
+      },
+      {
+        "kind": "model-read",
+        "read": {
+          "id": "call-1",
+          "name": "cad.inspect",
+          "ok": true,
+          "version": {
+            "documentId": "cad-eval-03-synthetic",
+            "revision": 7,
+            "generation": 0
+          },
+          "result": [
+            {
+              "id": "intent-loft",
+              "name": "Loft",
+              "type": "loft",
+              "representation": "brep",
+              "selected": true,
+              "visible": true,
+              "locked": false,
+              "layerId": "layer-default",
+              "sources": [
+                "section0",
+                "section1",
+                "section2"
+              ],
+              "sourcesTruncated": false,
+              "loft": {
+                "ruled": true,
+                "sourceCount": 3,
+                "dependencyMode": "live"
+              },
+              "parameters": [
+                {
+                  "name": "ruled",
+                  "quantity": "boolean"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "kind": "model-usage",
+        "run": {
+          "context": {
+            "numCtx": 16384,
+            "outputReserved": 1024,
+            "utf8Bytes": 4437,
+            "truncate": false,
+            "inferenceCalls": 1
+          },
+          "provider": "Ollama",
+          "model": "qwen3-coder-32k:latest",
+          "elapsedMs": 1048,
+          "inputTokens": 1083,
+          "outputTokens": 64,
+          "repairs": 0
+        }
+      },
+      {
+        "kind": "model-plan",
+        "calls": [
+          {
+            "id": "call-2",
+            "name": "solid.loft.update",
+            "arguments": {
+              "objectId": "intent-loft",
+              "ruled": false
+            }
+          }
+        ]
+      },
+      {
+        "kind": "native-attempt",
+        "command": {
+          "type": "update-loft",
+          "objectId": "intent-loft",
+          "ruled": false
+        },
+        "modelReadCallIds": [
+          "call-1"
+        ]
+      },
+      {
+        "kind": "native-assessment",
+        "assessment": {
+          "status": "passed-native-preview",
+          "success": true,
+          "criteria": [
+            {
+              "id": "document-identity",
+              "status": "pass",
+              "source": "native-document"
+            },
+            {
+              "id": "smooth-existing-live-loft",
+              "status": "pass",
+              "source": "native-feature-contract"
+            },
+            {
+              "id": "ordered-source-sections",
+              "status": "pass",
+              "source": "native-feature-inputs-and-exact-profiles"
+            },
+            {
+              "id": "all-other-document-state-preserved",
+              "status": "pass",
+              "source": "exact-native-state-excluding-only-ruled-and-derived-bounds"
+            },
+            {
+              "id": "three-live-section-relations",
+              "status": "pass",
+              "source": "buildDependencyGraph"
+            },
+            {
+              "id": "valid-brep:intent-loft",
+              "status": "pass",
+              "source": "OpenCascade",
+              "actual": "valid",
+              "expected": "valid"
+            },
+            {
+              "id": "valid-brep:protected-fixture",
+              "status": "pass",
+              "source": "OpenCascade",
+              "actual": "valid",
+              "expected": "valid"
+            },
+            {
+              "id": "actual-geometric-change",
+              "status": "pass",
+              "source": "OpenCascade-before-after-not-a-curvature-certificate",
+              "actual": 11997.97193036,
+              "expected": ">100 mm³ for this fixture"
+            },
+            {
+              "id": "serialization",
+              "status": "pass",
+              "source": "native-serialization-roundtrip"
+            }
+          ],
+          "metrics": {
+            "beforeVolumeMm3": 52621.676947629036,
+            "afterVolumeMm3": 40623.705017269036,
+            "absoluteVolumeChangeMm3": 11997.97193036
+          },
+          "measurements": {
+            "intent-loft": {
+              "basis": "brep",
+              "lengthUnit": "mm",
+              "volume": 40623.705017269036,
+              "area": 9287.738897182491,
+              "bounds": {
+                "min": [
+                  44.99999990331285,
+                  14.999999937195893,
+                  9.999999899999997
+                ],
+                "max": [
+                  95.00000010000014,
+                  65.00000006280419,
+                  70.00000010000083
+                ]
+              },
+              "validity": "valid"
+            },
+            "protected-fixture": {
+              "basis": "brep",
+              "lengthUnit": "mm",
+              "volume": 32000.00000000001,
+              "area": 7200,
+              "bounds": {
+                "min": [
+                  140,
+                  0,
+                  0
+                ],
+                "max": [
+                  160,
+                  20,
+                  80
+                ]
+              },
+              "validity": "valid"
+            }
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "context": {
+          "numCtx": 16384,
+          "outputReserved": 1024,
+          "utf8Bytes": 4826,
+          "truncate": false,
+          "inferenceCalls": 1
+        },
+        "provider": "Ollama",
+        "model": "qwen3-coder-32k:latest",
+        "elapsedMs": 17168,
+        "inputTokens": 1155,
+        "outputTokens": 60,
+        "repairs": 0
+      },
+      {
+        "context": {
+          "numCtx": 16384,
+          "outputReserved": 1024,
+          "utf8Bytes": 4437,
+          "truncate": false,
+          "inferenceCalls": 1
+        },
+        "provider": "Ollama",
+        "model": "qwen3-coder-32k:latest",
+        "elapsedMs": 1048,
+        "inputTokens": 1083,
+        "outputTokens": 64,
+        "repairs": 0
+      }
+    ],
+    "assessments": [
+      {
+        "status": "passed-native-preview",
+        "success": true,
+        "criteria": [
+          {
+            "id": "document-identity",
+            "status": "pass",
+            "source": "native-document"
+          },
+          {
+            "id": "smooth-existing-live-loft",
+            "status": "pass",
+            "source": "native-feature-contract"
+          },
+          {
+            "id": "ordered-source-sections",
+            "status": "pass",
+            "source": "native-feature-inputs-and-exact-profiles"
+          },
+          {
+            "id": "all-other-document-state-preserved",
+            "status": "pass",
+            "source": "exact-native-state-excluding-only-ruled-and-derived-bounds"
+          },
+          {
+            "id": "three-live-section-relations",
+            "status": "pass",
+            "source": "buildDependencyGraph"
+          },
+          {
+            "id": "valid-brep:intent-loft",
+            "status": "pass",
+            "source": "OpenCascade",
+            "actual": "valid",
+            "expected": "valid"
+          },
+          {
+            "id": "valid-brep:protected-fixture",
+            "status": "pass",
+            "source": "OpenCascade",
+            "actual": "valid",
+            "expected": "valid"
+          },
+          {
+            "id": "actual-geometric-change",
+            "status": "pass",
+            "source": "OpenCascade-before-after-not-a-curvature-certificate",
+            "actual": 11997.97193036,
+            "expected": ">100 mm³ for this fixture"
+          },
+          {
+            "id": "serialization",
+            "status": "pass",
+            "source": "native-serialization-roundtrip"
+          }
+        ],
+        "metrics": {
+          "beforeVolumeMm3": 52621.676947629036,
+          "afterVolumeMm3": 40623.705017269036,
+          "absoluteVolumeChangeMm3": 11997.97193036
+        },
+        "measurements": {
+          "intent-loft": {
+            "basis": "brep",
+            "lengthUnit": "mm",
+            "volume": 40623.705017269036,
+            "area": 9287.738897182491,
+            "bounds": {
+              "min": [
+                44.99999990331285,
+                14.999999937195893,
+                9.999999899999997
+              ],
+              "max": [
+                95.00000010000014,
+                65.00000006280419,
+                70.00000010000083
+              ]
+            },
+            "validity": "valid"
+          },
+          "protected-fixture": {
+            "basis": "brep",
+            "lengthUnit": "mm",
+            "volume": 32000.00000000001,
+            "area": 7200,
+            "bounds": {
+              "min": [
+                140,
+                0,
+                0
+              ],
+              "max": [
+                160,
+                20,
+                80
+              ]
+            },
+            "validity": "valid"
+          }
+        }
+      }
+    ],
+    "proposed": "preview.webcad.json",
+    "plan": {
+      "command": {
+        "type": "update-loft",
+        "objectId": "intent-loft",
+        "ruled": false
+      },
+      "ghosts": [],
+      "resultObjectIds": [
+        "intent-loft"
+      ],
+      "summary": [
+        "Loft: 부드러운 곡면 연결로 변경합니다.",
+        "3개 원본 단면의 순서, 객체 ID, 배치와 마감을 유지합니다. 연관 형상·도면 영향은 실제 미리보기에서 확인하세요."
+      ],
+      "toolSteps": [
+        "Inspect objects and relationships",
+        "Change loft connection"
+      ]
+    },
+    "metrics": {
+      "modelReads": 1,
+      "nativeAttempts": 1,
+      "plannerRejections": 0,
+      "designIntentRejections": 0,
+      "reportedGatewayRuns": 2,
+      "inputTokens": 2238,
+      "outputTokens": 124,
+      "editorApplyCalls": 0,
+      "sourceUnchanged": true,
+      "editorAndHistoryUnchanged": true
+    },
+    "limits": [
+      "G1/G2 continuity certification",
+      "aerodynamic/thermal/strength analysis",
+      "source-section deformation",
+      "automatic editor Apply",
+      "model training"
+    ]
+  },
+  "status": "real-model-native-preview-not-applied",
+  "limitations": [
+    "G1/G2 continuity certification",
+    "aerodynamic/thermal/strength analysis",
+    "source-section deformation",
+    "automatic editor Apply",
+    "model training",
+    "Intent is evaluator-authored; model intent extraction was not separately tested",
+    "No browser test or independent STEP engine in this run",
+    "No measured ontology uplift without paired runs",
+    "No weights updated; logs alone are not token-level RL trajectories"
+  ]
+}

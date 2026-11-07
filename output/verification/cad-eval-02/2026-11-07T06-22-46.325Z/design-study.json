@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "documentId": "cad-eval-02-synthetic",
+  "intentConfirmed": true,
+  "decisions": [],
+  "brief": {
+    "goal": "Increase available mounting width while preserving edge-relative fastener layout.",
+    "requirements": "Widen by 40 mm from current width; retain left datum, depth 80 mm, thickness 4 mm, four Ø6 holes with centers 12 mm from their adjacent edges. Keep hole symmetry about the NEW plate center. Protect device/neighbor geometry and placement, >=2 mm device Z separation, >=25 mm neighbor X separation.",
+    "assumptions": "Evaluator-authored synthetic geometric design intent; reference boxes are not physical electronics or load models.",
+    "questions": "Loads, material, fasteners and manufacturing tolerances unspecified.",
+    "qualities": [],
+    "anchors": [
+      {
+        "objectId": "protected-device-envelope",
+        "role": "preserve"
+      },
+      {
+        "objectId": "protected-neighbor",
+        "role": "preserve"
+      },
+      {
+        "objectId": "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+        "role": "reference"
+      }
+    ]
+  }
+}

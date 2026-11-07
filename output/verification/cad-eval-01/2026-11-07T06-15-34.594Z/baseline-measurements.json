@@ -1,0 +1,219 @@
+{
+  "status": "rejected",
+  "success": false,
+  "criteria": [
+    {
+      "id": "document-identity",
+      "status": "pass",
+      "source": "native-document",
+      "actual": {
+        "id": "cad-eval-01-synthetic",
+        "revision": 84
+      },
+      "expected": {
+        "id": "cad-eval-01-synthetic",
+        "minimumRevision": 84
+      }
+    },
+    {
+      "id": "preserve-anchors",
+      "status": "pass",
+      "source": "designPreservationIssue",
+      "actual": "unchanged"
+    },
+    {
+      "id": "same-object-and-feature-identities",
+      "status": "pass",
+      "source": "native-document"
+    },
+    {
+      "id": "only-vent-driver",
+      "status": "fail",
+      "source": "native-bound-variables",
+      "actual": []
+    },
+    {
+      "id": "protected-scene-and-sources",
+      "status": "pass",
+      "source": "native-document-exact-comparison"
+    },
+    {
+      "id": "live-inputs",
+      "status": "pass",
+      "source": "queryProfileExtrudeRelations"
+    },
+    {
+      "id": "outline-and-thickness",
+      "status": "pass",
+      "source": "native-profile-and-extrude"
+    },
+    {
+      "id": "vent-grid-and-centers",
+      "status": "pass",
+      "source": "getWorldDrawingGeometry",
+      "actual": 15,
+      "expected": 15
+    },
+    {
+      "id": "opening-area-goal",
+      "status": "fail",
+      "source": "analytic-circular-openings-not-flow-simulation",
+      "actual": 424.1150082346221,
+      "expected": [
+        700,
+        800
+      ]
+    },
+    {
+      "id": "uniform-diameter",
+      "status": "pass",
+      "source": "native-circle-profiles"
+    },
+    {
+      "id": "edge-ligament",
+      "status": "pass",
+      "source": "analytic-distance-to-rectangular-outline",
+      "actual": 9,
+      "expected": ">=8 mm"
+    },
+    {
+      "id": "between-vent-ligament",
+      "status": "pass",
+      "source": "analytic-circle-pair-distance",
+      "actual": 13,
+      "expected": ">=10 mm"
+    },
+    {
+      "id": "valid-brep:vent_47aea0a81f8d4815ae4aa76551a7ec59_solid",
+      "status": "pass",
+      "source": "OpenCascade-native-measurement",
+      "actual": "valid",
+      "expected": "valid"
+    },
+    {
+      "id": "valid-brep:model-70c68094",
+      "status": "pass",
+      "source": "OpenCascade-native-measurement",
+      "actual": "valid",
+      "expected": "valid"
+    },
+    {
+      "id": "valid-brep:protected-electronics-envelope",
+      "status": "pass",
+      "source": "OpenCascade-native-measurement",
+      "actual": "valid",
+      "expected": "valid"
+    },
+    {
+      "id": "lid-envelope-and-placement",
+      "status": "pass",
+      "source": "OpenCascade-bounds-and-native-transform",
+      "actual": {
+        "min": [
+          0,
+          0,
+          32
+        ],
+        "max": [
+          100,
+          70,
+          35
+        ]
+      }
+    },
+    {
+      "id": "inspection-gap",
+      "status": "pass",
+      "source": "world-Z-bounds-separation",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "id": "reference-clearance",
+      "status": "pass",
+      "source": "world-Z-bounds-separation-not-general-distance",
+      "actual": 10,
+      "expected": ">=10 mm"
+    },
+    {
+      "id": "native-volume-matches-actual-profiles",
+      "status": "pass",
+      "source": "OpenCascade-volume-vs-independent-analytic-formula",
+      "actual": 19727.654975296125,
+      "expected": 19727.654975296133
+    },
+    {
+      "id": "serialization",
+      "status": "pass",
+      "source": "native-serializer-roundtrip"
+    }
+  ],
+  "metrics": {
+    "openingAreaMm2": 424.1150082346221,
+    "beforeOpeningAreaMm2": 424.1150082346221,
+    "openingAreaIncreasePercent": 0,
+    "edgeLigamentMm": 9,
+    "betweenVentsLigamentMm": 13,
+    "inspectionGapMm": 2,
+    "referenceZClearanceMm": 10
+  },
+  "measurements": {
+    "vent_47aea0a81f8d4815ae4aa76551a7ec59_solid": {
+      "basis": "brep",
+      "lengthUnit": "mm",
+      "volume": 19727.654975296125,
+      "area": 15019.999999999998,
+      "bounds": {
+        "min": [
+          0,
+          0,
+          32
+        ],
+        "max": [
+          100,
+          70,
+          35
+        ]
+      },
+      "validity": "valid"
+    },
+    "model-70c68094": {
+      "basis": "brep",
+      "lengthUnit": "mm",
+      "volume": 32018.49549892674,
+      "area": 32797.85831691334,
+      "bounds": {
+        "min": [
+          -8.881784197001252e-16,
+          -8.881784197001252e-16,
+          0
+        ],
+        "max": [
+          100,
+          70,
+          30
+        ]
+      },
+      "validity": "valid"
+    },
+    "protected-electronics-envelope": {
+      "basis": "brep",
+      "lengthUnit": "mm",
+      "volume": 7200,
+      "area": 4319.999999999999,
+      "bounds": {
+        "min": [
+          20,
+          20,
+          18
+        ],
+        "max": [
+          80,
+          50,
+          22
+        ]
+      },
+      "validity": "valid"
+    }
+  }
+}

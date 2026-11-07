@@ -1,0 +1,1 @@
+{"database": "source", "statement": "SELECT source_id, target_id, direction, mode, status FROM cad_relation WHERE source_id = 'profile'", "rows": ["[{\"source_id\":\"profile\",\"target_id\":\"solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"}]"], "error": null, "elapsedMs": 8.912}

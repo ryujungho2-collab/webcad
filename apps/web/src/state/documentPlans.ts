@@ -14,6 +14,7 @@ import { documentVersion,sameDocumentVersion,type DocumentVersion } from "./docu
 import { measureDocumentObject } from "./documentQuery";
 import { publishCommandResult } from "./commandFeedback";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
+import { blockLineMember } from "../precision/blockLineEdit";
 
 export type PlanChange={objectId:string;kind:"created"|"modified"|"deleted";name:string;before?:GeometryMeasurement;after?:GeometryMeasurement;measurementError?:string};
 export type PlanImpact = { kind: string; before: number; after: number; modified: number; created?: number; deleted?: number };
@@ -133,6 +134,18 @@ export async function previewCadCommand(payload:unknown,options:import("./cooper
 }
 
 export function discardCadPlan(planId:string){plans.delete(planId);}
+
+/** Definition-local preview from the exact detached block update. */
+export function getCadPlanBlockLineEdit(planId: string) {
+  const stored = plans.get(planId);
+  const command = stored?.prepared.command;
+  if (!stored?.prepared.result.ok || command?.type !== "update-block" || !command.lineEdit) return;
+  const { blockId, lineEdit } = command;
+  const before = stored.before.blocks?.[blockId], after = stored.prepared.proposed.blocks?.[blockId];
+  const from = before && blockLineMember(before, lineEdit.memberId)?.points;
+  const to = after && blockLineMember(after, lineEdit.memberId)?.points;
+  if (from && to) return { before: from, after: to };
+}
 /** Visible changed solids from the evaluated proposal. Never exposes mutable plan state. */
 export function getCadPlanSolidGhosts(planId: string) {
   const stored = plans.get(planId);

@@ -1,4 +1,5 @@
 import {mcpBrowserClientFixture} from "./mcpBrowserClient.mjs";
+import {autoOntologyBrowserFixture} from "./autoOntologyBrowserFixture.mjs";
 import {gunzipSync} from "node:zlib";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -25,7 +26,7 @@ const reportMiddleware = (request, response) => {
   request.on("end", () => { try {const raw=Buffer.concat(chunks),body=request.headers["content-encoding"]==="gzip"?gunzipSync(raw,{maxOutputLength:192000000}):raw;pending.get(run)(JSON.parse(body.toString("utf8"))); response.end("ok"); } catch { response.statusCode = 400; response.end(); } });
 };
 const server = await createServer({ cacheDir: process.env.CAD_TEST_CACHE_DIR ?? resolve(process.cwd(),"node_modules/.vite-browser-checks"), server: { host: "127.0.0.1", port: 0 }, logLevel: "error",
-  plugins: [{ name: "browser-check-report", configureServer(server) { server.middlewares.use("/__browser_result", reportMiddleware); server.middlewares.use("/__browser_input", browserInputMiddleware); server.middlewares.use((req,res,next)=>void mcpFixture.middleware(req,res,next)); } }],
+  plugins: [...(process.argv.includes("--page=autoOntologyPilot") || !process.argv.some(arg => arg.startsWith("--page=")) ? [autoOntologyBrowserFixture()] : []), { name: "browser-check-report", configureServer(server) { server.middlewares.use("/__browser_result", reportMiddleware); server.middlewares.use("/__browser_input", browserInputMiddleware); server.middlewares.use((req,res,next)=>void mcpFixture.middleware(req,res,next)); } }],
 });
 await server.listen();
 const port = server.httpServer.address().port;
@@ -68,6 +69,14 @@ try {
   pages.push("precisionInput");
   pages.push("artboardAnnotations");
   pages.push("draftingVisibility");
+  pages.push("layerIsolation");
+  pages.push("matchVectorAppearance");
+  pages.push("drawOrder");
+  pages.push("dimensionStylePresets");
+  pages.push("blockLineEdit");
+  pages.push("profileExtrudeRelations");
+  pages.push("autoOntologyPilot");
+  if (process.argv.includes("--page=autoOntologyPilotLive")) pages.push("autoOntologyPilotLive");
   pages.push("breakReferences");
   pages.push("explodeReferences");
   pages.push("explodeBlock");
@@ -103,15 +112,16 @@ try {
     let timer;
     const result = new Promise((resolve, reject) => {
       pending.set(run, resolve);
-      timer = setTimeout(() => reject(new Error(`${page}: browser checks timed out`)), ["sculpt","polygonEditing","geometryNodes","hybridGeometry","planarReconstruction"].includes(page)?180000:page==="lightBracketHandoff"?300000:["houseFacade","houseLayout","basinHandoff"].includes(page)?900000:benchmark||["handleHandoff","kioskHandoff","lampHandoff","chairHandoff","pavilionHandoff","courtyardPavilion","courtyardPresentation","basinHandoff","ductHandoff","enclosureHandoff","sharedToolHandoff","gardenHouse","largeCafe3d","flowCourt","designStudy","localCopilot","graduationCopilot","nativeArchitectureCopilot","mcpBridge","gardenHouse"].includes(page)?600000:["residentialRestoration","externalCivilSpeed","dxfImportProgress","externalCivilStyle","externalCivil","outputPreflight","kernelResources","curveHatch","residentialTask","residentialExtended","courtyardH1","courtyardIssue","projectPerformance"].includes(page)?600000:["courtyardStudio","courtyardEllipse","courtyardConic"].includes(page)?300000:["architectureContent","architectureWall","floorTasks","taskScope","projectPerformance","projectTabs","projectBundle","projectHome","residentialRestoration","externalCivilSpeed","dxfImportProgress","externalCivilStyle","externalCivil","residentialMeasurements","measurementLayout","savedMeasurementPlacement","savedMeasurements","selectedDistance","brepDistance","hoverDistance","canvasScale","canvasFlex","canvasHierarchy","projectTree","library","outputPreflight","accessibilityInput","inspectorProperties","selectionToolbar","projectTabNavigation","projectComparison","projectRecovery","projectManager","dxfPreparation","spline","curveDxf","kernelResources","conicProjection","ellipseSection","curveHatch","sectionPresentation","frameStitches","frameSheets","frameLinks","workspaceSections","drawingFrames","ellipse","modelSheetSet","modelSheetLayout","modelDrawing","modelPresentation","cadPilots","dxfPlacement","numericPilot","openEndChamfer","b4ArcWorkflow","b5WorkPlanes","b5FaceSketch","b5FaceCut","b5FaceHole","exchangeFixture","dxfWorkflow","interactionRelations","angularWorkflow","copilotContext","copilotApply","copilotQuery","historySelection","imageWorkflow","tiffImportWorkflow","imageSourceWorkflow","artboardPngWorkflow","artboardPdfWorkflow","imageResources"].includes(page)?120000:60000);
+      timer = setTimeout(() => reject(new Error(`${page}: browser checks timed out`)), ["autoOntologyPilotLive","sculpt","polygonEditing","geometryNodes","hybridGeometry","planarReconstruction"].includes(page)?180000:page==="lightBracketHandoff"?300000:["houseFacade","houseLayout","basinHandoff"].includes(page)?900000:benchmark||["handleHandoff","kioskHandoff","lampHandoff","chairHandoff","pavilionHandoff","courtyardPavilion","courtyardPresentation","basinHandoff","ductHandoff","enclosureHandoff","sharedToolHandoff","gardenHouse","largeCafe3d","flowCourt","designStudy","localCopilot","graduationCopilot","nativeArchitectureCopilot","mcpBridge","gardenHouse"].includes(page)?600000:["residentialRestoration","externalCivilSpeed","dxfImportProgress","externalCivilStyle","externalCivil","outputPreflight","kernelResources","curveHatch","residentialTask","residentialExtended","courtyardH1","courtyardIssue","projectPerformance"].includes(page)?600000:["courtyardStudio","courtyardEllipse","courtyardConic"].includes(page)?300000:["architectureContent","architectureWall","floorTasks","taskScope","projectPerformance","projectTabs","projectBundle","projectHome","residentialRestoration","externalCivilSpeed","dxfImportProgress","externalCivilStyle","externalCivil","residentialMeasurements","measurementLayout","savedMeasurementPlacement","savedMeasurements","selectedDistance","brepDistance","hoverDistance","canvasScale","canvasFlex","canvasHierarchy","projectTree","library","outputPreflight","accessibilityInput","inspectorProperties","selectionToolbar","projectTabNavigation","projectComparison","projectRecovery","projectManager","dxfPreparation","spline","curveDxf","kernelResources","conicProjection","ellipseSection","curveHatch","sectionPresentation","frameStitches","frameSheets","frameLinks","workspaceSections","drawingFrames","ellipse","modelSheetSet","modelSheetLayout","modelDrawing","modelPresentation","cadPilots","dxfPlacement","numericPilot","openEndChamfer","b4ArcWorkflow","b5WorkPlanes","b5FaceSketch","b5FaceCut","b5FaceHole","exchangeFixture","dxfWorkflow","interactionRelations","angularWorkflow","copilotContext","copilotApply","copilotQuery","historySelection","imageWorkflow","tiffImportWorkflow","imageSourceWorkflow","artboardPngWorkflow","artboardPdfWorkflow","imageResources"].includes(page)?120000:60000);
     });
     const targetUrl = `http://127.0.0.1:${port}/tests/${page}.browser.html?auto=1&run=${run}${benchmark?`&task=${task}&count=${count}`:page==="sessionContinuity"?`&count=${sessionCount}`:""}${process.argv.includes("--artifacts")?"&artifacts=1":""}`;
     const closeInput = registerBrowserInput(run, profile, targetUrl);
     const child = spawn(executable, ["--headless", "--no-first-run", "--no-default-browser-check", "--disable-background-networking", "--remote-debugging-port=0", "--remote-debugging-address=127.0.0.1",
+      ...(page.startsWith("autoOntologyPilot") ? ["--window-size=1440,1000"] : []),
         ...(page==="lightBracketHandoff"?["--window-size=1440,1000"]:[]),
       ...(executable.toLowerCase().includes("msedge") ? ["--edge-skip-compat-layer-relaunch"] : []),
       ...(["handleHandoff","kioskHandoff","lampHandoff","chairHandoff","pavilionHandoff","courtyardPavilion","courtyardPresentation","basinHandoff","ductHandoff","enclosureHandoff","sharedToolHandoff","copilotEnclosure","copilot2d3d","copilotConversation","copilotSolid","cadTools","cadToolsAdvanced","largeCafe","largeCafe3d","flowCourt","designStudy","localCopilot","graduationCopilot","nativeArchitectureCopilot","mcpBridge","gardenHouse","houseFacade","houseLayout"].includes(page) ? ["--window-size=1440,1000"] : []),
-      ...(["residentialTask","residentialExtended","architectureContent","architectureWall","floorTasks","taskScope","projectPerformance","projectTabs","projectBundle","projectHome","residentialRestoration","externalCivilSpeed","dxfImportProgress","externalCivilStyle","externalCivil","residentialMeasurements","measurementLayout","savedMeasurementPlacement","savedMeasurements","selectedDistance","brepDistance","hoverDistance","canvasScale","canvasFlex","canvasHierarchy","projectTree","library","outputPreflight","accessibilityInput","inspectorProperties","selectionToolbar","projectTabNavigation","projectComparison","projectRecovery","projectManager","dxfPreparation","spline","curveDxf","kernelResources","conicProjection","ellipseSection","curveHatch","sectionPresentation","courtyardIssue","courtyardConic","courtyardEllipse","courtyardH1","courtyardStudio","frameStitches","frameSheets","frameLinks","workspaceSections","drawingFrames","ellipse","modelSheetSet","modelSheetLayout","modelDrawing","modelPresentation","cadPilots","dxfPlacement","numericPilot","openEndChamfer","sketchStretch","dxfOcs","blockStretch","arcCorners","lineArcFillet","exchangeFixture","copilotEdit","asymmetricChamfer","internalChamfer","keyboardActivation","precisionInput","draftingVisibility","breakReferences","explodeReferences","explodeBlock","convertEdge","editSketchVertices","hatchReconnection","chainReconnection","bindingReconnection"].includes(page) ? ["--window-size=1440,1000"] : []),
+      ...(["residentialTask","residentialExtended","architectureContent","architectureWall","floorTasks","taskScope","projectPerformance","projectTabs","projectBundle","projectHome","residentialRestoration","externalCivilSpeed","dxfImportProgress","externalCivilStyle","externalCivil","residentialMeasurements","measurementLayout","savedMeasurementPlacement","savedMeasurements","selectedDistance","brepDistance","hoverDistance","canvasScale","canvasFlex","canvasHierarchy","projectTree","library","outputPreflight","accessibilityInput","inspectorProperties","selectionToolbar","projectTabNavigation","projectComparison","projectRecovery","projectManager","dxfPreparation","spline","curveDxf","kernelResources","conicProjection","ellipseSection","curveHatch","sectionPresentation","courtyardIssue","courtyardConic","courtyardEllipse","courtyardH1","courtyardStudio","frameStitches","frameSheets","frameLinks","workspaceSections","drawingFrames","ellipse","modelSheetSet","modelSheetLayout","modelDrawing","modelPresentation","cadPilots","dxfPlacement","numericPilot","openEndChamfer","sketchStretch","dxfOcs","blockStretch","arcCorners","lineArcFillet","exchangeFixture","copilotEdit","asymmetricChamfer","internalChamfer","keyboardActivation","precisionInput","profileExtrudeRelations","blockLineEdit","dimensionStylePresets","drawOrder","matchVectorAppearance","layerIsolation","draftingVisibility","breakReferences","explodeReferences","explodeBlock","convertEdge","editSketchVertices","hatchReconnection","chainReconnection","bindingReconnection"].includes(page) ? ["--window-size=1440,1000"] : []),
       ...(["commandExperience","canvasIntent","directEditExperience","constrainedDrag","directTargetExperience","editPerformance","patternsWorkflow","contourWorkflow","basicEditWorkflow","dependencyWorkflow","constructionWorkflow","extendedCadWorkflow","curveWorkflow","contourTrimWorkflow","interactionRelations","angularWorkflow","artboardsWorkflow","componentsWorkflow","imageWorkflow","tiffImportWorkflow","imageSourceWorkflow","artboardPngWorkflow","artboardPdfWorkflow","imageResources","scenesWorkflow","dxfWorkflow","copilotGateway","copilotContext","copilotApply","copilotQuery","sessionContinuity","historySelection"].includes(page) ? ["--window-size=1440,1000"] : []),
       ...(["assemblyCandidateSearch","assemblyPlacement","simreadyB1","simready","assembly","assemblyLifecycle","assemblyMotion","interferenceTriage","assemblyDrive","b5WorkPlanes","copilotPlanning","loftEdit","meshEditing","polygonEditing","geometryNodes","sculpt","hybridGeometry","planarReconstruction"].includes(page) ? ["--window-size=1440,1000"] : []),
       ...(process.argv.includes("--hardware-gpu")?["--use-angle=d3d11","--ignore-gpu-blocklist"]:["--use-angle=swiftshader", "--enable-unsafe-swiftshader"]), `--user-data-dir=${profile}`,
@@ -121,7 +131,49 @@ try {
     try {
       const report = await result;
       reports.push({page,status:report.status,checks:report.checks,message:report.status === "passed" ? undefined : report.message});
+      if (page === "autoOntologyPilot" || page === "autoOntologyPilotLive") {
+        const directory = resolve(process.cwd(), `../../output/verification/auto-ontology-pilot-01/${page}`);
+        await mkdir(directory, { recursive: true });
+        await writeFile(join(directory, "browser-report.json"), JSON.stringify({ ...report, artifacts: Object.keys(report.artifacts ?? {}) }, null, 2));
+        for (const [name, data] of Object.entries(report.artifacts ?? {})) {
+          if (!["verified-inspector.png", "external-trace.json"].includes(name)) throw Error("Unexpected ontology pilot artifact");
+          await writeFile(join(directory, name), name.endsWith(".png") ? Buffer.from(data, "base64") : data);
+        }
+      }
       if (report.status === "passed") console.log(`${page}: ${report.checks} UI/Worker checks passed`);
+      if (page === "profileExtrudeRelations") {
+        const directory = resolve(process.cwd(), "../../output/verification/ontology-relation-01");
+        await mkdir(directory, { recursive: true });
+        const image = report.artifacts?.["profile-extrude-inspector.png"];
+        const json = report.artifacts?.["profile-extrude-relations.json"];
+        await writeFile(join(directory, "browser-report.json"), JSON.stringify({...report, artifacts: Object.keys(report.artifacts ?? {})}, null, 2));
+        if (image) await writeFile(join(directory, "profile-extrude-inspector.png"), Buffer.from(image, "base64"));
+        if (json) await writeFile(join(directory, "profile-extrude-relations.json"), json);
+      }
+      if (page === "blockLineEdit") {
+        const directory = resolve(process.cwd(), "../../output/verification/cad-component-01");
+        await mkdir(directory, { recursive: true });
+        const name = "component-line-review.png";
+        const screenshot = report.artifacts?.[name];
+        await writeFile(join(directory, "browser-report.json"), JSON.stringify({...report, artifacts: screenshot ? [name] : []}, null, 2));
+        if (screenshot) await writeFile(join(directory, name), Buffer.from(screenshot, "base64"));
+      }
+      if (page === "dimensionStylePresets") {
+        const directory = resolve(process.cwd(), "../../output/verification/cad-dimstyle-01");
+        await mkdir(directory, { recursive: true });
+        const name = "dimension-style-preset.png";
+        const screenshot = report.artifacts?.[name];
+        await writeFile(join(directory, "browser-report.json"), JSON.stringify({...report, artifacts: screenshot ? [name] : []}, null, 2));
+        if (screenshot) await writeFile(join(directory, name), Buffer.from(screenshot, "base64"));
+      }
+      if (page === "drawOrder") {
+        const directory = resolve(process.cwd(), "../../output/verification/cad-order-01");
+        await mkdir(directory, { recursive: true });
+        const screenshot = report.artifacts?.["red-in-front.png"];
+        await writeFile(join(directory, "browser-report.json"), JSON.stringify({...report, artifacts: screenshot ? ["red-in-front.png"] : []}, null, 2));
+        if (screenshot) await writeFile(join(directory, "red-in-front.png"), Buffer.from(screenshot, "base64"));
+      }
+      if(page==="layerIsolation"){const directory=resolve(process.cwd(),"../../output/verification/cad-layer-01");await mkdir(directory,{recursive:true});await writeFile(join(directory,"browser-report.json"),JSON.stringify(report,null,2));}
       if(page==="sculpt"){const directory=resolve(process.cwd(),"../../output/verification/sculpt-phase-4");await mkdir(directory,{recursive:true});await writeFile(join(directory,"browser-report.json"),JSON.stringify(report,null,2));}
       if(page==="geometryNodes"){const directory=resolve(process.cwd(),"../../output/verification/geometry-nodes-phase-3");await mkdir(directory,{recursive:true});await writeFile(join(directory,"browser-report.json"),JSON.stringify(report,null,2));}
       if(page==="loftEdit"){

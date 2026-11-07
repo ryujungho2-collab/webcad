@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "documentId": "cad-eval-03-synthetic",
+  "intentConfirmed": true,
+  "brief": {
+    "goal": "Replace straight section spans with the existing smooth loft interpolation.",
+    "requirements": "Preserve all three circular source definitions, source order, cap profiles, live dependencies, object identity, placement, finish and unrelated fixture. Geometry must actually change and remain valid.",
+    "assumptions": "Evaluator-authored synthetic intent. Smooth interpolation is not G1/G2 certification.",
+    "questions": "Flow, strength, material specification and manufacturing tolerances remain unverified.",
+    "qualities": [],
+    "anchors": [
+      {
+        "objectId": "intent-loft",
+        "role": "reference"
+      },
+      {
+        "objectId": "section0",
+        "role": "preserve"
+      },
+      {
+        "objectId": "section1",
+        "role": "preserve"
+      },
+      {
+        "objectId": "section2",
+        "role": "preserve"
+      },
+      {
+        "objectId": "protected-fixture",
+        "role": "preserve"
+      }
+    ]
+  },
+  "decisions": []
+}

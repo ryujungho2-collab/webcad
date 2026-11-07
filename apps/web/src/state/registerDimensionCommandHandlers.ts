@@ -3,6 +3,9 @@ import type { CommandBus, CadCommand } from "@agent-webcad/cad-commands";
 import { dimensionSourceGeometry } from "../precision/dimensionSource";
 import { resolveAngularSources } from "../precision/angularDimensionSource";
 import type { AngularDimensionDefinition } from "@agent-webcad/cad-document";
+import { DEFAULT_LINEAR_DIMENSION_PRESET, dimensionStylePresetKey, MAX_DIMENSION_STYLE_PRESETS,
+  validLinearDimensionPresetStyle } from "@agent-webcad/cad-document";
+import { dimensionStyle } from "../precision/dimensionGeometry";
 
 /** Annotation mutations belong to dimensions, independently of contour tools. */
 export function registerDimensionCommandHandlers(commandBus: CommandBus, document: CadDocument) {
@@ -11,6 +14,55 @@ export function registerDimensionCommandHandlers(commandBus: CommandBus, documen
     const object = document.objects[id], layer = object && document.layers[object.layerId];
     return object && layer?.visible && !layer.locked ? object : undefined;
   };
+  const editableLinearDimension = (id: string) => {
+    const feature = featureForObject(id);
+    if (!editableObject(id)?.visible || feature?.type !== "dimension" || feature.params.kind !== "linear") {
+      throw Error("Select visible linear dimensions on unlocked layers.");
+    }
+    return feature;
+  };
+  const presetNamed = (name: string) => {
+    const key = dimensionStylePresetKey(name);
+    return document.dimensionStylePresets?.find(preset => dimensionStylePresetKey(preset.name) === key);
+  };
+  commandBus.registerHandler("save-dimension-style-preset", command => {
+    if (command.type !== "save-dimension-style-preset") return;
+    const source = editableLinearDimension(command.objectId);
+    const name = command.name.trim();
+    if (presetNamed(name)) throw Error("A dimension style already uses this name.");
+    if ((document.dimensionStylePresets?.length ?? 0) >= MAX_DIMENSION_STYLE_PRESETS) {
+      throw Error("This document has reached its dimension style preset limit.");
+    }
+    const style = dimensionStyle(source.params);
+    const defaults = DEFAULT_LINEAR_DIMENSION_PRESET;
+    const snapshot = {
+      lengthUnit: style.lengthUnit ?? defaults.lengthUnit,
+      precision: style.precision ?? defaults.precision,
+      textHeight: style.textHeight ?? defaults.textHeight,
+      arrowSize: style.arrowSize ?? defaults.arrowSize,
+    };
+    if (!validLinearDimensionPresetStyle(snapshot)) throw Error("The source dimension has unsupported display settings.");
+    (document.dimensionStylePresets ??= []).push({ name, style: snapshot });
+    document.revision++;
+  });
+
+  commandBus.registerHandler("apply-dimension-style-preset", command => {
+    if (command.type !== "apply-dimension-style-preset") return;
+    const preset = presetNamed(command.name);
+    if (!preset) throw Error("This dimension style preset is missing.");
+    // Resolve all targets first, so a stale or locked selection cannot partly apply.
+    const targets = [...new Set(command.objectIds)].map(editableLinearDimension);
+    let changed = false;
+    for (const feature of targets) {
+      const previous = dimensionStyle(feature.params);
+      const style = { ...previous, ...preset.style };
+      if (JSON.stringify(style) === JSON.stringify(previous)) continue;
+      feature.params = { ...feature.params, style };
+      changed = true;
+    }
+    if (changed) document.revision++;
+    return { accepted: true };
+  });
   commandBus.registerHandler("create-dimension", async (command: CadCommand) => {
     if (command.type !== "create-dimension") return;
     const layerId = command.layerId ?? "layer-default";

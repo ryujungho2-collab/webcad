@@ -22,6 +22,8 @@ export interface CadDocument {
   blocks?: Record<string, CadBlock>;
   variables?: Record<string, import("./Expressions").CadVariable>;
   parameterBindings?: Record<string, import("./Parameters").CadParameterBinding>;
+  /** Reusable copies of linear annotation appearance, with no live links. */
+  dimensionStylePresets?: import("./DimensionStyle").CadDimensionStylePreset[];
   /** Illustrator-style output boards; geometry remains in document coordinates. */
   artboards?: Record<string, CadArtboard>;
   /** Directed presentation relations, independent of model parenting. */

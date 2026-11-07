@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "checks": 9,
+  "message": "PASS: Selecting the 2D profile shows the live outgoing link with both endpoint IDs\nPASS: Downloaded JSON uses the same document, revision and outgoing relation as the Inspector\nPASS: Selecting the Extrude reveals the same original profile in the opposite view\nPASS: Reverse JSON preserves canonical edge direction, ownership and evidence\nPASS: Inspecting and downloading both directions leaves document and History unchanged\nPASS: Undo removes the relation from both the Inspector and JSON\nPASS: Redo restores the live relation from the current document\nPASS: Native reopen keeps the document ID and advances the current revision\nPASS: Same-ID reopen displays the replacement relationships and current revision\nALL 9 CHECKS PASSED",
+  "artifacts": [
+    "profile-extrude-inspector.png",
+    "profile-extrude-relations.json"
+  ]
+}

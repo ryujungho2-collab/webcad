@@ -1,0 +1,4409 @@
+{
+  "format": "agent-webcad",
+  "version": 21,
+  "document": {
+    "id": "cad-eval-01-synthetic",
+    "revision": 84,
+    "objects": {
+      "model-44030537-profile": {
+        "id": "model-44030537-profile",
+        "geometryId": "geometry-model-44030537-profile",
+        "name": "Sketch Rectangle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "model-b3738c1e": {
+        "id": "model-b3738c1e",
+        "geometryId": "geometry-model-b3738c1e",
+        "name": "Extrude",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "model-d4c51ded": {
+        "id": "model-d4c51ded",
+        "geometryId": "geometry-model-d4c51ded",
+        "name": "Fillet",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "model-82081e90": {
+        "id": "model-82081e90",
+        "geometryId": "geometry-model-82081e90",
+        "name": "Shell",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "model-da009d2e": {
+        "id": "model-da009d2e",
+        "geometryId": "geometry-model-da009d2e",
+        "name": "Hole",
+        "visible": false,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "model-66b14ada": {
+        "id": "model-66b14ada",
+        "geometryId": "geometry-model-66b14ada",
+        "name": "Protected enclosure with two ports",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_outline": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_outline",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_outline",
+        "name": "Sketch Rectangle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole0": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole0",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole0",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole1": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole1",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole1",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole2": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole2",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole2",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole3": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole3",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole3",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole4": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole4",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole4",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole5": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole5",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole5",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole6": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole6",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole6",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole7": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole7",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole7",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole8": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole8",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole8",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole9": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole9",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole9",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole10": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole10",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole10",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole11": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole11",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole11",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole12": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole12",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole12",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole13": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole13",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole13",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole14": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole14",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_hole14",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_solid": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_solid",
+        "geometryId": "geometry-vent_7da94b472c7e4245866a40efb2fe270b_solid",
+        "name": "Vented service lid",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            32
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "protected-electronics-envelope": {
+        "id": "protected-electronics-envelope",
+        "geometryId": "geometry-protected-electronics-envelope",
+        "name": "Box",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            20,
+            20,
+            18
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    "features": {
+      "feature-model-44030537-profile": {
+        "id": "feature-model-44030537-profile",
+        "type": "drawing",
+        "inputs": [],
+        "output": "model-44030537-profile",
+        "params": {
+          "kind": "rectangle",
+          "workPlane": "XY",
+          "sketchId": "model-44030537-sketch",
+          "points": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              100,
+              0,
+              0
+            ],
+            [
+              100,
+              70,
+              0
+            ],
+            [
+              0,
+              70,
+              0
+            ]
+          ],
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "a",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "b",
+                "role": "vertex",
+                "index": 1
+              },
+              {
+                "id": "c",
+                "role": "vertex",
+                "index": 2
+              },
+              {
+                "id": "d",
+                "role": "vertex",
+                "index": 3
+              }
+            ],
+            "segments": [
+              {
+                "id": "ab",
+                "index": 0,
+                "startControlId": "a",
+                "endControlId": "b",
+                "kind": "line"
+              },
+              {
+                "id": "bc",
+                "index": 1,
+                "startControlId": "b",
+                "endControlId": "c",
+                "kind": "line"
+              },
+              {
+                "id": "cd",
+                "index": 2,
+                "startControlId": "c",
+                "endControlId": "d",
+                "kind": "line"
+              },
+              {
+                "id": "da",
+                "index": 3,
+                "startControlId": "d",
+                "endControlId": "a",
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-model-b3738c1e": {
+        "id": "feature-model-b3738c1e",
+        "type": "extrude",
+        "dependencyMode": "live",
+        "inputs": [
+          "model-44030537-profile"
+        ],
+        "output": "model-b3738c1e",
+        "params": {
+          "kind": "extrude",
+          "distance": 30,
+          "profile": {
+            "id": "loop:model-44030537-profile/ab|model-44030537-profile/bc|model-44030537-profile/cd|model-44030537-profile/da",
+            "workPlane": "XY",
+            "normal": [
+              0,
+              0,
+              1
+            ],
+            "segments": [
+              {
+                "kind": "line",
+                "topologyReference": "model-44030537-profile/ab",
+                "start": [
+                  0,
+                  0,
+                  0
+                ],
+                "end": [
+                  100,
+                  0,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "model-44030537-profile/bc",
+                "start": [
+                  100,
+                  0,
+                  0
+                ],
+                "end": [
+                  100,
+                  70,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "model-44030537-profile/cd",
+                "start": [
+                  100,
+                  70,
+                  0
+                ],
+                "end": [
+                  0,
+                  70,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "model-44030537-profile/da",
+                "start": [
+                  0,
+                  70,
+                  0
+                ],
+                "end": [
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "sourceObjectIds": [
+              "model-44030537-profile"
+            ],
+            "sourceTopologyIds": [
+              "model-44030537-profile/ab",
+              "model-44030537-profile/bc",
+              "model-44030537-profile/cd",
+              "model-44030537-profile/da"
+            ]
+          },
+          "bounds": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              100,
+              70,
+              30
+            ]
+          }
+        }
+      },
+      "feature-model-d4c51ded": {
+        "id": "feature-model-d4c51ded",
+        "type": "fillet",
+        "dependencyMode": "live",
+        "inputs": [
+          "model-b3738c1e"
+        ],
+        "output": "model-d4c51ded",
+        "params": {
+          "kind": "fillet",
+          "radius": 4,
+          "edgeKeys": [
+            "edge:line:0.000000,0.000000,0.000000|0.000000,0.000000,30.000000|30.000000",
+            "edge:line:100.000000,0.000000,0.000000|100.000000,0.000000,30.000000|30.000000",
+            "edge:line:100.000000,70.000000,0.000000|100.000000,70.000000,30.000000|30.000000",
+            "edge:line:0.000000,70.000000,0.000000|0.000000,70.000000,30.000000|30.000000"
+          ],
+          "source": {
+            "params": {
+              "kind": "extrude",
+              "distance": 30,
+              "profile": {
+                "id": "loop:model-44030537-profile/ab|model-44030537-profile/bc|model-44030537-profile/cd|model-44030537-profile/da",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "segments": [
+                  {
+                    "kind": "line",
+                    "topologyReference": "model-44030537-profile/ab",
+                    "start": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "end": [
+                      100,
+                      0,
+                      0
+                    ]
+                  },
+                  {
+                    "kind": "line",
+                    "topologyReference": "model-44030537-profile/bc",
+                    "start": [
+                      100,
+                      0,
+                      0
+                    ],
+                    "end": [
+                      100,
+                      70,
+                      0
+                    ]
+                  },
+                  {
+                    "kind": "line",
+                    "topologyReference": "model-44030537-profile/cd",
+                    "start": [
+                      100,
+                      70,
+                      0
+                    ],
+                    "end": [
+                      0,
+                      70,
+                      0
+                    ]
+                  },
+                  {
+                    "kind": "line",
+                    "topologyReference": "model-44030537-profile/da",
+                    "start": [
+                      0,
+                      70,
+                      0
+                    ],
+                    "end": [
+                      0,
+                      0,
+                      0
+                    ]
+                  }
+                ],
+                "sourceObjectIds": [
+                  "model-44030537-profile"
+                ],
+                "sourceTopologyIds": [
+                  "model-44030537-profile/ab",
+                  "model-44030537-profile/bc",
+                  "model-44030537-profile/cd",
+                  "model-44030537-profile/da"
+                ]
+              },
+              "bounds": {
+                "min": [
+                  0,
+                  0,
+                  0
+                ],
+                "max": [
+                  100,
+                  70,
+                  30
+                ]
+              }
+            },
+            "transform": {
+              "translation": [
+                0,
+                0,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            }
+          },
+          "bounds": {
+            "min": [
+              -8.881784197001252e-16,
+              -8.881784197001252e-16,
+              0
+            ],
+            "max": [
+              100,
+              70,
+              30
+            ]
+          }
+        }
+      },
+      "feature-model-82081e90": {
+        "id": "feature-model-82081e90",
+        "type": "shell",
+        "dependencyMode": "live",
+        "inputs": [
+          "model-d4c51ded"
+        ],
+        "output": "model-82081e90",
+        "params": {
+          "kind": "shell",
+          "thickness": 2,
+          "faceKeys": [
+            "face:32:30:50.000000,35.000000,30.000000|0.000000,0.000000,1.000000|6985.844689"
+          ],
+          "referenceStatus": "resolved",
+          "source": {
+            "params": {
+              "kind": "fillet",
+              "radius": 4,
+              "edgeKeys": [
+                "edge:line:0.000000,0.000000,0.000000|0.000000,0.000000,30.000000|30.000000",
+                "edge:line:100.000000,0.000000,0.000000|100.000000,0.000000,30.000000|30.000000",
+                "edge:line:100.000000,70.000000,0.000000|100.000000,70.000000,30.000000|30.000000",
+                "edge:line:0.000000,70.000000,0.000000|0.000000,70.000000,30.000000|30.000000"
+              ],
+              "source": {
+                "params": {
+                  "kind": "extrude",
+                  "distance": 30,
+                  "profile": {
+                    "id": "loop:model-44030537-profile/ab|model-44030537-profile/bc|model-44030537-profile/cd|model-44030537-profile/da",
+                    "workPlane": "XY",
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "segments": [
+                      {
+                        "kind": "line",
+                        "topologyReference": "model-44030537-profile/ab",
+                        "start": [
+                          0,
+                          0,
+                          0
+                        ],
+                        "end": [
+                          100,
+                          0,
+                          0
+                        ]
+                      },
+                      {
+                        "kind": "line",
+                        "topologyReference": "model-44030537-profile/bc",
+                        "start": [
+                          100,
+                          0,
+                          0
+                        ],
+                        "end": [
+                          100,
+                          70,
+                          0
+                        ]
+                      },
+                      {
+                        "kind": "line",
+                        "topologyReference": "model-44030537-profile/cd",
+                        "start": [
+                          100,
+                          70,
+                          0
+                        ],
+                        "end": [
+                          0,
+                          70,
+                          0
+                        ]
+                      },
+                      {
+                        "kind": "line",
+                        "topologyReference": "model-44030537-profile/da",
+                        "start": [
+                          0,
+                          70,
+                          0
+                        ],
+                        "end": [
+                          0,
+                          0,
+                          0
+                        ]
+                      }
+                    ],
+                    "sourceObjectIds": [
+                      "model-44030537-profile"
+                    ],
+                    "sourceTopologyIds": [
+                      "model-44030537-profile/ab",
+                      "model-44030537-profile/bc",
+                      "model-44030537-profile/cd",
+                      "model-44030537-profile/da"
+                    ]
+                  },
+                  "bounds": {
+                    "min": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "max": [
+                      100,
+                      70,
+                      30
+                    ]
+                  }
+                },
+                "transform": {
+                  "translation": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "rotation": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "scale": [
+                    1,
+                    1,
+                    1
+                  ]
+                }
+              },
+              "bounds": {
+                "min": [
+                  -8.881784197001252e-16,
+                  -8.881784197001252e-16,
+                  0
+                ],
+                "max": [
+                  100,
+                  70,
+                  30
+                ]
+              }
+            },
+            "transform": {
+              "translation": [
+                0,
+                0,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            }
+          },
+          "bounds": {
+            "min": [
+              -8.881784197001252e-16,
+              -8.881784197001252e-16,
+              0
+            ],
+            "max": [
+              100,
+              70,
+              30
+            ]
+          }
+        }
+      },
+      "feature-model-da009d2e": {
+        "id": "feature-model-da009d2e",
+        "type": "boolean",
+        "dependencyMode": "live",
+        "inputs": [
+          "model-82081e90"
+        ],
+        "output": "model-da009d2e",
+        "params": {
+          "operation": "cut",
+          "operands": [
+            {
+              "params": {
+                "kind": "shell",
+                "thickness": 2,
+                "faceKeys": [
+                  "face:32:30:50.000000,35.000000,30.000000|0.000000,0.000000,1.000000|6985.844689"
+                ],
+                "referenceStatus": "resolved",
+                "source": {
+                  "params": {
+                    "kind": "fillet",
+                    "radius": 4,
+                    "edgeKeys": [
+                      "edge:line:0.000000,0.000000,0.000000|0.000000,0.000000,30.000000|30.000000",
+                      "edge:line:100.000000,0.000000,0.000000|100.000000,0.000000,30.000000|30.000000",
+                      "edge:line:100.000000,70.000000,0.000000|100.000000,70.000000,30.000000|30.000000",
+                      "edge:line:0.000000,70.000000,0.000000|0.000000,70.000000,30.000000|30.000000"
+                    ],
+                    "source": {
+                      "params": {
+                        "kind": "extrude",
+                        "distance": 30,
+                        "profile": {
+                          "id": "loop:model-44030537-profile/ab|model-44030537-profile/bc|model-44030537-profile/cd|model-44030537-profile/da",
+                          "workPlane": "XY",
+                          "normal": [
+                            0,
+                            0,
+                            1
+                          ],
+                          "segments": [
+                            {
+                              "kind": "line",
+                              "topologyReference": "model-44030537-profile/ab",
+                              "start": [
+                                0,
+                                0,
+                                0
+                              ],
+                              "end": [
+                                100,
+                                0,
+                                0
+                              ]
+                            },
+                            {
+                              "kind": "line",
+                              "topologyReference": "model-44030537-profile/bc",
+                              "start": [
+                                100,
+                                0,
+                                0
+                              ],
+                              "end": [
+                                100,
+                                70,
+                                0
+                              ]
+                            },
+                            {
+                              "kind": "line",
+                              "topologyReference": "model-44030537-profile/cd",
+                              "start": [
+                                100,
+                                70,
+                                0
+                              ],
+                              "end": [
+                                0,
+                                70,
+                                0
+                              ]
+                            },
+                            {
+                              "kind": "line",
+                              "topologyReference": "model-44030537-profile/da",
+                              "start": [
+                                0,
+                                70,
+                                0
+                              ],
+                              "end": [
+                                0,
+                                0,
+                                0
+                              ]
+                            }
+                          ],
+                          "sourceObjectIds": [
+                            "model-44030537-profile"
+                          ],
+                          "sourceTopologyIds": [
+                            "model-44030537-profile/ab",
+                            "model-44030537-profile/bc",
+                            "model-44030537-profile/cd",
+                            "model-44030537-profile/da"
+                          ]
+                        },
+                        "bounds": {
+                          "min": [
+                            0,
+                            0,
+                            0
+                          ],
+                          "max": [
+                            100,
+                            70,
+                            30
+                          ]
+                        }
+                      },
+                      "transform": {
+                        "translation": [
+                          0,
+                          0,
+                          0
+                        ],
+                        "rotation": [
+                          0,
+                          0,
+                          0
+                        ],
+                        "scale": [
+                          1,
+                          1,
+                          1
+                        ]
+                      }
+                    },
+                    "bounds": {
+                      "min": [
+                        -8.881784197001252e-16,
+                        -8.881784197001252e-16,
+                        0
+                      ],
+                      "max": [
+                        100,
+                        70,
+                        30
+                      ]
+                    }
+                  },
+                  "transform": {
+                    "translation": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "rotation": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "scale": [
+                      1,
+                      1,
+                      1
+                    ]
+                  }
+                },
+                "bounds": {
+                  "min": [
+                    -8.881784197001252e-16,
+                    -8.881784197001252e-16,
+                    0
+                  ],
+                  "max": [
+                    100,
+                    70,
+                    30
+                  ]
+                }
+              },
+              "transform": {
+                "translation": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            },
+            {
+              "params": {
+                "kind": "extrude",
+                "profile": {
+                  "id": "hole:plane-model-da009d2e",
+                  "normal": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "segments": [
+                    {
+                      "kind": "circle",
+                      "topologyReference": "hole-wall",
+                      "center": [
+                        49.99999999999999,
+                        35,
+                        2
+                      ],
+                      "radius": 4,
+                      "normal": [
+                        0,
+                        0,
+                        1
+                      ],
+                      "xAxis": [
+                        1,
+                        0,
+                        0
+                      ]
+                    }
+                  ]
+                },
+                "distance": -3
+              },
+              "transform": {
+                "translation": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            }
+          ],
+          "faceHole": {
+            "planeId": "plane-model-da009d2e",
+            "targetId": "model-82081e90",
+            "center": [
+              0,
+              0
+            ],
+            "diameter": 8,
+            "depth": 1,
+            "through": true
+          },
+          "faceHoleStatus": "resolved",
+          "bounds": {
+            "min": [
+              -8.881784197001252e-16,
+              -8.881784197001252e-16,
+              0
+            ],
+            "max": [
+              100,
+              70,
+              30
+            ]
+          }
+        }
+      },
+      "feature-model-66b14ada": {
+        "id": "feature-model-66b14ada",
+        "type": "boolean",
+        "dependencyMode": "live",
+        "inputs": [
+          "model-da009d2e"
+        ],
+        "output": "model-66b14ada",
+        "params": {
+          "operation": "cut",
+          "operands": [
+            {
+              "params": {
+                "operation": "cut",
+                "operands": [
+                  {
+                    "params": {
+                      "kind": "shell",
+                      "thickness": 2,
+                      "faceKeys": [
+                        "face:32:30:50.000000,35.000000,30.000000|0.000000,0.000000,1.000000|6985.844689"
+                      ],
+                      "referenceStatus": "resolved",
+                      "source": {
+                        "params": {
+                          "kind": "fillet",
+                          "radius": 4,
+                          "edgeKeys": [
+                            "edge:line:0.000000,0.000000,0.000000|0.000000,0.000000,30.000000|30.000000",
+                            "edge:line:100.000000,0.000000,0.000000|100.000000,0.000000,30.000000|30.000000",
+                            "edge:line:100.000000,70.000000,0.000000|100.000000,70.000000,30.000000|30.000000",
+                            "edge:line:0.000000,70.000000,0.000000|0.000000,70.000000,30.000000|30.000000"
+                          ],
+                          "source": {
+                            "params": {
+                              "kind": "extrude",
+                              "distance": 30,
+                              "profile": {
+                                "id": "loop:model-44030537-profile/ab|model-44030537-profile/bc|model-44030537-profile/cd|model-44030537-profile/da",
+                                "workPlane": "XY",
+                                "normal": [
+                                  0,
+                                  0,
+                                  1
+                                ],
+                                "segments": [
+                                  {
+                                    "kind": "line",
+                                    "topologyReference": "model-44030537-profile/ab",
+                                    "start": [
+                                      0,
+                                      0,
+                                      0
+                                    ],
+                                    "end": [
+                                      100,
+                                      0,
+                                      0
+                                    ]
+                                  },
+                                  {
+                                    "kind": "line",
+                                    "topologyReference": "model-44030537-profile/bc",
+                                    "start": [
+                                      100,
+                                      0,
+                                      0
+                                    ],
+                                    "end": [
+                                      100,
+                                      70,
+                                      0
+                                    ]
+                                  },
+                                  {
+                                    "kind": "line",
+                                    "topologyReference": "model-44030537-profile/cd",
+                                    "start": [
+                                      100,
+                                      70,
+                                      0
+                                    ],
+                                    "end": [
+                                      0,
+                                      70,
+                                      0
+                                    ]
+                                  },
+                                  {
+                                    "kind": "line",
+                                    "topologyReference": "model-44030537-profile/da",
+                                    "start": [
+                                      0,
+                                      70,
+                                      0
+                                    ],
+                                    "end": [
+                                      0,
+                                      0,
+                                      0
+                                    ]
+                                  }
+                                ],
+                                "sourceObjectIds": [
+                                  "model-44030537-profile"
+                                ],
+                                "sourceTopologyIds": [
+                                  "model-44030537-profile/ab",
+                                  "model-44030537-profile/bc",
+                                  "model-44030537-profile/cd",
+                                  "model-44030537-profile/da"
+                                ]
+                              },
+                              "bounds": {
+                                "min": [
+                                  0,
+                                  0,
+                                  0
+                                ],
+                                "max": [
+                                  100,
+                                  70,
+                                  30
+                                ]
+                              }
+                            },
+                            "transform": {
+                              "translation": [
+                                0,
+                                0,
+                                0
+                              ],
+                              "rotation": [
+                                0,
+                                0,
+                                0
+                              ],
+                              "scale": [
+                                1,
+                                1,
+                                1
+                              ]
+                            }
+                          },
+                          "bounds": {
+                            "min": [
+                              -8.881784197001252e-16,
+                              -8.881784197001252e-16,
+                              0
+                            ],
+                            "max": [
+                              100,
+                              70,
+                              30
+                            ]
+                          }
+                        },
+                        "transform": {
+                          "translation": [
+                            0,
+                            0,
+                            0
+                          ],
+                          "rotation": [
+                            0,
+                            0,
+                            0
+                          ],
+                          "scale": [
+                            1,
+                            1,
+                            1
+                          ]
+                        }
+                      },
+                      "bounds": {
+                        "min": [
+                          -8.881784197001252e-16,
+                          -8.881784197001252e-16,
+                          0
+                        ],
+                        "max": [
+                          100,
+                          70,
+                          30
+                        ]
+                      }
+                    },
+                    "transform": {
+                      "translation": [
+                        0,
+                        0,
+                        0
+                      ],
+                      "rotation": [
+                        0,
+                        0,
+                        0
+                      ],
+                      "scale": [
+                        1,
+                        1,
+                        1
+                      ]
+                    }
+                  },
+                  {
+                    "params": {
+                      "kind": "extrude",
+                      "profile": {
+                        "id": "hole:plane-model-da009d2e",
+                        "normal": [
+                          0,
+                          0,
+                          1
+                        ],
+                        "segments": [
+                          {
+                            "kind": "circle",
+                            "topologyReference": "hole-wall",
+                            "center": [
+                              49.99999999999999,
+                              35,
+                              2
+                            ],
+                            "radius": 4,
+                            "normal": [
+                              0,
+                              0,
+                              1
+                            ],
+                            "xAxis": [
+                              1,
+                              0,
+                              0
+                            ]
+                          }
+                        ]
+                      },
+                      "distance": -3
+                    },
+                    "transform": {
+                      "translation": [
+                        0,
+                        0,
+                        0
+                      ],
+                      "rotation": [
+                        0,
+                        0,
+                        0
+                      ],
+                      "scale": [
+                        1,
+                        1,
+                        1
+                      ]
+                    }
+                  }
+                ],
+                "faceHole": {
+                  "planeId": "plane-model-da009d2e",
+                  "targetId": "model-82081e90",
+                  "center": [
+                    0,
+                    0
+                  ],
+                  "diameter": 8,
+                  "depth": 1,
+                  "through": true
+                },
+                "faceHoleStatus": "resolved",
+                "bounds": {
+                  "min": [
+                    -8.881784197001252e-16,
+                    -8.881784197001252e-16,
+                    0
+                  ],
+                  "max": [
+                    100,
+                    70,
+                    30
+                  ]
+                }
+              },
+              "transform": {
+                "translation": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            },
+            {
+              "params": {
+                "kind": "extrude",
+                "profile": {
+                  "id": "hole:plane-model-66b14ada",
+                  "normal": [
+                    0,
+                    -1,
+                    0
+                  ],
+                  "segments": [
+                    {
+                      "kind": "circle",
+                      "topologyReference": "hole-wall",
+                      "center": [
+                        50,
+                        -8.881784197001252e-16,
+                        15
+                      ],
+                      "radius": 5,
+                      "normal": [
+                        0,
+                        -1,
+                        0
+                      ],
+                      "xAxis": [
+                        1,
+                        0,
+                        0
+                      ]
+                    }
+                  ]
+                },
+                "distance": -2
+              },
+              "transform": {
+                "translation": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              }
+            }
+          ],
+          "faceHole": {
+            "planeId": "plane-model-66b14ada",
+            "targetId": "model-da009d2e",
+            "center": [
+              0,
+              0
+            ],
+            "diameter": 10,
+            "depth": 2,
+            "through": false
+          },
+          "faceHoleStatus": "resolved",
+          "bounds": {
+            "min": [
+              -8.881784197001252e-16,
+              -8.881784197001252e-16,
+              0
+            ],
+            "max": [
+              100,
+              70,
+              30
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_outline": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_outline",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_outline",
+        "params": {
+          "kind": "rectangle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "points": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              100,
+              0,
+              0
+            ],
+            [
+              100,
+              70,
+              0
+            ],
+            [
+              0,
+              70,
+              0
+            ]
+          ],
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "a",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "b",
+                "role": "vertex",
+                "index": 1
+              },
+              {
+                "id": "c",
+                "role": "vertex",
+                "index": 2
+              },
+              {
+                "id": "d",
+                "role": "vertex",
+                "index": 3
+              }
+            ],
+            "segments": [
+              {
+                "id": "ab",
+                "index": 0,
+                "startControlId": "a",
+                "endControlId": "b",
+                "kind": "line"
+              },
+              {
+                "id": "bc",
+                "index": 1,
+                "startControlId": "b",
+                "endControlId": "c",
+                "kind": "line"
+              },
+              {
+                "id": "cd",
+                "index": 2,
+                "startControlId": "c",
+                "endControlId": "d",
+                "kind": "line"
+              },
+              {
+                "id": "da",
+                "index": 3,
+                "startControlId": "d",
+                "endControlId": "a",
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole0": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole0",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole0",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            12,
+            12,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole0:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole1": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole1",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole1",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            31,
+            12,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole1:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole2": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole2",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole2",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            50,
+            12,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole2:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole3": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole3",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole3",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            69,
+            12,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole3:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole4": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole4",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole4",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            88,
+            12,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole4:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole5": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole5",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole5",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            12,
+            35,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole5:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole6": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole6",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole6",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            31,
+            35,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole6:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole7": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole7",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole7",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            50,
+            35,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole7:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole8": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole8",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole8",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            69,
+            35,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole8:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole9": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole9",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole9",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            88,
+            35,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole9:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole10": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole10",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole10",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            12,
+            58,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole10:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole11": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole11",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole11",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            31,
+            58,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole11:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole12": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole12",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole12",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            50,
+            58,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole12:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole13": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole13",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole13",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            69,
+            58,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole13:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole14": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_hole14",
+        "type": "drawing",
+        "inputs": [],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_hole14",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "center": [
+            88,
+            58,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole14:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-vent_7da94b472c7e4245866a40efb2fe270b_solid": {
+        "id": "feature-vent_7da94b472c7e4245866a40efb2fe270b_solid",
+        "type": "extrude",
+        "dependencyMode": "live",
+        "inputs": [
+          "vent_7da94b472c7e4245866a40efb2fe270b_outline",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole0",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole1",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole10",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole11",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole12",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole13",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole14",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole2",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole3",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole4",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole5",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole6",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole7",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole8",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole9"
+        ],
+        "output": "vent_7da94b472c7e4245866a40efb2fe270b_solid",
+        "params": {
+          "kind": "extrude",
+          "distance": 3,
+          "profile": {
+            "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_outline/ab|vent_7da94b472c7e4245866a40efb2fe270b_outline/bc|vent_7da94b472c7e4245866a40efb2fe270b_outline/cd|vent_7da94b472c7e4245866a40efb2fe270b_outline/da",
+            "workPlane": "XY",
+            "normal": [
+              0,
+              0,
+              1
+            ],
+            "segments": [
+              {
+                "kind": "line",
+                "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_outline/ab",
+                "start": [
+                  0,
+                  0,
+                  0
+                ],
+                "end": [
+                  100,
+                  0,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_outline/bc",
+                "start": [
+                  100,
+                  0,
+                  0
+                ],
+                "end": [
+                  100,
+                  70,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_outline/cd",
+                "start": [
+                  100,
+                  70,
+                  0
+                ],
+                "end": [
+                  0,
+                  70,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_outline/da",
+                "start": [
+                  0,
+                  70,
+                  0
+                ],
+                "end": [
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "sourceObjectIds": [
+              "vent_7da94b472c7e4245866a40efb2fe270b_outline",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole0",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole1",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole10",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole11",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole12",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole13",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole14",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole2",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole3",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole4",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole5",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole6",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole7",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole8",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole9"
+            ],
+            "sourceTopologyIds": [
+              "vent_7da94b472c7e4245866a40efb2fe270b_outline/ab",
+              "vent_7da94b472c7e4245866a40efb2fe270b_outline/bc",
+              "vent_7da94b472c7e4245866a40efb2fe270b_outline/cd",
+              "vent_7da94b472c7e4245866a40efb2fe270b_outline/da",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole0/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole1/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole10/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole11/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole12/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole13/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole14/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole2/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole3/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole4/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole5/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole6/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole7/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole8/curve",
+              "vent_7da94b472c7e4245866a40efb2fe270b_hole9/curve"
+            ],
+            "holes": [
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole0/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole0"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole0/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole0/curve",
+                    "center": [
+                      12,
+                      12,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole1/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole1"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole1/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole1/curve",
+                    "center": [
+                      31,
+                      12,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole10/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole10"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole10/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole10/curve",
+                    "center": [
+                      12,
+                      58,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole11/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole11"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole11/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole11/curve",
+                    "center": [
+                      31,
+                      58,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole12/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole12"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole12/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole12/curve",
+                    "center": [
+                      50,
+                      58,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole13/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole13"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole13/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole13/curve",
+                    "center": [
+                      69,
+                      58,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole14/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole14"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole14/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole14/curve",
+                    "center": [
+                      88,
+                      58,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole2/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole2"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole2/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole2/curve",
+                    "center": [
+                      50,
+                      12,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole3/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole3"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole3/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole3/curve",
+                    "center": [
+                      69,
+                      12,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole4/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole4"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole4/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole4/curve",
+                    "center": [
+                      88,
+                      12,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole5/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole5"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole5/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole5/curve",
+                    "center": [
+                      12,
+                      35,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole6/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole6"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole6/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole6/curve",
+                    "center": [
+                      31,
+                      35,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole7/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole7"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole7/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole7/curve",
+                    "center": [
+                      50,
+                      35,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole8/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole8"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole8/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole8/curve",
+                    "center": [
+                      69,
+                      35,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:vent_7da94b472c7e4245866a40efb2fe270b_hole9/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole9"
+                ],
+                "sourceTopologyIds": [
+                  "vent_7da94b472c7e4245866a40efb2fe270b_hole9/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "vent_7da94b472c7e4245866a40efb2fe270b_hole9/curve",
+                    "center": [
+                      88,
+                      35,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "bounds": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              100,
+              70,
+              3
+            ]
+          }
+        }
+      },
+      "feature-protected-electronics-envelope": {
+        "id": "feature-protected-electronics-envelope",
+        "type": "primitive",
+        "inputs": [],
+        "output": "protected-electronics-envelope",
+        "params": {
+          "kind": "box",
+          "width": 60,
+          "depth": 30,
+          "height": 4
+        }
+      }
+    },
+    "sketches": {
+      "model-44030537-sketch": {
+        "id": "model-44030537-sketch",
+        "workPlane": "XY",
+        "layerId": "layer-default",
+        "geometry": [
+          {
+            "id": "model-44030537-profile",
+            "kind": "rectangle",
+            "origin": [
+              0,
+              0
+            ],
+            "width": 100,
+            "height": 70,
+            "cornerIds": [
+              "a",
+              "b",
+              "c",
+              "d"
+            ],
+            "edgeIds": [
+              "ab",
+              "bc",
+              "cd",
+              "da"
+            ]
+          }
+        ],
+        "constraints": [
+          {
+            "id": "model-44030537-profile-origin",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "model-44030537-profile",
+              "pointId": "a"
+            },
+            "value": [
+              0,
+              0
+            ]
+          },
+          {
+            "id": "model-44030537-profile-width",
+            "kind": "distance",
+            "first": {
+              "geometryId": "model-44030537-profile",
+              "pointId": "a"
+            },
+            "second": {
+              "geometryId": "model-44030537-profile",
+              "pointId": "b"
+            },
+            "value": 100
+          },
+          {
+            "id": "model-44030537-profile-height",
+            "kind": "distance",
+            "first": {
+              "geometryId": "model-44030537-profile",
+              "pointId": "b"
+            },
+            "second": {
+              "geometryId": "model-44030537-profile",
+              "pointId": "c"
+            },
+            "value": 70
+          }
+        ],
+        "dimensions": [
+          {
+            "id": "dimension:model-44030537-profile-width",
+            "constraintId": "model-44030537-profile-width"
+          },
+          {
+            "id": "dimension:model-44030537-profile-height",
+            "constraintId": "model-44030537-profile-height"
+          }
+        ],
+        "solveState": {
+          "status": "fully-constrained",
+          "degreesOfFreedom": 0,
+          "rank": 4,
+          "residual": 0,
+          "tolerance": 0.000001,
+          "angularTolerance": 1e-8
+        }
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_sketch": {
+        "id": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+        "workPlane": "XY",
+        "layerId": "layer-default",
+        "geometry": [
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_outline",
+            "kind": "rectangle",
+            "origin": [
+              0,
+              0
+            ],
+            "width": 100,
+            "height": 70,
+            "cornerIds": [
+              "a",
+              "b",
+              "c",
+              "d"
+            ],
+            "edgeIds": [
+              "ab",
+              "bc",
+              "cd",
+              "da"
+            ]
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole0",
+            "kind": "circle",
+            "center": [
+              12,
+              12
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole1",
+            "kind": "circle",
+            "center": [
+              31,
+              12
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole2",
+            "kind": "circle",
+            "center": [
+              50,
+              12
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole3",
+            "kind": "circle",
+            "center": [
+              69,
+              12
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole4",
+            "kind": "circle",
+            "center": [
+              88,
+              12
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole5",
+            "kind": "circle",
+            "center": [
+              12,
+              35
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole6",
+            "kind": "circle",
+            "center": [
+              31,
+              35
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole7",
+            "kind": "circle",
+            "center": [
+              50,
+              35
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole8",
+            "kind": "circle",
+            "center": [
+              69,
+              35
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole9",
+            "kind": "circle",
+            "center": [
+              88,
+              35
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole10",
+            "kind": "circle",
+            "center": [
+              12,
+              58
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole11",
+            "kind": "circle",
+            "center": [
+              31,
+              58
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole12",
+            "kind": "circle",
+            "center": [
+              50,
+              58
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole13",
+            "kind": "circle",
+            "center": [
+              69,
+              58
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "vent_7da94b472c7e4245866a40efb2fe270b_hole14",
+            "kind": "circle",
+            "center": [
+              88,
+              58
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          }
+        ],
+        "constraints": [
+          {
+            "id": "origin",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_outline",
+              "pointId": "a"
+            },
+            "value": [
+              0,
+              0
+            ]
+          },
+          {
+            "id": "width",
+            "kind": "distance",
+            "first": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_outline",
+              "pointId": "a"
+            },
+            "second": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_outline",
+              "pointId": "b"
+            },
+            "value": 100
+          },
+          {
+            "id": "depth",
+            "kind": "distance",
+            "first": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_outline",
+              "pointId": "b"
+            },
+            "second": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_outline",
+              "pointId": "c"
+            },
+            "value": 70
+          },
+          {
+            "id": "center0",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole0",
+              "pointId": "center"
+            },
+            "value": [
+              12,
+              12
+            ]
+          },
+          {
+            "id": "diameter0",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole0",
+            "value": 6
+          },
+          {
+            "id": "center1",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole1",
+              "pointId": "center"
+            },
+            "value": [
+              31,
+              12
+            ]
+          },
+          {
+            "id": "diameter1",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole1",
+            "value": 6
+          },
+          {
+            "id": "center2",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole2",
+              "pointId": "center"
+            },
+            "value": [
+              50,
+              12
+            ]
+          },
+          {
+            "id": "diameter2",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole2",
+            "value": 6
+          },
+          {
+            "id": "center3",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole3",
+              "pointId": "center"
+            },
+            "value": [
+              69,
+              12
+            ]
+          },
+          {
+            "id": "diameter3",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole3",
+            "value": 6
+          },
+          {
+            "id": "center4",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole4",
+              "pointId": "center"
+            },
+            "value": [
+              88,
+              12
+            ]
+          },
+          {
+            "id": "diameter4",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole4",
+            "value": 6
+          },
+          {
+            "id": "center5",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole5",
+              "pointId": "center"
+            },
+            "value": [
+              12,
+              35
+            ]
+          },
+          {
+            "id": "diameter5",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole5",
+            "value": 6
+          },
+          {
+            "id": "center6",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole6",
+              "pointId": "center"
+            },
+            "value": [
+              31,
+              35
+            ]
+          },
+          {
+            "id": "diameter6",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole6",
+            "value": 6
+          },
+          {
+            "id": "center7",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole7",
+              "pointId": "center"
+            },
+            "value": [
+              50,
+              35
+            ]
+          },
+          {
+            "id": "diameter7",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole7",
+            "value": 6
+          },
+          {
+            "id": "center8",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole8",
+              "pointId": "center"
+            },
+            "value": [
+              69,
+              35
+            ]
+          },
+          {
+            "id": "diameter8",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole8",
+            "value": 6
+          },
+          {
+            "id": "center9",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole9",
+              "pointId": "center"
+            },
+            "value": [
+              88,
+              35
+            ]
+          },
+          {
+            "id": "diameter9",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole9",
+            "value": 6
+          },
+          {
+            "id": "center10",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole10",
+              "pointId": "center"
+            },
+            "value": [
+              12,
+              58
+            ]
+          },
+          {
+            "id": "diameter10",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole10",
+            "value": 6
+          },
+          {
+            "id": "center11",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole11",
+              "pointId": "center"
+            },
+            "value": [
+              31,
+              58
+            ]
+          },
+          {
+            "id": "diameter11",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole11",
+            "value": 6
+          },
+          {
+            "id": "center12",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole12",
+              "pointId": "center"
+            },
+            "value": [
+              50,
+              58
+            ]
+          },
+          {
+            "id": "diameter12",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole12",
+            "value": 6
+          },
+          {
+            "id": "center13",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole13",
+              "pointId": "center"
+            },
+            "value": [
+              69,
+              58
+            ]
+          },
+          {
+            "id": "diameter13",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole13",
+            "value": 6
+          },
+          {
+            "id": "center14",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole14",
+              "pointId": "center"
+            },
+            "value": [
+              88,
+              58
+            ]
+          },
+          {
+            "id": "diameter14",
+            "kind": "diameter",
+            "geometryId": "vent_7da94b472c7e4245866a40efb2fe270b_hole14",
+            "value": 6
+          }
+        ],
+        "dimensions": [
+          {
+            "id": "dimension:width",
+            "constraintId": "width"
+          },
+          {
+            "id": "dimension:depth",
+            "constraintId": "depth"
+          },
+          {
+            "id": "dimension:diameter0",
+            "constraintId": "diameter0"
+          },
+          {
+            "id": "dimension:diameter1",
+            "constraintId": "diameter1"
+          },
+          {
+            "id": "dimension:diameter2",
+            "constraintId": "diameter2"
+          },
+          {
+            "id": "dimension:diameter3",
+            "constraintId": "diameter3"
+          },
+          {
+            "id": "dimension:diameter4",
+            "constraintId": "diameter4"
+          },
+          {
+            "id": "dimension:diameter5",
+            "constraintId": "diameter5"
+          },
+          {
+            "id": "dimension:diameter6",
+            "constraintId": "diameter6"
+          },
+          {
+            "id": "dimension:diameter7",
+            "constraintId": "diameter7"
+          },
+          {
+            "id": "dimension:diameter8",
+            "constraintId": "diameter8"
+          },
+          {
+            "id": "dimension:diameter9",
+            "constraintId": "diameter9"
+          },
+          {
+            "id": "dimension:diameter10",
+            "constraintId": "diameter10"
+          },
+          {
+            "id": "dimension:diameter11",
+            "constraintId": "diameter11"
+          },
+          {
+            "id": "dimension:diameter12",
+            "constraintId": "diameter12"
+          },
+          {
+            "id": "dimension:diameter13",
+            "constraintId": "diameter13"
+          },
+          {
+            "id": "dimension:diameter14",
+            "constraintId": "diameter14"
+          }
+        ],
+        "solveState": {
+          "status": "fully-constrained",
+          "degreesOfFreedom": 0,
+          "rank": 49,
+          "residual": 0,
+          "tolerance": 0.000001,
+          "angularTolerance": 1e-8
+        }
+      }
+    },
+    "layers": {
+      "layer-default": {
+        "id": "layer-default",
+        "name": "Default",
+        "visible": true,
+        "locked": false,
+        "objectIds": [
+          "model-44030537-profile",
+          "model-b3738c1e",
+          "model-d4c51ded",
+          "model-82081e90",
+          "model-da009d2e",
+          "model-66b14ada",
+          "vent_7da94b472c7e4245866a40efb2fe270b_outline",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole0",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole1",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole2",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole3",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole4",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole5",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole6",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole7",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole8",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole9",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole10",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole11",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole12",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole13",
+          "vent_7da94b472c7e4245866a40efb2fe270b_hole14",
+          "vent_7da94b472c7e4245866a40efb2fe270b_solid",
+          "protected-electronics-envelope"
+        ]
+      }
+    },
+    "rootObjects": [
+      "model-44030537-profile",
+      "model-d4c51ded",
+      "model-82081e90",
+      "model-da009d2e",
+      "model-66b14ada",
+      "vent_7da94b472c7e4245866a40efb2fe270b_outline",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole0",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole1",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole2",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole3",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole4",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole5",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole6",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole7",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole8",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole9",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole10",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole11",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole12",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole13",
+      "vent_7da94b472c7e4245866a40efb2fe270b_hole14",
+      "vent_7da94b472c7e4245866a40efb2fe270b_solid",
+      "protected-electronics-envelope"
+    ],
+    "rootLayers": [
+      "layer-default"
+    ],
+    "workPlanes": {
+      "plane-model-da009d2e": {
+        "id": "plane-model-da009d2e",
+        "name": "Hole source face",
+        "origin": [
+          49.99999999999999,
+          35,
+          2
+        ],
+        "xAxis": [
+          1,
+          0,
+          0
+        ],
+        "yAxis": [
+          0,
+          1,
+          0
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "source": {
+          "kind": "brep-face",
+          "objectId": "model-82081e90",
+          "topologyId": "face:32:30:50.000000,35.000000,2.000000|0.000000,0.000000,1.000000|6332.461172"
+        }
+      },
+      "plane-model-66b14ada": {
+        "id": "plane-model-66b14ada",
+        "name": "Hole source face",
+        "origin": [
+          50,
+          -8.881784197001252e-16,
+          15
+        ],
+        "xAxis": [
+          1,
+          0,
+          0
+        ],
+        "yAxis": [
+          0,
+          0,
+          1
+        ],
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "source": {
+          "kind": "brep-face",
+          "objectId": "model-da009d2e",
+          "topologyId": "face:4:2:50.000000,0.000000,15.000000|0.000000,1.000000,0.000000|2760.000000"
+        }
+      }
+    },
+    "variables": {
+      "vent_7da94b472c7e4245866a40efb2fe270b_width": {
+        "name": "vent_7da94b472c7e4245866a40efb2fe270b_width",
+        "quantity": "length",
+        "expression": "100mm"
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_depth": {
+        "name": "vent_7da94b472c7e4245866a40efb2fe270b_depth",
+        "quantity": "length",
+        "expression": "70mm"
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_thickness": {
+        "name": "vent_7da94b472c7e4245866a40efb2fe270b_thickness",
+        "quantity": "length",
+        "expression": "3mm"
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_margin": {
+        "name": "vent_7da94b472c7e4245866a40efb2fe270b_margin",
+        "quantity": "length",
+        "expression": "12mm"
+      },
+      "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter": {
+        "name": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter",
+        "quantity": "length",
+        "expression": "6mm"
+      }
+    },
+    "parameterBindings": {
+      "binding-0c25f04a-c76e-4f63-a253-7444035dce21": {
+        "id": "binding-0c25f04a-c76e-4f63-a253-7444035dce21",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "width"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_width"
+      },
+      "binding-f06e5a17-021a-4489-a692-c00ea49f97e5": {
+        "id": "binding-f06e5a17-021a-4489-a692-c00ea49f97e5",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "depth"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_depth"
+      },
+      "binding-b61748cf-848e-42b7-a768-89c9312d3c87": {
+        "id": "binding-b61748cf-848e-42b7-a768-89c9312d3c87",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center0",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 0 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-36461450-8065-4a4c-a382-54258e0d31c0": {
+        "id": "binding-36461450-8065-4a4c-a382-54258e0d31c0",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center0",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 0 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-dd9cec45-ee50-43fb-b4e1-db2ab1374860": {
+        "id": "binding-dd9cec45-ee50-43fb-b4e1-db2ab1374860",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter0"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-957e05f4-f9a9-45d4-bc2f-6bacde442625": {
+        "id": "binding-957e05f4-f9a9-45d4-bc2f-6bacde442625",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center1",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 1 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-5361ce14-94da-4611-bfb3-60c50f2913b8": {
+        "id": "binding-5361ce14-94da-4611-bfb3-60c50f2913b8",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center1",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 0 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-207751c2-ff4f-42a1-be26-f59e6661782d": {
+        "id": "binding-207751c2-ff4f-42a1-be26-f59e6661782d",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter1"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-a0c145c0-647e-4b16-8f0f-6a1d289e412c": {
+        "id": "binding-a0c145c0-647e-4b16-8f0f-6a1d289e412c",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center2",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 2 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-74b2cfa7-a898-4034-bbd4-396e1907cfe9": {
+        "id": "binding-74b2cfa7-a898-4034-bbd4-396e1907cfe9",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center2",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 0 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-1535b09c-0592-4d07-bca8-56f11e1f5cdc": {
+        "id": "binding-1535b09c-0592-4d07-bca8-56f11e1f5cdc",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter2"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-e6466fb5-466a-4c6c-a2e6-555737eea4b4": {
+        "id": "binding-e6466fb5-466a-4c6c-a2e6-555737eea4b4",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center3",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 3 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-2d318c5f-bc40-4cd9-9df7-9869cb239f8d": {
+        "id": "binding-2d318c5f-bc40-4cd9-9df7-9869cb239f8d",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center3",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 0 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-a4522793-2739-45ad-aff5-473cadd8dd3d": {
+        "id": "binding-a4522793-2739-45ad-aff5-473cadd8dd3d",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter3"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-ac817e2e-71d1-4586-8425-7862a9c2d1a8": {
+        "id": "binding-ac817e2e-71d1-4586-8425-7862a9c2d1a8",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center4",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 4 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-d4fa08ed-c6f2-4a6e-b678-d797f5c11ca7": {
+        "id": "binding-d4fa08ed-c6f2-4a6e-b678-d797f5c11ca7",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center4",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 0 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-3226cc10-ef48-485e-b467-ea69b37808f3": {
+        "id": "binding-3226cc10-ef48-485e-b467-ea69b37808f3",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter4"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-e96c3093-770b-4544-93ce-1d0d1d618c84": {
+        "id": "binding-e96c3093-770b-4544-93ce-1d0d1d618c84",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center5",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 0 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-747edb20-78ed-4437-a767-59f18a83efc8": {
+        "id": "binding-747edb20-78ed-4437-a767-59f18a83efc8",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center5",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 1 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-bf87ca4a-2870-40ac-bc08-1c0a1635ceec": {
+        "id": "binding-bf87ca4a-2870-40ac-bc08-1c0a1635ceec",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter5"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-0d7b2256-52c9-45b0-85c3-07d3c41f10ed": {
+        "id": "binding-0d7b2256-52c9-45b0-85c3-07d3c41f10ed",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center6",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 1 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-88fc2fdc-5851-47e6-9577-6bafc4d000f6": {
+        "id": "binding-88fc2fdc-5851-47e6-9577-6bafc4d000f6",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center6",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 1 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-3f0c59cd-dd56-4dde-97f1-8c4ecf7c4466": {
+        "id": "binding-3f0c59cd-dd56-4dde-97f1-8c4ecf7c4466",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter6"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-ed38dd84-d5b0-42bf-a13f-a1a72fd6e2b6": {
+        "id": "binding-ed38dd84-d5b0-42bf-a13f-a1a72fd6e2b6",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center7",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 2 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-3e6eb88c-e62b-4068-8f87-c33c6abe0cc1": {
+        "id": "binding-3e6eb88c-e62b-4068-8f87-c33c6abe0cc1",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center7",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 1 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-fda16a85-541b-4b58-af7c-cdeb83074802": {
+        "id": "binding-fda16a85-541b-4b58-af7c-cdeb83074802",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter7"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-2e00ee99-a60a-41a6-b36c-984f9d391113": {
+        "id": "binding-2e00ee99-a60a-41a6-b36c-984f9d391113",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center8",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 3 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-718fb502-0b20-4a03-ace5-099452f233d1": {
+        "id": "binding-718fb502-0b20-4a03-ace5-099452f233d1",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center8",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 1 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-ebf53615-beb5-4998-b6e3-26b4e7cf34a2": {
+        "id": "binding-ebf53615-beb5-4998-b6e3-26b4e7cf34a2",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter8"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-214e4db3-1c3d-4f16-8699-ed9d5c1fccc5": {
+        "id": "binding-214e4db3-1c3d-4f16-8699-ed9d5c1fccc5",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center9",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 4 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-097df605-5a73-4222-b22f-430e90dede9c": {
+        "id": "binding-097df605-5a73-4222-b22f-430e90dede9c",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center9",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 1 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-009a24dc-292d-445f-99b5-be7ec9a17bce": {
+        "id": "binding-009a24dc-292d-445f-99b5-be7ec9a17bce",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter9"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-38674f48-ca89-4779-a060-04eb85b071ee": {
+        "id": "binding-38674f48-ca89-4779-a060-04eb85b071ee",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center10",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 0 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-af281894-d804-40b8-9424-a8466fd09d18": {
+        "id": "binding-af281894-d804-40b8-9424-a8466fd09d18",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center10",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 2 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-eeb5f54f-8ee3-4da4-a823-d20a19ec687b": {
+        "id": "binding-eeb5f54f-8ee3-4da4-a823-d20a19ec687b",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter10"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-caafb6ce-359b-47a7-b858-23bd4970f537": {
+        "id": "binding-caafb6ce-359b-47a7-b858-23bd4970f537",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center11",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 1 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-0288f90b-32e8-4e33-9c53-dbe26d1105e0": {
+        "id": "binding-0288f90b-32e8-4e33-9c53-dbe26d1105e0",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center11",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 2 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-06dc5f52-b726-4a90-a7c0-df0b636021f8": {
+        "id": "binding-06dc5f52-b726-4a90-a7c0-df0b636021f8",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter11"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-7b0a8bc6-e3cd-4f4c-95b2-77f649c17876": {
+        "id": "binding-7b0a8bc6-e3cd-4f4c-95b2-77f649c17876",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center12",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 2 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-5435aed2-436f-4c8d-8250-cad2b3c96ae8": {
+        "id": "binding-5435aed2-436f-4c8d-8250-cad2b3c96ae8",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center12",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 2 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-5da8bb1d-c535-4252-9ef8-fcb1e059a21a": {
+        "id": "binding-5da8bb1d-c535-4252-9ef8-fcb1e059a21a",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter12"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-45d99581-0a15-47d5-b305-4f89bed7563b": {
+        "id": "binding-45d99581-0a15-47d5-b305-4f89bed7563b",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center13",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 3 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-3a9b4ce6-69dc-4826-b987-c7701e7388ed": {
+        "id": "binding-3a9b4ce6-69dc-4826-b987-c7701e7388ed",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center13",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 2 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-da503f79-75c9-484f-809e-f816d41daea1": {
+        "id": "binding-da503f79-75c9-484f-809e-f816d41daea1",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter13"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-790efe61-1909-4263-b8cc-4d86732211ee": {
+        "id": "binding-790efe61-1909-4263-b8cc-4d86732211ee",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center14",
+          "component": "x"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 4 * (vent_7da94b472c7e4245866a40efb2fe270b_width - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 4"
+      },
+      "binding-3f55d4d9-3069-4116-b614-27ff4627de6b": {
+        "id": "binding-3f55d4d9-3069-4116-b614-27ff4627de6b",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "center14",
+          "component": "y"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_margin + 2 * (vent_7da94b472c7e4245866a40efb2fe270b_depth - 2 * vent_7da94b472c7e4245866a40efb2fe270b_margin) / 2"
+      },
+      "binding-488f43de-fd7f-4d7c-a93c-ab16020983f4": {
+        "id": "binding-488f43de-fd7f-4d7c-a93c-ab16020983f4",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "vent_7da94b472c7e4245866a40efb2fe270b_sketch",
+          "constraintId": "diameter14"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_holeDiameter"
+      },
+      "binding-452ce850-f880-4515-b473-37908e352e85": {
+        "id": "binding-452ce850-f880-4515-b473-37908e352e85",
+        "target": {
+          "kind": "feature",
+          "objectId": "vent_7da94b472c7e4245866a40efb2fe270b_solid",
+          "parameter": "distance"
+        },
+        "expression": "vent_7da94b472c7e4245866a40efb2fe270b_thickness"
+      }
+    }
+  }
+}

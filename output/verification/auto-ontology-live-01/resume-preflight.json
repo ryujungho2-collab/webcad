@@ -1,0 +1,77 @@
+{
+  "card": "AUTO-ONTOLOGY-LIVE-01",
+  "checkedAt": "2026-11-07T11:11:07+09:00",
+  "status": "blocked",
+  "docker": {
+    "context": "desktop-linux",
+    "engineVersion": "29.8.1",
+    "composeVersion": "5.5.1",
+    "imageCount": 0,
+    "containerCount": 0,
+    "composeProjects": [],
+    "approvedRemoteDeploymentConfirmed": false,
+    "autoOntologyDeploymentVersion": null
+  },
+  "modelConnections": {
+    "configuredProcessEnvironmentFields": {
+      "DEFAULT_MODELS": [],
+      "REASONING": [],
+      "NON_REASONING": [],
+      "EMBED": [],
+      "RERANK": []
+    },
+    "ollamaModelsChecked": 5,
+    "ollamaModelsAdvertisingEmbeddings": 0,
+    "rerankingEndpointFound": false,
+    "deploymentRoleCallsVerified": false
+  },
+  "sqlite": {
+    "file": "output/verification/auto-ontology-poc-01/source.sqlite3",
+    "localOpenMode": "ro",
+    "integrity": "ok",
+    "foreignKeyViolations": 0,
+    "writeError": "SQLITE_READONLY",
+    "sha256Before": "baaed1af1334c5e7ce76b3c72c17ba8a1f1494ba06285c97092e9eaf2348ce75",
+    "sha256After": "baaed1af1334c5e7ce76b3c72c17ba8a1f1494ba06285c97092e9eaf2348ce75",
+    "containerReadOnlyMountVerified": false
+  },
+  "semanticCompilation": "not-run",
+  "requestManifest": "questions.json",
+  "connectionFollowUp": {
+    "checkedAt": "2026-11-07T11:16:07+09:00",
+    "dockerEngineReachable": true,
+    "registryManifestRead": true,
+    "registryImage": "nvcr.io/nvidia/auto-ontology:1.2.0",
+    "linuxAmd64ManifestDigest": "sha256:bbc9d02134c233f9d46fcecffd7b5b30609fe51e89b955cc7fc29a8fdb13f4c6",
+    "deploymentFound": false,
+    "windowsEnvironmentScopesChecked": ["Process", "User", "Machine"],
+    "roleSettingsFound": false,
+    "ollamaApiReachable": true,
+    "localChatProbe": {
+      "model": "qwen3:14b",
+      "status": "client-timeout",
+      "timeoutMs": 30000,
+      "elapsedMs": 30037,
+      "timeoutCause": null
+    },
+    "fixtureHashMatches": true
+  },
+  "directions": {
+    "forward": {
+      "requestSent": false,
+      "generatedSql": null,
+      "returnedRows": null,
+      "elapsedMs": null,
+      "normalizedRows": null,
+      "comparison": null
+    },
+    "reverse": {
+      "requestSent": false,
+      "generatedSql": null,
+      "returnedRows": null,
+      "elapsedMs": null,
+      "normalizedRows": null,
+      "comparison": null
+    }
+  }
+}

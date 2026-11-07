@@ -1,0 +1,12 @@
+# AUTO-ONTOLOGY-LIVE-01 Windows 재현
+
+이 구성은 루프백에 바인딩된 NVIDIA 백엔드·게이트웨이와 별도의 pgvector 볼륨을 사용한다. 백엔드와 수집기에 합성 SQLite 파일 하나만 읽기 전용으로 마운트한다. 카탈로그와 모델 서비스는 제품에서 분리한다.
+
+1. 이 폴더의 `compose.yaml`, `setup.py`, `model_bridge.py`, `Modelfile`과 승인된 POC `source.sqlite3`를 같은 전용 실험 폴더에 복사한다. 그 폴더에서 `python setup.py`를 실행한다. 스크립트가 DB 해시를 확인하고 실험 전용 `.env`를 생성한다. `.env`에는 로컬 자격 증명이 있으므로 실험 폴더에 보관한다.
+2. Docker Desktop과 Ollama를 시작한다. `ollama pull nomic-embed-text`, `ollama create webcad-auto-ontology-qwen3:14b -f Modelfile`을 실행한다. `Modelfile`의 원본인 `qwen3:14b`가 설치되어 있어야 한다. Python에서 `numpy`와 `onnxruntime`을 불러올 수 있어야 하고, `tokenizers`는 실험 폴더에서 `python -m pip install --target pydeps tokenizers==0.23.3`으로 준비한다. 이번 실행은 Python 3.14.7, numpy 2.5.2, onnxruntime 1.31.1, Ollama 0.40.15를 사용했다.
+3. 고정 리비전의 [MiniLM 모델](https://huggingface.co/cross-encoder/ms-marco-MiniLM-L6-v2/tree/233902d25c440f23af6f7d6e94d2946bac0bee0a)에서 `onnx/model_quint8_avx2.onnx`를 `rerank-model/model.onnx`로, `tokenizer.json`을 `rerank-model/tokenizer.json`으로 저장한다. 두 파일의 SHA-256은 각각 `c80a8b34256ea453093d612e3ac48d3d965a0c0a48c7906709af8b8e28461bf9`, `d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66`이다.
+4. `python model_bridge.py`를 실행하고 다른 셸에서 같은 폴더로 이동해 `docker compose up -d`를 실행한다. `docker compose ps`에서 백엔드와 프론트엔드의 정상 상태를 확인한다. `probe_roles.py`를 `docker compose exec -T auto-ontology python -`에 표준 입력으로 전달해 네 모델 역할을 검사한다. 수집기의 `Data ingestion finished successfully` 로그와 두 컨테이너의 `/fixtures/source.sqlite3` 마운트 `RW=false`도 확인한다.
+5. 검증 산출물 폴더에서 `python run_live.py compile --lab <실험 폴더>`, `python run_live.py query --lab <실험 폴더>`, `python run_live.py score`를 순서대로 실행한다. 두 번째 명령은 `questions.json`의 `request`만 인증된 로컬 게이트웨이에 전송한다. 출력 JSON과 SSE는 `run_live.py` 옆에 저장되므로 실험을 다시 할 때는 기존 결과를 별도로 보존한다.
+6. 대체 모델 비교는 같은 카탈로그를 유지한 상태에서 수행한다. `ollama create webcad-auto-ontology-coder:latest -f Modelfile.coder`로 기존 `qwen3-coder-32k:latest`의 실험용 별칭을 만든다. 실험 `.env`의 `DEFAULT_MODELS_MODEL`을 `openai/qwen3-coder-local`로 바꾸고 `LAB_CHAT_MODEL=webcad-auto-ontology-coder:latest`, `LAB_CHAT_THINK=false`를 설정한다. 모델 브리지를 재시작하고 `docker compose up -d --no-deps --force-recreate auto-ontology`로 질의 백엔드만 다시 만든 뒤 역할 검증과 질의·채점을 실행한다.
+
+모델 브리지는 로컬 Ollama와 로컬 ONNX 모델을 호출한다. Nomic의 768차원 임베딩 뒤에 0을 추가해 2,048차원 카탈로그와 연결한다. 같은 변환을 수집·검색에 모두 적용하므로 벡터 간 코사인 유사도는 보존된다. Ollama의 요청 필드에 맞춰 `max_completion_tokens`를 `max_tokens`로 전달하며 응답은 최대 2,400토큰으로 제한한다. Qwen3의 스키마 지정 응답은 thinking을 끈다.

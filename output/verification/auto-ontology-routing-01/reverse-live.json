@@ -1,0 +1,15 @@
+{
+  "request": {
+    "question": "For the extrusion whose object ID is 'solid', list its recorded direct profile relationships. Return the document ID and revision, both endpoint IDs in their stored source-to-target order, the recorded direction, live or snapshot mode, relationship status, each endpoint's missing flag, and any sketch owners with their missing flags. Preserve relationships with missing references. Return only relationships recorded for this extrusion.",
+    "prediction": false,
+    "evidence": "This is a read-only request to execute SQL against actual rows in the connected source database. Return the executed query and its actual rows. The requested relationships are stored data records. A catalog, glossary, or schema description does not answer the question."
+  },
+  "sql": "",
+  "rows": null,
+  "sqlEvents": [],
+  "answerText": "I couldn't complete the metadata lookup safely. The metadata reasoning step failed. No source data was queried.\n\nRelevant catalog candidates found: Document ID, Relationship Direction, Declared Operational Mode, Graph Relationship Type, Current Status.",
+  "httpStatus": 200,
+  "done": true,
+  "error": null,
+  "elapsedMs": 38387
+}

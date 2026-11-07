@@ -1,0 +1,44 @@
+{
+  "id": "CAD-EVAL-01-ventilation-intent-v1",
+  "dataClass": "synthetic",
+  "units": "mm",
+  "mode": "existing-design-redesign",
+  "scene": "Rounded open enclosure, bottom drain, front port, 3x5 vented lid, protected internal reference block",
+  "objective": "Increase geometric vent opening area to 700–800 mm² without altering mounting/envelope intent",
+  "constraints": {
+    "lidWidth": 100,
+    "lidDepth": 70,
+    "lidThickness": 3,
+    "rows": 3,
+    "columns": 5,
+    "centerMargin": 12,
+    "edgeLigamentMin": 8,
+    "betweenVentsLigamentMin": 10,
+    "inspectionGap": 2,
+    "internalClearanceMin": 10,
+    "preserve": [
+      "case geometry and ports",
+      "reference block",
+      "lid identity and placement",
+      "vent count and centers",
+      "live profile references"
+    ]
+  },
+  "budgets": {
+    "modelCalls": 6,
+    "replans": 2,
+    "elapsedMs": 180000
+  },
+  "excluded": [
+    "whole-model autonomous creation",
+    "airflow/thermal/strength certification",
+    "fastening design",
+    "automatic editor Apply",
+    "model training"
+  ],
+  "selectedObjectId": "vent_47aea0a81f8d4815ae4aa76551a7ec59_solid",
+  "prompt": "기존 장비 케이스의 선택된 통풍 덮개를 개선해. 현재 문서를 cad.inspect로 조회한 뒤 지원되는 solid.parameter 한 개로만 수정안을 제안해.\n목표: 통풍구의 기하학적 총 개방 면적을 700–800 mm²로 만들어. 지름은 네가 정해. 냉각 성능을 보증하지 마.\n설계 의도: 덮개의 100×70 mm 외형, 두께 3 mm, 3행×5열의 15개 원형 구멍 중심과 대칭, 바깥쪽 구멍 중심 여백 12 mm, 객체 ID와 배치를 유지해. 경계까지 남는 재료 폭은 최소 8 mm, 구멍 사이 남는 재료 폭은 최소 10 mm여야 해. 케이스 위 2 mm 검사 간격과 내부 참조 부품 위 최소 10 mm Z 간격을 유지해.\n수정 대상 vent_47aea0a81f8d4815ae4aa76551a7ec59_solid. 보호할 케이스 model-70c68094와 내부 참조 부품 protected-electronics-envelope 및 모든 원본은 바꾸지 마. 다른 부품을 추가하거나 대체하지 마. 선택된 덮개의 기존 통풍구 지름 driver만 변경해. 제조 공차·재료·하중·체결 방식은 미정이며 임의로 확정하지 마. 사용자 승인 전 Apply는 금지야.\n조회 근거(정답 지름이나 실행 결과는 아님): {\"capabilities\":[{\"id\":\"driving-dimension-edit\",\"support\":\"supported\",\"commandTypes\":[\"update-primitive\",\"update-extrude\",\"set-sketch-dimension\",\"set-variable\"],\"mcpTools\":[\"solid.parameter\"]},{\"id\":\"profile-extrude-relations\",\"support\":\"supported\",\"commandTypes\":[],\"mcpTools\":[]}],\"relations\":{\"total\":16,\"shown\":[{\"source\":\"vent_47aea0a81f8d4815ae4aa76551a7ec59_outline\",\"target\":\"vent_47aea0a81f8d4815ae4aa76551a7ec59_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"},{\"source\":\"vent_47aea0a81f8d4815ae4aa76551a7ec59_hole0\",\"target\":\"vent_47aea0a81f8d4815ae4aa76551a7ec59_solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\"}],\"omitted\":14,\"allLiveResolved\":true},\"document\":{\"id\":\"cad-eval-01-synthetic\",\"revision\":84},\"source\":\"Native capability records and stored dependency graph; not inferred by an LLM\"}",
+  "grounding": true,
+  "intentOrigin": "evaluator-authored",
+  "fixtureOrigin": "existing-native-planners-not-AI"
+}

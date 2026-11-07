@@ -1,0 +1,77 @@
+{
+  "id": "ENCLOSURE-HANDOFF-2026-10-24",
+  "status": "verified",
+  "task": "Wall mounted instrument enclosure and separate vented lid",
+  "canonicalTools": 39,
+  "mcpTools": 42,
+  "improvements": [
+    "Explicit Copilot target search, replace, add, remove, clear and ordered swap share native editor selection.",
+    "Search and unchanged-target confirmation retain review; actual selection changes cancel pending review and stale MCP context.",
+    "Dimension form reloads actual selected-part values and clears obsolete input errors."
+  ],
+  "browserChecks": {
+    "enclosureHandoff": 52,
+    "sharedToolHandoff": 38,
+    "mcpBridge": 24,
+    "copilotEnclosure": 22
+  },
+  "unitChecks": 54,
+  "build": "passed; existing chunk-size warning",
+  "architectureModules": 793,
+  "modelRequests": 0,
+  "expectedVolumesMm3": {
+    "body": 87565.61095099046,
+    "lid": 30772.546469980574
+  },
+  "boresAligned": "Eight exact native bore-source measurements verify four shared XY axes before exploding lid.",
+  "undoRedo": "Human final vent and MCP cover placement preserve part/source identities.",
+  "reopen": "Both source graphs, finishes and linked sections retained.",
+  "files": {
+    "enclosure.webcad.json": {
+      "bytes": 566894,
+      "sha256": "4b9145c5bd92d87f71838d15ec0bfd467db8f79ae2684cbf8e9901d6ce61b3e7"
+    },
+    "enclosure.step": {
+      "bytes": 255831,
+      "sha256": "61f06adae82921bc8c773ec0a0683e7d3b4367f9c6d8a5915ac949284fa40c88"
+    },
+    "handoff.json": {
+      "bytes": 21608,
+      "sha256": "67421b3bea93058152a28682aecc8c470a59e2b62211dfe5c1ca467ce49a64e3"
+    },
+    "housingUpper.svg": {
+      "bytes": 12255,
+      "sha256": "9d1789be165f3bc0337053a4a9cb1062ae22af9239334233b7fbc1e15a40f2a6"
+    },
+    "housingSection.svg": {
+      "bytes": 2120,
+      "sha256": "d581f27074fc5970042de135df1d9135536da1d1f095582b3b7a61b1774a7978"
+    },
+    "coverPlan.svg": {
+      "bytes": 8588,
+      "sha256": "19f25c9d4c1a7b5b69d4de8670a6d4ea3077ec8ffff1254da520f8eb0853d32a"
+    },
+    "housingUpper.dxf": {
+      "bytes": 2921,
+      "sha256": "fd8b003bdf1d6e64a9bc70e508d79b42d30cf5d110f3f1e3569cbb3bc83e16fd"
+    },
+    "housingSection.dxf": {
+      "bytes": 4055,
+      "sha256": "d2bef10bb39a83f6645b59f808364d1d49c0fb6d9d3a2330f2696fd9ef1125a7"
+    },
+    "coverPlan.dxf": {
+      "bytes": 5235,
+      "sha256": "9ae21f8c6c63d7e83120bc50aaecb9cdf88b252282e059ec595df7042276d9b3"
+    },
+    "native-editor.png": {
+      "bytes": 124368,
+      "sha256": "41b5a33ff955c7b2895fe0b81fb2c239c09826173f48562b50775a3dcc6201c0"
+    }
+  },
+  "limits": [
+    "Not all manual tools are exposed by MCP.",
+    "Internal natural language remains bounded; agent supplied dimensions and call sequence.",
+    "No screw threads, electronics/wiring, manufacturing tolerances or thermal/waterproof/structural validation.",
+    "Derived sections are real BRep cuts, not complete production drawings."
+  ]
+}

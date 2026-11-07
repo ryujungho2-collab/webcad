@@ -8,6 +8,8 @@ Copilot의 **Open design study…**에서 의도·미확정 조건·보존 객�
 
 [대표 성과와 다운로드](docs/verification/SHOWCASE-2026-11-06.md): 3층 주택의 편집 가능한 CAD·STEP·도면, 회전식 거치대의 Joint·간섭 검사와 기존 검증 근거를 선별했다. 릴리스 인증이나 물리 해석 완료를 뜻하지 않는다.
 
+[2026-11-07 개발 체크포인트](docs/verification/CHECKPOINT-2026-11-07.md): 2D 편집 카드, 온톨로지 관계 조회·합성 Auto Ontology 파일럿, 실제 로컬 LLM의 설계 수정 평가와 선택 객체 기반 도구 라우팅을 보존했다. 장비 외함의 편집 원본·STEP·실제 편집 화면과 성공·실패 검증 자료를 선별했다.
+
 ## 시작
 
 ```sh

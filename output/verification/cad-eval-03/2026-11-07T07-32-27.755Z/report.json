@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "taskId": "CAD-EVAL-03-loft-connection-intent-v1",
+  "liveRequested": true,
+  "maxModelCalls": 3,
+  "actualModelCalls": 0,
+  "modelCallAttempts": 0,
+  "grounding": true,
+  "sourceHashBefore": "621a4d6cb391814c983a52fd963967f2551c4a584f73e278f6bfb14749d916d7",
+  "sourceHashAfter": "621a4d6cb391814c983a52fd963967f2551c4a584f73e278f6bfb14749d916d7",
+  "visualEvidence": {
+    "status": "native-tessellation-projections-not-browser",
+    "paths": [
+      "baseline-iso.svg",
+      "baseline-top.svg",
+      "baseline-front.svg",
+      "evaluator-control-iso.svg",
+      "evaluator-control-top.svg",
+      "evaluator-control-front.svg"
+    ]
+  },
+  "elapsedMs": 2929.9865999999997,
+  "nativePreflight": "passed",
+  "result": {
+    "taskId": "CAD-EVAL-03-loft-connection-intent-v1",
+    "status": "not-completed",
+    "mode": "isolated-native-evaluation",
+    "success": false,
+    "elapsedMs": 48.664600000000064,
+    "error": "CONTEXT_BUDGET: conservative UTF-8 input ceiling exceeded. Narrow tools/results; no inference sent.",
+    "events": [
+      {
+        "kind": "evaluation-error",
+        "error": "CONTEXT_BUDGET: conservative UTF-8 input ceiling exceeded. Narrow tools/results; no inference sent."
+      }
+    ],
+    "runs": [],
+    "assessments": [],
+    "metrics": {
+      "modelReads": 0,
+      "nativeAttempts": 0,
+      "plannerRejections": 0,
+      "designIntentRejections": 0,
+      "reportedGatewayRuns": 0,
+      "editorApplyCalls": 0,
+      "sourceUnchanged": true,
+      "editorAndHistoryUnchanged": true
+    },
+    "limits": [
+      "G1/G2 continuity certification",
+      "aerodynamic/thermal/strength analysis",
+      "source-section deformation",
+      "automatic editor Apply",
+      "model training"
+    ]
+  },
+  "status": "not-completed",
+  "limitations": [
+    "G1/G2 continuity certification",
+    "aerodynamic/thermal/strength analysis",
+    "source-section deformation",
+    "automatic editor Apply",
+    "model training",
+    "Intent is evaluator-authored; model intent extraction was not separately tested",
+    "No browser test or independent STEP engine in this run",
+    "No measured ontology uplift without paired runs",
+    "No weights updated; logs alone are not token-level RL trajectories"
+  ]
+}
