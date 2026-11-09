@@ -4,7 +4,9 @@ import {cadDocument} from '../../../src/state/cadDocument';
 import {dispatchCadCommand} from '../../../src/state/dispatchCadCommand';
 import {restoreTestDocument} from '../../../tests/helpers/documentHarness';
 import {sheetViewGroups} from '../../../src/state/modelSheetLayoutService';
-const doc:any=deserializeDocument(await readFile('C:/Users/thefi/AppData/Local/Temp/claude/9f47f9b5728b91ec/17f259fa-5f30-4ffd-a9ce-7db97e740909/scratchpad/kettle-saved.json','utf8'));
+const source=process.argv[2];
+if(!source)throw Error('Usage: pnpm exec tsx scripts/arcKettle/_tmp/layout.ts <document.webcad.json>');
+const doc:any=deserializeDocument(await readFile(source,'utf8'));
 console.log('sheets',Object.keys(doc.modelPresentation.sheets??{}));doc.modelPresentation.sheets={};if(process.env.RESET){for(const v of [...Object.values(doc.modelPresentation.projections),...Object.values(doc.modelPresentation.sections??{})] as any[]){console.log('was',v.id,v.scale,v.origin);v.scale=1;v.origin=[0,0];}}
 restoreTestDocument(doc);
 const d:any=cadDocument,viewIds=['v-front','v-side','v-section','v-top'];

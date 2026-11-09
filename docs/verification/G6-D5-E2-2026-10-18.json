@@ -93,7 +93,7 @@
       "maxDeviationMm": 3.260957681782951e-14,
       "pdfPages": 1,
       "cropPieces": 2,
-      "command": "C:/Users/thefi/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe apps/web/scripts/verifyCurveDxfArtifacts.py",
+      "command": "<user-home>/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe apps/web/scripts/verifyCurveDxfArtifacts.py",
       "report": "../../output/projects/curve-dxf/artifact-verification.json"
     },
     "typecheck": {

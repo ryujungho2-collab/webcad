@@ -88,7 +88,7 @@ raw `tool-route-audit.json`의 `productRoutingChanged:false`는 이전 평가기
 Workspace root에서:
 
 ```powershell
-pnpm --filter @agent-webcad/web exec tsx scripts/evaluateCadDesign.ts --task=loft-connection --replay=C:/Users/thefi/OneDrive/Desktop/agent-webcad/output/verification/cad-eval-03/2026-11-07T07-31-19.088Z --live --max-model-calls=4
+pnpm --filter @agent-webcad/web exec tsx scripts/evaluateCadDesign.ts --task=loft-connection --replay=<workspace>/output/verification/cad-eval-03/2026-11-07T07-31-19.088Z --live --max-model-calls=4
 pnpm --filter @agent-webcad/web exec tsx --test tests/copilotRouting.test.ts tests/agentContext.test.ts tests/loftEdit.test.ts tests/loftIntentEvaluation.test.ts tests/mountingPlateEvaluation.test.ts tests/cadDesignEvaluation.test.ts tests/copilotPlanning.test.ts tests/localCopilot.test.ts
 ```
 

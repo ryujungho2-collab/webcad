@@ -1,0 +1,79 @@
+{
+  "type": "Independent native CAD transforms; static pose",
+  "leftUpper": {
+    "rotationY": 30,
+    "translation": [
+      -732.9552,
+      0,
+      94.5741
+    ]
+  },
+  "leftForearmAndGlove": {
+    "rotationY": 65,
+    "translation": [
+      -1309.1425,
+      0,
+      488.3589
+    ]
+  },
+  "rightUpper": {
+    "rotationY": -18,
+    "translation": [
+      446.5583,
+      0,
+      10.5418
+    ]
+  },
+  "rightForearmAndGlove": {
+    "rotationY": 45,
+    "translation": [
+      -637.2588,
+      0,
+      554.4617
+    ]
+  },
+  "leftLeg": {
+    "rotationY": 10,
+    "translation": [
+      -157.8026,
+      0,
+      -31.6918
+    ]
+  },
+  "rightThigh": {
+    "rotationY": -10,
+    "translation": [
+      157.8026,
+      0,
+      -31.6918
+    ]
+  },
+  "rightCalf": {
+    "rotationY": -18,
+    "translation": [
+      239.2812,
+      0,
+      -32.6569
+    ]
+  },
+  "headAndLenses": {
+    "rotationZ": -15,
+    "scaleZ": 0.96,
+    "translation": [
+      0,
+      0,
+      21.52
+    ]
+  },
+  "neck": {
+    "scaleZ": 0.6,
+    "translation": [
+      0,
+      0,
+      580
+    ]
+  },
+  "figureHeight": 1749.52,
+  "maskHeight": 251.52,
+  "savedObjects": 231
+}

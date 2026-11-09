@@ -12,4 +12,4 @@ BEGIN elevation-right
 {"label":"elevation-right","ms":1662,"sectionTasks":0,"projectionTasks":1}
 BEGIN seven-view sheet Apply
 {"label":"seven-view sheet Apply","ms":7398,"sectionTasks":0,"projectionTasks":0}
-SAVED C:\Users\thefi\OneDrive\Desktop\agent-webcad\output\projects\courtyard-commons\p01-fixed: 5 pages
+SAVED <workspace>\output\projects\courtyard-commons\p01-fixed: 5 pages

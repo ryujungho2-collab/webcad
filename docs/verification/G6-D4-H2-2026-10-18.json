@@ -38,7 +38,7 @@
       "passed": 3,
       "command": "python apps/web/scripts/verifyCurveHatchArtifacts.py",
       "report": "../../output/projects/curve-hatch-r5/artifact-verification.json",
-      "executable": "C:/Users/thefi/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe"
+      "executable": "<user-home>/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe"
     },
     "typecheck": {
       "status": "passed",

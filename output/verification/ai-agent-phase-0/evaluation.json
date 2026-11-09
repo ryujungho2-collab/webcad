@@ -12937,7 +12937,7 @@
     }
   ],
   "source": {
-    "path": "/C:/Users/thefi/OneDrive/Desktop/agent-webcad/output/verification/assembly-b25/annotated-laptop.webcad.json",
+    "path": "/<workspace>/output/verification/assembly-b25/annotated-laptop.webcad.json",
     "sha256": "d0936d1165146066adb43d96e2ece7a20bd93ddb3eca5d84d3d173eac2fbcd8f",
     "version": 63
   },

@@ -7,7 +7,7 @@
 ## Before와 원인
 
 - 기본 sandbox에서 `tsc` 실행 파일을 찾지 못하고 `tsx` CLI 읽기에 EPERM이 발생했다. 정상 실행 권한에서는 기존 설치의 타입·Node·architecture 명령이 실행됐다. 의존 패키지 재설치나 lockfile 수정이 필요한 소스 문제로 판단하지 않았다.
-- 실제 실행 환경은 Windows·Node 24.19.0(`C:/Program Files/nodejs/node.exe`)·pnpm 11.26.0(`C:/Users/thefi/AppData/Roaming/npm/pnpm.ps1`)이며 repository의 packageManager와 일치한다. 기본 sandbox의 fallback pnpm 11.19.0과 구별한다.
+- 실제 실행 환경은 Windows·Node 24.19.0(`C:/Program Files/nodejs/node.exe`)·pnpm 11.26.0(`<user-home>/AppData/Roaming/npm/pnpm.ps1`)이며 repository의 packageManager와 일치한다. 기본 sandbox의 fallback pnpm 11.19.0과 구별한다.
 - 최초 기준선은 Node 538개/50 suites, architecture 246모듈 통과였다. 기존 10-04의 535개·21 browser page 수와 별개다.
 - 시작된 마지막 삭제 게시 처리는 유효했으나 impact의 modified가 생성/삭제까지 포함했다. detached deletion 이후 History·파일·복구 경로를 더 검증해야 했다.
 - 패널이 Number로 빈 origin을 0으로 읽고 즉시 명령을 적용했다. unit/범위 안내와 reviewed draft 일치 검사가 부족했다.

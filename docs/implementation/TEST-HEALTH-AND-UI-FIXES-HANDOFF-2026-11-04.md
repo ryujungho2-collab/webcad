@@ -47,7 +47,7 @@
 
 | 페이지 | 실패 | 진단 | 성격 |
 |---|---|---|---|
-| `keyboardActivation` | 컴포넌트 행 Enter 뒤 문서 명령이 끝나지 않아 대기 시간 초과 | 10-31 15:17 스냅숏 사본(`C:\Users\thefi\agent-webcad-p1`)에서는 21/21 통과 → **그 이후 회귀**. 오늘 바꾼 커널 예열·"By points" 그룹을 각각 빼도 실패해 원인을 좁히지 못했다. 10-31 제 UI 변경 또는 이후 Codex 변경 중 하나 | 회귀, 원인 미확정 |
+| `keyboardActivation` | 컴포넌트 행 Enter 뒤 문서 명령이 끝나지 않아 대기 시간 초과 | 10-31 15:17 스냅숏 사본(`<user-home>\agent-webcad-p1`)에서는 21/21 통과 → **그 이후 회귀**. 오늘 바꾼 커널 예열·"By points" 그룹을 각각 빼도 실패해 원인을 좁히지 못했다. 10-31 제 UI 변경 또는 이후 Codex 변경 중 하나 | 회귀, 원인 미확정 |
 | `sketchCanvas` | Direct 드래그의 합성 PointerEvent에 OrbitControls가 `setPointerCapture` → 예외 | 실제 마우스에서는 문제없음. CDP 입력으로 바꿔 봤으나 Direct 의도 패널이 열리지 않아 되돌림 | 테스트 입력 방식 |
 | `wheelNavigation` | `ResizeObserver loop completed…`를 잡히지 않은 오류로 취급 | 10-31 스냅숏에서도 동일하게 실패 | 기존 실패 |
 | `copilotContext` | 요청 중 planner 전환 | planner `<select>`가 요청 대기 중 **비활성화**돼 시나리오 자체가 불가능. 테스트를 "비활성 확인"으로 바꿀지, 전환을 허용할지 결정 필요 | Codex 설계 결정 |
