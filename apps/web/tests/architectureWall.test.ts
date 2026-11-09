@@ -68,3 +68,22 @@ test("v41 rejects malformed wall metadata, missing source and duplicate opening 
 });
 
 
+
+
+test("Paired miter walls meet at a real corner without a gap or doubled solid volume; v49 retains cuts",async()=>{
+ await run({type:"create-drawing",id:"axis",drawing:"line",params:{points:[[0,0,0],[4000,0,0]],workPlane:"XY"}});
+ await run({type:"create-drawing",id:"axis2",drawing:"line",params:{points:[[4000,0,0],[4000,3000,0]],workPlane:"XY"}});
+ await run({type:"create-wall",id:"wall",definition:wall({height:2000,endMiter:45})});
+ await run({type:"create-wall",id:"wall2",definition:wall({sourceObjectIds:["axis2"],height:2000,startMiter:45})});
+ await run({type:"boolean-operation",id:"joined",operation:"union",target:"wall",tool:"wall2"});
+ assert.ok(Math.abs(await volume("joined")-7000*200*2000)<1);const text=serializeDocument(cadDocument);assert.equal(JSON.parse(text).version,49);assert.deepEqual(deserializeDocument(text),cadDocument);const bad=JSON.parse(text);bad.version=48;assert.throws(()=>deserializeDocument(JSON.stringify(bad)),/version 49/);
+});
+
+test("Endpoint repair retains the native source and finish and undoes as one reviewed edit",async()=>{
+ await axis();await run({type:"create-wall",id:"wall",definition:wall()});const finish={name:"Stone",color:"#b5afa0",roughness:.9,metalness:0,opacity:1};await run({type:"set-solid-finish",objectId:"wall",finish});const before=documentState();const p=await previewCadCommand({type:"update-wall",objectId:"wall",height:2400,thickness:200,baseLevel:0,start:[-325,0],endMiter:45});assert.ok(p.result.ok,p.result.reason);assert.deepEqual(documentState(),before);assert.ok((await applyCadPlan(p.planId)).ok);assert.equal((feature().params.architecturalWall as ArchitectureWall).sourceObjectIds[0],"axis");assert.deepEqual(feature().params.solidFinish,finish);assert.ok(Math.abs(await volume()-6325*200*2400)<1);assert.ok(undoDocument());assert.deepEqual(documentState(),before);
+});
+
+
+test("A selected host cannot move the hidden shared source of another wall",async()=>{
+ await axis();await run({type:"create-wall",id:"wall",definition:wall()});await run({type:"create-wall",id:"other",definition:wall({baseLevel:3000})});const before=documentState();const p=await previewCadCommand({type:"update-wall",objectId:"wall",height:2400,thickness:200,baseLevel:0,start:[-100,0]});assert.equal(p.result.ok,false);assert.match(p.result.reason!,/Shared wall centerline/);assert.deepEqual(documentState(),before);
+});

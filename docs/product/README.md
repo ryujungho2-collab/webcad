@@ -1,8 +1,20 @@
 # 제품·계획 문서
 
+- [코파일럿 의도 구체화·대안·수정 GitHub 조사](COPILOT-INTENT-GITHUB-RESEARCH-2026-10-22.md) · 2026-10-22
+
+- [FLOW 비정형 레퍼런스 비교·현재 안 재검토](FLOW-REFERENCE-REVIEW-2026-10-22.md) · 2026-10-22
+
 [문서 안내](../README.md) · [현재 상태](../../PROJECT-STATE.md) · [실행 큐](../../NEXT-STEPS.md)
 
 여기는 후속 설계·목표·당시 결정 기록이다. **현재 사용법과 지원 범위는 [기능별 가이드](../features/README.md)**가 소유한다. 완료 기능은 계획서에서 다시 설명하지 않고 대표 가이드로 연결한다. 실행 순서는 [NEXT-STEPS](../../NEXT-STEPS.md)를 따른다.
+
+## 현재 단계의 목적
+
+- [자연어 CAD·코파일럿 제품 목적](NATURAL-LANGUAGE-CAD-PURPOSE-2026-10-19.md) — 자연어 2D/3D 생성·대화 수정이라는 최종 목적, 외부 도면 학습·검증의 역할, 판단 엔진과 CAD의 책임 및 우선순위 판단 기준. 구현 순서와 구분한다.
+
+- [SolidCraft 참고 기록](SOLIDCRAFT-REFERENCE-2026-10-19.md) — 공통 명령·MCP·파라메트릭 모델링·독립 검증 참고.
+- [2D·3D CAD 외부 사례와 적용 기준](CAD-REFERENCE-ADOPTION-2026-10-19.md) — SolidCraft·Zoo·CadQuery·replicad·FreeCAD·SolveSpace·Online 3D Viewer 비교, 기존 코드 적용 위치와 3D 평가 과제.
+- [이전 2D 목적 문서 경로 안내](2D-CAD-COPILOT-PURPOSE-2026-10-19.md) — 최신 목적 문서로 연결.
 
 ## 전체 목록
 

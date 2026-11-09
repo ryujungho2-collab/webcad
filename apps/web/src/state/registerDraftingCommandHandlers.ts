@@ -2,6 +2,7 @@ import type { CadCommand, CommandBus } from "@agent-webcad/cad-commands";
 import type { CadBlock, CadDocument, CadFeature } from "@agent-webcad/cad-document";
 import { validDraftingParams, refreshDrafting } from "../precision/draftingGeometry";
 import { getObjectTransform } from "../precision/objectTransform";
+import { editBlockLineEndpoint } from "../precision/blockLineEdit";
 import { WORK_PLANES, type Vec3, type WorkPlaneId } from "../precision/workPlane";
 
 export function registerDraftingCommandHandlers(bus:CommandBus,document:CadDocument) {
@@ -64,7 +65,14 @@ export function registerDraftingCommandHandlers(bus:CommandBus,document:CadDocum
   });
   bus.registerHandler("update-block",(command:CadCommand)=>{
     if(command.type!=="update-block")return;
-    const block=document.blocks?.[command.blockId];if(!block)return;
+    const block=document.blocks?.[command.blockId];
+    if (!block) throw Error("The component definition no longer exists.");
+    if (command.lineEdit) {
+      document.blocks![block.id] = editBlockLineEndpoint(block, command.lineEdit);
+      refreshDrafting(document);
+      document.revision++;
+      return;
+    }
     const definition=command.objectIds?componentMembers(command.objectIds,command.base!,block.id):undefined;
     if(command.objectIds&&(!definition||definition.plane!==block.workPlane))return;
     const members=definition?.members??block.members;
@@ -92,7 +100,7 @@ export function registerDraftingCommandHandlers(bus:CommandBus,document:CadDocum
     if(command.type!=="insert-block")return;
     const block=document.blocks?.[command.blockId];if(!block)return;
     const normal=WORK_PLANES[block.workPlane].normal;if(Math.abs(command.position.reduce((sum,v,i)=>sum+v*normal[i],0))>1e-6)return;
-    const id=create(command.id??`instance-${crypto.randomUUID()}`,command.layerId??"layer-default",{kind:"block",blockId:block.id,workPlane:block.workPlane});
+    const id=create(command.id??`instance-${crypto.randomUUID()}`,command.layerId??"layer-default",{kind:"block",blockId:block.id,workPlane:block.workPlane,...(command.dxfStyle?{dxfStyle:structuredClone(command.dxfStyle)}:{})});
     if(id){const transform=document.objects[id].transform!;transform.translation=[...command.position];if(command.scale)transform.scale=[...command.scale];transform.rotation=normal.map(v=>v*(command.angle??0)) as Vec3;return id;}
   });
 }

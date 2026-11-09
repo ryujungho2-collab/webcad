@@ -1,0 +1,660 @@
+{
+  "version": {
+    "documentId": "document-774fb9cd-5099-4987-890a-d39ae8303acd",
+    "revision": 50,
+    "generation": 1
+  },
+  "request": {
+    "jointId": "bearing",
+    "start": 0,
+    "end": 180,
+    "step": 90,
+    "partIds": [
+      "stand-base",
+      "stand-shaft",
+      "stand-turntable",
+      "stand-support",
+      "stand-plate",
+      "stand-lip"
+    ],
+    "exceptions": [
+      [
+        "stand-base",
+        "stand-shaft"
+      ]
+    ],
+    "tolerance": 0.000001
+  },
+  "angles": [
+    0,
+    90,
+    180
+  ],
+  "rows": [
+    {
+      "relativeMotion": "invariant",
+      "angle": 0,
+      "pair": [
+        "stand-base",
+        "stand-shaft"
+      ],
+      "baseStatus": "contact",
+      "status": "intentional-exception",
+      "method": "brep",
+      "exception": true,
+      "commonVolume": 0,
+      "distance": 0,
+      "volumeTolerance": 0.0000037699111843077517
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 0,
+      "pair": [
+        "stand-base",
+        "stand-turntable"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 0,
+      "pair": [
+        "stand-base",
+        "stand-support"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 0,
+      "pair": [
+        "stand-base",
+        "stand-plate"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 0,
+      "pair": [
+        "stand-base",
+        "stand-lip"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 0,
+      "pair": [
+        "stand-shaft",
+        "stand-turntable"
+      ],
+      "baseStatus": "contact",
+      "status": "contact",
+      "method": "brep",
+      "exception": false,
+      "commonVolume": 0,
+      "distance": 0,
+      "volumeTolerance": 0.0000037699111843077517
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 0,
+      "pair": [
+        "stand-shaft",
+        "stand-support"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 0,
+      "pair": [
+        "stand-shaft",
+        "stand-plate"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 0,
+      "pair": [
+        "stand-shaft",
+        "stand-lip"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 0,
+      "pair": [
+        "stand-turntable",
+        "stand-support"
+      ],
+      "baseStatus": "contact",
+      "status": "contact",
+      "method": "brep",
+      "exception": false,
+      "commonVolume": 0,
+      "distance": 0,
+      "volumeTolerance": 0.00006211657080000001
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 0,
+      "pair": [
+        "stand-turntable",
+        "stand-plate"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 0,
+      "pair": [
+        "stand-turntable",
+        "stand-lip"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 0,
+      "pair": [
+        "stand-support",
+        "stand-plate"
+      ],
+      "baseStatus": "penetration",
+      "status": "penetration",
+      "method": "brep",
+      "exception": false,
+      "commonVolume": 964.6170736148283,
+      "distance": 0,
+      "volumeTolerance": 0.00006211657080000001
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 0,
+      "pair": [
+        "stand-support",
+        "stand-lip"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 0,
+      "pair": [
+        "stand-plate",
+        "stand-lip"
+      ],
+      "baseStatus": "contact",
+      "status": "contact",
+      "method": "brep",
+      "exception": false,
+      "commonVolume": 0,
+      "distance": 1.4210854715202004e-14,
+      "volumeTolerance": 0.000021600000000000007
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 90,
+      "pair": [
+        "stand-base",
+        "stand-shaft"
+      ],
+      "baseStatus": "contact",
+      "status": "intentional-exception",
+      "method": "reuse",
+      "exception": true,
+      "commonVolume": 0,
+      "distance": 0,
+      "volumeTolerance": 0.0000037699111843077517
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 90,
+      "pair": [
+        "stand-base",
+        "stand-turntable"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 90,
+      "pair": [
+        "stand-base",
+        "stand-support"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 90,
+      "pair": [
+        "stand-base",
+        "stand-plate"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 90,
+      "pair": [
+        "stand-base",
+        "stand-lip"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 90,
+      "pair": [
+        "stand-shaft",
+        "stand-turntable"
+      ],
+      "baseStatus": "contact",
+      "status": "contact",
+      "method": "brep",
+      "exception": false,
+      "commonVolume": 0,
+      "distance": 0,
+      "volumeTolerance": 0.0000037699111843077517
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 90,
+      "pair": [
+        "stand-shaft",
+        "stand-support"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 90,
+      "pair": [
+        "stand-shaft",
+        "stand-plate"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 90,
+      "pair": [
+        "stand-shaft",
+        "stand-lip"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 90,
+      "pair": [
+        "stand-turntable",
+        "stand-support"
+      ],
+      "baseStatus": "contact",
+      "status": "contact",
+      "method": "reuse",
+      "exception": false,
+      "commonVolume": 0,
+      "distance": 0,
+      "volumeTolerance": 0.00006211657080000001
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 90,
+      "pair": [
+        "stand-turntable",
+        "stand-plate"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "reuse",
+      "exception": false
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 90,
+      "pair": [
+        "stand-turntable",
+        "stand-lip"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "reuse",
+      "exception": false
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 90,
+      "pair": [
+        "stand-support",
+        "stand-plate"
+      ],
+      "baseStatus": "penetration",
+      "status": "penetration",
+      "method": "reuse",
+      "exception": false,
+      "commonVolume": 964.6170736148283,
+      "distance": 0,
+      "volumeTolerance": 0.00006211657080000001
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 90,
+      "pair": [
+        "stand-support",
+        "stand-lip"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "reuse",
+      "exception": false
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 90,
+      "pair": [
+        "stand-plate",
+        "stand-lip"
+      ],
+      "baseStatus": "contact",
+      "status": "contact",
+      "method": "reuse",
+      "exception": false,
+      "commonVolume": 0,
+      "distance": 1.4210854715202004e-14,
+      "volumeTolerance": 0.000021600000000000007
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 180,
+      "pair": [
+        "stand-base",
+        "stand-shaft"
+      ],
+      "baseStatus": "contact",
+      "status": "intentional-exception",
+      "method": "reuse",
+      "exception": true,
+      "commonVolume": 0,
+      "distance": 0,
+      "volumeTolerance": 0.0000037699111843077517
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 180,
+      "pair": [
+        "stand-base",
+        "stand-turntable"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 180,
+      "pair": [
+        "stand-base",
+        "stand-support"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 180,
+      "pair": [
+        "stand-base",
+        "stand-plate"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 180,
+      "pair": [
+        "stand-base",
+        "stand-lip"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 180,
+      "pair": [
+        "stand-shaft",
+        "stand-turntable"
+      ],
+      "baseStatus": "contact",
+      "status": "contact",
+      "method": "brep",
+      "exception": false,
+      "commonVolume": 0,
+      "distance": 0,
+      "volumeTolerance": 0.0000037699111843077517
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 180,
+      "pair": [
+        "stand-shaft",
+        "stand-support"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 180,
+      "pair": [
+        "stand-shaft",
+        "stand-plate"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 180,
+      "pair": [
+        "stand-shaft",
+        "stand-lip"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 180,
+      "pair": [
+        "stand-turntable",
+        "stand-support"
+      ],
+      "baseStatus": "contact",
+      "status": "contact",
+      "method": "reuse",
+      "exception": false,
+      "commonVolume": 0,
+      "distance": 0,
+      "volumeTolerance": 0.00006211657080000001
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 180,
+      "pair": [
+        "stand-turntable",
+        "stand-plate"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "reuse",
+      "exception": false
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 180,
+      "pair": [
+        "stand-turntable",
+        "stand-lip"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "reuse",
+      "exception": false
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 180,
+      "pair": [
+        "stand-support",
+        "stand-plate"
+      ],
+      "baseStatus": "penetration",
+      "status": "penetration",
+      "method": "reuse",
+      "exception": false,
+      "commonVolume": 964.6170736148283,
+      "distance": 0,
+      "volumeTolerance": 0.00006211657080000001
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 180,
+      "pair": [
+        "stand-support",
+        "stand-lip"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "reuse",
+      "exception": false
+    },
+    {
+      "relativeMotion": "invariant",
+      "angle": 180,
+      "pair": [
+        "stand-plate",
+        "stand-lip"
+      ],
+      "baseStatus": "contact",
+      "status": "contact",
+      "method": "reuse",
+      "exception": false,
+      "commonVolume": 0,
+      "distance": 1.4210854715202004e-14,
+      "volumeTolerance": 0.000021600000000000007
+    }
+  ],
+  "parts": [
+    {
+      "id": "stand-base",
+      "status": "supported"
+    },
+    {
+      "id": "stand-shaft",
+      "status": "supported"
+    },
+    {
+      "id": "stand-turntable",
+      "status": "supported"
+    },
+    {
+      "id": "stand-support",
+      "status": "supported"
+    },
+    {
+      "id": "stand-plate",
+      "status": "supported"
+    },
+    {
+      "id": "stand-lip",
+      "status": "supported"
+    }
+  ],
+  "samplingFinished": true,
+  "state": "finished",
+  "elapsedMs": 275.64330000000064,
+  "stats": {
+    "possiblePairs": 45,
+    "aabbRejected": 24,
+    "candidates": 7,
+    "invariantReuse": 14,
+    "kernelCalls": 19,
+    "completedSamples": 3,
+    "estimatedInputBytes": 24452,
+    "wasmCapacityBytes": null
+  },
+  "warning": "Discrete samples only; unchecked angular intervals are NOT certified collision-free. AABB is not a collision test. Exceptions retain their original result."
+}

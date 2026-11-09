@@ -1,0 +1,49 @@
+{
+  "reasoning": {
+    "http": 200,
+    "elapsedMs": 20880,
+    "model": "openai/qwen3-coder-local",
+    "runtimeModel": "webcad-auto-ontology-coder:latest",
+    "usage": {
+      "prompt_tokens": 12,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "completion_tokens": 2,
+      "total_tokens": 14
+    },
+    "nonEmptyResponse": true
+  },
+  "nonReasoning": {
+    "http": 200,
+    "elapsedMs": 2714,
+    "model": "openai/qwen3-coder-local",
+    "runtimeModel": "webcad-auto-ontology-coder:latest",
+    "usage": {
+      "prompt_tokens": 17,
+      "prompt_tokens_details": {
+        "cached_tokens": 3
+      },
+      "completion_tokens": 9,
+      "total_tokens": 26
+    },
+    "verifiedJson": true
+  },
+  "embedding": {
+    "http": 200,
+    "elapsedMs": 1123,
+    "model": "nomic-embed-text",
+    "nativeDimensions": 768,
+    "catalogDimensions": 2048,
+    "zeroExtensionVerified": true
+  },
+  "reranking": {
+    "http": 200,
+    "elapsedMs": 7,
+    "model": "cross-encoder/ms-marco-MiniLM-L6-v2",
+    "rankedIndices": [
+      0,
+      1
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 import { planeToWorld, WORK_PLANES, type Vec3, type WorkPlaneId } from "./workPlane";
 import { formatLength } from "./units";
 import { dimensionArrowhead as arrowhead } from "./dimensionSymbols";
-import { validAngularParams, validDimensionStyle, type CadDimensionStyle } from "@agent-webcad/cad-document";
+import { DEFAULT_LINEAR_DIMENSION_PRESET, validAngularParams, validDimensionStyle, type CadDimensionStyle } from "@agent-webcad/cad-document";
 import { resolveAngularDimension } from "./angularDimension";
 
 export type DimensionOrientation = "aligned" | "horizontal" | "vertical";
@@ -29,7 +29,9 @@ export function dimensionStyle(params: Record<string, unknown>): CadDimensionSty
 }
 
 function scaleOf(style: CadDimensionStyle) { return style.paperScale ?? 1; }
-function labelLength(value: number, style: CadDimensionStyle) { return formatLength(value, style.lengthUnit ?? "mm", style.precision ?? 2); }
+function labelLength(value: number, style: CadDimensionStyle) {
+  return formatLength(value, style.lengthUnit ?? DEFAULT_LINEAR_DIMENSION_PRESET.lengthUnit, style.precision ?? DEFAULT_LINEAR_DIMENSION_PRESET.precision);
+}
 function labelAngle(radians: number, style: CadDimensionStyle) {
   const value = style.angleUnit === "rad" ? radians : radians * 180 / Math.PI;
   return `${value.toFixed(style.precision ?? 2)}${style.angleUnit === "rad" ? " rad" : "°"}`;
@@ -65,7 +67,7 @@ function resolveLinear(params: Record<string, unknown>): DimensionRender | null 
   const plane = workPlaneOf(params);
   const style = dimensionStyle(params), paperScale = scaleOf(style);
   const symbolScale = Number(params.symbolScale ?? 1);
-  const arrowScale = (style.arrowSize ?? 3) / 3 * paperScale * symbolScale;
+  const arrowScale = (style.arrowSize ?? DEFAULT_LINEAR_DIMENSION_PRESET.arrowSize) / 3 * paperScale * symbolScale;
 
   const axis: V2 | null = orientation === "horizontal" ? [1, 0] : orientation === "vertical" ? [0, 1]
     : (() => {
@@ -102,7 +104,7 @@ function resolveLinear(params: Record<string, unknown>): DimensionRender | null 
     textPosition: toWorld(plane, textAnchor),
     value:value*Number(params.modelMeasurementScale??1),
     unit: "mm",
-    textHeight: (style.textHeight ?? 4) * paperScale * symbolScale,
+    textHeight: (style.textHeight ?? DEFAULT_LINEAR_DIMENSION_PRESET.textHeight) * paperScale * symbolScale,
   };
 }
 

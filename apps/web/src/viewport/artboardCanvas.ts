@@ -4,7 +4,7 @@ import { planeToWorld, WORK_PLANES, type Vec3, type WorkPlaneId } from "../preci
 export type ArtboardWorkspaceMode = "2d" | "3d";
 
 /** Artboards are document-space rectangles on their declared CAD work plane. */
-export function artboardWorldCorners(board: CadArtboard): Vec3[] {
+export function artboardWorldCorners(board: Pick<CadArtboard,"workPlane"|"origin"|"size">): Vec3[] {
   const plane = WORK_PLANES[board.workPlane];
   const [x, y] = board.origin;
   const [width, height] = board.size;

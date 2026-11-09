@@ -14,6 +14,7 @@ import { saveDocumentToCache } from "../src/state/documentFile";
 import { dispatchCadCommand } from "../src/state/dispatchCadCommand";
 import { isDocumentCommandPending } from "../src/state/documentCommandQueue";
 import { resetTestDocument } from "./helpers/documentHarness";
+import {physical} from "./helpers/physicalInput";
 import { installBrowserChecks } from "./helpers/browserChecks";
 
 resetTestDocument();
@@ -32,12 +33,6 @@ function find(name: string) {
 async function input(action: Record<string, unknown>) {
   const response = await fetch(`/__browser_input?run=${new URLSearchParams(location.search).get("run")}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action) });
   if (!response.ok) throw new Error(await response.text());
-}
-async function physical(element: Element, modifiers = 0) {
-  element.scrollIntoView({ block: "nearest" }); await pause();
-  const r = element.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
-  if (!element.contains(document.elementFromPoint(x, y))) throw new Error(`Obscured ${element.outerHTML.slice(0, 120)}`);
-  await input({ type: "mousePressed", x, y, button: "left", buttons: 1, modifiers }); await input({ type: "mouseReleased", x, y, button: "left", buttons: 0, modifiers }); await pause();
 }
 async function waitFor(check: () => boolean) {
   const deadline = Date.now() + 12000;

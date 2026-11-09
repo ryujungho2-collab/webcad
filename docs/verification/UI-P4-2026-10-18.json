@@ -1,0 +1,44 @@
+{
+  "task": "UI-P4",
+  "date": "2026-10-18",
+  "scope": "File-based project bundle sharing and revision content comparison; independent copy conflict policy",
+  "checks": {
+    "fullNode": {
+      "passed": 1368,
+      "suites": 54,
+      "note": "Full run before final two added comparison/capacity tests; final focused run below covers those additions."
+    },
+    "focusedNode": {
+      "passed": 30,
+      "files": [
+        "projectBundle.test.ts",
+        "projectManagerStore.test.ts",
+        "projectSession.test.ts",
+        "projectWorkspaceStore.test.ts"
+      ],
+      "newBundleTests": 8
+    },
+    "nativeBrowser": {
+      "projectBundle": 15,
+      "projectManager": 30,
+      "projectComparison": 25
+    },
+    "build": "passed",
+    "architecture": {
+      "passed": true,
+      "modules": 659
+    }
+  },
+  "artifacts": [
+    "output/verification/project-bundle/Projects.webcad.bundle.json",
+    "output/verification/project-bundle/bundle-review.png",
+    "output/verification/project-bundle/native-report.json"
+  ],
+  "limits": [
+    "1–20 projects, 16 MiB UTF-8 bundle; browser storage quota may be smaller.",
+    "No automatic merge or overwrite; each imported project/document gets a fresh identity.",
+    "No real-time server collaboration or ancestry inference.",
+    "Project snapshots are captured individually.",
+    "Existing CAD export paths unchanged; PDF not separately reissued."
+  ]
+}

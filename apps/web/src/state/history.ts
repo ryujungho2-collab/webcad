@@ -49,17 +49,23 @@ export function restoreDocument(
 
   cadDocument.sketches = structuredClone(snapshot.sketches);
   if(snapshot.componentLibrary)cadDocument.componentLibrary=structuredClone(snapshot.componentLibrary);else delete cadDocument.componentLibrary;
+  if(snapshot.dimensionStylePresets)cadDocument.dimensionStylePresets=structuredClone(snapshot.dimensionStylePresets);else delete cadDocument.dimensionStylePresets;
   if(snapshot.blocks) cadDocument.blocks = structuredClone(snapshot.blocks); else delete cadDocument.blocks;
   if(snapshot.variables) cadDocument.variables = structuredClone(snapshot.variables); else delete cadDocument.variables;
   if(snapshot.parameterBindings) cadDocument.parameterBindings = structuredClone(snapshot.parameterBindings); else delete cadDocument.parameterBindings;
   if(snapshot.frameLinks) cadDocument.frameLinks = structuredClone(snapshot.frameLinks); else delete cadDocument.frameLinks;
+  if(snapshot.savedMeasurements)cadDocument.savedMeasurements=structuredClone(snapshot.savedMeasurements);else delete cadDocument.savedMeasurements;
+  if(snapshot.canvases)cadDocument.canvases=structuredClone(snapshot.canvases);else delete cadDocument.canvases;
   if(snapshot.workspaceSections) cadDocument.workspaceSections = structuredClone(snapshot.workspaceSections); else delete cadDocument.workspaceSections;
   if(snapshot.artboards) cadDocument.artboards = structuredClone(snapshot.artboards); else delete cadDocument.artboards;
   if(snapshot.scenes) cadDocument.scenes = structuredClone(snapshot.scenes); else delete cadDocument.scenes;
   if(snapshot.exchangeImports) cadDocument.exchangeImports = structuredClone(snapshot.exchangeImports); else delete cadDocument.exchangeImports;
   if(snapshot.modelViews) cadDocument.modelViews = structuredClone(snapshot.modelViews); else delete cadDocument.modelViews;
   if(snapshot.modelPresentation) cadDocument.modelPresentation=structuredClone(snapshot.modelPresentation); else delete cadDocument.modelPresentation;
+  if(snapshot.interferenceIntents)cadDocument.interferenceIntents=structuredClone(snapshot.interferenceIntents);else delete cadDocument.interferenceIntents;
+  if(snapshot.assembly)cadDocument.assembly=structuredClone(snapshot.assembly);else delete cadDocument.assembly;
   if(snapshot.workPlanes) cadDocument.workPlanes = structuredClone(snapshot.workPlanes); else delete cadDocument.workPlanes;
+  if(snapshot.externalSceneAssets) cadDocument.externalSceneAssets = structuredClone(snapshot.externalSceneAssets); else delete cadDocument.externalSceneAssets;
   if(snapshot.rasterAssets) cadDocument.rasterAssets = structuredClone(snapshot.rasterAssets); else delete cadDocument.rasterAssets;
 
   cadDocument.layers =

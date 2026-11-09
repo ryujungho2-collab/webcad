@@ -1,0 +1,7 @@
+import type {CanvasFlexReport} from "./canvasFlexPlan";
+export function CanvasFlexReview({report}:{report:Omit<CanvasFlexReport,"commands">}){
+ const root=report.boxes[0],x=root.origin[0],y=root.origin[1],width=root.size[0],height=root.size[1];
+ return <section className="canvas-flex-review" aria-label="Flex layout preview"><strong>Flex placement preview</strong><svg role="img" aria-label="Proposed Flex boxes" viewBox={`${x-5} ${-y-height-5} ${width+10} ${height+10}`}><rect x={x} y={-y-height} width={width} height={height} fill="none" stroke="#78bdb9" strokeWidth={Math.max(width,height)/250}/>{report.boxes.slice(1).map((box,i)=><g key={box.key}><rect x={box.origin[0]} y={-box.origin[1]-box.size[1]} width={box.size[0]} height={box.size[1]} fill="rgba(80,160,180,.15)" stroke={box.absolute?"#d8b278":"#78bdb9"} strokeWidth={Math.max(width,height)/400}/><text x={box.origin[0]+2} y={-box.origin[1]-box.size[1]+Math.max(width,height)/35} fill="currentColor" fontSize={Math.max(width,height)/35}>{i+1}</text></g>)}</svg>
+ <p>{report.movedIds.length} placements changed · one Undo. Preview shows boxes; source geometry is preserved.</p><ol>{report.boxes.slice(1).map(box=><li key={box.key}>{box.name}: {box.origin.map(n=>n.toFixed(2)).join(", ")} · {box.size.map(n=>n.toFixed(2)).join(" × ")} mm{box.absolute?" · absolute":""}</li>)}</ol>{report.overflow.length>0&&<p role="status">Absolute overflow: {report.overflow.map(o=>`${o.axis} ${o.excess.toFixed(2)} mm`).join("; ")}. Absolute sources are not clipped or resized.</p>}
+ </section>;
+}

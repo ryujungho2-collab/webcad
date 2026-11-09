@@ -21,59 +21,19 @@
 
 import { CadEngine } from '../runtime/CadEngine';
 
-/**
- * Fuse two shapes
+/** Constructors already perform the Boolean in this OCCT binding. A second
+ * Build repeats the exact operation and leaves additional native work behind.
+ * Result Shape() owns its handle independently of the builder/progress scope.
  */
-export async function fuse(a: any, b: any): Promise<any> {
-  const engine = await CadEngine.create();
-  const oc = engine.oc;
-  
-  // Perform boolean fusion using BRepAlgoAPI_Fuse
-  const fuseOp = new oc.BRepAlgoAPI_Fuse_3(a, b, new oc.Message_ProgressRange_1());
-  fuseOp.Build(new oc.Message_ProgressRange_1());
-  
-  // Check if the operation was successful
-  if (!fuseOp.IsDone()) {
-    throw new Error('Boolean fuse operation failed');
-  }
-  
-  return fuseOp.Shape();
+async function booleanShape(kind:"fuse"|"cut"|"intersect",a:any,b:any):Promise<any>{
+ const {oc}=await CadEngine.create(),progress=new oc.Message_ProgressRange_1();let operation:any;
+ try{
+  operation=kind==="fuse"?new oc.BRepAlgoAPI_Fuse_3(a,b,progress):kind==="cut"?new oc.BRepAlgoAPI_Cut_3(a,b,progress):new oc.BRepAlgoAPI_Common_3(a,b,progress);
+  if(!operation.IsDone())operation.Build(progress);
+  if(!operation.IsDone())throw Error(`Boolean ${kind} operation failed`);
+  return operation.Shape();
+ }finally{operation?.delete();progress.delete();}
 }
-
-/**
- * Cut one shape from another
- */
-export async function cut(target: any, tool: any): Promise<any> {
-  const engine = await CadEngine.create();
-  const oc = engine.oc;
-  
-  // Perform boolean cut using BRepAlgoAPI_Cut
-  const cutOp = new oc.BRepAlgoAPI_Cut_3(target, tool, new oc.Message_ProgressRange_1());
-  cutOp.Build(new oc.Message_ProgressRange_1());
-  
-  // Check if the operation was successful
-  if (!cutOp.IsDone()) {
-    throw new Error('Boolean cut operation failed');
-  }
-  
-  return cutOp.Shape();
-}
-
-/**
- * Find intersection of two shapes
- */
-export async function intersect(a: any, b: any): Promise<any> {
-  const engine = await CadEngine.create();
-  const oc = engine.oc;
-  
-  // Perform boolean intersection using BRepAlgoAPI_Intersection
-  const intersectOp = new oc.BRepAlgoAPI_Common_3(a, b, new oc.Message_ProgressRange_1());
-  intersectOp.Build(new oc.Message_ProgressRange_1());
-  
-  // Check if the operation was successful
-  if (!intersectOp.IsDone()) {
-    throw new Error('Boolean intersection operation failed');
-  }
-  
-  return intersectOp.Shape();
-}
+export async function fuse(a:any,b:any):Promise<any>{return booleanShape("fuse",a,b);}
+export async function cut(a:any,b:any):Promise<any>{return booleanShape("cut",a,b);}
+export async function intersect(a:any,b:any):Promise<any>{return booleanShape("intersect",a,b);}

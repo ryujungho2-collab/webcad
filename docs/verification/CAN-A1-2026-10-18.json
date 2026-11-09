@@ -1,0 +1,45 @@
+{
+  "task": "CAN-A1",
+  "date": "2026-10-18",
+  "scope": "Canvas ownership/reference hierarchy, model/paper domains, legacy adapter, navigation and schema v43",
+  "checks": {
+    "fullNode": {
+      "passed": 1379,
+      "suites": 54,
+      "note": "Before final prototype-name regression addition; included in focused run."
+    },
+    "focusedCanvasNode": {
+      "passed": 10
+    },
+    "nativeBrowser": {
+      "canvasHierarchy": 28,
+      "projectTree": 17,
+      "projectBundle": 15,
+      "note": "canvasHierarchy includes 960px corner containment and save/reload; projectTree ran before the narrow-aspect fit correction and remains a navigation regression snapshot."
+    },
+    "build": "passed",
+    "architecture": {
+      "modules": 663,
+      "passed": true
+    }
+  },
+  "artifacts": [
+    "output/verification/canvas-hierarchy/canvas.webcad.json",
+    "output/verification/canvas-hierarchy/paper.svg",
+    "output/verification/canvas-hierarchy/canvas-1440.png",
+    "output/verification/canvas-hierarchy/canvas-960.png",
+    "output/verification/canvas-hierarchy/native-report.json"
+  ],
+  "invariants": [
+    "No model/Section/Frame coordinate, crop, scale or source-reference changes during migration.",
+    "No extra native geometry submissions for canvas-only mutations.",
+    "Published SVG identical before/after hierarchy edits.",
+    "Independent copy project bundles retain the canvas graph."
+  ],
+  "limits": [
+    "Absolute work-plane bounds; no implicit parent transform or unit conversion.",
+    "256 canvases; 1000 memberships per canvas; 5000 total; 32 levels.",
+    "Flex/reflow belongs to CAN-A2; proportional content scale belongs to CAN-A3.",
+    "PDF not separately reissued in this change."
+  ]
+}

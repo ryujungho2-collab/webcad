@@ -1,10 +1,13 @@
 # 평면도에서 모델·시트까지 — CAD/Copilot/캔버스 구현 계획
 
+2026-10-19 방향 결정: 현재 단계는 [자연어 CAD·코파일럿 제품 목적](NATURAL-LANGUAGE-CAD-PURPOSE-2026-10-19.md)을 우선 기준으로 삼는다. 최종 목적은 기존 코파일럿을 통해 자연어로 편집 가능한 2D 도면과 3D 모델을 새로 만들고 후속 대화로 수정하는 CAD다. 외부 도면 이해·수정·복원은 이를 위한 학습·검증 단계다. 아래 과거/장기 목표는 유지하되 2D만을 고집하지 않으며 과제의 효과와 준비 상태에 따라 3D도 구현 대상으로 선택한다. 판단 엔진의 구체적인 선택은 미정이며 자연어 생성 목표는 유지한다. 이는 고정된 다음 작업 지정이 아니다.
+
+
 > **문서 역할**: 후속 설계와 당시 결정 기록. 현재 사용법·지원 범위는 [평면도와 건축 콘텐츠](../features/FLOOR-PLANNING.md)에서 관리한다.
 
 기준일: 2026-10-14. 사용자의 7단계 예시는 제품의 실제 작업 흐름 요구사항이다. 최종 목표는 **정리한 평면도 → 추적/면 → 벽 → 문·창 → 부품/가구 → 연관 평면·단면·시트**를 같은 프로젝트에서 완성하고, 모든 조작을 직접 UI와 Copilot 양쪽에서 실행하는 것이다. 자동 배치는 이 흐름을 돕되 모델 치수·참조·단위·Undo 계약을 보존한다.
 
-정합성 갱신: **2026-10-17**. 다음 실행은 [현재 실행 큐](../../NEXT-STEPS.md#현재-실행-큐)의 **WF-Q1**이며 아래 완료 상태는 2026-10-16 구현·검증 범위다. 설계 목표와 첫 지원 범위를 구분한다.
+정합성 갱신: **2026-10-17**. **WF-Q1은 완료**했다(기록: [실행 큐](../../NEXT-STEPS.md#wf-q1-완료-조건)·[구현 기록](../implementation/WF-Q1-RESIDENTIAL-2026-10-17.md)). 아래 완료 상태는 2026-10-16 구현·검증 범위다. 설계 목표와 첫 지원 범위를 구분한다.
 
 ## 현재 코드에서 확인한 기반과 공백
 
@@ -12,16 +15,16 @@
 
 ## 우선순위와 완료 단위
 
-완료 판단은 실제 UI·Review/실패·Undo/복구·재열기·관련 출력 증거를 따른다. WF-A1·C0/A2/B1·B2/B3·CMP-S1/WF-D1의 현재 지원은 [대표 가이드](../features/FLOOR-PLANNING.md)를 따른다. 다음 실행은 [WF-Q1](../../NEXT-STEPS.md#wf-q1-완료-조건)이다.
+완료 판단은 실제 UI·Review/실패·Undo/복구·재열기·관련 출력 증거를 따른다. WF-A1·C0/A2/B1·B2/B3·CMP-S1/WF-D1의 현재 지원은 [대표 가이드](../features/FLOOR-PLANNING.md)를 따른다. WF-Q1도 [첫 지원 범위로 완료](../../NEXT-STEPS.md#wf-q1-완료-조건)했다.
 
 | 후속 카드 | 목표 | 선행·완료 조건 |
 | --- | --- | --- |
-| CAN-A1 상위 캔버스 | 소유/참조·모델/종이 단위·계층 탐색 | Section/Frame의 표현 참조를 보존하고 schema/마이그레이션·cycle/중복 소유 검증 |
-| CAN-A2 Flex | row/column/wrap·gap/padding·Fixed/Hug/Fill·absolute/min/max | CAN-A1. Hug/Fill 순환·overflow·잠금 진단, CAD 크기 변경은 명시적 모델 명령 |
-| CAN-A3 비례 scale | Resize/Reflow/Scale contents 구분, 글자/테두리/효과의 비례 확대 | CAN-A1/A2. 종이 단위 고정 옵션, SVG/PDF 일치, 비균등 곡선/구속 충돌 거부 |
-| MEAS-H1 호버 거리 | 기준·hover 대상의 witness와 최단/축/투영 거리 | stable IDs, 정확/근사·단위·취소/cache·최근접 실제 객체 표시 |
+| CAN-A1 상위 캔버스 · [완료](../implementation/CAN-A1-CANVAS-HIERARCHY-2026-10-18.md) | 소유/참조·모델/종이 단위·계층 탐색 | Section/Frame의 표현 참조를 보존하고 schema/마이그레이션·cycle/중복 소유 검증 |
+| CAN-A2 Flex · [완료](../implementation/CAN-A2-FLEX-LAYOUT-2026-10-18.md) | row/column/wrap·gap/padding·Fixed/Hug/Fill·absolute/min/max | CAN-A1. Hug/Fill 순환·overflow·잠금 진단, CAD 크기 변경은 명시적 모델 명령 |
+| CAN-A3 비례 scale · 첫 지원 범위 완료 | Resize/Reflow/Scale contents 구분, 소유 프레임·이미지 균등 표현 확대 | [구현·검증](../implementation/CAN-A3-CONTENT-SCALE-2026-10-18.md). 종이 글자/선 고정·v45·SVG/PDF. 비균등 CAD/연결 시트 그룹 확대는 후속 |
+| MEAS-H1 호버 거리 · 첫 지원 범위 완료 | 유한 도면 기준/대상의 witness와 3D/축/투영 거리 | [구현·검증](../implementation/MEAS-H1-HOVER-DISTANCE-2026-10-18.md). stable IDs·오차 구간·world mm·취소/cache·레이어 최근접. [닫힌 BRep 경계·재료 거리/관계도 완료](../implementation/MEAS-H1-BREP-DISTANCE-2026-10-18.md). [subobject 혼합·투영](../implementation/MEAS-MIXED-PROJECTED-DISTANCE-2026-10-18.md)과 [저장·치수화](../implementation/MEAS-SAVED-DIMENSIONS-2026-10-18.md)도 완료. 유한 도면↔BRep 혼합/signed depth는 후속 |
 | CMP-S1/WF-D1 확대 | 다중 슬롯/assembly·외부 라이브러리·텍스처·정확 거리 등 | 현재 단일 슬롯 지원과 구분하고 각 확장 계약을 별도로 검증 |
-| WF-Q1 실제 주거 과제 | 준비부터 A3 발행·수정/재발행·재열기 | [실행 큐의 완료 조건](../../NEXT-STEPS.md#wf-q1-완료-조건). CAN/MEAS/IO 전체 완료는 필수 선행 아님 |
+| WF-Q1 실제 주거 과제 | 준비부터 A3 발행·수정/재발행·재열기 | **완료**. [기록](../implementation/WF-Q1-RESIDENTIAL-2026-10-17.md)·[검증](../verification/WF-Q1-2026-10-17.json). CAN/MEAS/IO 전체 완료는 필수 선행 아님 |
 | IO-DWG1 외부 교환 | DWG/SKP의 라이선스·버전·단위·손실 Review | 실제 샘플 독립 왕복 전 지원 선택지 노출 금지 |
 
 아래 데이터/편집 계약과 요청 예는 **후속 목표를 포함한 설계**다. 구현된 동작과 입력 한도는 대표 가이드를 기준으로 한다. 통합 전 상세 표는 [보존본](../history/FLOOR-PLAN-PLAN-BEFORE-CONSOLIDATION-2026-10-17.md)에 있다.

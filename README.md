@@ -1,8 +1,16 @@
 # Agent WebCAD
 
+[Claude 개발·제품 인수인계](CLAUDE.md): 제품 목표, 기존 구현 지도, 온톨로지·전문 에이전트 방향, 검증·데이터 보존 원칙과 첫 작업 요청. [2026-11-10 게시 범위](docs/verification/PUBLISH-HANDOFF-2026-11-10.md).
+
 정밀한 기하·구속·저장 관계를 바탕으로 그리기, 직접 편집, 파라메트릭 설계를 연결하는 웹 CAD이다. 필요한 기능을 편하게 이어서 작업을 끝내는 경험을 목표로 한다. 현재 사용법과 지원 범위는 [기능별 가이드](docs/features/README.md)에 기록한다.
 
 확장 목표는 CAD·벡터·이미지·레이아웃이 문서·선택·명령·이력을 공유하는 통합 제작 엔진이다. **[NEXT-STEPS 통합 안내](NEXT-STEPS.md)**에서 기능별 가이드·계획·진행 상태·검증 근거와 다음 작업을 함께 찾는다.
+
+Copilot의 **Open design study…**에서 의도·미확정 조건·보존 객체를 기록하고 실제 2D/3D 대안을 비교할 수 있다. [사용법과 지원 범위](docs/features/COPILOT.md#의도를-구체화하고-대안을-비교하기).
+
+[대표 성과와 다운로드](docs/verification/SHOWCASE-2026-11-06.md): 3층 주택의 편집 가능한 CAD·STEP·도면, 회전식 거치대의 Joint·간섭 검사와 기존 검증 근거를 선별했다. 릴리스 인증이나 물리 해석 완료를 뜻하지 않는다.
+
+[2026-11-07 개발 체크포인트](docs/verification/CHECKPOINT-2026-11-07.md): 2D 편집 카드, 온톨로지 관계 조회·합성 Auto Ontology 파일럿, 실제 로컬 LLM의 설계 수정 평가와 선택 객체 기반 도구 라우팅을 보존했다. 장비 외함의 편집 원본·STEP·실제 편집 화면과 성공·실패 검증 자료를 선별했다.
 
 ## 시작
 
@@ -29,7 +37,7 @@ Node 테스트는 기하·명령·문서 관계와 실패 원자성을 검사한
 
 - [현재 상태](PROJECT-STATE.md)와 [다음 작업](NEXT-STEPS.md): 재시작할 때 먼저 읽는 최신 기록.
 - [초기 기획·공통 검증 계약](docs/IMPLEMENTATION-READINESS-2026-10-05.md): G0–G6 설계·인계 이력. 현재 실행 순서는 NEXT-STEPS를 따른다.
-- [계획서 정합성 정리](docs/reviews/PLAN-CONSISTENCY-2026-10-17.md): 완료 범위·대기 카드·다음 WF-Q1과 문서별 근거.
+- [계획서 정합성 정리](docs/reviews/PLAN-CONSISTENCY-2026-10-17.md): 완료 범위·대기 카드와 문서별 근거.
 - [수정 위치·영향·문서 역할](docs/architecture/CHANGE-GUIDE.md): 무엇을 고치면 어떤 동작이 바뀌고, 어떤 테스트와 문서를 함께 확인하는지 찾는 지도.
 - [디렉토리와 의존 규칙](docs/architecture/DIRECTORY-STRUCTURE.md): 기능 추가 위치와 공용 경계.
 - [문서 안내](docs/README.md): 목적별 진입점과 분류별 전체 색인.

@@ -1,3 +1,11 @@
+import {validateExternalScenes} from './ExternalSceneAsset';
+import {validateInterferenceIntents} from "./InterferenceIntent";
+import {validateAssembly,resolveJointValues} from "./Assembly";
+import {evaluateDocumentGeometryGraph} from "./GeometryDocumentEvaluation";
+import {hasSplineProfiles,hasSplineProfileHoles,hasSplineSweepPaths,hasC2FitPolicy,hasSpatialCurvePolicy} from "./SplineProfile";
+import {validDxfStyle} from "./DxfStyle";
+import {validateSavedMeasurements} from "./SavedMeasurement";
+import {validateCanvasHierarchy} from "./Canvas";
 import {validateArchitectureContent} from "./ArchitectureContent";
 import {validSpline} from "./Spline";
 import {validateFrameStitches} from "./FrameStitch";
@@ -24,14 +32,21 @@ import { validImageNodeParams } from "./ImageNode";
 import { validateAngularReferences } from "./AngularDimension";
 import { validateModelViews } from "./ModelView";
 import { validWorkPlaneFrame, validateCadWorkPlanes } from "./WorkPlane";
+import { validDimensionStylePresets } from "./DimensionStyle";
+
+function hasFramePaperStyling(document:CadDocument):boolean{
+ const frame=(v:unknown,depth=0):boolean=>{if(depth>3||!v||typeof v!=="object")return false;const f=v as {paperStrokeScale?:unknown;paperTextScale?:unknown;stitch?:{parts?:{sourceFrame?:unknown}[]}};return f.paperStrokeScale!==undefined||f.paperTextScale!==undefined||Array.isArray(f.stitch?.parts)&&f.stitch.parts.some(p=>!!p&&(frame(p.sourceFrame,depth+1)));};
+ return Object.values(document.artboards??{}).some(b=>frame(b.frame)||Array.isArray(b.frameSheet?.placements)&&b.frameSheet.placements.some(p=>frame(p.frame)));
+}
 
 type SerializedCadFile = {
   format: "agent-webcad";
-  version: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42;
+  version: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 | 59 | 60 | 61 | 62 | 63 | 64 | 65;
   document: CadDocument;
 };
 
 const hasElementReferences = (document: CadDocument) => Object.values(document.features ?? {}).some(f => f?.construction?.elements !== undefined) || Object.values(document.sketches ?? {}).some(s => Array.isArray(s.constraints) && s.constraints.some(c => c.kind === "angle" && (c.firstSegmentId !== undefined || c.secondSegmentId !== undefined)));
+const hasExtendedAssembly = (document:CadDocument) => Object.values(document.assembly?.joints??{}).some(j=>j.type==="prismatic"||j.coupling!==undefined);
 const hasArtboards = (document: CadDocument) => document.artboards !== undefined;
 const hasDiameterAnnotations=(document:CadDocument)=>Object.values(document.features??{}).some(f=>f?.type==="dimension"&&f.params?.kind==="diameter");
 const hasAngularAnnotations=(document:CadDocument)=>Object.values(document.features??{}).some(f=>f?.type==="dimension"&&f.params?.kind==="angular");
@@ -52,7 +67,7 @@ export function serializeDocument(
   const file: SerializedCadFile = {
     format: "agent-webcad",
     // Older readers must reject files whose driving relationships they cannot preserve.
-    version: document.componentLibrary!==undefined||Object.values(document.features).some(f=>f.params.architecturalSlab||f.params.componentContent||f.params.solidFinish) ? 42 : Object.values(document.features).some(f=>f.params.architecturalWall!==undefined) ? 41 : Object.values(document.features).some(f=>f.params.kind==="face"||f.params.profileRegionIds!==undefined) ? 40 : Object.values(document.features).some(f=>f.params.kind==="spline")||Object.values(document.blocks??{}).some(b=>b.members.some(m=>m.params.kind==="spline")) ? 39 : Object.values(document.modelPresentation?.projections??{}).some(v=>v.hiddenLines!==undefined) ? 38 : Object.values(document.modelPresentation?.projections??{}).some(v=>v.direction!==undefined) ? 37 : Object.values(document.modelPresentation?.projections??{}).some(v=>v.edgePolicy!==undefined||Object.values(v.outputs).some(e=>["ellipse","elliptic-arc"].includes(e.kind)))||Object.values(document.modelPresentation?.sections??{}).some(v=>Object.values(v.decorations??{}).some(e=>["ellipse","elliptic-arc"].includes(e.kind))) ? 36 : Object.values(document.modelPresentation?.sections??{}).some(v=>Object.values(v.outputs).some(e=>["ellipse","elliptic-arc"].includes(e.kind))) ? 35 : Object.values(document.modelPresentation?.sections??{}).some(v=>v.presentation!==undefined||v.decorations!==undefined) ? 34 : Object.values(document.modelPresentation?.projections??{}).some(v=>v.method==="brep-hlr") ? 33 : Object.values(document.artboards??{}).some(b=>b.frame?.stitch!==undefined) ? 32 : Object.values(document.artboards??{}).some(b=>b.frameSheet!==undefined) ? 31 : document.frameLinks !== undefined ? 30 : document.workspaceSections !== undefined ? 29 : Object.values(document.artboards??{}).some(b=>b.frame!==undefined) ? 28 : Object.values(document.features).some(f=>["ellipse","elliptic-arc"].includes(String(f.params.kind)))||Object.values(document.blocks??{}).some(b=>b.members.some(m=>["ellipse","elliptic-arc"].includes(String(m.params.kind)))) ? 27 : Object.values(document.modelPresentation?.sheets??{}).some(s=>s.publication) ? 26 : (Object.values(document.features).some(f=>f.params.modelNote||f.params.modelDrawingReference)||document.modelPresentation&&(document.modelPresentation.sections!==undefined||document.modelPresentation.clipping!==undefined||document.modelPresentation.sheets!==undefined)) ? 25 : document.modelPresentation!==undefined ? 24 : hasMixedSketches(document) ? 23 : Object.values(document.features).some(f=>f.construction?.operation==="intersection"&&f.construction.branchBasis==="center-line") ? 22 : Object.values(document.features).some(f=>f.type==="shell") ? 21 : hasFaceHoles(document) ? 20 : Object.values(document.sketches??{}).some(s=>s.facePlaneId) ? 19 : document.workPlanes !== undefined ? 18 : hasBoundedArcRelations(document) ? 17 : document.exchangeImports !== undefined ? 16 : document.modelViews !== undefined ? 15 : hasAngularAnnotations(document) ? 14 : hasDiameterAnnotations(document) ? 13 : document.scenes !== undefined ? 12 : hasImageColorAdjustments(document) ? 11 : hasImageAdjustments(document) ? 10 : hasImageMasks(document) ? 9 : hasRasterAssets(document) ? 8 : hasArtboards(document) ? 7 : hasElementReferences(document) ? 6 : Object.values(document.sketches??{}).some(s=>s.constraints.some(c=>(EXTENDED_SKETCH_RELATIONS as readonly string[]).includes(c.kind))) ? 5 : Object.values(document.features).some(f=>f.construction || ["point","infinite-line","ray"].includes(String(f.params.kind))) ? 4 : Object.values(document.features).some(f=>f.pattern)?3:document.variables !== undefined || document.parameterBindings !== undefined ? 2 : 1,
+    version: hasExtendedAssembly(document) ? 65 : document.externalSceneAssets!==undefined||Object.values(document.features).some(f=>f.type==="external-scene") ? 64 : document.interferenceIntents ? 63 : document.assembly ? 62 : hasSharedReconstruction(document) ? 61 : hasReconstruction(document) ? 60 : hasHybrid(document) ? 59 : Object.values(document.features).some(f=>f.type==="mesh"&&!!(f.params.mesh as {derivation?:unknown})?.derivation) ? 58 : Object.values(document.features).some(f=>f.type==="geometry-nodes"||f.type==="mesh"&&!!(f.params.mesh as {provenance?:unknown})?.provenance) ? 57 : Object.values(document.features).some(f=>f.type==="mesh"&&(f.params.mesh as {version?:number})?.version===2) ? 56 : Object.values(document.features).some(f=>f.type==="mesh") ? 55 : hasSpatialCurvePolicy(document) ? 54 : hasC2FitPolicy(document) ? 53 : hasSplineSweepPaths(document) ? 52 : hasSplineProfileHoles(document) ? 51 : hasSplineProfiles(document) ? 50 : Object.values(document.features).some(f=>{const w=f.params.architecturalWall as import("./ArchitectureWall").ArchitectureWall|undefined;return w&&(w.startMiter!==undefined||w.endMiter!==undefined);}) ? 49 : hasDxfStyle(document) ? 48 : Object.values(document.savedMeasurements??{}).some(m=>m.drawingId!==undefined) ? 47 : document.savedMeasurements!==undefined ? 46 : hasFramePaperStyling(document) ? 45 : Object.values(document.canvases??{}).some(c=>c.layout||c.members.some(m=>m.layout)) ? 44 : document.canvases!==undefined ? 43 : document.componentLibrary!==undefined||Object.values(document.features).some(f=>f.params.architecturalSlab||f.params.componentContent||f.params.solidFinish) ? 42 : Object.values(document.features).some(f=>f.params.architecturalWall!==undefined) ? 41 : Object.values(document.features).some(f=>f.params.kind==="face"||f.params.profileRegionIds!==undefined) ? 40 : Object.values(document.features).some(f=>f.params.kind==="spline")||Object.values(document.blocks??{}).some(b=>b.members.some(m=>m.params.kind==="spline")) ? 39 : Object.values(document.modelPresentation?.projections??{}).some(v=>v.hiddenLines!==undefined) ? 38 : Object.values(document.modelPresentation?.projections??{}).some(v=>v.direction!==undefined) ? 37 : Object.values(document.modelPresentation?.projections??{}).some(v=>v.edgePolicy!==undefined||Object.values(v.outputs).some(e=>["ellipse","elliptic-arc"].includes(e.kind)))||Object.values(document.modelPresentation?.sections??{}).some(v=>Object.values(v.decorations??{}).some(e=>["ellipse","elliptic-arc"].includes(e.kind))) ? 36 : Object.values(document.modelPresentation?.sections??{}).some(v=>Object.values(v.outputs).some(e=>["ellipse","elliptic-arc"].includes(e.kind))) ? 35 : Object.values(document.modelPresentation?.sections??{}).some(v=>v.presentation!==undefined||v.decorations!==undefined) ? 34 : Object.values(document.modelPresentation?.projections??{}).some(v=>v.method==="brep-hlr") ? 33 : Object.values(document.artboards??{}).some(b=>b.frame?.stitch!==undefined) ? 32 : Object.values(document.artboards??{}).some(b=>b.frameSheet!==undefined) ? 31 : document.frameLinks !== undefined ? 30 : document.workspaceSections !== undefined ? 29 : Object.values(document.artboards??{}).some(b=>b.frame!==undefined) ? 28 : Object.values(document.features).some(f=>["ellipse","elliptic-arc"].includes(String(f.params.kind)))||Object.values(document.blocks??{}).some(b=>b.members.some(m=>["ellipse","elliptic-arc"].includes(String(m.params.kind)))) ? 27 : Object.values(document.modelPresentation?.sheets??{}).some(s=>s.publication) ? 26 : (Object.values(document.features).some(f=>f.params.modelNote||f.params.modelDrawingReference)||document.modelPresentation&&(document.modelPresentation.sections!==undefined||document.modelPresentation.clipping!==undefined||document.modelPresentation.sheets!==undefined)) ? 25 : document.modelPresentation!==undefined ? 24 : hasMixedSketches(document) ? 23 : Object.values(document.features).some(f=>f.construction?.operation==="intersection"&&f.construction.branchBasis==="center-line") ? 22 : Object.values(document.features).some(f=>f.type==="shell") ? 21 : hasFaceHoles(document) ? 20 : Object.values(document.sketches??{}).some(s=>s.facePlaneId) ? 19 : document.workPlanes !== undefined ? 18 : hasBoundedArcRelations(document) ? 17 : document.exchangeImports !== undefined ? 16 : document.modelViews !== undefined ? 15 : hasAngularAnnotations(document) ? 14 : hasDiameterAnnotations(document) ? 13 : document.scenes !== undefined ? 12 : hasImageColorAdjustments(document) ? 11 : hasImageAdjustments(document) ? 10 : hasImageMasks(document) ? 9 : hasRasterAssets(document) ? 8 : hasArtboards(document) ? 7 : hasElementReferences(document) ? 6 : Object.values(document.sketches??{}).some(s=>s.constraints.some(c=>(EXTENDED_SKETCH_RELATIONS as readonly string[]).includes(c.kind))) ? 5 : Object.values(document.features).some(f=>f.construction || ["point","infinite-line","ray"].includes(String(f.params.kind))) ? 4 : Object.values(document.features).some(f=>f.pattern)?3:document.variables !== undefined || document.parameterBindings !== undefined ? 2 : 1,
     document,
   };
 
@@ -84,7 +99,7 @@ export function deserializeDocument(
   if (
     file.format !==
       "agent-webcad" ||
-      (file.version !== 1 && file.version !== 2 && file.version !== 3 && file.version !== 4 && file.version !== 5 && file.version !== 6 && file.version !== 7 && file.version !== 8 && file.version !== 9 && file.version !== 10 && file.version !== 11 && file.version !== 12 && file.version !== 13 && file.version !== 14 && file.version !== 15 && file.version !== 16 && file.version !== 17 && file.version !== 18 && file.version !== 19 && file.version !== 20 && file.version !== 21 && file.version !== 22 && file.version !== 23 && file.version !== 24 && file.version !== 25 && file.version !== 26 && file.version !== 27 && file.version !== 28 && file.version !== 29 && file.version !== 30 && file.version !== 31 && file.version !== 32 && file.version !== 33 && file.version !== 34 && file.version !== 35 && file.version !== 36 && file.version !== 37 && file.version !== 38 && file.version !== 39 && file.version !== 40 && file.version !== 41 && file.version !== 42) ||
+      (file.version !== 1 && file.version !== 2 && file.version !== 3 && file.version !== 4 && file.version !== 5 && file.version !== 6 && file.version !== 7 && file.version !== 8 && file.version !== 9 && file.version !== 10 && file.version !== 11 && file.version !== 12 && file.version !== 13 && file.version !== 14 && file.version !== 15 && file.version !== 16 && file.version !== 17 && file.version !== 18 && file.version !== 19 && file.version !== 20 && file.version !== 21 && file.version !== 22 && file.version !== 23 && file.version !== 24 && file.version !== 25 && file.version !== 26 && file.version !== 27 && file.version !== 28 && file.version !== 29 && file.version !== 30 && file.version !== 31 && file.version !== 32 && file.version !== 33 && file.version !== 34 && file.version !== 35 && file.version !== 36 && file.version !== 37 && file.version !== 38 && file.version !== 39 && file.version !== 40 && file.version !== 41 && file.version !== 42 && file.version !== 43 && file.version !== 44 && file.version !== 45 && file.version !== 46 && file.version !== 47 && file.version !== 48 && file.version !== 49 && file.version !== 50 && file.version !== 51 && file.version !== 52 && file.version !== 53 && file.version !== 54 && file.version !== 55 && file.version !== 56 && file.version !== 57 && file.version !== 58 && file.version !== 59 && file.version !== 60 && file.version !== 61 && file.version !== 62 && file.version !== 63 && file.version !== 64 && file.version !== 65) ||
     !file.document
   ) {
     throw new Error(
@@ -95,6 +110,14 @@ export function deserializeDocument(
   const document =
     file.document;
   if(file.version!<42&&(document.componentLibrary!==undefined||Object.values(document.features).some(f=>f.params.architecturalSlab||f.params.componentContent||f.params.solidFinish)))throw Error("Architectural content requires CAD file version 42.");
+  if(file.version!<48&&hasDxfStyle(document))throw Error("DXF style inheritance requires CAD file version 48.");
+  if(file.version!<47&&Object.values(document.savedMeasurements??{}).some(m=>m.drawingId!==undefined))throw Error("Drawing-bound measurements require CAD file version 47.");
+  if(file.version!<46&&document.savedMeasurements!==undefined)throw Error("Saved measurements require CAD file version 46.");
+  if(file.version!<45&&hasFramePaperStyling(document))throw Error("Frame presentation styling requires CAD file version 45.");
+  if(file.version!<44&&Object.values(document.canvases??{}).some(c=>c.layout||c.members.some(m=>m.layout)))throw Error("Canvas Flex requires CAD file version 44.");
+  if(file.version!<43&&document.canvases!==undefined)throw Error("Canvas hierarchy requires CAD file version 43.");
+  if(file.version!<64&&(document.externalSceneAssets!==undefined||Object.values(document.features).some(f=>f.type==="external-scene")))throw Error("External GLB references require version 64.");
+  validateExternalScenes(document);
   validateArchitectureContent(document);
   for(const def of Object.values(document.componentLibrary??{}))if(!validateFeatureParameters({id:def.id,output:def.id,type:def.type,params:def.params,inputs:[],dependencyMode:"snapshot"}))throw Error(`Invalid component definition geometry: ${def.id}`);
   if(file.version! < 30&&document.frameLinks!==undefined)throw Error("Frame links require CAD file version 30.");
@@ -106,6 +129,22 @@ export function deserializeDocument(
   if(file.version! < 29&&document.workspaceSections!==undefined)throw Error("Workspace sections require CAD file version 29.");
   validateWorkspaceSections(document);
   if(file.version! < 28&&Object.values(document.artboards??{}).some(b=>b.frame!==undefined))throw Error("Drawing frames require CAD file version 28.");
+  if(file.version!<63&&document.interferenceIntents)throw Error("Pair design intent requires CAD file version 63.");
+  if(file.version!<65&&hasExtendedAssembly(document))throw Error("Prismatic and coupled joints require CAD file version 65.");
+  if(file.version!<62&&document.assembly)throw Error("Assembly requires CAD file version 62.");
+  if(file.version!<61&&hasSharedReconstruction(document))throw Error("Shared reconstruction topology requires CAD file version 61.");
+  if(file.version!<60&&hasReconstruction(document))throw Error("Planar reconstruction requires CAD file version 60.");
+  if(file.version!<59&&hasHybrid(document))throw Error("Hybrid references and conversion receipts require CAD file version 59.");
+  if(file.version!<58&&Object.values(document.features).some(f=>f.type==="mesh"&&!!(f.params.mesh as {derivation?:unknown})?.derivation))throw Error("Bake and remesh derivation require CAD file version 58.");
+  if(file.version!<57&&Object.values(document.features).some(f=>f.type==="geometry-nodes"||f.type==="mesh"&&!!(f.params.mesh as {provenance?:unknown})?.provenance))throw Error("Geometry Nodes and cumulative provenance require CAD file version 57.");
+  if(file.version!<56&&Object.values(document.features).some(f=>f.type==="mesh"&&(f.params.mesh as {version?:number})?.version===2))throw Error("Polygon meshes require CAD file version 56.");
+  if(file.version!<55&&Object.values(document.features).some(f=>f.type==="mesh"))throw Error("Editable meshes require CAD file version 55.");
+  if(file.version!<54&&hasSpatialCurvePolicy(document))throw Error("Spatial curve and sweep orientation policies require CAD file version 54.");
+  if(file.version!<53&&hasC2FitPolicy(document))throw Error("C2 interpolation policy requires CAD file version 53.");
+  if(file.version!<52&&hasSplineSweepPaths(document))throw Error("Exact spline sweep paths require CAD file version 52.");
+  if(file.version!<51&&hasSplineProfileHoles(document))throw Error("Spline profiles with holes require CAD file version 51.");
+  if(file.version!<50&&hasSplineProfiles(document))throw Error("Exact spline solid profiles require CAD file version 50.");
+  if(file.version!<49&&Object.values(document.features).some(f=>{const w=f.params.architecturalWall as import("./ArchitectureWall").ArchitectureWall|undefined;return w&&(w.startMiter!==undefined||w.endMiter!==undefined);}))throw Error("Mitered walls require CAD file version 49.");
   if(file.version!<41&&Object.values(document.features).some(f=>f.params.architecturalWall!==undefined))throw Error("Architectural walls and openings require CAD file version 41.");
   if(file.version!<40&&Object.values(document.features).some(f=>f.params.kind==="face"||f.params.profileRegionIds!==undefined))throw Error("Planar faces and selected extrusion regions require CAD file version 40.");
   if(file.version!<39&&(Object.values(document.features).some(f=>f.params.kind==="spline")||Object.values(document.blocks??{}).some(b=>b.members.some(m=>m.params.kind==="spline"))))throw Error("Spline/NURBS require CAD file version 39.");
@@ -142,12 +181,19 @@ export function deserializeDocument(
   if(file.version!<35&&Object.values(document.modelPresentation?.sections??{}).some(v=>Object.values(v.outputs).some(e=>["ellipse","elliptic-arc"].includes(e.kind))))throw Error("Ellipse sections require CAD file version 35.");
   if(file.version!<34&&Object.values(document.modelPresentation?.sections??{}).some(v=>v.presentation!==undefined||v.decorations!==undefined))throw Error("Architectural sections require CAD file version 34.");
   validateDocumentStructure(document);
+  // v62-v64 fixed/revolute assemblies retain their original rest frames and poses.
+  // v65 follower scalars are derived caches; restore them from the authoritative driver graph.
+  if(document.assembly){const values=resolveJointValues(document.assembly);for(const j of Object.values(document.assembly.joints)){if(j.type==="prismatic"){j.angle=0;j.offset=values.get(j.id)!;}else if(j.coupling)j.angle=values.get(j.id)!;}}
   migrateDrawingTopology(document);
   return document;
 }
 
 export function validateDocumentStructure(document:CadDocument){
+  validateSavedMeasurements(document?.savedMeasurements);
+  validateCanvasHierarchy(document);
   validateModelPresentation(document?.modelPresentation);
+  validateInterferenceIntents(document);
+  validateAssembly(document);
   validateCadWorkPlanes(document?.workPlanes);
   validateModelViews(document?.modelViews);
   validateExchangeImports(document?.exchangeImports);
@@ -157,8 +203,10 @@ export function validateDocumentStructure(document:CadDocument){
   const fail=(reason:string):never=>{throw new Error(`Invalid CAD document: ${reason}`);};
   if(!record(document)||typeof document.id!=="string"||!document.id||!Number.isSafeInteger(document.revision)||document.revision<0||
     !record(document.objects)||!record(document.features)||!record(document.layers)||!strings(document.rootObjects)||!strings(document.rootLayers))fail("structure");
+  if(document.dimensionStylePresets!==undefined&&!validDimensionStylePresets(document.dimensionStylePresets))fail("dimension style presets");
   for(const [id,layer] of Object.entries(document.layers))if(!record(layer)||layer.id!==id||typeof layer.name!=="string"||typeof layer.visible!=="boolean"||typeof layer.locked!=="boolean"||!strings(layer.objectIds))fail(`layer ${id}`);
   for(const [id,object] of Object.entries(document.objects)){
+    if(object?.drawOrder!==undefined&&!Number.isSafeInteger(object.drawOrder))fail(`draw order ${id}`);
     if(!record(object)||object.id!==id||typeof object.geometryId!=="string"||typeof object.name!=="string"||typeof object.visible!=="boolean"||!document.layers[object.layerId])fail(`object ${id}`);
     if(object.transform){
       // DXF INSERT has signed scale factors. Keep this exception limited to
@@ -170,8 +218,9 @@ export function validateDocumentStructure(document:CadDocument){
       }
     }
   }
-  const types=["primitive","drawing","drafting","dimension","extrude","sweep","loft","shell","transform","boolean","fillet","chamfer","revolve","image"];
+  const types=["external-scene","geometry-nodes","mesh","primitive","drawing","drafting","dimension","extrude","sweep","loft","shell","transform","boolean","fillet","chamfer","revolve","image"];
   for(const [id,feature] of Object.entries(document.features))if(!record(feature)||feature.id!==id||!types.includes(feature.type)||!record(feature.params)||!strings(feature.inputs)||!document.objects[feature.output]||!validateFeatureParameters(feature))fail(`feature ${id}`);
+  for(const feature of Object.values(document.features))if(feature.type==="geometry-nodes")evaluateDocumentGeometryGraph(document,feature);
   const outputFeatures=new Map(Object.values(document.features).map(f=>[f.output,f]));
   const openingIds=new Set<string>();for(const f of Object.values(document.features))if(f.params.architecturalWall){const wall=f.params.architecturalWall as import("./ArchitectureWall").ArchitectureWall;if(wall.sourceObjectIds.some(id=>!document.objects[id]||!['drawing','drafting'].includes(outputFeatures.get(id)?.type??'')))fail(`wall source ${f.output}`);for(const opening of wall.openings){if(openingIds.has(opening.id))fail(`duplicate wall opening ${opening.id}`);openingIds.add(opening.id);}if(document.objects[f.output].transform?.scale.some(v=>v!==1))fail(`scaled architectural wall ${f.output}`);}
   for(const feature of Object.values(document.features))if(feature.params.kind==="face"&&(feature.inputs.some(id=>!document.objects[id]||outputFeatures.get(id)?.type!=="drawing")||new Set(feature.inputs).size!==feature.inputs.length))fail(`planar face sources ${feature.output}`);
@@ -216,6 +265,7 @@ export function validateDocumentStructure(document:CadDocument){
   for(const [id,block] of Object.entries(document.blocks??{})){
     if(!record(block)||block.id!==id||typeof block.name!=="string"||!block.name.trim()||!["XY","XZ","YZ"].includes(block.workPlane)||!Array.isArray(block.members)||!block.members.length)fail(`component ${id}`);
     for(const member of block.members){
+      if(member.params?.dxfStyle!==undefined&&!validDxfStyle(member.params.dxfStyle))fail(`DXF component style ${id}`);
       if(member.params?.kind==="spline"&&!validSpline(member.params))fail(`spline component member ${id}`);
       if(["ellipse","elliptic-arc"].includes(String(member.params?.kind))&&!validEllipse(member.params))fail(`ellipse component member ${id}`);
        if(!record(member)||!["drawing","drafting"].includes(member.type)||member.objectId!==undefined&&(typeof member.objectId!=="string"||!member.objectId)||!record(member.params)||typeof member.params.kind!=="string"||!document.layers[member.layerId]||!record(member.transform))fail(`component member ${id}`);
@@ -297,3 +347,16 @@ function migrateDrawingTopology(document: CadDocument) {
 }
 
 
+
+function hasDxfStyle(d:CadDocument){return Object.values(d.features).some(f=>f.params.dxfStyle!==undefined)||Object.values(d.blocks??{}).some(b=>b.members.some(m=>m.params.dxfStyle!==undefined));}
+
+function hasHybrid(document:CadDocument){return Object.values(document.workPlanes??{}).some(p=>p.hybrid!==undefined)||Object.values(document.features).some(f=>f.params.hybridDatum!==undefined||f.params.hybridConversion!==undefined);}
+
+function hasReconstruction(document:CadDocument){
+ const seen=new Set<object>();const visit=(value:unknown):boolean=>{if(!value||typeof value!=="object"||seen.has(value))return false;seen.add(value);if((value as {kind?:unknown}).kind==="planar-reconstruction")return true;return Object.values(value).some(visit);};
+ return visit(document.features)||visit(document.componentLibrary);
+}
+
+function hasSharedReconstruction(document:CadDocument){
+ const seen=new Set<object>();const visit=(value:unknown):boolean=>{if(!value||typeof value!=="object"||seen.has(value))return false;seen.add(value);const p=value as {kind?:unknown;reconstruction?:{sharedTopology?:unknown}};return p.kind==="planar-reconstruction"&&p.reconstruction?.sharedTopology!==undefined||Object.values(value).some(visit);};return visit(document.features)||visit(document.componentLibrary);
+}

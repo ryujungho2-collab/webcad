@@ -1,0 +1,25 @@
+{
+  "date":"2026-10-19",
+  "status":"passed",
+  "scope":"Common CAD tool discovery/query/planning and linked 3D sketch/extrude/face-hole/Boolean workflows",
+  "environment":{"os":"Windows","browser":"Microsoft Edge headless","viewport":"1440x1000","renderer":"SwiftShader","server":"Vite development","geometry":"real OpenCascade Worker"},
+  "checks":{
+    "fullNodeRegression":{"passed":1518,"failed":0,"durationMs":93892.873},
+    "finalTargetedToolsNode":{"passed":9,"failed":0,"note":"Repeated after adding unresolved-reference guards and their assertions."},
+    "browserTools":{"passed":19,"failed":0},
+    "browserRegression":{"copilotSolid":18,"copilotGateway":13,"copilotApply":26,"copilotEdit":25},
+    "productionBuild":"passed",
+    "typecheck":"passed",
+    "architectureAndDocumentationLinks":"passed"
+  },
+  "oracles":{
+    "extrusionVolumeMm3":80000,
+    "throughHoleVolume":"80000 - 180*pi mm³",
+    "unionVolume":"84000 - 180*pi mm³",
+    "volumeToleranceMm3":0.002,
+    "nodeBooleans":{"union":6000,"cut":2000,"intersect":2000,"units":"mm³"},
+    "holeDefinitions":"40x30x20 box minus radius-3 cylinder, blind depth 5 or through depth 20; exact source face retained"
+  },
+  "artifacts":["../../output/verification/cad-tools/native-report.json","../../output/verification/cad-tools/viewport.png","../../output/verification/cad-tools/model.webcad.json","../../output/verification/cad-tools/model.step"],
+  "limits":["Gateway planning was tested with fixtures, not a live model provider/authentication server.","Catalog contains 14 tools; read rounds <=4, read calls per round <=8, final model calls <=20, cumulative read transcript <=64KiB, whole planning deadline <=30s.","New solids must be applied before their exact face keys can be queried for face-bound holes.","Stale or unresolved face attachments require explicit repair; last retained geometry is not treated as a current source.","Vite continues to warn about the main chunk exceeding 500kB."]
+}

@@ -33,15 +33,15 @@
 - `tsc -b`: G4/G5 진행 중 변경을 포함한 작업 트리에서 통과.
 - `check:architecture`: 286 modules의 geometry/command/import 경계와 문서 링크 통과.
 - 장면 Node 4개와 gateway Node 3개, 실제 Scene browser 16개와 mock gateway browser 8개 통과. 이는 G3 전체 회귀를 대신하지 않는다.
-- 전체 Node 최초 재실행: 594 중 593 통과, 기존 shader test의 texture version 증가 기대 1개 실패. 자원 재사용 의도를 검사하도록 보강 후 **594 tests / 54 suites 모두 통과, skipped 0**. [전체 Node 로그](../../output/handoff-node-2026-10-06.log).
+- 전체 Node 최초 재실행: 594 중 593 통과, 기존 shader test의 texture version 증가 기대 1개 실패. 자원 재사용 의도를 검사하도록 보강 후 **594 tests / 54 suites 모두 통과, skipped 0**. 전체 Node 로그 (local-only, not in repository: `output/handoff-node-2026-10-06.log`).
 
 ## G3-5A / I1 자동 회귀 마감
 
-최신 작업 트리의 타입, 전체 Node **599 tests / 54 suites / skipped 0**, 전체 browser **33 workflows / 686 checks**, architecture/import·문서 링크 **294 modules**, `pnpm build` workspace 전체가 통과했다. [Node 로그](../../output/integrated-final-node-2026-10-06.log), [browser 로그](../../output/integrated-final-browser-2026-10-06.log), [architecture 로그](../../output/integrated-final-architecture-2026-10-06.log), [build 로그](../../output/integrated-final-build-2026-10-06.log)를 보존한다. G3-4b3의 587 Node / 28 browser workflows / 602 checks / 274 modules는 이전 검증 기준선이다. 새 Scene이 있는 문서는 v12로 저장된다.
+최신 작업 트리의 타입, 전체 Node **599 tests / 54 suites / skipped 0**, 전체 browser **33 workflows / 686 checks**, architecture/import·문서 링크 **294 modules**, `pnpm build` workspace 전체가 통과했다. Node 로그 (local-only, not in repository: `output/integrated-final-node-2026-10-06.log`), browser 로그 (local-only, not in repository: `output/integrated-final-browser-2026-10-06.log`), architecture 로그 (local-only, not in repository: `output/integrated-final-architecture-2026-10-06.log`), build 로그 (local-only, not in repository: `output/integrated-final-build-2026-10-06.log`)를 보존한다. G3-4b3의 587 Node / 28 browser workflows / 602 checks / 274 modules는 이전 검증 기준선이다. 새 Scene이 있는 문서는 v12로 저장된다.
 
 전체 run에 imageWorkflow **38**, PNG **25**, PDF **21**, imageResources **34**, 새 source replacement **16**, TIFF **10**, 기존 관계 재연결 **17** checks가 포함된다. 실제 crop/mask/color·save/reload/recovery·Undo/Redo, 원본 교체/Cancel pixels와 자원 해제, PNG/PDF decoded pixels·크기·page count를 확인했다. I1은 [별도 검수](CREATIVE-IMAGE-HANDOFF-2026-10-06.md)에 기록한다.
 
-최초 전체 run은 PDF native file fetch의 `Failed to fetch`로 중단됐다. 단독 PDF 21개와 최종 전체 run은 테스트 완화 없이 통과했지만 최초 원인은 확정하지 않았다. [실패 로그](../../output/integrated-browser-2026-10-06.log)를 보존하며 재발 여부를 추적한다. production main **1,004.21 kB**, viewport **607.51 kB**의 >500 kB 경고와 OpenCascade WASM 용량은 남아 있다.
+최초 전체 run은 PDF native file fetch의 `Failed to fetch`로 중단됐다. 단독 PDF 21개와 최종 전체 run은 테스트 완화 없이 통과했지만 최초 원인은 확정하지 않았다. 실패 로그 (local-only, not in repository: `output/integrated-browser-2026-10-06.log`)를 보존하며 재발 여부를 추적한다. production main **1,004.21 kB**, viewport **607.51 kB**의 >500 kB 경고와 OpenCascade WASM 용량은 남아 있다.
 
 [최종 resource JSON](../../output/benchmarks/g3-resources-integrated-final.json)은 동일 fixture·9회 warm edits로 4000×4000 cold 82.0ms, edit p50 0.1ms/p95 0.2ms, texture 1, upload-version 증가 0, RGBA 추정 64,000,000 bytes를 기록한다. 원래 before/after를 덮어쓰지 않았고 p95의 9개 표본/SwiftShader 한계를 유지한다. 현재 benchmark는 isolated resource 과제이므로 실제 App의 zoom/pan/대형 export 비용 전체를 측정한 것으로 취급하지 않는다.
 

@@ -1,9 +1,11 @@
-import { ARTBOARD_PNG_MAX_AXIS, ARTBOARD_PNG_MAX_PIXELS, ARTBOARD_PNG_ESTIMATED_MEMORY_BUDGET, planArtboardPng, formatBytes, type ArtboardPngScene } from "./artboardPng";
+import { ARTBOARD_PNG_MAX_AXIS, planArtboardPng, formatBytes, type ArtboardPngScene } from "./artboardPng";
 
 export const ARTBOARD_PDF_DPI_OPTIONS = [72, 96, 150, 300] as const;
 export type ArtboardPdfDpi = typeof ARTBOARD_PDF_DPI_OPTIONS[number];
 export const ARTBOARD_PDF_MAX_PAGES = 32;
-export const ARTBOARD_PDF_MAX_TOTAL_PIXELS = ARTBOARD_PNG_MAX_PIXELS;
+// Pages rasterize sequentially. A document's total is not one PNG surface;
+// retain the single-page limit and independently bound retained streams/file/memory.
+export const ARTBOARD_PDF_MAX_TOTAL_PIXELS = 64_000_000;
 export const ARTBOARD_PDF_ESTIMATED_MEMORY_BUDGET = 256 * 1024 * 1024;
 export const ARTBOARD_PDF_MAX_FILE_BYTES = 128 * 1024 * 1024;
 

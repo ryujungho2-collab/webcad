@@ -1,0 +1,745 @@
+{
+  "version": 1,
+  "taskId": "CAD-EVAL-02-mounting-margin-intent-v1",
+  "liveRequested": true,
+  "maxModelCalls": 4,
+  "actualModelCalls": 2,
+  "modelCallAttempts": 2,
+  "grounding": true,
+  "sourceHashBefore": "3624a74fc9240486657ecb2fcfe5ef31a61606d4d2db5406bb4bbac64b770be7",
+  "sourceHashAfter": "3624a74fc9240486657ecb2fcfe5ef31a61606d4d2db5406bb4bbac64b770be7",
+  "visualEvidence": {
+    "status": "native-tessellation-projections-not-browser",
+    "paths": [
+      "baseline-iso.svg",
+      "baseline-top.svg",
+      "baseline-front.svg",
+      "evaluator-control-iso.svg",
+      "evaluator-control-top.svg",
+      "evaluator-control-front.svg"
+    ]
+  },
+  "elapsedMs": 7407.182,
+  "nativePreflight": "passed",
+  "result": {
+    "taskId": "CAD-EVAL-02-mounting-margin-intent-v1",
+    "status": "passed-native-preview-not-applied",
+    "mode": "isolated-native-evaluation",
+    "success": true,
+    "elapsedMs": 4584.3125,
+    "events": [
+      {
+        "kind": "model-usage",
+        "run": {
+          "context": {
+            "numCtx": 16384,
+            "outputReserved": 1024,
+            "utf8Bytes": 8098,
+            "truncate": false,
+            "inferenceCalls": 1
+          },
+          "provider": "Ollama",
+          "model": "qwen3-coder-32k:latest",
+          "elapsedMs": 2489,
+          "inputTokens": 2471,
+          "outputTokens": 90,
+          "repairs": 0
+        }
+      },
+      {
+        "kind": "model-read",
+        "read": {
+          "id": "read_1",
+          "name": "cad.inspect",
+          "ok": true,
+          "version": {
+            "documentId": "cad-eval-02-synthetic",
+            "revision": 31,
+            "generation": 0
+          },
+          "result": [
+            {
+              "id": "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+              "name": "Four-hole mounting plate",
+              "type": "extrude",
+              "representation": "brep",
+              "selected": true,
+              "visible": true,
+              "locked": false,
+              "layerId": "layer-default",
+              "sources": [
+                "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+                "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+                "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+                "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+                "plate_6359d0fb180046b684b862fef8b45d4f_hole3"
+              ],
+              "sourcesTruncated": false,
+              "parameters": [
+                {
+                  "name": "distance",
+                  "quantity": "length",
+                  "unit": "mm",
+                  "value": 4
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "kind": "model-usage",
+        "run": {
+          "context": {
+            "numCtx": 16384,
+            "outputReserved": 1024,
+            "utf8Bytes": 7270,
+            "truncate": false,
+            "inferenceCalls": 1
+          },
+          "provider": "Ollama",
+          "model": "qwen3-coder-32k:latest",
+          "elapsedMs": 2078,
+          "inputTokens": 2442,
+          "outputTokens": 93,
+          "repairs": 0
+        }
+      },
+      {
+        "kind": "model-plan",
+        "calls": [
+          {
+            "id": "call_1",
+            "name": "solid.parameter",
+            "arguments": {
+              "key": "plate_6359d0fb180046b684b862fef8b45d4f_width",
+              "value": 160
+            }
+          }
+        ]
+      },
+      {
+        "kind": "native-attempt",
+        "command": {
+          "type": "set-variable",
+          "name": "plate_6359d0fb180046b684b862fef8b45d4f_width",
+          "quantity": "length",
+          "expression": "160mm"
+        },
+        "modelReadCallIds": [
+          "read_1"
+        ]
+      },
+      {
+        "kind": "native-assessment",
+        "assessment": {
+          "status": "passed-native-preview",
+          "success": true,
+          "criteria": [
+            {
+              "id": "document-identity",
+              "status": "pass",
+              "source": "native-document"
+            },
+            {
+              "id": "same-object-feature-identities",
+              "status": "pass",
+              "source": "native-document"
+            },
+            {
+              "id": "protected-anchors",
+              "status": "pass",
+              "source": "designPreservationIssue"
+            },
+            {
+              "id": "width-driver-only",
+              "status": "pass",
+              "source": "native-binding-contract",
+              "actual": [
+                "plate_6359d0fb180046b684b862fef8b45d4f_width"
+              ]
+            },
+            {
+              "id": "protected-scene-and-bindings",
+              "status": "pass",
+              "source": "exact-native-document-comparison"
+            },
+            {
+              "id": "width-increase",
+              "status": "pass",
+              "source": "evaluated-driving-variables",
+              "actual": 160,
+              "expected": 160
+            },
+            {
+              "id": "retain-depth-thickness-margin-diameter",
+              "status": "pass",
+              "source": "evaluated-driving-variables",
+              "actual": {
+                "width": 160,
+                "depth": 80,
+                "thickness": 4,
+                "margin": 12,
+                "holeDiameter": 6
+              }
+            },
+            {
+              "id": "four-original-holes",
+              "status": "pass",
+              "source": "actual-source-profiles",
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "edge-relative-hole-centers",
+              "status": "pass",
+              "source": "getWorldDrawingGeometry",
+              "actual": [
+                {
+                  "center": [
+                    12,
+                    12,
+                    0
+                  ],
+                  "diameter": 6
+                },
+                {
+                  "center": [
+                    147.99999999999937,
+                    12,
+                    0
+                  ],
+                  "diameter": 6
+                },
+                {
+                  "center": [
+                    12,
+                    68,
+                    0
+                  ],
+                  "diameter": 6
+                },
+                {
+                  "center": [
+                    147.99999999999937,
+                    68,
+                    0
+                  ],
+                  "diameter": 6
+                }
+              ],
+              "expected": [
+                [
+                  12,
+                  12
+                ],
+                [
+                  148,
+                  12
+                ],
+                [
+                  12,
+                  68
+                ],
+                [
+                  148,
+                  68
+                ]
+              ]
+            },
+            {
+              "id": "hole-symmetry",
+              "status": "pass",
+              "source": "actual-hole-centers"
+            },
+            {
+              "id": "live-profile-references",
+              "status": "pass",
+              "source": "queryProfileExtrudeRelations"
+            },
+            {
+              "id": "placement-preserved",
+              "status": "pass",
+              "source": "native-object-transform"
+            },
+            {
+              "id": "valid-brep:plate_6359d0fb180046b684b862fef8b45d4f_solid",
+              "status": "pass",
+              "source": "OpenCascade",
+              "actual": "valid",
+              "expected": "valid"
+            },
+            {
+              "id": "valid-brep:protected-device-envelope",
+              "status": "pass",
+              "source": "OpenCascade",
+              "actual": "valid",
+              "expected": "valid"
+            },
+            {
+              "id": "valid-brep:protected-neighbor",
+              "status": "pass",
+              "source": "OpenCascade",
+              "actual": "valid",
+              "expected": "valid"
+            },
+            {
+              "id": "native-plate-envelope",
+              "status": "pass",
+              "source": "OpenCascade-world-bounds",
+              "actual": {
+                "min": [
+                  0,
+                  0,
+                  8
+                ],
+                "max": [
+                  159.99999999999937,
+                  80,
+                  12
+                ]
+              }
+            },
+            {
+              "id": "device-Z-separation",
+              "status": "pass",
+              "source": "world-Z-bounds-separation-not-general-distance",
+              "actual": 2,
+              "expected": ">=2 mm"
+            },
+            {
+              "id": "neighbor-X-separation",
+              "status": "pass",
+              "source": "world-X-bounds-separation-not-general-distance",
+              "actual": 30.000000000000625,
+              "expected": ">=25 mm"
+            },
+            {
+              "id": "native-volume",
+              "status": "pass",
+              "source": "OpenCascade-vs-independent-four-hole-volume",
+              "actual": 50747.61065788286,
+              "expected": 50747.61065788307
+            },
+            {
+              "id": "serialization",
+              "status": "pass",
+              "source": "native-serialization-roundtrip"
+            }
+          ],
+          "metrics": {
+            "measuredWidthMm": 159.99999999999937,
+            "deviceZClearanceMm": 2,
+            "neighborXClearanceMm": 30.000000000000625,
+            "expectedVolumeMm3": 50747.61065788307,
+            "nativeVolumeMm3": 50747.61065788286
+          },
+          "measurements": {
+            "plate_6359d0fb180046b684b862fef8b45d4f_solid": {
+              "basis": "brep",
+              "lengthUnit": "mm",
+              "volume": 50747.61065788286,
+              "area": 27595.398223686047,
+              "bounds": {
+                "min": [
+                  0,
+                  0,
+                  8
+                ],
+                "max": [
+                  159.99999999999937,
+                  80,
+                  12
+                ]
+              },
+              "validity": "valid"
+            },
+            "protected-device-envelope": {
+              "basis": "brep",
+              "lengthUnit": "mm",
+              "volume": 7200,
+              "area": 3240,
+              "bounds": {
+                "min": [
+                  40,
+                  25,
+                  14
+                ],
+                "max": [
+                  80,
+                  55,
+                  20
+                ]
+              },
+              "validity": "valid"
+            },
+            "protected-neighbor": {
+              "basis": "brep",
+              "lengthUnit": "mm",
+              "volume": 6400.000000000002,
+              "area": 4000,
+              "bounds": {
+                "min": [
+                  190,
+                  0,
+                  8
+                ],
+                "max": [
+                  210,
+                  80,
+                  12
+                ]
+              },
+              "validity": "valid"
+            }
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "context": {
+          "numCtx": 16384,
+          "outputReserved": 1024,
+          "utf8Bytes": 8098,
+          "truncate": false,
+          "inferenceCalls": 1
+        },
+        "provider": "Ollama",
+        "model": "qwen3-coder-32k:latest",
+        "elapsedMs": 2489,
+        "inputTokens": 2471,
+        "outputTokens": 90,
+        "repairs": 0
+      },
+      {
+        "context": {
+          "numCtx": 16384,
+          "outputReserved": 1024,
+          "utf8Bytes": 7270,
+          "truncate": false,
+          "inferenceCalls": 1
+        },
+        "provider": "Ollama",
+        "model": "qwen3-coder-32k:latest",
+        "elapsedMs": 2078,
+        "inputTokens": 2442,
+        "outputTokens": 93,
+        "repairs": 0
+      }
+    ],
+    "assessments": [
+      {
+        "status": "passed-native-preview",
+        "success": true,
+        "criteria": [
+          {
+            "id": "document-identity",
+            "status": "pass",
+            "source": "native-document"
+          },
+          {
+            "id": "same-object-feature-identities",
+            "status": "pass",
+            "source": "native-document"
+          },
+          {
+            "id": "protected-anchors",
+            "status": "pass",
+            "source": "designPreservationIssue"
+          },
+          {
+            "id": "width-driver-only",
+            "status": "pass",
+            "source": "native-binding-contract",
+            "actual": [
+              "plate_6359d0fb180046b684b862fef8b45d4f_width"
+            ]
+          },
+          {
+            "id": "protected-scene-and-bindings",
+            "status": "pass",
+            "source": "exact-native-document-comparison"
+          },
+          {
+            "id": "width-increase",
+            "status": "pass",
+            "source": "evaluated-driving-variables",
+            "actual": 160,
+            "expected": 160
+          },
+          {
+            "id": "retain-depth-thickness-margin-diameter",
+            "status": "pass",
+            "source": "evaluated-driving-variables",
+            "actual": {
+              "width": 160,
+              "depth": 80,
+              "thickness": 4,
+              "margin": 12,
+              "holeDiameter": 6
+            }
+          },
+          {
+            "id": "four-original-holes",
+            "status": "pass",
+            "source": "actual-source-profiles",
+            "actual": 4,
+            "expected": 4
+          },
+          {
+            "id": "edge-relative-hole-centers",
+            "status": "pass",
+            "source": "getWorldDrawingGeometry",
+            "actual": [
+              {
+                "center": [
+                  12,
+                  12,
+                  0
+                ],
+                "diameter": 6
+              },
+              {
+                "center": [
+                  147.99999999999937,
+                  12,
+                  0
+                ],
+                "diameter": 6
+              },
+              {
+                "center": [
+                  12,
+                  68,
+                  0
+                ],
+                "diameter": 6
+              },
+              {
+                "center": [
+                  147.99999999999937,
+                  68,
+                  0
+                ],
+                "diameter": 6
+              }
+            ],
+            "expected": [
+              [
+                12,
+                12
+              ],
+              [
+                148,
+                12
+              ],
+              [
+                12,
+                68
+              ],
+              [
+                148,
+                68
+              ]
+            ]
+          },
+          {
+            "id": "hole-symmetry",
+            "status": "pass",
+            "source": "actual-hole-centers"
+          },
+          {
+            "id": "live-profile-references",
+            "status": "pass",
+            "source": "queryProfileExtrudeRelations"
+          },
+          {
+            "id": "placement-preserved",
+            "status": "pass",
+            "source": "native-object-transform"
+          },
+          {
+            "id": "valid-brep:plate_6359d0fb180046b684b862fef8b45d4f_solid",
+            "status": "pass",
+            "source": "OpenCascade",
+            "actual": "valid",
+            "expected": "valid"
+          },
+          {
+            "id": "valid-brep:protected-device-envelope",
+            "status": "pass",
+            "source": "OpenCascade",
+            "actual": "valid",
+            "expected": "valid"
+          },
+          {
+            "id": "valid-brep:protected-neighbor",
+            "status": "pass",
+            "source": "OpenCascade",
+            "actual": "valid",
+            "expected": "valid"
+          },
+          {
+            "id": "native-plate-envelope",
+            "status": "pass",
+            "source": "OpenCascade-world-bounds",
+            "actual": {
+              "min": [
+                0,
+                0,
+                8
+              ],
+              "max": [
+                159.99999999999937,
+                80,
+                12
+              ]
+            }
+          },
+          {
+            "id": "device-Z-separation",
+            "status": "pass",
+            "source": "world-Z-bounds-separation-not-general-distance",
+            "actual": 2,
+            "expected": ">=2 mm"
+          },
+          {
+            "id": "neighbor-X-separation",
+            "status": "pass",
+            "source": "world-X-bounds-separation-not-general-distance",
+            "actual": 30.000000000000625,
+            "expected": ">=25 mm"
+          },
+          {
+            "id": "native-volume",
+            "status": "pass",
+            "source": "OpenCascade-vs-independent-four-hole-volume",
+            "actual": 50747.61065788286,
+            "expected": 50747.61065788307
+          },
+          {
+            "id": "serialization",
+            "status": "pass",
+            "source": "native-serialization-roundtrip"
+          }
+        ],
+        "metrics": {
+          "measuredWidthMm": 159.99999999999937,
+          "deviceZClearanceMm": 2,
+          "neighborXClearanceMm": 30.000000000000625,
+          "expectedVolumeMm3": 50747.61065788307,
+          "nativeVolumeMm3": 50747.61065788286
+        },
+        "measurements": {
+          "plate_6359d0fb180046b684b862fef8b45d4f_solid": {
+            "basis": "brep",
+            "lengthUnit": "mm",
+            "volume": 50747.61065788286,
+            "area": 27595.398223686047,
+            "bounds": {
+              "min": [
+                0,
+                0,
+                8
+              ],
+              "max": [
+                159.99999999999937,
+                80,
+                12
+              ]
+            },
+            "validity": "valid"
+          },
+          "protected-device-envelope": {
+            "basis": "brep",
+            "lengthUnit": "mm",
+            "volume": 7200,
+            "area": 3240,
+            "bounds": {
+              "min": [
+                40,
+                25,
+                14
+              ],
+              "max": [
+                80,
+                55,
+                20
+              ]
+            },
+            "validity": "valid"
+          },
+          "protected-neighbor": {
+            "basis": "brep",
+            "lengthUnit": "mm",
+            "volume": 6400.000000000002,
+            "area": 4000,
+            "bounds": {
+              "min": [
+                190,
+                0,
+                8
+              ],
+              "max": [
+                210,
+                80,
+                12
+              ]
+            },
+            "validity": "valid"
+          }
+        }
+      }
+    ],
+    "proposed": "preview.webcad.json",
+    "plan": {
+      "command": {
+        "type": "set-variable",
+        "name": "plate_6359d0fb180046b684b862fef8b45d4f_width",
+        "quantity": "length",
+        "expression": "160mm"
+      },
+      "summary": [
+        "Four-hole mounting plate: width 120 → 160 mm. Review dependent geometry and measurements before applying."
+      ],
+      "ghosts": [],
+      "resultObjectIds": [
+        "plate_6359d0fb180046b684b862fef8b45d4f_solid"
+      ],
+      "toolSteps": [
+        "Inspect objects and relationships",
+        "Change a selected solid dimension"
+      ]
+    },
+    "metrics": {
+      "modelReads": 1,
+      "nativeAttempts": 1,
+      "plannerRejections": 0,
+      "designIntentRejections": 0,
+      "reportedGatewayRuns": 2,
+      "inputTokens": 4913,
+      "outputTokens": 183,
+      "editorApplyCalls": 0,
+      "sourceUnchanged": true,
+      "editorAndHistoryUnchanged": true
+    },
+    "limits": [
+      "autonomous whole-assembly creation",
+      "stress/load/fastener certification",
+      "automatic editor Apply",
+      "model training"
+    ]
+  },
+  "status": "real-model-native-preview-not-applied",
+  "limitations": [
+    "autonomous whole-assembly creation",
+    "stress/load/fastener certification",
+    "automatic editor Apply",
+    "model training",
+    "Intent is evaluator-authored; model intent extraction was not separately tested",
+    "No browser test or independent STEP engine in this run",
+    "No measured ontology uplift without paired runs",
+    "No weights updated; logs alone are not token-level RL trajectories"
+  ]
+}

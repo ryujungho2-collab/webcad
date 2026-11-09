@@ -1,0 +1,89 @@
+{
+  "version": {
+    "documentId": "motion-test",
+    "revision": 1,
+    "generation": 0
+  },
+  "request": {
+    "jointId": "turn",
+    "start": 0,
+    "end": 180,
+    "step": 90,
+    "partIds": [
+      "arm",
+      "obstacle"
+    ],
+    "exceptions": [],
+    "tolerance": 0.000001
+  },
+  "angles": [
+    0,
+    90,
+    180
+  ],
+  "rows": [
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 0,
+      "pair": [
+        "arm",
+        "obstacle"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 90,
+      "pair": [
+        "arm",
+        "obstacle"
+      ],
+      "baseStatus": "penetration",
+      "status": "penetration",
+      "method": "brep",
+      "exception": false,
+      "commonVolume": 1.0000000000000002,
+      "distance": 3.885780586188048e-16,
+      "volumeTolerance": 1.0000000000000003e-9
+    },
+    {
+      "relativeMotion": "motion-dependent",
+      "angle": 180,
+      "pair": [
+        "arm",
+        "obstacle"
+      ],
+      "baseStatus": "no-penetration",
+      "status": "no-penetration",
+      "method": "aabb",
+      "exception": false
+    }
+  ],
+  "parts": [
+    {
+      "id": "arm",
+      "status": "supported"
+    },
+    {
+      "id": "obstacle",
+      "status": "supported"
+    }
+  ],
+  "samplingFinished": true,
+  "state": "finished",
+  "elapsedMs": 2918.517,
+  "stats": {
+    "possiblePairs": 3,
+    "aabbRejected": 2,
+    "candidates": 1,
+    "invariantReuse": 0,
+    "kernelCalls": 5,
+    "completedSamples": 3,
+    "estimatedInputBytes": 2878,
+    "wasmCapacityBytes": null
+  },
+  "warning": "Discrete samples only; unchecked angular intervals are NOT certified collision-free. AABB is not a collision test. Exceptions retain their original result."
+}

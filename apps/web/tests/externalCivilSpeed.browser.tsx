@@ -1,0 +1,24 @@
+import {gzipSync} from "fflate";
+import {createRoot} from "react-dom/client";import {App} from "../src/App";
+import {resetTestDocument} from "./helpers/documentHarness";import {click,physical,input,waitFor,pause} from "./helpers/physicalInput";import {installBrowserChecks} from "./helpers/browserChecks";
+import {cadDocument} from "../src/state/cadDocument";import {cadHistory} from "../src/state/history";import {dispatchCadCommand} from "../src/state/dispatchCadCommand";import {serializeDocument} from "@agent-webcad/cad-document";import {openDocumentFile} from "../src/state/documentFile";
+import {frameSourceBounds} from "../src/precision/drawingFrame";
+import {artboardPngSvg} from "../src/export/artboardPng";
+import {renderArtboardPdfPageInWorker} from "../src/export/artboardPngRenderer";
+import {encodePdfRasterPages} from "../src/plot/pdfWriter";
+import {collectArtboardExportItems,collectExportDrawings,collectExportAnnotations} from "../src/export/exportModel";import {encodeSvg} from "../src/export/svgWriter";
+import "../src/styles.css";import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+resetTestDocument();createRoot(document.getElementById("root")!).render(<App/>);
+const button=document.getElementById("run") as HTMLButtonElement,output=document.getElementById("output")!,artifacts:Record<string,string>={};
+const bytes64=(bytes:Uint8Array)=>{let s="";for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s);};
+const annotations=()=>collectExportAnnotations("XY"),features=()=>Object.values(cadDocument.features);
+button.onclick=async()=>{const lines:string[]=[],check=(v:unknown,label:string)=>{if(!v)throw Error(label);lines.push("PASS "+label);output.textContent=lines.join("\n");};try{
+ await waitFor(()=>!!document.querySelector("canvas"));await click("2D");await physical(document.querySelector('.app-menu summary')!);await click("Import DXF…");const source=await(await fetch(new URL("../../../output/external/civil-projects/converted.dxf",import.meta.url))).arrayBuffer();await input({type:"fileInput",selector:'input[aria-label="Import DXF file"]',name:"drawing-test.dxf",base64:bytes64(new Uint8Array(source))});
+ await waitFor(()=>!!document.querySelector('img[alt="DXF geometry preview"]'),"External plan preview");const apply=()=>document.querySelector<HTMLButtonElement>('[aria-label="Apply DXF import"]')!;check(apply().disabled&&cadDocument.rootObjects.length===0,"External inch drawing preview is detached and waits for explicit loss acceptance");check(document.querySelector('.dxf-review-dialog')?.textContent?.includes("associativity"),"Review explains static dimension blocks and approximate MTEXT layout");await physical(document.querySelector('[aria-label="Accept DXF curve conversions"]')!);check(apply().disabled,"Annotation conversion acceptance does not silently accept missing hatches");await physical(document.querySelector('[aria-label="Accept DXF exclusions"]')!);await waitFor(()=>!apply().disabled);const start=performance.now();await click("Apply DXF import");await waitFor(()=>!document.querySelector('.dxf-review-dialog'));const importMs=performance.now()-start; (globalThis as any).cadTestMetrics={importMs};
+ check(cadHistory.getPastLabels().length===1&&Object.keys(cadDocument.blocks??{}).length>=45,"Full external import creates reachable definitions in one Undo");check(annotations().texts.some(t=>t.text==="BEDROOM")&&annotations().texts.some(t=>t.text.includes("60'")),"Room names and original 60-foot dimension labels survive into export geometry");
+ check(document.querySelectorAll("[data-model-object-id]").length<=101,"Actual external drawing keeps the model tree DOM bounded");
+ await new Promise(resolve=>setTimeout(resolve,1500));
+ (globalThis as any).cadTestMetrics={importMs,objects:Object.keys(cadDocument.objects).length,blocks:Object.keys(cadDocument.blocks??{}).length,rootsImported:cadDocument.rootObjects.filter(id=>cadDocument.objects[id].visible).length,timings:performance.getEntriesByType("measure").filter(e=>e.name.startsWith("agent-webcad:")).map(e=>({name:e.name,ms:e.duration})),browser:"Chrome / SwiftShader",meaning:"Physical Apply to closed review; same source as phase-02"};
+ output.textContent=lines.join("\n")+`\nALL ${lines.length} CHECKS PASSED`;
+}catch(e){output.textContent=lines.join("\n")+"\nFAIL: "+String(e);}};
+installBrowserChecks(button,output);

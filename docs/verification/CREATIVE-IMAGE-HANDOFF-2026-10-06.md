@@ -22,8 +22,8 @@ Inspector는 Current/Replacement thumbnail과 전환 손실을 보여 주고 캔
 - `imageSourceWorkflow`: 실제 pointer hit-test/file upload, preview 문서/History 불변, canvas lease 수, invalid numeric stale Apply 차단, Cancel 복원, source+width 한 Apply, 공유 원본 보존, save/export/Undo/Redo, no-op recovery, TIFF 결과 인계 **16 checks**.
 - `tiffImportWorkflow`: TIFF pixels, canonical PNG asset, 변환 손실, 저장/이력, unsupported compression/multi-page atomicity와 Worker abort **10 checks**.
 - `imageResources`: 기존 독립 UV/opacity·한 source 공유·재업로드 제거·마지막 해제와 취소·재개방 검사에 실제 replacement/cancel pixel 검사를 추가해 **34 checks**.
-- 최신 전체 **599 Node / 54 suites / skip 0**, **33 browser workflows / 686 checks**, TypeScript·architecture/import/문서 링크 **294 modules**, workspace production build 통과. [Node](../../output/integrated-final-node-2026-10-06.log), [browser](../../output/integrated-final-browser-2026-10-06.log), [architecture](../../output/integrated-final-architecture-2026-10-06.log), [build](../../output/integrated-final-build-2026-10-06.log).
-- 최초 전체 browser 실행은 PDF native input fetch 중 `TypeError: Failed to fetch`로 중단됐다. [실패 로그](../../output/integrated-browser-2026-10-06.log)를 보존하며 테스트를 완화하지 않은 단독 PDF 21개 및 최종 전체 통과와 구분한다. 최초 실패의 원인은 확정하지 않았으므로 runner 안정성의 재발 추적 과제로 남긴다.
+- 최신 전체 **599 Node / 54 suites / skip 0**, **33 browser workflows / 686 checks**, TypeScript·architecture/import/문서 링크 **294 modules**, workspace production build 통과. Node (local-only, not in repository: `output/integrated-final-node-2026-10-06.log`), browser (local-only, not in repository: `output/integrated-final-browser-2026-10-06.log`), architecture (local-only, not in repository: `output/integrated-final-architecture-2026-10-06.log`), build (local-only, not in repository: `output/integrated-final-build-2026-10-06.log`).
+- 최초 전체 browser 실행은 PDF native input fetch 중 `TypeError: Failed to fetch`로 중단됐다. 실패 로그 (local-only, not in repository: `output/integrated-browser-2026-10-06.log`)를 보존하며 테스트를 완화하지 않은 단독 PDF 21개 및 최종 전체 통과와 구분한다. 최초 실패의 원인은 확정하지 않았으므로 runner 안정성의 재발 추적 과제로 남긴다.
 
 ## 측정과 남은 제한
 

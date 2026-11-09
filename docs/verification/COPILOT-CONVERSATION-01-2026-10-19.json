@@ -1,0 +1,70 @@
+{
+  "id": "COPILOT-CONVERSATION-01",
+  "date": "2026-10-19",
+  "status": "passed-with-bounded-local-language-scope",
+  "implementation": "COPILOT-CONVERSATION-01-2026-10-19.md",
+  "planner": "Local rules; no real model provider newly connected",
+  "environment": {
+    "os": "Windows",
+    "browser": "Chrome headless",
+    "renderer": "SwiftShader",
+    "viewport": "1440x1000",
+    "geometry": "Real OCCT Worker"
+  },
+  "checks": {
+    "fullNode": {
+      "passed": 1532,
+      "failed": 0
+    },
+    "browser": {
+      "conversation": 15,
+      "solidRegression": 18,
+      "cadToolsRegression": 19,
+      "applyRegression": 26,
+      "total": 78
+    },
+    "build": "passed; existing Vite chunk size warning",
+    "typescript": "passed",
+    "architectureModules": 729
+  },
+  "stepRoundtrip": {
+    "status": "passed",
+    "validity": "valid",
+    "bounds": {
+      "min": [
+        0,
+        0,
+        0
+      ],
+      "max": [
+        120,
+        80,
+        5
+      ]
+    },
+    "volumeMm3": 46994.69035085127,
+    "expectedVolumeMm3": 46994.69035085127,
+    "volumeToleranceMm3": 0.003,
+    "lengthToleranceMm": 0.001,
+    "meaning": "Actual browser-exported STEP reread with the same OCCT kernel; expected dimensions and volume are independent analytical values"
+  },
+  "prompts": [
+    "가로 100mm, 세로 60mm, 두께 5mm 판에 지름 8mm 구멍 네 개를 각 모서리에서 10mm 안쪽에 만들어줘",
+    "가로를 120mm로 늘려줘. 구멍은 모서리에서 10mm 간격을 유지해줘",
+    "세로를 80mm로 바꿔줘. 구멍은 모서리에서 10mm 간격을 유지해줘"
+  ],
+  "artifacts": {
+    "plate.webcad.json": "725bb6d135c0f10c1bd89e777028ce8577fd3dd83a5a15dd632ba70c85f82efa",
+    "plate.step": "8096481e020dc3f94e0387dd6f4596bfbbc6087ecf5fa9299a76c4b359efbe4e",
+    "viewport.png": "0584827c066726da7bfb2fe2b7024189c342d6d2dda215ff0db49f8f7639c374",
+    "native-report.json": "37496710fe792f0ab21a3f7f70f435d1ea882fd05efc2ac737e3eeb9da6f0149",
+    "step-roundtrip-report.json": "82d114ce948e965f689df041868009d15747a00b750e04d9a97cc317fac07ebc"
+  },
+  "observedRepair": "Initial Node run found broad routing intercepted the existing scalar-edit fallback. Scoped the new route to plate creation and explicit preserved-margin requests; complete rerun passed.",
+  "limits": [
+    "Rectangular plate with four equal-margin circular through holes; explicit positive dimensions",
+    "Maintained margin must equal the selected plate driver",
+    "No arbitrary natural-language design, live model provider or generalized conversation memory",
+    "STEP roundtrip uses the same kernel; analytic expected values are independent"
+  ]
+}

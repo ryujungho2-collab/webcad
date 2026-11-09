@@ -5,8 +5,11 @@ import { dispatchCadCommand } from "../../state/dispatchCadCommand";
 import { commandInteraction } from "../../state/commandInteraction";
 import { CommandReview } from "../../ui/CommandReview";
 import { PrecisionField } from "../../ui/PrecisionField";
+import { PropertySection } from "../../ui/PropertySection";
 import { parsePointEntry } from "../../precision/pointInput";
 import { planeToWorld, WORK_PLANES, type WorkPlaneId } from "../../precision/workPlane";
+import { BlockLineEditor } from "./BlockLineEditor";
+import { editableBlockLines } from "../../precision/blockLineEdit";
 
 type Mode = "create" | "update" | "rename";
 type Props = { query: string; revision: number; selectedObjectIds: string[]; activeWorkPlane: WorkPlaneId; onChange: () => void; onInsert: (blockId: string) => void };
@@ -17,10 +20,12 @@ export function ComponentsPanel({ query, revision, selectedObjectIds, activeWork
   const [name, setName] = useState(components[0]?.name ?? "Component");
   const [basePoint, setBasePoint] = useState("0,0");
   const [mode, setMode] = useState<Mode | null>(null);
+  const [editingLine, setEditingLine] = useState(false);
   const [plan, setPlan] = useState<{ key: string; preview: CadPlanPreview } | null>(null);
   const [error, setError] = useState("");
   const [applying, setApplying] = useState(false);
   const [createdId, setCreatedId] = useState<string | null>(null);
+  const [memberOverrides, setMemberOverrides] = useState<Record<string, { stroke: string; fill: string | null; opacity: number; strokeWidth: number }>>({});
   const selected = selectedId ? cadDocument.blocks?.[selectedId] : undefined;
   const plane = mode === "create" ? activeWorkPlane : selected?.workPlane ?? activeWorkPlane;
   const point = parsePointEntry(basePoint);
@@ -32,7 +37,7 @@ export function ComponentsPanel({ query, revision, selectedObjectIds, activeWork
   useEffect(() => {
     if (selectedId && cadDocument.blocks?.[selectedId]) return;
     const next = components[0];
-    setSelectedId(next?.id ?? null); setName(next?.name ?? "Component"); setMode(null); setPlan(null);
+    setSelectedId(next?.id ?? null); setName(next?.name ?? "Component"); setMode(null); setPlan(null); setEditingLine(false);
   }, [revision, selectedId]);
 
   useEffect(() => {
@@ -72,22 +77,27 @@ export function ComponentsPanel({ query, revision, selectedObjectIds, activeWork
 
   const showEditor = mode === "create" || !!selected;
   return <div className="components-panel" data-testid="components-panel">
-    <div className="layers-header"><span>Reusable components</span><button type="button" className="layer-add-button" disabled={!selectedObjectIds.length} onClick={() => begin("create")} aria-label="Create component from selection">+ Create</button></div>
+    <div className="layers-header"><span>Reusable components</span><button type="button" className="layer-add-button" disabled={editingLine || !selectedObjectIds.length} onClick={() => begin("create")} aria-label="Create component from selection">+ Create</button></div>
     <p className="property-hint">A component keeps one editable definition and any number of placed instances. Instances update together when the definition is replaced.</p>
     <div className="layers-list" role="listbox" aria-label="Components">
       {components.map(component => {
         const instances = Object.values(cadDocument.features).filter(feature => feature.type === "drafting" && feature.params.kind === "block" && feature.params.blockId === component.id).length;
-        return <button key={component.id} type="button" role="option" aria-selected={selectedId === component.id} className={selectedId === component.id ? "layer-row layer-row-selected" : "layer-row"} onClick={() => { setSelectedId(component.id); setName(component.name); setMode(null); setPlan(null); }}><span className="layer-name">{component.name}</span><small>{component.members.length} elements · {instances} instance{instances === 1 ? "" : "s"} · {component.workPlane}</small></button>;
+        return <button key={component.id} type="button" role="option" aria-selected={selectedId === component.id} className={selectedId === component.id ? "layer-row layer-row-selected" : "layer-row"} onClick={() => { setSelectedId(component.id); setName(component.name); setMode(null); setPlan(null); setEditingLine(false); }}><span className="layer-name">{component.name}</span><small>{component.members.length} elements · {instances} instance{instances === 1 ? "" : "s"} · {component.workPlane}</small></button>;
       })}
       {!components.length && <p className="property-hint">Select drawings and create a component to build a reusable library.</p>}
     </div>
-    {showEditor && <section className="property-section" aria-label={mode === "create" ? "Create component" : "Selected component"}>
+    {editingLine && selected && <BlockLineEditor block={selected} revision={revision}
+      instanceIds={Object.values(cadDocument.features).filter(feature => feature.type === "drafting" &&
+        feature.params.kind === "block" && feature.params.blockId === selected.id).map(feature => feature.output)}
+      onClose={() => setEditingLine(false)} onChange={onChange} />}
+    {showEditor && !editingLine && <section className="property-section" aria-label={mode === "create" ? "Create component" : "Selected component"}>
       {mode === "create" && <strong>Create reusable component</strong>}
       <label>Name<input aria-label="Component name" value={name} onChange={event => { setError(""); setName(event.target.value); }} /></label>
       {selected && <p className="property-hint">Base point and plane: {selected.workPlane}. Existing instances keep their position and orientation when this definition updates.</p>}
       {mode && mode !== "rename" && <><PrecisionField label="Base point" aria-label="Component base point" value={basePoint} onChange={value => { setError(""); setBasePoint(value); }} /><small>Enter plane coordinates such as 0,0 or 25mm,10mm.</small></>}
       {mode && <CommandReview state={interaction} />}
       {!mode && selected && <div className="property-actions">
+        <button type="button" disabled={!editableBlockLines(selected).length} onClick={() => setEditingLine(true)}>Edit component line</button>
         <button type="button" disabled={selectedObjectIds.length === 0} onClick={() => begin("update")} aria-label="Update component from selection">Update from selection</button>
         <button type="button" disabled={name.trim() === selected.name} onClick={() => begin("rename")} aria-label="Rename component">Rename</button>
         <button type="button" onClick={() => onInsert(selected.id)} aria-label="Insert component">Insert</button>

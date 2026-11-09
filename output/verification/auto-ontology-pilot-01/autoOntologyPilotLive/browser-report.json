@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "checks": 7,
+  "message": "PASS: The Inspector shows native relations before external consent or a request\nPASS: External lookup requires explicit session consent\nPASS: Native relations remain visible while explanation loads\nPASS: Forward selection displays an explanation only after external rows match native facts\nPASS: The explanation uses verified facts\nPASS: Reverse selection verifies the same canonical relationship\nPASS: External reads and failure handling leave the document and Undo history unchanged\nALL 7 CHECKS PASSED",
+  "artifacts": [
+    "verified-inspector.png",
+    "external-trace.json"
+  ]
+}

@@ -1,8 +1,60 @@
 # 날짜별 구현 기록
 
+- [CAD 기능 + 온톨로지 실행 가이드](CAD-FEATURE-ONTOLOGY-EXECUTION-GUIDE-2026-11-06.md) · 2026-11-06 · 구현 전 지시서, 첫 카드 CAD-LAYER-01
+
+- [ARC 1.7 전기주전자 2D/3D 검증 과제 (Claude)](ARC-KETTLE-2026-11-05.md) · 2026-11-05
+
+- [PRACTICE-REVIEW-01 실무 요구조건·간격/도면 공통 검사와 주택 결함 수정](PRACTICE-REVIEW-01-2026-11-05.md) · 2026-11-05
+
+- [3층 주택 R1 내부·외부 상세 및 실제 간섭 검증](THREE-STOREY-HOUSE-R1-2026-11-05.md) · 2026-11-05
+
+- [3층 단독주택 2D→3D 조립 및 납품 준비도 검증](THREE-STOREY-HOUSE-2026-11-05.md) · 2026-11-05 · R0 검토용, 실시설계 발행 보류
+
+- [회귀 스위트 복구와 UI 버그 수정 인계 (Claude)](TEST-HEALTH-AND-UI-FIXES-HANDOFF-2026-11-04.md) · 2026-11-04
+
+- [로프트 직선 연결↔곡면 왕복 편집과 사람·자연어·MCP 인계](LOFT-EDIT-HANDOFF-2026-10-25.md) · 2026-10-25
+
+- [WALL-MOVE-01 벽 방향/월드 축 상대 이동과 개구부·도면 동반 갱신](WALL-MOVE-01-2026-10-24.md) · 2026-10-24
+
+- [COPILOT-STAGED-RECIPES-01 단계형 질문·도구 계획과 검증된 부품 템플릿](COPILOT-STAGED-RECIPES-01-2026-10-24.md) · 2026-10-24
+
+- [CAD-MCP-01 기존 CAD 도구와 모델 독립 MCP 연결](CAD-MCP-01-2026-10-23.md) · 2026-10-23
+
+- [COPILOT-NATIVE-ARCHITECTURE-01 기존 native 부재·연관 절단 연결과 경로 여유 조회](COPILOT-NATIVE-ARCHITECTURE-01-2026-10-23.md) · 2026-10-23
+
+- [COPILOT-DESIGN-STUDY-01 의도·실제 대안 비교·판단·단일 Undo](COPILOT-DESIGN-STUDY-01-2026-10-22.md) · 2026-10-22
+
+- [CAFE-2F-02 R0 도면→3D CAD·모델링·STEP/GLB](CAFE-2F-02-2026-10-20.md) · 2026-10-20
+
+- [CAFE-2F-01 2층 카페 2D 과제·출력 보완](CAFE-2F-01-2026-10-20.md) · 2026-10-20
+
+- [COPILOT-ENCLOSURE-01 둥근 케이스·내부 바닥/앞면 구멍](COPILOT-ENCLOSURE-01-2026-10-19.md) · 2026-10-19
+
+
+- [COPILOT-2D3D-01 자연어 2D→3D→다듬기 검증](COPILOT-2D3D-01-2026-10-19.md) · 2026-10-19
+
+
+- [COPILOT-CONVERSATION-01 자연어 생성·후속 대화](COPILOT-CONVERSATION-01-2026-10-19.md) · 2026-10-19
+
+
+- [CAD-TOOLS-02 회전·스윕·로프트와 마감 도구](CAD-TOOLS-02-2026-10-19.md) · 2026-10-19
+
+- [CAD-TOOLS-01 공통 도구와 3D 확대](CAD-TOOLS-01-2026-10-19.md) · 2026-10-19
+
+- [COPILOT-SOLID-01 파라메트릭 3D 생성·후속 수정](COPILOT-SOLID-01-2026-10-19.md) · 2026-10-19
+
 [문서 안내](../README.md) · [현재 상태](../../PROJECT-STATE.md) · [실행 큐](../../NEXT-STEPS.md)
 
 **현재 사용법과 지원 범위는 [기능별 가이드](../features/README.md)**를 읽는다. 아래 문서는 당시 구현·설계 이유·검증 근거이며 후속 구현 전의 사용법/제한을 포함한다. 각 기록 맨 위에서 담당 대표 가이드로 이동할 수 있다.
+
+- [UI-P4 프로젝트 묶음·revision 비교](UI-P4-PROJECT-BUNDLES-2026-10-18.md) · 2026-10-18
+
+- [G6-D5-E2 곡선 DXF 확대](G6-D5-E2-CURVE-DXF-2026-10-18.md) · 2026-10-18
+
+- [G6-D5-Q1 출력 전 점검](G6-D5-Q1-OUTPUT-PREFLIGHT-2026-10-18.md) · 2026-10-18
+- [G2-W2 재사용 부품·표현 라이브러리](G2-W2-REUSABLE-LIBRARY-2026-10-18.md) · 2026-10-18
+- [G2-W1 프로젝트 내부 탐색](G2-W1-PROJECT-NAVIGATION-2026-10-18.md) · 2026-10-18
+- [G6-D6-P4 캐시·cold HLR](G6-D6-P4-CACHE-COLD-HLR-2026-10-18.md) · 2026-10-18
 
 ## 공통 기반·감사·기타
 
@@ -61,6 +113,7 @@
 - [WF-A1 평면도 준비 — 첫 구현](WF-A1-FLOOR-PLAN-PREPARATION-2026-10-14.md) · 2026-10-14
 - [WF-B2 벽 생성·반복 돌출 → WF-B3 연관 개구부](WF-B2-B3-2026-10-16.md) · 2026-10-16
 - [WF-C0 + WF-A2 → WF-B1](WF-C0-A2-B1-2026-10-16.md) · 2026-10-16
+- [WF-Q1 소형 주거 과제 발행 검증](WF-Q1-RESIDENTIAL-2026-10-17.md) · 2026-10-17
 
 ## 모델·프레임·연관 도면·시트
 
@@ -100,6 +153,13 @@
 
 ## 프로젝트·UI·자원
 
+- [G6-D4-H2 곡선 해치](G6-D4-H2-CURVE-HATCH-2026-10-18.md) · 2026-10-18
+- [UI-C5 상태·입력·접근성](UI-C5-INPUT-ACCESSIBILITY-2026-10-18.md) · 2026-10-18
+- [UI-C4 프로젝트 시작 화면](UI-C4-PROJECT-HOME-2026-10-17.md) · 2026-10-17
+- [UI-C3 속성 패널 정리](UI-C3-INSPECTOR-2026-10-17.md) · 2026-10-17
+- [UI-C2 선택 문맥 도구](UI-C2-SELECTION-TOOLS-2026-10-17.md) · 2026-10-17
+- [UI-P3-B 열린 프로젝트 탭 탐색](UI-P3-B-TAB-NAVIGATION-2026-10-17.md) · 2026-10-17
+- [UI-P3-A 두 프로젝트 좌우 비교](UI-P3-A-PROJECT-COMPARISON-2026-10-17.md) · 2026-10-17
 - [프로젝트 탭 — UI-P1](PROJECT-TABS-2026-10-14.md) · 2026-10-14
 - [UI-P1-H1 — 프로젝트 저장·복구 보강](UI-P1-H1-PROJECT-RECOVERY-2026-10-14.md) · 2026-10-14
 - [UI-P1-H2 — 프로젝트 검색·내보내기·삭제·용량 관리](UI-P1-H2-PROJECT-MANAGER-2026-10-14.md) · 2026-10-14
@@ -118,3 +178,33 @@
 - [X3-A 저장된 작도 정의 재지정](X3-A-CONSTRUCTION-REASSIGNMENT-2026-10-10.md) · 2026-10-10
 - [X3-B1 원/호 live 교점](X3-B1-CIRCULAR-INTERSECTIONS-2026-10-10.md) · 2026-10-10
 - [X6-D2-E1 타원 단면](X6-D2-E1-ELLIPSE-SECTIONS-2026-10-13.md) · 2026-10-13
+
+- [CAN-A1 상위 캔버스](CAN-A1-CANVAS-HIERARCHY-2026-10-18.md) · 2026-10-18
+
+- [CAN-A2 Flex 배치](CAN-A2-FLEX-LAYOUT-2026-10-18.md) · 2026-10-18
+
+- [CAN-A3 콘텐츠 비례 확대](CAN-A3-CONTENT-SCALE-2026-10-18.md) · 2026-10-18
+
+- [MEAS-H1 호버 거리·측정 지점](MEAS-H1-HOVER-DISTANCE-2026-10-18.md) · 2026-10-18
+
+- [MEAS-H1 솔리드/BRep 거리](MEAS-H1-BREP-DISTANCE-2026-10-18.md) · 2026-10-18
+
+- 완료: [MEAS 후속 · 면·모서리 지정 측정](MEAS-SELECTED-ELEMENTS-2026-10-18.md) — Direct Select A/B 고정, 원본 BRep 거리·측정점, 편집·Undo 참조 재검증.
+
+- 완료: [MEAS 혼합·투영·축별 지정 측정](MEAS-MIXED-PROJECTED-DISTANCE-2026-10-18.md) — 면↔모서리, 월드 평면·축별 독립 최소화, 원본 witness와 수치 정밀도 표시.
+
+- 완료: [MEAS 측정 결과 고정·치수화](MEAS-SAVED-DIMENSIONS-2026-10-18.md) — version 46 저장/복원, 연관 갱신·broken 재지정, 평면 치수 배치와 SVG/PDF 출력.
+
+- 완료: [MEAS 치수선 직접 배치·편집](MEAS-DIMENSION-PLACEMENT-2026-10-18.md) — 선택·드래그 미리보기·한 번 확정/Undo, 키보드 mm 이동, 치수 삭제와 stale 취소.
+
+- 완료: [MEAS 치수 배치 스냅·겹침 정리](MEAS-DIMENSION-LAYOUT-2026-10-18.md) — 평행 기준선 스냅·Shift 축 고정, 화면 겹침 안내, anchor 유지 간격 미리보기와 일괄 Apply/Undo.
+
+- 완료: [주거 과제 측정·A3 연결 검증](MEAS-RESIDENTIAL-DRAWING-2026-10-18.md) — 실제 파일의 치수 출력 누락 보완, 도면 원점·축척·종이 문자와 v47 재열기.
+
+- [외부 주거 도면 기반 가져오기 개선](EXT-CIVIL-01-2026-10-18.md) — MTEXT·정적 치수 블록·숨김 표시·사용 블록 범위와 신규 batch/블록 표시 성능.
+
+- [외부 주거 도면 2차 개선](EXT-CIVIL-02-2026-10-19.md) — 직선 HATCH·채움·색상 상속과 실제 DXF 왕복 검증.
+
+- [외부 주거 도면 3차 개선](EXT-CIVIL-03-2026-10-19.md) — 가져오기 진행·취소, 탐색기 표시와 다중 선택 인덱스 성능.
+
+- [주거 도면 수정·복원 검증](EXT-CIVIL-RESTORE-01-2026-10-19.md) — Undo·직접 편집 복원, 전체 문서 및 DXF 표시 경로 비교.

@@ -41,9 +41,21 @@ XY/XZ/YZ 외에 저장 작업면을 활성 UCS로 사용한 Line/Circle·로컬 
 
 스케치 구동 치수·변수는 원본을 바꾸고, 일반 선형/반지름/지름/각도·연속 치수는 측정 원본을 표시한다. 각도 치수는 측정 가지를 명시한다. 저장된 작도점/선·원호 교점·중점/수직이등분선은 원본 관계를 유지하며 필요한 경우 정의를 다시 지정한다. 관계를 끊거나 옮기는 편집은 Review의 대응과 오류 이유를 확인한다.
 
+## 통과점 곡선과 곡선 배치
+
+Draw → Spline / NURBS의 Through points에서 점 목록·닫힘·접선 강도를 입력한다. 선택한 polyline은 통과점의 시작 자료로 쓸 수 있고, 이 방식으로 만든 spline은 다시 같은 점 편집기로 열린다. Advanced poles/knots도 유지한다. Review 후 Apply하며 한 번의 Undo로 복구한다.
+
+Spline output을 Polyline approximation으로 바꾸면 Chord tolerance mm에 따른 별도 polyline을 만든다. 정확한 spline 원본은 남는다. 닫힌 polyline은 기존 Offset/Make face 작업의 입력으로 쓸 수 있다. 이는 정확한 spline BRep 변환을 뜻하지 않는다.
+
+Draw → More curves → Curve layout에서 원본 곡선·개수·시작/끝 비율·법선 오프셋을 정하고, 법선 선분 또는 기존 블록을 배치한다. 닫힌 전체 구간은 이음매 위치를 중복 배치하지 않는다. 블록은 XY, 선분은 원본의 주 작업 평면을 따른다. spline/ellipse 배치는 0.05mm 현 오차로 샘플링한 길이를 사용한다. 결과는 편집 가능한 스냅샷이며 원본을 바꾼 뒤 Review/Apply로 다시 생성해야 한다.
+
+Spline 길이는 표시용 polyline이 아닌 해석적인 rational Bezier 미분의 adaptive Simpson 적분으로 구한다. 수치 적분 오차 추정과 계산 예산을 사용하며 엄밀한 길이 구간 인증은 아니다.
+
 ## 구현·검증 근거
 
 - [기본 편집](../implementation/BASIC-CAD-CORE-EDITING-2026-10-04.md), [Curve workflow](../implementation/CURVE-WORKFLOW-2026-10-04.md), [구간 Trim·참조](../implementation/CONTOUR-TRIM-REFERENCES-2026-10-04.md).
 - [line–arc/열린 코너](../implementation/B2-C2-OPEN-END-CORNERS-2026-10-11.md), [arc–arc](../implementation/B2-C-ARC-CORNERS-2026-10-10.md), [스케치 Stretch](../implementation/B2-E-SKETCH-STRETCH-2026-10-10.md), [혼합 스케치](../implementation/B1-E2-MIXED-SKETCH-EDITING-2026-10-11.md).
 - [접선·기준점 복사·UCS](../implementation/X-TANGENT-CLIPBOARD-UCS-PILOTS-2026-10-11.md), [타원](../implementation/X2-A-EXACT-ELLIPSE-2026-10-11.md), [spline/NURBS](../implementation/SPLINE-NURBS-OUTPUT-2026-10-13.md).
 - 세부 B0–B4/X1–X5 카드별 실패/검증은 [구현 기록 색인](../implementation/README.md), 변수·구속의 개발 계약은 [변수/수식](../architecture/VARIABLES-AND-EXPRESSIONS.md)과 [스케치](../architecture/PARAMETRIC-SKETCH.md)를 따른다.
+
+객체 사이 호버 거리와 A/B 측정 지점은 [거리와 측정 지점](MEASUREMENTS.md)을 참고한다. 기존 두 점 거리 도구와 구동 치수는 별도 조작이다.

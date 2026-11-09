@@ -16,7 +16,7 @@ if (!resumed) {
   localStorage.setItem(WORKSPACE_KEY,"damaged project list");
   localStorage.setItem(WORKSPACE_BACKUP_KEY,JSON.stringify({version:1,active:"a",projects:[{id:"a",title:"Recovered A",closed:false},{id:"b",title:"Recovered B",closed:false}]}));
 }
-createRoot(document.getElementById("root")!).render(<ProjectWorkspace/>);
+createRoot(document.getElementById("root")!).render(<ProjectWorkspace startOnHome={false}/>);
 const run=document.getElementById("run") as HTMLButtonElement,output=document.getElementById("output")!;
 const active=()=>document.querySelector<HTMLIFrameElement>('section:not([hidden]) > iframe')!;
 const buttons=(doc:Document)=>[...doc.querySelectorAll<HTMLButtonElement>('button')];

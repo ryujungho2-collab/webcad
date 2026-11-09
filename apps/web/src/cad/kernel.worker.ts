@@ -15,7 +15,7 @@ scope.onmessage = ({ data }) => {
         scope.postMessage({ type: "progress", taskId: data.taskId, phase });
       });
       const stats=retainedShapeStatistics();
-      scope.postMessage({ type: "result", taskId: data.taskId, result,memory:{capacityBytes:stats.heapCapacityBytes??null,retainedSources:stats.entries,retainedSlabs:stats.slabs.entries} }, meshTransferList(result));
+      scope.postMessage({ type: "result", taskId: data.taskId, result,memory:{capacityBytes:stats.heapCapacityBytes??null,retainedSources:stats.entries,retainedSlabs:stats.slabs.entries,retained:stats} }, meshTransferList(result));
     } catch (error) {
       scope.postMessage({ type: "error", taskId: data.taskId, message: error instanceof Error ? error.message : String(error) });
     }

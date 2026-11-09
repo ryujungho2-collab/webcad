@@ -78,7 +78,7 @@
 
 ## 담당 경계와 재현 fixture
 
-향후 하위 에이전트에 맡길 때: 통합 담당은 App/command schema/document schema/serialization/NEXT-STEPS를 소유한다. **준비/Copilot 담당**은 interop/workflow와 tests, **기하 담당**은 region·face·wall/opening, **캔버스 담당**은 순수 layout/viewport/inspector, **거리 담당**은 precision/Worker query를 각각 담당한다. 공통 schema 변경은 계약안 합의 후 통합한다. 같은 파일 동시 수정 금지. 대기 카드와 위임 가능한 카드는 이번 턴의 자동 에이전트 실행 지시가 아니다.
+향후 하위 에이전트에 맡길 때: 통합 담당은 App/command schema/document schema/serialization/NEXT-STEPS를 소유한다. ** **준비/Copilot 담당**은 interop/workflow와 tests,기하 담당**은 region·face·wall/opening, **캔버스 담당**은 순수 layout/viewport/inspector, **거리 담당**은 precision/Worker query를 각각 담당한다. 공통 schema 변경은 계약안 합의 후 통합한다. 같은 파일 동시 수정 금지. 대기 카드와 위임 가능한 카드는 이번 턴의 자동 에이전트 실행 지시가 아니다.
 
 WF-A1 fixture `apps/web/tests/helpers/floorPlanFixture.ts`: cm 선언, 길이4000mm 벽, Window block 내부 독립 layer/text, furniture/notes/unused definition. mm override 시 실제 길이400mm가 되는 것을 검증하여 무조건 mm로 가정한 오차를 숨기지 않는다. 실제 사용자에게는 알려진 거리로 확인시킨다.
 

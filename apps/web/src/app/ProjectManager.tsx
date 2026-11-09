@@ -1,15 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {useModalDialog} from "../ui/useModalDialog";
+import { useEffect, useMemo, useState } from "react";
 import { inspectProjectStorage, portableProjectAsync, unusedProjectAssetKeys, type ProjectStorageRow } from "./projectManagerStore";
 import { projectErrorMessage } from "./projectSession";
 import type { Workspace } from "./projectWorkspaceStore";
 
 export function storageSize(bytes: number) { return bytes >= 1024*1024 ? `${(bytes/1024/1024).toFixed(2)} MiB` : `${Math.ceil(bytes/1024)} KiB`; }
-type Props = { workspace: Workspace; statuses: Record<string,{localSaveStatus:string}>; busy: boolean; notice?:string;
+type Props = { initialFilter?:"all"|"unlisted";workspace: Workspace; statuses: Record<string,{localSaveStatus:string}>; busy: boolean; notice?:string;
   onClose:()=>void; onOpen:(id:string)=>void; onCloseProject:(id:string)=>void; onExport:(id:string,title:string)=>Promise<string>;
   onDelete:(id:string)=>Promise<void>; onClean:(id:string)=>Promise<number>; onRecover:(id:string)=>void|Promise<void>; onRefresh:()=>void|Promise<void>; onDownloadRecovery:()=>void };
 
 export function ProjectManager(props: Props) {
-  const dialog=useRef<HTMLDialogElement>(null),[query,setQuery]=useState(""),[filter,setFilter]=useState("all"),[refresh,setRefresh]=useState(0);
+  const dialog=useModalDialog(true,'input[aria-label="Search projects"]'),[query,setQuery]=useState(""),[filter,setFilter]=useState<string>(props.initialFilter??"all"),[refresh,setRefresh]=useState(0);
   const [selected,setSelected]=useState<string|null>(null),[confirmation,setConfirmation]=useState<"delete"|"clean"|null>(null),[confirmed,setConfirmed]=useState(false);
   const [localBusy,setLocalBusy]=useState(false),[message,setMessage]=useState(""),[error,setError]=useState("");
   const [detail,setDetail]=useState<{sourceId?:string;revision?:number;unused?:number;error?:string;cleanupError?:string;recovered?:boolean}>({});
@@ -19,7 +20,6 @@ export function ProjectManager(props: Props) {
   const rows=inventory.rows.filter(item=> (filter==="all"||filter==="closed"&&item.closed&&!item.unlisted||filter==="open"&&!item.closed||filter==="unlisted"&&item.unlisted)
     &&`${item.title} ${item.id}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))
     .sort((a,b)=>(b.lastOpenedAt??0)-(a.lastOpenedAt??0)||a.title.localeCompare(b.title));
-  useEffect(()=>{dialog.current?.showModal();return()=>dialog.current?.close();},[]);
   useEffect(()=>{let disposed=false;void navigator.storage?.estimate?.().then(value=>{if(!disposed)setEstimate(value);}).catch(()=>{});return()=>{disposed=true;};},[refresh]);
   useEffect(()=>{
     setConfirmation(null);setConfirmed(false);setDetail({});

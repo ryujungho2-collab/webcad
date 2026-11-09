@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-23",
+  "scope": "Internal CAD intent/refinement default with optional installed Ollama and external gateway",
+  "status": "passed",
+  "checks": {
+    "node": 1580,
+    "internalEngineUnit": 6,
+    "localGatewayUnit": 10,
+    "browserAndWorker": {
+      "internalAndOptionalModel": 29,
+      "designStudyRegression": 26,
+      "ordinaryGatewayRegression": 13,
+      "internalConversationRegression": 15
+    },
+    "liveOllama": 11,
+    "build": "passed",
+    "architecture": "passed (767 modules)"
+  },
+  "evidence": {
+    "unit": "../../output/internal-copilot-all-tests.log",
+    "browser": "../../output/verification/local-copilot/browser-report.json",
+    "live": "../../output/verification/local-copilot/live-report.json",
+    "transcript": "../../output/verification/local-copilot/transcript.json",
+    "internalScreenshot": "../../output/verification/local-copilot/internal-default.png"
+  },
+  "models": {
+    "default": "none / internal procedures",
+    "liveTest": "qwen3-coder-32k:latest",
+    "downloads": false,
+    "cloudLiveTest": false,
+    "external": "optional user-supplied compatible gateway; vendor API adapters not included"
+  },
+  "limits": [
+    "No generic internal language/vision model or automatic beauty score",
+    "No architectural or code-compliance approval",
+    "R1 pavilion remains aesthetically unaccepted",
+    "Ollama route requires dev/preview server; internal CAD works without it",
+    "UI model fixture and real local inference are separate tests"
+  ],
+  "internalNetworkAssertion": "No /api/copilot/status or /api/copilot/plan calls through clarification, alternatives, feedback refinement, Apply, Undo.",
+  "verificationNotes": [
+    "Concurrent conversation browser run hit its existing 18s UI wait during cold kernel loading; isolated rerun passed all 15 checks. No production timeout was relaxed."
+  ]
+}

@@ -1,3 +1,7 @@
+import {rebuildHybridDatum,type HybridDatum} from "./hybridCommands";
+import {meshEvaluationSignature,type EditableMesh} from "@agent-webcad/cad-document";
+import {evaluateGraphAsync} from "../cad/geometryEvaluationClient";
+import {resolveSweepPath} from "../precision/sweepPath";
 import {rebuildContent,rebuildSlab} from "./architectureContentCommands";
 import type { CadDocument, CadFeature } from "@agent-webcad/cad-document";
 import type { SerializedOperand } from "../cad/kernelProtocol";
@@ -18,7 +22,7 @@ import {resolveStoredWorkPlane} from "./attachedWorkPlane";
 import {shellFaceStatus,shellParams} from "./shellCommands";
 import {architectureWallParams} from "./architectureWallCommands";
 
-const DERIVED_TYPES = new Set(["extrude", "revolve", "sweep", "loft", "shell", "boolean", "fillet", "chamfer"]);
+const DERIVED_TYPES = new Set(["geometry-nodes","extrude", "revolve", "sweep", "loft", "shell", "boolean", "fillet", "chamfer"]);
 
 export class FeatureRegenerationError extends Error {
   constructor(message: string, public geometryIds: string[]) { super(message); }
@@ -38,13 +42,14 @@ export function liveFeatureInputs(feature: CadFeature, document: CadDocument, be
 
 function geometrySignature(document: CadDocument, feature: CadFeature) {
   const object = document.objects[feature.output];
+  if(feature.type==="mesh")return JSON.stringify([meshEvaluationSignature(feature.params.mesh as EditableMesh),object&&getObjectTransform(object,feature)]);
   const { bounds: _,solidFinish: __,componentContent: ___, ...params } = feature.params;
   return JSON.stringify([feature.type, params, object && getObjectTransform(object, feature)]);
 }
 
 /** Rebuild only affected dependents, in source order, on a detached document.
  * All changes share the initiating command's transaction and history entry. */
-export async function regenerateDependentFeatures(document: CadDocument, before: CadDocument, rebuildObjectIds:ReadonlySet<string> = new Set()): Promise<void> {
+export async function regenerateDependentFeatures(document: CadDocument, before: CadDocument, rebuildObjectIds:ReadonlySet<string> = new Set(),task:import("./cooperativeTask").CooperativeTask={}): Promise<void> {
   const features = new Map<string, CadFeature>();
   for (const feature of Object.values(document.features)) {
     if (features.has(feature.output)) throw new Error(`Ambiguous feature output: ${feature.output}`);
@@ -76,24 +81,27 @@ export async function regenerateDependentFeatures(document: CadDocument, before:
     const old = previous.get(feature.output);
     const sources = inputs.get(feature.output)!;
     const hole=feature.params.faceHole as FaceHoleDefinition|undefined;
+    const hybrid=feature.params.hybridDatum as HybridDatum|undefined;
+    const hybridPlaneChanged=hybrid&&JSON.stringify(before.workPlanes?.[hybrid.referenceId])!==JSON.stringify(document.workPlanes?.[hybrid.referenceId]);
     const planeChanged=hole&&JSON.stringify(before.workPlanes?.[hole.planeId])!==JSON.stringify(document.workPlanes?.[hole.planeId]);
-    if (old && (sources.some(id => dirty.has(id)) || rebuildObjectIds.has(feature.output) || planeChanged)) {
+    if (old && (sources.some(id => dirty.has(id)) || rebuildObjectIds.has(feature.output) || planeChanged || hybridPlaneChanged)) {
       const object = document.objects[feature.output];
       if (!object || !document.layers[object.layerId]) throw new Error(`Missing output object or layer: ${feature.output}`);
       if (document.layers[object.layerId].locked) throw new FeatureRegenerationError(`Cannot regenerate ${feature.output}: output layer is locked.`,[feature.output,...sources]);
       try {
-        feature.params = await rebuildParams(document, feature, features,sources.length > 0);
+        if(feature.type==="geometry-nodes")await evaluateGraphAsync(document,feature,{signal:task.signal});else feature.params = await rebuildParams(document, feature, features,sources.length > 0);
         if(sources.length)feature.dependencyMode = "live";
       } catch (error) {
         throw new FeatureRegenerationError(`Cannot regenerate ${feature.type} ${feature.output}: ${error instanceof Error ? error.message : String(error)}`,
           [...new Set([feature.output,...sources,...(error instanceof FeatureRegenerationError?error.geometryIds:[])])]);
       }
     }
-    if (!old || geometrySignature(document, feature) !== geometrySignature(before, old)) dirty.add(feature.output);
+    if (!old || sources.some(id=>dirty.has(id)) || geometrySignature(document, feature) !== geometrySignature(before, old)) dirty.add(feature.output);
   }
 }
 
 async function rebuildParams(document: CadDocument, feature: CadFeature, features: Map<string, CadFeature>, refreshInputs=true): Promise<Record<string, unknown>> {
+  if(feature.params.hybridDatum)return rebuildHybridDatum(document,feature);
   if(feature.params.componentContent)return rebuildContent(document,feature);
   if(feature.params.architecturalSlab)return rebuildSlab(document,feature.params.architecturalSlab as import("@agent-webcad/cad-document").ArchitecturalSlab,feature.params.solidFinish);
   if(feature.params.architecturalWall){const definition=feature.params.architecturalWall as import("@agent-webcad/cad-document").ArchitectureWall;feature.type=definition.openings.length?"boolean":"extrude";return {...await architectureWallParams(document,definition),...feature.params.solidFinish?{solidFinish:feature.params.solidFinish}:{}};}
@@ -109,7 +117,7 @@ async function rebuildParams(document: CadDocument, feature: CadFeature, feature
   };
   const operand = (id: string): SerializedOperand => {
     const source = features.get(id)!, object = document.objects[id];
-    if (!source || !object || !["primitive", ...DERIVED_TYPES].includes(source.type)) throw new Error(`Input ${id} is not a solid.`);
+    if (!source || !object || !["primitive", ...DERIVED_TYPES].filter(t=>t!=="geometry-nodes").includes(source.type)) throw new Error(`Input ${id} is not a solid.`);
     const transform = getObjectTransform(object, source);
     if (!transform.scale.every(value => Math.abs(value - 1) <= 1e-9)) throw new Error(`Scaled source solid ${id} is not supported.`);
     return { params: structuredClone(source.params), transform: structuredClone(transform) };
@@ -140,13 +148,7 @@ async function rebuildParams(document: CadDocument, feature: CadFeature, feature
     }
   } else if (refreshInputs && feature.type === "sweep") {
     params.profile = profile(feature.inputs.slice(0, -1));
-    const pathId = feature.inputs.at(-1)!;
-    const object = document.objects[pathId], path = features.get(pathId)!;
-    if (!object || path?.type !== "drawing" || !["line", "polyline", "arc", "circle"].includes(String(path.params.kind))) throw new Error("Sweep path must remain a drawing curve.");
-    const points = getWorldDrawingGeometry(object, path)?.points;
-    const spine = points?.filter((point, index) => index === 0 || Math.hypot(...point.map((value, axis) => value - points[index - 1][axis])) > 1e-9);
-    if (!spine || spine.length < 2) throw new Error("Sweep path is degenerate.");
-    params.spine = spine;
+    params.spine = resolveSweepPath(document, feature.inputs.at(-1)!, true);
   } else if (refreshInputs && feature.type === "loft") {
     if (feature.inputs.length < 2) throw new Error("Loft requires at least two sections.");
     params.profiles = feature.inputs.map(id => profile([id]));

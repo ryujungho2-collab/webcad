@@ -1,0 +1,22 @@
+{
+  "source": "Existing taskToolScope / actual server-owned ordinary catalog",
+  "kind": "general",
+  "advertisedTools": [
+    "cad.objects",
+    "cad.inspect",
+    "cad.measure",
+    "cad.faces",
+    "cad.edges",
+    "curve.circle",
+    "curve.fitted",
+    "curve.polyline",
+    "solid.primitive",
+    "solid.extrude",
+    "solid.boolean",
+    "solid.fillet",
+    "solid.chamfer"
+  ],
+  "nativeRegisteredTool": "solid.loft.update",
+  "advertised": false,
+  "productRoutingChanged": false
+}

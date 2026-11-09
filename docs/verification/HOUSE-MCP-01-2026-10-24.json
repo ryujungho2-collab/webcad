@@ -1,0 +1,104 @@
+{
+  "id": "HOUSE-MCP-01",
+  "date": "2026-10-24",
+  "status": "IMPLEMENTED_WITH_LIMITS",
+  "task": "B1 basement + two above-ground floors, garden, individual detached house",
+  "native": {
+    "version": 49,
+    "objectCount": 1705,
+    "visibleSolidCount": 423,
+    "nativeWallCount": 60,
+    "sections": {
+      "B101": "resolved",
+      "A101": "resolved",
+      "A102": "resolved",
+      "A201": "resolved",
+      "A202": "resolved"
+    }
+  },
+  "mcp": {
+    "canonicalTools": 39,
+    "stdioTools": 42,
+    "reviewReceipts": 141,
+    "modelRequests": 0,
+    "sceneDelta": "explicit selected objects, world mm, same native Preview/Apply/Undo",
+    "doorPathScope": "Finite straight XY center path with a circular body against occupied native wall intervals with explicit miter end caps and full-height hosted doors; exact 2D distances, mm."
+  },
+  "verification": {
+    "fullUnit": {
+      "passed": 1610,
+      "failed": 0,
+      "log": "output/house-final-tests.log",
+      "testConcurrency": 2
+    },
+    "taskStages": {
+      "base": {
+        "status": "passed",
+        "checks": 22
+      },
+      "walls_facade": {
+        "status": "passed",
+        "checks": 47
+      },
+      "layout": {
+        "status": "passed",
+        "checks": 16
+      }
+    },
+    "regression": {
+      "mcpBridge": 24,
+      "nativeArchitectureCopilot": 29,
+      "cadTools": 19,
+      "cadToolsAdvanced": 17
+    },
+    "visualReview": [
+      "plan-review.png",
+      "house-overview.png",
+      "native-editor.png"
+    ]
+  },
+  "limitations": [
+    "Designer-authored arrangement and dimensions, not autonomous house design or aesthetic judgment.",
+    "Explicit end miters, not a live wall-junction/room relationship graph.",
+    "Exterior leaves and static doors, frames and annotations require explicit coordinated edits.",
+    "Layout checks cover specified measured XY footprints and one conservative door-swing box, not global clash detection, accessibility, egress or construction certification."
+  ],
+  "artifacts": {
+    "house.webcad.json": {
+      "bytes": 4738474,
+      "sha256": "3cb1069aa13706e8254b753e05155129d0c83c3ddd79f31e535876f29c43d473"
+    },
+    "house.step": {
+      "bytes": 8052172,
+      "sha256": "c33fdcb5fb36643c1cf54de0ee112d160b4d764a3f023368cfd382b057cf62ce"
+    },
+    "house.glb": {
+      "bytes": 13479460,
+      "sha256": "c9ad8aec290c7a1263fb845723c78411c0da797a1dd670d3bc5e4ed75ed73874"
+    },
+    "B101.dxf": {
+      "bytes": 29468,
+      "sha256": "4f17aeffcba95975c62c3280a3997a5d6d371b261d904bcede284dbba421f590"
+    },
+    "A101.dxf": {
+      "bytes": 42287,
+      "sha256": "f27ccff282f967ddd8f7be8acd8de13127e3878a1fe58b962d83f6a3f66d269c"
+    },
+    "A102.dxf": {
+      "bytes": 42105,
+      "sha256": "1a5c2cb9b40da705771178a4d9bd5022128c319877539664e05bdeca9d698293"
+    },
+    "A201.dxf": {
+      "bytes": 19026,
+      "sha256": "667d5bef13abe27e1dc9c49c47a6ee63c55ac298f277c32e51efdb8576743181"
+    },
+    "A202.dxf": {
+      "bytes": 27301,
+      "sha256": "ea763862bedfeb8b94534d2ad112a4ee08c543aea5893976fbb4bf2bd22adf9d"
+    },
+    "mcp-trace.json": {
+      "bytes": 259437,
+      "sha256": "75970c1931bacb1da8174a60b194c682dcafd303b03905310714797eac970058"
+    }
+  }
+}

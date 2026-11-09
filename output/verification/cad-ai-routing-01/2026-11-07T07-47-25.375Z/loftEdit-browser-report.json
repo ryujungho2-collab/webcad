@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "checks": 13,
+  "message": "PASS: Inspector reviews real loft conversion without publishing\nPASS: Inspector changes the actual three-section BRep curvature\nPASS: Same object and ordered live source sections survive in one history entry\nPASS: One UI Undo restores the ruled model\nPASS: UI Redo restores the smooth model\nPASS: Follow-up natural language shares the selected manual object and detached preview\nPASS: Natural language reverses the manual conversion exactly\nPASS: Real stdio MCP client proposes the same edit through the browser review\nPASS: MCP Apply retains the same editable model\nPASS: Human shared form takes over after MCP and restores straight spans\nPASS: Inspector remains editable after NL, MCP and shared form handoffs\nPASS: Reload retains the same loft, live sections and smooth mode\nPASS: Reloaded BRep reproduces verified volume\nALL 13 CHECKS PASSED",
+  "artifacts": [
+    "loft.png",
+    "loft.webcad.json"
+  ]
+}

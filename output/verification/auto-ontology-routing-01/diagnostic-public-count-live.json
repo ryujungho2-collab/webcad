@@ -1,0 +1,14 @@
+{
+  "request": {
+    "question": "How many actual data rows are stored in the cad_relation table? Return the count from the connected database.",
+    "prediction": false
+  },
+  "sql": "",
+  "rows": null,
+  "sqlEvents": [],
+  "answerText": "SQL can't be constructed from the data.",
+  "httpStatus": 200,
+  "done": true,
+  "error": null,
+  "elapsedMs": 60690
+}

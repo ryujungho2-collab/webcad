@@ -3,6 +3,8 @@ import type { ExtrudeProfile, ExtrudeProfileSegment } from "@agent-webcad/cad-ke
 import { getWorldDrawingGeometry, type WorldProfileSegment } from "./worldGeometry";
 import { planeToWorld, worldToPlane, WORK_PLANES, type Vec3, type WorkPlaneId } from "./workPlane";
 import { profileBoundaryPoints, profileContainsPoint, profilesTouch,profileSelfCrosses } from "./profileRegions";
+import {splineArea} from "./splineGeometry";
+import {sectionCurvePieces,verifySectionCurveBoundary} from "./sectionCurveBoundary";
 
 export type SketchLoop = ExtrudeProfile & {
   workPlane: WorkPlaneId;
@@ -146,7 +148,7 @@ export function extractSketchLoops(document: CadDocument, objectIds: readonly st
   if (geometries.some((entry) => !entry)) return { ok: false, reason: "All profile entities must be visible, unlocked drawings." };
   const valid = geometries.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
   const plane = valid[0].world.workPlane;
-  if (valid.some(({ world }) => world.workPlane !== plane || !world.planeAligned || !world.uniformScale)) {
+  if (valid.some(({ world }) => world.workPlane !== plane || !world.planeAligned || !world.spline&&!world.uniformScale)) {
     return { ok: false, reason: "Profile entities must share one plane and use supported uniform transforms." };
   }
 
@@ -154,6 +156,16 @@ export function extractSketchLoops(document: CadDocument, objectIds: readonly st
   if (!elevations.length || elevations.some((value) => Math.abs(value - elevations[0]) > TOLERANCE)) return { ok: false, reason: "Profile entities are not coplanar." };
 
   const loops: SketchLoop[] = [];
+  for(const {world,object,feature} of valid.filter(entry=>entry.world.spline)){
+    let spline=world.spline!;
+    if(!world.closed)return {ok:false,reason:"Select a closed planar spline parallel to its work plane."};
+    const local={...spline,controlPoints:spline.controlPoints.map(p=>[...worldToPlane(p,WORK_PLANES[plane]),0] as Vec3)};
+    try{verifySectionCurveBoundary(sectionCurvePieces([{kind:"spline",params:local,sourceKey:"profile",partId:object.id}]));}catch(e){return {ok:false,reason:`Spline profile cannot be certified: ${e instanceof Error?e.message:String(e)}`};}
+    if(splineArea(spline,1e-6,WORK_PLANES[plane].normal)!<0){const sum=spline.knots[0]+spline.knots.at(-1)!;spline={...spline,controlPoints:[...spline.controlPoints].reverse(),weights:spline.weights&&[...spline.weights].reverse(),knots:[...spline.knots].reverse().map(k=>sum-k),domain:[sum-spline.domain[1],sum-spline.domain[0]]};}
+    const topology=feature.params.topology as {curves?:{id:string}[]}|undefined,key=`${object.id}/${topology?.curves?.[0]?.id??"curve:0"}`;
+    loops.push({id:`loop:${key}`,workPlane:plane,normal:[...WORK_PLANES[plane].normal],sourceObjectIds:[object.id],sourceTopologyIds:[key],segments:[{...spline,kind:"spline",topologyReference:key}]});
+  }
+
   for (const { object, feature, world } of valid.filter(entry => entry.world.kind === "circle")) {
     const topology = feature.params.topology as { curves?: { id: string }[] } | undefined;
     if (!world.center || !world.radius) return { ok: false, reason: "Circle transform cannot be represented exactly." };
@@ -183,7 +195,7 @@ export function extractSketchLoops(document: CadDocument, objectIds: readonly st
 
   const edges: LoopEdge[] = [];
   for (const { object, feature, world } of valid) {
-    if (world.kind === "circle") continue;
+    if (world.kind === "circle"||world.spline) continue;
     if (world.kind === "arc") {
       const topology = feature.params.topology as { curves?: { id: string }[] } | undefined;
       if (!world.points?.length || !world.center || !world.radius || world.startAngle === undefined || world.endAngle === undefined) return { ok: false, reason: "Arc transform cannot be represented exactly." };

@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "checks": 14,
+  "message": "PASS: The Inspector shows native relations before external consent or a request\nPASS: External lookup requires explicit session consent\nPASS: No external request occurs on selection\nPASS: Native relations remain visible while explanation loads\nPASS: Forward selection displays an explanation only after external rows match native facts\nPASS: The explanation uses verified facts\nPASS: Reverse selection verifies the same canonical relationship\nPASS: wrong-revision falls back to the existing native relation report\nPASS: malformed falls back to the existing native relation report\nPASS: timeout falls back to the existing native relation report\nPASS: External reads and failure handling leave the document and Undo history unchanged\nPASS: A delayed response after Undo is discarded and the current native report wins\nPASS: Redo's new revision requires a newly registered external snapshot\nPASS: Same-ID native file reopen discards the previous session's delayed response\nALL 14 CHECKS PASSED",
+  "artifacts": [
+    "verified-inspector.png",
+    "external-trace.json"
+  ]
+}

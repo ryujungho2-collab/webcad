@@ -22,6 +22,8 @@ export function objectPresentation(feature?: { type: string; params: Record<stri
 
 export function ModelPanel({ query, selectedObjectId, selectedObjectIds, onSelectObject, onDocumentChange, activeSketchId, onEditSketch }: ModelPanelProps) {
   const [expanded, setExpanded] = useState(true);
+  const [rowLimit,setRowLimit]=useState(100);
+  useEffect(()=>setRowLimit(100),[query]);
   const [expandedSources, setExpandedSources] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
@@ -47,7 +49,18 @@ export function ModelPanel({ query, selectedObjectId, selectedObjectIds, onSelec
     if (query || expandedSources.has(id)) sourceIds(id).forEach(source => append(source, [...path, id]));
   };
   cadDocument.rootObjects.forEach(id => append(id, []));
+  // Many objects share default names ("Rectangle", "Circle"). Number duplicate
+  // root names in document order for display only; stored names are unchanged.
+  const ordinal=new Map<string,string>();
+  {const seen=new Map<string,number>(),totals=new Map<string,number>();
+   for(const id of cadDocument.rootObjects){const n=cadDocument.objects[id]?.name;if(n)totals.set(n,(totals.get(n)??0)+1);}
+   for(const id of cadDocument.rootObjects){const n=cadDocument.objects[id]?.name;if(!n||(totals.get(n)??0)<2)continue;const k=(seen.get(n)??0)+1;seen.set(n,k);ordinal.set(id,` #${k}`);}}
 
+  const shown=rows.slice(0,rowLimit);
+  // Keep small selections reachable without mounting thousands of selected import rows.
+  const reveal=new Set(selectedObjectIds.length<=100?selectedObjectIds:selectedObjectId?[selectedObjectId]:[]);
+  const shownKeys=new Set(shown.map(row=>row.key));
+  for(const row of rows)if(reveal.has(row.id)&&!shownKeys.has(row.key)){shown.push(row);shownKeys.add(row.key);}
   return (
     <div className="tree-view">
       <button type="button" className="tree-root" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>
@@ -66,7 +79,7 @@ export function ModelPanel({ query, selectedObjectId, selectedObjectIds, onSelec
         </button>
       ))}
 
-      {expanded && rows.map(({ id, key, depth }) => {
+      {expanded && shown.map(({ id, key, depth }) => {
         const object = cadDocument.objects[id];
         const sources = sourceIds(id);
         const sourcesOpen = Boolean(query) || expandedSources.has(id);
@@ -108,11 +121,12 @@ export function ModelPanel({ query, selectedObjectId, selectedObjectIds, onSelec
             }}
           ><ToolIcon name={object.visible ? "Show All" : "Hide"} fallback={object.visible ? "◉" : "○"} /></button>
           <span className="tree-object-icon" title={presentation.label} aria-hidden="true"><ToolIcon name={presentation.label} fallback={presentation.icon} /></span>
-          <span className="tree-label">{object.name}</span>
+          <span className="tree-label" data-ordinal={depth===0?ordinal.get(object.id):undefined} title={depth===0&&ordinal.get(object.id)?`${object.name}${ordinal.get(object.id)}`:undefined}>{object.name}</span>
           <span className="tree-layer">{layer?.locked ? "Locked" : layer?.name}</span>
         </div>
       ); })}
 
+      {expanded && rows.length>rowLimit&&<button type="button" aria-label="Show more model objects" onClick={()=>setRowLimit(limit=>limit+100)}>Show 100 more · {Math.min(rowLimit,rows.length)} of {rows.length} rows · Search all objects above</button>}
       {expanded && rows.length === 0 && sketches.length === 0 && <div className="empty-panel">{query ? "No matching objects or sketches." : "Your model is empty. Create a solid or start a sketch to begin."}</div>}
     </div>
   );

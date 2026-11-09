@@ -1,0 +1,163 @@
+{
+  "status": "passed",
+  "checks": 37,
+  "message": "PASS: Projected Sculpt surface is on the visible canvas\nPASS: Native canvas Grab drag changes real mesh vertices\nPASS: Grab stroke is exactly one Undo\nPASS: Grab Redo restores geometry\nPASS: Projected Sculpt surface is on the visible canvas\nPASS: Native canvas Draw drag changes real mesh vertices\nPASS: Draw stroke is exactly one Undo\nPASS: Draw Redo restores geometry\nPASS: Projected Sculpt surface is on the visible canvas\nPASS: Native canvas Smooth drag changes real mesh vertices\nPASS: Smooth stroke is exactly one Undo\nPASS: Smooth Redo restores geometry\nPASS: Projected Sculpt surface is on the visible canvas\nPASS: Escape cancels temporary GPU preview without changing source\nPASS: Document generation change cancels Stroke even when revision is unchanged\nPASS: Surface Remesh is a separate visible validated preview\nPASS: Surface Remesh creates actual triangle topology\nPASS: Surface Remesh records explicit reference losses\nPASS: Remesh preserves original object geometry\nPASS: Voxel Remesh executes occupied volume reconstruction\nPASS: Voxel conversion measures nonzero sampled deviation\nPASS: Geometry Nodes Bake preserves graph and enables independent Mesh editing\nPASS: Projected Sculpt surface is on the visible canvas\nPASS: Translated, rotated, scaled Bake accepts accurate perspective-camera Sculpt hit\nPASS: Source graph change marks Bake stale without altering sculpted snapshot\nPASS: Undo source edit restores Bake fingerprint status\nPASS: MCP plan validates through the native CommandBus\nPASS: MCP and native engine produce identical vertex positions\nPASS: Worker request for 1089 vertices yields UI frames or explicit rejection\nPASS: Worker request for 4225 vertices yields UI frames or explicit rejection\nPASS: Worker request for 9409 vertices yields UI frames or explicit rejection\nPASS: Real Sculpt Worker cancellation rejects the result\nPASS: Real Sculpt Worker blocks stale result publication\nPASS: Existing OpenCascade BRep still executes beside Sculpt results\nPASS: Bake/remesh metadata uses explicit v58 file format\nPASS: Actual browser reload and Worker file load preserve Sculpt/remesh state\nPASS: BRep survives v58 hybrid reload\nALL 37 CHECKS PASSED",
+  "metrics": [
+    {
+      "render": {
+        "rows": [
+          {
+            "changed": 21,
+            "positionsMs": 0.09999999997671694,
+            "normalsBoundsMs": 0.5,
+            "renderSubmitMs": 0.10000000009313226,
+            "gpuSyncWaitMs": 0.09999999997671694
+          },
+          {
+            "changed": 21,
+            "positionsMs": 0,
+            "normalsBoundsMs": 0.40000000002328306,
+            "renderSubmitMs": 0,
+            "gpuSyncWaitMs": 0.09999999997671694
+          },
+          {
+            "changed": 21,
+            "positionsMs": 0,
+            "normalsBoundsMs": 0.2999999999301508,
+            "renderSubmitMs": 0,
+            "gpuSyncWaitMs": 0.10000000009313226
+          }
+        ],
+        "note": "Synthetic 256px WebGL mesh update, not full product frame time; gl.finish wait is not GPU timer-query time"
+      },
+      "serializationMs": 0.19999999995343387,
+      "vertices": 1089,
+      "faces": 2048,
+      "roundTripMs": [
+        291.19999999995343,
+        199,
+        160.5
+      ],
+      "lastEngineMs": 150.5,
+      "transferStartupMs": 13.900000000023283,
+      "transferRoundTripMs": [
+        6.199999999953434,
+        5.599999999976717,
+        3.800000000046566
+      ],
+      "maxRafGapMs": 12.79999999993015,
+      "framesDuringEvaluation": 80,
+      "requestJsonUtf16Bytes": 287310,
+      "mainHeapDelta": 143474
+    },
+    {
+      "render": {
+        "rows": [
+          {
+            "changed": 89,
+            "positionsMs": 0.30000000004656613,
+            "normalsBoundsMs": 1.5,
+            "renderSubmitMs": 0.19999999995343387,
+            "gpuSyncWaitMs": 0
+          },
+          {
+            "changed": 89,
+            "positionsMs": 0.2000000000698492,
+            "normalsBoundsMs": 1.2999999999301508,
+            "renderSubmitMs": 0.2000000000698492,
+            "gpuSyncWaitMs": 0
+          },
+          {
+            "changed": 89,
+            "positionsMs": 0,
+            "normalsBoundsMs": 1.2999999999301508,
+            "renderSubmitMs": 0.09999999997671694,
+            "gpuSyncWaitMs": 0
+          }
+        ],
+        "note": "Synthetic 256px WebGL mesh update, not full product frame time; gl.finish wait is not GPU timer-query time"
+      },
+      "serializationMs": 0.9000000000232831,
+      "vertices": 4225,
+      "faces": 8192,
+      "roundTripMs": [
+        736.3000000000466,
+        639.9000000000233,
+        601.7999999999302
+      ],
+      "lastEngineMs": 567.1999999999534,
+      "transferStartupMs": 13.900000000023283,
+      "transferRoundTripMs": [
+        29.099999999976717,
+        20,
+        20.29999999993015
+      ],
+      "maxRafGapMs": 29.099999999976717,
+      "framesDuringEvaluation": 243,
+      "requestJsonUtf16Bytes": 1204982,
+      "mainHeapDelta": 41550204
+    },
+    {
+      "render": {
+        "rows": [
+          {
+            "changed": 185,
+            "positionsMs": 0.40000000002328306,
+            "normalsBoundsMs": 2.599999999976717,
+            "renderSubmitMs": 0.09999999997671694,
+            "gpuSyncWaitMs": 0
+          },
+          {
+            "changed": 185,
+            "positionsMs": 0.2000000000698492,
+            "normalsBoundsMs": 2,
+            "renderSubmitMs": 0.09999999997671694,
+            "gpuSyncWaitMs": 0
+          },
+          {
+            "changed": 185,
+            "positionsMs": 0.40000000002328306,
+            "normalsBoundsMs": 1.099999999976717,
+            "renderSubmitMs": 0.09999999997671694,
+            "gpuSyncWaitMs": 0.09999999997671694
+          }
+        ],
+        "note": "Synthetic 256px WebGL mesh update, not full product frame time; gl.finish wait is not GPU timer-query time"
+      },
+      "serializationMs": 1.8000000000465661,
+      "vertices": 9409,
+      "faces": 18432,
+      "roundTripMs": [],
+      "lastEngineMs": 0,
+      "transferStartupMs": 13.900000000023283,
+      "transferRoundTripMs": [
+        49.699999999953434,
+        45.09999999997672,
+        41.59999999997672
+      ],
+      "maxRafGapMs": 37.60000000009313,
+      "framesDuringEvaluation": 20,
+      "requestJsonUtf16Bytes": 3013254,
+      "mainHeapDelta": 13453779,
+      "error": "Error: Sculpt budget: at most 5,000 vertices / 10,000 faces. Larger CAD meshes remain supported for other operations."
+    },
+    {
+      "renderUpdateCpuMs": [
+        0.2999999999301508,
+        0.09999999997671694,
+        0,
+        0.19999999995343387,
+        0.09999999997671694,
+        0.10000000009313226,
+        0,
+        0.2000000000698492,
+        0.7000000000698492,
+        1.6999999999534339,
+        0.2999999999301508,
+        0.19999999995343387,
+        0.19999999995343387
+      ],
+      "note": "CPU buffer update, normals and bounds; excludes GPU draw time"
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { Line2 } from "three/examples/jsm/lines/Line2.js";
+import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
+import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import type { CadDocument, CadFeature } from "@agent-webcad/cad-document";
@@ -11,6 +13,7 @@ import { applyCenterPattern } from "./lineStyle";
 export function createDraftingRenderObject(id:string,document:CadDocument,knownFeature?:CadFeature):THREE.Group {
   const object=document.objects[id],feature=knownFeature??Object.values(document.features).find(f=>f.output===id)!,group=new THREE.Group();
   const data=localDraftingGeometry(document,feature.params,layerStyle(document.layers[object.layerId]));
+  const batches=new Map<string,{positions:number[];color:string;width:number;opacity:number}>();
   for(const line of data.lines){
     const vectorStyle=line.vectorStyle;
     if(line.closed&&vectorStyle?.fill){
@@ -29,12 +32,22 @@ export function createDraftingRenderObject(id:string,document:CadDocument,knownF
     }
     for(const ring of [line.points,...(line.holes??[])]){
     const points=line.closed?[...ring,ring[0]]:ring;
+    if(feature.params.kind==="block"&&line.style.lineType==="continuous"){
+      const color=vectorStyle?.stroke??line.style.color,width=Math.max(1,(vectorStyle?.strokeWidth??line.style.lineWeight)*96/25.4),opacity=vectorStyle?.opacity??1,key=JSON.stringify([color,width,opacity]);
+      let batch=batches.get(key);if(!batch){batch={positions:[],color,width,opacity};batches.set(key,batch);}
+      for(let i=1;i<points.length;i++)batch.positions.push(...points[i-1],...points[i]);
+      continue;
+    }
     const geometry=new LineGeometry().setPositions(points.flat());
     const material=new LineMaterial({color:vectorStyle?.stroke??line.style.color,linewidth:Math.max(1,(vectorStyle?.strokeWidth??line.style.lineWeight)*96/25.4),dashed:line.style.lineType!=="continuous",dashSize:line.style.lineType==="center"?6:3,gapSize:1.5});
     material.transparent=(vectorStyle?.opacity??1)<1;material.opacity=vectorStyle?.opacity??1;
     applyCenterPattern(material,line.style.lineType);
     const mesh=new Line2(geometry,material);mesh.computeLineDistances();mesh.onBeforeRender=renderer=>material.resolution.copy(renderer.getSize(new THREE.Vector2()));material.userData.baseColor=material.color.clone();group.add(mesh);
     }
+  }
+  for(const batch of batches.values()){
+    const geometry=new LineSegmentsGeometry().setPositions(batch.positions),material=new LineMaterial({color:batch.color,linewidth:batch.width,transparent:batch.opacity<1,opacity:batch.opacity});
+    const mesh=new LineSegments2(geometry,material);mesh.computeLineDistances();mesh.onBeforeRender=renderer=>material.resolution.copy(renderer.getSize(new THREE.Vector2()));material.userData.baseColor=material.color.clone();group.add(mesh);
   }
   for(const label of data.texts){
     const canvas=globalThis.document.createElement("canvas"),context=canvas.getContext("2d")!;

@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-19",
+  "scope": "First parametric 3D Copilot workflow: four-hole mounting plate and selected-solid length edits",
+  "status": "passed",
+  "environment": {"os":"Windows", "browser":"Microsoft Edge headless", "viewport":"1440x1000", "renderer":"SwiftShader", "server":"Vite development", "geometry":"OpenCascade BRep / real Worker"},
+  "checks": {
+    "fullNodeRegression": {"passed":1508,"failed":0,"durationMs":166154.901,"note":"Run includes the first five new solid tests. A sixth test for existing linked extrusion editing was added afterward and passed in the targeted run."},
+    "targetedSolidNode": {"passed":6,"failed":0},
+    "browserSolid": {"passed":18,"failed":0},
+    "browserRegression": {"copilotGateway":13,"copilotApply":26,"copilotEdit":25,"copilotContext":15},
+    "build": {"status":"passed","warnings":["Vite reports a main chunk larger than 500 kB"]},
+    "typecheck": "passed",
+    "architectureAndDocumentationLinks": "passed"
+  },
+  "numericOracles": {
+    "lengthToleranceMm":0.001,
+    "volumeToleranceMm3":0.003,
+    "initial": {"dimensionsMm":[80,50,4],"holeDiameterMm":6,"edgeMarginMm":10,"volumeFormula":"80*50*4 - 4*pi*3^2*4"},
+    "widthEdit": {"dimensionsMm":[100,50,4],"centersMm":[[10,10],[90,10],[10,40],[90,40]],"volumeFormula":"100*50*4 - 4*pi*3^2*4"},
+    "gatewayThicknessEdit": {"dimensionsMm":[100,50,6],"volumeFormula":"(100*50 - 4*pi*3^2)*6"},
+    "stepRoundtrip": "Node exports the edited 100x50x4 plate, reads the bytes with STEPControl_Reader, checks BRep validity, bbox and analytic volume. Same kernel roundtrip, not independent-kernel validation. Browser separately exports the final 100x50x6 plate."
+  },
+  "artifacts": ["../../output/verification/copilot-solid/native-report.json","../../output/verification/copilot-solid/viewport.png","../../output/verification/copilot-solid/plate.webcad.json","../../output/verification/copilot-solid/plate.step"],
+  "observedFailuresAndRepairs": [
+    "Browser exposed missing solid contract prop forwarding through ExplorerPanel; repaired and retested.",
+    "Browser test report overlay obscured input and active Model tree toggling hid its selection target; test placement/navigation repaired.",
+    "copilotEdit regression reached 23 checks then timed out during concurrent full Node/browser runs; isolated rerun passed all 25 checks without a production change."
+  ],
+  "limits": ["Local rule recipe supports four circular through holes with equal edge margins, not arbitrary natural-language CAD.","Gateway uses a fixture for contract testing; no live model provider/authentication was connected.","One advertised length dimension per selected-solid edit; expressions, angles, unrelated shared variables and mixed editing batches are outside this scope.","No new external package or copied third-party implementation was introduced."]
+}

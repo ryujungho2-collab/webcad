@@ -9,12 +9,14 @@ import {evaluateVariables,parameterTargets} from "@agent-webcad/cad-document";
 import { buildDependencyGraph, createDependencyExplainer } from "./dependencyGraph";
 import {extractSketchLoops} from "../precision/sketchProfiles";
 import {profileRegionMeasurement} from "../precision/profileRegions";
+import {measureEditableMesh} from "../precision/meshGeometry";
 
 export async function measureDocumentObject(document:CadDocument,objectId:string,features?:ReadonlyMap<string,import("@agent-webcad/cad-document").CadFeature>):Promise<GeometryMeasurement> {
   const object=document.objects[objectId], feature=features?features.get(objectId):Object.values(document.features).find(f=>f.output===objectId);
   if(!object||!feature)throw new Error(`Object does not exist: ${objectId}`);
   if((feature.params.modelProjection||feature.params.modelSection)&&feature.params.projectionStatus!=="resolved")throw new Error("Model projection source is unresolved. Rebind the derived view before measuring it.");
   const contract=featureContract(feature);
+  if(contract.representation==="polygon-mesh")return measureEditableMesh(object,feature,document);
   if(contract.representation==="planar-region"){
     const result=extractSketchLoops(document,[objectId],{forRegeneration:true});if(!result.ok)throw Error(result.reason);
     const measurements=result.loops.map(loop=>profileRegionMeasurement(loop,loop.workPlane));
@@ -38,7 +40,7 @@ export async function queryCadDocument(objectIds?:string[],options:{signal?:Abor
   const requested=[...new Set(objectIds??cadDocument.rootObjects)];
   if(options.maxObjects!==undefined&&requested.length>options.maxObjects)throw new Error(`Select at most ${options.maxObjects} objects to read.`);
   // Measurements and relationships never need original raster pixels.
-  const version=documentVersion(),snapshot=structuredClone({...cadDocument,rasterAssets:undefined});
+  const version=documentVersion(),snapshot=structuredClone({...cadDocument,rasterAssets:undefined,externalSceneAssets:undefined});
   const features=new Map(Object.values(snapshot.features).map(feature=>[feature.output,feature]));
   const dependencyGraph = buildDependencyGraph(snapshot);
   const explainDependencies = createDependencyExplainer(dependencyGraph);

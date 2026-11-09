@@ -1,0 +1,34 @@
+import {createRoot} from "react-dom/client";import {App} from "../src/App";
+import {cadDocument} from "../src/state/cadDocument";import {cadHistory,undoDocument,redoDocument} from "../src/state/history";import {saveDocumentToCache} from "../src/state/documentFile";
+import {resetTestDocument} from "./helpers/documentHarness";import {dispatchCadCommand} from "../src/state/dispatchCadCommand";
+import {serializeDocument,deserializeDocument} from "@agent-webcad/cad-document";
+import {physical,click,text,input,waitFor,pause} from "./helpers/physicalInput";import {installBrowserChecks} from "./helpers/browserChecks";
+import "../src/styles.css";import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+resetTestDocument();await dispatchCadCommand({type:"create-drawing",id:"boundary",drawing:"rectangle",params:{workPlane:"XY",points:[[0,0,0],[40,0,0],[40,30,0],[0,30,0]],closed:true}});saveDocumentToCache();createRoot(document.getElementById('root')!).render(<App/>);
+const button=document.getElementById('run') as HTMLButtonElement,output=document.getElementById('output')!;
+const ready=()=>waitFor(()=>!document.querySelector<HTMLButtonElement>('[aria-label="Apply library item"]')?.disabled);
+const item=(id:string)=>document.querySelector(`[data-library-item="${id}"]`)!;
+button.onclick=async()=>{const lines:string[]=[],check=(ok:unknown,label:string)=>{if(!ok)throw Error(label);lines.push('PASS '+label);output.textContent=lines.join('\n');};try{
+ await waitFor(()=>!!document.querySelector('canvas'));await click('2D');await click('Component and style library');await ready();
+ check(document.querySelectorAll('[data-library-item]').length===7,'Default library exposes doors, windows, furniture, frames, line and hatch presets');
+ const before=JSON.stringify(cadDocument),depth=cadHistory.past.length;
+ check(!!document.querySelector('.library-preview polyline'),'Detached proposal renders the actual component geometry preview');
+ await text('Library position','2cm,30mm');await text('Library scale','0.1');await text('Library angle','90');await ready();
+ check(JSON.stringify(cadDocument)===before&&cadHistory.past.length===depth,'Editing placement and reviewing never changes the document');await click('Apply library item');await waitFor(()=>Object.keys(cadDocument.blocks??{}).length===1);
+ const instance=Object.values(cadDocument.features).find(f=>f.params.kind==='block')!;const object=cadDocument.objects[instance.output];check(object.transform!.translation[0]===20&&object.transform!.translation[1]===30&&object.transform!.scale[0]===.1&&object.transform!.rotation[2]===90,'Unit-aware origin, scale and degrees reach the inserted instance');
+ check(cadHistory.past.length===depth+1,'Definition import plus insertion is exactly one Undo');check(cadDocument.rootObjects.length===2,'Temporary source members do not remain as scene objects');
+ check(undoDocument()&&JSON.stringify({...cadDocument,revision:0})===JSON.stringify({...JSON.parse(before),revision:0}),'Undo removes the definition and instance together');check(redoDocument()&&!!cadDocument.blocks,'Redo restores the portable component');
+ const portable=deserializeDocument(serializeDocument(cadDocument));check(Object.values(portable.blocks!)[0].name.includes('Agent WebCAD original'),'Save/reopen retains source provenance and member geometry');
+ await text('Filter library','창');check(document.querySelectorAll('[data-library-item]').length===1&&!!item('window-1200'),'Korean library search finds the window');await click('Clear filter');
+ await text('Library scale','0');check(document.querySelector<HTMLButtonElement>('[aria-label="Apply library item"]')!.disabled,'Invalid scale blocks Apply');await text('Library scale','1');await ready();
+ await click('Cancel');check(!document.querySelector('[aria-label="Library placement"]'),'Cancel discards the reviewed insertion');
+ await click('Model tree');await physical(document.querySelector('[data-model-object-id="boundary"] .tree-label')!);await click('Component and style library');await physical(item('cut-line'));await ready();const d=cadHistory.past.length;await click('Apply library item');await waitFor(()=>!!Object.values(cadDocument.features).find(f=>f.output==='boundary')!.params.vectorStyle);check(cadHistory.past.length===d+1,'Line preset applies to the selected drawing in one Undo');
+ await physical(item('hatch-45'));await ready();await click('Apply library item');await waitFor(()=>Object.values(cadDocument.features).some(f=>f.params.kind==='hatch'));check(true,'Hatch preset creates associative hatch on the selected closed boundary');
+ await text('Filter library','not-found');check(document.querySelector('.library-items [role="status"]')?.textContent?.includes('No matching'),'No-match search gives explicit feedback');await click('Clear filter');
+ const raw=serializeDocument(cadDocument);await input({type:'fileInput',selector:'input[aria-label="Open component library file"]',name:'library-test.webcad.json',base64:btoa(unescape(encodeURIComponent(raw)))});await waitFor(()=>!!document.querySelector('[data-library-item^="file:"]'));await ready();const defs=Object.keys(cadDocument.blocks!).length;await click('Apply library item');await waitFor(()=>Object.keys(cadDocument.blocks!).length===defs+1);check(Object.values(cadDocument.blocks!).some(b=>b.name.includes('library-test.webcad.json')),'Real file selection imports a portable component with fresh IDs and source receipt');
+ await text('Library scale','0.001');await ready();
+ const artifacts:Record<string,string>={};async function shot(name:string){const aside=button.closest('aside')!;aside.style.visibility='hidden';try{artifacts[name]=(await(await input({type:'screenshot'})).json()).data;}finally{aside.style.visibility='';}}
+ await shot('library-1440.png');
+ await input({type:'viewport',width:960,height:1000});await pause();check(document.documentElement.scrollWidth<=960,'960px library layout stays within the workspace');await shot('library-960.png');(globalThis as any).cadTestArtifacts=artifacts;
+ output.textContent=lines.join('\n')+`\nALL ${lines.length} CHECKS PASSED`;
+}catch(e){output.textContent=lines.join('\n')+'\nFAIL: '+(e instanceof Error?e.stack:String(e));}};installBrowserChecks(button,output);

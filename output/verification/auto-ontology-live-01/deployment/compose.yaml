@@ -1,0 +1,64 @@
+name: webcad-ao-live01
+x-backend: &backend
+  image: nvcr.io/nvidia/auto-ontology:1.2.0
+  env_file: .env
+x-fixture: &fixture
+  type: bind
+  source: ./source.sqlite3
+  target: /fixtures/source.sqlite3
+  read_only: true
+  bind:
+    create_host_path: false
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    volumes: [catalog:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE}"]
+      interval: 2s
+      timeout: 4s
+      retries: 30
+  migrate:
+    <<: *backend
+    command: [migrate]
+    depends_on:
+      postgres: {condition: service_healthy}
+  ingestion-service:
+    <<: *backend
+    command: [ingestion_service]
+    volumes: [*fixture]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3002/health/live', timeout=3)"]
+      interval: 5s
+      timeout: 4s
+      retries: 15
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+  auto-ontology:
+    <<: *backend
+    volumes: [*fixture]
+    ports: ["127.0.0.1:38101:3001"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      ingestion-service: {condition: service_healthy}
+  frontend-migrate:
+    image: nvcr.io/nvidia/auto-ontology-frontend:1.2.0
+    env_file: .env
+    working_dir: /app/migrate
+    command: [sh, prisma/migrate.sh]
+    depends_on:
+      postgres: {condition: service_healthy}
+  frontend:
+    image: nvcr.io/nvidia/auto-ontology-frontend:1.2.0
+    env_file: .env
+    ports: ["127.0.0.1:38100:3000"]
+    depends_on:
+      auto-ontology: {condition: service_healthy}
+      frontend-migrate: {condition: service_completed_successfully}
+volumes:
+  catalog:
+

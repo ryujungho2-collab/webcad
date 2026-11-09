@@ -1,0 +1,175 @@
+{
+  "unmodified": {
+    "forward": {
+      "elapsedMs": 98336,
+      "sql": "SELECT r.graph_relation, r.direction, r.mode, r.status, d.document_id, d.revision, r.source_id AS source_endpoint, r.target_id AS target_endpoint, o1.missing AS source_missing, o2.missing AS target_missing, sk.missing AS sketch_missing FROM main.cad_relation AS r JOIN main.cad_object AS o1 ON r.source_id = o1.object_id JOIN main.cad_object AS o2 ON r.target_id = o2.object_id JOIN main.cad_document AS d ON o1.object_id = d.selected_object_id LEFT JOIN main.cad_sketch_owner AS sk ON r.source_id = sk.object_id WHERE r.source_id = 'profile';",
+      "rawRows": [
+        "[]"
+      ],
+      "normalized": {
+        "document": {},
+        "selectedObjectId": "profile",
+        "relations": []
+      },
+      "comparison": {
+        "exact": 0,
+        "omitted": 1,
+        "unsupportedAdded": 0,
+        "reversed": 0,
+        "modeMismatch": 0,
+        "ownershipMismatch": 0,
+        "missingStatusMismatch": 0,
+        "viewMismatch": 0,
+        "revisionMismatch": 1
+      },
+      "stagesReached": [
+        "question_intent",
+        "question_extraction",
+        "retrieve_candidates",
+        "prepare_candidates",
+        "construct_sql_from_candidates",
+        "validate_sql_query",
+        "execute_sql_query",
+        "reconstruct_sql",
+        "check_empty_like_result",
+        "check_value_repair",
+        "format_and_respond"
+      ],
+      "executionAttempts": 8,
+      "executionThoughts": [
+        "Query failed, rewriting it: near \".\": syntax error"
+      ],
+      "streamErrors": [],
+      "missingFieldsByRow": [],
+      "rowCount": 0
+    },
+    "reverse": {
+      "elapsedMs": 194049,
+      "sql": null,
+      "rawRows": null,
+      "normalized": null,
+      "comparison": null,
+      "stagesReached": [
+        "question_intent",
+        "question_extraction",
+        "retrieve_candidates",
+        "prepare_candidates",
+        "construct_sql_from_candidates",
+        "validate_sql_query",
+        "execute_sql_query",
+        "reconstruct_sql",
+        "unconstructable_sql_response"
+      ],
+      "executionAttempts": 16,
+      "executionThoughts": [
+        "Query failed, rewriting it: near \".\": syntax error",
+        "Query failed, rewriting it: no such column: r.document_id"
+      ],
+      "streamErrors": []
+    }
+  },
+  "patched": {
+    "forward": {
+      "elapsedMs": 47251,
+      "sql": "SELECT d.document_id, d.revision, r.source_id AS source_endpoint, r.target_id AS target_endpoint, r.direction, r.mode, r.status, o1.missing AS source_missing, o2.missing AS target_missing, s.missing AS sketch_missing FROM main.cad_relation AS r JOIN main.cad_object AS o1 ON r.source_id = o1.object_id JOIN main.cad_object AS o2 ON r.target_id = o2.object_id JOIN main.cad_document AS d ON o1.object_id = d.selected_object_id LEFT JOIN main.cad_sketch_owner AS s ON r.source_id = s.object_id WHERE r.source_id = 'profile' AND r.graph_relation = 'live-input'",
+      "rawRows": [
+        "[]"
+      ],
+      "normalized": {
+        "document": {},
+        "selectedObjectId": "profile",
+        "relations": []
+      },
+      "comparison": {
+        "exact": 0,
+        "omitted": 1,
+        "unsupportedAdded": 0,
+        "reversed": 0,
+        "modeMismatch": 0,
+        "ownershipMismatch": 0,
+        "missingStatusMismatch": 0,
+        "viewMismatch": 0,
+        "revisionMismatch": 1
+      },
+      "stagesReached": [
+        "question_intent",
+        "question_extraction",
+        "retrieve_candidates",
+        "prepare_candidates",
+        "construct_sql_from_candidates",
+        "validate_sql_query",
+        "execute_sql_query",
+        "reconstruct_sql",
+        "check_empty_like_result",
+        "check_value_repair",
+        "format_and_respond"
+      ],
+      "executionAttempts": 3,
+      "executionThoughts": [
+        "Query failed, rewriting it: no such column: r.document_id"
+      ],
+      "streamErrors": [],
+      "missingFieldsByRow": [],
+      "rowCount": 0
+    },
+    "reverse": {
+      "elapsedMs": 44487,
+      "sql": "SELECT d.document_id, d.revision, r.source_id, r.target_id, r.direction, r.mode, r.status, o1.missing AS source_missing, o2.missing AS target_missing, s.missing AS sketch_missing FROM main.cad_relation AS r JOIN main.cad_object AS o1 ON r.source_id = o1.object_id JOIN main.cad_object AS o2 ON r.target_id = o2.object_id LEFT JOIN main.cad_document AS d ON o1.object_id = d.selected_object_id LEFT JOIN main.cad_sketch_owner AS s ON r.source_id = s.object_id WHERE r.target_id = 'solid'",
+      "rawRows": [
+        "[{\"document_id\":null,\"revision\":null,\"source_id\":\"profile\",\"target_id\":\"solid\",\"direction\":\"profile-to-extrude\",\"mode\":\"live\",\"status\":\"resolved\",\"source_missing\":0,\"target_missing\":0,\"sketch_missing\":null}]"
+      ],
+      "normalized": {
+        "document": {},
+        "selectedObjectId": "solid",
+        "relations": [
+          {
+            "direction": "profile-to-extrude",
+            "mode": "live",
+            "status": "resolved",
+            "sourceId": "profile",
+            "targetId": "solid",
+            "sourceMissing": false,
+            "targetMissing": false,
+            "viewedFrom": "incoming"
+          }
+        ]
+      },
+      "comparison": {
+        "exact": 0,
+        "omitted": 0,
+        "unsupportedAdded": 0,
+        "reversed": 0,
+        "modeMismatch": 0,
+        "ownershipMismatch": 1,
+        "missingStatusMismatch": 0,
+        "viewMismatch": 0,
+        "revisionMismatch": 1
+      },
+      "stagesReached": [
+        "question_intent",
+        "question_extraction",
+        "retrieve_candidates",
+        "prepare_candidates",
+        "construct_sql_from_candidates",
+        "validate_sql_query",
+        "execute_sql_query",
+        "reconstruct_sql",
+        "check_empty_like_result",
+        "check_value_repair",
+        "format_and_respond"
+      ],
+      "executionAttempts": 3,
+      "executionThoughts": [
+        "Query failed, rewriting it: no such column: r.document_id"
+      ],
+      "streamErrors": [],
+      "missingFieldsByRow": [
+        [
+          "sourceSketchOwners",
+          "targetSketchOwners"
+        ]
+      ],
+      "rowCount": 1
+    }
+  }
+}

@@ -1,7 +1,10 @@
 export interface CadFeature {
   id: string;
   type:
+    | "external-scene"
     | "primitive"
+    | "mesh"
+    | "geometry-nodes"
     | "drawing"
     | "drafting"
     | "dimension"

@@ -1,0 +1,41 @@
+{
+  "date_kst": "2026-10-30",
+  "scope": "Joint lifecycle and Inspector",
+  "focused_tests": 34,
+  "focused_failures": 0,
+  "browser_checks": 26,
+  "typecheck": "passed",
+  "full_suite": false,
+  "full_browser_audit": false,
+  "architecture": "not-rerun; previous document-link failures remain",
+  "files": [
+    "packages/cad-document/src/Assembly.ts",
+    "packages/cad-document/src/index.ts",
+    "packages/cad-commands/src/commands.ts",
+    "packages/cad-commands/src/validator.ts",
+    "apps/web/src/state/assemblyCommands.ts",
+    "apps/web/src/state/assemblyPreview.ts",
+    "apps/web/src/copilot/assemblyTools.ts",
+    "apps/web/src/copilot/cadToolContract.ts",
+    "apps/web/src/properties/AssemblyPanel.tsx",
+    "apps/web/src/viewport/CadViewport.tsx",
+    "apps/web/src/viewport/assemblyJointGizmo.ts",
+    "apps/web/tests/assemblyLifecycle.test.ts",
+    "apps/web/tests/assembly.browser.tsx",
+    "apps/web/tests/assemblyLifecycle.browser.html",
+    "apps/web/scripts/browserChecks.mjs"
+  ],
+  "policies": {
+    "delete": "free ungrounded root; world poses and descendant binds retained",
+    "preserveWorld": "Bnew=inverse(Anew)*inverse(Pnew)*Ccurrent",
+    "keepLocal": "B unchanged; subtree re-evaluated",
+    "limits": "no clamping; null clears"
+  },
+  "screenshots": [
+    "assembly-90.png",
+    "assembly-180.png",
+    "assembly-0.png",
+    "assembly-joint-gizmo.png"
+  ],
+  "b2_gate": "bounded lifecycle verified; no general solver or physics"
+}

@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-18",
+  "feature": "MEAS direct dimension placement and editing",
+  "status": "passed",
+  "schema": "Existing version 46 offsets; no schema change",
+  "node": {
+    "full": {
+      "passed": 1468,
+      "suites": 54,
+      "log": "output/verification/measurement-placement/node-full.log"
+    },
+    "focused": {
+      "passed": 76,
+      "placement": 6,
+      "savedMeasurements": 10,
+      "selectedDistance": 14,
+      "brepDistance": 13,
+      "hoverDistance": 18,
+      "kernelWorkerClient": 15,
+      "log": "output/verification/measurement-placement/node-focused.log"
+    }
+  },
+  "browser": {
+    "placement": 17,
+    "savedMeasurements": 14,
+    "selectedDistance": 25,
+    "nativeReport": "output/verification/measurement-placement/native-report.json"
+  },
+  "build": {
+    "status": "passed",
+    "command": "pnpm build",
+    "log": "output/verification/measurement-placement/build-final.log"
+  },
+  "architecture": {
+    "status": "passed",
+    "modules": 691
+  },
+  "artifacts": [
+    "output/verification/measurement-placement/placement-preview.png",
+    "output/verification/measurement-placement/placement-960.png",
+    "output/verification/measurement-placement/placement.webcad.json",
+    "output/verification/measurement-placement/placement.svg"
+  ],
+  "visualReview": "Final preview and 960px selected dimension inspected; default SVG focus outline removed in favor of label focus indication",
+  "contracts": [
+    "Preview does not modify document/history/export",
+    "Pointer release creates one placement command",
+    "Placement performs no native remeasurement or source edit",
+    "Version checked inside serialized command queue",
+    "Orthographic/perspective and all saved planes use model mm",
+    "Escape/wheel/resize/model edit cancel preview",
+    "Drawing tools disable hit regions",
+    "Delete targets only selected saved dimension",
+    "Placement survives project opening and existing SVG/PDF scene"
+  ],
+  "limitations": [
+    "Line and text move together",
+    "No separate text-only placement",
+    "No snapping or automatic collision avoidance",
+    "Edge-on planes require reorienting the view",
+    "View navigation cancels the preview"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "task": "CAN-A3",
+  "date": "2026-10-18",
+  "scope": "Uniform presentation scaling of owned canvases, drawing frames, work areas and image placements",
+  "checks": {
+    "fullNode": {"passed": 1406, "suites": 54, "note": "Before final preview/snapshot protections and final snapshot regression; covered by focused checks."},
+    "finalFocusedNode": {"passed": 49, "canvasScale": 14, "frameSheets": 16, "frameStitches": 19},
+    "relatedFocusedNode": {"passed": 63, "note": "Overlaps full and final focused checks; do not sum."},
+    "nativeBrowser": {"canvasScale": 20, "canvasFlex": 24},
+    "build": "passed",
+    "architecture": {"modules": 672, "passed": true}
+  },
+  "artifacts": [
+    "output/verification/canvas-scale/native-report.json",
+    "output/verification/canvas-scale/node-regression.log",
+    "output/verification/canvas-scale/scale.webcad.json",
+    "output/verification/canvas-scale/scale.svg",
+    "output/verification/canvas-scale/scale.pdf",
+    "output/verification/canvas-scale/scale-page.jpg",
+    "output/verification/canvas-scale/scale-1440.png",
+    "output/verification/canvas-scale/scale-960.png"
+  ],
+  "invariants": [
+    "Source CAD geometry, annotations, constraints and frame crop coordinates remain unchanged.",
+    "Paper style option either scales or preserves physical text, strokes and dashes cumulatively.",
+    "Image assets, hashes, crop, mask, opacity and adjustments remain unchanged.",
+    "Review is detached; Apply is one Undo; stale and rejected plans cannot partially publish.",
+    "SVG and existing raster PDF use the same scaled frame scene."
+  ],
+  "limits": [
+    "Uniform positive scale 0.001 to 1000; resulting bounds, styles and denominator retain their limits.",
+    "Direct physical CAD resizing and non-uniform curve/constraint conversion are rejected.",
+    "Shared references and excluded images are pinned and reported.",
+    "Connected, stitched or sheet-owned frames require their owning tools.",
+    "Images use matching model units; drawing frames use matching paper units.",
+    "No automatic reflow, unit conversion or new shadow/blur effect model."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-18",
+  "feature": "MEAS follow-up selected face/edge distance",
+  "status": "passed",
+  "node": {
+    "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/selectedDistance.test.ts tests/brepDistance.test.ts tests/hoverDistance.test.ts tests/kernelWorkerClient.test.ts",
+    "passed": 52
+  },
+  "browser": {
+    "selectedDistance": 11,
+    "brepDistance": 16,
+    "nativeReport": "output/verification/selected-distance/native-report.json",
+    "screenshots": [
+      "output/verification/selected-distance/selected-faces.png",
+      "output/verification/selected-distance/selected-edges-960.png"
+    ],
+    "visualInspection": "960px edge measurement inspected"
+  },
+  "build": "pnpm build passed",
+  "architecture": {
+    "status": "passed",
+    "modules": 683
+  },
+  "scope": [
+    "face-face 3D shortest",
+    "edge-edge 3D shortest",
+    "same-body distinct elements",
+    "world transforms",
+    "actual native witnesses",
+    "edit/Undo reference validation",
+    "caller cancellation"
+  ],
+  "limitations": [
+    "No mixed face-edge metric",
+    "No projected/axis metric",
+    "Existing geometric keys require reselection after nonresolving geometry edits",
+    "Kernel tolerance is not a certified error interval"
+  ]
+}

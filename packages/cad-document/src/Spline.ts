@@ -1,7 +1,7 @@
 /** Exact nonperiodic B-spline/NURBS with expanded knots and a finite domain. */
-export type CadSpline={degree:number;controlPoints:[number,number,number][];knots:number[];weights?:number[];domain:[number,number]};
+export type CadSpline={fitSpace?:"spatial";fitContinuity?:"C2";degree:number;controlPoints:[number,number,number][];knots:number[];weights?:number[];domain:[number,number]};
 export function validSpline(v:unknown):v is CadSpline & Record<string,unknown>{
- if(!v||typeof v!=="object")return false;const s=v as CadSpline,n=s.controlPoints?.length,p=s.degree;
+ if(!v||typeof v!=="object")return false;if((v as CadSpline).fitSpace!==undefined&&(v as CadSpline).fitSpace!=="spatial")return false;if((v as CadSpline).fitContinuity!==undefined&&(v as CadSpline).fitContinuity!=="C2")return false;const s=v as CadSpline,n=s.controlPoints?.length,p=s.degree;
  if(!Number.isInteger(p)||p<1||p>8||!Array.isArray(s.controlPoints)||n<p+1||n>256||!s.controlPoints.every(q=>Array.isArray(q)&&q.length===3&&q.every(x=>Number.isFinite(x)&&Math.abs(x)<=1e9)))return false;
  if(!s.controlPoints.some(q=>Math.hypot(...q.map((x,i)=>x-s.controlPoints[0][i]))>1e-6))return false;
  if(!Array.isArray(s.knots)||s.knots.length!==n+p+1||!s.knots.every((x,i)=>Number.isFinite(x)&&Math.abs(x)<=1e9&&(i===0||x>=s.knots[i-1])))return false;

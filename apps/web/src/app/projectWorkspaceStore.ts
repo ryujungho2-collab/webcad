@@ -1,7 +1,7 @@
 import { readRecoveryCheckpoint } from "../state/documentRecovery";
 import { projectStorage } from "./projectSession";
 
-export type Project = { id: string; title: string; closed: boolean; lastOpenedAt?: number };
+export type Project = { id: string; title: string; closed: boolean; pinned?: boolean; lastOpenedAt?: number };
 export type Workspace = { version: 1; active: string; projects: Project[] };
 type StorageReader = Pick<Storage, "getItem">;
 type StorageWriter = Pick<Storage, "getItem" | "setItem">;
@@ -14,10 +14,10 @@ export function parseWorkspace(raw: string): Workspace {
   const value = JSON.parse(raw) as Workspace;
   if (!value || value.version !== 1 || typeof value.active !== "string" || !Array.isArray(value.projects) || value.projects.length > 200
     || !value.projects.every(p => p && typeof p.id === "string" && /^(legacy|[a-z0-9-]{1,80})$/.test(p.id)
-      && typeof p.title === "string" && !!p.title.trim() && p.title.length <= 120 && typeof p.closed === "boolean")
+      && typeof p.title === "string" && !!p.title.trim() && p.title.length <= 120 && typeof p.closed === "boolean" && (p.pinned===undefined||typeof p.pinned==="boolean"))
     || new Set(value.projects.map(p => p.id)).size !== value.projects.length) throw Error("Invalid project list.");
   // Session save indicators are ephemeral, never trusted after reload.
-  const projects = value.projects.map(({ id, title, closed, lastOpenedAt }) => ({ id, title, closed,
+  const projects = value.projects.map(({ id, title, closed, pinned, lastOpenedAt }) => ({ id, title, closed,...(pinned?{pinned:true}:{}),
     ...(typeof lastOpenedAt === "number" && Number.isSafeInteger(lastOpenedAt) && lastOpenedAt >= 0 && lastOpenedAt <= 8.64e15 ? { lastOpenedAt } : {}) }));
   return { version: 1, projects, active: projects.find(p => p.id === value.active && !p.closed)?.id ?? projects.find(p => !p.closed)?.id ?? "" };
 }

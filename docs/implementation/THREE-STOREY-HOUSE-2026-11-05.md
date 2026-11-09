@@ -1,0 +1,30 @@
+# 3층 단독주택: 2D 원본 → 3D 조립 → 납품 준비도 검증
+
+2026-11-05. 사용자 요청에 따라 3개 지상층의 단독주택을 작성했다. 현업 납품 기준을 목표로 검사하되, **현재 판정은 R0 검토용 패키지 / 실시설계 발행 보류**다. 자동 기하 테스트 성공을 건축적 완성이나 인허가 적합 판정으로 대체하지 않는다.
+
+## 설계와 원본
+
+가상 대지 18×24m를 가정하고 10.8×9.6m 외곽과 FFL 0/3000/6000mm, 지붕 9000mm를 사용했다. 대지 배치·인접 조건은 아직 모델링하지 않았다. 1층 생활·작업, 2층 침실, 3층 스튜디오·테라스로 구분한다. 계단 코어와 습식 공간을 수직 정렬하고 20단×150mm, 디딤판 280mm, 유효 폭을 의도한 1000mm 계단을 작성했다. 이 치수는 설계 가정이며 법규 적합 선언이 아니다.
+
+산업디자인은 600mm 피치의 외장 스크린·수납 모듈, 목재 작업대와 금속 다리, 창호 프레임을 명시 부품으로 모델링했다. 체결부·제조 공차·재료 성능은 확정하지 않았다.
+
+2D 윤곽/벽축 193개를 먼저 저장한 뒤 live 벽체·개구부·슬래브·돌출 부품 191개로 변환한다. 층별 레이어와 세계 좌표로 조립하며 개별 부품과 원본 편집 관계를 유지한다. 3D를 단일 비편집 메시로 합치지 않는다. 실행기는 실제 CAD 명령과 공통 wall.update 도구를 사용하며, 이번 주택 전체를 LLM이 자율 생성했다거나 실제 UI/MCP로 모든 부품을 그렸다는 주장은 하지 않는다.
+
+## 검증 결과
+
+- 406개 기하·문서 검사 통과: BRep 유효성, 벽 개구부 차감 및 직육면체/바닥 면적의 독립 체적 대조, 원본을 변경하지 않는 preview, 공통 도구 벽 이동, Undo/Redo, 저장/재열기.
+- 실제 BRep 절단 평면 A101/A102/A103, 단면 A201/A202를 SVG와 DXF로 출력. 5개 뷰 모두 resolved이며 DXF 지원 엔티티 누락 0.
+- 검토용 SVG에는 2D 원본의 계단·가구 윤곽을 투영해 겹치고 실명·레벨 안내를 넣었다. DXF는 native 절단선이며 이 검토용 주석/오버레이를 포함하지 않는다. 출력 시 텍스트 옵션과 흰색 CAD 선색을 종이용으로 보완했다.
+- STEP 새 reader에서 191개 솔리드를 재읽고 각각 유효성과 native 체적 보존 확인.
+- TypeScript 검사 통과. 모델 생성 과정에서 검증 스크립트의 벽 식별자 덮어쓰기 오류를 수정했다. CAD 제품 코드 변경은 없었다.
+- 시각 검토에서 바닥 슬래브가 level 아래로 생성되는 계약을 잘못 적용한 220mm 조립 틈을 발견했다. FFL과 지붕 하단 기준을 수정하고 네 슬래브의 실제 bounds 상·하단을 검사해 모델과 도면을 재생성했다. 체적만 맞는 결과로 조립을 통과시키지 않는다.
+
+## 납품 차단 항목
+
+벽 교차부 중복이 있어 CSV는 부품별 총체적이고 순공사 물량이 아니다. 계단 난간, 테라스 채움재, 지붕 파라펫, 계단 머리높이·동선 간섭을 해결해야 한다. 구조·기초·하중 경로, 방수·배수·단열 구성, 설비 배관/배선, 문짝·회전 반경·위생기구, 전체 치수·상세·입면·창호 시공 상세가 미완성이다. 실제 대지/관할/의뢰 조건을 받아 구조·법규 등 전문 검토를 거쳐야 시공/인허가 납품으로 판정할 수 있다.
+
+## 결과물과 재현
+
+인터랙티브 검토 화면 (local-only, not in repository: `output/projects/three-storey-house/review.html`) · 최초 2D 원본 (local-only, not in repository: `output/projects/three-storey-house/01-source-2d.webcad.json`) · 최종 CAD (local-only, not in repository: `output/projects/three-storey-house/house.webcad.json`) · STEP (local-only, not in repository: `output/projects/three-storey-house/house.step`) · 검증 보고서 (local-only, not in repository: `output/projects/three-storey-house/verification.json`) · STEP 재읽기 (local-only, not in repository: `output/projects/three-storey-house/step-inspection.json`).
+
+`pnpm --filter @agent-webcad/web exec tsx scripts/verifyThreeStoreyHouse.ts`, 이어서 `inspectThreeStoreyStep.ts`, `buildThreeStoreyReview.ts`를 같은 방식으로 실행한다. 검토 화면에서 전체·각층·층 분리를 볼 수 있다. 뷰어는 GLB 검토용이며 직접 모델 편집은 CAD 원본에서 수행한다.

@@ -1,5 +1,5 @@
 import { CadEngine } from "../runtime/CadEngine";
-import { shapeToMesh } from "../mesh/shapeToMesh";
+import { shapeToMesh, meshDeflection } from "../mesh/shapeToMesh";
 
 /** Inward thick-solid offset. Removed faces are resolved by exact persisted keys. */
 export async function shellSolid(shape:any,thickness:number,faceKeys:string[]):Promise<any>{
@@ -7,12 +7,12 @@ export async function shellSolid(shape:any,thickness:number,faceKeys:string[]):P
   const {oc:instance}=await CadEngine.create(),oc=instance as unknown as Record<string,any>;
   const explorer=new oc.TopExp_Explorer_2(shape,oc.TopAbs_ShapeEnum.TopAbs_FACE,oc.TopAbs_ShapeEnum.TopAbs_SHAPE);
   const closing=new oc.TopTools_ListOfShape_1(),maker=new oc.BRepOffsetAPI_MakeThickSolid(),progress=new oc.Message_ProgressRange_1();
-  const matches=new Map(faceKeys.map(key=>[key,0]));let count=0;
+  const matches=new Map(faceKeys.map(key=>[key,0])),deflection=meshDeflection(oc,shape);let count=0;
   try{
     while(explorer.More()){
       const face=oc.TopoDS.Face_1(explorer.Current());
       try{
-        count++;const mesh=await shapeToMesh(face),key=mesh.faces[0]?.key;
+        count++;const mesh=await shapeToMesh(face,deflection),key=mesh.faces[0]?.key;
         if(matches.has(key)){matches.set(key,matches.get(key)!+1);closing.Append_1(face);}
       }finally{face.delete();}
       explorer.Next();

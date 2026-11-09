@@ -1,0 +1,14 @@
+{
+  "request": {
+    "question": "How many non-null values are stored in the source_id column of cad_relation? Use the SQLite table name cad_relation without a database or schema prefix.",
+    "prediction": false
+  },
+  "sql": "",
+  "rows": null,
+  "sqlEvents": [],
+  "answerText": "SQL can't be constructed from the data.",
+  "httpStatus": 200,
+  "done": true,
+  "error": null,
+  "elapsedMs": 58673
+}

@@ -29,7 +29,7 @@ END upsert-model-dimension 3228ms
 BEGIN layout-model-sheet-set studio-set
 END layout-model-sheet-set 118023ms
 {
-  "out": "C:\\Users\\thefi\\OneDrive\\Desktop\\agent-webcad\\output\\projects\\courtyard-commons",
+  "out": "<workspace>\\output\\projects\\courtyard-commons",
   "parts": 56,
   "pages": 4,
   "issues": [

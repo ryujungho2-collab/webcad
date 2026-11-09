@@ -1,0 +1,37 @@
+{
+  "id": "EXT-CIVIL-03",
+  "date": "2026-10-19",
+  "status": "verified-with-explicit-performance-limits",
+  "node": {
+    "passed": 1503,
+    "failed": 0
+  },
+  "browser": {
+    "progressCancelRetryTree": 11,
+    "actualSourceImport": 6,
+    "dxfWorkflow": 18,
+    "dxfPreparation": 25,
+    "historySelection": 23,
+    "inspectorProperties": 28,
+    "selectionToolbar": 23,
+    "actualSourceFullWorkflow": 16,
+    "total": 150
+  },
+  "build": "passed",
+  "architectureModules": 713,
+  "performance": {
+    "phase02ImportMs": 37370.4,
+    "focusedPhase03ImportMs": 16014.90000000596,
+    "measurement": "Chrome SwiftShader; physical Apply to closed review; single observations, not controlled SLA",
+    "fullWorkflowPhase03ImportMs": 15601.59999999404
+  },
+  "evidence": "output/external/civil-projects/phase-03",
+  "limitations": [
+    "Synchronous parse, final validation and atomic publish are not preemptible",
+    "large-file subsequent edits remain expensive",
+    "Edge large-file CDP timeout not resolved",
+    "11 gradient and 4 curved HATCH still excluded"
+  ],
+  "initialFullBrowserFailure": "output/external/civil-projects/phase-03/initial-browser-failure.json",
+  "fullWorkflow": "passed: annotation edit, Undo/Redo, v48 reopen, style retention, A3 SVG and Worker PDF"
+}

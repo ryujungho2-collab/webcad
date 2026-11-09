@@ -1,0 +1,7 @@
+export const pavilionPlatform:number[][]=[[-3000,-1800,0],[-700,-2300,0],[2200,-1800,0],[3200,-300,0],[2300,1700,0],[-300,2200,0],[-2700,1500,0],[-3400,0,0]];
+const x=[-2400,-1900,-900,300,1700,2400],z=[120,1600,2900,3100,2200,120];
+export const pavilionRibs=[[-1350,-1050,-1250,-1000,-1400,-1300],[-150,200,-200,200,-200,50],[1150,1500,1100,1500,1100,1400]].map(y=>x.map((v,i)=>[v,y[i],z[i]]));
+export const roofProfiles=[{z:3000,scale:.79,dx:0,dy:0},{z:3100,scale:.88,dx:40,dy:0},{z:3210,scale:.85,dx:80,dy:20},{z:3280,scale:.77,dx:100,dy:40}].map(s=>pavilionPlatform.map(p=>[p[0]*s.scale+s.dx,p[1]*s.scale+s.dy,s.z]));
+/** Independent natural cubic oracle using the second-derivative Thomas system. */
+export function naturalSecond(points:number[][]){const n=points.length,m=points.map(()=>[0,0,0]);for(let axis=0;axis<3;axis++){const diagonal=Array(n).fill(4),rhs=Array(n).fill(0);for(let i=1;i<n-1;i++)rhs[i]=6*(points[i+1][axis]-2*points[i][axis]+points[i-1][axis]);for(let i=2;i<n-1;i++){const factor=1/diagonal[i-1];diagonal[i]-=factor;rhs[i]-=factor*rhs[i-1];}for(let i=n-2;i>0;i--)m[i][axis]=(rhs[i]-m[i+1][axis])/diagonal[i];}return m;}
+export function naturalPathLength(points:number[][]){const m=naturalSecond(points);let sum=0;for(let i=0;i<points.length-1;i++){const n=4096,a=points[i],b=points[i+1];let value=0;for(let k=0;k<=n;k++){const t=k/n,speed=Math.hypot(...a.map((v,j)=>-m[i][j]*(1-t)**2/2+m[i+1][j]*t*t/2+b[j]-m[i+1][j]/6-v+m[i][j]/6));value+=(k===0||k===n?1:k%2?4:2)*speed;}sum+=value/(3*n);}return sum;}

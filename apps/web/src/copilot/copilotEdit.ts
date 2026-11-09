@@ -3,6 +3,7 @@ import type { CadDocument } from "@agent-webcad/cad-document";
 import { getObjectTransform } from "../precision/objectTransform";
 import { getWorldDrawingGeometry } from "../precision/worldGeometry";
 import { WORK_PLANES, type Vec3, type WorkPlaneId } from "../precision/workPlane";
+import { copilotSolidContract, validateCopilotSolidCommand } from "./copilotSolid";
 
 export type CopilotMoveContract = {
   command: "move-object"; maximumTargets: 1; units: "mm"; coordinates: "absolute-world-translation";
@@ -41,4 +42,5 @@ export function validateCopilotMove(command: Extract<CadCommand, { type: "move-o
 /** Recheck ownership and target restrictions against the authoritative document at review/publication. */
 export function validateCopilotEdit(command: CadCommand, document: CadDocument, selection: string[], workPlane: string) {
   if (command.type === "move-object") validateCopilotMove(command, copilotMoveContract(document, selection, workPlane));
+  if (["set-variable", "update-primitive", "update-extrude"].includes(command.type)) validateCopilotSolidCommand(command, copilotSolidContract(document, selection));
 }

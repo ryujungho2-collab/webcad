@@ -1,0 +1,88 @@
+{
+  "status": "passed",
+  "date": "2026-10-24",
+  "task": "C2 lounge chair: shared continuity mode and explicit saved fit policy",
+  "nativeFileVersion": 53,
+  "canonicalToolCount": 39,
+  "mcpToolCount": 42,
+  "humanFormCount": 13,
+  "browserChecks": 42,
+  "targetedUnitIntegrationChecks": 89,
+  "regressionBrowserChecks": {
+    "lampHandoff": 36,
+    "kioskHandoff": 48,
+    "sharedToolHandoff": 38,
+    "mcpBridge": 24,
+    "cadToolsAdvanced": 17,
+    "spline": 19
+  },
+  "productionBuild": "passed; existing large chunk warning",
+  "architecture": {
+    "status": "passed",
+    "moduleCount": 815
+  },
+  "stepInspection": {
+    "status": "passed",
+    "partCount": 5
+  },
+  "modelEndpointRequests": 0,
+  "sources": {
+    "source": "manual-574699ce",
+    "seat": "manual-4640758a"
+  },
+  "continuityReport": {
+    "coordinates": "source XYZ mm",
+    "parameterization": "uniform span parameter",
+    "joinCount": 12,
+    "closedSeamIncluded": true,
+    "maxFirstDerivativeGap": 1.9065862296939058e-13,
+    "maxSecondDerivativeGap": 9.646648066153115e-13,
+    "maxCurvatureVectorGap": 1.4705554893715319e-16,
+    "curvatureUnit": "1/mm",
+    "stationaryJoinCount": 0
+  },
+  "expectedVolumesMm3": {
+    "manual-4640758a": 29598129.64792898,
+    "chairFrameL": 2680724.097751338,
+    "chairFrameR": 2680724.097751338,
+    "chairCrossbarFront": 369451.29606215964,
+    "chairCrossbarRear": 271433.60527015815
+  },
+  "oracle": "Independent periodic cubic second derivatives via DFT, three-node Gaussian Green area, extrusion and cylinder formulas",
+  "manualNativeSplineEditor": {
+    "status": "verified in main CAD UI",
+    "construction": "Through points",
+    "continuity": "C2 natural / periodic",
+    "closed": true,
+    "publishedChanges": false
+  },
+  "mainUi": {
+    "url": "http://127.0.0.1:5188/",
+    "projectTitle": "C2 라운지체어 · 곡률 연속 편집",
+    "projectId": "e8981912-3022-4a7b-8a72-e62a40f20eb4",
+    "tool": "curve.reshape",
+    "selectedSource": "manual-574699ce",
+    "continuity": "C2"
+  },
+  "limits": [
+    "C2 is a mathematical continuity condition, not an aesthetic score.",
+    "Uniform parameterization may overshoot when point spacing varies.",
+    "No individual tangent handles or curve-to-curve constraints added.",
+    "DXF preserves numeric shape but not the application fit-editing policy.",
+    "Concept furniture, not ergonomic, load, joint or fabrication certification."
+  ],
+  "sha256": {
+    "browser-report.json": "ec50a6ef9b31de16d494d7a0bd05ddeb2e82d8c14f258e1fef32d1edc3ff124f",
+    "chair.step": "646eead9093bfed6a44bb887578beaed296b0cf41327814dfe48d64ac23bdf9c",
+    "chair.webcad.json": "2b4317ef202735d57db92f059bc2191810855a8bd99799e225e7ce763d629808",
+    "chairProfile.dxf": "da5b6e122d5a861b9a8c7c48e6bfc22f5cc21ac55a298e3680424fe41d527ca4",
+    "chairProfile.svg": "14f1f536efc5aa580a94821aa6fdb8cdcdac1d6e1d088c5869739fec4a238441",
+    "chairSection.dxf": "e7ad527a705b3ba44ff57161729eb528592f71f2c93502ff8839450d54015129",
+    "chairSection.svg": "d7b87b2670635234ef58a62d3dd3d211e554cf9c48a2d7444fbafdd4aa2c6110",
+    "handoff.json": "67cfa6f453d5d8fce0708cd35194c79cddfd40697476a87b0ed0468de165e8d8",
+    "native-editor.png": "d8c02952dbb1863a20050d4d727c0cb0cacac0533621d8563074d2d1e9b7977e",
+    "native-spline-editor.png": "6f592c551f369dc17e33d0e7e62a3bda59bac785053046651a310d38f8fe8dc4",
+    "step-inspection.json": "cfa2e12573550615ad74d50f363923334122e13f3ca007099631ee740658c0df",
+    "viewport.png": "20634615d3913c40890e5baa4657175fc1615f4eb1995a6d425342ba711c9d1a"
+  }
+}

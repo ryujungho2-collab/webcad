@@ -1,0 +1,911 @@
+[
+  {
+    "request": {
+      "version": 1,
+      "prompt": "선택한 4홀 장착판의 현재 치수를 cad.inspect로 조회하고, 더 넓은 장치를 위한 폭을 현재보다 40 mm 늘려줘. 지원되는 solid.parameter 한 개로만 제안해.\n설계 의도: 왼쪽 기준면과 월드 배치는 그대로, 깊이 80 mm·두께 4 mm·구멍 4개·구멍 지름 6 mm를 유지해. 각 구멍 중심은 인접한 두 가장자리에서 계속 12 mm 떨어져야 하며, 넓어진 판의 새 중심을 기준으로 좌우/상하 대칭이어야 해. 오른쪽 두 구멍은 오른쪽 가장자리를 따라가야 하므로 모든 구멍의 월드 좌표를 고정하지 마.\n보호 대상 protected-device-envelope 및 protected-neighbor의 형상·배치와 모든 원본을 보존해. 장치 하단과 판 상단의 Z 간격은 최소 2 mm, 이웃 부품 왼쪽과 판 오른쪽의 X 간격은 최소 25 mm. 선택 객체 plate_6359d0fb180046b684b862fef8b45d4f_solid의 ID와 live 프로파일 참조를 유지해. 구멍 지름이나 여백을 바꾸는 것으로 폭 증가를 대신하지 마. 하중·재료·체결 규격은 미정이며 인증했다고 말하지 마. 승인 전 Apply 금지.\n{\"evidence\":\"Native capability/dependency records\",\"capability\":[\"solid.parameter\"],\"document\":{\"id\":\"cad-eval-02-synthetic\",\"revision\":31},\"relationCount\":5,\"allLiveResolved\":true}",
+      "model": "qwen3-coder-32k:latest",
+      "recipes": [
+        {
+          "id": "mounting-plate",
+          "version": 1,
+          "label": "4홀 플레이트",
+          "description": "Rectangular plate with exactly four circular through holes; margin is hole-center distance from adjacent edges.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "pin",
+          "version": 1,
+          "label": "원통 핀",
+          "description": "Plain solid cylindrical pin without head, threads, taper or chamfer; base center at origin, axis +Z.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "diameter",
+              "length"
+            ],
+            "properties": {
+              "diameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "지름 (mm)"
+              },
+              "length": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "길이 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "vented-lid",
+          "version": 1,
+          "label": "통풍 덮개",
+          "description": "Flat rectangular lid with an evenly spaced rectangular grid of circular through vents, at most 64 holes. No rim, lip, slots or fasteners. Margin is outermost hole-center distance from each edge; a single row/column is centered.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter",
+              "rows",
+              "columns"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              },
+              "rows": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "행 (count)"
+              },
+              "columns": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "열 (count)"
+              }
+            }
+          }
+        }
+      ],
+      "planning": {
+        "stages": [
+          "intent",
+          "parameters",
+          "clarify-or-explicit-defaults",
+          "compile",
+          "native-preview",
+          "review-apply"
+        ],
+        "clarification": true
+      },
+      "capabilities": [
+        "create-drawing",
+        "create-primitive",
+        "move-object",
+        "update-primitive",
+        "update-extrude",
+        "set-variable"
+      ],
+      "tools": {
+        "version": 1,
+        "units": {
+          "length": "mm",
+          "area": "mm²",
+          "volume": "mm³"
+        },
+        "limits": {
+          "calls": 20,
+          "readRounds": 4,
+          "readCallsPerRound": 8,
+          "bytes": 65536
+        },
+        "tools": [
+          {
+            "name": "cad.objects",
+            "label": "Find model objects",
+            "readOnly": true,
+            "description": "Find up to 20 object IDs by name or ID. Reading a target does not select it for editing.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "search": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "limit": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 20
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.inspect",
+            "label": "Inspect objects and relationships",
+            "readOnly": true,
+            "description": "Read types, source IDs, sketch ownership, numeric source parameters and editability for up to 10 objects. External GLB references return bounded source, part/joint counts and physics availability summaries; no raw GLB or full hierarchy.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.measure",
+            "label": "Measure exact geometry",
+            "readOnly": true,
+            "description": "Measure original geometry, with basis, validity, bbox, volume or area. Units mm, mm² and mm³.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.parameters",
+            "label": "Inspect editable solid dimensions",
+            "readOnly": true,
+            "description": "Return the selected solid's supported length dimensions and drivers. Use the exact returned key with solid.parameter.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "solid.parameter",
+            "label": "Change a selected solid dimension",
+            "readOnly": false,
+            "description": "Change one advertised selected-solid length dimension. Use cad.parameters for its exact key. This edit must be a standalone modeling proposal.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "value": {
+                  "type": "number",
+                  "minimum": 0.001,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "key",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ]
+      },
+      "toolContext": {
+        "layerId": "layer-default",
+        "selectionIds": [
+          "plate_6359d0fb180046b684b862fef8b45d4f_solid"
+        ]
+      },
+      "edit": {
+        "command": "move-object",
+        "maximumTargets": 1,
+        "units": "mm",
+        "coordinates": "absolute-world-translation",
+        "limit": 1000000,
+        "disabledReason": "Move currently supports finite 2D drawings only. Use the object's manual editor for this representation."
+      },
+      "solid": {
+        "units": "mm",
+        "targetId": "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+        "name": "Four-hole mounting plate",
+        "parameters": [
+          {
+            "key": "plate_6359d0fb180046b684b862fef8b45d4f_width",
+            "value": 120,
+            "command": {
+              "type": "set-variable",
+              "name": "plate_6359d0fb180046b684b862fef8b45d4f_width",
+              "quantity": "length",
+              "expression": "120mm"
+            }
+          },
+          {
+            "key": "plate_6359d0fb180046b684b862fef8b45d4f_depth",
+            "value": 80,
+            "command": {
+              "type": "set-variable",
+              "name": "plate_6359d0fb180046b684b862fef8b45d4f_depth",
+              "quantity": "length",
+              "expression": "80mm"
+            }
+          },
+          {
+            "key": "plate_6359d0fb180046b684b862fef8b45d4f_thickness",
+            "value": 4,
+            "command": {
+              "type": "set-variable",
+              "name": "plate_6359d0fb180046b684b862fef8b45d4f_thickness",
+              "quantity": "length",
+              "expression": "4mm"
+            }
+          },
+          {
+            "key": "plate_6359d0fb180046b684b862fef8b45d4f_margin",
+            "value": 12,
+            "command": {
+              "type": "set-variable",
+              "name": "plate_6359d0fb180046b684b862fef8b45d4f_margin",
+              "quantity": "length",
+              "expression": "12mm"
+            }
+          },
+          {
+            "key": "plate_6359d0fb180046b684b862fef8b45d4f_holeDiameter",
+            "value": 6,
+            "command": {
+              "type": "set-variable",
+              "name": "plate_6359d0fb180046b684b862fef8b45d4f_holeDiameter",
+              "quantity": "length",
+              "expression": "6mm"
+            }
+          }
+        ],
+        "plate": {
+          "width": 120,
+          "depth": 80,
+          "thickness": 4,
+          "margin": 12,
+          "holeDiameter": 6
+        },
+        "plateVariables": {
+          "width": "plate_6359d0fb180046b684b862fef8b45d4f_width",
+          "depth": "plate_6359d0fb180046b684b862fef8b45d4f_depth",
+          "thickness": "plate_6359d0fb180046b684b862fef8b45d4f_thickness",
+          "margin": "plate_6359d0fb180046b684b862fef8b45d4f_margin",
+          "holeDiameter": "plate_6359d0fb180046b684b862fef8b45d4f_holeDiameter"
+        }
+      },
+      "context": {
+        "documentId": "cad-eval-02-synthetic",
+        "revision": 31,
+        "units": "mm",
+        "workPlane": "XY",
+        "selected": [
+          {
+            "id": "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+            "name": "Four-hole mounting plate",
+            "type": "extrude",
+            "kind": "extrude",
+            "locked": false,
+            "inputs": [
+              "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole3"
+            ]
+          }
+        ],
+        "selectionTruncated": false
+      }
+    },
+    "response": {
+      "version": 1,
+      "toolCalls": [
+        {
+          "id": "read_1",
+          "name": "cad.inspect",
+          "arguments": {
+            "objectIds": [
+              "plate_6359d0fb180046b684b862fef8b45d4f_solid"
+            ]
+          }
+        }
+      ],
+      "run": {
+        "provider": "Ollama",
+        "model": "qwen3-coder-32k:latest",
+        "elapsedMs": 2489,
+        "inputTokens": 2471,
+        "outputTokens": 90,
+        "repairs": 0,
+        "context": {
+          "numCtx": 16384,
+          "outputReserved": 1024,
+          "utf8Bytes": 8098,
+          "truncate": false,
+          "inferenceCalls": 1
+        }
+      }
+    },
+    "elapsedMs": 2489.7397000000005
+  },
+  {
+    "request": {
+      "version": 1,
+      "prompt": "선택한 4홀 장착판의 현재 치수를 cad.inspect로 조회하고, 더 넓은 장치를 위한 폭을 현재보다 40 mm 늘려줘. 지원되는 solid.parameter 한 개로만 제안해.\n설계 의도: 왼쪽 기준면과 월드 배치는 그대로, 깊이 80 mm·두께 4 mm·구멍 4개·구멍 지름 6 mm를 유지해. 각 구멍 중심은 인접한 두 가장자리에서 계속 12 mm 떨어져야 하며, 넓어진 판의 새 중심을 기준으로 좌우/상하 대칭이어야 해. 오른쪽 두 구멍은 오른쪽 가장자리를 따라가야 하므로 모든 구멍의 월드 좌표를 고정하지 마.\n보호 대상 protected-device-envelope 및 protected-neighbor의 형상·배치와 모든 원본을 보존해. 장치 하단과 판 상단의 Z 간격은 최소 2 mm, 이웃 부품 왼쪽과 판 오른쪽의 X 간격은 최소 25 mm. 선택 객체 plate_6359d0fb180046b684b862fef8b45d4f_solid의 ID와 live 프로파일 참조를 유지해. 구멍 지름이나 여백을 바꾸는 것으로 폭 증가를 대신하지 마. 하중·재료·체결 규격은 미정이며 인증했다고 말하지 마. 승인 전 Apply 금지.\n{\"evidence\":\"Native capability/dependency records\",\"capability\":[\"solid.parameter\"],\"document\":{\"id\":\"cad-eval-02-synthetic\",\"revision\":31},\"relationCount\":5,\"allLiveResolved\":true}",
+      "model": "qwen3-coder-32k:latest",
+      "recipes": [
+        {
+          "id": "mounting-plate",
+          "version": 1,
+          "label": "4홀 플레이트",
+          "description": "Rectangular plate with exactly four circular through holes; margin is hole-center distance from adjacent edges.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "pin",
+          "version": 1,
+          "label": "원통 핀",
+          "description": "Plain solid cylindrical pin without head, threads, taper or chamfer; base center at origin, axis +Z.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "diameter",
+              "length"
+            ],
+            "properties": {
+              "diameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "지름 (mm)"
+              },
+              "length": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "길이 (mm)"
+              }
+            }
+          }
+        },
+        {
+          "id": "vented-lid",
+          "version": 1,
+          "label": "통풍 덮개",
+          "description": "Flat rectangular lid with an evenly spaced rectangular grid of circular through vents, at most 64 holes. No rim, lip, slots or fasteners. Margin is outermost hole-center distance from each edge; a single row/column is centered.",
+          "placement": "World XY at origin, extrusion along +Z. Independent new object; never attaches to a selected face.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "depth",
+              "thickness",
+              "margin",
+              "holeDiameter",
+              "rows",
+              "columns"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "가로 (mm)"
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "세로 (mm)"
+              },
+              "thickness": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "두께 (mm)"
+              },
+              "margin": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "중심 여백 (mm)"
+              },
+              "holeDiameter": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000,
+                "description": "구멍 지름 (mm)"
+              },
+              "rows": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "행 (count)"
+              },
+              "columns": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 16,
+                "description": "열 (count)"
+              }
+            }
+          }
+        }
+      ],
+      "planning": {
+        "stages": [
+          "intent",
+          "parameters",
+          "clarify-or-explicit-defaults",
+          "compile",
+          "native-preview",
+          "review-apply"
+        ],
+        "clarification": true
+      },
+      "capabilities": [
+        "create-drawing",
+        "create-primitive",
+        "move-object",
+        "update-primitive",
+        "update-extrude",
+        "set-variable"
+      ],
+      "tools": {
+        "version": 1,
+        "units": {
+          "length": "mm",
+          "area": "mm²",
+          "volume": "mm³"
+        },
+        "limits": {
+          "calls": 20,
+          "readRounds": 4,
+          "readCallsPerRound": 8,
+          "bytes": 65536
+        },
+        "tools": [
+          {
+            "name": "cad.objects",
+            "label": "Find model objects",
+            "readOnly": true,
+            "description": "Find up to 20 object IDs by name or ID. Reading a target does not select it for editing.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "search": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "limit": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 20
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.inspect",
+            "label": "Inspect objects and relationships",
+            "readOnly": true,
+            "description": "Read types, source IDs, sketch ownership, numeric source parameters and editability for up to 10 objects. External GLB references return bounded source, part/joint counts and physics availability summaries; no raw GLB or full hierarchy.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.measure",
+            "label": "Measure exact geometry",
+            "readOnly": true,
+            "description": "Measure original geometry, with basis, validity, bbox, volume or area. Units mm, mm² and mm³.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "objectIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "required": [
+                "objectIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "cad.parameters",
+            "label": "Inspect editable solid dimensions",
+            "readOnly": true,
+            "description": "Return the selected solid's supported length dimensions and drivers. Use the exact returned key with solid.parameter.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "solid.parameter",
+            "label": "Change a selected solid dimension",
+            "readOnly": false,
+            "description": "Change one advertised selected-solid length dimension. Use cad.parameters for its exact key. This edit must be a standalone modeling proposal.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "value": {
+                  "type": "number",
+                  "minimum": 0.001,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "key",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ]
+      },
+      "toolContext": {
+        "layerId": "layer-default",
+        "selectionIds": [
+          "plate_6359d0fb180046b684b862fef8b45d4f_solid"
+        ]
+      },
+      "edit": {
+        "command": "move-object",
+        "maximumTargets": 1,
+        "units": "mm",
+        "coordinates": "absolute-world-translation",
+        "limit": 1000000,
+        "disabledReason": "Move currently supports finite 2D drawings only. Use the object's manual editor for this representation."
+      },
+      "solid": {
+        "units": "mm",
+        "targetId": "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+        "name": "Four-hole mounting plate",
+        "parameters": [
+          {
+            "key": "plate_6359d0fb180046b684b862fef8b45d4f_width",
+            "value": 120,
+            "command": {
+              "type": "set-variable",
+              "name": "plate_6359d0fb180046b684b862fef8b45d4f_width",
+              "quantity": "length",
+              "expression": "120mm"
+            }
+          },
+          {
+            "key": "plate_6359d0fb180046b684b862fef8b45d4f_depth",
+            "value": 80,
+            "command": {
+              "type": "set-variable",
+              "name": "plate_6359d0fb180046b684b862fef8b45d4f_depth",
+              "quantity": "length",
+              "expression": "80mm"
+            }
+          },
+          {
+            "key": "plate_6359d0fb180046b684b862fef8b45d4f_thickness",
+            "value": 4,
+            "command": {
+              "type": "set-variable",
+              "name": "plate_6359d0fb180046b684b862fef8b45d4f_thickness",
+              "quantity": "length",
+              "expression": "4mm"
+            }
+          },
+          {
+            "key": "plate_6359d0fb180046b684b862fef8b45d4f_margin",
+            "value": 12,
+            "command": {
+              "type": "set-variable",
+              "name": "plate_6359d0fb180046b684b862fef8b45d4f_margin",
+              "quantity": "length",
+              "expression": "12mm"
+            }
+          },
+          {
+            "key": "plate_6359d0fb180046b684b862fef8b45d4f_holeDiameter",
+            "value": 6,
+            "command": {
+              "type": "set-variable",
+              "name": "plate_6359d0fb180046b684b862fef8b45d4f_holeDiameter",
+              "quantity": "length",
+              "expression": "6mm"
+            }
+          }
+        ],
+        "plate": {
+          "width": 120,
+          "depth": 80,
+          "thickness": 4,
+          "margin": 12,
+          "holeDiameter": 6
+        },
+        "plateVariables": {
+          "width": "plate_6359d0fb180046b684b862fef8b45d4f_width",
+          "depth": "plate_6359d0fb180046b684b862fef8b45d4f_depth",
+          "thickness": "plate_6359d0fb180046b684b862fef8b45d4f_thickness",
+          "margin": "plate_6359d0fb180046b684b862fef8b45d4f_margin",
+          "holeDiameter": "plate_6359d0fb180046b684b862fef8b45d4f_holeDiameter"
+        }
+      },
+      "context": {
+        "documentId": "cad-eval-02-synthetic",
+        "revision": 31,
+        "units": "mm",
+        "workPlane": "XY",
+        "selected": [
+          {
+            "id": "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+            "name": "Four-hole mounting plate",
+            "type": "extrude",
+            "kind": "extrude",
+            "locked": false,
+            "inputs": [
+              "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole3"
+            ]
+          }
+        ],
+        "selectionTruncated": false
+      },
+      "toolResults": [
+        {
+          "id": "read_1",
+          "name": "cad.inspect",
+          "ok": true,
+          "version": {
+            "documentId": "cad-eval-02-synthetic",
+            "revision": 31,
+            "generation": 0
+          },
+          "result": [
+            {
+              "id": "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+              "name": "Four-hole mounting plate",
+              "type": "extrude",
+              "representation": "brep",
+              "selected": true,
+              "visible": true,
+              "locked": false,
+              "layerId": "layer-default",
+              "sources": [
+                "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+                "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+                "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+                "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+                "plate_6359d0fb180046b684b862fef8b45d4f_hole3"
+              ],
+              "sourcesTruncated": false,
+              "parameters": [
+                {
+                  "name": "distance",
+                  "quantity": "length",
+                  "unit": "mm",
+                  "value": 4
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "response": {
+      "version": 1,
+      "toolCalls": [
+        {
+          "id": "call_1",
+          "name": "solid.parameter",
+          "arguments": {
+            "key": "plate_6359d0fb180046b684b862fef8b45d4f_width",
+            "value": 160
+          }
+        }
+      ],
+      "run": {
+        "provider": "Ollama",
+        "model": "qwen3-coder-32k:latest",
+        "elapsedMs": 2078,
+        "inputTokens": 2442,
+        "outputTokens": 93,
+        "repairs": 0,
+        "context": {
+          "numCtx": 16384,
+          "outputReserved": 1024,
+          "utf8Bytes": 7270,
+          "truncate": false,
+          "inferenceCalls": 1
+        }
+      }
+    },
+    "elapsedMs": 2078.0501999999997
+  }
+]

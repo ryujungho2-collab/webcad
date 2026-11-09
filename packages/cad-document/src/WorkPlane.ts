@@ -1,8 +1,9 @@
+import {validHybridReference,type HybridSurfaceReference} from "./HybridReference";
 export type WorkPlaneVector = [number, number, number];
 export type CadWorkPlaneFrame = { origin: WorkPlaneVector; xAxis: WorkPlaneVector; yAxis: WorkPlaneVector; normal: WorkPlaneVector };
 export type CadWorkPlaneFaceSource = { kind: "brep-face"; objectId: string; topologyId: string };
 /** A face-bound plane retains its captured frame for review, but resolution uses only the exact saved face key. */
-export type CadWorkPlane = CadWorkPlaneFrame & { id: string; name: string; source?: CadWorkPlaneFaceSource };
+export type CadWorkPlane = CadWorkPlaneFrame & { id: string; name: string; source?: CadWorkPlaneFaceSource; hybrid?:HybridSurfaceReference };
 const record=(value:unknown):value is Record<string,unknown>=>typeof value==="object"&&value!==null&&!Array.isArray(value);
 const vector=(value:unknown):value is WorkPlaneVector=>Array.isArray(value)&&value.length===3&&value.every(v=>typeof v==="number"&&Number.isFinite(v));
 const dot=(a:WorkPlaneVector,b:WorkPlaneVector)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
@@ -19,7 +20,7 @@ export function validWorkPlaneFaceSource(value:unknown):value is CadWorkPlaneFac
 export function validCadWorkPlane(value:unknown):value is CadWorkPlane {
   if(!validWorkPlaneFrame(value)||!record(value))return false;
   const plane=value as CadWorkPlaneFrame&Record<string,unknown>;
-  return validWorkPlaneId(plane.id)&&typeof plane.name==="string"&&plane.name.trim().length>0&&plane.name.length<=80&&(plane.source===undefined||validWorkPlaneFaceSource(plane.source));
+  return validWorkPlaneId(plane.id)&&typeof plane.name==="string"&&plane.name.trim().length>0&&plane.name.length<=80&&(plane.source===undefined||validWorkPlaneFaceSource(plane.source))&&(plane.hybrid===undefined||plane.source===undefined&&validHybridReference(plane.hybrid));
 }
 export function validateCadWorkPlanes(planes:Record<string,CadWorkPlane>|undefined):void {
   if(planes===undefined)return;

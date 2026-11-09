@@ -1,0 +1,1778 @@
+{
+  "status": "R1-coordination-review",
+  "checks": [
+    "F2-table-leg0/F2-furniture-6000: classified",
+    "F2-table-leg0/F2-furniture-6000: penetration",
+    "F2-table-leg0/F2-furniture-6000: classified",
+    "F2-table-leg0/F2-furniture-6000: clear",
+    "F2-table/F2-spine: classified",
+    "F2-table/F2-spine: clear",
+    "F1-west/F1-north: classified",
+    "F1-west/F1-north: penetration",
+    "F1-island-body/F1-spine: classified",
+    "F1-island-body/F1-spine: clear",
+    "F1-island-top/F1-counter: classified",
+    "F1-island-top/F1-counter: clear",
+    "F1-bath-door/F1-vanity: classified",
+    "F1-bath-door/F1-vanity: clear",
+    "F1-shower/F1-wc-base: classified",
+    "F1-shower/F1-wc-base: clear",
+    "F1-counter/F1-unit0-front: classified",
+    "F1-counter/F1-unit0-front: clear",
+    "F2-bath-door/F2-vanity: classified",
+    "F2-bath-door/F2-vanity: clear",
+    "F2-shower/F2-wc-base: classified",
+    "F2-shower/F2-wc-base: clear",
+    "F2-counter/F2-unit0-front: classified",
+    "F2-counter/F2-unit0-front: clear",
+    "F3-bath-door/F3-vanity: classified",
+    "F3-bath-door/F3-vanity: clear",
+    "F3-shower/F3-wc-base: classified",
+    "F3-shower/F3-wc-base: clear",
+    "F3-counter/F3-unit0-front: classified",
+    "F3-counter/F3-unit0-front: clear",
+    "F1-stair-rail1/F2-slab: classified",
+    "F1-stair-rail1/F2-slab: clear",
+    "F1-stair-rail2/F2-slab: classified",
+    "F1-stair-rail2/F2-slab: clear",
+    "F2-stair-rail1/F3-slab: classified",
+    "F2-stair-rail1/F3-slab: clear",
+    "F2-stair-rail2/F3-slab: classified",
+    "F2-stair-rail2/F3-slab: clear",
+    "F1: conservative door swing clear of F1-vanity",
+    "F1: conservative door swing clear of F1-wc-base",
+    "F1: conservative door swing clear of F1-shower",
+    "F2: conservative door swing clear of F2-vanity",
+    "F2: conservative door swing clear of F2-wc-base",
+    "F2: conservative door swing clear of F2-shower",
+    "F3: conservative door swing clear of F3-vanity",
+    "F3: conservative door swing clear of F3-wc-base",
+    "F3: conservative door swing clear of F3-shower",
+    "F1: sampled tread 1 headroom 2000 clear of upper slab",
+    "F1: sampled tread 9 headroom 2000 clear of upper slab",
+    "F1: sampled tread 11 headroom 2000 clear of upper slab",
+    "F1: sampled tread 19 headroom 2000 clear of upper slab",
+    "F2: sampled tread 1 headroom 2000 clear of upper slab",
+    "F2: sampled tread 9 headroom 2000 clear of upper slab",
+    "F2: sampled tread 11 headroom 2000 clear of upper slab",
+    "F2: sampled tread 19 headroom 2000 clear of upper slab",
+    "F1-slab: valid",
+    "F1-south: valid",
+    "F1-W01-glass: valid",
+    "F1-W01-jamb-1: valid",
+    "F1-W01-jamb1: valid",
+    "F1-southEast: valid",
+    "F1-W02-glass: valid",
+    "F1-W02-jamb-1: valid",
+    "F1-W02-jamb1: valid",
+    "F1-west: valid",
+    "F1-W03-glass: valid",
+    "F1-W03-jamb-1: valid",
+    "F1-W03-jamb1: valid",
+    "F1-east: valid",
+    "F1-W04-glass: valid",
+    "F1-W04-jamb-1: valid",
+    "F1-W04-jamb1: valid",
+    "F1-W05-glass: valid",
+    "F1-W05-jamb-1: valid",
+    "F1-W05-jamb1: valid",
+    "F1-north: valid",
+    "F1-W06-glass: valid",
+    "F1-W06-jamb-1: valid",
+    "F1-W06-jamb1: valid",
+    "F1-W07-glass: valid",
+    "F1-W07-jamb-1: valid",
+    "F1-W07-jamb1: valid",
+    "F1-spine: valid",
+    "F1-westRoom: valid",
+    "F1-service: valid",
+    "F1-core: valid",
+    "F1-tread-1: valid",
+    "F1-tread-2: valid",
+    "F1-tread-3: valid",
+    "F1-tread-4: valid",
+    "F1-tread-5: valid",
+    "F1-tread-6: valid",
+    "F1-tread-7: valid",
+    "F1-tread-8: valid",
+    "F1-tread-9: valid",
+    "F1-tread-11: valid",
+    "F1-tread-12: valid",
+    "F1-tread-13: valid",
+    "F1-tread-14: valid",
+    "F1-tread-15: valid",
+    "F1-tread-16: valid",
+    "F1-tread-17: valid",
+    "F1-tread-18: valid",
+    "F1-tread-19: valid",
+    "F1-landing: valid",
+    "F1-table: valid",
+    "F1-table-leg0: valid",
+    "F1-table-leg1: valid",
+    "F1-table-leg2: valid",
+    "F1-table-leg3: valid",
+    "F1-screen0: valid",
+    "F1-screen1: valid",
+    "F1-screen2: valid",
+    "F1-screen3: valid",
+    "F1-screen4: valid",
+    "F1-screen5: valid",
+    "F1-screen6: valid",
+    "F1-screen7: valid",
+    "F2-slab: valid",
+    "F2-south: valid",
+    "F2-W01-glass: valid",
+    "F2-W01-jamb-1: valid",
+    "F2-W01-jamb1: valid",
+    "F2-southEast: valid",
+    "F2-W02-glass: valid",
+    "F2-W02-jamb-1: valid",
+    "F2-W02-jamb1: valid",
+    "F2-west: valid",
+    "F2-W03-glass: valid",
+    "F2-W03-jamb-1: valid",
+    "F2-W03-jamb1: valid",
+    "F2-east: valid",
+    "F2-W04-glass: valid",
+    "F2-W04-jamb-1: valid",
+    "F2-W04-jamb1: valid",
+    "F2-W05-glass: valid",
+    "F2-W05-jamb-1: valid",
+    "F2-W05-jamb1: valid",
+    "F2-north: valid",
+    "F2-W06-glass: valid",
+    "F2-W06-jamb-1: valid",
+    "F2-W06-jamb1: valid",
+    "F2-W07-glass: valid",
+    "F2-W07-jamb-1: valid",
+    "F2-W07-jamb1: valid",
+    "F2-spine: valid",
+    "F2-westRoom: valid",
+    "F2-service: valid",
+    "F2-core: valid",
+    "F2-tread-1: valid",
+    "F2-tread-2: valid",
+    "F2-tread-3: valid",
+    "F2-tread-4: valid",
+    "F2-tread-5: valid",
+    "F2-tread-6: valid",
+    "F2-tread-7: valid",
+    "F2-tread-8: valid",
+    "F2-tread-9: valid",
+    "F2-tread-11: valid",
+    "F2-tread-12: valid",
+    "F2-tread-13: valid",
+    "F2-tread-14: valid",
+    "F2-tread-15: valid",
+    "F2-tread-16: valid",
+    "F2-tread-17: valid",
+    "F2-tread-18: valid",
+    "F2-tread-19: valid",
+    "F2-landing: valid",
+    "F2-table: valid",
+    "F2-table-leg0: valid",
+    "F2-table-leg1: valid",
+    "F2-table-leg2: valid",
+    "F2-table-leg3: valid",
+    "F2-screen0: valid",
+    "F2-screen1: valid",
+    "F2-screen2: valid",
+    "F2-screen3: valid",
+    "F2-screen4: valid",
+    "F2-screen5: valid",
+    "F2-screen6: valid",
+    "F2-screen7: valid",
+    "F3-slab: valid",
+    "F3-south: valid",
+    "F3-W01-glass: valid",
+    "F3-W01-jamb-1: valid",
+    "F3-W01-jamb1: valid",
+    "F3-southEast: valid",
+    "F3-W02-glass: valid",
+    "F3-W02-jamb-1: valid",
+    "F3-W02-jamb1: valid",
+    "F3-west: valid",
+    "F3-W03-glass: valid",
+    "F3-W03-jamb-1: valid",
+    "F3-W03-jamb1: valid",
+    "F3-east: valid",
+    "F3-W04-glass: valid",
+    "F3-W04-jamb-1: valid",
+    "F3-W04-jamb1: valid",
+    "F3-W05-glass: valid",
+    "F3-W05-jamb-1: valid",
+    "F3-W05-jamb1: valid",
+    "F3-north: valid",
+    "F3-W06-glass: valid",
+    "F3-W06-jamb-1: valid",
+    "F3-W06-jamb1: valid",
+    "F3-W07-glass: valid",
+    "F3-W07-jamb-1: valid",
+    "F3-W07-jamb1: valid",
+    "F3-spine: valid",
+    "F3-westRoom: valid",
+    "F3-service: valid",
+    "F3-core: valid",
+    "F3-terraceReturn: valid",
+    "F3-table: valid",
+    "F3-table-leg0: valid",
+    "F3-table-leg1: valid",
+    "F3-table-leg2: valid",
+    "F3-table-leg3: valid",
+    "F3-screen0: valid",
+    "F3-screen1: valid",
+    "F3-screen2: valid",
+    "F3-screen3: valid",
+    "F3-screen4: valid",
+    "F3-screen5: valid",
+    "F3-screen6: valid",
+    "F3-screen7: valid",
+    "RF-slab: valid",
+    "F3-guard0: valid",
+    "F3-guard1: valid",
+    "F3-guard2: valid",
+    "F3-guard3: valid",
+    "F3-guard4: valid",
+    "F3-guard5: valid",
+    "F3-handrail: valid",
+    "F1-unit0-left: valid",
+    "F1-unit0-left: independent box volume",
+    "F1-unit0-right: valid",
+    "F1-unit0-right: independent box volume",
+    "F1-unit0-bottom: valid",
+    "F1-unit0-bottom: independent box volume",
+    "F1-unit0-shelf: valid",
+    "F1-unit0-shelf: independent box volume",
+    "F1-unit0-front: valid",
+    "F1-unit0-front: independent box volume",
+    "F1-unit0-handle: valid",
+    "F1-unit0-handle: independent box volume",
+    "F1-unit1-left: valid",
+    "F1-unit1-left: independent box volume",
+    "F1-unit1-right: valid",
+    "F1-unit1-right: independent box volume",
+    "F1-unit1-bottom: valid",
+    "F1-unit1-bottom: independent box volume",
+    "F1-unit1-shelf: valid",
+    "F1-unit1-shelf: independent box volume",
+    "F1-unit1-front: valid",
+    "F1-unit1-front: independent box volume",
+    "F1-unit1-handle: valid",
+    "F1-unit1-handle: independent box volume",
+    "F1-unit2-left: valid",
+    "F1-unit2-left: independent box volume",
+    "F1-unit2-right: valid",
+    "F1-unit2-right: independent box volume",
+    "F1-unit2-bottom: valid",
+    "F1-unit2-bottom: independent box volume",
+    "F1-unit2-shelf: valid",
+    "F1-unit2-shelf: independent box volume",
+    "F1-unit2-front: valid",
+    "F1-unit2-front: independent box volume",
+    "F1-unit2-handle: valid",
+    "F1-unit2-handle: independent box volume",
+    "F1-unit3-left: valid",
+    "F1-unit3-left: independent box volume",
+    "F1-unit3-right: valid",
+    "F1-unit3-right: independent box volume",
+    "F1-unit3-bottom: valid",
+    "F1-unit3-bottom: independent box volume",
+    "F1-unit3-shelf: valid",
+    "F1-unit3-shelf: independent box volume",
+    "F1-unit3-front: valid",
+    "F1-unit3-front: independent box volume",
+    "F1-unit3-handle: valid",
+    "F1-unit3-handle: independent box volume",
+    "F1-counter: valid",
+    "F1-counter: independent box volume",
+    "F1-vanity: valid",
+    "F1-vanity: independent box volume",
+    "F1-basin-back: valid",
+    "F1-basin-back: independent box volume",
+    "F1-basin-front: valid",
+    "F1-basin-front: independent box volume",
+    "F1-basin-left: valid",
+    "F1-basin-left: independent box volume",
+    "F1-basin-right: valid",
+    "F1-basin-right: independent box volume",
+    "F1-wc-base: valid",
+    "F1-wc-base: independent box volume",
+    "F1-wc-cistern: valid",
+    "F1-wc-cistern: independent box volume",
+    "F1-shower: valid",
+    "F1-shower: independent box volume",
+    "F1-shower-screen: valid",
+    "F1-shower-screen: independent box volume",
+    "F1-bath-door: valid",
+    "F1-bath-door: independent box volume",
+    "F1-bath-handle: valid",
+    "F1-bath-handle: independent box volume",
+    "F1-stair-rail1: valid",
+    "F1-stair-infill1: valid",
+    "F1-stair-rail2: valid",
+    "F1-stair-infill2: valid",
+    "F1-W01-head: valid",
+    "F1-W01-head: independent box volume",
+    "F1-W01-sill: valid",
+    "F1-W01-sill: independent box volume",
+    "F1-W02-head: valid",
+    "F1-W02-head: independent box volume",
+    "F1-W02-sill: valid",
+    "F1-W02-sill: independent box volume",
+    "F1-W03-head: valid",
+    "F1-W03-head: independent box volume",
+    "F1-W03-sill: valid",
+    "F1-W03-sill: independent box volume",
+    "F1-W04-head: valid",
+    "F1-W04-head: independent box volume",
+    "F1-W04-sill: valid",
+    "F1-W04-sill: independent box volume",
+    "F1-W05-head: valid",
+    "F1-W05-head: independent box volume",
+    "F1-W05-sill: valid",
+    "F1-W05-sill: independent box volume",
+    "F1-W06-head: valid",
+    "F1-W06-head: independent box volume",
+    "F1-W06-sill: valid",
+    "F1-W06-sill: independent box volume",
+    "F1-W07-head: valid",
+    "F1-W07-head: independent box volume",
+    "F1-W07-sill: valid",
+    "F1-W07-sill: independent box volume",
+    "F2-unit0-left: valid",
+    "F2-unit0-left: independent box volume",
+    "F2-unit0-right: valid",
+    "F2-unit0-right: independent box volume",
+    "F2-unit0-bottom: valid",
+    "F2-unit0-bottom: independent box volume",
+    "F2-unit0-shelf: valid",
+    "F2-unit0-shelf: independent box volume",
+    "F2-unit0-front: valid",
+    "F2-unit0-front: independent box volume",
+    "F2-unit0-handle: valid",
+    "F2-unit0-handle: independent box volume",
+    "F2-unit1-left: valid",
+    "F2-unit1-left: independent box volume",
+    "F2-unit1-right: valid",
+    "F2-unit1-right: independent box volume",
+    "F2-unit1-bottom: valid",
+    "F2-unit1-bottom: independent box volume",
+    "F2-unit1-shelf: valid",
+    "F2-unit1-shelf: independent box volume",
+    "F2-unit1-front: valid",
+    "F2-unit1-front: independent box volume",
+    "F2-unit1-handle: valid",
+    "F2-unit1-handle: independent box volume",
+    "F2-unit2-left: valid",
+    "F2-unit2-left: independent box volume",
+    "F2-unit2-right: valid",
+    "F2-unit2-right: independent box volume",
+    "F2-unit2-bottom: valid",
+    "F2-unit2-bottom: independent box volume",
+    "F2-unit2-shelf: valid",
+    "F2-unit2-shelf: independent box volume",
+    "F2-unit2-front: valid",
+    "F2-unit2-front: independent box volume",
+    "F2-unit2-handle: valid",
+    "F2-unit2-handle: independent box volume",
+    "F2-unit3-left: valid",
+    "F2-unit3-left: independent box volume",
+    "F2-unit3-right: valid",
+    "F2-unit3-right: independent box volume",
+    "F2-unit3-bottom: valid",
+    "F2-unit3-bottom: independent box volume",
+    "F2-unit3-shelf: valid",
+    "F2-unit3-shelf: independent box volume",
+    "F2-unit3-front: valid",
+    "F2-unit3-front: independent box volume",
+    "F2-unit3-handle: valid",
+    "F2-unit3-handle: independent box volume",
+    "F2-counter: valid",
+    "F2-counter: independent box volume",
+    "F2-vanity: valid",
+    "F2-vanity: independent box volume",
+    "F2-basin-back: valid",
+    "F2-basin-back: independent box volume",
+    "F2-basin-front: valid",
+    "F2-basin-front: independent box volume",
+    "F2-basin-left: valid",
+    "F2-basin-left: independent box volume",
+    "F2-basin-right: valid",
+    "F2-basin-right: independent box volume",
+    "F2-wc-base: valid",
+    "F2-wc-base: independent box volume",
+    "F2-wc-cistern: valid",
+    "F2-wc-cistern: independent box volume",
+    "F2-shower: valid",
+    "F2-shower: independent box volume",
+    "F2-shower-screen: valid",
+    "F2-shower-screen: independent box volume",
+    "F2-bath-door: valid",
+    "F2-bath-door: independent box volume",
+    "F2-bath-handle: valid",
+    "F2-bath-handle: independent box volume",
+    "F2-stair-rail1: valid",
+    "F2-stair-infill1: valid",
+    "F2-stair-rail2: valid",
+    "F2-stair-infill2: valid",
+    "F2-W01-head: valid",
+    "F2-W01-head: independent box volume",
+    "F2-W01-sill: valid",
+    "F2-W01-sill: independent box volume",
+    "F2-W02-head: valid",
+    "F2-W02-head: independent box volume",
+    "F2-W02-sill: valid",
+    "F2-W02-sill: independent box volume",
+    "F2-W03-head: valid",
+    "F2-W03-head: independent box volume",
+    "F2-W03-sill: valid",
+    "F2-W03-sill: independent box volume",
+    "F2-W04-head: valid",
+    "F2-W04-head: independent box volume",
+    "F2-W04-sill: valid",
+    "F2-W04-sill: independent box volume",
+    "F2-W05-head: valid",
+    "F2-W05-head: independent box volume",
+    "F2-W05-sill: valid",
+    "F2-W05-sill: independent box volume",
+    "F2-W06-head: valid",
+    "F2-W06-head: independent box volume",
+    "F2-W06-sill: valid",
+    "F2-W06-sill: independent box volume",
+    "F2-W07-head: valid",
+    "F2-W07-head: independent box volume",
+    "F2-W07-sill: valid",
+    "F2-W07-sill: independent box volume",
+    "F3-unit0-left: valid",
+    "F3-unit0-left: independent box volume",
+    "F3-unit0-right: valid",
+    "F3-unit0-right: independent box volume",
+    "F3-unit0-bottom: valid",
+    "F3-unit0-bottom: independent box volume",
+    "F3-unit0-shelf: valid",
+    "F3-unit0-shelf: independent box volume",
+    "F3-unit0-front: valid",
+    "F3-unit0-front: independent box volume",
+    "F3-unit0-handle: valid",
+    "F3-unit0-handle: independent box volume",
+    "F3-unit1-left: valid",
+    "F3-unit1-left: independent box volume",
+    "F3-unit1-right: valid",
+    "F3-unit1-right: independent box volume",
+    "F3-unit1-bottom: valid",
+    "F3-unit1-bottom: independent box volume",
+    "F3-unit1-shelf: valid",
+    "F3-unit1-shelf: independent box volume",
+    "F3-unit1-front: valid",
+    "F3-unit1-front: independent box volume",
+    "F3-unit1-handle: valid",
+    "F3-unit1-handle: independent box volume",
+    "F3-unit2-left: valid",
+    "F3-unit2-left: independent box volume",
+    "F3-unit2-right: valid",
+    "F3-unit2-right: independent box volume",
+    "F3-unit2-bottom: valid",
+    "F3-unit2-bottom: independent box volume",
+    "F3-unit2-shelf: valid",
+    "F3-unit2-shelf: independent box volume",
+    "F3-unit2-front: valid",
+    "F3-unit2-front: independent box volume",
+    "F3-unit2-handle: valid",
+    "F3-unit2-handle: independent box volume",
+    "F3-unit3-left: valid",
+    "F3-unit3-left: independent box volume",
+    "F3-unit3-right: valid",
+    "F3-unit3-right: independent box volume",
+    "F3-unit3-bottom: valid",
+    "F3-unit3-bottom: independent box volume",
+    "F3-unit3-shelf: valid",
+    "F3-unit3-shelf: independent box volume",
+    "F3-unit3-front: valid",
+    "F3-unit3-front: independent box volume",
+    "F3-unit3-handle: valid",
+    "F3-unit3-handle: independent box volume",
+    "F3-counter: valid",
+    "F3-counter: independent box volume",
+    "F3-vanity: valid",
+    "F3-vanity: independent box volume",
+    "F3-basin-back: valid",
+    "F3-basin-back: independent box volume",
+    "F3-basin-front: valid",
+    "F3-basin-front: independent box volume",
+    "F3-basin-left: valid",
+    "F3-basin-left: independent box volume",
+    "F3-basin-right: valid",
+    "F3-basin-right: independent box volume",
+    "F3-wc-base: valid",
+    "F3-wc-base: independent box volume",
+    "F3-wc-cistern: valid",
+    "F3-wc-cistern: independent box volume",
+    "F3-shower: valid",
+    "F3-shower: independent box volume",
+    "F3-shower-screen: valid",
+    "F3-shower-screen: independent box volume",
+    "F3-bath-door: valid",
+    "F3-bath-door: independent box volume",
+    "F3-bath-handle: valid",
+    "F3-bath-handle: independent box volume",
+    "F3-W01-head: valid",
+    "F3-W01-head: independent box volume",
+    "F3-W01-sill: valid",
+    "F3-W01-sill: independent box volume",
+    "F3-W02-head: valid",
+    "F3-W02-head: independent box volume",
+    "F3-W02-sill: valid",
+    "F3-W02-sill: independent box volume",
+    "F3-W03-head: valid",
+    "F3-W03-head: independent box volume",
+    "F3-W03-sill: valid",
+    "F3-W03-sill: independent box volume",
+    "F3-W04-head: valid",
+    "F3-W04-head: independent box volume",
+    "F3-W04-sill: valid",
+    "F3-W04-sill: independent box volume",
+    "F3-W05-head: valid",
+    "F3-W05-head: independent box volume",
+    "F3-W05-sill: valid",
+    "F3-W05-sill: independent box volume",
+    "F3-W06-head: valid",
+    "F3-W06-head: independent box volume",
+    "F3-W06-sill: valid",
+    "F3-W06-sill: independent box volume",
+    "F3-W07-head: valid",
+    "F3-W07-head: independent box volume",
+    "F3-W07-sill: valid",
+    "F3-W07-sill: independent box volume",
+    "F1-island-body: valid",
+    "F1-island-body: independent box volume",
+    "F1-island-top: valid",
+    "F1-island-top: independent box volume",
+    "F1-furniture-800: valid",
+    "F1-furniture-800: independent box volume",
+    "F1-furniture-800-cushion: valid",
+    "F1-furniture-800-cushion: independent box volume",
+    "F1-furniture-800-back: valid",
+    "F1-furniture-800-back: independent box volume",
+    "F2-furniture-1000: valid",
+    "F2-furniture-1000: independent box volume",
+    "F2-furniture-1000-cushion: valid",
+    "F2-furniture-1000-cushion: independent box volume",
+    "F2-furniture-1000-back: valid",
+    "F2-furniture-1000-back: independent box volume",
+    "F2-furniture-6000: valid",
+    "F2-furniture-6000: independent box volume",
+    "F2-furniture-6000-cushion: valid",
+    "F2-furniture-6000-cushion: independent box volume",
+    "F2-furniture-6000-back: valid",
+    "F2-furniture-6000-back: independent box volume",
+    "F1-entry-canopy: valid",
+    "F3-guard-infill0: valid",
+    "F3-guard-infill0: independent box volume",
+    "F3-guard-infill1: valid",
+    "F3-guard-infill1: independent box volume",
+    "F3-guard-infill2: valid",
+    "F3-guard-infill2: independent box volume",
+    "F3-guard-infill3: valid",
+    "F3-guard-infill3: independent box volume",
+    "F3-guard-infill4: valid",
+    "F3-guard-infill4: independent box volume",
+    "F3-west-rail: valid",
+    "F3-west-rail: independent box volume",
+    "F3-west-glass: valid",
+    "F3-west-glass: independent box volume",
+    "RF-parapet-north: valid",
+    "RF-parapet-north: independent box volume",
+    "RF-parapet-east: valid",
+    "RF-parapet-east: independent box volume",
+    "RF-parapet-south: valid",
+    "RF-parapet-south: independent box volume",
+    "RF-parapet-inner: valid",
+    "RF-parapet-inner: independent box volume",
+    "RF-parapet-west: valid",
+    "RF-parapet-west: independent box volume",
+    "Counter source edit regenerates solid",
+    "Undo source edit",
+    "Redo source edit",
+    "A101: detailed section regenerated",
+    "A102: detailed section regenerated",
+    "A103: detailed section regenerated",
+    "A201: detailed section regenerated",
+    "A202: detailed section regenerated",
+    "Native save / reopen retains detailed sources"
+  ],
+  "pairs": [
+    {
+      "a": "F2-table-leg0",
+      "b": "F2-furniture-6000",
+      "expect": "penetration",
+      "result": {
+        "boundaryDistance": 0,
+        "materialDistance": 0,
+        "source": {
+          "point": [
+            1500,
+            6550,
+            3000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:1500,6550,3000,1500,6550,3000,0"
+        },
+        "target": {
+          "point": [
+            1500,
+            6550,
+            3000
+          ],
+          "support": "face",
+          "elementId": "brep-face:1200,6000,3000,2600,8000,3000,2800000"
+        },
+        "relationship": "overlapping",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.0018000000000000002,
+        "commonVolume": 750000,
+        "sourceVolume": 1800000,
+        "targetVolume": 840000000.0000001
+      }
+    },
+    {
+      "a": "F2-table-leg0",
+      "b": "F2-furniture-6000",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 3731.286641361127,
+        "materialDistance": 3731.286641361127,
+        "source": {
+          "point": [
+            5750,
+            4000,
+            3000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:5750,4000,3000,5750,4000,3000,0"
+        },
+        "target": {
+          "point": [
+            2600,
+            6000,
+            3000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:2600,6000,3000,2600,6000,3000,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.0018000000000000002,
+        "commonVolume": 0,
+        "sourceVolume": 1800000,
+        "targetVolume": 840000000.0000001
+      }
+    },
+    {
+      "a": "F2-table",
+      "b": "F2-spine",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 225,
+        "materialDistance": 225,
+        "source": {
+          "point": [
+            5700,
+            3900,
+            3720
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:5700,3900,3720,5700,3900,3720,0"
+        },
+        "target": {
+          "point": [
+            5475,
+            3900,
+            3720
+          ],
+          "support": "face",
+          "elementId": "brep-face:5475,250,3000,5475,9350,5780,21118000"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.0864,
+        "commonVolume": 0,
+        "sourceVolume": 86400000,
+        "targetVolume": 3167700000
+      }
+    },
+    {
+      "a": "F1-west",
+      "b": "F1-north",
+      "expect": "penetration",
+      "result": {
+        "boundaryDistance": 0,
+        "materialDistance": 0,
+        "source": {
+          "point": [
+            250,
+            9475,
+            0
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:250,9475,0,250,9475,0,0"
+        },
+        "target": {
+          "point": [
+            250,
+            9475,
+            0
+          ],
+          "support": "face",
+          "elementId": "brep-face:125,9350,0,10675,9600,0,2637500"
+        },
+        "relationship": "overlapping",
+        "tolerance": 0.001,
+        "volumeTolerance": 5.778250000000002,
+        "commonVolume": 43437500.00000001,
+        "sourceVolume": 5778250000.000001,
+        "targetVolume": 6182250000.000001
+      }
+    },
+    {
+      "a": "F1-island-body",
+      "b": "F1-spine",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 225,
+        "materialDistance": 225,
+        "source": {
+          "point": [
+            5700,
+            3000,
+            0
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:5700,3000,0,5700,3000,0,0"
+        },
+        "target": {
+          "point": [
+            5475,
+            3000,
+            0
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:5475,250,0,5475,3950,0,3700"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 1.3464,
+        "commonVolume": 0,
+        "sourceVolume": 1346400000,
+        "targetVolume": 3167700000
+      }
+    },
+    {
+      "a": "F1-island-top",
+      "b": "F1-counter",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 1120,
+        "materialDistance": 1120,
+        "source": {
+          "point": [
+            7550,
+            2100,
+            880
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:7550,2100,880,7550,2100,880,0"
+        },
+        "target": {
+          "point": [
+            7550,
+            980,
+            880
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:5680,980,880,8120,980,880,2440"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.047580000000000004,
+        "commonVolume": 0,
+        "sourceVolume": 63175000,
+        "targetVolume": 47580000
+      }
+    },
+    {
+      "a": "F1-bath-door",
+      "b": "F1-vanity",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 908.6390922693124,
+        "materialDistance": 908.6390922693124,
+        "source": {
+          "point": [
+            6275,
+            7200,
+            0
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6275,7200,0,6275,7200,0,0"
+        },
+        "target": {
+          "point": [
+            6150,
+            8100,
+            0
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6150,8100,0,6150,8100,0,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.068888,
+        "commonVolume": 0,
+        "sourceVolume": 68888000,
+        "targetVolume": 528000000
+      }
+    },
+    {
+      "a": "F1-shower",
+      "b": "F1-wc-base",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 200,
+        "materialDistance": 200,
+        "source": {
+          "point": [
+            6860,
+            8300,
+            0
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:6800,8300,0,7700,8300,0,900"
+        },
+        "target": {
+          "point": [
+            6860,
+            8500,
+            0
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6860,8500,0,6860,8500,0,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.0405,
+        "commonVolume": 0,
+        "sourceVolume": 40500000,
+        "targetVolume": 95760000
+      }
+    },
+    {
+      "a": "F1-counter",
+      "b": "F1-unit0-front",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 40,
+        "materialDistance": 40,
+        "source": {
+          "point": [
+            6268,
+            933,
+            880
+          ],
+          "support": "face",
+          "elementId": "brep-face:5680,330,880,8120,980,880,1586000"
+        },
+        "target": {
+          "point": [
+            6268,
+            933,
+            840
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6268,933,840,6268,933,840,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.007076160000000001,
+        "commonVolume": 0,
+        "sourceVolume": 47580000,
+        "targetVolume": 7076160
+      }
+    },
+    {
+      "a": "F2-bath-door",
+      "b": "F2-vanity",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 908.6390922693124,
+        "materialDistance": 908.6390922693124,
+        "source": {
+          "point": [
+            6275,
+            7200,
+            3000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6275,7200,3000,6275,7200,3000,0"
+        },
+        "target": {
+          "point": [
+            6150,
+            8100,
+            3000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6150,8100,3000,6150,8100,3000,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.068888,
+        "commonVolume": 0,
+        "sourceVolume": 68888000,
+        "targetVolume": 528000000
+      }
+    },
+    {
+      "a": "F2-shower",
+      "b": "F2-wc-base",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 200,
+        "materialDistance": 200,
+        "source": {
+          "point": [
+            6860,
+            8300,
+            3000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:6800,8300,3000,7700,8300,3000,900"
+        },
+        "target": {
+          "point": [
+            6860,
+            8500,
+            3000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6860,8500,3000,6860,8500,3000,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.0405,
+        "commonVolume": 0,
+        "sourceVolume": 40500000,
+        "targetVolume": 95760000
+      }
+    },
+    {
+      "a": "F2-counter",
+      "b": "F2-unit0-front",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 40,
+        "materialDistance": 40,
+        "source": {
+          "point": [
+            5722,
+            951,
+            3880
+          ],
+          "support": "face",
+          "elementId": "brep-face:5680,330,3880,8120,980,3880,1586000"
+        },
+        "target": {
+          "point": [
+            5722,
+            951,
+            3840
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:5722,951,3840,5722,951,3840,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.007076160000000001,
+        "commonVolume": 0,
+        "sourceVolume": 47580000,
+        "targetVolume": 7076160
+      }
+    },
+    {
+      "a": "F3-bath-door",
+      "b": "F3-vanity",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 908.6390922693124,
+        "materialDistance": 908.6390922693124,
+        "source": {
+          "point": [
+            6275,
+            7200,
+            6000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6275,7200,6000,6275,7200,6000,0"
+        },
+        "target": {
+          "point": [
+            6150,
+            8100,
+            6000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6150,8100,6000,6150,8100,6000,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.068888,
+        "commonVolume": 0,
+        "sourceVolume": 68888000,
+        "targetVolume": 528000000
+      }
+    },
+    {
+      "a": "F3-shower",
+      "b": "F3-wc-base",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 200,
+        "materialDistance": 200,
+        "source": {
+          "point": [
+            6860,
+            8300,
+            6000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:6800,8300,6000,7700,8300,6000,900"
+        },
+        "target": {
+          "point": [
+            6860,
+            8500,
+            6000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6860,8500,6000,6860,8500,6000,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.0405,
+        "commonVolume": 0,
+        "sourceVolume": 40500000,
+        "targetVolume": 95760000
+      }
+    },
+    {
+      "a": "F3-counter",
+      "b": "F3-unit0-front",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 40,
+        "materialDistance": 40,
+        "source": {
+          "point": [
+            5722,
+            933,
+            6880
+          ],
+          "support": "face",
+          "elementId": "brep-face:5680,330,6880,8120,980,6880,1586000"
+        },
+        "target": {
+          "point": [
+            5722,
+            933,
+            6840
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:5722,933,6840,5722,933,6840,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.007076160000000001,
+        "commonVolume": 0,
+        "sourceVolume": 47580000,
+        "targetVolume": 7076160
+      }
+    },
+    {
+      "a": "F1-stair-rail1",
+      "b": "F2-slab",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 1186.8024266911489,
+        "materialDistance": 1186.8024266911489,
+        "source": {
+          "point": [
+            9090,
+            8070,
+            2450
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:9090,8070,2450,9090,8070,2450,0"
+        },
+        "target": {
+          "point": [
+            7950,
+            8070,
+            2780
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:7950,5450,2780,7950,9300,2780,3850"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.005669999999999999,
+        "commonVolume": 0,
+        "sourceVolume": 5669999.999999998,
+        "targetVolume": 20776800000
+      }
+    },
+    {
+      "a": "F1-stair-rail2",
+      "b": "F2-slab",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 840.5541142774456,
+        "materialDistance": 840.5541142774456,
+        "source": {
+          "point": [
+            9190,
+            5846.927651139742,
+            3740.9316154608523
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:9190,5550,2550,9190,8070,3900,2858.82843137"
+        },
+        "target": {
+          "point": [
+            9190,
+            5450,
+            3000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:7950,5450,3000,10350,5450,3000,2400"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.0056700000000000075,
+        "commonVolume": 0,
+        "sourceVolume": 5670000.000000007,
+        "targetVolume": 20776800000
+      }
+    },
+    {
+      "a": "F2-stair-rail1",
+      "b": "F3-slab",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 1186.8024266911489,
+        "materialDistance": 1186.8024266911489,
+        "source": {
+          "point": [
+            9090,
+            8070,
+            5450
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:9090,8070,5450,9090,8070,5450,0"
+        },
+        "target": {
+          "point": [
+            7950,
+            8070,
+            5780
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:7950,5450,5780,7950,9300,5780,3850"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.0056700000000000006,
+        "commonVolume": 0,
+        "sourceVolume": 5670000,
+        "targetVolume": 20776800000
+      }
+    },
+    {
+      "a": "F2-stair-rail2",
+      "b": "F3-slab",
+      "expect": "clear",
+      "result": {
+        "boundaryDistance": 840.5541142774456,
+        "materialDistance": 840.5541142774456,
+        "source": {
+          "point": [
+            9190,
+            5846.927651139742,
+            6740.931615460852
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:9190,5550,5550,9190,8070,6900,2858.82843137"
+        },
+        "target": {
+          "point": [
+            9190,
+            5450,
+            6000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:7950,5450,6000,10350,5450,6000,2400"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.0056700000000000075,
+        "commonVolume": 0,
+        "sourceVolume": 5670000.000000007,
+        "targetVolume": 20776800000
+      }
+    },
+    {
+      "probe": "door-swing-envelope",
+      "id": "F1-vanity",
+      "result": {
+        "boundaryDistance": 908.6390922693124,
+        "materialDistance": 908.6390922693124,
+        "source": {
+          "point": [
+            6275,
+            7200,
+            0
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6275,7200,0,6275,7200,0,0"
+        },
+        "target": {
+          "point": [
+            6150,
+            8100,
+            0
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6150,8100,0,6150,8100,0,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.528,
+        "commonVolume": 0,
+        "sourceVolume": 1407999999.9999998,
+        "targetVolume": 528000000
+      }
+    },
+    {
+      "probe": "door-swing-envelope",
+      "id": "F1-wc-base",
+      "result": {
+        "boundaryDistance": 1300,
+        "materialDistance": 1300,
+        "source": {
+          "point": [
+            7075,
+            7200,
+            0
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:7075,7200,0,7075,7200,0,0"
+        },
+        "target": {
+          "point": [
+            7075,
+            8500,
+            0
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:6860,8500,0,7240,8500,0,380"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.09576000000000001,
+        "commonVolume": 0,
+        "sourceVolume": 1407999999.9999998,
+        "targetVolume": 95760000
+      }
+    },
+    {
+      "probe": "door-swing-envelope",
+      "id": "F1-shower",
+      "result": {
+        "boundaryDistance": 200,
+        "materialDistance": 200,
+        "source": {
+          "point": [
+            7075,
+            7200,
+            0
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:7075,7200,0,7075,7200,0,0"
+        },
+        "target": {
+          "point": [
+            7075,
+            7400,
+            0
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:6800,7400,0,7700,7400,0,900"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.0405,
+        "commonVolume": 0,
+        "sourceVolume": 1407999999.9999998,
+        "targetVolume": 40500000
+      }
+    },
+    {
+      "probe": "door-swing-envelope",
+      "id": "F2-vanity",
+      "result": {
+        "boundaryDistance": 908.6390922693124,
+        "materialDistance": 908.6390922693124,
+        "source": {
+          "point": [
+            6275,
+            7200,
+            3000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6275,7200,3000,6275,7200,3000,0"
+        },
+        "target": {
+          "point": [
+            6150,
+            8100,
+            3000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6150,8100,3000,6150,8100,3000,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.528,
+        "commonVolume": 0,
+        "sourceVolume": 1407999999.9999998,
+        "targetVolume": 528000000
+      }
+    },
+    {
+      "probe": "door-swing-envelope",
+      "id": "F2-wc-base",
+      "result": {
+        "boundaryDistance": 1300,
+        "materialDistance": 1300,
+        "source": {
+          "point": [
+            7075,
+            7200,
+            3000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:7075,7200,3000,7075,7200,3000,0"
+        },
+        "target": {
+          "point": [
+            7075,
+            8500,
+            3000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:6860,8500,3000,7240,8500,3000,380"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.09576000000000001,
+        "commonVolume": 0,
+        "sourceVolume": 1407999999.9999998,
+        "targetVolume": 95760000
+      }
+    },
+    {
+      "probe": "door-swing-envelope",
+      "id": "F2-shower",
+      "result": {
+        "boundaryDistance": 200,
+        "materialDistance": 200,
+        "source": {
+          "point": [
+            7075,
+            7200,
+            3000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:7075,7200,3000,7075,7200,3000,0"
+        },
+        "target": {
+          "point": [
+            7075,
+            7400,
+            3000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:6800,7400,3000,7700,7400,3000,900"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.0405,
+        "commonVolume": 0,
+        "sourceVolume": 1407999999.9999998,
+        "targetVolume": 40500000
+      }
+    },
+    {
+      "probe": "door-swing-envelope",
+      "id": "F3-vanity",
+      "result": {
+        "boundaryDistance": 908.6390922693124,
+        "materialDistance": 908.6390922693124,
+        "source": {
+          "point": [
+            6275,
+            7200,
+            6000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6275,7200,6000,6275,7200,6000,0"
+        },
+        "target": {
+          "point": [
+            6150,
+            8100,
+            6000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:6150,8100,6000,6150,8100,6000,0"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.528,
+        "commonVolume": 0,
+        "sourceVolume": 1407999999.9999998,
+        "targetVolume": 528000000
+      }
+    },
+    {
+      "probe": "door-swing-envelope",
+      "id": "F3-wc-base",
+      "result": {
+        "boundaryDistance": 1300,
+        "materialDistance": 1300,
+        "source": {
+          "point": [
+            7075,
+            7200,
+            6000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:7075,7200,6000,7075,7200,6000,0"
+        },
+        "target": {
+          "point": [
+            7075,
+            8500,
+            6000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:6860,8500,6000,7240,8500,6000,380"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.09576000000000001,
+        "commonVolume": 0,
+        "sourceVolume": 1407999999.9999998,
+        "targetVolume": 95760000
+      }
+    },
+    {
+      "probe": "door-swing-envelope",
+      "id": "F3-shower",
+      "result": {
+        "boundaryDistance": 200,
+        "materialDistance": 200,
+        "source": {
+          "point": [
+            7075,
+            7200,
+            6000
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:7075,7200,6000,7075,7200,6000,0"
+        },
+        "target": {
+          "point": [
+            7075,
+            7400,
+            6000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:6800,7400,6000,7700,7400,6000,900"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.0405,
+        "commonVolume": 0,
+        "sourceVolume": 1407999999.9999998,
+        "targetVolume": 40500000
+      }
+    },
+    {
+      "probe": "F1 tread 1 headroom",
+      "result": {
+        "boundaryDistance": 645.358350143546,
+        "materialDistance": 645.358350143546,
+        "source": {
+          "point": [
+            8100,
+            5590,
+            2150.01
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:8100,5590,2150.01,8100,5590,2150.01,0"
+        },
+        "target": {
+          "point": [
+            8100,
+            5450,
+            2780
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:7950,5450,2780,10350,5450,2780,2400"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.3600000000000001,
+        "commonVolume": 0,
+        "sourceVolume": 360000000.00000006,
+        "targetVolume": 20776800000
+      }
+    },
+    {
+      "probe": "F1 tread 9 headroom",
+      "result": {
+        "boundaryDistance": 150,
+        "materialDistance": 150,
+        "source": {
+          "point": [
+            8100,
+            7830,
+            3000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:8100,7830,1350.01,8100,7830,3350.01,2000"
+        },
+        "target": {
+          "point": [
+            7950,
+            7830,
+            3000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:7950,5450,3000,7950,9300,3000,3850"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.3600000000000001,
+        "commonVolume": 0,
+        "sourceVolume": 360000000.00000006,
+        "targetVolume": 20776800000
+      }
+    },
+    {
+      "probe": "F1 tread 11 headroom",
+      "result": {
+        "boundaryDistance": 150,
+        "materialDistance": 150,
+        "source": {
+          "point": [
+            10200,
+            7830,
+            3000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:10200,7830,1650.01,10200,7830,3650.01,2000"
+        },
+        "target": {
+          "point": [
+            10350,
+            7830,
+            3000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:10350,5450,3000,10350,9300,3000,3850"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.36000000000000004,
+        "commonVolume": 0,
+        "sourceVolume": 360000000,
+        "targetVolume": 20776800000
+      }
+    },
+    {
+      "probe": "F1 tread 19 headroom",
+      "result": {
+        "boundaryDistance": 140,
+        "materialDistance": 140,
+        "source": {
+          "point": [
+            9300,
+            5590,
+            2850.01
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:9300,5590,2850.01,9300,5590,2850.01,0"
+        },
+        "target": {
+          "point": [
+            9300,
+            5450,
+            2850.01
+          ],
+          "support": "face",
+          "elementId": "brep-face:7950,5450,2780,10350,5450,3000,528000"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.36000000000000004,
+        "commonVolume": 0,
+        "sourceVolume": 360000000,
+        "targetVolume": 20776800000
+      }
+    },
+    {
+      "probe": "F2 tread 1 headroom",
+      "result": {
+        "boundaryDistance": 645.358350143546,
+        "materialDistance": 645.358350143546,
+        "source": {
+          "point": [
+            8100,
+            5590,
+            5150.01
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:8100,5590,5150.01,8100,5590,5150.01,0"
+        },
+        "target": {
+          "point": [
+            8100,
+            5450,
+            5780
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:7950,5450,5780,10350,5450,5780,2400"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.36000000000000004,
+        "commonVolume": 0,
+        "sourceVolume": 360000000,
+        "targetVolume": 20776800000
+      }
+    },
+    {
+      "probe": "F2 tread 9 headroom",
+      "result": {
+        "boundaryDistance": 150,
+        "materialDistance": 150,
+        "source": {
+          "point": [
+            8100,
+            7830,
+            6000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:8100,7830,4350.01,8100,7830,6350.01,2000"
+        },
+        "target": {
+          "point": [
+            7950,
+            7830,
+            6000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:7950,5450,6000,7950,9300,6000,3850"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.36000000000000004,
+        "commonVolume": 0,
+        "sourceVolume": 360000000,
+        "targetVolume": 20776800000
+      }
+    },
+    {
+      "probe": "F2 tread 11 headroom",
+      "result": {
+        "boundaryDistance": 150,
+        "materialDistance": 150,
+        "source": {
+          "point": [
+            10200,
+            7830,
+            6000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:10200,7830,4650.01,10200,7830,6650.01,2000"
+        },
+        "target": {
+          "point": [
+            10350,
+            7830,
+            6000
+          ],
+          "support": "edge",
+          "elementId": "brep-edge:10350,5450,6000,10350,9300,6000,3850"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.36000000000000004,
+        "commonVolume": 0,
+        "sourceVolume": 360000000,
+        "targetVolume": 20776800000
+      }
+    },
+    {
+      "probe": "F2 tread 19 headroom",
+      "result": {
+        "boundaryDistance": 140,
+        "materialDistance": 140,
+        "source": {
+          "point": [
+            9300,
+            5590,
+            5850.01
+          ],
+          "support": "vertex",
+          "elementId": "brep-vertex:9300,5590,5850.01,9300,5590,5850.01,0"
+        },
+        "target": {
+          "point": [
+            9300,
+            5450,
+            5850.01
+          ],
+          "support": "face",
+          "elementId": "brep-face:7950,5450,5780,10350,5450,6000,528000"
+        },
+        "relationship": "separated",
+        "tolerance": 0.001,
+        "volumeTolerance": 0.36000000000000004,
+        "commonVolume": 0,
+        "sourceVolume": 360000000,
+        "targetVolume": 20776800000
+      }
+    }
+  ],
+  "partCount": 361,
+  "newParts": 182,
+  "sourceCount": 1275,
+  "limits": [
+    "No industrial-design quality certification: this iteration increases real assembly detail and spatial verification.",
+    "Wall junction overlap positively detected; net takeoff remains unresolved.",
+    "Headroom samples check upper slabs only, not continuous routes or all obstacles.",
+    "Door envelope checks service fixtures only; whole-building egress is not certified.",
+    "Risers/stringers, structural connections, waterproofing/drainage/MEP and complete site/code review remain open."
+  ]
+}

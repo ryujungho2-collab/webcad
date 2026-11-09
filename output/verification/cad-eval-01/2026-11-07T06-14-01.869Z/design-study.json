@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "documentId": "cad-eval-01-synthetic",
+  "intentConfirmed": true,
+  "decisions": [],
+  "brief": {
+    "goal": "Increase vent opening area while preserving service-lid mounting and the protected enclosure.",
+    "requirements": "700–800 mm² geometric vent opening area; retain 3x5 grid, hole centers, 100x70x3 mm lid, edge ligament >=8 mm, inter-hole ligament >=10 mm; retain 2 mm inspection gap and >=10 mm lid-to-reference Z separation. Change only one advertised vent diameter driver.",
+    "assumptions": "Synthetic evaluation intent authored by the evaluator. The block is a protected geometric envelope. Opening area is not airflow; the inspection gap is not an assembled seal.",
+    "questions": "Material, cooling load, fasteners and manufacturing tolerances remain unspecified.",
+    "qualities": [],
+    "anchors": [
+      {
+        "objectId": "model-e8fa7dc5",
+        "role": "core"
+      },
+      {
+        "objectId": "protected-electronics-envelope",
+        "role": "preserve"
+      },
+      {
+        "objectId": "vent_2c5ce52fd06748d283c77ecef6acf22b_solid",
+        "role": "reference"
+      }
+    ]
+  }
+}

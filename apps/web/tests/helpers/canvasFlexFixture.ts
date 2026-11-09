@@ -1,0 +1,5 @@
+import {defaultCanvasFlex,type CadCanvas} from "@agent-webcad/cad-document";
+import {resetTestDocument} from "./documentHarness";
+import {dispatchCadCommand} from "../../src/state/dispatchCadCommand";
+const run=async(c:Parameters<typeof dispatchCadCommand>[0])=>{const r=await dispatchCadCommand(c);if(!r.ok)throw Error(r.reason);return r;};
+export async function flexFixture(configured=true){resetTestDocument();await run({type:"create-drawing",id:"source",drawing:"line",params:{workPlane:"XY",points:[[0,0,0],[100,0,0]]}});for(const [i,id] of ["a","b","c"].entries())await run({type:"create-artboard",id,name:`Frame ${id}`,workPlane:"XY",origin:[400+i*150,300],size:[100,60],frame:{memberIds:["source"],sourceOrigin:[-10,-10],denominator:20}});const canvas:CadCanvas={id:"flex",name:"Flex paper",units:"paper-mm",workPlane:"XY",origin:[0,0],size:[250,200],locked:false,layout:configured?{...defaultCanvasFlex(),gap:10,wrap:true}:undefined,members:["a","b","c"].map(id=>({kind:"artboard",id,relation:"own"}))};await run({type:"upsert-canvas",canvas});return canvas;}

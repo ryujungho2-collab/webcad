@@ -1,6 +1,6 @@
 # 작업 범위 분할과 재시작 계약
 
-2026-10-17 정합성 기준: 최신 실행 큐는 [NEXT-STEPS](../NEXT-STEPS.md#현재-실행-큐)의 **WF-Q1**이다. [B·X·G·I 구현 순서](product/B-X-G-I-IMPLEMENTATION-ORDER-2026-10-11.md)와 아래 날짜별 순서·프롬프트는 당시 카드 분할·인계 이력이며 현재 요청의 범위를 제한하지 않는다. 최신 완료 근거는 [PROJECT-STATE](../PROJECT-STATE.md)에서 찾는다.
+2026-10-17 정합성 기준: 최신 실행 큐는 [NEXT-STEPS](../NEXT-STEPS.md#현재-실행-큐)를 따른다. [B·X·G·I 구현 순서](product/B-X-G-I-IMPLEMENTATION-ORDER-2026-10-11.md)와 아래 날짜별 순서·프롬프트는 당시 카드 분할·인계 이력이며 현재 요청의 범위를 제한하지 않는다. 최신 완료 근거는 [PROJECT-STATE](../PROJECT-STATE.md)에서 찾는다.
 
 2026-10-10: **B2-B line–arc Fillet**을 bounded 접점·유지 가지·복수 해 review/Apply 범위에서 완료했다. [지원과 실제 검수](implementation/B2-B-LINE-ARC-FILLET-2026-10-10.md)를 따른다. 아래는 기존 실행 이력이다.
 

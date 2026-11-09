@@ -2,9 +2,9 @@
 
 > **문서 역할**: 후속 설계와 당시 결정 기록. 현재 사용법·지원 범위는 [프로젝트와 저장](../features/PROJECTS.md)에서 관리한다.
 
-현재 우선순위: [평면도 계획](FLOOR-PLAN-COPILOT-CANVAS-2026-10-14.md)의 **WF-Q1 실제 주거 과제 검증**이다. UI-P2·WF-A1·C0/A2/B1·B2/B3·CMP-S1/WF-D1은 각각 지원 범위로 완료했다. 아래 UI 전용 순서는 전체 제품 큐를 대체하지 않는다.
+I-UX1 이미지 배치 경험은 [구현·검증 완료](../implementation/I-UX1-IMAGE-PLACEMENT-2026-10-18.md)했다. 후속 우선순위는 [실행 큐](../../NEXT-STEPS.md#현재-실행-큐)를 따른다. UI-P2·WF-A1·C0/A2/B1·B2/B3·CMP-S1/WF-D1·WF-Q1·UI-P3-A/B·UI-C2/C3/C4는 각각 지원 범위로 완료했고 UI-C5도 2026-10-18 첫 지원 범위로 완료했다. 아래 UI 전용 순서는 전체 제품 큐를 대체하지 않는다.
 
-정합성 갱신: 2026-10-17. 실행 순위와 상태의 원본은 [NEXT-STEPS](../../NEXT-STEPS.md#현재-실행-큐)다. 이 문서는 향후 위임 시 사용할 구현 경계이며 자동 에이전트 실행 지시가 아니다. **UI-P1-H1/H2·UI-P2-S/C는 지원 범위로 완료**했다. 후속 세션 UI 후보는 **UI-P3-A/B**, UI-C2/C3와 CAD 해치/DXF 보충은 병행 가능한 대기 카드다.
+정합성 갱신: 2026-10-18. 실행 순위와 상태의 원본은 [NEXT-STEPS](../../NEXT-STEPS.md#현재-실행-큐)다. 이 문서는 향후 위임 시 사용할 구현 경계이며 자동 에이전트 실행 지시가 아니다. **UI-P1-H1/H2·UI-P2-S/C·UI-P3-A/B·UI-C2/C3/C4는 지원 범위로 완료**했다. UI-C5·G6-D4-H2·G6-D5-E2·G6-D6-P4도 2026-10-18 첫 지원 범위로 완료했으며 G2-W1도 첫 지원 범위로 완료했고 G2-W2도 첫 지원 범위로 완료했고 G6-D5-Q1도 완료했고 I-UX1도 구현·검증 완료했다.
 
 ## 공통 계약과 소유권
 
@@ -24,6 +24,8 @@
 
 ### UI-C2 · 선택 문맥 도구 모음
 
+**첫 지원 범위 완료(2026-10-17).** [현재 사용법](../features/SELECTION-TOOLS.md) · [구현·검증](../implementation/UI-C2-SELECTION-TOOLS-2026-10-17.md). 아래는 당시 구현 계약이다.
+
 **담당:** 문맥 UI. **선행:** 기존 명령의 사용 가능 여부 계약 확인. **파일:** 신규 `ui/SelectionToolbar.tsx`, `ui/ToolDisclosure.tsx`, `ribbon/Ribbon.tsx`, 관련 scoped CSS와 browser workflow. App 연결은 통합 담당.
 
 **구현:** 무선택은 주요 작성 도구, line/arc/spline은 이동·복사·길이/곡선 편집, 솔리드는 수치/변환, 프레임은 crop·축척·연결·시트, 주석은 내용·참조·스타일을 노출한다. 혼합 선택/잠금/지원 불가에는 원인을 표시한다. 첫 줄에는 자주 쓰는 소수 명령만 두고 나머지는 메뉴로 보낸다. 명령을 복제하지 않고 registry를 호출한다. 화면 가장자리와 Review 패널을 피하고 선택/텍스트 입력 중 UI가 튀지 않게 한다.
@@ -31,6 +33,8 @@
 **완료/검증:** 실제 대상 선택→명령→Preview/Apply→Undo, 잠긴 대상·혼합 선택, 메뉴 Escape와 원래 포커스 복귀, 960px/확대 화면. 원본 선·치수·도면 출력을 유지한다. 기존 리본·단축키 경로도 작동한다.
 
 ### UI-C3 · 속성 패널의 정보 순서
+
+**첫 지원 범위 완료(2026-10-17).** [현재 사용법](../features/PROPERTIES.md) · [구현·검증](../implementation/UI-C3-INSPECTOR-2026-10-17.md). 아래는 당시 구현 계약이다.
 
 **담당:** 속성 UI. **선행:** C2와 공통 선택/상태 Props 합의. **파일:** `properties/PropertiesPanel.tsx`, `DraftingPanel.tsx`, `VectorStyleEditor.tsx`, `SketchInspector.tsx`, `NumericModelEdit.tsx`, `ui/inspector.css`.
 
@@ -50,6 +54,8 @@
 
 ### G6-D4-H2 · 타원/spline 해치
 
+**첫 지원 범위 완료(2026-10-18).** [사용법](../features/DRAWINGS-OUTPUT.md) · [구현·검증](../implementation/G6-D4-H2-CURVE-HATCH-2026-10-18.md). 아래는 당시 구현 계약이다.
+
 **담당:** 기하. **선행:** 완료된 ellipse/spline section source. **파일:** `precision/sectionHatch.ts`, `sectionBoundary.ts`, 해당 geometry helper와 대상 tests. renderer/export 공통 접점은 통합 담당과 합의.
 
 **구현:** 실제 유한 곡선의 폐합·교차·접선·구멍 포함 관계와 seam을 검증하고 해치 간격/방향을 같은 경계에서 생성한다. 출력에 필요한 곡선 근사 허용오차와 원본 기하를 분리한다. 실패 경계를 조용히 다각형으로 바꾸지 않는다.
@@ -57,6 +63,8 @@
 **완료/검증:** 타원 외곽+구멍, spline/line 혼합 폐합, 접촉/자기교차/열린 경계·짧은 domain. 편집→연관 갱신→Undo→재열기, 화면/SVG/PDF의 동일한 경계와 축척. R5에 곡선 단면 fixture를 추가해 실제 페이지를 렌더링한다.
 
 ### G6-D5-E2 · periodic/fit-only DXF
+
+2026-10-18 첫 지원 범위 완료: [구현·검증](../implementation/G6-D5-E2-CURVE-DXF-2026-10-18.md). explicit wrapped periodic finite basis와 열린 natural fit cubic, 별도 손실 동의·왕복 검증을 지원한다. implied cyclic poles·closed/periodic/tangent fit·custom LTYPE/font 이식은 후속이다. 아래는 원래 카드 계약이다.
 
 **담당:** 교환. **선행:** E1 정확 curve writer, schema 지원 경계 합의. **파일:** `interop/dxfParser.ts`, `dxfImport.ts`, `dxfWriter.ts`, `DxfReviewDialog.tsx`, 대상 fixture/tests. document schema 변경은 통합 담당.
 
@@ -68,6 +76,8 @@
 
 ### UI-P3-A/B · 분할 비교와 탭 탐색
 
+**A 첫 지원 범위 완료(2026-10-17):** 기존 CSS와 pointer capture로 두 편집 iframe을 재배치 없이 유지했다. 두 창의 편집/Undo/출력·1440/960px·비교 복원 검증과 지원 경계는 [구현 기록](../implementation/UI-P3-A-PROJECT-COMPARISON-2026-10-17.md)을 따른다. B도 [탭 탐색 구현 기록](../implementation/UI-P3-B-TAB-NAVIGATION-2026-10-17.md)의 첫 지원 범위로 완료했다.
+
 **담당:** 작업 공간. **선행:** H1/P2. **파일:** `app/ProjectWorkspace.tsx`, `app/projects.css`, 새 layout adapter/탭 모델, `tests/projectTabs.browser.tsx`. 단축키 routing은 통합 담당과 조정.
 
 **A 범위:** 서로 다른 열린 프로젝트 2개 좌우 배치, divider 크기 조절, 활성 pane 명확히 표시, 단일 보기 복귀. 같은 프로젝트를 두 편집 iframe으로 중복 생성하지 않는다. DOM 그룹 이동이 iframe을 reload해 Undo를 지우는지 우선 실험한다. Dockview와 react-resizable-panels를 작은 fixture에서 비교한 뒤 하나 또는 기존 CSS 구현을 선택한다. 카메라 동기화는 좌표계/단위·2D/3D가 맞는 경우의 명시적 옵션으로 후속 분리한다.
@@ -78,6 +88,8 @@
 
 ### G6-D6-P4 · 캐시 byte 예산과 cold HLR
 
+**상태:** 2026-10-18 [첫 지원 범위 완료](../implementation/G6-D6-P4-CACHE-COLD-HLR-2026-10-18.md). native 추정 예산은 전체 프로세스 메모리 상한을 뜻하지 않는다.
+
 **담당:** 커널 성능. **선행:** P3. **파일:** `cad/kernelRuntime.ts`, `state/modelSectionService.ts`, `state/modelProjectionService.ts`, 관련 protocol/benchmark. P2와 Worker lifecycle 파일을 동시에 수정하지 않는다.
 
 **구현:** source/retained-slab/cache의 count 상한과 byte 추정 예산·퇴출·명시적 해제를 함께 관리한다. pinned/in-flight 데이터와 stale revision을 분리한다. 최초 새 source의 global HLR 병목을 계측하고 개선한다. 상한 초과 시 정확한 계산 경로 또는 명시적 실패를 사용한다.
@@ -85,6 +97,8 @@
 **완료/검증:** 최소 5회 독립 cold/warm 실행의 원시값·중앙값·최솟값/최댓값과 환경 기록. 작은 표본의 p95를 안정적 지표처럼 해석하지 않는다. 같은 source/새 source·회수 전후·다중 세션을 분리한다. cache hit만으로 성능 완료를 주장하지 않는다. 기하/hidden line 결과 동등성, stale/잠금/Undo와 eviction 후 재생성을 검증한다.
 
 ### G6-D5-Q1 · 출력 전 점검
+
+**상태:** 2026-10-18 [구현·검증 완료](../implementation/G6-D5-Q1-OUTPUT-PREFLIGHT-2026-10-18.md). 세부 진단 범위와 font/print 지원 경계는 기록을 따른다.
 
 **담당:** 도면 출력. **선행:** H2/E2 지원 범위 확정. **파일:** `export/ArtboardPdfDialog.tsx`, `export/exportModel.ts`, `export/modelSheetExport.ts`, `plot/plotPlan.ts`, 신규 preflight UI/검수 tests.
 
@@ -96,12 +110,12 @@
 
 | 카드 | 담당 파일 범위 / 선행 | 첫 산출물과 합격 기준 |
 | --- | --- | --- |
-| UI-C4 | 신규 app/ProjectHome, H2 목록 API | 최근/검색/샘플 복제/복구. 기존 프로젝트에 덮어쓰지 않고 템플릿은 새 ID/asset namespace |
-| UI-C5 | input/shortcutRouter, shortcutCatalog, ui/ToolDisclosure 및 dialog 호출부; C2/C3 | 단축키 안내·진행/취소·저장 상태 규칙, 키보드만으로 작성/편집/닫기/복구. 한글 IME·포커스/확대 확인 |
-| G2-W1 | explorer 하위 신규 project tree, 기존 viewport model/frame APIs; C3/C4 | 모델/도면/시트 트리와 검색·대상 보기. 탐색이 geometry revision/Undo를 만들지 않음 |
-| G2-W2 | 신규 library UI와 기존 block/import 명령; W1 | 문/창/가구·도곽 작은 기본 library, 단위/원점/의존성 Review·한 Undo·저장 재열기 |
+| UI-C4 완료 · [기록](../implementation/UI-C4-PROJECT-HOME-2026-10-17.md) | 신규 app/ProjectHome, H2 목록 API | 최근/검색/샘플 복제/복구. 기존 프로젝트에 덮어쓰지 않고 템플릿은 새 ID/asset namespace |
+| UI-C5 완료 · [기록](../implementation/UI-C5-INPUT-ACCESSIBILITY-2026-10-18.md) | input/shortcutRouter, shortcutCatalog, ui/ToolDisclosure 및 dialog 호출부; C2/C3 | 단축키 안내·진행/취소·저장 상태 규칙, 키보드만으로 작성/편집/닫기/복구. 한글 IME·포커스/확대 확인 |
+| G2-W1 · [완료](../implementation/G2-W1-PROJECT-NAVIGATION-2026-10-18.md) | explorer 하위 신규 project tree, 기존 viewport model/frame APIs; C3/C4 | 모델/도면/시트 트리와 검색·대상 보기. 탐색이 geometry revision/Undo를 만들지 않음 |
+| G2-W2 · [첫 범위 완료](../implementation/G2-W2-REUSABLE-LIBRARY-2026-10-18.md) | 신규 library UI와 기존 block/import 명령; W1 | 문/창/가구·도곽 작은 기본 library, 단위/원점/의존성 Review·한 Undo·저장 재열기 |
 | I-UX1 | properties/ImageInspector, viewport/ImageCropHandles, image renderer; C2/C3 | 교체/맞춤/crop/opacity/순서 접근 개선. 기존 원본/좌표·출력·asset 복구 보존 |
-| UI-P4 | H2 workspace packaging adapter; W1 | 프로젝트 묶음 내보내기/열기와 충돌 Review. 동일 ID를 세션별 remap, asset 누락·실패 rollback. 실시간 협업은 별도 명세 |
+| UI-P4 · [완료](../implementation/UI-P4-PROJECT-BUNDLES-2026-10-18.md) | H2 workspace packaging adapter; W1 | 프로젝트 묶음 내보내기/열기와 충돌 Review. 동일 ID를 세션별 remap, asset 누락·실패 rollback. 실시간 협업은 별도 명세 |
 
 ## 복사해서 맡길 지시문
 
@@ -113,4 +127,4 @@
 
 오픈소스 출처·라이선스 표는 NEXT-STEPS를 따른다. 채택 실험 결과는 정확한 버전/commit, 라이선스/NOTICE, bundle 증감, accessibility, iframe 유지/포커스, teardown, 기존 CAD와의 계약으로 판단한다. 외부 라이브러리는 레이아웃·입력·저장 adapter에 한정하고 CAD 정확 기하와 연관 모델의 대체로 간주하지 않는다. 현재 조사 단계에서 새 의존성이나 외부 소스를 추가하지 않았다.
 
-2026-10-17 현재: 다음은 **WF-Q1**이다. [콘텐츠·마감 구현/한계](../implementation/CMP-S1-WF-D1-2026-10-16.md), [벽/개구부 구현·검증](../implementation/WF-B2-B3-2026-10-16.md), [평면도 준비·면 생성](../implementation/WF-C0-A2-B1-2026-10-16.md)을 재사용한다. 작은 주거 DXF를 실제 UI에서 준비→벽/개구부→슬롯 창호/가구→평면/단면/A3 발행하고 수정·재발행·저장/재열기를 확인한다. 누락은 재현과 영향 카드로 기록하며 B2/B3 재구현을 시작하지 않는다. 공통 command/schema/App 수정은 통합 담당이 조정한다. CAN-A1/A2/A3·MEAS-H1은 별도 대기이며 단일 슬롯·AABB 경고로 완료 처리하지 않는다. 문서/Undo·source/slab byte 예산은 G6-D6-P4, 출력 전 점검은 G6-D5-Q1로 WF-Q1과 구분한다.
+2026-10-18 현재: **WF-Q1은 [첫 지원 범위로 완료](../../NEXT-STEPS.md#wf-q1-완료-조건)**했다; UI-P3-A/B도 첫 지원 범위로 완료했고 I-UX1도 구현·검증 완료했다. 위임 참고 자료: [콘텐츠·마감 구현/한계](../implementation/CMP-S1-WF-D1-2026-10-16.md), [벽·개구부](../implementation/WF-B2-B3-2026-10-16.md), [평면도 준비·면](../implementation/WF-C0-A2-B1-2026-10-16.md), [전체 발행 검증](../implementation/WF-Q1-RESIDENTIAL-2026-10-17.md). CAN-A1은 [완료](../implementation/CAN-A1-CANVAS-HIERARCHY-2026-10-18.md)했고 CAN-A2도 [완료](../implementation/CAN-A2-FLEX-LAYOUT-2026-10-18.md)했고 CAN-A3는 [균등 표현 확대 첫 지원 범위 완료](../implementation/CAN-A3-CONTENT-SCALE-2026-10-18.md)다. MEAS-H1은 [유한 도면 거리·측정 지점 첫 지원 범위 완료](../implementation/MEAS-H1-HOVER-DISTANCE-2026-10-18.md)이며 [닫힌 BRep 경계·재료 거리/관계](../implementation/MEAS-H1-BREP-DISTANCE-2026-10-18.md)도 후속 첫 범위 완료다. [직접 subobject 혼합·투영](../implementation/MEAS-MIXED-PROJECTED-DISTANCE-2026-10-18.md) 및 [저장·치수화](../implementation/MEAS-SAVED-DIMENSIONS-2026-10-18.md)도 완료했다. 2D 영역 포함과 유한 도면↔BRep 혼합은 후속이다. 단일 슬롯·AABB 경고와 별도 계산이다. source/slab byte 추정 예산은 G6-D6-P4에서 완료했고 전역 문서/Undo byte 상한과 장시간 soak는 후속이다. 출력 전 점검은 G6-D5-Q1로 WF-Q1과 구분한다.

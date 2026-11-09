@@ -1,0 +1,153 @@
+{
+  "date": "2026-10-25T21:47:53.641Z",
+  "runtime": "v24.19.0",
+  "platform": "win32",
+  "notes": "3 samples, no forced GC; deltas are process snapshots, not peak memory. GPU and Worker excluded. History compression is measurement only, no on-disk format change.",
+  "rows": [
+    {
+      "vertices": 289,
+      "faces": 512,
+      "indexMs": 7.228599999999972,
+      "sculptMs": [
+        95.57530000000003,
+        96.6268,
+        83.41240000000005
+      ],
+      "previewMs": [
+        21.629699999999957,
+        20.61439999999999,
+        15.129200000000083
+      ],
+      "structuredCloneMs": [
+        0.785699999999963,
+        0.6672000000000367,
+        0.9018999999999551
+      ],
+      "sourceJsonUtf16Bytes": 70122,
+      "historyJsonUtf16Bytes": 45310,
+      "changedVertices": 5,
+      "heapUsedDelta": 15928392,
+      "rssDelta": 29339648
+    },
+    {
+      "vertices": 1089,
+      "faces": 2048,
+      "indexMs": 17.97429999999997,
+      "sculptMs": [
+        406.8123999999999,
+        197.62750000000005,
+        212.58120000000008
+      ],
+      "previewMs": [
+        59.98039999999992,
+        82.8592000000001,
+        61.36220000000003
+      ],
+      "structuredCloneMs": [
+        2.6095000000000255,
+        4.964399999999841,
+        1.7281000000000404
+      ],
+      "sourceJsonUtf16Bytes": 286938,
+      "historyJsonUtf16Bytes": 184038,
+      "changedVertices": 21,
+      "heapUsedDelta": 73085920,
+      "rssDelta": 127975424
+    },
+    {
+      "vertices": 4225,
+      "faces": 8192,
+      "indexMs": 85.52619999999979,
+      "sculptMs": [],
+      "previewMs": [
+        294.18489999999974
+      ],
+      "structuredCloneMs": [
+        13.173099999999977
+      ],
+      "sourceJsonUtf16Bytes": 1204610,
+      "historyJsonUtf16Bytes": 0,
+      "changedVertices": 0,
+      "heapUsedDelta": 64486848,
+      "rssDelta": 35295232,
+      "error": "Error: Self-intersection validation budget exceeded; result is not certified."
+    },
+    {
+      "vertices": 9409,
+      "faces": 18432,
+      "indexMs": 293.97139999999945,
+      "sculptMs": [],
+      "previewMs": [],
+      "structuredCloneMs": [
+        55.85310000000027
+      ],
+      "sourceJsonUtf16Bytes": 3012882,
+      "historyJsonUtf16Bytes": 0,
+      "changedVertices": 0,
+      "heapUsedDelta": -7768320,
+      "rssDelta": 19853312,
+      "error": "Error: Sculpt budget: at most 5,000 vertices / 10,000 faces. Larger CAD meshes remain supported for other operations."
+    }
+  ],
+  "conversions": [
+    {
+      "method": "surface",
+      "sourceVertices": 8,
+      "sourceFaces": 6,
+      "vertices": 386,
+      "faces": 768,
+      "sampledMaxDistance": 0.5396394206666618,
+      "sampledRmsDistance": 0.09252097350466887,
+      "distanceSamples": 405,
+      "qualityBefore": 0.8660254037844387,
+      "qualityAfter": 0.8693577883369751,
+      "lost": {
+        "vertices": 8,
+        "edges": 12,
+        "faces": 6
+      },
+      "elapsedMs": 225.3056999999999
+    },
+    {
+      "method": "voxel",
+      "sourceVertices": 8,
+      "sourceFaces": 6,
+      "vertices": 3458,
+      "faces": 6912,
+      "sampledMaxDistance": 1.4254156828833717e-14,
+      "sampledRmsDistance": 3.4979173007378657e-15,
+      "distanceSamples": 514,
+      "qualityBefore": 0.8660254037844387,
+      "qualityAfter": 0.8660254037843713,
+      "lost": {
+        "vertices": 8,
+        "edges": 12,
+        "faces": 6
+      },
+      "elapsedMs": 1922.7549,
+      "cellSize": 1.6666666666666667
+    }
+  ],
+  "history": [
+    {
+      "strokes": 1,
+      "jsonUtf8Bytes": 538,
+      "gzipBytes": 232
+    },
+    {
+      "strokes": 10,
+      "jsonUtf8Bytes": 2213,
+      "gzipBytes": 266
+    },
+    {
+      "strokes": 50,
+      "jsonUtf8Bytes": 9693,
+      "gzipBytes": 392
+    },
+    {
+      "strokes": 200,
+      "jsonUtf8Bytes": 37844,
+      "gzipBytes": 856
+    }
+  ]
+}

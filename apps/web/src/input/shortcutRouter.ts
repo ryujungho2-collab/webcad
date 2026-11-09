@@ -15,6 +15,7 @@ export function isTextEditingTarget(target: EventTarget | null): boolean {
 /** Modal commands and editors own their keystrokes, even during a CAD tool. */
 export function isCadKeyboardBlocked(target: EventTarget | null, key?: string): boolean {
   return isTextEditingTarget(target)
+    || (key === "Escape" && target instanceof Element && Boolean(target.ownerDocument.querySelector('[popover]:popover-open')))
     || (target instanceof Element && (Boolean(target.closest('dialog[open], [data-cad-editor], .sketch-overlay'))
       // Keep native button/link/disclosure activation and role-button handlers.
       // Other CAD chords, including save/history, retain their existing scope.
@@ -33,8 +34,11 @@ export function isCadHistoryBlocked(target: EventTarget | null): boolean {
     || (target instanceof Element && Boolean(target.closest('dialog[open], [role="dialog"]')));
 }
 
-export function routeHistoryShortcut(event: { key: string; ctrlKey: boolean; metaKey: boolean; altKey: boolean; shiftKey: boolean; defaultPrevented: boolean }): "undo" | "redo" | null {
-  if (event.defaultPrevented || event.altKey || !(event.ctrlKey || event.metaKey)) return null;
+/** keyCode 229 also covers engines that omit isComposing on the final IME key. */
+export function isCompositionKey(event: {isComposing?:boolean;keyCode?:number}) { return Boolean(event.isComposing || event.keyCode === 229); }
+
+export function routeHistoryShortcut(event: { key: string; ctrlKey: boolean; metaKey: boolean; altKey: boolean; shiftKey: boolean; defaultPrevented: boolean; isComposing?:boolean; keyCode?:number }): "undo" | "redo" | null {
+  if (isCompositionKey(event) || event.defaultPrevented || event.altKey || !(event.ctrlKey || event.metaKey)) return null;
   const key = event.key.toLowerCase();
   if (key === "z") return event.shiftKey ? "redo" : "undo";
   return key === "y" ? "redo" : null;

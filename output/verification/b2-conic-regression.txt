@@ -23,7 +23,7 @@ test at tests\p01ModelIntegration.test.ts:1:6436
   
   36 !== 33
   
-      at TestContext.<anonymous> (C:\Users\thefi\OneDrive\Desktop\agent-webcad\apps\web\tests\p01ModelIntegration.test.ts:63:52)
+      at TestContext.<anonymous> (<workspace>\apps\web\tests\p01ModelIntegration.test.ts:63:52)
       at async Test.run (node:internal/test_runner/test:1389:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
     generatedMessage: true,

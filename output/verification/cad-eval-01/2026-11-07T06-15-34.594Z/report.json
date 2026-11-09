@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "taskId": "CAD-EVAL-01-ventilation-intent-v1",
+  "liveRequested": false,
+  "maxModelCalls": 6,
+  "actualModelCalls": 0,
+  "modelCallAttempts": 0,
+  "grounding": true,
+  "sourceHashBefore": "0c75138a3326bbe3f76201be859973c7bc9912a120e2bae4de43afbf692c1cf0",
+  "sourceHashAfter": "0c75138a3326bbe3f76201be859973c7bc9912a120e2bae4de43afbf692c1cf0",
+  "visualEvidence": {
+    "status": "native-tessellation-projections-not-browser",
+    "paths": [
+      "baseline-iso.svg",
+      "baseline-top.svg",
+      "baseline-front.svg",
+      "evaluator-control-iso.svg",
+      "evaluator-control-top.svg",
+      "evaluator-control-front.svg"
+    ]
+  },
+  "elapsedMs": 3934.2354000000005,
+  "nativePreflight": "passed",
+  "status": "native-preflight-only-model-not-run",
+  "limitations": [
+    "whole-model autonomous creation",
+    "airflow/thermal/strength certification",
+    "fastening design",
+    "automatic editor Apply",
+    "model training",
+    "Intent is evaluator-authored; model intent extraction was not separately tested",
+    "No browser test or independent STEP engine in this run",
+    "No measured ontology uplift without paired runs",
+    "No weights updated; logs alone are not token-level RL trajectories"
+  ]
+}

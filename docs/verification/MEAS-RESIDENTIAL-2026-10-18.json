@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-18",
+  "feature": "Residential measurement-to-sheet integration",
+  "status": "passed",
+  "node": {
+    "passed": 1480,
+    "suites": 54,
+    "newResidentialTests": 4,
+    "log": "output/verification/residential-measurements/node-tests.log"
+  },
+  "browser": {
+    "residentialMeasurements": 13,
+    "savedMeasurements": 14,
+    "savedMeasurementPlacement": 17,
+    "measurementLayout": 15,
+    "selectedDistance": 25,
+    "note": "Selected distance timed out during concurrent full-suite execution; isolated rerun passed 25 checks."
+  },
+  "architecture": {
+    "status": "passed",
+    "modules": 698
+  },
+  "build": {
+    "status": "passed",
+    "log": "output/verification/residential-measurements/build.log",
+    "warning": "Existing large bundle warning"
+  },
+  "schema": {
+    "bound": 47,
+    "unboundSavedMeasurement": 46,
+    "olderProjects": "unchanged"
+  },
+  "evidence": {
+    "report": "output/verification/residential-measurements/native-report.json",
+    "checksums": "output/verification/residential-measurements/artifact-checks.json",
+    "clearanceBeforeMm": 3395,
+    "clearanceAfterMm": 3295,
+    "paperMm": [
+      420,
+      297
+    ],
+    "denominator": 100,
+    "paperTextMm": 2.5,
+    "pdfInspection": "Both PDFs independently rendered with Poppler; measurement, labels and page boundaries visually inspected."
+  },
+  "limitations": [
+    "Self-authored Q1 fixture, not external surveyed or certified project",
+    "Section drawings with matching basis and both source parts only; no arbitrary-camera projection/HLR binding",
+    "Raster PDF at existing 96dpi; SVG vector export",
+    "No saved-measurement DXF output",
+    "Text and baseline move together; screen text bounds do not certify printed collision avoidance"
+  ],
+  "scopeNote": "Existing native references are seeded from the real Q1 file. UI exercises drawing selection/update, undo/redo and physical placement; furniture edit and reopen use application commands/file API."
+}

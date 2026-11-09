@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-30",
+  "scope": "Assembly B2.5",
+  "status": "focused-verification-passed",
+  "tests": {
+    "focused": {
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0,
+      "includesNewTriage": 5,
+      "log": "output/verification/assembly-b25/focused.log"
+    },
+    "browser": {
+      "passed": 31,
+      "failed": 0,
+      "page": "interferenceTriage",
+      "report": "output/verification/assembly-b25/browser-report.json"
+    },
+    "typescript": {
+      "exitCode": 0,
+      "diagnostics": 0
+    },
+    "notRun": [
+      "full unit suite",
+      "workspace build",
+      "full browser audit",
+      "full B1 lifecycle browser page"
+    ]
+  },
+  "resolvedInitialFailure": {
+    "classification": "test-fixture",
+    "reason": "7-part physical input exceeded existing 64-character text guard",
+    "fix": "5 representative parts; guard/assertions retained"
+  },
+  "confirmed": {
+    "invariantSupportPlateVolumeMm3": 964.6170736148,
+    "dynamicPlateObstacleVolumeMm3": 200,
+    "dynamicTestAngles": [
+      0,
+      90,
+      180
+    ],
+    "noPenetrationAt": [
+      90
+    ],
+    "metadataKernelCallsDelta": 0,
+    "intents": [
+      "intended-contact",
+      "intentional-overlap",
+      "forbidden-interference",
+      "undecided"
+    ],
+    "saveWithIntentVersion": 63,
+    "saveAfterLastIntentRemovedVersion": 62,
+    "rawMeasurementPreserved": true,
+    "originalGeometryAndJointPreserved": true
+  },
+  "browserSmallCase": {
+    "elapsedMs": 202.09999999962747,
+    "possiblePairs": 3,
+    "aabbRejected": 1,
+    "candidates": 2,
+    "invariantReuse": 0,
+    "kernelCalls": 6,
+    "completedSamples": 3,
+    "estimatedInputBytes": 25330,
+    "wasmCapacityBytes": 104857600,
+    "performanceGuarantee": false
+  },
+  "unresolvedNewFailures": [],
+  "limits": [
+    "B2 rigid-tree and discrete sampling limits retained",
+    "not continuous collision detection",
+    "annotations do not prove design acceptability",
+    "no new large-model benchmark",
+    "MCP annotation writes not introduced"
+  ],
+  "nextStage": "B3 may proceed within documented B2 constraints"
+}

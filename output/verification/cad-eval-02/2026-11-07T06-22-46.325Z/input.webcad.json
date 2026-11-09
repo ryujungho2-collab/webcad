@@ -1,0 +1,1152 @@
+{
+  "format": "agent-webcad",
+  "version": 2,
+  "document": {
+    "id": "cad-eval-02-synthetic",
+    "revision": 31,
+    "objects": {
+      "plate_6359d0fb180046b684b862fef8b45d4f_outline": {
+        "id": "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+        "geometryId": "geometry-plate_6359d0fb180046b684b862fef8b45d4f_outline",
+        "name": "Sketch Rectangle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "plate_6359d0fb180046b684b862fef8b45d4f_hole0": {
+        "id": "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+        "geometryId": "geometry-plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "plate_6359d0fb180046b684b862fef8b45d4f_hole1": {
+        "id": "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+        "geometryId": "geometry-plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "plate_6359d0fb180046b684b862fef8b45d4f_hole2": {
+        "id": "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+        "geometryId": "geometry-plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "plate_6359d0fb180046b684b862fef8b45d4f_hole3": {
+        "id": "plate_6359d0fb180046b684b862fef8b45d4f_hole3",
+        "geometryId": "geometry-plate_6359d0fb180046b684b862fef8b45d4f_hole3",
+        "name": "Sketch Circle",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "plate_6359d0fb180046b684b862fef8b45d4f_solid": {
+        "id": "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+        "geometryId": "geometry-plate_6359d0fb180046b684b862fef8b45d4f_solid",
+        "name": "Four-hole mounting plate",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            8
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "protected-device-envelope": {
+        "id": "protected-device-envelope",
+        "geometryId": "geometry-protected-device-envelope",
+        "name": "Box",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            40,
+            25,
+            14
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "protected-neighbor": {
+        "id": "protected-neighbor",
+        "geometryId": "geometry-protected-neighbor",
+        "name": "Box",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            190,
+            0,
+            8
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    "features": {
+      "feature-plate_6359d0fb180046b684b862fef8b45d4f_outline": {
+        "id": "feature-plate_6359d0fb180046b684b862fef8b45d4f_outline",
+        "type": "drawing",
+        "inputs": [],
+        "output": "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+        "params": {
+          "kind": "rectangle",
+          "workPlane": "XY",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "points": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              120,
+              0,
+              0
+            ],
+            [
+              120,
+              80,
+              0
+            ],
+            [
+              0,
+              80,
+              0
+            ]
+          ],
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "a",
+                "role": "vertex",
+                "index": 0
+              },
+              {
+                "id": "b",
+                "role": "vertex",
+                "index": 1
+              },
+              {
+                "id": "c",
+                "role": "vertex",
+                "index": 2
+              },
+              {
+                "id": "d",
+                "role": "vertex",
+                "index": 3
+              }
+            ],
+            "segments": [
+              {
+                "id": "ab",
+                "index": 0,
+                "startControlId": "a",
+                "endControlId": "b",
+                "kind": "line"
+              },
+              {
+                "id": "bc",
+                "index": 1,
+                "startControlId": "b",
+                "endControlId": "c",
+                "kind": "line"
+              },
+              {
+                "id": "cd",
+                "index": 2,
+                "startControlId": "c",
+                "endControlId": "d",
+                "kind": "line"
+              },
+              {
+                "id": "da",
+                "index": 3,
+                "startControlId": "d",
+                "endControlId": "a",
+                "kind": "line"
+              }
+            ],
+            "curves": []
+          }
+        }
+      },
+      "feature-plate_6359d0fb180046b684b862fef8b45d4f_hole0": {
+        "id": "feature-plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+        "type": "drawing",
+        "inputs": [],
+        "output": "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "center": [
+            12,
+            12,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "plate_6359d0fb180046b684b862fef8b45d4f_hole0:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-plate_6359d0fb180046b684b862fef8b45d4f_hole1": {
+        "id": "feature-plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+        "type": "drawing",
+        "inputs": [],
+        "output": "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "center": [
+            108,
+            12,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "plate_6359d0fb180046b684b862fef8b45d4f_hole1:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-plate_6359d0fb180046b684b862fef8b45d4f_hole2": {
+        "id": "feature-plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+        "type": "drawing",
+        "inputs": [],
+        "output": "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "center": [
+            12,
+            68,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "plate_6359d0fb180046b684b862fef8b45d4f_hole2:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-plate_6359d0fb180046b684b862fef8b45d4f_hole3": {
+        "id": "feature-plate_6359d0fb180046b684b862fef8b45d4f_hole3",
+        "type": "drawing",
+        "inputs": [],
+        "output": "plate_6359d0fb180046b684b862fef8b45d4f_hole3",
+        "params": {
+          "kind": "circle",
+          "workPlane": "XY",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "center": [
+            108,
+            68,
+            0
+          ],
+          "radius": 3,
+          "topology": {
+            "version": 1,
+            "controls": [
+              {
+                "id": "center",
+                "role": "center"
+              },
+              {
+                "id": "plate_6359d0fb180046b684b862fef8b45d4f_hole3:radius:0",
+                "role": "radius"
+              }
+            ],
+            "segments": [],
+            "curves": [
+              {
+                "id": "curve",
+                "kind": "circle"
+              }
+            ]
+          }
+        }
+      },
+      "feature-plate_6359d0fb180046b684b862fef8b45d4f_solid": {
+        "id": "feature-plate_6359d0fb180046b684b862fef8b45d4f_solid",
+        "type": "extrude",
+        "dependencyMode": "live",
+        "inputs": [
+          "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+          "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+          "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+          "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+          "plate_6359d0fb180046b684b862fef8b45d4f_hole3"
+        ],
+        "output": "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+        "params": {
+          "kind": "extrude",
+          "distance": 4,
+          "profile": {
+            "id": "loop:plate_6359d0fb180046b684b862fef8b45d4f_outline/ab|plate_6359d0fb180046b684b862fef8b45d4f_outline/bc|plate_6359d0fb180046b684b862fef8b45d4f_outline/cd|plate_6359d0fb180046b684b862fef8b45d4f_outline/da",
+            "workPlane": "XY",
+            "normal": [
+              0,
+              0,
+              1
+            ],
+            "segments": [
+              {
+                "kind": "line",
+                "topologyReference": "plate_6359d0fb180046b684b862fef8b45d4f_outline/ab",
+                "start": [
+                  0,
+                  0,
+                  0
+                ],
+                "end": [
+                  120,
+                  0,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "plate_6359d0fb180046b684b862fef8b45d4f_outline/bc",
+                "start": [
+                  120,
+                  0,
+                  0
+                ],
+                "end": [
+                  120,
+                  80,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "plate_6359d0fb180046b684b862fef8b45d4f_outline/cd",
+                "start": [
+                  120,
+                  80,
+                  0
+                ],
+                "end": [
+                  0,
+                  80,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "plate_6359d0fb180046b684b862fef8b45d4f_outline/da",
+                "start": [
+                  0,
+                  80,
+                  0
+                ],
+                "end": [
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "sourceObjectIds": [
+              "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole3"
+            ],
+            "sourceTopologyIds": [
+              "plate_6359d0fb180046b684b862fef8b45d4f_outline/ab",
+              "plate_6359d0fb180046b684b862fef8b45d4f_outline/bc",
+              "plate_6359d0fb180046b684b862fef8b45d4f_outline/cd",
+              "plate_6359d0fb180046b684b862fef8b45d4f_outline/da",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole0/curve",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole1/curve",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole2/curve",
+              "plate_6359d0fb180046b684b862fef8b45d4f_hole3/curve"
+            ],
+            "holes": [
+              {
+                "id": "loop:plate_6359d0fb180046b684b862fef8b45d4f_hole0/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "plate_6359d0fb180046b684b862fef8b45d4f_hole0"
+                ],
+                "sourceTopologyIds": [
+                  "plate_6359d0fb180046b684b862fef8b45d4f_hole0/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "plate_6359d0fb180046b684b862fef8b45d4f_hole0/curve",
+                    "center": [
+                      12,
+                      12,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:plate_6359d0fb180046b684b862fef8b45d4f_hole1/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "plate_6359d0fb180046b684b862fef8b45d4f_hole1"
+                ],
+                "sourceTopologyIds": [
+                  "plate_6359d0fb180046b684b862fef8b45d4f_hole1/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "plate_6359d0fb180046b684b862fef8b45d4f_hole1/curve",
+                    "center": [
+                      108,
+                      12,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:plate_6359d0fb180046b684b862fef8b45d4f_hole2/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "plate_6359d0fb180046b684b862fef8b45d4f_hole2"
+                ],
+                "sourceTopologyIds": [
+                  "plate_6359d0fb180046b684b862fef8b45d4f_hole2/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "plate_6359d0fb180046b684b862fef8b45d4f_hole2/curve",
+                    "center": [
+                      12,
+                      68,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "loop:plate_6359d0fb180046b684b862fef8b45d4f_hole3/curve",
+                "workPlane": "XY",
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "sourceObjectIds": [
+                  "plate_6359d0fb180046b684b862fef8b45d4f_hole3"
+                ],
+                "sourceTopologyIds": [
+                  "plate_6359d0fb180046b684b862fef8b45d4f_hole3/curve"
+                ],
+                "segments": [
+                  {
+                    "kind": "circle",
+                    "topologyReference": "plate_6359d0fb180046b684b862fef8b45d4f_hole3/curve",
+                    "center": [
+                      108,
+                      68,
+                      0
+                    ],
+                    "radius": 3,
+                    "normal": [
+                      0,
+                      0,
+                      1
+                    ],
+                    "xAxis": [
+                      1,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "bounds": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              120,
+              80,
+              4
+            ]
+          }
+        }
+      },
+      "feature-protected-device-envelope": {
+        "id": "feature-protected-device-envelope",
+        "type": "primitive",
+        "inputs": [],
+        "output": "protected-device-envelope",
+        "params": {
+          "kind": "box",
+          "width": 40,
+          "depth": 30,
+          "height": 6
+        }
+      },
+      "feature-protected-neighbor": {
+        "id": "feature-protected-neighbor",
+        "type": "primitive",
+        "inputs": [],
+        "output": "protected-neighbor",
+        "params": {
+          "kind": "box",
+          "width": 20,
+          "depth": 80,
+          "height": 4
+        }
+      }
+    },
+    "sketches": {
+      "plate_6359d0fb180046b684b862fef8b45d4f_sketch": {
+        "id": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+        "workPlane": "XY",
+        "layerId": "layer-default",
+        "geometry": [
+          {
+            "id": "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+            "kind": "rectangle",
+            "origin": [
+              0,
+              0
+            ],
+            "width": 120,
+            "height": 80,
+            "cornerIds": [
+              "a",
+              "b",
+              "c",
+              "d"
+            ],
+            "edgeIds": [
+              "ab",
+              "bc",
+              "cd",
+              "da"
+            ]
+          },
+          {
+            "id": "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+            "kind": "circle",
+            "center": [
+              12,
+              12
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+            "kind": "circle",
+            "center": [
+              108,
+              12
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+            "kind": "circle",
+            "center": [
+              12,
+              68
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          },
+          {
+            "id": "plate_6359d0fb180046b684b862fef8b45d4f_hole3",
+            "kind": "circle",
+            "center": [
+              108,
+              68
+            ],
+            "radius": 3,
+            "centerId": "center",
+            "curveId": "curve"
+          }
+        ],
+        "constraints": [
+          {
+            "id": "origin",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+              "pointId": "a"
+            },
+            "value": [
+              0,
+              0
+            ]
+          },
+          {
+            "id": "width",
+            "kind": "distance",
+            "first": {
+              "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+              "pointId": "a"
+            },
+            "second": {
+              "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+              "pointId": "b"
+            },
+            "value": 120
+          },
+          {
+            "id": "depth",
+            "kind": "distance",
+            "first": {
+              "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+              "pointId": "b"
+            },
+            "second": {
+              "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+              "pointId": "c"
+            },
+            "value": 80
+          },
+          {
+            "id": "center0",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+              "pointId": "center"
+            },
+            "value": [
+              12,
+              12
+            ]
+          },
+          {
+            "id": "diameter0",
+            "kind": "diameter",
+            "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+            "value": 6
+          },
+          {
+            "id": "center1",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+              "pointId": "center"
+            },
+            "value": [
+              108,
+              12
+            ]
+          },
+          {
+            "id": "diameter1",
+            "kind": "diameter",
+            "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+            "value": 6
+          },
+          {
+            "id": "center2",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+              "pointId": "center"
+            },
+            "value": [
+              12,
+              68
+            ]
+          },
+          {
+            "id": "diameter2",
+            "kind": "diameter",
+            "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+            "value": 6
+          },
+          {
+            "id": "center3",
+            "kind": "fixed-point",
+            "point": {
+              "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_hole3",
+              "pointId": "center"
+            },
+            "value": [
+              108,
+              68
+            ]
+          },
+          {
+            "id": "diameter3",
+            "kind": "diameter",
+            "geometryId": "plate_6359d0fb180046b684b862fef8b45d4f_hole3",
+            "value": 6
+          }
+        ],
+        "dimensions": [
+          {
+            "id": "dimension:width",
+            "constraintId": "width"
+          },
+          {
+            "id": "dimension:depth",
+            "constraintId": "depth"
+          },
+          {
+            "id": "dimension:diameter0",
+            "constraintId": "diameter0"
+          },
+          {
+            "id": "dimension:diameter1",
+            "constraintId": "diameter1"
+          },
+          {
+            "id": "dimension:diameter2",
+            "constraintId": "diameter2"
+          },
+          {
+            "id": "dimension:diameter3",
+            "constraintId": "diameter3"
+          }
+        ],
+        "solveState": {
+          "status": "fully-constrained",
+          "degreesOfFreedom": 0,
+          "rank": 16,
+          "residual": 0,
+          "tolerance": 0.000001,
+          "angularTolerance": 1e-8
+        }
+      }
+    },
+    "rootObjects": [
+      "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+      "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+      "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+      "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+      "plate_6359d0fb180046b684b862fef8b45d4f_hole3",
+      "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+      "protected-device-envelope",
+      "protected-neighbor"
+    ],
+    "rootLayers": [
+      "layer-default"
+    ],
+    "layers": {
+      "layer-default": {
+        "id": "layer-default",
+        "name": "Default",
+        "visible": true,
+        "locked": false,
+        "objectIds": [
+          "plate_6359d0fb180046b684b862fef8b45d4f_outline",
+          "plate_6359d0fb180046b684b862fef8b45d4f_hole0",
+          "plate_6359d0fb180046b684b862fef8b45d4f_hole1",
+          "plate_6359d0fb180046b684b862fef8b45d4f_hole2",
+          "plate_6359d0fb180046b684b862fef8b45d4f_hole3",
+          "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+          "protected-device-envelope",
+          "protected-neighbor"
+        ]
+      }
+    },
+    "variables": {
+      "plate_6359d0fb180046b684b862fef8b45d4f_width": {
+        "name": "plate_6359d0fb180046b684b862fef8b45d4f_width",
+        "quantity": "length",
+        "expression": "120mm"
+      },
+      "plate_6359d0fb180046b684b862fef8b45d4f_depth": {
+        "name": "plate_6359d0fb180046b684b862fef8b45d4f_depth",
+        "quantity": "length",
+        "expression": "80mm"
+      },
+      "plate_6359d0fb180046b684b862fef8b45d4f_thickness": {
+        "name": "plate_6359d0fb180046b684b862fef8b45d4f_thickness",
+        "quantity": "length",
+        "expression": "4mm"
+      },
+      "plate_6359d0fb180046b684b862fef8b45d4f_margin": {
+        "name": "plate_6359d0fb180046b684b862fef8b45d4f_margin",
+        "quantity": "length",
+        "expression": "12mm"
+      },
+      "plate_6359d0fb180046b684b862fef8b45d4f_holeDiameter": {
+        "name": "plate_6359d0fb180046b684b862fef8b45d4f_holeDiameter",
+        "quantity": "length",
+        "expression": "6mm"
+      }
+    },
+    "parameterBindings": {
+      "binding-8f086c51-118c-4b21-afb2-a5496fb307fe": {
+        "id": "binding-8f086c51-118c-4b21-afb2-a5496fb307fe",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "width"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_width"
+      },
+      "binding-36d54d42-2fa9-4c74-b0a7-198697fdd1c6": {
+        "id": "binding-36d54d42-2fa9-4c74-b0a7-198697fdd1c6",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "depth"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_depth"
+      },
+      "binding-00c7ec21-3f42-45e3-b584-9f1c12d4e180": {
+        "id": "binding-00c7ec21-3f42-45e3-b584-9f1c12d4e180",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "center0",
+          "component": "x"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_margin"
+      },
+      "binding-b53457c7-60d5-46da-bf41-839cf51496f5": {
+        "id": "binding-b53457c7-60d5-46da-bf41-839cf51496f5",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "center0",
+          "component": "y"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_margin"
+      },
+      "binding-3552ae08-cc90-4426-be8b-d30dc0cdcb82": {
+        "id": "binding-3552ae08-cc90-4426-be8b-d30dc0cdcb82",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "diameter0"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_holeDiameter"
+      },
+      "binding-13d6fe1a-29f5-43ff-a790-920135b73e94": {
+        "id": "binding-13d6fe1a-29f5-43ff-a790-920135b73e94",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "center1",
+          "component": "x"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_width - plate_6359d0fb180046b684b862fef8b45d4f_margin"
+      },
+      "binding-e01cf5a8-07f5-4412-aed3-db7cff595721": {
+        "id": "binding-e01cf5a8-07f5-4412-aed3-db7cff595721",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "center1",
+          "component": "y"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_margin"
+      },
+      "binding-e414a648-81e0-475d-addc-522e6b17fccd": {
+        "id": "binding-e414a648-81e0-475d-addc-522e6b17fccd",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "diameter1"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_holeDiameter"
+      },
+      "binding-4a08e7b2-4d84-4cc9-afea-7656bfb028aa": {
+        "id": "binding-4a08e7b2-4d84-4cc9-afea-7656bfb028aa",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "center2",
+          "component": "x"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_margin"
+      },
+      "binding-8480c0e9-0ac9-45a8-8b5a-b5c5b5c5c369": {
+        "id": "binding-8480c0e9-0ac9-45a8-8b5a-b5c5b5c5c369",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "center2",
+          "component": "y"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_depth - plate_6359d0fb180046b684b862fef8b45d4f_margin"
+      },
+      "binding-dc912ec2-db79-46d8-a124-e957ad8f7573": {
+        "id": "binding-dc912ec2-db79-46d8-a124-e957ad8f7573",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "diameter2"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_holeDiameter"
+      },
+      "binding-9668d754-2d8f-4e4f-9ee2-3554fb4536aa": {
+        "id": "binding-9668d754-2d8f-4e4f-9ee2-3554fb4536aa",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "center3",
+          "component": "x"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_width - plate_6359d0fb180046b684b862fef8b45d4f_margin"
+      },
+      "binding-0f768611-610c-4306-bfe5-27eea24d7c30": {
+        "id": "binding-0f768611-610c-4306-bfe5-27eea24d7c30",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "center3",
+          "component": "y"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_depth - plate_6359d0fb180046b684b862fef8b45d4f_margin"
+      },
+      "binding-bb6fa53a-fbf4-4c5a-b2b9-2e9b1a8c4002": {
+        "id": "binding-bb6fa53a-fbf4-4c5a-b2b9-2e9b1a8c4002",
+        "target": {
+          "kind": "sketch-constraint",
+          "sketchId": "plate_6359d0fb180046b684b862fef8b45d4f_sketch",
+          "constraintId": "diameter3"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_holeDiameter"
+      },
+      "binding-da58e47e-ae0e-4fe0-ab90-32496e84ca4d": {
+        "id": "binding-da58e47e-ae0e-4fe0-ab90-32496e84ca4d",
+        "target": {
+          "kind": "feature",
+          "objectId": "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+          "parameter": "distance"
+        },
+        "expression": "plate_6359d0fb180046b684b862fef8b45d4f_thickness"
+      }
+    }
+  }
+}

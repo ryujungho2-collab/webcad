@@ -1,5 +1,6 @@
 import type { KernelOperation, KernelTaskPhase, KernelTaskResults, PrimitiveParams, SerializedOperand } from "./kernelProtocol";
 import { CAD_PRECISION } from "@agent-webcad/cad-document";
+import {RetainedShapeCache} from "./retainedShapeCache";
 type CadKernelModule = typeof import("@agent-webcad/cad-kernel");
 let kernelPromise: Promise<CadKernelModule> | null = null;
 
@@ -14,6 +15,7 @@ async function loadKernel() {
 }
 async function createPrimitiveShape(kernel: CadKernelModule, params: PrimitiveParams) {
   const kind = String(params.kind ?? "box");
+  if (kind === "planar-reconstruction") return kernel.reconstructPlanarSolid(params.reconstruction as import("@agent-webcad/cad-kernel").PlanarBodyInput);
   if (kind === "box") return kernel.createBox(Number(params.width), Number(params.depth), Number(params.height));
   if (kind === "cylinder") return kernel.createCylinder(Number(params.radius), Number(params.height));
   if (kind === "sphere") return kernel.createSphere(Number(params.radius));
@@ -29,21 +31,22 @@ async function placeShape(kernel: CadKernelModule, shape: any, operand: Serializ
 // Reference-counted task handles share analytic source geometry. Failed builds
 // never enter the bounded LRU; eviction releases its retained native handle.
 let nativeHeapBytes:()=>number|undefined=()=>undefined;
-const retainedShapes=new Map<string,any>();
-const retainedSlabs=new Map<string,any>();
+const RETAINED_BYTES=64*1024*1024,RETAINED_LIMIT=128;
+const retainedShapes=new RetainedShapeCache<any>(RETAINED_BYTES,RETAINED_LIMIT,shape=>shape.delete());
+const retainedSlabs=new RetainedShapeCache<any>(RETAINED_BYTES,RETAINED_LIMIT,shape=>shape.delete());
 const slabStats={hits:0,builds:0,inside:0,outside:0,evictions:0};
 const retainedStats={hits:0,builds:0,evictions:0};
-const RETAINED_LIMIT=128;
-export function retainedShapeStatistics(){return {heapCapacityBytes:nativeHeapBytes(),...retainedStats,entries:retainedShapes.size,limit:RETAINED_LIMIT,slabs:{...slabStats,entries:retainedSlabs.size,limit:RETAINED_LIMIT}};}
-export function clearRetainedShapes(){for(const shape of retainedShapes.values())shape.delete();retainedShapes.clear();for(const shape of retainedSlabs.values())shape.delete();retainedSlabs.clear();slabStats.hits=slabStats.builds=slabStats.inside=slabStats.outside=slabStats.evictions=0;retainedStats.hits=retainedStats.builds=retainedStats.evictions=0;}
+let runtimeDisposed=false,activeOperations=0,lastHlr:import("./kernelProtocol").KernelResourceSnapshot["lastHlr"]=null;
+export function retainedShapeStatistics():import("./kernelProtocol").KernelResourceSnapshot{return {heapCapacityBytes:nativeHeapBytes(),builds:retainedStats.builds,...retainedShapes.metrics(),activeOperations,lastHlr,estimateModel:"4x topology, analytic/spline storage and triangulation estimate + UTF-16 key; not live malloc bytes",slabs:{builds:slabStats.builds,inside:slabStats.inside,outside:slabStats.outside,...retainedSlabs.metrics()}};}
+export function clearRetainedShapes(){retainedShapes.clear(true);retainedSlabs.clear(true);slabStats.hits=slabStats.builds=slabStats.inside=slabStats.outside=slabStats.evictions=0;retainedStats.hits=retainedStats.builds=retainedStats.evictions=0;lastHlr=null;}
 async function buildUnplacedShape(kernel: CadKernelModule,params:PrimitiveParams):Promise<any>{
  const key=JSON.stringify(params),cached=retainedShapes.get(key);
- if(cached){retainedStats.hits++;retainedShapes.delete(key);retainedShapes.set(key,cached);return cached.clone();}
+ if(cached){return cached.clone();}
  const shape=await createUnplacedShape(kernel,params);retainedStats.builds++;
- try{const retained=shape.clone();if(retainedShapes.size>=RETAINED_LIMIT){const first=retainedShapes.keys().next().value!;retainedShapes.get(first).delete();retainedShapes.delete(first);retainedStats.evictions++;}retainedShapes.set(key,retained);return shape;}
+ try{const estimate=await kernel.estimateShapeBytes(shape);if(!runtimeDisposed)retainedShapes.put(key,shape.clone(),estimate);return shape;}
  catch(error){shape.delete();throw error;}
 }
-if(import.meta.hot)import.meta.hot.dispose(clearRetainedShapes);
+if(import.meta.hot)import.meta.hot.dispose(()=>{runtimeDisposed=true;clearRetainedShapes();});
 async function createUnplacedShape(kernel: CadKernelModule, params: PrimitiveParams): Promise<any> {
   const kind = String(params.kind ?? "");
   if(kind==="shell"){
@@ -137,10 +140,10 @@ async function createUnplacedShape(kernel: CadKernelModule, params: PrimitivePar
   if (kind === "sweep") {
     const profile = params.profile as Parameters<typeof kernel.sweepProfile>[0];
     const spine = params.spine as Parameters<typeof kernel.sweepProfile>[1];
-    if (!profile || !Array.isArray(spine)) {
+    if (!profile || !spine || (!Array.isArray(spine) && spine.kind!=="spline")) {
       throw new Error("Invalid sweep parameters.");
     }
-    return kernel.sweepProfile(profile, spine);
+    return kernel.sweepProfile(profile, spine, params.alignToPath===true);
   }
   if (kind === "loft") {
     const profiles = params.profiles as Parameters<typeof kernel.loftProfiles>[0];
@@ -176,17 +179,18 @@ async function createUnplacedShape(kernel: CadKernelModule, params: PrimitivePar
 
 async function buildOperandShape(kernel: CadKernelModule, operand: SerializedOperand): Promise<any> {
   const shape = await buildUnplacedShape(kernel, operand.params);
-  const placed = await placeShape(kernel, shape, operand);
-  if (placed !== shape) shape?.delete?.();
-  return placed;
+  try{const placed = await placeShape(kernel, shape, operand);
+    if (placed !== shape) shape.delete();
+    return placed;
+  }catch(error){shape.delete();throw error;}
 }
 
 async function buildRetainedSlab(kernel:CadKernelModule,o:SerializedOperand,c:import("@agent-webcad/cad-kernel").ProjectionClip){
  if(!Array.isArray(c.normal)||c.normal.length!==3||!c.normal.every(Number.isFinite)||Math.abs(Math.hypot(...c.normal)-1)>1e-8||!Number.isFinite(c.height)||!Number.isFinite(c.depth)||c.depth<=1e-6||!["positive","negative"].includes(c.keep))throw Error("Invalid retained projection depth/plane.");
- const key=JSON.stringify([o,c]),cached=retainedSlabs.get(key);if(cached){slabStats.hits++;retainedSlabs.delete(key);retainedSlabs.set(key,cached);return cached.clone();}
+ const key=JSON.stringify([o,c]),cached=retainedSlabs.get(key);if(cached){return cached.clone();}
  const source=await buildOperandShape(kernel,o);let result:any;
  try{const relation=await kernel.classifyProjectionSlab(source,c);if(relation==="outside"){slabStats.outside++;return null;}if(relation==="inside"){slabStats.inside++;return source.clone();}result=await kernel.clipProjectionShape(source,c);slabStats.builds++;
- const retained=result.clone();if(retainedSlabs.size>=RETAINED_LIMIT){const first=retainedSlabs.keys().next().value!;retainedSlabs.get(first).delete();retainedSlabs.delete(first);slabStats.evictions++;}retainedSlabs.set(key,retained);return result;
+ const estimate=await kernel.estimateShapeBytes(result);if(!runtimeDisposed)retainedSlabs.put(key,result.clone(),estimate);return result;
  }catch(e){result?.delete();throw e;}finally{source.delete();}
 }
 async function resolveFilletEdgeIndices(kernel: CadKernelModule, shape: any, keys: string[]): Promise<number[]> {
@@ -208,20 +212,52 @@ export async function executeKernelOperation<K extends KernelOperation>(
   params: PrimitiveParams,
   progress: (phase: KernelTaskPhase) => void = () => {},
 ): Promise<KernelTaskResults[K]> {
+  if(operation==="resources"){
+    if(activeOperations)throw Error("Native resource controls require an idle serialized kernel.");
+    if(params.action==="clear"){retainedShapes.clear();retainedSlabs.clear();lastHlr=null;}
+    else if(params.action==="configure"){
+      const values=[params.sourceBytes??retainedShapes.byteLimit,params.slabBytes??retainedSlabs.byteLimit,params.sourceCount??retainedShapes.countLimit,params.slabCount??retainedSlabs.countLimit] as number[];
+      if(values.some((v,i)=>!Number.isSafeInteger(v)||v<0||v>(i<2?RETAINED_BYTES:RETAINED_LIMIT)))throw Error("Native budgets must remain within 64 MiB / 128 entries per cache.");
+      retainedShapes.configure(values[0],values[2]);retainedSlabs.configure(values[1],values[3]);
+    }else if(params.action!==undefined&&params.action!=="metrics")throw Error("Unknown native resource action.");
+    return retainedShapeStatistics() as KernelTaskResults[K];
+  }
+  activeOperations++;
+  try{return await executeGeometryOperation(operation as Exclude<KernelOperation,"resources">,params,progress) as KernelTaskResults[K];}finally{activeOperations--;}
+}
+async function executeGeometryOperation<K extends Exclude<KernelOperation,"resources">>(operation:K,params:PrimitiveParams,progress:(phase:KernelTaskPhase)=>void):Promise<KernelTaskResults[K]>{
   progress("loading");
   const kernel = await loadKernel();
   const ocMemory=(await kernel.CadEngine.create()).oc as unknown as {HEAPU8?:Uint8Array};nativeHeapBytes=()=>ocMemory.HEAPU8?.byteLength;
   if(operation==="projection"){
     const operands=params.operands as SerializedOperand[];
     if(!Array.isArray(operands)||!operands.length||operands.some(o=>!o?.params))throw Error("Projection requires solid operands.");
-    progress("building");const shapes:any[]=[],indices:number[]=[];
-    try{for(const [i,o] of operands.entries()){const s=params.clipping?await buildRetainedSlab(kernel,o,params.clipping as import("@agent-webcad/cad-kernel").ProjectionClip):await buildOperandShape(kernel,o);if(!s)continue;const explorer=new (await kernel.CadEngine.create()).oc.TopExp_Explorer_2(s,(await kernel.CadEngine.create()).oc.TopAbs_ShapeEnum.TopAbs_FACE as any,(await kernel.CadEngine.create()).oc.TopAbs_ShapeEnum.TopAbs_SHAPE as any);const populated=explorer.More();explorer.delete();if(populated){shapes.push(s);indices.push(i);}else s.delete();}if(!shapes.length)return [] as unknown as KernelTaskResults[K];return (await kernel.projectShapes(shapes,params.normal as [number,number,number],params.xAxis as [number,number,number])).map(c=>({...c,sourceIndex:indices[c.sourceIndex]})) as KernelTaskResults[K];}finally{for(const s of shapes)s.delete();}
+    progress("building");lastHlr=null;const projectionStarted=performance.now(),shapes:any[]=[],indices:number[]=[];
+    try{for(const [i,o] of operands.entries()){const s=params.clipping?await buildRetainedSlab(kernel,o,params.clipping as import("@agent-webcad/cad-kernel").ProjectionClip):await buildOperandShape(kernel,o);if(!s)continue;const explorer=new (await kernel.CadEngine.create()).oc.TopExp_Explorer_2(s,(await kernel.CadEngine.create()).oc.TopAbs_ShapeEnum.TopAbs_FACE as any,(await kernel.CadEngine.create()).oc.TopAbs_ShapeEnum.TopAbs_SHAPE as any);const populated=explorer.More();explorer.delete();if(populated){shapes.push(s);indices.push(i);}else s.delete();}if(!shapes.length){const sourceMs=performance.now()-projectionStarted;lastHlr={sourceMs,totalMs:sourceMs,boundsMs:0,updateMs:0,hideMs:0,extractMs:0,groups:0,computedGroups:0,reusedGroups:0,largestGroup:0,shapes:0};return [] as unknown as KernelTaskResults[K];}const sourceMs=performance.now()-projectionStarted;return (await kernel.projectShapes(shapes,params.normal as [number,number,number],params.xAxis as [number,number,number],{partition:params.hlrPartition!==false,...!params.clipping&&params.hlrPartition!==false?{instances:()=>indices.map(i=>({key:JSON.stringify([operands[i].params,operands[i].transform?.rotation??[0,0,0],operands[i].transform?.scale??[1,1,1]]),translation:(operands[i].transform?.translation??[0,0,0]) as [number,number,number]}))}:{},profile:profile=>{lastHlr={...profile,sourceMs,totalMs:performance.now()-projectionStarted};}})).map(c=>({...c,sourceIndex:indices[c.sourceIndex]})) as KernelTaskResults[K];}finally{for(const s of shapes)s.delete();}
   }
   if(operation==="section"){
     const operand=params.operand as SerializedOperand;
     if(!operand?.params)throw Error("Section requires a solid operand.");
     progress("building");const shape=await buildOperandShape(kernel,operand);
     try{return await kernel.sectionShape(shape,params.normal as [number,number,number],Number(params.height)) as KernelTaskResults[K];}finally{shape?.delete?.();}
+  }
+  if(operation==="selectedDistance"){
+    const build=async(operand:SerializedOperand,ref:import("@agent-webcad/cad-kernel").BrepElementRef)=>{
+      if(!operand?.params)throw Error("Selected distance needs two operands.");
+      const base=await buildUnplacedShape(kernel,operand.params);let element:any;
+      try{element=await kernel.resolveDistanceElement(base,ref);const placed=await placeShape(kernel,element,operand);if(placed!==element)element.delete();element=null;return placed;}
+      finally{element?.delete();base.delete();}
+    };
+    progress("building");let a:any,b:any;
+    try{a=await build(params.source as SerializedOperand,params.sourceRef as any);b=await build(params.target as SerializedOperand,params.targetRef as any);progress("measuring");return await kernel.measureSelectedMetric(a,b,(params.mode??"shortest") as import("@agent-webcad/cad-kernel").SelectedDistanceMode,Number(params.tolerance??.001)) as KernelTaskResults[K];}
+    finally{b?.delete();a?.delete();}
+  }
+  if(operation==="distance"){
+    const source=params.source as SerializedOperand,target=params.target as SerializedOperand;
+    if(!source?.params||!target?.params)throw Error("BRep distance requires two solid operands.");
+    progress("building");let a:any,b:any;
+    try{a=await buildOperandShape(kernel,source);b=await buildOperandShape(kernel,target);progress("measuring");return await kernel.measureBrepDistance(a,b,Number(params.tolerance??CAD_PRECISION.linearTolerance)) as KernelTaskResults[K];}
+    finally{b?.delete?.();a?.delete?.();}
   }
   if (operation === "inspect") {
     progress("building");
@@ -265,6 +301,12 @@ export async function executeKernelOperation<K extends KernelOperation>(
       shape = await buildOperandShape(kernel, { params });
     }
     progress("meshing");
+    // Retained clones share native geometry. Deep-copy it before meshing so
+    // cache estimates cannot silently grow through shared triangulation.
+    if(operation!=="primitive"&&operation!=="demo"){
+      const oc=(await kernel.CadEngine.create()).oc,copy=new oc.BRepBuilderAPI_Copy_2(shape,true,false);
+      try{const detached=copy.Shape();shape.delete();shape=detached;}finally{copy.delete();}
+    }
     const mesh = await kernel.shapeToMesh(shape);
     if (operation === "topology") {
       progress("topology");

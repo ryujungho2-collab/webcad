@@ -1,0 +1,1268 @@
+{
+  "date": "2026-11-07",
+  "policy": "Historical references only. Not included in this checkout; no claim of revalidation. Local source files are preserved.",
+  "referenceCount": 252,
+  "uniqueTargetCount": 230,
+  "references": [
+    {
+      "document": "NEXT-STEPS.md",
+      "oldRelativeLink": "output/projects/lightwell-house/README.md",
+      "localArtifact": "output/projects/lightwell-house/README.md"
+    },
+    {
+      "document": "NEXT-STEPS.md",
+      "oldRelativeLink": "output/projects/large-cafe/3d/README.md",
+      "localArtifact": "output/projects/large-cafe/3d/README.md"
+    },
+    {
+      "document": "PROJECT-STATE.md",
+      "oldRelativeLink": "output/projects/lightwell-house/README.md",
+      "localArtifact": "output/projects/lightwell-house/README.md"
+    },
+    {
+      "document": "PROJECT-STATE.md",
+      "oldRelativeLink": "output/projects/flow-court/reference-review.html",
+      "localArtifact": "output/projects/flow-court/reference-review.html"
+    },
+    {
+      "document": "PROJECT-STATE.md",
+      "oldRelativeLink": "output/projects/large-cafe/3d/README.md",
+      "localArtifact": "output/projects/large-cafe/3d/README.md"
+    },
+    {
+      "document": "PROJECT-STATE.md",
+      "oldRelativeLink": "output/projects/large-cafe/README.md",
+      "localArtifact": "output/projects/large-cafe/README.md"
+    },
+    {
+      "document": "PROJECT-STATE.md",
+      "oldRelativeLink": "output/projects/residential-q1/README.md",
+      "localArtifact": "output/projects/residential-q1/README.md"
+    },
+    {
+      "document": "docs/README.md",
+      "oldRelativeLink": "../output/projects/native-architecture-lesson/README.md",
+      "localArtifact": "output/projects/native-architecture-lesson/README.md"
+    },
+    {
+      "document": "docs/architecture/CAD-MCP.md",
+      "oldRelativeLink": "../../output/projects/lightwell-house/README.md",
+      "localArtifact": "output/projects/lightwell-house/README.md"
+    },
+    {
+      "document": "docs/features/COPILOT.md",
+      "oldRelativeLink": "../../output/projects/native-architecture-lesson/README.md",
+      "localArtifact": "output/projects/native-architecture-lesson/README.md"
+    },
+    {
+      "document": "docs/features/COPILOT.md",
+      "oldRelativeLink": "../../output/projects/lightwell-house/README.md",
+      "localArtifact": "output/projects/lightwell-house/README.md"
+    },
+    {
+      "document": "docs/features/DRAWINGS-OUTPUT.md",
+      "oldRelativeLink": "../../output/projects/large-cafe/README.md",
+      "localArtifact": "output/projects/large-cafe/README.md"
+    },
+    {
+      "document": "docs/features/FLOOR-PLANNING.md",
+      "oldRelativeLink": "../../output/projects/native-architecture-lesson/README.md",
+      "localArtifact": "output/projects/native-architecture-lesson/README.md"
+    },
+    {
+      "document": "docs/features/SOLID-MODELING.md",
+      "oldRelativeLink": "../../output/projects/large-cafe/3d/README.md",
+      "localArtifact": "output/projects/large-cafe/3d/README.md"
+    },
+    {
+      "document": "docs/history/PROJECT-STATE-2026-10-17.md",
+      "oldRelativeLink": "../../output/g5-b1-node-final-2026-10-09.log",
+      "localArtifact": "output/g5-b1-node-final-2026-10-09.log"
+    },
+    {
+      "document": "docs/history/PROJECT-STATE-2026-10-17.md",
+      "oldRelativeLink": "../../output/g5-b1-browser-final-2026-10-09.log",
+      "localArtifact": "output/g5-b1-browser-final-2026-10-09.log"
+    },
+    {
+      "document": "docs/history/PROJECT-STATE-2026-10-17.md",
+      "oldRelativeLink": "../../output/g5-b1-build-final-2026-10-09.log",
+      "localArtifact": "output/g5-b1-build-final-2026-10-09.log"
+    },
+    {
+      "document": "docs/history/PROJECT-STATE-2026-10-17.md",
+      "oldRelativeLink": "../../output/integrated-browser-2026-10-06.log",
+      "localArtifact": "output/integrated-browser-2026-10-06.log"
+    },
+    {
+      "document": "docs/implementation/ASSEMBLY-CONSTRAINED-PLACEMENT-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/assembly-placement/placement-preview.png",
+      "localArtifact": "output/verification/assembly-placement/placement-preview.png"
+    },
+    {
+      "document": "docs/implementation/ASSEMBLY-CONSTRAINED-PLACEMENT-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/assembly-placement/placement.webcad.json",
+      "localArtifact": "output/verification/assembly-placement/placement.webcad.json"
+    },
+    {
+      "document": "docs/implementation/ASSEMBLY-CONSTRAINED-PLACEMENT-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/assembly-placement/laptop-candidate.webcad.json",
+      "localArtifact": "output/verification/assembly-placement/laptop-candidate.webcad.json"
+    },
+    {
+      "document": "docs/implementation/ASSEMBLY-CONSTRAINED-PLACEMENT-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/assembly-placement/laptop-report.json",
+      "localArtifact": "output/verification/assembly-placement/laptop-report.json"
+    },
+    {
+      "document": "docs/implementation/ASSEMBLY-CONSTRAINED-PLACEMENT-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/assembly-placement/browser-report.json",
+      "localArtifact": "output/verification/assembly-placement/browser-report.json"
+    },
+    {
+      "document": "docs/implementation/ASSEMBLY-CONSTRAINED-PLACEMENT-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/assembly-placement/summary.json",
+      "localArtifact": "output/verification/assembly-placement/summary.json"
+    },
+    {
+      "document": "docs/implementation/BASIN-HANDOFF-2026-10-24.md",
+      "oldRelativeLink": "../../output/projects/organic-basin/README.md",
+      "localArtifact": "output/projects/organic-basin/README.md"
+    },
+    {
+      "document": "docs/implementation/CAD-TOOLS-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/cad-tools/native-report.json",
+      "localArtifact": "output/verification/cad-tools/native-report.json"
+    },
+    {
+      "document": "docs/implementation/CAD-TOOLS-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/cad-tools/model.webcad.json",
+      "localArtifact": "output/verification/cad-tools/model.webcad.json"
+    },
+    {
+      "document": "docs/implementation/CAD-TOOLS-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/cad-tools/model.step",
+      "localArtifact": "output/verification/cad-tools/model.step"
+    },
+    {
+      "document": "docs/implementation/CAD-TOOLS-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/cad-tools/viewport.png",
+      "localArtifact": "output/verification/cad-tools/viewport.png"
+    },
+    {
+      "document": "docs/implementation/CAD-TOOLS-02-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/cad-tools-advanced/native-report.json",
+      "localArtifact": "output/verification/cad-tools-advanced/native-report.json"
+    },
+    {
+      "document": "docs/implementation/CAD-TOOLS-02-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/cad-tools-advanced/model.webcad.json",
+      "localArtifact": "output/verification/cad-tools-advanced/model.webcad.json"
+    },
+    {
+      "document": "docs/implementation/CAD-TOOLS-02-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/cad-tools-advanced/model.step",
+      "localArtifact": "output/verification/cad-tools-advanced/model.step"
+    },
+    {
+      "document": "docs/implementation/CAD-TOOLS-02-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/cad-tools-advanced/step-inspection.json",
+      "localArtifact": "output/verification/cad-tools-advanced/step-inspection.json"
+    },
+    {
+      "document": "docs/implementation/CAD-TOOLS-02-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/cad-tools-advanced/viewport.png",
+      "localArtifact": "output/verification/cad-tools-advanced/viewport.png"
+    },
+    {
+      "document": "docs/implementation/CAFE-2F-01-2026-10-20.md",
+      "oldRelativeLink": "../../output/projects/large-cafe/README.md",
+      "localArtifact": "output/projects/large-cafe/README.md"
+    },
+    {
+      "document": "docs/implementation/CAFE-2F-02-2026-10-20.md",
+      "oldRelativeLink": "../../output/projects/large-cafe/3d/README.md",
+      "localArtifact": "output/projects/large-cafe/3d/README.md"
+    },
+    {
+      "document": "docs/implementation/CAN-A1-CANVAS-HIERARCHY-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-hierarchy/canvas.webcad.json",
+      "localArtifact": "output/verification/canvas-hierarchy/canvas.webcad.json"
+    },
+    {
+      "document": "docs/implementation/CAN-A1-CANVAS-HIERARCHY-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-hierarchy/paper.svg",
+      "localArtifact": "output/verification/canvas-hierarchy/paper.svg"
+    },
+    {
+      "document": "docs/implementation/CAN-A1-CANVAS-HIERARCHY-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-hierarchy/canvas-1440.png",
+      "localArtifact": "output/verification/canvas-hierarchy/canvas-1440.png"
+    },
+    {
+      "document": "docs/implementation/CAN-A1-CANVAS-HIERARCHY-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-hierarchy/canvas-960.png",
+      "localArtifact": "output/verification/canvas-hierarchy/canvas-960.png"
+    },
+    {
+      "document": "docs/implementation/CAN-A1-CANVAS-HIERARCHY-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-hierarchy/native-report.json",
+      "localArtifact": "output/verification/canvas-hierarchy/native-report.json"
+    },
+    {
+      "document": "docs/implementation/CAN-A2-FLEX-LAYOUT-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-flex/flex.webcad.json",
+      "localArtifact": "output/verification/canvas-flex/flex.webcad.json"
+    },
+    {
+      "document": "docs/implementation/CAN-A2-FLEX-LAYOUT-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-flex/frame.svg",
+      "localArtifact": "output/verification/canvas-flex/frame.svg"
+    },
+    {
+      "document": "docs/implementation/CAN-A2-FLEX-LAYOUT-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-flex/flex-1440.png",
+      "localArtifact": "output/verification/canvas-flex/flex-1440.png"
+    },
+    {
+      "document": "docs/implementation/CAN-A2-FLEX-LAYOUT-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-flex/flex-960.png",
+      "localArtifact": "output/verification/canvas-flex/flex-960.png"
+    },
+    {
+      "document": "docs/implementation/CAN-A2-FLEX-LAYOUT-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-flex/native-report.json",
+      "localArtifact": "output/verification/canvas-flex/native-report.json"
+    },
+    {
+      "document": "docs/implementation/CAN-A3-CONTENT-SCALE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-scale/scale.webcad.json",
+      "localArtifact": "output/verification/canvas-scale/scale.webcad.json"
+    },
+    {
+      "document": "docs/implementation/CAN-A3-CONTENT-SCALE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-scale/scale.svg",
+      "localArtifact": "output/verification/canvas-scale/scale.svg"
+    },
+    {
+      "document": "docs/implementation/CAN-A3-CONTENT-SCALE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-scale/scale.pdf",
+      "localArtifact": "output/verification/canvas-scale/scale.pdf"
+    },
+    {
+      "document": "docs/implementation/CAN-A3-CONTENT-SCALE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-scale/scale-page.jpg",
+      "localArtifact": "output/verification/canvas-scale/scale-page.jpg"
+    },
+    {
+      "document": "docs/implementation/CAN-A3-CONTENT-SCALE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-scale/scale-960.png",
+      "localArtifact": "output/verification/canvas-scale/scale-960.png"
+    },
+    {
+      "document": "docs/implementation/CAN-A3-CONTENT-SCALE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/canvas-scale/native-report.json",
+      "localArtifact": "output/verification/canvas-scale/native-report.json"
+    },
+    {
+      "document": "docs/implementation/CHAIR-HANDOFF-2026-10-24.md",
+      "oldRelativeLink": "../../output/projects/c2-lounge-chair/README.md",
+      "localArtifact": "output/projects/c2-lounge-chair/README.md"
+    },
+    {
+      "document": "docs/implementation/COPILOT-2D3D-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-2d3d/sketch-2d.png",
+      "localArtifact": "output/verification/copilot-2d3d/sketch-2d.png"
+    },
+    {
+      "document": "docs/implementation/COPILOT-2D3D-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-2d3d/model-3d.png",
+      "localArtifact": "output/verification/copilot-2d3d/model-3d.png"
+    },
+    {
+      "document": "docs/implementation/COPILOT-2D3D-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-2d3d/model.webcad.json",
+      "localArtifact": "output/verification/copilot-2d3d/model.webcad.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-2D3D-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-2d3d/model.step",
+      "localArtifact": "output/verification/copilot-2d3d/model.step"
+    },
+    {
+      "document": "docs/implementation/COPILOT-2D3D-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-2d3d/native-report.json",
+      "localArtifact": "output/verification/copilot-2d3d/native-report.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-2D3D-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-2d3d/step-roundtrip-report.json",
+      "localArtifact": "output/verification/copilot-2d3d/step-roundtrip-report.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-CONVERSATION-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-conversation/viewport.png",
+      "localArtifact": "output/verification/copilot-conversation/viewport.png"
+    },
+    {
+      "document": "docs/implementation/COPILOT-CONVERSATION-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-conversation/plate.webcad.json",
+      "localArtifact": "output/verification/copilot-conversation/plate.webcad.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-CONVERSATION-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-conversation/plate.step",
+      "localArtifact": "output/verification/copilot-conversation/plate.step"
+    },
+    {
+      "document": "docs/implementation/COPILOT-CONVERSATION-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-conversation/native-report.json",
+      "localArtifact": "output/verification/copilot-conversation/native-report.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-CONVERSATION-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-conversation/step-roundtrip-report.json",
+      "localArtifact": "output/verification/copilot-conversation/step-roundtrip-report.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-ENCLOSURE-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-enclosure/sketch-2d.png",
+      "localArtifact": "output/verification/copilot-enclosure/sketch-2d.png"
+    },
+    {
+      "document": "docs/implementation/COPILOT-ENCLOSURE-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-enclosure/enclosure-3d.png",
+      "localArtifact": "output/verification/copilot-enclosure/enclosure-3d.png"
+    },
+    {
+      "document": "docs/implementation/COPILOT-ENCLOSURE-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-enclosure/model.webcad.json",
+      "localArtifact": "output/verification/copilot-enclosure/model.webcad.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-ENCLOSURE-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-enclosure/model.step",
+      "localArtifact": "output/verification/copilot-enclosure/model.step"
+    },
+    {
+      "document": "docs/implementation/COPILOT-ENCLOSURE-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-enclosure/native-report.json",
+      "localArtifact": "output/verification/copilot-enclosure/native-report.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-ENCLOSURE-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-enclosure/step-roundtrip-report.json",
+      "localArtifact": "output/verification/copilot-enclosure/step-roundtrip-report.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-GRADUATION-TASK-01-2026-10-23.md",
+      "oldRelativeLink": "../../output/projects/repair-school/README.md",
+      "localArtifact": "output/projects/repair-school/README.md"
+    },
+    {
+      "document": "docs/implementation/COPILOT-GRADUATION-TASK-01-2026-10-23.md",
+      "oldRelativeLink": "../../output/projects/repair-school/index.html",
+      "localArtifact": "output/projects/repair-school/index.html"
+    },
+    {
+      "document": "docs/implementation/COPILOT-NATIVE-ARCHITECTURE-01-2026-10-23.md",
+      "oldRelativeLink": "../../output/projects/native-architecture-lesson/README.md",
+      "localArtifact": "output/projects/native-architecture-lesson/README.md"
+    },
+    {
+      "document": "docs/implementation/COPILOT-SOLID-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-solid/plate.webcad.json",
+      "localArtifact": "output/verification/copilot-solid/plate.webcad.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-SOLID-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-solid/plate.step",
+      "localArtifact": "output/verification/copilot-solid/plate.step"
+    },
+    {
+      "document": "docs/implementation/COPILOT-SOLID-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-solid/viewport.png",
+      "localArtifact": "output/verification/copilot-solid/viewport.png"
+    },
+    {
+      "document": "docs/implementation/COPILOT-SOLID-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/copilot-solid/native-report.json",
+      "localArtifact": "output/verification/copilot-solid/native-report.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-STAGED-RECIPES-01-2026-10-24.md",
+      "oldRelativeLink": "../../output/verification/copilot-planning/browser-report.json",
+      "localArtifact": "output/verification/copilot-planning/browser-report.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-STAGED-RECIPES-01-2026-10-24.md",
+      "oldRelativeLink": "../../output/verification/copilot-planning/lid.webcad.json",
+      "localArtifact": "output/verification/copilot-planning/lid.webcad.json"
+    },
+    {
+      "document": "docs/implementation/COPILOT-STAGED-RECIPES-01-2026-10-24.md",
+      "oldRelativeLink": "../../output/verification/copilot-planning/lid.png",
+      "localArtifact": "output/verification/copilot-planning/lid.png"
+    },
+    {
+      "document": "docs/implementation/COPILOT-STAGED-RECIPES-01-2026-10-24.md",
+      "oldRelativeLink": "../../output/verification/copilot-planning/node-tests.log",
+      "localArtifact": "output/verification/copilot-planning/node-tests.log"
+    },
+    {
+      "document": "docs/implementation/COURTYARD-PAVILION-2026-10-25.md",
+      "oldRelativeLink": "../../output/projects/courtyard-pavilion/README.md",
+      "localArtifact": "output/projects/courtyard-pavilion/README.md"
+    },
+    {
+      "document": "docs/implementation/COURTYARD-PAVILION-2026-10-25.md",
+      "oldRelativeLink": "../../output/pdf/courtyard-pavilion-A1.pdf",
+      "localArtifact": "output/pdf/courtyard-pavilion-A1.pdf"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-01-2026-10-18.md",
+      "oldRelativeLink": "../../output/external/civil-projects/issued-a3.pdf",
+      "localArtifact": "output/external/civil-projects/issued-a3.pdf"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-01-2026-10-18.md",
+      "oldRelativeLink": "../../output/external/civil-projects/issued.webcad.json",
+      "localArtifact": "output/external/civil-projects/issued.webcad.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-01-2026-10-18.md",
+      "oldRelativeLink": "../../output/external/civil-projects/provenance.json",
+      "localArtifact": "output/external/civil-projects/provenance.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-01-2026-10-18.md",
+      "oldRelativeLink": "../../output/external/civil-projects/native-report.json",
+      "localArtifact": "output/external/civil-projects/native-report.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-01-2026-10-18.md",
+      "oldRelativeLink": "../../output/external/civil-projects/issued-a3-poppler.png",
+      "localArtifact": "output/external/civil-projects/issued-a3-poppler.png"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-02-2026-10-19.md",
+      "oldRelativeLink": "../../output/external/civil-projects/phase-02/issued-a3.pdf",
+      "localArtifact": "output/external/civil-projects/phase-02/issued-a3.pdf"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-02-2026-10-19.md",
+      "oldRelativeLink": "../../output/external/civil-projects/phase-02/independent-report.json",
+      "localArtifact": "output/external/civil-projects/phase-02/independent-report.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-02-2026-10-19.md",
+      "oldRelativeLink": "../../output/external/civil-projects/phase-02/dxf-roundtrip-report.json",
+      "localArtifact": "output/external/civil-projects/phase-02/dxf-roundtrip-report.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-02-2026-10-19.md",
+      "oldRelativeLink": "../../output/external/civil-projects/phase-02/native-report.json",
+      "localArtifact": "output/external/civil-projects/phase-02/native-report.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-03-2026-10-19.md",
+      "oldRelativeLink": "../../output/external/civil-projects/phase-03/speed-report.json",
+      "localArtifact": "output/external/civil-projects/phase-03/speed-report.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-03-2026-10-19.md",
+      "oldRelativeLink": "../../output/external/civil-projects/phase-03/native-report.json",
+      "localArtifact": "output/external/civil-projects/phase-03/native-report.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-03-2026-10-19.md",
+      "oldRelativeLink": "../../output/external/civil-projects/phase-03/initial-browser-failure.json",
+      "localArtifact": "output/external/civil-projects/phase-03/initial-browser-failure.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-03-2026-10-19.md",
+      "oldRelativeLink": "../../output/verification/dxf-import-progress/native-report.json",
+      "localArtifact": "output/verification/dxf-import-progress/native-report.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-RESTORE-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/external/civil-projects/restoration-01/comparison.png",
+      "localArtifact": "output/external/civil-projects/restoration-01/comparison.png"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-RESTORE-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/external/civil-projects/restoration-01/restored.webcad.json",
+      "localArtifact": "output/external/civil-projects/restoration-01/restored.webcad.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-RESTORE-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/external/civil-projects/restoration-01/report.json",
+      "localArtifact": "output/external/civil-projects/restoration-01/report.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-RESTORE-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/external/civil-projects/restoration-01/native-report.json",
+      "localArtifact": "output/external/civil-projects/restoration-01/native-report.json"
+    },
+    {
+      "document": "docs/implementation/EXT-CIVIL-RESTORE-01-2026-10-19.md",
+      "oldRelativeLink": "../../output/external/civil-projects/restoration-01/geometry-roundtrip-report.json",
+      "localArtifact": "output/external/civil-projects/restoration-01/geometry-roundtrip-report.json"
+    },
+    {
+      "document": "docs/implementation/G2-W1-PROJECT-NAVIGATION-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/project-tree/project-tree-1440.png",
+      "localArtifact": "output/verification/project-tree/project-tree-1440.png"
+    },
+    {
+      "document": "docs/implementation/G2-W1-PROJECT-NAVIGATION-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/project-tree/project-tree-960.png",
+      "localArtifact": "output/verification/project-tree/project-tree-960.png"
+    },
+    {
+      "document": "docs/implementation/G2-W1-PROJECT-NAVIGATION-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/project-tree/native-report.json",
+      "localArtifact": "output/verification/project-tree/native-report.json"
+    },
+    {
+      "document": "docs/implementation/G2-W2-REUSABLE-LIBRARY-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/library/library-1440.png",
+      "localArtifact": "output/verification/library/library-1440.png"
+    },
+    {
+      "document": "docs/implementation/G2-W2-REUSABLE-LIBRARY-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/library/library-960.png",
+      "localArtifact": "output/verification/library/library-960.png"
+    },
+    {
+      "document": "docs/implementation/G6-D4-H2-CURVE-HATCH-2026-10-18.md",
+      "oldRelativeLink": "../../output/projects/curve-hatch-r5/README.md",
+      "localArtifact": "output/projects/curve-hatch-r5/README.md"
+    },
+    {
+      "document": "docs/implementation/G6-D4-H2-CURVE-HATCH-2026-10-18.md",
+      "oldRelativeLink": "../../output/projects/curve-hatch-r5/artifact-verification.json",
+      "localArtifact": "output/projects/curve-hatch-r5/artifact-verification.json"
+    },
+    {
+      "document": "docs/implementation/G6-D4-H2-CURVE-HATCH-2026-10-18.md",
+      "oldRelativeLink": "../../output/projects/curve-hatch-r5/curve-01-1.png",
+      "localArtifact": "output/projects/curve-hatch-r5/curve-01-1.png"
+    },
+    {
+      "document": "docs/implementation/G6-D4-H2-CURVE-HATCH-2026-10-18.md",
+      "oldRelativeLink": "../../output/projects/curve-hatch-r5/curve-preview.png",
+      "localArtifact": "output/projects/curve-hatch-r5/curve-preview.png"
+    },
+    {
+      "document": "docs/implementation/G6-D5-E2-CURVE-DXF-2026-10-18.md",
+      "oldRelativeLink": "../../output/projects/curve-dxf/README.md",
+      "localArtifact": "output/projects/curve-dxf/README.md"
+    },
+    {
+      "document": "docs/implementation/G6-D5-E2-CURVE-DXF-2026-10-18.md",
+      "oldRelativeLink": "../../output/projects/curve-dxf/artifact-verification.json",
+      "localArtifact": "output/projects/curve-dxf/artifact-verification.json"
+    },
+    {
+      "document": "docs/implementation/G6-D5-E2-CURVE-DXF-2026-10-18.md",
+      "oldRelativeLink": "../../output/projects/curve-dxf/curves.png",
+      "localArtifact": "output/projects/curve-dxf/curves.png"
+    },
+    {
+      "document": "docs/implementation/G6-D5-Q1-OUTPUT-PREFLIGHT-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/output-preflight/independent-contact.png",
+      "localArtifact": "output/verification/output-preflight/independent-contact.png"
+    },
+    {
+      "document": "docs/implementation/G6-D5-Q1-OUTPUT-PREFLIGHT-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/output-preflight/independent-report.json",
+      "localArtifact": "output/verification/output-preflight/independent-report.json"
+    },
+    {
+      "document": "docs/implementation/G6-D5-Q1-OUTPUT-PREFLIGHT-2026-10-18.md",
+      "oldRelativeLink": "../../output/pdf/output-preflight-r5-1.pdf",
+      "localArtifact": "output/pdf/output-preflight-r5-1.pdf"
+    },
+    {
+      "document": "docs/implementation/G6-D5-Q1-OUTPUT-PREFLIGHT-2026-10-18.md",
+      "oldRelativeLink": "../../output/pdf/output-preflight-r5-2.pdf",
+      "localArtifact": "output/pdf/output-preflight-r5-2.pdf"
+    },
+    {
+      "document": "docs/implementation/G6-D5-Q1-OUTPUT-PREFLIGHT-2026-10-18.md",
+      "oldRelativeLink": "../../output/pdf/output-preflight-r5-3.pdf",
+      "localArtifact": "output/pdf/output-preflight-r5-3.pdf"
+    },
+    {
+      "document": "docs/implementation/G6-D5-Q1-OUTPUT-PREFLIGHT-2026-10-18.md",
+      "oldRelativeLink": "../../output/pdf/output-preflight-r5-4.pdf",
+      "localArtifact": "output/pdf/output-preflight-r5-4.pdf"
+    },
+    {
+      "document": "docs/implementation/G6-D5-Q1-OUTPUT-PREFLIGHT-2026-10-18.md",
+      "oldRelativeLink": "../../output/pdf/output-preflight-repaired.pdf",
+      "localArtifact": "output/pdf/output-preflight-repaired.pdf"
+    },
+    {
+      "document": "docs/implementation/G6-D5-Q1-OUTPUT-PREFLIGHT-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/output-preflight/r5-vector.zip",
+      "localArtifact": "output/verification/output-preflight/r5-vector.zip"
+    },
+    {
+      "document": "docs/implementation/G6-D6-P4-CACHE-COLD-HLR-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/kernel-p4/pre-boolean-cleanup-report.json",
+      "localArtifact": "output/verification/kernel-p4/pre-boolean-cleanup-report.json"
+    },
+    {
+      "document": "docs/implementation/G6-D6-P4-CACHE-COLD-HLR-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/kernel-p4/benchmark-summary.json",
+      "localArtifact": "output/verification/kernel-p4/benchmark-summary.json"
+    },
+    {
+      "document": "docs/implementation/G6-D6-P4-CACHE-COLD-HLR-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/kernel-p4/native-report.json",
+      "localArtifact": "output/verification/kernel-p4/native-report.json"
+    },
+    {
+      "document": "docs/implementation/G6-D6-P4-CACHE-COLD-HLR-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/kernel-p4/partition-only-report.json",
+      "localArtifact": "output/verification/kernel-p4/partition-only-report.json"
+    },
+    {
+      "document": "docs/implementation/HOUSE-MCP-01-2026-10-24.md",
+      "oldRelativeLink": "../../output/projects/lightwell-house/README.md",
+      "localArtifact": "output/projects/lightwell-house/README.md"
+    },
+    {
+      "document": "docs/implementation/KIOSK-HANDOFF-2026-10-24.md",
+      "oldRelativeLink": "../../output/projects/organic-kiosk/README.md",
+      "localArtifact": "output/projects/organic-kiosk/README.md"
+    },
+    {
+      "document": "docs/implementation/LAMP-HANDOFF-2026-10-24.md",
+      "oldRelativeLink": "../../output/projects/curve-lamp/README.md",
+      "localArtifact": "output/projects/curve-lamp/README.md"
+    },
+    {
+      "document": "docs/implementation/LIGHT-BRACKET-2026-10-25.md",
+      "oldRelativeLink": "../../output/projects/light-sensor-bracket/README.md",
+      "localArtifact": "output/projects/light-sensor-bracket/README.md"
+    },
+    {
+      "document": "docs/implementation/LOFT-EDIT-HANDOFF-2026-10-25.md",
+      "oldRelativeLink": "../../output/verification/loft-edit/browser-report.json",
+      "localArtifact": "output/verification/loft-edit/browser-report.json"
+    },
+    {
+      "document": "docs/implementation/LOFT-EDIT-HANDOFF-2026-10-25.md",
+      "oldRelativeLink": "../../output/verification/loft-edit/loft.png",
+      "localArtifact": "output/verification/loft-edit/loft.png"
+    },
+    {
+      "document": "docs/implementation/LOFT-EDIT-HANDOFF-2026-10-25.md",
+      "oldRelativeLink": "../../output/verification/loft-edit/loft.webcad.json",
+      "localArtifact": "output/verification/loft-edit/loft.webcad.json"
+    },
+    {
+      "document": "docs/implementation/MEAS-H1-BREP-DISTANCE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/brep-distance/brep-960.png",
+      "localArtifact": "output/verification/brep-distance/brep-960.png"
+    },
+    {
+      "document": "docs/implementation/MEAS-H1-BREP-DISTANCE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/brep-distance/contained.png",
+      "localArtifact": "output/verification/brep-distance/contained.png"
+    },
+    {
+      "document": "docs/implementation/MEAS-H1-BREP-DISTANCE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/brep-distance/distance.json",
+      "localArtifact": "output/verification/brep-distance/distance.json"
+    },
+    {
+      "document": "docs/implementation/MEAS-H1-BREP-DISTANCE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/brep-distance/source.webcad.json",
+      "localArtifact": "output/verification/brep-distance/source.webcad.json"
+    },
+    {
+      "document": "docs/implementation/MEAS-H1-BREP-DISTANCE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/brep-distance/native-report.json",
+      "localArtifact": "output/verification/brep-distance/native-report.json"
+    },
+    {
+      "document": "docs/implementation/MEAS-H1-HOVER-DISTANCE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/hover-distance/hover-1440.png",
+      "localArtifact": "output/verification/hover-distance/hover-1440.png"
+    },
+    {
+      "document": "docs/implementation/MEAS-H1-HOVER-DISTANCE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/hover-distance/hover-960.png",
+      "localArtifact": "output/verification/hover-distance/hover-960.png"
+    },
+    {
+      "document": "docs/implementation/MEAS-H1-HOVER-DISTANCE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/hover-distance/distance.json",
+      "localArtifact": "output/verification/hover-distance/distance.json"
+    },
+    {
+      "document": "docs/implementation/MEAS-H1-HOVER-DISTANCE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/hover-distance/source.webcad.json",
+      "localArtifact": "output/verification/hover-distance/source.webcad.json"
+    },
+    {
+      "document": "docs/implementation/MEAS-H1-HOVER-DISTANCE-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/hover-distance/native-report.json",
+      "localArtifact": "output/verification/hover-distance/native-report.json"
+    },
+    {
+      "document": "docs/implementation/MEAS-RESIDENTIAL-DRAWING-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/residential-measurements/issue-02.pdf",
+      "localArtifact": "output/verification/residential-measurements/issue-02.pdf"
+    },
+    {
+      "document": "docs/implementation/MEAS-RESIDENTIAL-DRAWING-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/residential-measurements/source.webcad.json",
+      "localArtifact": "output/verification/residential-measurements/source.webcad.json"
+    },
+    {
+      "document": "docs/implementation/MEAS-RESIDENTIAL-DRAWING-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/residential-measurements/native-report.json",
+      "localArtifact": "output/verification/residential-measurements/native-report.json"
+    },
+    {
+      "document": "docs/implementation/MEAS-RESIDENTIAL-DRAWING-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/residential-measurements/reopened.png",
+      "localArtifact": "output/verification/residential-measurements/reopened.png"
+    },
+    {
+      "document": "docs/implementation/PAVILION-HANDOFF-2026-10-25.md",
+      "oldRelativeLink": "../../output/projects/spatial-pavilion/README.md",
+      "localArtifact": "output/projects/spatial-pavilion/README.md"
+    },
+    {
+      "document": "docs/implementation/PRACTICE-REVIEW-01-2026-11-05.md",
+      "oldRelativeLink": "../../output/projects/three-storey-house/coordination/review.html",
+      "localArtifact": "output/projects/three-storey-house/coordination/review.html"
+    },
+    {
+      "document": "docs/implementation/PRACTICE-REVIEW-01-2026-11-05.md",
+      "oldRelativeLink": "../../output/projects/three-storey-house/coordination/house.webcad.json",
+      "localArtifact": "output/projects/three-storey-house/coordination/house.webcad.json"
+    },
+    {
+      "document": "docs/implementation/PRACTICE-REVIEW-01-2026-11-05.md",
+      "oldRelativeLink": "../../output/projects/three-storey-house/coordination/requirements.json",
+      "localArtifact": "output/projects/three-storey-house/coordination/requirements.json"
+    },
+    {
+      "document": "docs/implementation/PRACTICE-REVIEW-01-2026-11-05.md",
+      "oldRelativeLink": "../../output/projects/three-storey-house/coordination/r1-review.json",
+      "localArtifact": "output/projects/three-storey-house/coordination/r1-review.json"
+    },
+    {
+      "document": "docs/implementation/PRACTICE-REVIEW-01-2026-11-05.md",
+      "oldRelativeLink": "../../output/projects/three-storey-house/coordination/repaired-review.json",
+      "localArtifact": "output/projects/three-storey-house/coordination/repaired-review.json"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-B1-RESOURCE-MEMORY-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready-b1/hardware/two-placements.png",
+      "localArtifact": "output/verification/simready-b1/hardware/two-placements.png"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-B1-RESOURCE-MEMORY-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready-b1/hardware/balanced-viewport.png",
+      "localArtifact": "output/verification/simready-b1/hardware/balanced-viewport.png"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-B1-RESOURCE-MEMORY-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready-b1/hardware/two.webcad.json",
+      "localArtifact": "output/verification/simready-b1/hardware/two.webcad.json"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-B1-RESOURCE-MEMORY-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready-b1/swiftshader/browser-report.json",
+      "localArtifact": "output/verification/simready-b1/swiftshader/browser-report.json"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-B1-RESOURCE-MEMORY-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready-b1/hardware/browser-report.json",
+      "localArtifact": "output/verification/simready-b1/hardware/browser-report.json"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-B1-RESOURCE-MEMORY-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready-b1/comparison.json",
+      "localArtifact": "output/verification/simready-b1/comparison.json"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-B1-RESOURCE-MEMORY-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready-b1/hardware/quality-Original.png",
+      "localArtifact": "output/verification/simready-b1/hardware/quality-Original.png"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-B1-RESOURCE-MEMORY-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready-b1/hardware/quality-Balanced.png",
+      "localArtifact": "output/verification/simready-b1/hardware/quality-Balanced.png"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-B1-RESOURCE-MEMORY-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready-b1/hardware/quality-Low-Memory.png",
+      "localArtifact": "output/verification/simready-b1/hardware/quality-Low-Memory.png"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-B1-RESOURCE-MEMORY-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready-b1/hardware/image-quality.json",
+      "localArtifact": "output/verification/simready-b1/hardware/image-quality.json"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-GLB-MVP-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready/viewport.png",
+      "localArtifact": "output/verification/simready/viewport.png"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-GLB-MVP-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready/part-inspector.png",
+      "localArtifact": "output/verification/simready/part-inspector.png"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-GLB-MVP-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready/reference.webcad.json",
+      "localArtifact": "output/verification/simready/reference.webcad.json"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-GLB-MVP-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready/browser-report.json",
+      "localArtifact": "output/verification/simready/browser-report.json"
+    },
+    {
+      "document": "docs/implementation/SIMREADY-GLB-MVP-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/simready/mapping-preview.json",
+      "localArtifact": "output/verification/simready/mapping-preview.json"
+    },
+    {
+      "document": "docs/implementation/THREE-STOREY-HOUSE-2026-11-05.md",
+      "oldRelativeLink": "../../output/projects/three-storey-house/review.html",
+      "localArtifact": "output/projects/three-storey-house/review.html"
+    },
+    {
+      "document": "docs/implementation/THREE-STOREY-HOUSE-2026-11-05.md",
+      "oldRelativeLink": "../../output/projects/three-storey-house/01-source-2d.webcad.json",
+      "localArtifact": "output/projects/three-storey-house/01-source-2d.webcad.json"
+    },
+    {
+      "document": "docs/implementation/THREE-STOREY-HOUSE-2026-11-05.md",
+      "oldRelativeLink": "../../output/projects/three-storey-house/house.webcad.json",
+      "localArtifact": "output/projects/three-storey-house/house.webcad.json"
+    },
+    {
+      "document": "docs/implementation/THREE-STOREY-HOUSE-2026-11-05.md",
+      "oldRelativeLink": "../../output/projects/three-storey-house/house.step",
+      "localArtifact": "output/projects/three-storey-house/house.step"
+    },
+    {
+      "document": "docs/implementation/THREE-STOREY-HOUSE-2026-11-05.md",
+      "oldRelativeLink": "../../output/projects/three-storey-house/verification.json",
+      "localArtifact": "output/projects/three-storey-house/verification.json"
+    },
+    {
+      "document": "docs/implementation/THREE-STOREY-HOUSE-2026-11-05.md",
+      "oldRelativeLink": "../../output/projects/three-storey-house/step-inspection.json",
+      "localArtifact": "output/projects/three-storey-house/step-inspection.json"
+    },
+    {
+      "document": "docs/implementation/UI-AUTOMATION-GRADUATION-HANDOFF-2026-10-31.md",
+      "oldRelativeLink": "../../output/projects/claude-graduation-2026-10-31/",
+      "localArtifact": "output/projects/claude-graduation-2026-10-31"
+    },
+    {
+      "document": "docs/implementation/UI-C2-SELECTION-TOOLS-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/selection-toolbar/selection-curve-review.png",
+      "localArtifact": "output/verification/selection-toolbar/selection-curve-review.png"
+    },
+    {
+      "document": "docs/implementation/UI-C2-SELECTION-TOOLS-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/selection-toolbar/selection-frame-960.png",
+      "localArtifact": "output/verification/selection-toolbar/selection-frame-960.png"
+    },
+    {
+      "document": "docs/implementation/UI-C2-SELECTION-TOOLS-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/selection-toolbar/selection-zoom-150.png",
+      "localArtifact": "output/verification/selection-toolbar/selection-zoom-150.png"
+    },
+    {
+      "document": "docs/implementation/UI-C3-INSPECTOR-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/inspector-properties/inspector-frame.png",
+      "localArtifact": "output/verification/inspector-properties/inspector-frame.png"
+    },
+    {
+      "document": "docs/implementation/UI-C3-INSPECTOR-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/inspector-properties/inspector-960.png",
+      "localArtifact": "output/verification/inspector-properties/inspector-960.png"
+    },
+    {
+      "document": "docs/implementation/UI-C3-INSPECTOR-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/inspector-properties/inspector-style.svg",
+      "localArtifact": "output/verification/inspector-properties/inspector-style.svg"
+    },
+    {
+      "document": "docs/implementation/UI-C3-INSPECTOR-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/inspector-properties/inspector-style.pdf",
+      "localArtifact": "output/verification/inspector-properties/inspector-style.pdf"
+    },
+    {
+      "document": "docs/implementation/UI-C4-PROJECT-HOME-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/project-home/home-1440.png",
+      "localArtifact": "output/verification/project-home/home-1440.png"
+    },
+    {
+      "document": "docs/implementation/UI-C4-PROJECT-HOME-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/project-home/home-960.png",
+      "localArtifact": "output/verification/project-home/home-960.png"
+    },
+    {
+      "document": "docs/implementation/UI-C5-INPUT-ACCESSIBILITY-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/accessibility-input/accessibility-1440.png",
+      "localArtifact": "output/verification/accessibility-input/accessibility-1440.png"
+    },
+    {
+      "document": "docs/implementation/UI-C5-INPUT-ACCESSIBILITY-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/accessibility-input/accessibility-960.png",
+      "localArtifact": "output/verification/accessibility-input/accessibility-960.png"
+    },
+    {
+      "document": "docs/implementation/UI-C5-INPUT-ACCESSIBILITY-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/accessibility-input/accessibility-zoom-150.png",
+      "localArtifact": "output/verification/accessibility-input/accessibility-zoom-150.png"
+    },
+    {
+      "document": "docs/implementation/UI-P3-A-PROJECT-COMPARISON-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/project-comparison/native-report.json",
+      "localArtifact": "output/verification/project-comparison/native-report.json"
+    },
+    {
+      "document": "docs/implementation/UI-P3-A-PROJECT-COMPARISON-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/project-comparison/comparison-1440.png",
+      "localArtifact": "output/verification/project-comparison/comparison-1440.png"
+    },
+    {
+      "document": "docs/implementation/UI-P3-A-PROJECT-COMPARISON-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/project-comparison/comparison-960.png",
+      "localArtifact": "output/verification/project-comparison/comparison-960.png"
+    },
+    {
+      "document": "docs/implementation/UI-P3-A-PROJECT-COMPARISON-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/project-comparison/comparison-reopened.png",
+      "localArtifact": "output/verification/project-comparison/comparison-reopened.png"
+    },
+    {
+      "document": "docs/implementation/UI-P3-A-PROJECT-COMPARISON-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/project-comparison/comparison-a.webcad.json",
+      "localArtifact": "output/verification/project-comparison/comparison-a.webcad.json"
+    },
+    {
+      "document": "docs/implementation/UI-P3-A-PROJECT-COMPARISON-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/project-comparison/comparison-b.webcad.json",
+      "localArtifact": "output/verification/project-comparison/comparison-b.webcad.json"
+    },
+    {
+      "document": "docs/implementation/UI-P3-B-TAB-NAVIGATION-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/project-tab-navigation/tabs-search-1440.png",
+      "localArtifact": "output/verification/project-tab-navigation/tabs-search-1440.png"
+    },
+    {
+      "document": "docs/implementation/UI-P3-B-TAB-NAVIGATION-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/project-tab-navigation/tabs-search-960.png",
+      "localArtifact": "output/verification/project-tab-navigation/tabs-search-960.png"
+    },
+    {
+      "document": "docs/implementation/UI-P3-B-TAB-NAVIGATION-2026-10-17.md",
+      "oldRelativeLink": "../../output/verification/project-tab-navigation/tabs-reopened-search.png",
+      "localArtifact": "output/verification/project-tab-navigation/tabs-reopened-search.png"
+    },
+    {
+      "document": "docs/implementation/UI-P4-PROJECT-BUNDLES-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/project-bundle/Projects.webcad.bundle.json",
+      "localArtifact": "output/verification/project-bundle/Projects.webcad.bundle.json"
+    },
+    {
+      "document": "docs/implementation/UI-P4-PROJECT-BUNDLES-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/project-bundle/bundle-review.png",
+      "localArtifact": "output/verification/project-bundle/bundle-review.png"
+    },
+    {
+      "document": "docs/implementation/UI-P4-PROJECT-BUNDLES-2026-10-18.md",
+      "oldRelativeLink": "../../output/verification/project-bundle/native-report.json",
+      "localArtifact": "output/verification/project-bundle/native-report.json"
+    },
+    {
+      "document": "docs/implementation/WF-C0-A2-B1-2026-10-16.md",
+      "oldRelativeLink": "../../output/verification/wf-c0-a2-b1-node-final.log",
+      "localArtifact": "output/verification/wf-c0-a2-b1-node-final.log"
+    },
+    {
+      "document": "docs/implementation/WF-Q1-RESIDENTIAL-2026-10-17.md",
+      "oldRelativeLink": "../../output/projects/residential-q1/README.md",
+      "localArtifact": "output/projects/residential-q1/README.md"
+    },
+    {
+      "document": "docs/implementation/WF-Q1-RESIDENTIAL-2026-10-17.md",
+      "oldRelativeLink": "../../output/projects/residential-q1/source.dxf",
+      "localArtifact": "output/projects/residential-q1/source.dxf"
+    },
+    {
+      "document": "docs/implementation/WF-Q1-RESIDENTIAL-2026-10-17.md",
+      "oldRelativeLink": "../../output/projects/residential-q1/issue-01-50.pdf",
+      "localArtifact": "output/projects/residential-q1/issue-01-50.pdf"
+    },
+    {
+      "document": "docs/implementation/WF-Q1-RESIDENTIAL-2026-10-17.md",
+      "oldRelativeLink": "../../output/projects/residential-q1/issue-02-50.pdf",
+      "localArtifact": "output/projects/residential-q1/issue-02-50.pdf"
+    },
+    {
+      "document": "docs/implementation/WF-Q1-RESIDENTIAL-2026-10-17.md",
+      "oldRelativeLink": "../../output/projects/residential-q1/issue-03-100.pdf",
+      "localArtifact": "output/projects/residential-q1/issue-03-100.pdf"
+    },
+    {
+      "document": "docs/implementation/WF-Q1-RESIDENTIAL-2026-10-17.md",
+      "oldRelativeLink": "../../output/projects/residential-q1/native-report.json",
+      "localArtifact": "output/projects/residential-q1/native-report.json"
+    },
+    {
+      "document": "docs/implementation/WF-Q1-RESIDENTIAL-2026-10-17.md",
+      "oldRelativeLink": "../../output/projects/residential-q1/independent-report.json",
+      "localArtifact": "output/projects/residential-q1/independent-report.json"
+    },
+    {
+      "document": "docs/verification/AI-DESIGN-AGENT-PHASE-1A-RESUMED-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/ai-agent-phase-1a-final/A-input.webcad.json",
+      "localArtifact": "output/verification/ai-agent-phase-1a-final/A-input.webcad.json"
+    },
+    {
+      "document": "docs/verification/AI-DESIGN-AGENT-PHASE-1A-RESUMED-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/ai-agent-phase-1a-final/A-preview.webcad.json",
+      "localArtifact": "output/verification/ai-agent-phase-1a-final/A-preview.webcad.json"
+    },
+    {
+      "document": "docs/verification/AI-DESIGN-AGENT-PHASE-1A-RESUMED-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/ai-agent-phase-1a-final/runtime.json",
+      "localArtifact": "output/verification/ai-agent-phase-1a-final/runtime.json"
+    },
+    {
+      "document": "docs/verification/AI-DESIGN-AGENT-PHASE-1A-RESUMED-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/ai-agent-phase-1a-final/live.json",
+      "localArtifact": "output/verification/ai-agent-phase-1a-final/live.json"
+    },
+    {
+      "document": "docs/verification/AI-DESIGN-AGENT-PHASE-1A-RESUMED-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/ai-agent-phase-1a-final/B-position-live.json",
+      "localArtifact": "output/verification/ai-agent-phase-1a-final/B-position-live.json"
+    },
+    {
+      "document": "docs/verification/AI-DESIGN-AGENT-PHASE-1A-RESUMED-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/ai-agent-phase-1a-final/repeat-live.json",
+      "localArtifact": "output/verification/ai-agent-phase-1a-final/repeat-live.json"
+    },
+    {
+      "document": "docs/verification/AI-DESIGN-AGENT-PHASE-1A-RESUMED-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/ai-agent-phase-1a-final/native-motion-full.json",
+      "localArtifact": "output/verification/ai-agent-phase-1a-final/native-motion-full.json"
+    },
+    {
+      "document": "docs/verification/AI-DESIGN-AGENT-PHASE-1A-RESUMED-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/ai-agent-phase-1a-final/native-motion-summary.json",
+      "localArtifact": "output/verification/ai-agent-phase-1a-final/native-motion-summary.json"
+    },
+    {
+      "document": "docs/verification/AI-DESIGN-AGENT-PHASE-1A-RESUMED-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/ai-agent-phase-1a-resume/live.json",
+      "localArtifact": "output/verification/ai-agent-phase-1a-resume/live.json"
+    },
+    {
+      "document": "docs/verification/AI-DESIGN-AGENT-PHASE-1A-RESUMED-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/ai-agent-phase-1a-final/conflict-diagnostic/live.json",
+      "localArtifact": "output/verification/ai-agent-phase-1a-final/conflict-diagnostic/live.json"
+    },
+    {
+      "document": "docs/verification/AI-DESIGN-AGENT-PHASE-1A-RESUMED-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/ai-agent-phase-1a-final/summary.json",
+      "localArtifact": "output/verification/ai-agent-phase-1a-final/summary.json"
+    },
+    {
+      "document": "docs/verification/AI-DESIGN-AGENT-PHASE-1A-RESUMED-2026-10-31.md",
+      "oldRelativeLink": "../../output/verification/ai-agent-phase-1a-final/simready-b1-browser.log",
+      "localArtifact": "output/verification/ai-agent-phase-1a-final/simready-b1-browser.log"
+    },
+    {
+      "document": "docs/verification/AUTO-ONTOLOGY-JOIN-01-2026-11-07.md",
+      "oldRelativeLink": "../../output/verification/auto-ontology-join-01/compilation-summary.log",
+      "localArtifact": "output/verification/auto-ontology-join-01/compilation-summary.log"
+    },
+    {
+      "document": "docs/verification/AUTO-ONTOLOGY-LIVE-01-2026-11-07.md",
+      "oldRelativeLink": "../../output/verification/auto-ontology-live-01/compilation-summary.log",
+      "localArtifact": "output/verification/auto-ontology-live-01/compilation-summary.log"
+    },
+    {
+      "document": "docs/verification/AUTO-ONTOLOGY-LIVE-01-2026-11-07.md",
+      "oldRelativeLink": "../../output/verification/auto-ontology-live-01/attempt-qwen3-14b/routing-validation.log",
+      "localArtifact": "output/verification/auto-ontology-live-01/attempt-qwen3-14b/routing-validation.log"
+    },
+    {
+      "document": "docs/verification/AUTO-ONTOLOGY-LIVE-01-2026-11-07.md",
+      "oldRelativeLink": "../../output/verification/auto-ontology-live-01/routing-validation.log",
+      "localArtifact": "output/verification/auto-ontology-live-01/routing-validation.log"
+    },
+    {
+      "document": "docs/verification/AUTO-ONTOLOGY-PILOT-01-2026-11-07.md",
+      "oldRelativeLink": "../../output/verification/auto-ontology-pilot-01/live-provider-trace.log",
+      "localArtifact": "output/verification/auto-ontology-pilot-01/live-provider-trace.log"
+    },
+    {
+      "document": "docs/verification/AUTO-ONTOLOGY-PUBLIC-ROUTING-01-2026-11-07.md",
+      "oldRelativeLink": "../../output/verification/auto-ontology-public-routing-01/routing-trace.log",
+      "localArtifact": "output/verification/auto-ontology-public-routing-01/routing-trace.log"
+    },
+    {
+      "document": "docs/verification/AUTO-ONTOLOGY-ROUTING-01-2026-11-07.md",
+      "oldRelativeLink": "../../output/verification/auto-ontology-routing-01/routing-trace.log",
+      "localArtifact": "output/verification/auto-ontology-routing-01/routing-trace.log"
+    },
+    {
+      "document": "docs/verification/AUTO-ONTOLOGY-ROUTING-01-2026-11-07.md",
+      "oldRelativeLink": "../../output/verification/auto-ontology-routing-01/diagnostic-trace.log",
+      "localArtifact": "output/verification/auto-ontology-routing-01/diagnostic-trace.log"
+    },
+    {
+      "document": "docs/verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md",
+      "oldRelativeLink": "../../output/integrated-final-node-2026-10-06.log",
+      "localArtifact": "output/integrated-final-node-2026-10-06.log"
+    },
+    {
+      "document": "docs/verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md",
+      "oldRelativeLink": "../../output/integrated-final-browser-2026-10-06.log",
+      "localArtifact": "output/integrated-final-browser-2026-10-06.log"
+    },
+    {
+      "document": "docs/verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md",
+      "oldRelativeLink": "../../output/integrated-final-architecture-2026-10-06.log",
+      "localArtifact": "output/integrated-final-architecture-2026-10-06.log"
+    },
+    {
+      "document": "docs/verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md",
+      "oldRelativeLink": "../../output/integrated-final-build-2026-10-06.log",
+      "localArtifact": "output/integrated-final-build-2026-10-06.log"
+    },
+    {
+      "document": "docs/verification/CREATIVE-IMAGE-HANDOFF-2026-10-06.md",
+      "oldRelativeLink": "../../output/integrated-browser-2026-10-06.log",
+      "localArtifact": "output/integrated-browser-2026-10-06.log"
+    },
+    {
+      "document": "docs/verification/G3-5-IMAGE-RESOURCES-2026-10-06.md",
+      "oldRelativeLink": "../../output/handoff-node-2026-10-06.log",
+      "localArtifact": "output/handoff-node-2026-10-06.log"
+    },
+    {
+      "document": "docs/verification/G3-5-IMAGE-RESOURCES-2026-10-06.md",
+      "oldRelativeLink": "../../output/integrated-final-node-2026-10-06.log",
+      "localArtifact": "output/integrated-final-node-2026-10-06.log"
+    },
+    {
+      "document": "docs/verification/G3-5-IMAGE-RESOURCES-2026-10-06.md",
+      "oldRelativeLink": "../../output/integrated-final-browser-2026-10-06.log",
+      "localArtifact": "output/integrated-final-browser-2026-10-06.log"
+    },
+    {
+      "document": "docs/verification/G3-5-IMAGE-RESOURCES-2026-10-06.md",
+      "oldRelativeLink": "../../output/integrated-final-architecture-2026-10-06.log",
+      "localArtifact": "output/integrated-final-architecture-2026-10-06.log"
+    },
+    {
+      "document": "docs/verification/G3-5-IMAGE-RESOURCES-2026-10-06.md",
+      "oldRelativeLink": "../../output/integrated-final-build-2026-10-06.log",
+      "localArtifact": "output/integrated-final-build-2026-10-06.log"
+    },
+    {
+      "document": "docs/verification/G3-5-IMAGE-RESOURCES-2026-10-06.md",
+      "oldRelativeLink": "../../output/integrated-browser-2026-10-06.log",
+      "localArtifact": "output/integrated-browser-2026-10-06.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/browser-polygonEditing.log",
+      "localArtifact": "output/verification/webcad-feature-audit/browser-polygonEditing.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/browser-geometryNodes.log",
+      "localArtifact": "output/verification/webcad-feature-audit/browser-geometryNodes.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/browser-sculpt.log",
+      "localArtifact": "output/verification/webcad-feature-audit/browser-sculpt.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/browser-hybridGeometry.log",
+      "localArtifact": "output/verification/webcad-feature-audit/browser-hybridGeometry.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/browser-planarReconstruction.log",
+      "localArtifact": "output/verification/webcad-feature-audit/browser-planarReconstruction.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/browser-b5FaceSketch.log",
+      "localArtifact": "output/verification/webcad-feature-audit/browser-b5FaceSketch.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/browser-mcpBridge.log",
+      "localArtifact": "output/verification/webcad-feature-audit/browser-mcpBridge.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/browser-b5WorkPlanes.log",
+      "localArtifact": "output/verification/webcad-feature-audit/browser-b5WorkPlanes.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/unit-parametric-mcp.log",
+      "localArtifact": "output/verification/webcad-feature-audit/unit-parametric-mcp.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/diagnostic-command-io.log",
+      "localArtifact": "output/verification/webcad-feature-audit/diagnostic-command-io.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/hybrid-phase-5c1/all-tests.log",
+      "localArtifact": "output/verification/hybrid-phase-5c1/all-tests.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/browser-b5WorkPlanes.log",
+      "localArtifact": "output/verification/webcad-feature-audit/browser-b5WorkPlanes.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/diagnostic-command-io.log",
+      "localArtifact": "output/verification/webcad-feature-audit/diagnostic-command-io.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/webcad-feature-audit/diagnostic-command-io.log",
+      "localArtifact": "output/verification/webcad-feature-audit/diagnostic-command-io.log"
+    },
+    {
+      "document": "docs/verification/WEBCAD-FEATURE-AUDIT.md",
+      "oldRelativeLink": "../../output/verification/sculpt-phase-4/final-browser-audit.json",
+      "localArtifact": "output/verification/sculpt-phase-4/final-browser-audit.json"
+    }
+  ]
+}

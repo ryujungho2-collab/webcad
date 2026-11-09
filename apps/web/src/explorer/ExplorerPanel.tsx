@@ -1,5 +1,9 @@
+import {CanvasHierarchyPanel} from "../canvas/CanvasHierarchyPanel";
+import {LibraryPanel} from "../library/LibraryPanel";
+import {ProjectTreePanel} from "./views/ProjectTreePanel";
+import {projectTargets,filterProjectTargets} from "./projectTree";
 import { ScenesPanel } from "../scenes/ScenesPanel";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ActivityId } from "../activity/ActivityBar";
 import { cadDocument } from "../state/cadDocument";
 import { cadHistory } from "../state/history";
@@ -11,10 +15,15 @@ import { CopilotPanel, type CopilotPanelProps } from "../copilot/CopilotPanel";
 import {VariablesPanel} from "../properties/VariablesPanel";
 import { ArtboardsPanel } from "./views/ArtboardsPanel";
 import { ComponentsPanel } from "./views/ComponentsPanel";
+import { documentSessionIdentity } from "../state/documentSession";
 import type { WorkPlaneId } from "../precision/workPlane";
 
 type ExplorerPanelProps = {
+  layerIsolationActive?: boolean;
+  onIsolateLayers?: () => void;
   activeActivity: ActivityId;
+  onNavigateProject: (key:string)=>void;
+  navigationBusy?:boolean;
   documentRevision: number;
   selectedLayerId: string;
   selectedObjectId: string | null;
@@ -23,7 +32,7 @@ type ExplorerPanelProps = {
   onSelectObject: (objectId: string | null, additive?: boolean) => void;
   onDocumentChange: () => void;
   activeArtboardId: string | null;
-  onActivateArtboard: (id: string | null) => void;
+  onActivateArtboard: (id: string | null, options?: { keepSelection?: boolean }) => void;
   activeWorkPlane: WorkPlaneId;
   onInsertComponent: (blockId: string) => void;
   activeSketchId?: string | null;
@@ -32,6 +41,8 @@ type ExplorerPanelProps = {
 };
 
 const titles: Record<ActivityId, string> = {
+  library: "Library",
+  project: "Project",
   scenes: "Scenes",
   model: "Model",
   layers: "Layers",
@@ -43,7 +54,7 @@ const titles: Record<ActivityId, string> = {
   variables: "Variables",
 };
 
-const filterNames: Record<ActivityId, string> = { scenes: "scenes", model: "model", layers: "layers", artboards: "artboards", components: "components", type: "objects", history: "operations", copilot: "prompts",variables:"variables" };
+const filterNames: Record<ActivityId, string> = { library:"library", project:"project", scenes: "scenes", model: "model", layers: "layers", artboards: "artboards", components: "components", type: "objects", history: "operations", copilot: "prompts",variables:"variables" };
 
 export function ExplorerPanel(props: ExplorerPanelProps) {
   const [query, setQuery] = useState("");
@@ -58,7 +69,8 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
         : props.activeActivity === "variables" ? Object.values(cadDocument.variables??{}).map(variable=>`${variable.name} ${variable.expression}`.toLowerCase())
         : props.activeActivity === "scenes" ? Object.values(cadDocument.scenes??{}).map(scene=>`${scene.name} ${scene.id}`.toLowerCase()) : props.activeActivity === "artboards" ? Object.values(cadDocument.artboards??{}).map(board=>`${board.name} ${board.id}`.toLowerCase())
           : props.activeActivity === "components" ? Object.values(cadDocument.blocks??{}).map(block=>`${block.name} ${block.id}`.toLowerCase()) : objectEntries;
-  const matchCount = entries.filter((entry) => !normalizedQuery || entry.includes(normalizedQuery)).length;
+  const projectRows=useMemo(()=>projectTargets(cadDocument),[props.documentRevision]);
+  const matchCount = props.activeActivity==="project"?filterProjectTargets(projectRows,query).length:entries.filter((entry) => !normalizedQuery || entry.includes(normalizedQuery)).length;
 
   useEffect(() => {
     setQuery("");
@@ -68,7 +80,7 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
     <aside className="side-bar" aria-label={`${titles[props.activeActivity]} explorer`}>
       <div className="explorer-header">
         <span>{titles[props.activeActivity]}</span>
-        <span className="explorer-count" title={normalizedQuery ? `${matchCount} of ${entries.length} matching items` : `${entries.length} items`}>{normalizedQuery ? `${matchCount} / ${entries.length}` : entries.length}</span>
+        <span className="explorer-count" hidden={props.activeActivity==="library"} title={normalizedQuery ? `${matchCount} of ${(props.activeActivity==="project"?projectRows.length:entries.length)} matching items` : `${(props.activeActivity==="project"?projectRows.length:entries.length)} items`}>{normalizedQuery ? `${matchCount} / ${(props.activeActivity==="project"?projectRows.length:entries.length)}` : (props.activeActivity==="project"?projectRows.length:entries.length)}</span>
       </div>
 
       <label className="explorer-search">
@@ -93,11 +105,16 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
           if (event.target === event.currentTarget) props.onSelectObject(null);
         }}
       >
+        {props.activeActivity === "library" && <LibraryPanel query={normalizedQuery} revision={props.documentRevision} selectedIds={props.selectedObjectIds} layerId={props.selectedLayerId} plane={props.activeWorkPlane} onChange={props.onDocumentChange}/>}
+        {props.activeActivity === "project" && <><CanvasHierarchyPanel revision={props.documentRevision} plane={props.activeWorkPlane} selectedIds={props.selectedObjectIds} query={normalizedQuery} onChange={props.onDocumentChange} onNavigate={props.onNavigateProject} busy={props.navigationBusy}/><ProjectTreePanel query={normalizedQuery} onNavigate={props.onNavigateProject} busy={props.navigationBusy}/></>}
         {props.activeActivity === "model" && (
           <ModelPanel query={normalizedQuery} selectedObjectId={props.selectedObjectId} selectedObjectIds={props.selectedObjectIds} onSelectObject={props.onSelectObject} onDocumentChange={props.onDocumentChange} activeSketchId={props.activeSketchId} onEditSketch={props.onEditSketch} />
         )}
         {props.activeActivity === "layers" && (
           <LayersPanel
+            selectedObjectIds={props.selectedObjectIds}
+            isolationActive={props.layerIsolationActive}
+            onIsolate={props.onIsolateLayers}
             query={normalizedQuery}
             documentRevision={props.documentRevision}
             selectedLayerId={props.selectedLayerId}
@@ -107,7 +124,7 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
         )}
         {props.activeActivity === "artboards" && <ArtboardsPanel query={normalizedQuery} documentRevision={props.documentRevision} onDocumentChange={props.onDocumentChange} activeArtboardId={props.activeArtboardId} onActivateArtboard={props.onActivateArtboard} />}
         {props.activeActivity === "scenes" && <ScenesPanel query={normalizedQuery} revision={props.documentRevision} selectedObjectIds={props.selectedObjectIds} activeArtboardId={props.activeArtboardId} onChange={props.onDocumentChange} onActivate={props.onActivateArtboard} onSelectObject={props.onSelectObject} />}
-        {props.activeActivity === "components" && <ComponentsPanel query={normalizedQuery} revision={props.documentRevision} selectedObjectIds={props.selectedObjectIds} activeWorkPlane={props.activeWorkPlane} onChange={props.onDocumentChange} onInsert={props.onInsertComponent} />}
+        {props.activeActivity === "components" && <ComponentsPanel key={documentSessionIdentity()} query={normalizedQuery} revision={props.documentRevision} selectedObjectIds={props.selectedObjectIds} activeWorkPlane={props.activeWorkPlane} onChange={props.onDocumentChange} onInsert={props.onInsertComponent} />}
         {props.activeActivity === "type" && (
           <TypePanel query={normalizedQuery} selectedObjectId={props.selectedObjectId} selectedObjectIds={props.selectedObjectIds} onSelectObject={props.onSelectObject} />
         )}
@@ -115,12 +132,16 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
         {props.activeActivity === "variables" && <VariablesPanel query={normalizedQuery} documentRevision={props.documentRevision} selectedObjectId={props.selectedObjectId} activeSketchId={props.activeSketchId} onDocumentChange={props.onDocumentChange}/>}
         {props.activeActivity === "copilot" && props.copilot && (
           <CopilotPanel
+            mcpBridge={props.copilot.mcpBridge}
+            onDesignStudy={props.copilot.onDesignStudy}
+            solid={props.copilot.solid}
             onPrepareFloorPlan={props.copilot.onPrepareFloorPlan}
             onFloorTasks={props.copilot.onFloorTasks}
             query={props.copilot.query}
             draft={props.copilot.draft}
             connection={props.copilot.connection}
             requestContext={props.copilot.requestContext}
+            clarification={props.copilot.clarification}
             plan={props.copilot.plan}
             interaction={props.copilot.interaction}
             error={props.copilot.error}
@@ -137,6 +158,7 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
             onApply={props.copilot.onApply}
             onClear={props.copilot.onClear}
             onInspectResult={props.copilot.onInspectResult}
+            onSelectTargets={props.copilot.onSelectTargets}
           />
         )}
       </div>

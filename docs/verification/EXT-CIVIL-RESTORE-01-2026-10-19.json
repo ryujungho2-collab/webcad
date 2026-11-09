@@ -1,0 +1,40 @@
+{
+  "id": "EXT-CIVIL-RESTORE-01",
+  "date": "2026-10-19",
+  "status": "passed-with-inherited-import-limits",
+  "sourceSha256": "9c1bddc470ac6d2359944eed21684666f54350c680a07692692e5a84048b1065",
+  "auditChecks": 8,
+  "browserChecks": 9,
+  "geometryRoundtrip": {
+    "status": "passed",
+    "baselineSegments": 36631,
+    "reimportSegments": 36631,
+    "coordinateQuantizationMm": 0.0001,
+    "fullDxfByteIdentical": true,
+    "meaning": "Multiset of rendered path segments, stroke color/width/dash and fill; sampled circular curves, not a BRep equivalence proof"
+  },
+  "objects": 4817,
+  "blocks": 91,
+  "labels": 98,
+  "fills": 85,
+  "typescript": "passed",
+  "architectureModules": 714,
+  "productCodeChanged": false,
+  "evidenceDirectory": "output/external/civil-projects/restoration-01",
+  "artifacts": {
+    "baseline.webcad.json": "b11bf7c6103a9af9c0abf07b4890477042fb9f031cdc3a7de43c91e4803ca928",
+    "modified.webcad.json": "d06c176bd70155ba0503c4664fb12095b5de285c6fc2b8a6c50a432cdab443be",
+    "restored.webcad.json": "02fdeb0e84163e5c260f25c51116a0b423cfbd3667d64424dfd4875c3e259575",
+    "baseline.svg": "a5b3e4ea0f3a9c809a39ac8170cd686790714410f013c98186194b59194ef704",
+    "modified.svg": "ed92566f2bea3c62318f821d350ba829fbb74b3c80e0ada776509c0989f7ebb7",
+    "restored.svg": "a5b3e4ea0f3a9c809a39ac8170cd686790714410f013c98186194b59194ef704",
+    "restored.dxf": "7fb07eda0b66fc4fa48ca2804fc2f217ec645617d01a646b990792e7cce26b80",
+    "comparison.png": "df3f5886aa0e3b79ff509022182f8fb73920a3b06c6cd0e1e47277d502195de8"
+  },
+  "limits": [
+    "Imported drawing primitives, not semantic architectural walls/doors",
+    "Door symbol scale does not resize an associated wall opening",
+    "Original unsupported 15 HATCH remain excluded",
+    "DXF format representation can differ; native associative HATCH/dimensions not reconstructed"
+  ]
+}

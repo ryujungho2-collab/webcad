@@ -1,0 +1,24 @@
+{
+  "live": false,
+  "checks": [
+    "PASS: The Inspector shows native relations before external consent or a request",
+    "PASS: External lookup requires explicit session consent",
+    "PASS: No external request occurs on selection",
+    "PASS: Native relations remain visible while explanation loads",
+    "PASS: Forward selection displays an explanation only after external rows match native facts",
+    "PASS: The explanation uses verified facts",
+    "PASS: Reverse selection verifies the same canonical relationship",
+    "PASS: wrong-revision falls back to the existing native relation report",
+    "PASS: malformed falls back to the existing native relation report",
+    "PASS: timeout falls back to the existing native relation report",
+    "PASS: External reads and failure handling leave the document and Undo history unchanged",
+    "PASS: A delayed response after Undo is discarded and the current native report wins",
+    "PASS: Redo's new revision requires a newly registered external snapshot",
+    "PASS: Same-ID native file reopen discards the previous session's delayed response"
+  ],
+  "fixture": {
+    "mode": "delayed",
+    "calls": 7,
+    "completed": 6
+  }
+}

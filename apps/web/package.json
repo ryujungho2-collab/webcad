@@ -7,9 +7,14 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "test": "tsx --test tests/**/*.test.ts",
+    "test:fixtures": "tsx --test tests/helpers/localTestArtifacts.test.ts tests/assemblyCandidateRanking.test.ts tests/architecture.test.ts",
     "check:architecture": "tsx scripts/checkArchitecture.ts",
+    "qa": "pnpm test && pnpm check:architecture && pnpm build",
+    "audit": "pnpm audit",
     "test:browser": "node scripts/browserChecks.mjs",
-    "benchmark:edit": "node scripts/browserChecks.mjs --benchmark"
+    "benchmark:edit": "node scripts/browserChecks.mjs --benchmark",
+    "preview": "vite preview",
+    "test:copilot-live": "tsx scripts/localCopilotLive.ts"
   },
   "dependencies": {
     "@agent-webcad/cad-commands": "workspace:*",
@@ -22,13 +27,16 @@
     "react-dom": "^19.1.1",
     "three": "^0.180.0",
     "utif": "3.1.0",
-    "vite": "^7.1.0"
+    "vite": "^7.3.7"
   },
   "devDependencies": {
+    "@modelcontextprotocol/client": "2.3.1",
+    "@modelcontextprotocol/server": "2.3.1",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@types/three": "^0.180.0",
     "tsx": "^4.23.13",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "zod": "^4.6.7"
   }
 }

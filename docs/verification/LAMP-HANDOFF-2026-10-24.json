@@ -1,0 +1,73 @@
+{
+  "status": "passed",
+  "date": "2026-10-24",
+  "task": "S-curve task lamp: exact open NURBS sweep and shared tangent editing",
+  "nativeFileVersion": 52,
+  "canonicalToolCount": 39,
+  "mcpToolCount": 42,
+  "humanFormCount": 13,
+  "browserChecks": 36,
+  "targetedUnitIntegrationChecks": 78,
+  "regressionBrowserChecks": {
+    "handleHandoff": 42,
+    "kioskHandoff": 48,
+    "sharedToolHandoff": 38,
+    "mcpBridge": 24,
+    "cadToolsAdvanced": 17
+  },
+  "productionBuild": "passed; existing large chunk warning",
+  "architecture": {
+    "status": "passed",
+    "moduleCount": 811
+  },
+  "stepInspection": {
+    "status": "passed",
+    "partCount": 5
+  },
+  "exactDxfSplineCount": 1,
+  "modelEndpointRequests": 0,
+  "sources": {
+    "path": "manual-e8111020",
+    "section": "manual-01cbf3c0",
+    "stem": "model-06b74393"
+  },
+  "expectedVolumesMm3": {
+    "model-06b74393": 201288.32813989138,
+    "lampBase": 684238.879951857,
+    "lampDiffuser": 101938.39842368162,
+    "lampRim": 8527.338202541205
+  },
+  "oracle": "Independent composite Simpson integration of cardinal-Hermite speed (4096 intervals per span), circular tube area × path length",
+  "mainUi": {
+    "url": "http://127.0.0.1:5188/",
+    "projectTitle": "S자 조명 · 정확한 곡선 스윕",
+    "projectId": "2eb357f0-0413-4dcc-8c1f-c36fab852812",
+    "tool": "curve.reshape",
+    "selectedSource": "manual-e8111020",
+    "tangentStrength": 1
+  },
+  "limits": [
+    "Current fitted curve is C1 cardinal cubic, not C2 curvature optimization.",
+    "No individual tangent grips or curve-to-curve tangent constraints added.",
+    "Arc-path legacy sampling is unchanged; new exact path support is for splines.",
+    "Shade volume compared to source BRep; other four volumes use independent formulas.",
+    "Concept geometry; not electrical, thermal, structural or production certification."
+  ],
+  "sha256": {
+    "browser-report.json": "0d420e478038797785ed7280fd71ce061820cd7362fdf6e8b1dad29b156dce63",
+    "handoff.json": "fc2152cb606d8cec5aa7fdd350234fe48ff0e537c8cb9d9dbc6dc7524178f7fe",
+    "lamp.step": "5ea6c5fcdd17c10cc5da09f46a99f0efff23516158bb223cda8c9b254915babe",
+    "lamp.webcad.json": "6eb4a6bee63e263d9f9ed6b4eb0f220d85e5c207499135ca9b11232e6c973d67",
+    "native-editor.png": "2ac5d3ced98c104b680b6ba41f4e83300ae8b7e0820c8185072ecd2c4852428c",
+    "stemPath.dxf": "ab2d4b8c063b1548cad5f57306112b007873ed22871712114ee5b6e77479df54",
+    "stemPath.svg": "cf47cecbd5bcc777fc55324b1e0aaca7f6d8f4d9122be03c5d71d3e2881b23df",
+    "step-inspection.json": "8922a1f5b0e27e38ed86f8b3bd822593070dfcb048424b81c1c96aa5d29dea98",
+    "viewport.png": "d4e877e628657d9e910302478358aaaacacb8154ca9b9d64b8b219adc8d0ea93"
+  },
+  "latestRegression": {
+    "task": "C2 chair follow-on",
+    "browserChecks": 36,
+    "status": "passed",
+    "reportScope": "Latest replay; CAD / STEP and source IDs remain the original issued lamp artifacts."
+  }
+}

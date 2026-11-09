@@ -40,7 +40,7 @@ export function NumericModelEdit({objectId,revision,disabled,onDocumentChange,on
     try{const result=await applyCadPlan(plan.current);if(!result.ok)throw Error(result.reason);cancel();onDocumentChange();}
     catch(cause){setError(cause instanceof Error?cause.message:String(cause));setBusy(false);}
   }
-  return <PropertySection title={cylinder?"Dimensions":"Extrude"} meta="Driving values · mm" defaultOpen active>
+  return <PropertySection title={cylinder?"Dimensions":"Extrude"} meta="Driving values · mm" defaultOpen active={busy||!!review} keepOpen={busy||!!review||!!error}>
     <div aria-label="Numeric model edit">
       <p className="property-hint">Edit source parameters. Review includes connected model changes. Drawing annotations are display values.</p>
       {cylinder&&<><label className="property-row"><span>Size input</span><select aria-label="Cylinder size mode" value={mode} disabled={disabled||busy||bound("radius")} onChange={e=>{const next=e.target.value as typeof mode,v=parseLength(size);cancel();setMode(next);if(v!==null)setSize(String(v*(next===mode?1:next==="diameter"?2:.5)));}}><option value="diameter">Diameter Ø</option><option value="radius">Radius R</option></select></label><label className="property-row"><span>{mode==="diameter"?"Diameter":"Radius"}</span><input aria-label="Cylinder size" value={size} disabled={disabled||busy||bound("radius")} onChange={e=>{cancel();setSize(e.target.value);}}/></label></>}

@@ -1,3 +1,5 @@
+import {resolveDxfStyle,dxfVectorStyle,type DxfInheritance} from "./dxfStyle";
+import type {CadDxfStyle} from "@agent-webcad/cad-document";
 import {sampleSpline} from "./splineGeometry";
 import * as THREE from "three";
 import type { CadDocument, CadFeature, CadObject, CadVectorStyle, LayerStyle } from "@agent-webcad/cad-document";
@@ -83,9 +85,10 @@ function chainGeometry(params:Record<string,unknown>,style:LayerStyle):DraftGeom
   return result;
 }
 
-export function localDraftingGeometry(document:CadDocument,params:Record<string,unknown>,style:LayerStyle,componentPath=new Set<string>()):DraftGeometry {
+export function localDraftingGeometry(document:CadDocument,params:Record<string,unknown>,style:LayerStyle,componentPath=new Set<string>(),inherited?:DxfInheritance):DraftGeometry {
+  const resolved=resolveDxfStyle(style,params.dxfStyle as CadDxfStyle|undefined,inherited);style=resolved.style;
   if(params.kind==="face"){let remaining=200000;return {texts:[],lines:(params.regions as SketchLoop[]??[]).map(region=>{
-    const normal=WORK_PLANES[region.workPlane].normal,first=region.segments[0],point=first.kind==="circle"?first.center:first.start,elevation=point.reduce((s,v,i)=>s+v*normal[i],0);
+    const normal=WORK_PLANES[region.workPlane].normal,first=region.segments[0],point=first.kind==="circle"?first.center:first.kind==="spline"?first.controlPoints[0]:first.start,elevation=point.reduce((s,v,i)=>s+v*normal[i],0);
     const ring=(loop:SketchLoop)=>{const points=profileBoundaryPoints(loop,region.workPlane,.02,remaining);remaining-=points.length;return points.map(p=>planeToWorld(p,WORK_PLANES[region.workPlane]).map((v,i)=>v+normal[i]*elevation) as Vec3);};
     return {points:ring(region),holes:(region.holes??[]).map(h=>ring(h as SketchLoop)),closed:true,style,vectorStyle:{stroke:style.color,fill:"#a3bec9",fillGradient:null,strokeWidth:style.lineWeight,opacity:.65}};
   })};}
@@ -104,7 +107,7 @@ export function localDraftingGeometry(document:CadDocument,params:Record<string,
       const feature:CadFeature={id:memberObjectId||"member",type:member.type,inputs:[],output:memberObjectId||"member",params:{...member.params}};
       const override=memberObjectId ? block.overrides?.[memberObjectId] : undefined;
       if(override?.vectorStyle) feature.params.vectorStyle=override.vectorStyle;
-      const data=worldDraftingGeometryWithComponents(document,object,feature,nextPath);result.lines.push(...data.lines);result.texts.push(...data.texts);
+      const data=worldDraftingGeometryWithComponents(document,object,feature,nextPath,{layer:resolved.layer,block:style});result.lines.push(...data.lines);result.texts.push(...data.texts);
     }return result;
   }
   return empty();
@@ -114,15 +117,18 @@ export function worldDraftingGeometry(document:CadDocument,object:CadObject,feat
   return worldDraftingGeometryWithComponents(document,object,feature,new Set());
 }
 
-function worldDraftingGeometryWithComponents(document:CadDocument,object:CadObject,feature:CadFeature,componentPath:Set<string>):DraftGeometry {
-  const style=layerStyle(document.layers[object.layerId]);
+function worldDraftingGeometryWithComponents(document:CadDocument,object:CadObject,feature:CadFeature,componentPath:Set<string>,inherited?:DxfInheritance):DraftGeometry {
+  const baseStyle=layerStyle(document.layers[object.layerId]),style=resolveDxfStyle(baseStyle,feature.params.dxfStyle as CadDxfStyle|undefined,inherited).style;
   if(feature.type==="drawing"){
     const world=getWorldDrawingGeometry(object,feature);
-    const vectorStyle=feature.params.vectorStyle&&typeof feature.params.vectorStyle==="object"?feature.params.vectorStyle as CadVectorStyle:undefined;
+    const vectorStyle=dxfVectorStyle(feature.params,style);
     return world?.points?.length?{texts:[],lines:[{spline:world.spline,points:world.points,closed:world.closed,style,...(vectorStyle?{vectorStyle}:{})}]}:empty();
   }
-  if(feature.type!=="drafting")return empty();
-  const geometry=localDraftingGeometry(document,feature.params,style,componentPath),transform=getObjectTransform(object,feature);
+  if(feature.type!=="drafting"&&feature.type!=="dimension")return empty();
+  const dimension=feature.type==="dimension"?resolveDimension(feature.params):null;
+  if(feature.type==="dimension"&&!dimension)return empty();
+  const geometry:DraftGeometry=dimension?{lines:dimension.segments.map(points=>({points,closed:false,style})),texts:[{point:dimension.textPosition,text:dimension.text,height:dimension.textHeight,angle:0,style}]}:localDraftingGeometry(document,feature.params,baseStyle,componentPath,inherited);
+  const transform=getObjectTransform(object,feature);
   const matrix=new THREE.Matrix4().compose(new THREE.Vector3(...transform.translation),new THREE.Quaternion().setFromEuler(new THREE.Euler(...transform.rotation.map(THREE.MathUtils.degToRad) as Vec3)),new THREE.Vector3(...transform.scale));
   const map=(point:Vec3)=>new THREE.Vector3(...point).applyMatrix4(matrix).toArray() as Vec3;
   return {lines:geometry.lines.map(line=>{const spline=line.spline?{...line.spline,controlPoints:line.spline.controlPoints.map(map)}:undefined;return {...line,spline,holes:line.holes?.map(ring=>ring.map(map)),points:spline?sampleSpline(spline):line.points.map(map)};}),texts:geometry.texts.map(text=>{

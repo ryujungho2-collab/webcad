@@ -1,3 +1,24 @@
+export {rememberMeshEvaluation} from "./MeshModifiers";
+export {graphDocumentInputs,evaluateDocumentGeometryGraph,cachedGraphEvaluation,rememberGraphEvaluation} from "./GeometryDocumentEvaluation";
+export {defaultGeometryNode,validGeometryGraphActions,GEOMETRY_NODE_TYPES,validGeometryNode,validateGeometryGraph,geometryGraphInputs,applyGeometryGraphActions,createGeometryGraph} from "./GeometryNodes";
+export type {GeometryNodeGraph,GeometryNode,GeometryNodeType,GeometryGraphAction,GeometryLink} from "./GeometryNodes";
+export {GeometryNodeEvaluator,GEOMETRY_BUDGET,nodeMeshValue,transformNodeMesh} from "./GeometryNodeEvaluation";
+export type {GeometryNodeResult,NodeMeshValue,GeometryNodeValue} from "./GeometryNodeEvaluation";
+export {appendMeshProvenance,validMeshProvenance,resolveTopologyReference,topologyInventory} from "./MeshProvenance";
+export type {TopologyProvenance,TopologyDomain} from "./MeshProvenance";
+export {validateMeshIntersections} from "./MeshIntersection";
+export {edgeKey,buildMeshTopology,boundaryLoops,meshTriangles,triangulateFace,polygonMeshIssues,faceFrame} from "./MeshTopology";
+export type {MeshFace,MeshTopologyChange,HalfEdge} from "./MeshTopology";
+export {createPolygonMesh,upgradePolygonMesh,applyPolygonMeshOperation,validPolygonMeshOperation} from "./PolygonMeshOperations";
+export type {PolygonMeshOperation} from "./PolygonMeshOperations";
+export {evaluateMeshModifiers,meshEvaluationSignature,meshEvaluationStats,clearMeshEvaluationCache,validMeshEvaluation} from "./MeshModifiers";
+export type {MeshEvaluation,MeshStencil} from "./MeshModifiers";
+export {validMeshModifiers} from "./EditableMesh";
+export type {MeshModifier} from "./EditableMesh";
+export {MESH_LIMITS,meshElementId,meshVector,meshEdgeId,meshEdges,meshElementIds,meshNormal,validateEditableMesh,createMeshCube,selectedMeshVertices,transformMesh,extrudeMeshFace} from "./EditableMesh";
+export type {EditableMesh,MeshVector,MeshSelectionMode,MeshEdge} from "./EditableMesh";
+export {GEOMETRY_REPRESENTATIONS,geometryOwnership,geometryConversionSupport} from "./GeometryRegistry";
+export type {GeometryConversionReport} from "./GeometryRegistry";
 export type {
   CadDocument,
 } from "./CadDocument";
@@ -22,10 +43,12 @@ export { validWorkPlaneId, validWorkPlaneFrame, validWorkPlaneFaceSource, validC
 export type { CadWorkPlane, CadWorkPlaneFrame, CadWorkPlaneFaceSource, WorkPlaneVector } from "./WorkPlane";
 export { validAngularReference, validAngularBranch, validAngularDefinition, validAngularParams } from "./AngularDimension";
 export type { AngularDimensionReference, AngularDimensionBranch, AngularDimensionDefinition, AngularDimensionLine, AngularDimensionParams } from "./AngularDimension";
-export { validDimensionStyle } from "./DimensionStyle";
-export type { CadDimensionStyle } from "./DimensionStyle";
+export { validDimensionStyle, validDimensionStylePresets, validDimensionStylePresetName,
+  validLinearDimensionPresetStyle, dimensionStylePresetKey, DEFAULT_LINEAR_DIMENSION_PRESET,
+  MAX_DIMENSION_STYLE_PRESETS } from "./DimensionStyle";
+export type { CadDimensionStyle, CadDimensionStylePreset, LinearDimensionPresetStyle } from "./DimensionStyle";
 export type { LayerStyle } from "./Layer";
-export { DEFAULT_VECTOR_STYLE, validVectorStyle, validVectorGradient } from "./VectorStyle";
+export { DEFAULT_VECTOR_STYLE, validVectorStyle, validVectorStyleOverrides, validVectorGradient } from "./VectorStyle";
 export type { CadVectorStyle, CadVectorGradient } from "./VectorStyle";
 export { MAX_RASTER_ASSET_BYTES, MAX_RASTER_ASSET_PIXELS, MAX_RASTER_ASSET_AXIS, MAX_DOCUMENT_RASTER_BYTES, validRasterAsset } from "./RasterAsset";
 export type { CadRasterAsset, RasterMimeType } from "./RasterAsset";
@@ -84,3 +107,32 @@ export {validSpline,type CadSpline} from "./Spline";
 export {validArchitectureWall,validWallOpening,type ArchitectureWall,type WallOpening} from "./ArchitectureWall";
 export {validateArchitectureContent,validComponentContent,validContentSlot,validArchitecturalSlab,validSolidFinish,contentId,type ComponentDefinition,type ComponentContent,type ContentSlot,type ContentVec,type SolidFinish,type ArchitecturalSlab} from "./ArchitectureContent";
 
+
+export {validCanvas,validCanvasMember,validateCanvasHierarchy,canvasTarget,canvasTargetKey,canvasOwner,canvasLockReason,legacyCanvasHierarchy,type CadCanvas,type CanvasMember,type CanvasTargetKind} from "./Canvas";
+
+export {validFlexAxis,validCanvasFlex,validCanvasFlexItem,defaultCanvasFlex,solveCanvasFlex,type FlexAxis,type CanvasFlexLayout,type CanvasFlexItem,type FlexNode,type FlexInput,type FlexBox,type FlexReport} from "./CanvasFlex";
+
+export {validSavedMeasurementDefinition,validateSavedMeasurements,savedMeasurementSourceKey,savedMeasurementCurrent,type SavedMeasurement,type SavedMeasurementDefinition,type SavedMeasurementRef,type SavedMeasurementMode} from "./SavedMeasurement";
+
+export {validDxfStyle} from "./DxfStyle";
+export type {CadDxfStyle} from "./DxfStyle";
+
+export {sculptMesh,validSculptStroke,SCULPT_BRUSHES,SCULPT_BUDGET,type SculptStroke} from "./MeshSculpt";
+export {remeshMesh,validRemeshOptions,meshContentSignature,validMeshDerivation,type RemeshOptions,type RemeshReport,type MeshDerivation} from "./MeshRemesh";
+export {MeshSurfaceIndex,MeshVertexIndex} from "./MeshSpatialIndex";
+
+export {validHybridReference,validHybridFeature,type HybridSurfaceReference} from "./HybridReference";
+
+export {analyzePlanarMesh,validReconstructionReceipt,validPlanarDefinition,validReconstructionOptions,planarContains,DEFAULT_RECONSTRUCTION,RECONSTRUCTION_LIMITS,type ReconstructionOptions,type PlanarDefinition,type PlanarRegion,type PlanarAnalysis} from "./PlanarReconstruction";
+
+export {sharedPlaneVertex,validSharedPlanarTopology,type SharedPlanarTopology,type HealingReport} from "./PlanarHealing";
+
+export {validateAssembly,validJointInput,resolveJointValues,jointValue,type JointCoupling,type CadAssembly,type AssemblyJoint,type JointInput} from "./Assembly";
+
+export {validJointEdit,type JointEdit} from "./Assembly";
+
+export {INTERFERENCE_INTENTS,interferencePairKey,validPairIntent,validateInterferenceIntents,type PairIntent,type InterferenceIntent} from "./InterferenceIntent";
+
+export {GLB_LIMITS,SIMREADY_SOURCE,finiteVector,decodeSceneBytes,encodeSceneBytes,sceneHash,parseGlb,validExternalSceneAsset,validateExternalScenes,inspectGlbMetadata,externalSceneSummary,type ExternalSceneAsset,type MetadataValue} from "./ExternalSceneAsset";
+
+export {validRigidWorldPose,type DescendantPolicy} from "./Assembly";

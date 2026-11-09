@@ -35,6 +35,8 @@ export type CommandResult = {
 function commandLabel(command: CadCommand): string {
   if (command.type === "batch" && command.label?.trim()) return command.label.trim();
   if (command.type === "replace-image-source") return "Replace image source";
+  if (command.type === "save-dimension-style-preset") return "Save dimension style";
+  if (command.type === "apply-dimension-style-preset") return "Apply dimension style";
   return command.type;
 }
 

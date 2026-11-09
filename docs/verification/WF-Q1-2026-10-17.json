@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-17",
+  "task": "WF-Q1 residential issue verification",
+  "implementation": "docs/implementation/WF-Q1-RESIDENTIAL-2026-10-17.md",
+  "artifact": "output/projects/residential-q1/residential.webcad.json",
+  "node": {
+    "full": {
+      "suites": 53,
+      "failed": 0,
+      "tests": 1281
+    },
+    "targeted": {
+      "covers": [
+        "residential task 8"
+      ],
+      "failed": 0,
+      "tests": 8
+    }
+  },
+  "native": {
+    "checks": 21,
+    "browser": "Edge, SwiftShader, Vite, real CDP input/Worker",
+    "report": "output/projects/residential-q1/native-report.json",
+    "parallelFloorTasksNote": "Concurrent floorTasks run exceeded the 18 s preview wait and is excluded; a solo rerun passed 18/18 without counting toward the claim."
+  },
+  "exports": {
+    "pdfs": 3,
+    "paperMm": [420, 297],
+    "scales": ["1:50", "1:50", "1:100"],
+    "independent": {
+      "method": "pypdf + Poppler render + Pillow, independent of the WebCAD renderer",
+      "report": "output/projects/residential-q1/independent-report.json",
+      "status": "passed"
+    }
+  },
+  "portable": {
+    "version": 42,
+    "parts": 11,
+    "resolvedSections": 2,
+    "contents": 4,
+    "lockedReferencesPreserved": true,
+    "missingFeatureInputs": 0,
+    "undoRedoAndReopen": "Import Undo/Redo, wall 200->250 mm edit with explicit drawing rebind, single Undo/Redo, v42 save/reopen with new Undo session"
+  },
+  "limitations": [
+    "Self-authored 6000 x 4000 mm validation task, not a measured customer drawing or code-compliant design",
+    "No automatic corner fusing; walls use independent butt ends",
+    "Window is an open frame without glass product detail; door swing, exact clearance and code checks excluded",
+    "Negative fixtures were diagnosed in Node regression, not all repeated through the real UI",
+    "Circular hole is geometry/print validation intent, not life-safety design",
+    "CAN/MEAS/IO extensions and G6-D5-Q1 pre-issue review remain separate cards"
+  ],
+  "scope": "WF-Q1 first supported small-residential prepare->walls/openings->slot fenestration/furniture->plan/section/A3 issue, edit/reissue/reopen range"
+}

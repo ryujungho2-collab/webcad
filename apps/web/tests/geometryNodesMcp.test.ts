@@ -1,0 +1,31 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {Client,InMemoryTransport} from "@modelcontextprotocol/client";
+import {createCadMcpServer} from "../server/cadMcpServer";
+import {createCadMcpRuntime,type McpProposalStatus} from "../src/copilot/cadMcpRuntime";
+import {createCadToolSession} from "../src/copilot/cadToolSession";
+import {previewCadCommand,applyCadPlan} from "../src/state/documentPlans";
+import {dispatchCadCommand} from "../src/state/dispatchCadCommand";
+import {cadDocument} from "../src/state/cadDocument";
+import {createGeometryGraph,evaluateDocumentGeometryGraph,type GeometryGraphAction} from "@agent-webcad/cad-document";
+import {resetTestDocument,documentState} from "./helpers/documentHarness";
+
+test("official MCP graph tools use the same reviewed transactions as UI, including parameters, links, drafts and reads",async()=>{
+ resetTestDocument();let selectionIds:string[]=[];const receipts=new Map<string,McpProposalStatus>(),context=()=>({document:cadDocument,selectionIds,layerId:"layer-default",workPlane:"XY" as const});
+ const runtime=createCadMcpRuntime({context,review:async(calls,signal)=>{const plan=await createCadToolSession(context()).plan(calls,signal),preview=await previewCadCommand(plan.command,{signal});if(!preview.result.ok)throw Error(preview.result.reason);const receipt:McpProposalStatus={proposalId:preview.planId,status:"pending-review",resultObjectIds:plan.resultObjectIds};receipts.set(receipt.proposalId,receipt);return receipt;},proposal:id=>receipts.get(id)!});
+ const server=createCadMcpServer(async(method,params,signal)=>{try{return {ok:true,value:await runtime.invoke(method,params,signal)};}catch(e){return {ok:false,error:String(e)};}}),client=new Client({name:"nodes-integration",version:"3"}),[a,b]=InMemoryTransport.createLinkedPair();
+ const call=async(name:string,args:Record<string,unknown>={})=>{const result=await client.callTool({name,arguments:args});assert.notEqual(result.isError,true,JSON.stringify(result));return (result.structuredContent as any).result;};
+ const invoke=async(name:string,args:Record<string,unknown>)=>{const ctx=await call("cad.context");return call(name,{_context:ctx.contextId,...args});};
+ const apply=async(name:string,args:Record<string,unknown>)=>{const before=documentState(),proposal=await invoke(name,args);assert.equal(proposal.status,"pending-review");assert.deepEqual(documentState(),before);assert.equal((await applyCadPlan(proposal.proposalId)).ok,true);};
+ try{await server.connect(a);await client.connect(b);const list=await client.listTools();for(const name of ["nodes.create","nodes.inspect","nodes.add","nodes.remove","nodes.connect","nodes.disconnect","nodes.parameters","nodes.validate","nodes.evaluate","nodes.edit","nodes.catalog","mesh.provenance"])assert.ok(list.tools.some(t=>t.name===name));
+  for(const preset of ["subdivision","sweep","instances"] as const){resetTestDocument();const ui=await previewCadCommand({type:"create-geometry-graph",id:"proc",graph:createGeometryGraph(preset)});assert.equal(ui.result.ok,true);await applyCadPlan(ui.planId);const expected=evaluateDocumentGeometryGraph(cadDocument,cadDocument.features["feature-proc"]).output;resetTestDocument();await apply("nodes.create",{id:"proc",preset});assert.deepEqual(evaluateDocumentGeometryGraph(cadDocument,cadDocument.features["feature-proc"]).output,expected);}
+  const denied=await call("cad.context"),snapshot=documentState();assert.equal((await client.callTool({name:"nodes.parameters",arguments:{_context:denied.contextId,objectId:"proc",nodeId:"primitive",parametersJson:JSON.stringify({shape:"cube",size:8,sides:6})}})).isError,true);assert.deepEqual(documentState(),snapshot);selectionIds=["proc"];
+  await apply("nodes.parameters",{objectId:"proc",nodeId:"primitive",parametersJson:JSON.stringify({shape:"cube",size:8,sides:6})});const read=await invoke("nodes.evaluate",{objectId:"proc",mode:"face",limit:2});assert.equal(read.ok,true);assert.equal(read.result.elements.length,2);assert.equal(read.result.total,18);assert.equal(read.result.editable,false);
+  await apply("nodes.add",{objectId:"proc",nodeId:"move",nodeType:"transform",parametersJson:JSON.stringify({translation:[0,10,0],rotation:[0,0,0],scale:[1,1,1]})});await apply("nodes.connect",{objectId:"proc",from:"realize",to:"move",input:"geometry",replace:false});await apply("nodes.connect",{objectId:"proc",from:"move",to:"output",input:"geometry",replace:true});
+  const validation=await invoke("nodes.validate",{objectId:"proc"});assert.equal(validation.result.evaluation,"valid");const inspection=await invoke("nodes.inspect",{objectId:"proc",limit:2});assert.equal(inspection.result.nodes.length,2);assert.equal((await invoke("nodes.catalog",{})).result.length,11);
+  const actions:GeometryGraphAction[]=[{kind:"disconnect",nodeId:"output",input:"geometry"},{kind:"connect",link:{from:"realize",to:"output",input:"geometry"}},{kind:"disconnect",nodeId:"move",input:"geometry"}];await apply("nodes.edit",{objectId:"proc",actionsJson:JSON.stringify(actions)});await apply("nodes.remove",{objectId:"proc",nodeId:"move"});
+  await apply("nodes.add",{objectId:"proc",nodeId:"draft",nodeType:"transform",parametersJson:JSON.stringify({translation:[0,0,0],rotation:[0,0,0],scale:[1,1,1]})});await apply("nodes.connect",{objectId:"proc",from:"primitive",to:"draft",input:"geometry",replace:false});await apply("nodes.disconnect",{objectId:"proc",nodeId:"draft",input:"geometry"});
+  const invalidContext=await call("cad.context"),before=documentState();assert.equal((await client.callTool({name:"nodes.connect",arguments:{_context:invalidContext.contextId,objectId:"proc",from:"path",to:"output",input:"geometry",replace:true}})).isError,true);assert.deepEqual(documentState(),before);
+  await dispatchCadCommand({type:"create-polygon-mesh",id:"source",shape:"cube",size:10});const unselected=await call("cad.context");assert.equal((await client.callTool({name:"nodes.create",arguments:{_context:unselected.contextId,id:"live",preset:"input",sourceObjectId:"source"}})).isError,true);selectionIds=["proc","source"];await apply("nodes.create",{id:"live",preset:"input",sourceObjectId:"source"});
+ }finally{runtime.dispose();await client.close();await server.close();}
+});

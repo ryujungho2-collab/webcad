@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-18",
+  "feature": "EXT-CIVIL-01 external residential drawing import improvements",
+  "status": "first-scope-passed",
+  "source": {
+    "repository": "https://github.com/Abhishekh-Jha/Civil_projects",
+    "commit": "5bdb0e47140f8bbbc59d630513971cbb11409cbb",
+    "author": "Abhishekh-Jha",
+    "downloadDate": "2026-10-18",
+    "files": {
+      "2D_FloorPlan_and_Elevation.dwg": {
+        "bytes": 1326268,
+        "sha256": "e2264a4d9acb5c877106b8a7d5417cb47c86d3d8858aaff864705684ebf2a7d6"
+      },
+      "2D_FloorPlan_and_Elevation-Model.pdf": {
+        "bytes": 195562,
+        "sha256": "f6e31754725eb270df5aa3e4ef4b54c7165c4631bb0d178f5ce43be04cd27b32"
+      },
+      "converted.dxf": {
+        "bytes": 7299755,
+        "sha256": "9c1bddc470ac6d2359944eed21684666f54350c680a07692692e5a84048b1065"
+      }
+    },
+    "conversion": {
+      "tool": "LibreDWG 0.14.8612 win64",
+      "url": "https://github.com/LibreDWG/libredwg/releases/tag/0.14.8612",
+      "warnings": "See conversion.log; unstable DWG classes reported. DXF conversion is not asserted lossless."
+    },
+    "rights": "Public download; no repository LICENSE observed. Original files are local validation inputs, not licensed project assets."
+  },
+  "node": {
+    "passed": 1491,
+    "suites": 54,
+    "newTests": 11,
+    "log": "output/external/civil-projects/node-tests.log"
+  },
+  "browser": {
+    "externalCivil": 13,
+    "browser": "Chrome / SwiftShader / isolated temporary profile",
+    "dxfWorkflow": 18,
+    "dxfPreparation": 25,
+    "dxfPlacement": 15,
+    "curveDxf": 24,
+    "draftingVisibility": 17,
+    "library": 17,
+    "totalChecks": 129,
+    "report": "output/external/civil-projects/native-report.json",
+    "limits": "Edge large-fixture runs experienced native-input response timeouts. Chrome isolated final run passed. Earlier report payload cap was enlarged for the ~16 MB project artifact."
+  },
+  "build": {
+    "status": "passed",
+    "log": "output/external/civil-projects/build.log",
+    "warning": "Existing large chunks"
+  },
+  "architecture": {
+    "status": "passed",
+    "modules": 704
+  },
+  "result": {
+    "rootEntitiesBefore": 750,
+    "rootEntitiesAfter": 848,
+    "usedBlocks": 45,
+    "documentObjectsAfterHiddenOmission": 2161,
+    "exportTextCount": 98,
+    "remainingWarningEntries": 150,
+    "conversionNotes": 107,
+    "commandCount": 3761,
+    "latestNodeCommandMs": 997.0992000000001,
+    "nodeTimingScope": "Application dispatch only; not total browser interaction. Not a controlled before/after speedup benchmark."
+  },
+  "independent": "output/external/civil-projects/independent-report.json",
+  "limitations": [
+    "No direct DWG reader; external LibreDWG conversion reports unstable classes",
+    "MTEXT is editable plain text with approximate rich-text layout",
+    "DIMENSION is a static display block, without associativity or native dimension editing",
+    "Wide polyline centerlines and SOLID outlines omit width/fill",
+    "Source-hidden objects omitted with explicit counted notice; hidden resources not reversible inside imported document",
+    "DXF HATCH, per-entity/ByBlock styles and advanced drawing presentation are incomplete",
+    "No complete practical interoperability certification; external file is one residential sample"
+  ]
+}

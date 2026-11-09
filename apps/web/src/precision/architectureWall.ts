@@ -15,11 +15,13 @@ export function wallFootprint(document:CadDocument,definition:ArchitectureWall):
     if(!world||world.kind!=="line"||world.workPlane!=="XY"||!world.planeAligned||!world.uniformScale||feature?.params.construction)throw Error("Centerline walls require one finite XY straight line. Use a prepared footprint for corners/curves.");
     const [a,b]=world.points!,d=sub(b,a),length=Math.hypot(d[0],d[1]);if(length<1e-6||Math.abs(d[2])>1e-6)throw Error("Wall centerline must be horizontal and nonzero.");
     const u:Vec3=[d[0]/length,d[1]/length,0];frame={start:[a[0],a[1],definition.baseLevel],u,v:[-u[1],u[0],0],length,thickness:definition.thickness};
-    profiles=[rectangle([[0,-frame.thickness/2],[length,-frame.thickness/2],[length,frame.thickness/2],[0,frame.thickness/2]].map(([x,y])=>point(frame!,x,y,definition.baseLevel)),`wall:${id}`)];
+    const h=frame.thickness/2,sm=Math.tan((definition.startMiter??0)*Math.PI/180)*h,em=Math.tan((definition.endMiter??0)*Math.PI/180)*h;
+    if(length-sm-em<=1e-6||length+sm+em<=1e-6)throw Error("Miter cuts cross on this short wall; reduce angles or thickness.");
+    profiles=[rectangle([[-sm,-h],[length+em,-h],[length-em,h],[sm,h]].map(([x,y])=>point(frame!,x,y,definition.baseLevel)),`wall:${id}`)];
   }else{
     const result=extractSketchLoops(document,definition.sourceObjectIds,{forRegeneration:true});if(!result.ok)throw Error(result.reason);
     if(result.loops.some(l=>l.workPlane!=="XY"))throw Error("Architectural wall footprints must lie in XY. Base level is world Z in mm.");
-    const shift=(p:ExtrudeProfile):ExtrudeProfile=>({...structuredClone(p),segments:p.segments.map(s=>s.kind==="circle"?{...s,center:[s.center[0],s.center[1],definition.baseLevel]}:s.kind==="arc"?{...s,start:[s.start[0],s.start[1],definition.baseLevel],mid:[s.mid[0],s.mid[1],definition.baseLevel],end:[s.end[0],s.end[1],definition.baseLevel]}:{...s,start:[s.start[0],s.start[1],definition.baseLevel],end:[s.end[0],s.end[1],definition.baseLevel]}),holes:p.holes?.map(shift)});
+    const shift=(p:ExtrudeProfile):ExtrudeProfile=>({...structuredClone(p),segments:p.segments.map(s=>s.kind==="spline"?{...s,controlPoints:s.controlPoints.map(q=>[q[0],q[1],definition.baseLevel] as Vec3)}:s.kind==="circle"?{...s,center:[s.center[0],s.center[1],definition.baseLevel]}:s.kind==="arc"?{...s,start:[s.start[0],s.start[1],definition.baseLevel],mid:[s.mid[0],s.mid[1],definition.baseLevel],end:[s.end[0],s.end[1],definition.baseLevel]}:{...s,start:[s.start[0],s.start[1],definition.baseLevel],end:[s.end[0],s.end[1],definition.baseLevel]}),holes:p.holes?.map(shift)});
     profiles=result.loops.map(shift);
     const outer=profiles[0];
     if(profiles.length===1&&!outer.holes?.length&&outer.segments.length===4&&outer.segments.every(s=>s.kind==="line")){
@@ -34,7 +36,7 @@ export function wallFootprint(document:CadDocument,definition:ArchitectureWall):
   const params:Record<string,unknown>={kind:"extrude",distance:definition.height,...(profiles.length===1?{profile:profiles[0]}:{profiles})};
   for(const opening of definition.openings){
     const f=frame!,left=opening.along-opening.width/2,right=opening.along+opening.width/2;
-    if(left<=1e-6||right>=f.length-1e-6||opening.sill+opening.height>Math.abs(definition.height)+1e-6)throw Error(`Opening ${opening.id} is outside the wall or removes an end pier. Check along/width/sill/height.`);
+    if(left<=Math.abs(Math.tan((definition.startMiter??0)*Math.PI/180)*f.thickness/2)+1e-6||right>=f.length-Math.abs(Math.tan((definition.endMiter??0)*Math.PI/180)*f.thickness/2)-1e-6||opening.sill+opening.height>Math.abs(definition.height)+1e-6)throw Error(`Opening ${opening.id} is outside the wall or removes an end pier. Check along/width/sill/height.`);
     if(definition.openings.some(other=>other.id!==opening.id&&Math.min(right,other.along+other.width/2)-Math.max(left,other.along-other.width/2)>-1e-6&&Math.min(opening.sill+opening.height,other.sill+other.height)-Math.max(opening.sill,other.sill)>-1e-6))throw Error(`Opening ${opening.id} overlaps or touches another opening. Keep a positive pier/lintel between openings.`);
   }
   let output=params;

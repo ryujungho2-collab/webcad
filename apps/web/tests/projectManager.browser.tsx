@@ -22,14 +22,14 @@ if(!resumed){
   writeRecoveryCheckpoint(projectStorage(localStorage,"unlisted"),{...empty("unlisted image"),id:"Recovered extra"});
   projectStorage(localStorage,"a").setItem(DOCUMENT_RASTER_ASSET_PREFIX+"asset-unused","unused image source");
 }
-createRoot(document.getElementById("root")!).render(<ProjectWorkspace/>);
+createRoot(document.getElementById("root")!).render(<ProjectWorkspace startOnHome={false}/>);
 const run=document.getElementById("run") as HTMLButtonElement,output=document.getElementById("output")!;
 const active=()=>document.querySelector<HTMLIFrameElement>('section:not([hidden]) > iframe')!;
 const buttons=(doc:Document)=>[...doc.querySelectorAll<HTMLButtonElement>('button')];
 const count=(frame:HTMLIFrameElement)=>frame.contentDocument!.querySelectorAll('[data-model-object-id]').length;
 const manager=()=>document.querySelector<HTMLDialogElement>('[aria-label="Project manager"]')!;
 const rows=()=>[...manager().querySelectorAll<HTMLButtonElement>('[data-project-id]')];
-async function ready(){await waitFor(()=>!!active()?.contentDocument?.querySelector('canvas'));await waitFor(()=>buttons(active().contentDocument!).some(b=>b.getAttribute('aria-label')==='Box'&&!b.disabled));return active();}
+async function ready(){await waitFor(()=>!!active()?.contentDocument?.querySelector('canvas'));const mode=active().contentDocument!.querySelector<HTMLButtonElement>('button[aria-label="3D"]');if(mode?.getAttribute('aria-pressed')==='false')await click('3D',active());await waitFor(()=>buttons(active().contentDocument!).some(b=>b.getAttribute('aria-label')==='Box'&&!b.disabled));return active();}
 async function click(name:string,frame?:HTMLIFrameElement){
   const doc=frame?.contentDocument??document,target=buttons(doc).find(b=>(b.getAttribute('aria-label')??b.textContent?.trim())===name);
   if(!target||target.disabled)throw Error(`Unavailable ${name}`);

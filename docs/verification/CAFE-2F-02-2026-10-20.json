@@ -1,0 +1,15 @@
+{
+  "task": "CAFE-2F-02",
+  "date": "2026-10-20",
+  "status": "passed",
+  "scope": "Issued 2D cafe R0 to editable BRep CAD, STEP, material GLB, exact section and interactive viewer; no spatial redesign",
+  "model": {"solids": 1114, "floors": 2, "levelsMm": [0,3900,7800], "seats": [40,60], "assetRecipes": 20},
+  "node": {"tests": 1546, "suites": 54, "passed": 1546, "failed": 0, "durationMs": 80656.0605, "log": "output/projects/large-cafe/3d-node-regression.log"},
+  "browser": {"page": "largeCafe3d", "passed": 14, "report": "output/projects/large-cafe/3d/browser-report.json"},
+  "productionBuild": "passed",
+  "architecture": {"status": "passed", "modules": 746},
+  "stepRoundtrip": {"status": "valid", "solids": 1114, "boundsMm": {"min": [0,-700,-250], "max": [15000,15000,7800]}, "volumeMm3": 341097020551.76416, "analyticalVolumeMm3": 341097020551.76746, "deltaMm3": 0.0032958984375, "report": "output/projects/large-cafe/3d/independent-report.json"},
+  "glb": {"nodes": 1114, "sharedMeshes": 143, "materials": 12, "units": "metres", "up": "Y", "loadedWith": "Three.js GLTFLoader"},
+  "cadSection": {"basis": "YZ", "heightMm": 12500, "parts": 19, "edges": 80, "status": "resolved"},
+  "limitations": ["Explicit role/height conversion rules; no generic reasoning/BIM inference", "Wall/slab profiles live; furniture/facade recipes snapshot with source IDs", "Equipment/heights/materials are generic assumptions", "Individual solids valid; assembly not clash-free or construction approved", "Screen section is uncapped; saved CAD section is exact BRep geometry"]
+}

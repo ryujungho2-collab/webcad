@@ -46,7 +46,7 @@ export function ShellPanel({revision,selectedObjectId,selection,onDocumentChange
   if(!source||featureContract(source).representation!=="brep")return null;
   const resultChange=review?.changes.find(c=>c.objectId===(editing?.output??review.result.createdIds[0]));
   const before=resultChange?.before?.volume??review?.changes.find(c=>c.objectId===source.output)?.before?.volume;
-  return <PropertySection title={editing?"Edit Shell":"Shell"} meta="Inward · mm" defaultOpen active>
+  return <PropertySection title={editing?"Edit Shell":"Shell"} meta="Inward · mm" defaultOpen={false} active={!!editing||keys.length>0||busy||!!review||!!error} keepOpen={busy||!!review||!!error}>
     <p className="property-hint">Remove the checked faces and hollow the body inward. Face selection in the viewport also sets the removed faces.</p>
     <label className="property-row"><span>Result</span><select aria-label="Shell result" value={editingId} onChange={e=>{cancel();setEditingId(e.target.value);}}><option value="">New Shell</option>{Object.values(cadDocument.features).filter(f=>f.type==="shell"&&f.dependencyMode!=="snapshot").map(f=><option key={f.id} value={f.output}>{cadDocument.objects[f.output]?.name}</option>)}</select></label>
     {editing&&<p className="property-hint" role={editing.params.referenceStatus==="resolved"?undefined:"alert"}>Removed faces: {String(editing.params.referenceStatus)}. Choose the intended source faces below to rebind.</p>}

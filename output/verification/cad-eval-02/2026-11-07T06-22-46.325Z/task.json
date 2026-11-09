@@ -1,0 +1,33 @@
+{
+  "id": "CAD-EVAL-02-mounting-margin-intent-v1",
+  "dataClass": "synthetic",
+  "units": "mm",
+  "mode": "existing-design-redesign",
+  "objective": "Widen the existing four-hole mounting plate by 40 mm while retaining its left datum and edge-relative mounting intent",
+  "constraints": {
+    "widthIncrease": 40,
+    "depth": 80,
+    "thickness": 4,
+    "holeCount": 4,
+    "holeDiameter": 6,
+    "centerMargin": 12,
+    "referenceZClearance": 2,
+    "obstacleXClearanceMin": 25
+  },
+  "budgets": {
+    "modelCalls": 6,
+    "replans": 2,
+    "elapsedMs": 180000
+  },
+  "excluded": [
+    "autonomous whole-assembly creation",
+    "stress/load/fastener certification",
+    "automatic editor Apply",
+    "model training"
+  ],
+  "selectedObjectId": "plate_6359d0fb180046b684b862fef8b45d4f_solid",
+  "prompt": "선택한 4홀 장착판의 현재 치수를 cad.inspect로 조회하고, 더 넓은 장치를 위한 폭을 현재보다 40 mm 늘려줘. 지원되는 solid.parameter 한 개로만 제안해.\n설계 의도: 왼쪽 기준면과 월드 배치는 그대로, 깊이 80 mm·두께 4 mm·구멍 4개·구멍 지름 6 mm를 유지해. 각 구멍 중심은 인접한 두 가장자리에서 계속 12 mm 떨어져야 하며, 넓어진 판의 새 중심을 기준으로 좌우/상하 대칭이어야 해. 오른쪽 두 구멍은 오른쪽 가장자리를 따라가야 하므로 모든 구멍의 월드 좌표를 고정하지 마.\n보호 대상 protected-device-envelope 및 protected-neighbor의 형상·배치와 모든 원본을 보존해. 장치 하단과 판 상단의 Z 간격은 최소 2 mm, 이웃 부품 왼쪽과 판 오른쪽의 X 간격은 최소 25 mm. 선택 객체 plate_6359d0fb180046b684b862fef8b45d4f_solid의 ID와 live 프로파일 참조를 유지해. 구멍 지름이나 여백을 바꾸는 것으로 폭 증가를 대신하지 마. 하중·재료·체결 규격은 미정이며 인증했다고 말하지 마. 승인 전 Apply 금지.\n{\"evidence\":\"Native capability/dependency records\",\"capability\":[\"solid.parameter\"],\"document\":{\"id\":\"cad-eval-02-synthetic\",\"revision\":31},\"relationCount\":5,\"allLiveResolved\":true}",
+  "grounding": true,
+  "intentOrigin": "evaluator-authored",
+  "fixtureOrigin": "existing-native-planners-not-AI"
+}

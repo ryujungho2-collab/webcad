@@ -20,7 +20,7 @@
 // SOFTWARE.
 
 import { CadEngine } from "../runtime/CadEngine";
-import type { ExtrudeProfile } from "./extrude";
+import {buildProfileWire,type ExtrudeProfile} from "./extrude";
 
 export type RevolveAxis = {
   origin: [number, number, number];
@@ -73,39 +73,9 @@ export async function revolveProfile(
   validateRevolve(profile, axis, angleRadians);
   const engine = await CadEngine.create();
   const oc = engine.oc;
-  const wireMaker = new oc.BRepBuilderAPI_MakeWire_1();
-  const temporaries: { delete?: () => void }[] = [wireMaker];
+  const temporaries: { delete?: () => void }[] = [];
   try {
-    for (const segment of profile.segments) {
-      let edgeMaker: any;
-      if (segment.kind === "line") {
-        const start = new oc.gp_Pnt_3(...segment.start);
-        const end = new oc.gp_Pnt_3(...segment.end);
-        temporaries.push(start, end);
-        edgeMaker = new oc.BRepBuilderAPI_MakeEdge_3(start, end);
-      } else if (segment.kind === "arc") {
-        const start = new oc.gp_Pnt_3(...segment.start);
-        const mid = new oc.gp_Pnt_3(...segment.mid);
-        const end = new oc.gp_Pnt_3(...segment.end);
-        const arcMaker = new oc.GC_MakeArcOfCircle_4(start, mid, end);
-        const trimmed = arcMaker.Value();
-        const curve = new oc.Handle_Geom_Curve_2(trimmed.get());
-        temporaries.push(start, mid, end, arcMaker, trimmed, curve);
-        edgeMaker = new oc.BRepBuilderAPI_MakeEdge_24(curve);
-      } else {
-        const center = new oc.gp_Pnt_3(...segment.center);
-        const normal = new oc.gp_Dir_4(...segment.normal);
-        const xAxis = new oc.gp_Dir_4(...segment.xAxis);
-        const axisDef = new oc.gp_Ax2_2(center, normal, xAxis);
-        const circle = new oc.gp_Circ_2(axisDef, segment.radius);
-        temporaries.push(center, normal, xAxis, axisDef, circle);
-        edgeMaker = new oc.BRepBuilderAPI_MakeEdge_8(circle);
-      }
-      temporaries.push(edgeMaker);
-      if (!edgeMaker.IsDone()) throw new Error(`OpenCascade rejected profile edge ${segment.topologyReference}.`);
-      wireMaker.Add_1(edgeMaker.Edge());
-    }
-    if (!wireMaker.IsDone()) throw new Error("OpenCascade could not form a closed profile wire.");
+    const wireMaker=buildProfileWire(oc,profile,temporaries);
     const faceMaker = new oc.BRepBuilderAPI_MakeFace_15(wireMaker.Wire(), true);
     temporaries.push(faceMaker);
     if (!faceMaker.IsDone()) throw new Error("OpenCascade could not form a planar profile face.");

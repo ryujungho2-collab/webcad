@@ -1,0 +1,445 @@
+{
+  "format": "agent-webcad",
+  "version": 63,
+  "document": {
+    "id": "synthetic-axis-search",
+    "revision": 57,
+    "objects": {
+      "stand-base": {
+        "id": "stand-base",
+        "geometryId": "geometry-stand-base",
+        "name": "Synthetic stand-base",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            -150,
+            0,
+            -100
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "stand-shaft": {
+        "id": "stand-shaft",
+        "geometryId": "geometry-stand-shaft",
+        "name": "Synthetic stand-shaft",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            -150,
+            0,
+            -80
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "stand-turntable": {
+        "id": "stand-turntable",
+        "geometryId": "geometry-stand-turntable",
+        "name": "Synthetic stand-turntable",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            -100,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "stand-support": {
+        "id": "stand-support",
+        "geometryId": "geometry-stand-support",
+        "name": "Synthetic stand-support",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "stand-plate": {
+        "id": "stand-plate",
+        "geometryId": "geometry-stand-plate",
+        "name": "Synthetic stand-plate",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            -35,
+            -35,
+            18
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "stand-lip": {
+        "id": "stand-lip",
+        "geometryId": "geometry-stand-lip",
+        "name": "Synthetic stand-lip",
+        "visible": true,
+        "layerId": "layer-default",
+        "transform": {
+          "translation": [
+            -200,
+            0,
+            50
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    "features": {
+      "feature-stand-base": {
+        "id": "feature-stand-base",
+        "type": "primitive",
+        "inputs": [],
+        "output": "stand-base",
+        "params": {
+          "kind": "box",
+          "width": 2,
+          "depth": 2,
+          "height": 2
+        }
+      },
+      "feature-stand-shaft": {
+        "id": "feature-stand-shaft",
+        "type": "primitive",
+        "inputs": [],
+        "output": "stand-shaft",
+        "params": {
+          "kind": "box",
+          "width": 2,
+          "depth": 2,
+          "height": 2
+        }
+      },
+      "feature-stand-turntable": {
+        "id": "feature-stand-turntable",
+        "type": "primitive",
+        "inputs": [],
+        "output": "stand-turntable",
+        "params": {
+          "kind": "box",
+          "width": 2,
+          "depth": 2,
+          "height": 2
+        }
+      },
+      "feature-stand-support": {
+        "id": "feature-stand-support",
+        "type": "primitive",
+        "inputs": [],
+        "output": "stand-support",
+        "params": {
+          "kind": "box",
+          "width": 30,
+          "depth": 30,
+          "height": 20
+        }
+      },
+      "feature-stand-plate": {
+        "id": "feature-stand-plate",
+        "type": "primitive",
+        "inputs": [],
+        "output": "stand-plate",
+        "params": {
+          "kind": "box",
+          "width": 100,
+          "depth": 100,
+          "height": 4
+        }
+      },
+      "feature-stand-lip": {
+        "id": "feature-stand-lip",
+        "type": "primitive",
+        "inputs": [],
+        "output": "stand-lip",
+        "params": {
+          "kind": "box",
+          "width": 2,
+          "depth": 2,
+          "height": 2
+        }
+      }
+    },
+    "sketches": {},
+    "layers": {
+      "layer-default": {
+        "id": "layer-default",
+        "name": "Default",
+        "visible": true,
+        "locked": false,
+        "objectIds": [
+          "stand-base",
+          "stand-shaft",
+          "stand-turntable",
+          "stand-support",
+          "stand-plate",
+          "stand-lip"
+        ]
+      }
+    },
+    "rootObjects": [
+      "stand-base",
+      "stand-shaft",
+      "stand-turntable",
+      "stand-support",
+      "stand-plate",
+      "stand-lip"
+    ],
+    "rootLayers": [
+      "layer-default"
+    ],
+    "name": "Synthetic directional overlap (not laptop stand)",
+    "assembly": {
+      "version": 1,
+      "grounded": [
+        "stand-base"
+      ],
+      "joints": {
+        "bearing": {
+          "id": "bearing",
+          "parentId": "stand-base",
+          "childId": "stand-turntable",
+          "type": "revolute",
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "angle": 0,
+          "rest": {
+            "translation": [
+              50,
+              0,
+              100
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "shaft": {
+          "id": "shaft",
+          "parentId": "stand-base",
+          "childId": "stand-shaft",
+          "type": "fixed",
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "angle": 0,
+          "rest": {
+            "translation": [
+              0,
+              0,
+              20
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "support": {
+          "id": "support",
+          "parentId": "stand-turntable",
+          "childId": "stand-support",
+          "type": "fixed",
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "angle": 0,
+          "rest": {
+            "translation": [
+              100,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "plate": {
+          "id": "plate",
+          "parentId": "stand-support",
+          "childId": "stand-plate",
+          "type": "fixed",
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "angle": 0,
+          "rest": {
+            "translation": [
+              -35,
+              -35,
+              18
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "lip": {
+          "id": "lip",
+          "parentId": "stand-plate",
+          "childId": "stand-lip",
+          "type": "fixed",
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "angle": 0,
+          "rest": {
+            "translation": [
+              -165,
+              35,
+              32
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    },
+    "interferenceIntents": {
+      "[\"stand-plate\",\"stand-support\"]": {
+        "pair": [
+          "stand-plate",
+          "stand-support"
+        ],
+        "intent": "forbidden-interference",
+        "note": "Synthetic unwanted overlap; physical mounting has not been evaluated."
+      }
+    }
+  }
+}

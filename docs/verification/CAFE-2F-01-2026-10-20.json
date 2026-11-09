@@ -1,0 +1,9 @@
+{
+  "date":"2026-10-20",
+  "status":"passed",
+  "scope":"Two-storey cafe 2D task, 20 original reusable CAD assets, 12-sheet issue, PDF aggregate budget and DXF dimension placement",
+  "checks":{"targetedNode":9,"browserTask":13,"browserPdfRegression":21,"browserOutputPreflightRegression":24,"browserLargeModelPublicationRegression":40,"productionBuild":"passed","typecheck":"passed","architecture":{"status":"passed","modules":738},"independentPdf":{"pages":12,"paperSizes":"A2 x5, A3 x7","renderer":"Poppler 96dpi"},"fullNodeRegression":{"passed":1540,"failed":0,"suites":54,"durationMs":98139.6477}},
+  "oracles":{"seats":[40,60],"stairs":{"riseMm":3900,"risers":26,"riserMm":150,"goingMm":280,"flightGoings":12},"pdf96":{"pixels":30289482,"estimatedPeakBytes":232879280},"nativeDxfDimension":{"sourceTextHeightMm":160,"uniformScale":2,"exportTextHeightMm":320,"planes":["XY","XZ","YZ"]}},
+  "artifacts":["../../output/projects/large-cafe/large-cafe.webcad.json","../../output/projects/large-cafe/large-cafe.pdf","../../output/projects/large-cafe/cafe-assets.webcad.json","../../output/projects/large-cafe/overview.png","../../output/projects/large-cafe/native-report.json","../../output/projects/large-cafe/independent-report.json"],
+  "limits":["Assumed site and generic equipment envelopes; design-development issue, not approved construction documents.","Two-dimensional views are explicitly authored; automatic BIM cross-view propagation is not claimed.","Circulation checks cover specified geometric targets, not whole-route accessibility or fire/egress certification.","PDF is raster at 96dpi; SVG retains vector paper output and model DXF preserves blocks/curves.","Existing Vite main-chunk warning remains."]
+}

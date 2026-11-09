@@ -4,7 +4,9 @@
     "version": "0.0.1",
     "packageManager": "pnpm@11.26.0",
     "scripts": {
-        "build": "pnpm -r build"
+        "build": "pnpm -r build",
+        "qa": "pnpm --filter @agent-webcad/web qa",
+        "audit": "pnpm audit"
     },
     "devDependencies": {
         "typescript": "^7.0.2"

@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "checks": 12,
+  "message": "PASS: A detached preview compares the original and proposed definition line\nPASS: Review leaves document and History untouched\nPASS: Cancel closes the editor without publishing\nPASS: A document change disables an older reviewed plan\nPASS: Returning to identical geometry still requires fresh review\nPASS: Apply publishes the definition as one History entry\nPASS: Both linked placements resolve the new endpoint in their own transforms\nPASS: Placements, original drawing, independent copy and member override survive Apply\nPASS: Viewport rebuilds linked instance geometry after the definition changes\nPASS: Undo restores the definition and both live placements\nPASS: Redo restores the reviewed definition\nPASS: Native download and reopen preserve the edited definition, overrides and placements\nALL 12 CHECKS PASSED",
+  "artifacts": [
+    "component-line-review.png"
+  ]
+}

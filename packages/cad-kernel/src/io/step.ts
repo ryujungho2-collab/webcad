@@ -25,7 +25,7 @@
  */
 export function importStep(filePath: string) {
   // Implementation copied from Cascade Studio's StandardLibrary.js
-  return null;
+  throw new Error("Legacy STEP import is unsupported. No file was imported.");
 }
 
 /**
@@ -33,5 +33,5 @@ export function importStep(filePath: string) {
  */
 export function exportStep(shape: any, filePath: string) {
   // Implementation copied from Cascade Studio's StandardLibrary.js
-  return true;
+  throw new Error("Legacy STEP export is unsupported. No file was written. Use the verified application STEP export path.");
 }

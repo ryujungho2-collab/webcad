@@ -1,4 +1,5 @@
-import { useEffect, useRef, type MouseEvent, type SyntheticEvent } from "react";
+import { useEffect, useRef, useSyncExternalStore, type MouseEvent, type SyntheticEvent } from "react";
+import { FIT_MARGINS, getFitMargin, setFitMargin, subscribeFitMargin } from "../state/fitMargin";
 import { ToolIcon } from "../ui/ToolIcon";
 import { isCadKeyboardBlocked } from "../input/shortcutRouter";
 
@@ -18,6 +19,7 @@ type MenuBarProps = {
   onExportSvg: () => void;
   onExportArtboardSvg?: () => void;
   onExportArtboardPng?: () => void;
+  onOutputPreflight?:()=>void;
   onExportArtboardPdf?: () => void;
   activeArtboardName?: string;
   hasVisibleArtboards?: boolean;
@@ -28,6 +30,9 @@ type MenuBarProps = {
   onImportImage?: () => void;
   onExportDxf: () => void;
   onExportStep: () => void;
+  onExportGlb?: () => void;
+  solidEdgesVisible?: boolean;
+  onToggleSolidEdges?: () => void;
   onPlot: () => void;
   onUndo: () => void;
   onRedo: () => void;
@@ -43,6 +48,7 @@ function closeMenu(event: MouseEvent<HTMLButtonElement>) {
 }
 
 export function MenuBar(props: MenuBarProps) {
+  const fitMargin = useSyncExternalStore(subscribeFitMargin, getFitMargin, getFitMargin);
   const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -107,10 +113,12 @@ export function MenuBar(props: MenuBarProps) {
             <div className="menu-divider" />
             <button type="button" title="Export visible solids for 3D printing" onClick={(event) => { closeMenu(event); props.onExportStl(); }}><span>Export STL…</span></button>
             <button type="button" title="Export visible solids as STEP for manufacturers" onClick={(event) => { closeMenu(event); props.onExportStep(); }}><span>Export STEP…</span></button>
+            {props.onExportGlb && <button type="button" title="Export assembled visible solids with PBR materials; metres, Y up" onClick={event=>{closeMenu(event);props.onExportGlb?.();}}><span>Export GLB…</span></button>}
             <button type="button" title="Export drawings as DXF for other CAD" onClick={(event) => { closeMenu(event); props.onExportDxf(); }}><span>Export DXF…</span></button>
             <button type="button" title="Export active-plane drawings as vectors" onClick={(event) => { closeMenu(event); props.onExportSvg(); }}><span>Export SVG…</span></button>
             {props.activeArtboardName && <button type="button" title="Render the active artboard as a PNG with a scale and pixel preview" onClick={(event) => { closeMenu(event); props.onExportArtboardPng?.(); }}><span>Export “{props.activeArtboardName}” PNG…</span></button>}
             {props.activeArtboardName && <button type="button" title="Clip visible artwork to the active artboard and export its exact page bounds" onClick={(event) => { closeMenu(event); props.onExportArtboardSvg?.(); }}><span>Export “{props.activeArtboardName}” SVG…</span></button>}
+            {props.onOutputPreflight&&<button type="button" onClick={event=>{closeMenu(event);props.onOutputPreflight?.();}}><span>Output preflight…</span></button>}
             {props.hasVisibleArtboards && <button type="button" title="Export the active or all visible artboards as rasterized PDF pages" onClick={(event) => { closeMenu(event); props.onExportArtboardPdf?.(); }}><span>Export Artboards PDF…</span></button>}
             <div className="menu-divider" />
             <button type="button" title="Plot the active plane to a scale PDF" onClick={(event) => { closeMenu(event); props.onPlot(); }}><span>Plot PDF…</span></button>
@@ -132,8 +140,13 @@ export function MenuBar(props: MenuBarProps) {
         <details className="app-menu" onToggle={keepOneMenuOpen}>
           <summary>View</summary>
           <div className="menu-popover">
+            {props.onToggleSolidEdges && <button type="button" onClick={event=>{closeMenu(event);props.onToggleSolidEdges?.();}}>{props.solidEdgesVisible?"Material view":"CAD edge view"}</button>}
             <button type="button" onClick={(event) => { closeMenu(event); props.onToggleExplorer(); }}>{props.explorerVisible ? "Hide" : "Show"} Explorer</button>
             <button type="button" onClick={(event) => { closeMenu(event); props.onToggleProperties(); }}>{props.propertiesVisible ? "Hide" : "Show"} Properties</button>
+            <div role="group" aria-label="Fit margin" className="menu-radio-group">
+              <span className="menu-group-label">Fit margin · 맞춤 여백</span>
+              {FIT_MARGINS.map(option => <button key={option.id} type="button" role="menuitemradio" aria-checked={fitMargin === option.id} title={`${option.hint}. Applies to the next Fit.`} onClick={(event) => { closeMenu(event); setFitMargin(option.id); }}>{fitMargin === option.id ? "● " : "○ "}{option.label}</button>)}
+            </div>
           </div>
         </details>
       </nav>

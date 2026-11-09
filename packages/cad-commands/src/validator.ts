@@ -1,3 +1,15 @@
+import {validRigidWorldPose} from "@agent-webcad/cad-document";
+import { validDimensionStylePresetName } from "@agent-webcad/cad-document";
+import {validExternalSceneAsset} from "@agent-webcad/cad-document";
+import {validPairIntent,validJointEdit,validJointInput} from "@agent-webcad/cad-document";
+import {validReconstructionOptions} from "@agent-webcad/cad-document";
+import {validSculptStroke,validRemeshOptions} from "@agent-webcad/cad-document";
+import {validateGeometryGraph,validGeometryGraphActions} from "@agent-webcad/cad-document";
+import {validPolygonMeshOperation,validMeshModifiers} from "@agent-webcad/cad-document";
+import {validDxfStyle} from "@agent-webcad/cad-document";
+import {meshVector,meshElementId} from "@agent-webcad/cad-document";
+import {validSavedMeasurementDefinition} from "@agent-webcad/cad-document";
+import {validCanvas} from "@agent-webcad/cad-document";
 import {validComponentContent,validSolidFinish,validArchitecturalSlab,contentId} from "@agent-webcad/cad-document";
 import {validSpline,validArchitectureWall,validWallOpening} from "@agent-webcad/cad-document";
 import {validStitchTarget,validStitchSeam} from "@agent-webcad/cad-document";
@@ -10,7 +22,7 @@ import {validModelPart,validExplodedView} from "@agent-webcad/cad-document";
 import { validExchangeImport } from "@agent-webcad/cad-document";
 import { validScene, validAngularDefinition, validAngularReference, validAngularBranch, validModelView, validModelViewId, validDimensionStyle, validCadWorkPlane, validWorkPlaneFaceSource, validWorkPlaneId } from "@agent-webcad/cad-document";
 import type { CadCommand } from "./commands";
-import {validVectorStyle,validVariableName,validParameterTarget,validPatternSpec,patternSlots,MAX_PATTERN_OUTPUTS,validRasterAsset,validImageNodeParams} from "@agent-webcad/cad-document";
+import {validVectorStyle,validVectorStyleOverrides,validVariableName,validParameterTarget,validPatternSpec,patternSlots,MAX_PATTERN_OUTPUTS,validRasterAsset,validImageNodeParams} from "@agent-webcad/cad-document";
 import { validConstructionDefinition, validSketchConstraint } from "@agent-webcad/cad-document";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -118,6 +130,37 @@ export function validateCommand(command: unknown): command is CadCommand {
   }
 
   switch (command.type) {
+    case "assembly-part-place":return isString(command.objectId)&&validRigidWorldPose(command.targetWorldPose)&&["move-subtree","preserve-descendant-world"].includes(String(command.descendantPolicy));
+    case 'insert-external-scene': return isString(command.id)&&isString(command.layerId)&&validExternalSceneAsset(command.asset);
+    case "assembly-joint-delete":return isString(command.jointId);
+    case "assembly-joint-reparent":return isString(command.jointId)&&isString(command.parentId)&&typeof command.preserveWorld==="boolean";
+    case "assembly-joint-edit":return isString(command.jointId)&&validJointEdit(command.edit)&&typeof command.preserveWorld==="boolean";
+    case "assembly-pair-intent":return command.intent===null?Array.isArray(command.pair)&&command.pair.length===2&&command.pair.every(isString)&&command.pair[0]!==command.pair[1]&&typeof command.note==="string"&&command.note.length<=1000:validPairIntent({pair:command.pair,intent:command.intent,note:command.note});
+    case "assembly-ground":return isString(command.objectId)&&typeof command.grounded==="boolean";
+    case "assembly-joint-create":return validJointInput(command.joint)&&!("rest" in command.joint);
+    case "assembly-joint-update":return isString(command.jointId)&&(command.offset===undefined&&Number.isFinite(command.angle)||command.angle===undefined&&Number.isFinite(command.offset));
+    case "reconstruct-planar-mesh": return isString(command.objectId)&&(command.id===undefined||isString(command.id))&&validReconstructionOptions(command.options);
+    case "hybrid-reference": return isString(command.objectId)&&validWorkPlaneId(command.referenceId)&&meshVector(command.origin)&&meshVector(command.direction)&&Math.hypot(...command.direction)>1e-12&&(command.expectedFingerprint===undefined||typeof command.expectedFingerprint==="string"&&/^[a-f0-9]{16}$/.test(command.expectedFingerprint));
+    case "hybrid-datum": return validWorkPlaneId(command.referenceId)&&(command.id===undefined||isString(command.id))&&[command.width,command.depth,command.height].every(n=>isFiniteNumber(n)&&n>=.01&&n<=10000);
+    case "hybrid-to-mesh": return isString(command.objectId)&&(command.id===undefined||isString(command.id));
+    case "sculpt-stroke": return isString(command.objectId)&&validSculptStroke(command.stroke);
+    case "remesh-mesh": return isString(command.objectId)&&(command.id===undefined||meshElementId(command.id))&&validRemeshOptions(command.options);
+    case "bake-mesh": return isString(command.objectId)&&(command.id===undefined||meshElementId(command.id));
+    case "create-geometry-graph": return (command.id===undefined||meshElementId(command.id))&&(command.layerId===undefined||isString(command.layerId))&&validateGeometryGraph(command.graph).valid;
+    case "edit-geometry-graph": return isString(command.objectId)&&validGeometryGraphActions(command.actions);
+    case "upgrade-mesh": return isString(command.objectId);
+    case "edit-polygon-mesh": return isString(command.objectId)&&validPolygonMeshOperation(command.operation);
+    case "set-mesh-modifiers": return isString(command.objectId)&&validMeshModifiers(command.modifiers);
+    case "create-polygon-mesh": return (command.shape==="cube"||command.shape==="ngon")&&(command.sides===undefined||isFiniteNumber(command.sides)&&Number.isInteger(command.sides)&&command.sides>=3&&command.sides<=32)&&(command.id===undefined||meshElementId(command.id))&&(command.layerId===undefined||isString(command.layerId))&&isFiniteNumber(command.size)&&command.size>=1e-3&&command.size<=1e6;
+    case "create-mesh": return (command.id===undefined||meshElementId(command.id))&&(command.layerId===undefined||isString(command.layerId))&&isFiniteNumber(command.size)&&command.size>=1e-3&&command.size<=1e6;
+    case "select-mesh-elements": return isString(command.objectId)&&typeof command.enabled==="boolean"&&["vertex","edge","face"].includes(String(command.mode))&&Array.isArray(command.elementIds)&&command.elementIds.length<=20000&&command.elementIds.every(isString)&&new Set(command.elementIds).size===command.elementIds.length;
+    case "transform-mesh-elements": return isString(command.objectId)&&["vertex","edge","face"].includes(String(command.mode))&&Array.isArray(command.elementIds)&&command.elementIds.length>0&&command.elementIds.length<=20000&&command.elementIds.every(isString)&&new Set(command.elementIds).size===command.elementIds.length&&["move","scale"].includes(String(command.operation))&&meshVector(command.value)&&(command.operation!=="scale"||command.value.every(n=>n>0))&&(command.pivot===undefined||meshVector(command.pivot));
+    case "extrude-mesh-face": return isString(command.objectId)&&meshElementId(command.faceId)&&isFiniteNumber(command.distance)&&Math.abs(command.distance)>=1e-6&&Math.abs(command.distance)<=1e6;
+    case "layout-saved-measurements": return isString(command.documentId)&&isFiniteNumber(command.expectedRevision)&&Number.isSafeInteger(command.expectedRevision)&&command.expectedRevision>=0&&Array.isArray(command.placements)&&command.placements.length>0&&command.placements.length<=32&&command.placements.every(p=>isRecord(p)&&isString(p.measurementId)&&isVector2(p.offset)&&p.offset.every(n=>Math.abs(n)<=1e6))&&new Set(command.placements.map(p=>p.measurementId)).size===command.placements.length;
+    case "place-saved-measurement": return isString(command.measurementId)&&isString(command.documentId)&&isFiniteNumber(command.expectedRevision)&&Number.isSafeInteger(command.expectedRevision)&&command.expectedRevision>=0&&isVector2(command.offset)&&command.offset.every(n=>Math.abs(n)<=1e6);
+    case "upsert-saved-measurement": return validSavedMeasurementDefinition(command.measurement);
+    case "delete-saved-measurement": return isString(command.measurementId);
+    case "refresh-saved-measurements": return true;
     case "define-component-content":return contentId(command.id)&&isString(command.name)&&command.name.trim().length>0&&command.name.length<=200&&contentId(command.objectId);
     case "delete-component-content":return contentId(command.definitionId);
     case "place-component-content":return validComponentContent(command.content)&&(command.id===undefined||contentId(command.id))&&(command.layerId===undefined||contentId(command.layerId));
@@ -127,7 +170,7 @@ export function validateCommand(command: unknown): command is CadCommand {
     case "update-architectural-slab":return contentId(command.objectId)&&typeof command.level==="number"&&Number.isFinite(command.level)&&Math.abs(command.level)<=1e9&&typeof command.thickness==="number"&&Number.isFinite(command.thickness)&&command.thickness>1e-6&&command.thickness<=1e9;
     case "set-solid-finish":return contentId(command.objectId)&&(command.finish===null||validSolidFinish(command.finish));
     case "create-wall":return validArchitectureWall(command.definition)&&(command.id===undefined||isString(command.id))&&(command.layerId===undefined||isString(command.layerId));
-    case "update-wall":return isString(command.objectId)&&isFiniteNumber(command.height)&&Math.abs(command.height)>1e-6&&isFiniteNumber(command.thickness)&&command.thickness>1e-6&&isFiniteNumber(command.baseLevel);
+    case "update-wall":return isString(command.objectId)&&isFiniteNumber(command.height)&&Math.abs(command.height)>1e-6&&isFiniteNumber(command.thickness)&&command.thickness>1e-6&&isFiniteNumber(command.baseLevel)&&[command.startMiter,command.endMiter].every(a=>a===undefined||isFiniteNumber(a)&&Math.abs(a)<=80)&&[command.start,command.end].every(p=>p===undefined||Array.isArray(p)&&p.length===2&&p.every(isFiniteNumber));
     case "upsert-wall-opening":return isString(command.objectId)&&validWallOpening(command.opening);
     case "delete-wall-opening":return isString(command.objectId)&&isString(command.openingId);
     case "refresh-wall-drawings":return isString(command.objectId);
@@ -153,12 +196,19 @@ export function validateCommand(command: unknown): command is CadCommand {
     case "upsert-frame-link": return validFrameLink(command.link);
     case "delete-frame-link": return isString(command.linkId);
     case "layout-frame-links": return isString(command.frameId)&&(command.translation===undefined||isVector2(command.translation));
+    case "scale-canvas-contents": return isString(command.canvasId)&&typeof command.factor==="number"&&Number.isFinite(command.factor)&&command.factor>=.001&&command.factor<=1000&&(command.keepPaperStyles===undefined||typeof command.keepPaperStyles==="boolean")&&(command.includeImages===undefined||typeof command.includeImages==="boolean");
+    case "apply-canvas-flex": return isString(command.canvasId)&&(command.allowModelMoves===undefined||typeof command.allowModelMoves==="boolean")&&(command.allowNoMovement===undefined||typeof command.allowNoMovement==="boolean");
+    case "upsert-canvas": return validCanvas(command.canvas);
+    case "delete-canvas": return isString(command.canvasId);
+    case "organize-canvases": return true;
     case "upsert-workspace-section": return validWorkspaceSection(command.section);
     case "delete-workspace-section": return isString(command.sectionId);
     case "create-artboard": return (command.frame === undefined || validDrawingFrame(command.frame)) && (command.id === undefined || isString(command.id)) && (command.name === undefined || isString(command.name)) && ["XY","XZ","YZ"].includes(String(command.workPlane)) && isVector2(command.origin) && isVector2(command.size) && command.size[0] > 0 && command.size[1] > 0 && (command.background === undefined || typeof command.background === "string" && /^#[0-9a-f]{6}$/i.test(command.background)) && (command.backgroundOpacity === undefined || typeof command.backgroundOpacity === "number" && Number.isFinite(command.backgroundOpacity) && command.backgroundOpacity >= 0 && command.backgroundOpacity <= 1) && (command.showGrid === undefined || typeof command.showGrid === "boolean");
     case "update-artboard": return (command.frame === undefined || validDrawingFrame(command.frame)) && isString(command.artboardId) && (command.name === undefined || isString(command.name)) && (command.workPlane === undefined || ["XY","XZ","YZ"].includes(String(command.workPlane))) && (command.origin === undefined || isVector2(command.origin)) && (command.size === undefined || isVector2(command.size) && command.size[0] > 0 && command.size[1] > 0) && (command.background === undefined || typeof command.background === "string" && /^#[0-9a-f]{6}$/i.test(command.background)) && (command.backgroundOpacity === undefined || typeof command.backgroundOpacity === "number" && Number.isFinite(command.backgroundOpacity) && command.backgroundOpacity >= 0 && command.backgroundOpacity <= 1) && (command.showGrid === undefined || typeof command.showGrid === "boolean") && (command.visible === undefined || typeof command.visible === "boolean") && (command.locked === undefined || typeof command.locked === "boolean");
     case "delete-artboard": return isString(command.artboardId);
     case "insert-image": return (command.id === undefined || isString(command.id)) && (command.layerId === undefined || isString(command.layerId)) && validRasterAsset(command.asset) && ["XY", "XZ", "YZ"].includes(String(command.workPlane)) && isVector3(command.center) && validImageNodeParams({ kind: "image", assetId: command.asset.id, workPlane: command.workPlane, width: command.width, height: command.height, crop: { x: 0, y: 0, width: 1, height: 1 } });
+    case "reorder-image": return isString(command.objectId) && ["front", "back", "forward", "backward"].includes(String(command.direction));
+    case "reorder-drawing": return ["XY", "XZ", "YZ"].includes(String(command.plane)) && ["front", "back", "hatch-back"].includes(String(command.direction)) && Array.isArray(command.objectIds) && command.objectIds.every(isString);
     case "replace-image-source": return isString(command.objectId) && validRasterAsset(command.asset);
     case "update-image": return isString(command.objectId) && (command.width === undefined || isFiniteNumber(command.width) && command.width > 0 && command.width <= 1_000_000) && (command.height === undefined || isFiniteNumber(command.height) && command.height > 0 && command.height <= 1_000_000) && (command.crop === undefined || validImageNodeParams({ kind: "image", assetId: "asset", workPlane: "XY", width: 1, height: 1, crop: command.crop })) && (command.adjustments === undefined || validImageNodeParams({ kind: "image", assetId: "asset", workPlane: "XY", width: 1, height: 1, crop: { x: 0, y: 0, width: 1, height: 1 }, adjustments: command.adjustments }));
     case "update-construction": return isString(command.objectId) && validConstructionDefinition(command.definition);
@@ -181,7 +231,9 @@ export function validateCommand(command: unknown): command is CadCommand {
     case "remove-parameter-binding": return isString(command.bindingId);
     case "set-layer-style":
       return isString(command.layerId) && isRecord(command.style) && /^#[0-9a-f]{6}$/i.test(String(command.style.color)) && ["continuous","dashed","center"].includes(String(command.style.lineType)) && isFiniteNumber(command.style.lineWeight) && command.style.lineWeight > 0 && command.style.lineWeight <= 2;
-    case "set-vector-style": return isString(command.objectId) && validVectorStyle(command.style);
+    case "set-vector-style": return isString(command.objectId) && (command.merge === true
+      ? validVectorStyleOverrides(command.style)
+      : (command.merge === undefined || command.merge === false) && validVectorStyle(command.style));
     case "set-model-clipping": return validModelClip(command.clipping);
     case "upsert-model-section": return isRecord(command.view)&&validModelSection({...command.view,status:"resolved",outputs:{}});
     case "delete-model-section": return isString(command.viewId);
@@ -196,9 +248,19 @@ export function validateCommand(command: unknown): command is CadCommand {
       return isRecord(command.params) && ["face","text","chain","hatch","floor-plan","leader"].includes(String(command.params.kind)) && (command.id === undefined || isString(command.id)) && (command.layerId === undefined || isString(command.layerId));
     case "update-drafting": return isString(command.objectId) && isRecord(command.params);
     case "define-block": return isString(command.id) && isString(command.name) && Array.isArray(command.objectIds) && command.objectIds.length > 0 && command.objectIds.every(isString) && isVector3(command.base);
-    case "update-block": return isString(command.blockId) && (command.name === undefined || isString(command.name)) && (command.objectIds === undefined && command.base === undefined || Array.isArray(command.objectIds) && command.objectIds.length > 0 && command.objectIds.every(isString) && isVector3(command.base)) && (command.name !== undefined || command.objectIds !== undefined);
+    case "update-block":
+      if (!isString(command.blockId)) return false;
+      if (command.lineEdit !== undefined) {
+        const edit = command.lineEdit;
+        return command.name === undefined && command.objectIds === undefined && command.base === undefined &&
+          isRecord(edit) && isString(edit.memberId) && (edit.endpoint === 0 || edit.endpoint === 1) && isVector2(edit.point);
+      }
+      return (command.name === undefined || isString(command.name)) &&
+        (command.objectIds === undefined && command.base === undefined || Array.isArray(command.objectIds) &&
+          command.objectIds.length > 0 && command.objectIds.every(isString) && isVector3(command.base)) &&
+        (command.name !== undefined || command.objectIds !== undefined);
     case "set-block-override": return isString(command.blockId) && isString(command.objectId) && (command.vectorStyle === undefined || validVectorStyle(command.vectorStyle)) && (command.clear === undefined || typeof command.clear === "boolean");
-    case "insert-block": return isString(command.blockId) && (command.scale===undefined||isVector3(command.scale)&&command.scale.every(value=>Math.abs(value)>1e-12)) && isVector3(command.position) && (command.angle === undefined || isFiniteNumber(command.angle)) && (command.id === undefined || isString(command.id)) && (command.layerId === undefined || isString(command.layerId));
+    case "insert-block": return (command.dxfStyle===undefined||validDxfStyle(command.dxfStyle)) && isString(command.blockId) && (command.scale===undefined||isVector3(command.scale)&&command.scale.every(value=>Math.abs(value)>1e-12)) && isVector3(command.position) && (command.angle === undefined || isFiniteNumber(command.angle)) && (command.id === undefined || isString(command.id)) && (command.layerId === undefined || isString(command.layerId));
     case "explode-block": return isString(command.objectId) && (command.recursive === undefined || typeof command.recursive === "boolean");
     case "create-sketch": return isString(command.id) && ["XY", "XZ", "YZ"].includes(String(command.workPlane)) && (command.layerId === undefined || isString(command.layerId));
     case "create-face-sketch": return isString(command.id) && validWorkPlaneId(command.planeId) && (command.layerId === undefined || isString(command.layerId));
@@ -227,7 +289,7 @@ export function validateCommand(command: unknown): command is CadCommand {
     case "extend-sketch-geometry": return isString(command.sketchId) && isString(command.targetId) && isString(command.cutterId) && command.targetId !== command.cutterId && isVector3(command.pickPoint);
     case "batch":
       return (command.label === undefined || (isString(command.label) && command.label.trim().length > 0)) &&
-        Array.isArray(command.commands) && command.commands.length > 0 && command.commands.every((entry) => validateCommand(entry) && entry.type !== "batch");
+        Array.isArray(command.commands) && command.commands.length > 0 && command.commands.every((entry) => validateCommand(entry) && entry.type !== "batch" && entry.type !== "assembly-part-place");
     case "create-regular-polygon": return isVector2(command.center) && isFiniteNumber(command.sides) && Number.isInteger(command.sides) && command.sides>=3 && command.sides<=128 && isFiniteNumber(command.radius) && command.radius>0 && ["inscribed","circumscribed"].includes(String(command.radiusMode)) && isFiniteNumber(command.rotation) && ["XY","XZ","YZ"].includes(String(command.workPlane)) && (command.sketchId===undefined||isString(command.sketchId)) && (command.layerId===undefined||isString(command.layerId)) && (command.id===undefined||isString(command.id));
     case "create-start-tangent-arc": return Array.isArray(command.points)&&command.points.length===2&&command.points.every(isVector3)&&isFiniteNumber(command.tangentAngle)&&["XY","XZ","YZ"].includes(String(command.workPlane))&&(command.sketchId===undefined||isString(command.sketchId))&&(command.layerId===undefined||isString(command.layerId))&&(command.id===undefined||isString(command.id));
     case "create-two-line-tangent-circle": return Array.isArray(command.objectIds)&&command.objectIds.length===2&&command.objectIds.every(isString)&&command.objectIds[0]!==command.objectIds[1]&&isFiniteNumber(command.radius)&&command.radius>0&&isString(command.branch)&&(command.extend===undefined||typeof command.extend==="boolean")&&["XY","XZ","YZ"].includes(String(command.workPlane))&&(command.sketchId===undefined||isString(command.sketchId))&&(command.layerId===undefined||isString(command.layerId))&&(command.id===undefined||isString(command.id));
@@ -249,6 +311,11 @@ export function validateCommand(command: unknown): command is CadCommand {
         (command.dimension === "linear" || command.dimension === "radius" || command.dimension === "diameter") && isDimensionParams(command.dimension, command.params)) &&
         (command.id === undefined || isString(command.id)) &&
         (command.layerId === undefined || isString(command.layerId));
+    case "save-dimension-style-preset":
+      return isString(command.objectId) && validDimensionStylePresetName(command.name);
+    case "apply-dimension-style-preset":
+      return Array.isArray(command.objectIds) && command.objectIds.length > 0 &&
+        command.objectIds.every(isString) && validDimensionStylePresetName(command.name);
     case "update-dimension":
       return isString(command.objectId) && isRecord(command.params) &&
         Object.keys(command.params).every((key) =>
@@ -298,7 +365,7 @@ export function validateCommand(command: unknown): command is CadCommand {
         (command.angle === undefined || (isFiniteNumber(command.angle) && command.angle > 0 && command.angle <= 360)) &&
         (command.layerId === undefined || isString(command.layerId)) && (command.id === undefined || isString(command.id));
     case "create-sweep":
-      return Array.isArray(command.profileObjectIds) && command.profileObjectIds.length > 0 &&
+      return (command.alignToPath === undefined || typeof command.alignToPath === "boolean") && Array.isArray(command.profileObjectIds) && command.profileObjectIds.length > 0 &&
         new Set(command.profileObjectIds).size === command.profileObjectIds.length &&
         command.profileObjectIds.every(isString) &&
         isString(command.pathObjectId) && !command.profileObjectIds.includes(command.pathObjectId as string) &&
@@ -311,6 +378,8 @@ export function validateCommand(command: unknown): command is CadCommand {
         (command.layerId === undefined || isString(command.layerId)) && (command.id === undefined || isString(command.id));
     case "update-revolve":
       return isString(command.objectId) && isFiniteNumber(command.angle) && command.angle > 0 && command.angle <= 360;
+    case "update-loft":
+      return isString(command.objectId) && typeof command.ruled === "boolean";
     case "offset-drawing":
       return isString(command.objectId) && isFiniteNumber(command.distance) && command.distance > 1e-9 &&
         (command.side === undefined || command.side === "left" || command.side === "right");
@@ -333,7 +402,7 @@ export function validateCommand(command: unknown): command is CadCommand {
         (command.position === undefined || isVector3(command.position))
       );
     case "boolean-cut":
-      return isString(command.target) && isString(command.tool);
+      return isString(command.target) && isString(command.tool) && command.target !== command.tool;
     case "boolean-operation":
       return isString(command.operation) && ["union", "cut", "intersect"].includes(command.operation) && isString(command.target) && isString(command.tool) && command.target !== command.tool &&
         (command.id === undefined || isString(command.id));
@@ -343,7 +412,7 @@ export function validateCommand(command: unknown): command is CadCommand {
         Array.isArray(command.edges) &&
         command.edges.every(isString) &&
         isFiniteNumber(command.radius) &&
-        command.radius > 0
+        command.radius > 0 && (command.id === undefined || isString(command.id))
       );
     case "chamfer":
       return (
@@ -351,7 +420,7 @@ export function validateCommand(command: unknown): command is CadCommand {
         Array.isArray(command.edges) &&
         command.edges.every(isString) &&
         isFiniteNumber(command.distance) &&
-        command.distance > 0
+        command.distance > 0 && (command.id === undefined || isString(command.id))
       );
     case "create-layer":
       return (

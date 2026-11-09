@@ -21,10 +21,10 @@ export class KernelWorkerClient {
   private tasks: PendingTask[] = [];
   private active: PendingTask | null = null;
   private progress: KernelTaskProgress | null = null;
-  private memory:{capacityBytes:number|null;retainedSources:number;retainedSlabs:number}={capacityBytes:0,retainedSources:0,retainedSlabs:0};
+  private memory:import("./kernelProtocol").KernelMemory={capacityBytes:0,retainedSources:0,retainedSlabs:0};
   private workersCreated=0;
   private cancelledTasks=0;
-  metrics(){return {workerResident:!!this.worker,workersCreated:this.workersCreated,cancelledTasks:this.cancelledTasks,wasmCapacityBytes:this.memory.capacityBytes,retainedSources:this.memory.retainedSources,retainedSlabs:this.memory.retainedSlabs};}
+  metrics(){return {workerResident:!!this.worker,workersCreated:this.workersCreated,cancelledTasks:this.cancelledTasks,wasmCapacityBytes:this.memory.capacityBytes,retainedSources:this.memory.retainedSources,retainedSlabs:this.memory.retainedSlabs,nativeResources:this.memory.retained??null};}
 
   constructor(
     private readonly createWorker: () => KernelWorkerPort,

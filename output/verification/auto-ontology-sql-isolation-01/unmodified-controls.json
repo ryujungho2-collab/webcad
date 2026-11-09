@@ -1,0 +1,19 @@
+{
+  "countStar": {
+    "sql": "SELECT COUNT(*) AS n FROM cad_relation",
+    "catalogValidated": false,
+    "catalogError": "SQL doesn't reference any table known to the catalog; check the query and available schema",
+    "sqliteRows": [
+      "[{\"n\":1}]"
+    ],
+    "sqliteError": null
+  },
+  "unknownCountRejected": true,
+  "threePartAsWritten": {
+    "sql": "SELECT COUNT(source_id) AS n FROM source.main.cad_relation",
+    "catalogValidated": true,
+    "catalogError": null,
+    "sqliteRows": null,
+    "sqliteError": "near \".\": syntax error"
+  }
+}

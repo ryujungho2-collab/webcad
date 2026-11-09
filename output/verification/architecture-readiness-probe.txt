@@ -1,5 +1,5 @@
 {
-  "target": "C:\\Users\\thefi\\OneDrive\\Desktop\\agent-webcad\\output\\projects\\architecture-readiness",
+  "target": "<workspace>\\output\\projects\\architecture-readiness",
   "checks": {
     "initialWallVolumeMm3": 15467999999.999996,
     "independentWallVolumeMm3": 15468000000,

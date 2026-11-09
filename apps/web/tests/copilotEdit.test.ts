@@ -23,7 +23,10 @@ test("Move advertises bounded selected placement, derives its summary locally an
   await fixture();
   const body = copilotRequest("Move the selection", cadDocument, ["line"], "XY"), bytes = JSON.stringify(cadDocument), labels = history();
   assert.deepEqual(body.edit.target, { id: "line", name: "Source", workPlane: "XY", translation: [0,0,0] });
-  assert.ok(body.capabilities.includes("move-object")); assert.equal(JSON.stringify(body).includes('"points"'), false);
+  assert.ok(body.capabilities.includes("move-object"));
+  // The tool catalog describes a polyline's points input; captured Move context contains no source geometry.
+  assert.equal(JSON.stringify({...body,tools:undefined}).includes('"points"'), false);
+  assert.ok(body.tools.tools.some(tool=>tool.name==="curve.polyline"));
   const plan = validateCopilotResponse(response(), body.edit);
   assert.equal(plan.ghosts.length, 0); assert.match(plan.summary[0], /Source.*10, 20, 0.*mm/); assert.ok(!plan.summary.includes("Untrusted description"));
   assert.deepEqual(withCopilotLayer(plan.command, "another-active-layer"), move);

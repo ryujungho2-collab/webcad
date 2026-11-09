@@ -1,0 +1,914 @@
+{
+  "role": "forced zero-budget Native regression; not an AI run",
+  "candidates": [
+    {
+      "id": "c0",
+      "offset": [
+        0,
+        0,
+        0
+      ],
+      "movement": 0,
+      "pose": {
+        "translation": [
+          25,
+          6,
+          26
+        ],
+        "rotation": [
+          -14.999999999999998,
+          -5.29668755766019e-31,
+          180
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "hardValid": true,
+      "complete": false,
+      "risks": [
+        "unknown/unsupported/incomplete"
+      ],
+      "facts": [
+        "UNKNOWN"
+      ],
+      "elapsedMs": 6.469699999999648,
+      "motion": {
+        "version": {
+          "documentId": "document-774fb9cd-5099-4987-890a-d39ae8303acd",
+          "revision": 51,
+          "generation": 0
+        },
+        "request": {
+          "jointId": "bearing",
+          "start": 0,
+          "end": 180,
+          "step": 90,
+          "partIds": [
+            "stand-base",
+            "stand-shaft",
+            "stand-turntable",
+            "stand-support",
+            "stand-plate",
+            "stand-lip"
+          ],
+          "exceptions": [],
+          "tolerance": 0.000001
+        },
+        "angles": [
+          0,
+          90,
+          180
+        ],
+        "rows": [
+          {
+            "relativeMotion": "invariant",
+            "angle": 0,
+            "pair": [
+              "stand-base",
+              "stand-shaft"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 0,
+            "pair": [
+              "stand-base",
+              "stand-turntable"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 0,
+            "pair": [
+              "stand-base",
+              "stand-support"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 0,
+            "pair": [
+              "stand-base",
+              "stand-plate"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 0,
+            "pair": [
+              "stand-base",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 0,
+            "pair": [
+              "stand-shaft",
+              "stand-turntable"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 0,
+            "pair": [
+              "stand-shaft",
+              "stand-support"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 0,
+            "pair": [
+              "stand-shaft",
+              "stand-plate"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 0,
+            "pair": [
+              "stand-shaft",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 0,
+            "pair": [
+              "stand-turntable",
+              "stand-support"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 0,
+            "pair": [
+              "stand-turntable",
+              "stand-plate"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 0,
+            "pair": [
+              "stand-turntable",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 0,
+            "pair": [
+              "stand-support",
+              "stand-plate"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 0,
+            "pair": [
+              "stand-support",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 0,
+            "pair": [
+              "stand-plate",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 90,
+            "pair": [
+              "stand-base",
+              "stand-shaft"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 90,
+            "pair": [
+              "stand-base",
+              "stand-turntable"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 90,
+            "pair": [
+              "stand-base",
+              "stand-support"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 90,
+            "pair": [
+              "stand-base",
+              "stand-plate"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 90,
+            "pair": [
+              "stand-base",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 90,
+            "pair": [
+              "stand-shaft",
+              "stand-turntable"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 90,
+            "pair": [
+              "stand-shaft",
+              "stand-support"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 90,
+            "pair": [
+              "stand-shaft",
+              "stand-plate"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 90,
+            "pair": [
+              "stand-shaft",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 90,
+            "pair": [
+              "stand-turntable",
+              "stand-support"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 90,
+            "pair": [
+              "stand-turntable",
+              "stand-plate"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 90,
+            "pair": [
+              "stand-turntable",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 90,
+            "pair": [
+              "stand-support",
+              "stand-plate"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 90,
+            "pair": [
+              "stand-support",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 90,
+            "pair": [
+              "stand-plate",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 180,
+            "pair": [
+              "stand-base",
+              "stand-shaft"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 180,
+            "pair": [
+              "stand-base",
+              "stand-turntable"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 180,
+            "pair": [
+              "stand-base",
+              "stand-support"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 180,
+            "pair": [
+              "stand-base",
+              "stand-plate"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 180,
+            "pair": [
+              "stand-base",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 180,
+            "pair": [
+              "stand-shaft",
+              "stand-turntable"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 180,
+            "pair": [
+              "stand-shaft",
+              "stand-support"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 180,
+            "pair": [
+              "stand-shaft",
+              "stand-plate"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "motion-dependent",
+            "angle": 180,
+            "pair": [
+              "stand-shaft",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "preflight",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 180,
+            "pair": [
+              "stand-turntable",
+              "stand-support"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 180,
+            "pair": [
+              "stand-turntable",
+              "stand-plate"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 180,
+            "pair": [
+              "stand-turntable",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 180,
+            "pair": [
+              "stand-support",
+              "stand-plate"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 180,
+            "pair": [
+              "stand-support",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "relativeMotion": "invariant",
+            "angle": 180,
+            "pair": [
+              "stand-plate",
+              "stand-lip"
+            ],
+            "baseStatus": "unknown",
+            "status": "unknown",
+            "method": "reuse",
+            "exception": false,
+            "reason": "Error: Integrated search kernel budget exhausted.; Error: Integrated search kernel budget exhausted."
+          }
+        ],
+        "parts": [
+          {
+            "id": "stand-base",
+            "status": "error",
+            "reason": "Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "id": "stand-shaft",
+            "status": "error",
+            "reason": "Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "id": "stand-turntable",
+            "status": "error",
+            "reason": "Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "id": "stand-support",
+            "status": "error",
+            "reason": "Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "id": "stand-plate",
+            "status": "error",
+            "reason": "Error: Integrated search kernel budget exhausted."
+          },
+          {
+            "id": "stand-lip",
+            "status": "error",
+            "reason": "Error: Integrated search kernel budget exhausted."
+          }
+        ],
+        "samplingFinished": true,
+        "state": "partial",
+        "elapsedMs": 3.283400000000256,
+        "stats": {
+          "possiblePairs": 45,
+          "aabbRejected": 0,
+          "candidates": 0,
+          "invariantReuse": 14,
+          "kernelCalls": 6,
+          "completedSamples": 3,
+          "estimatedInputBytes": 24794,
+          "wasmCapacityBytes": null
+        },
+        "warning": "Discrete samples only; unchecked angular intervals are NOT certified collision-free. AABB is not a collision test. Exceptions retain their original result."
+      }
+    },
+    {
+      "id": "c1",
+      "offset": [
+        -6,
+        0,
+        0
+      ],
+      "movement": 6,
+      "pose": {
+        "translation": [
+          19,
+          6,
+          26
+        ],
+        "rotation": [
+          -14.999999999999998,
+          -5.29668755766019e-31,
+          180
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "command": {
+        "type": "assembly-part-place",
+        "objectId": "stand-support",
+        "descendantPolicy": "preserve-descendant-world",
+        "targetWorldPose": {
+          "translation": [
+            19,
+            6,
+            26
+          ],
+          "rotation": [
+            -14.999999999999998,
+            -5.29668755766019e-31,
+            180
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "hardValid": false,
+      "complete": false,
+      "risks": [
+        "incomplete-evaluation"
+      ],
+      "facts": [],
+      "elapsedMs": 0.0272000000004482,
+      "error": "Error: Insufficient integrated budget for native command validation."
+    },
+    {
+      "id": "c2",
+      "offset": [
+        0,
+        6,
+        0
+      ],
+      "movement": 6,
+      "pose": {
+        "translation": [
+          25,
+          12,
+          26
+        ],
+        "rotation": [
+          -14.999999999999998,
+          -5.29668755766019e-31,
+          180
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "command": {
+        "type": "assembly-part-place",
+        "objectId": "stand-support",
+        "descendantPolicy": "preserve-descendant-world",
+        "targetWorldPose": {
+          "translation": [
+            25,
+            12,
+            26
+          ],
+          "rotation": [
+            -14.999999999999998,
+            -5.29668755766019e-31,
+            180
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "hardValid": false,
+      "complete": false,
+      "risks": [
+        "incomplete-evaluation"
+      ],
+      "facts": [],
+      "elapsedMs": 0.008400000000619912,
+      "error": "Error: Insufficient integrated budget for native command validation."
+    },
+    {
+      "id": "c3",
+      "offset": [
+        0,
+        0,
+        6
+      ],
+      "movement": 6,
+      "pose": {
+        "translation": [
+          25,
+          6,
+          32
+        ],
+        "rotation": [
+          -14.999999999999998,
+          -5.29668755766019e-31,
+          180
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "command": {
+        "type": "assembly-part-place",
+        "objectId": "stand-support",
+        "descendantPolicy": "preserve-descendant-world",
+        "targetWorldPose": {
+          "translation": [
+            25,
+            6,
+            32
+          ],
+          "rotation": [
+            -14.999999999999998,
+            -5.29668755766019e-31,
+            180
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "hardValid": false,
+      "complete": false,
+      "risks": [
+        "incomplete-evaluation"
+      ],
+      "facts": [],
+      "elapsedMs": 0.006400000000212458,
+      "error": "Error: Insufficient integrated budget for native command validation."
+    }
+  ],
+  "ranking": {
+    "status": "INCOMPLETE",
+    "preferred": "baseline",
+    "recommendedIds": [],
+    "comparisonIds": [],
+    "order": [],
+    "assessments": [
+      {
+        "id": "c1",
+        "eligible": false,
+        "target": "unknown",
+        "otherWorse": false,
+        "contactLoss": false,
+        "anchorChanges": 0,
+        "intentReview": false,
+        "comparisonTolerance": 0.000001,
+        "changes": []
+      },
+      {
+        "id": "c2",
+        "eligible": false,
+        "target": "unknown",
+        "otherWorse": false,
+        "contactLoss": false,
+        "anchorChanges": 0,
+        "intentReview": false,
+        "comparisonTolerance": 0.000001,
+        "changes": []
+      },
+      {
+        "id": "c3",
+        "eligible": false,
+        "target": "unknown",
+        "otherWorse": false,
+        "contactLoss": false,
+        "anchorChanges": 0,
+        "intentReview": false,
+        "comparisonTolerance": 0.000001,
+        "changes": []
+      }
+    ],
+    "message": "검사가 불완전하여 우열을 판정할 수 없습니다. 원본을 유지합니다."
+  },
+  "kernelCalls": 0,
+  "elapsedMs": 6.9077999999990425
+}

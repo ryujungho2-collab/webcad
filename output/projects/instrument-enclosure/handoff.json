@@ -1,0 +1,919 @@
+{
+  "authoring": [
+    {
+      "channel": "internal-language",
+      "prompt": "높이를 40mm로 바꿔줘"
+    },
+    {
+      "channel": "internal-language",
+      "prompt": "윗면 제거 두께 3mm 셸"
+    },
+    {
+      "channel": "MCP",
+      "label": "Cable entry Ø12 through 3 mm front wall",
+      "calls": [
+        {
+          "id": "entry",
+          "name": "solid.hole",
+          "arguments": {
+            "id": "housingPort",
+            "targetId": "model-81fd6f6e",
+            "faceKey": "face:4:2:60.000000,0.000000,20.000000|0.000000,1.000000,0.000000|4800.000000",
+            "center": [
+              0,
+              0
+            ],
+            "diameter": 12,
+            "through": false,
+            "depth": 3
+          }
+        }
+      ],
+      "receipt": {
+        "proposalId": "178614cf-c87f-40f6-a75c-93201984495a",
+        "status": "applied",
+        "resultObjectIds": [
+          "housingPort"
+        ]
+      }
+    },
+    {
+      "channel": "MCP",
+      "label": "Four cover screw towers with blind bores",
+      "calls": [
+        {
+          "id": "tower0outer",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "tower0",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 4,
+              "height": 37
+            },
+            "position": [
+              12,
+              12,
+              3
+            ]
+          }
+        },
+        {
+          "id": "tower0bore",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "tower0Bore",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 1.6,
+              "height": 13
+            },
+            "position": [
+              12,
+              12,
+              28
+            ]
+          }
+        },
+        {
+          "id": "tower0cut",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "tower0Drilled",
+            "operation": "cut",
+            "targetId": "tower0",
+            "toolId": "tower0Bore"
+          }
+        },
+        {
+          "id": "tower0join",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "housingTower0",
+            "operation": "union",
+            "targetId": "housingPort",
+            "toolId": "tower0Drilled"
+          }
+        },
+        {
+          "id": "tower1outer",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "tower1",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 4,
+              "height": 37
+            },
+            "position": [
+              108,
+              12,
+              3
+            ]
+          }
+        },
+        {
+          "id": "tower1bore",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "tower1Bore",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 1.6,
+              "height": 13
+            },
+            "position": [
+              108,
+              12,
+              28
+            ]
+          }
+        },
+        {
+          "id": "tower1cut",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "tower1Drilled",
+            "operation": "cut",
+            "targetId": "tower1",
+            "toolId": "tower1Bore"
+          }
+        },
+        {
+          "id": "tower1join",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "housingTower1",
+            "operation": "union",
+            "targetId": "housingTower0",
+            "toolId": "tower1Drilled"
+          }
+        },
+        {
+          "id": "tower2outer",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "tower2",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 4,
+              "height": 37
+            },
+            "position": [
+              12,
+              78,
+              3
+            ]
+          }
+        },
+        {
+          "id": "tower2bore",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "tower2Bore",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 1.6,
+              "height": 13
+            },
+            "position": [
+              12,
+              78,
+              28
+            ]
+          }
+        },
+        {
+          "id": "tower2cut",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "tower2Drilled",
+            "operation": "cut",
+            "targetId": "tower2",
+            "toolId": "tower2Bore"
+          }
+        },
+        {
+          "id": "tower2join",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "housingTower2",
+            "operation": "union",
+            "targetId": "housingTower1",
+            "toolId": "tower2Drilled"
+          }
+        },
+        {
+          "id": "tower3outer",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "tower3",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 4,
+              "height": 37
+            },
+            "position": [
+              108,
+              78,
+              3
+            ]
+          }
+        },
+        {
+          "id": "tower3bore",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "tower3Bore",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 1.6,
+              "height": 13
+            },
+            "position": [
+              108,
+              78,
+              28
+            ]
+          }
+        },
+        {
+          "id": "tower3cut",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "tower3Drilled",
+            "operation": "cut",
+            "targetId": "tower3",
+            "toolId": "tower3Bore"
+          }
+        },
+        {
+          "id": "tower3join",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "housingTower3",
+            "operation": "union",
+            "targetId": "housingTower2",
+            "toolId": "tower3Drilled"
+          }
+        }
+      ],
+      "receipt": {
+        "proposalId": "c12eb3fb-9b05-4e10-9c77-d1f11fd8c91d",
+        "status": "applied",
+        "resultObjectIds": [
+          "housingTower3"
+        ]
+      }
+    },
+    {
+      "channel": "MCP",
+      "label": "Wall mounting ears with Ø5 bores",
+      "calls": [
+        {
+          "id": "mountFoot0",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "mountFoot0",
+            "primitive": "box",
+            "params": {
+              "width": 17,
+              "depth": 24,
+              "height": 5
+            },
+            "position": [
+              -14,
+              33,
+              0
+            ]
+          }
+        },
+        {
+          "id": "mountFoot0Bore",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "mountFoot0Bore",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 2.5,
+              "height": 7
+            },
+            "position": [
+              -7,
+              45,
+              -1
+            ]
+          }
+        },
+        {
+          "id": "mountFoot0cut",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "mountFoot0Drilled",
+            "operation": "cut",
+            "targetId": "mountFoot0",
+            "toolId": "mountFoot0Bore"
+          }
+        },
+        {
+          "id": "mountFoot0join",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "housingFoot0",
+            "operation": "union",
+            "targetId": "housingTower3",
+            "toolId": "mountFoot0Drilled"
+          }
+        },
+        {
+          "id": "mountFoot1",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "mountFoot1",
+            "primitive": "box",
+            "params": {
+              "width": 17,
+              "depth": 24,
+              "height": 5
+            },
+            "position": [
+              117,
+              33,
+              0
+            ]
+          }
+        },
+        {
+          "id": "mountFoot1Bore",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "mountFoot1Bore",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 2.5,
+              "height": 7
+            },
+            "position": [
+              127,
+              45,
+              -1
+            ]
+          }
+        },
+        {
+          "id": "mountFoot1cut",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "mountFoot1Drilled",
+            "operation": "cut",
+            "targetId": "mountFoot1",
+            "toolId": "mountFoot1Bore"
+          }
+        },
+        {
+          "id": "mountFoot1join",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "housingFoot1",
+            "operation": "union",
+            "targetId": "housingFoot0",
+            "toolId": "mountFoot1Drilled"
+          }
+        }
+      ],
+      "receipt": {
+        "proposalId": "e3bd8692-76c1-4104-a489-f83276e10aff",
+        "status": "applied",
+        "resultObjectIds": [
+          "housingFoot1"
+        ]
+      }
+    },
+    {
+      "channel": "MCP",
+      "label": "Cover screw pattern and six ventilation slots",
+      "calls": [
+        {
+          "id": "lidScrewTool0",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "lidScrewTool0",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 1.75,
+              "height": 5
+            },
+            "position": [
+              12,
+              12,
+              39
+            ]
+          }
+        },
+        {
+          "id": "lidScrew0",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "lidScrew0",
+            "operation": "cut",
+            "targetId": "manual-dfca5dc2",
+            "toolId": "lidScrewTool0"
+          }
+        },
+        {
+          "id": "lidScrewTool1",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "lidScrewTool1",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 1.75,
+              "height": 5
+            },
+            "position": [
+              108,
+              12,
+              39
+            ]
+          }
+        },
+        {
+          "id": "lidScrew1",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "lidScrew1",
+            "operation": "cut",
+            "targetId": "lidScrew0",
+            "toolId": "lidScrewTool1"
+          }
+        },
+        {
+          "id": "lidScrewTool2",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "lidScrewTool2",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 1.75,
+              "height": 5
+            },
+            "position": [
+              12,
+              78,
+              39
+            ]
+          }
+        },
+        {
+          "id": "lidScrew2",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "lidScrew2",
+            "operation": "cut",
+            "targetId": "lidScrew1",
+            "toolId": "lidScrewTool2"
+          }
+        },
+        {
+          "id": "lidScrewTool3",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "lidScrewTool3",
+            "primitive": "cylinder",
+            "params": {
+              "radius": 1.75,
+              "height": 5
+            },
+            "position": [
+              108,
+              78,
+              39
+            ]
+          }
+        },
+        {
+          "id": "lidScrew3",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "lidScrew3",
+            "operation": "cut",
+            "targetId": "lidScrew2",
+            "toolId": "lidScrewTool3"
+          }
+        },
+        {
+          "id": "lidVentTool0",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "lidVentTool0",
+            "primitive": "box",
+            "params": {
+              "width": 3,
+              "depth": 24,
+              "height": 5
+            },
+            "position": [
+              34,
+              33,
+              39
+            ]
+          }
+        },
+        {
+          "id": "lidVent0",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "lidVent0",
+            "operation": "cut",
+            "targetId": "lidScrew3",
+            "toolId": "lidVentTool0"
+          }
+        },
+        {
+          "id": "lidVentTool1",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "lidVentTool1",
+            "primitive": "box",
+            "params": {
+              "width": 3,
+              "depth": 24,
+              "height": 5
+            },
+            "position": [
+              42,
+              33,
+              39
+            ]
+          }
+        },
+        {
+          "id": "lidVent1",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "lidVent1",
+            "operation": "cut",
+            "targetId": "lidVent0",
+            "toolId": "lidVentTool1"
+          }
+        },
+        {
+          "id": "lidVentTool2",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "lidVentTool2",
+            "primitive": "box",
+            "params": {
+              "width": 3,
+              "depth": 24,
+              "height": 5
+            },
+            "position": [
+              50,
+              33,
+              39
+            ]
+          }
+        },
+        {
+          "id": "lidVent2",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "lidVent2",
+            "operation": "cut",
+            "targetId": "lidVent1",
+            "toolId": "lidVentTool2"
+          }
+        },
+        {
+          "id": "lidVentTool3",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "lidVentTool3",
+            "primitive": "box",
+            "params": {
+              "width": 3,
+              "depth": 24,
+              "height": 5
+            },
+            "position": [
+              58,
+              33,
+              39
+            ]
+          }
+        },
+        {
+          "id": "lidVent3",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "lidVent3",
+            "operation": "cut",
+            "targetId": "lidVent2",
+            "toolId": "lidVentTool3"
+          }
+        },
+        {
+          "id": "lidVentTool4",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "lidVentTool4",
+            "primitive": "box",
+            "params": {
+              "width": 3,
+              "depth": 24,
+              "height": 5
+            },
+            "position": [
+              66,
+              33,
+              39
+            ]
+          }
+        },
+        {
+          "id": "lidVent4",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "lidVent4",
+            "operation": "cut",
+            "targetId": "lidVent3",
+            "toolId": "lidVentTool4"
+          }
+        },
+        {
+          "id": "lidVentTool5",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "lidVentTool5",
+            "primitive": "box",
+            "params": {
+              "width": 3,
+              "depth": 24,
+              "height": 5
+            },
+            "position": [
+              74,
+              33,
+              39
+            ]
+          }
+        },
+        {
+          "id": "lidVent5",
+          "name": "solid.boolean",
+          "arguments": {
+            "id": "lidVent5",
+            "operation": "cut",
+            "targetId": "lidVent4",
+            "toolId": "lidVentTool5"
+          }
+        }
+      ],
+      "receipt": {
+        "proposalId": "de031aae-07b4-4dd6-bf40-019180bf83ae",
+        "status": "applied",
+        "resultObjectIds": [
+          "lidVent5"
+        ]
+      }
+    },
+    {
+      "channel": "MCP",
+      "label": "Prepare final ventilation cutter",
+      "calls": [
+        {
+          "id": "lastVent",
+          "name": "solid.primitive",
+          "arguments": {
+            "id": "finalVentTool",
+            "primitive": "box",
+            "params": {
+              "width": 3,
+              "depth": 24,
+              "height": 5
+            },
+            "position": [
+              82,
+              33,
+              39
+            ]
+          }
+        }
+      ],
+      "receipt": {
+        "proposalId": "dcf266de-398b-438c-94d4-cdc41755ebd6",
+        "status": "applied",
+        "resultObjectIds": [
+          "finalVentTool"
+        ]
+      }
+    },
+    {
+      "channel": "MCP",
+      "label": "Name and finish both assembly parts",
+      "calls": [
+        {
+          "id": "layer",
+          "name": "scene.layer",
+          "arguments": {
+            "id": "enclosureParts",
+            "name": "Enclosure parts",
+            "color": "#477d94"
+          }
+        },
+        {
+          "id": "bodyStyle",
+          "name": "scene.objects",
+          "arguments": {
+            "objects": [
+              {
+                "objectId": "housingFoot1",
+                "name": "Instrument housing · 120 × 90 × 40"
+              }
+            ],
+            "layerId": "enclosureParts",
+            "visible": true,
+            "finish": {
+              "name": "Slate enclosure",
+              "color": "#426c80",
+              "roughness": 0.55,
+              "metalness": 0.15,
+              "opacity": 1
+            }
+          }
+        },
+        {
+          "id": "coverStyle",
+          "name": "scene.objects",
+          "arguments": {
+            "objects": [
+              {
+                "objectId": "manual-81176628",
+                "name": "Vented lid · 120 × 90 × 3"
+              }
+            ],
+            "layerId": "enclosureParts",
+            "visible": true,
+            "finish": {
+              "name": "Light metal lid",
+              "color": "#a8b9bd",
+              "roughness": 0.4,
+              "metalness": 0.5,
+              "opacity": 1
+            }
+          }
+        }
+      ],
+      "receipt": {
+        "proposalId": "c856f528-29c4-4f4a-b6f3-c1f3e42aa049",
+        "status": "applied",
+        "resultObjectIds": [
+          "housingFoot1",
+          "manual-81176628"
+        ]
+      }
+    },
+    {
+      "channel": "MCP",
+      "label": "Explode cover for inspection",
+      "calls": [
+        {
+          "id": "explode",
+          "name": "scene.objects",
+          "arguments": {
+            "objects": [
+              {
+                "objectId": "manual-81176628",
+                "delta": [
+                  160,
+                  0,
+                  -40
+                ]
+              }
+            ],
+            "layerId": "enclosureParts",
+            "visible": true
+          }
+        }
+      ],
+      "receipt": {
+        "proposalId": "5ce02527-b72b-48b8-b80b-93eb4f83688b",
+        "status": "applied",
+        "resultObjectIds": [
+          "manual-81176628"
+        ]
+      }
+    },
+    {
+      "channel": "MCP",
+      "label": "Derive assembly machining sections",
+      "calls": [
+        {
+          "id": "upper",
+          "name": "drawing.section",
+          "arguments": {
+            "id": "housingUpper",
+            "name": "Housing / screw towers · Z35",
+            "objectIds": [
+              "housingFoot1"
+            ],
+            "basis": "XY",
+            "height": 35,
+            "origin": [
+              0,
+              -150
+            ],
+            "scale": 1
+          }
+        },
+        {
+          "id": "section",
+          "name": "drawing.section",
+          "arguments": {
+            "id": "housingSection",
+            "name": "Housing transverse cut · Y45",
+            "objectIds": [
+              "housingFoot1"
+            ],
+            "basis": "XZ",
+            "height": 45,
+            "origin": [
+              0,
+              -250
+            ],
+            "scale": 1
+          }
+        },
+        {
+          "id": "lidPlan",
+          "name": "drawing.section",
+          "arguments": {
+            "id": "coverPlan",
+            "name": "Cover cut · Z1.5",
+            "objectIds": [
+              "manual-81176628"
+            ],
+            "basis": "XY",
+            "height": 1.5,
+            "origin": [
+              0,
+              -150
+            ],
+            "scale": 1
+          }
+        }
+      ],
+      "receipt": {
+        "proposalId": "9b807c98-7bbe-49ec-80b0-5763df3c66a7",
+        "status": "applied",
+        "resultObjectIds": []
+      }
+    }
+  ],
+  "body": "housingFoot1",
+  "lid": "manual-81176628",
+  "expectedVolumesMm3": {
+    "body": 87565.61095099046,
+    "lid": 30772.546469980574
+  },
+  "spec": {
+    "outer": [
+      120,
+      90,
+      40
+    ],
+    "wall": 3,
+    "lidThickness": 3,
+    "towerCenters": [
+      [
+        12,
+        12
+      ],
+      [
+        108,
+        12
+      ],
+      [
+        12,
+        78
+      ],
+      [
+        108,
+        78
+      ]
+    ],
+    "towerOuterDiameter": 8,
+    "towerBoreDiameter": 3.2,
+    "towerBoreDepth": 12,
+    "lidHoles": 3.5,
+    "ventSlots": 7,
+    "ventSlotSize": [
+      3,
+      24
+    ],
+    "mountHoleDiameter": 5,
+    "cableDiameter": 12
+  },
+  "modelRequests": 0
+}

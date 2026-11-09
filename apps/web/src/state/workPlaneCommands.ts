@@ -14,7 +14,7 @@ async function faceFrame(document:CadDocument,source:CadWorkPlaneFaceSource){
 export function registerWorkPlaneCommands(bus:CommandBus,document:CadDocument){
   bus.registerHandler("upsert-work-plane",(command:CadCommand)=>{
     if(command.type!=="upsert-work-plane")return;
-    if(reserved.has(command.plane.id)||command.plane.source||document.workPlanes?.[command.plane.id]?.source)return {accepted:false,reason:"Use a distinct free work plane ID; face-bound planes require explicit rebinding."};
+    if(reserved.has(command.plane.id)||command.plane.source||command.plane.hybrid||document.workPlanes?.[command.plane.id]?.hybrid||document.workPlanes?.[command.plane.id]?.source)return {accepted:false,reason:"Use a distinct free work plane ID; face-bound planes require explicit rebinding."};
     if(JSON.stringify(document.workPlanes?.[command.plane.id])===JSON.stringify(command.plane))return {accepted:false,reason:"Work plane is unchanged."};
     if(!validCadWorkPlane(command.plane))return {accepted:false,reason:"Invalid orthonormal work plane frame."};
     const next={...document.workPlanes,[command.plane.id]:structuredClone(command.plane)};validateCadWorkPlanes(next);document.workPlanes=next;document.revision++;
@@ -28,7 +28,7 @@ export function registerWorkPlaneCommands(bus:CommandBus,document:CadDocument){
   });
   bus.registerHandler("rebind-work-plane-face",async(command:CadCommand)=>{
     if(command.type!=="rebind-work-plane-face")return;
-    const current=document.workPlanes?.[command.planeId];if(!current)return {accepted:false,reason:"Work plane not found."};
+    const current=document.workPlanes?.[command.planeId];if(current?.hybrid)return {accepted:false,reason:"Reselect hybrid sources through Hybrid Review."};if(!current)return {accepted:false,reason:"Work plane not found."};
     const resolved=await faceFrame(document,command.source);if(!resolved.ok)return {accepted:false,reason:resolved.reason};
     const nextPlane={...current,...resolved.frame,source:structuredClone(command.source)};
     if(JSON.stringify(current)===JSON.stringify(nextPlane))return {accepted:false,reason:"Face binding is unchanged."};
@@ -39,6 +39,7 @@ export function registerWorkPlaneCommands(bus:CommandBus,document:CadDocument){
     if(!document.workPlanes?.[command.planeId])return {accepted:false,reason:"Work plane not found."};
     if(Object.values(document.sketches??{}).some(sketch=>sketch.facePlaneId===command.planeId))return {accepted:false,reason:"Delete the dependent face sketch before deleting its work plane."};
     if(Object.values(document.features).some(feature=>(feature.params.faceHole as {planeId?:string}|undefined)?.planeId===command.planeId))return {accepted:false,reason:"Delete the dependent Hole before deleting its work plane."};
+    if(Object.values(document.features).some(f=>(f.params.hybridDatum as {referenceId?:string}|undefined)?.referenceId===command.planeId))return {accepted:false,reason:"Delete the dependent hybrid feature first."};
     delete document.workPlanes[command.planeId];if(!Object.keys(document.workPlanes).length)delete document.workPlanes;document.revision++;
   });
 }

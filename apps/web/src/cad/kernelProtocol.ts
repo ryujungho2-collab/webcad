@@ -10,7 +10,13 @@ export type BrepTopologyFace = { key: string };
 export type BrepTopologyEdge = { key: string; points: [number, number, number][] };
 export type BrepTopology = { faces: BrepTopologyFace[]; edges: BrepTopologyEdge[] };
 export type StepData = { bytes: Uint8Array };
+export type RetainedCacheMetrics={entries:number;limit:number;estimatedBytes:number;byteLimit:number;hits:number;evictions:number;releasedHandles:number;oversize:number;unknownEstimates:number};
+export type KernelResourceSnapshot=RetainedCacheMetrics&{heapCapacityBytes?:number;builds:number;activeOperations:number;estimateModel:string;slabs:RetainedCacheMetrics&{builds:number;inside:number;outside:number};lastHlr:(import("@agent-webcad/cad-kernel").HlrProfile&{sourceMs:number;totalMs:number})|null};
+export type KernelMemory={capacityBytes:number|null;retainedSources:number;retainedSlabs:number;retained?:KernelResourceSnapshot};
 export type KernelTaskResults = {
+  selectedDistance: import("@agent-webcad/cad-kernel").SelectedBrepDistance;
+  distance: import("@agent-webcad/cad-kernel").BrepDistance;
+  resources: KernelResourceSnapshot;
   projection: import("@agent-webcad/cad-kernel").ProjectionCurve[];
   section: import("@agent-webcad/cad-kernel").SectionCurve[];
   inspect: import("@agent-webcad/cad-document").GeometryMeasurement;
@@ -31,7 +37,7 @@ export type KernelTaskProgress = {
 export type KernelRequest = { taskId: number; operation: KernelOperation; params: PrimitiveParams };
 export type KernelResponse =
   | { type: "progress"; taskId: number; phase: KernelTaskPhase }
-  | { type: "result"; taskId: number; result: KernelTaskResults[KernelOperation]; memory?:{capacityBytes:number|null;retainedSources:number;retainedSlabs:number} }
+  | { type: "result"; taskId: number; result: KernelTaskResults[KernelOperation]; memory?:KernelMemory }
   | { type: "error"; taskId: number; message: string };
 
 /** Rejection message for user- or agent-initiated task cancellation. Never

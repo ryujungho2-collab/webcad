@@ -1,0 +1,13 @@
+{
+  "live": true,
+  "checks": [
+    "PASS: The Inspector shows native relations before external consent or a request",
+    "PASS: External lookup requires explicit session consent",
+    "PASS: Native relations remain visible while explanation loads",
+    "PASS: Forward selection displays an explanation only after external rows match native facts",
+    "PASS: The explanation uses verified facts",
+    "PASS: Reverse selection verifies the same canonical relationship",
+    "PASS: External reads and failure handling leave the document and Undo history unchanged"
+  ],
+  "fixture": null
+}

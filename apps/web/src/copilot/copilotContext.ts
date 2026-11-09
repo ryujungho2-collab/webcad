@@ -39,6 +39,6 @@ export function copilotContextChange(saved: CopilotContextInputs, current: Copil
   if (saved.workPlane !== current.workPlane) return "The work plane changed during planning or review. Plan again.";
   if (saved.layerId !== current.layerId) return "The active layer changed during planning or review. Plan again.";
   if (saved.prompt !== current.prompt) return "The prompt changed. Plan again.";
-  if (saved.connection.mode !== current.connection.mode || saved.connection.endpoint !== current.connection.endpoint)
+  if (saved.connection.mode !== current.connection.mode || saved.connection.endpoint !== current.connection.endpoint || saved.connection.model !== current.connection.model)
     return "The planner settings changed. Plan again.";
 }

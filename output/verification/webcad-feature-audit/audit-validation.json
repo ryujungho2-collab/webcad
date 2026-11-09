@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "date": "2026-10-28T22:24:48.002Z",
+  "product_source_changed": [],
+  "features": 135,
+  "commands": 185,
+  "cad_tools": 86,
+  "browser": {
+    "passed": 7,
+    "failed": 1,
+    "passed_checks": 164,
+    "failed_page_partial_checks": 3
+  },
+  "unit": {
+    "passed": 44,
+    "failed": 0
+  },
+  "report_links": 769
+}

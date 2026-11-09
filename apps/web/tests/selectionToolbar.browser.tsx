@@ -1,0 +1,50 @@
+import {createRoot} from "react-dom/client";
+import {App} from "../src/App";
+import "../src/styles.css";import "../src/ui/tokens.css";import "../src/ui/workstation.css";import "../src/ui/commands.css";import "../src/ui/menu.css";import "../src/ui/explorer.css";import "../src/ui/inspector.css";
+import {cadDocument} from "../src/state/cadDocument";
+import {cadHistory} from "../src/state/history";
+import {dispatchCadCommand} from "../src/state/dispatchCadCommand";
+import {planDimensionFromSelection} from "../src/state/dimensionCommands";
+import {collectFrameExportItems} from "../src/export/exportModel";
+import {encodeSvg} from "../src/export/svgWriter";
+import {resetTestDocument} from "./helpers/documentHarness";
+import {physical,click,text,input,waitFor,find,pause} from "./helpers/physicalInput";
+import {installBrowserChecks} from "./helpers/browserChecks";
+resetTestDocument();
+for(const id of ["line","source"])await dispatchCadCommand({type:"create-drawing",id,name:id,drawing:"line",params:{workPlane:"XY",points:[[0,id==="line"?0:20,0],[50,id==="line"?0:20,0]]}});
+await dispatchCadCommand({...planDimensionFromSelection(cadDocument,"source")!,id:"dim"});
+await dispatchCadCommand({type:"create-primitive",id:"body",name:"Body",primitive:"box",params:{width:20,depth:16,height:10}});
+for(const [id,x] of [["f",80],["g",180]] as const)await dispatchCadCommand({type:"create-artboard",id,name:`Frame ${id}`,workPlane:"XY",origin:[x,0],size:[80,60],frame:{memberIds:["source","dim"],sourceOrigin:[-10,-10],denominator:1}});
+createRoot(document.getElementById("root")!).render(<App/>);
+const button=document.getElementById("run") as HTMLButtonElement,output=document.getElementById("output")!;
+const toolbar=()=>document.querySelector<HTMLElement>('.selection-toolbar')!;
+const feature=(id:string)=>Object.values(cadDocument.features).find(f=>f.output===id)!;
+async function context(id:string){const b=toolbar().querySelector<HTMLButtonElement>(`[data-context-command="${id}"]`);if(!b||b.disabled)throw Error(`Unavailable context command ${id}: ${b?.title}`);await physical(b);}
+async function select(ids:string[]){if(!document.querySelector(`[data-model-object-id="${ids[0]}"] .tree-label`)?.getClientRects().length)await click("Model tree");for(const [i,id] of ids.entries())await physical(document.querySelector(`[data-model-object-id="${id}"] .tree-label`)!,i?2:0);}
+async function shot(name:string,artifacts:Record<string,string>){button.closest("aside")!.style.visibility="hidden";try{artifacts[name]=(await(await input({type:"screenshot"})).json()).data;}finally{button.closest("aside")!.style.visibility="";}}
+button.onclick=async()=>{const lines:string[]=[],artifacts:Record<string,string>={},check=(ok:unknown,label:string)=>{if(!ok)throw Error(label);lines.push(`PASS ${label}`);output.textContent=lines.join("\n");};try{
+  await waitFor(()=>!!document.querySelector("canvas"));check(toolbar().dataset.contextKind==="create","No selection offers a small set of creation tools");
+  await click("2D");await select(["line"]);check(toolbar().dataset.contextKind==="curve","Actual model selection reveals curve commands");
+  const before=JSON.stringify(feature("line").params),depth=cadHistory.past.length,source=JSON.stringify([feature("source"),feature("dim")]);
+  await context("contour-lengthen");await waitFor(()=>!!document.querySelector('.cad-basic-edit-tool'));await text("Lengthen value","75mm");await waitFor(()=>!find("Apply drawing edit").disabled);
+  check(JSON.stringify(feature("line").params)===before&&cadHistory.past.length===depth,"Context Lengthen preview remains detached from source and Undo");
+  const canvas=document.querySelector("canvas")!.getBoundingClientRect(),bar=toolbar().getBoundingClientRect();check(canvas.top>=bar.bottom-1,"Context row reserves space above canvas and Review overlays");
+  await shot("selection-curve-review.png",artifacts);await click("Apply drawing edit");await waitFor(()=>JSON.stringify(feature("line").params)!==before);check(cadHistory.past.length===depth+1,"Context Apply publishes exactly one Undo entry");
+  await input({type:"key",key:"z",modifiers:2});await waitFor(()=>JSON.stringify(feature("line").params)===before);check(JSON.stringify([feature("source"),feature("dim")])===source,"Undo restores exact curve while unrelated source and linked dimension remain unchanged");
+  await select(["body"]);check(toolbar().dataset.contextKind==="solid","Solid selection offers transforms and numeric properties");await context("inspect-selection");check(!!document.activeElement?.closest('.workbench-properties'),"Numeric entry reveals Properties and transfers focus");
+  await select(["dim"]);check(toolbar().dataset.contextKind==="annotation","Linked annotation has content, references and style entry");await context("inspect-selection");check(document.querySelector('.workbench-properties')?.textContent?.includes("Annotation"),"Annotation context opens the existing linked-annotation inspector");
+  await select(["line","body"]);check(toolbar().dataset.contextKind==="mixed"&&toolbar().textContent?.includes("Different object types"),"Mixed selection explains why specialized edits are absent");check(!toolbar().querySelector('[data-context-command="contour-lengthen"]'),"Mixed selection cannot launch a single-curve edit");
+  await select(["line"]);await click("More selection tools");await waitFor(()=>!!toolbar().querySelector(':popover-open'));await input({type:"key",key:"Escape"});await waitFor(()=>!toolbar().querySelector(':popover-open'));check(document.activeElement?.textContent?.includes("More selection tools"),"Escape closes the menu and restores its trigger focus");
+  await click("Artboards");await physical([...document.querySelectorAll('[aria-label="Artboards"] [role="option"]')].find(el=>el.textContent?.includes("Frame f"))!);await waitFor(()=>toolbar().dataset.contextKind==="frame");
+  await context("frame-edit");await waitFor(()=>!!document.querySelector('[aria-label="Drawing frame editor"]'));check(toolbar().querySelector<HTMLButtonElement>('[data-context-command="frame-links"]')?.disabled&&toolbar().textContent?.includes("Finish or cancel"),"Active frame Review owns input until it is applied or cancelled");await text("Frame scale denominator","2");await physical(find("Review frame"));await waitFor(()=>!find("Apply frame").disabled);const frameDepth=cadHistory.past.length;await click("Apply frame");await waitFor(()=>cadDocument.artboards!.f.frame!.denominator===2);check(cadHistory.past.length===frameDepth+1&&JSON.stringify([feature("source"),feature("dim")])===source,"Frame scale applies through Review without modifying source or dimension");
+  const board=cadDocument.artboards!.f,svg=encodeSvg([],{items:collectFrameExportItems(board),viewBox:board});check(svg.includes('clipPath'),"Frame output still uses the shared clipped export path");
+  await input({type:"key",key:"z",modifiers:2});await waitFor(()=>cadDocument.artboards!.f.frame!.denominator===1);check(cadHistory.past.length===frameDepth,"Frame scale Undo restores the prior presentation");
+  await click("Artboard locked");await waitFor(()=>!!cadDocument.artboards!.f.locked);check(toolbar().textContent?.includes("Unlock")&&toolbar().querySelector<HTMLButtonElement>('[data-context-command="frame-edit"]')?.disabled,"Locked frame visibly explains its blocked editing tools");await click("Artboard locked");await waitFor(()=>!cadDocument.artboards!.f.locked);
+  await context("frame-links");await waitFor(()=>!!document.querySelector('[aria-label="Frame connection editor"]'));check(true,"Frame context launches the existing connection Review editor");await input({type:"key",key:"Escape"});
+  await context("frame-sheets");await waitFor(()=>!!document.querySelector('[aria-label="Frame sheet editor"]'));check(true,"Frame context launches the existing paper-sheet Review editor");await input({type:"key",key:"Escape"});
+  await input({type:"viewport",width:960,height:1000});await pause();check(document.documentElement.scrollWidth<=960,"960px keeps the context row inside the workspace");await shot("selection-frame-960.png",artifacts);
+  const revision=cadDocument.revision,barHeight=toolbar().getBoundingClientRect().height;await text("Artboard name","주거 검토 프레임 · 긴 이름");check(document.activeElement?.getAttribute("aria-label")==="Artboard name"&&cadDocument.revision===revision&&toolbar().getBoundingClientRect().height===barHeight,"Typing a Korean name keeps input focus, context height and source revision stable");
+  await physical(document.querySelector(".panel-toggle-left")!);await physical(document.querySelector(".panel-toggle-right")!);await input({type:"viewport",width:640,height:667,scale:1.5});await pause();await click("More selection tools");await waitFor(()=>!!toolbar().querySelector(':popover-open'));const menu=toolbar().querySelector(':popover-open')!.getBoundingClientRect();check(menu.left>=0&&menu.right<=innerWidth+1&&menu.bottom<=innerHeight+1,"150 percent equivalent viewport keeps the overflow menu within visible bounds");await shot("selection-zoom-150.png",artifacts);await input({type:"key",key:"Escape"});
+  (globalThis as any).cadTestArtifacts=artifacts;output.textContent=lines.join("\n")+`\nALL ${lines.length} CHECKS PASSED`;
+}catch(e){await shot("selection-failure.png",artifacts).catch(()=>{});(globalThis as any).cadTestArtifacts=artifacts;output.textContent=lines.join("\n")+`\nFAIL: ${e instanceof Error?e.stack:String(e)}`;}};
+installBrowserChecks(button,output);

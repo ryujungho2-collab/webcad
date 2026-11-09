@@ -1,0 +1,73 @@
+{
+  "card": "CAD-AI-ROUTING-01",
+  "status": "complete-for-selected-live-loft",
+  "sameSourceHash": true,
+  "sameUserPrompt": true,
+  "sourceUnchanged": true,
+  "sourceHash": "7fb094206ee0388206352c63ad5bf7d07d9c6177a205f742708c976d6e56f1f9",
+  "before": {
+    "status": "not-completed",
+    "actualModelCalls": 0,
+    "reason": "CONTEXT_BUDGET: conservative UTF-8 input ceiling exceeded. Narrow tools/results; no inference sent."
+  },
+  "after": {
+    "status": "real-model-native-preview-not-applied",
+    "actualModelCalls": 2,
+    "modelInputTokens": [
+      1155,
+      1083
+    ],
+    "modelOutputTokens": [
+      60,
+      64
+    ],
+    "messageUtf8Bytes": [
+      4826,
+      4437
+    ],
+    "catalogCounts": [
+      3,
+      1
+    ],
+    "nativeCriteria": 9,
+    "nativeStatus": "passed-native-preview",
+    "editorApplyCalls": 0
+  },
+  "checks": {
+    "focusedRegression": {
+      "passed": 48,
+      "failed": 0,
+      "skipped": 0,
+      "note": "Before final raw-command/recipe guard test was added"
+    },
+    "finalRoutingAndLoft": {
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "note": "Overlaps nine regression tests and includes one new bypass test; 49 distinct tests total"
+    },
+    "browser": {
+      "page": "loftEdit",
+      "status": "passed",
+      "checks": 13,
+      "mode": "Existing UI/native/MCP regression, separate from real LLM run"
+    },
+    "typeCheck": "passed",
+    "architecture": {
+      "status": "passed",
+      "modules": 968
+    },
+    "webBuild": "passed-with-warnings",
+    "workspaceBuild": "not-run",
+    "fullUnitSuite": "not-run",
+    "fullBrowserAudit": "not-run"
+  },
+  "limits": [
+    "One selected editable live loft connection task",
+    "No general routing redesign or kernel changes",
+    "Single successful local-model run; no success-rate estimate",
+    "Browser LLM workflow not tested",
+    "No automatic Apply or model training"
+  ],
+  "legacyAuditNote": "The raw live route audit retains its original productRoutingChanged field from the evaluation helper. Current helper uses auditIsReadOnly; product edits are listed in the card report."
+}

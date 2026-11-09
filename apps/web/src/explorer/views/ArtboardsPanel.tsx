@@ -23,12 +23,14 @@ type Draft = {
   width: string;
   height: string;
   background: string;
+  backgroundOpacity: string;
+  showGrid: boolean;
 };
 
-const emptyDraft: Draft = { name: "", workPlane: "XY", originX: "0", originY: "0", width: "297", height: "210", background: "#ffffff" };
+const emptyDraft: Draft = { name: "", workPlane: "XY", originX: "0", originY: "0", width: "297", height: "210", background: "#ffffff", backgroundOpacity: "1", showGrid: false };
 
 function draftFor(board: NonNullable<typeof cadDocument.artboards>[string]): Draft {
-  return { name: board.name, workPlane: board.workPlane, originX: String(board.origin[0]), originY: String(board.origin[1]), width: String(board.size[0]), height: String(board.size[1]), background: board.background };
+  return { name: board.name, workPlane: board.workPlane, originX: String(board.origin[0]), originY: String(board.origin[1]), width: String(board.size[0]), height: String(board.size[1]), background: board.background, backgroundOpacity: String(board.backgroundOpacity), showGrid: board.showGrid };
 }
 
 export function ArtboardsPanel({ query, documentRevision, onDocumentChange, activeArtboardId, onActivateArtboard }: ArtboardsPanelProps) {
@@ -44,7 +46,7 @@ export function ArtboardsPanel({ query, documentRevision, onDocumentChange, acti
   const originX = parseLength(draft.originX), originY = parseLength(draft.originY);
   const width = parseLength(draft.width), height = parseLength(draft.height);
   const lockedGeometryChange = !!selected?.locked && (draft.workPlane !== selected.workPlane || originX !== selected.origin[0] || originY !== selected.origin[1] || width !== selected.size[0] || height !== selected.size[1]);
-  const inputError = !draft.name.trim() ? "Enter an artboard name." : originX === null || originY === null ? "Enter a finite origin with length units, such as 10mm." : width === null || height === null || width <= 0 || height <= 0 ? "Enter positive width and height with length units." : !/^#[0-9a-f]{6}$/i.test(draft.background) ? "Enter a #RRGGBB background." : lockedGeometryChange ? "Artboard is locked. Unlock it before changing its plane, position, or size." : undefined;
+  const inputError = !draft.name.trim() ? "Enter an artboard name." : originX === null || originY === null ? "Enter a finite origin with length units, such as 10mm." : width === null || height === null || width <= 0 || height <= 0 ? "Enter positive width and height with length units." : !/^#[0-9a-f]{6}$/i.test(draft.background) ? "Enter a #RRGGBB background." : draft.backgroundOpacity.trim() === "" || !Number.isFinite(Number(draft.backgroundOpacity)) || Number(draft.backgroundOpacity) < 0 || Number(draft.backgroundOpacity) > 1 ? "Enter background opacity between 0 and 1." : lockedGeometryChange ? "Artboard is locked. Unlock it before changing its plane, position, or size." : undefined;
   const interaction = commandInteraction({ command: "Edit Artboard", targets: selectedId ? [selectedId] : [], draftKey, reviewedKey: review?.key, preview: review?.preview, inputError: dirty ? inputError || error : error || undefined, pending: applying, idle: !selected || !dirty && !error });
 
   useEffect(() => {
@@ -68,6 +70,8 @@ export function ArtboardsPanel({ query, documentRevision, onDocumentChange, acti
         ...(originX === selected!.origin[0] && originY === selected!.origin[1] ? {} : { origin: [originX!, originY!] as [number, number] }),
         ...(width === selected!.size[0] && height === selected!.size[1] ? {} : { size: [width!, height!] as [number, number] }),
         ...(draft.background === selected!.background ? {} : { background: draft.background }),
+        ...(Number(draft.backgroundOpacity) === selected!.backgroundOpacity ? {} : { backgroundOpacity: Number(draft.backgroundOpacity) }),
+        ...(draft.showGrid === selected!.showGrid ? {} : { showGrid: draft.showGrid }),
       };
       void previewCadCommand(command)
         .then(preview => { planId = preview.planId; if (cancelled) discardCadPlan(planId); else setReview({ key: draftKey, preview }); })
@@ -91,7 +95,7 @@ export function ArtboardsPanel({ query, documentRevision, onDocumentChange, acti
   async function create() {
     setError("");
     const id = `artboard-${crypto.randomUUID()}`;
-    const result = await dispatchCadCommand({ type: "create-artboard", id, name: `Artboard ${Object.keys(cadDocument.artboards ?? {}).length + 1}`, workPlane: "XY", origin: [0, 0], size: [297, 210] });
+    const result = await dispatchCadCommand({ type: "create-artboard", id, name: `Artboard ${Object.keys(cadDocument.artboards ?? {}).length + 1}`, workPlane: "XY", origin: [0, 0], size: [297, 210], backgroundOpacity: 1, showGrid: false });
     if (!result.ok) { setError(result.reason ?? "Could not create artboard."); return; }
     onDocumentChange();
     onActivateArtboard(id);
@@ -141,6 +145,8 @@ export function ArtboardsPanel({ query, documentRevision, onDocumentChange, acti
       <label>Plane<select aria-label="Artboard plane" value={draft.workPlane} onChange={event => changeDraft({ workPlane: event.target.value as Draft["workPlane"] })}><option value="XY">XY</option><option value="XZ">XZ</option><option value="YZ">YZ</option></select></label>
       <div className="property-grid"><PrecisionField label="Origin X" aria-label="Artboard origin X" value={draft.originX} onChange={value => changeDraft({ originX: value })} /><PrecisionField label="Origin Y" aria-label="Artboard origin Y" value={draft.originY} onChange={value => changeDraft({ originY: value })} /><PrecisionField label="Width" aria-label="Artboard width" min={0} minExclusive value={draft.width} onChange={value => changeDraft({ width: value })} /><PrecisionField label="Height" aria-label="Artboard height" min={0} minExclusive value={draft.height} onChange={value => changeDraft({ height: value })} /></div>
       <label>Background<input aria-label="Artboard background" type="color" value={draft.background} onChange={event => changeDraft({ background: event.target.value })} /></label>
+      <label>Background opacity<input aria-label="Artboard background opacity" type="number" min="0" max="1" step="0.05" value={draft.backgroundOpacity} onChange={event => changeDraft({ backgroundOpacity: event.target.value })} /></label>
+      <label className="property-row"><span>Show grid</span><input aria-label="Artboard show grid" type="checkbox" checked={draft.showGrid} onChange={event => changeDraft({ showGrid: event.target.checked })} /></label>
       {interaction.preview?.result.ok && <p className="property-hint" data-artboard-preview>Origin: {selected.origin.join(", ")} → {originX}, {originY} mm<br />Size: {selected.size.join(" × ")} → {width} × {height} mm<br />Plane: {selected.workPlane} → {draft.workPlane}</p>}
       <CommandReview state={{ ...interaction, next: interaction.canApply ? "Review the artboard properties and impact below, then apply. One Undo restores this edit." : interaction.next }} />
     </section>}

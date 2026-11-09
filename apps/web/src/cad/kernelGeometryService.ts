@@ -84,8 +84,10 @@ async function runKernelTask<K extends KernelOperation>(operation: K, params: Pr
       // the worker; loading failures never silently block the UI thread.
       const detached = structuredClone(params);
       const task = nodeQueue.then(async () => {
+        if(options.signal?.aborted)throw new KernelCancelledError(-1);
         const { executeKernelOperation } = await import("./kernelRuntime");
-        return executeKernelOperation(operation, detached);
+        const result=await executeKernelOperation(operation, detached);
+        if(options.signal?.aborted)throw new KernelCancelledError(-1);return result;
       });
       nodeQueue = task.catch(() => {});
       return await task;
@@ -121,6 +123,20 @@ function cached<T>(cache: Map<string, Promise<T>>, key: string, factory: () => P
 function solidMesh(key: string, params: PrimitiveParams, preflight: boolean, options:KernelTaskOptions={}) {
   return cached(meshCache, key, () => runKernelTask("solid", params, !preflight,options),"mesh",CACHE_LIMIT,options);
 }
+/** Start the kernel worker before the first 3D command so the user does not
+ * wait silently on "Loading geometry" after pressing Box/Extrude. Non-fatal:
+ * a failed warm-up leaves the status for the next real request to report. */
+let warming = false;
+export function warmKernel() {
+  if (typeof window === "undefined" || kernelStatus !== "deferred" || warming || activeTasks) return;
+  // Start-up only: not a document task, so it stays out of submitted/active task
+  // metrics that callers use to prove an action requested no geometry work.
+  warming = true; setKernelStatus("loading");
+  void client.request("solid", { kind: "box", width: 1, depth: 1, height: 1 }, {})
+    .then(() => { if (!activeTasks && kernelStatus === "loading") setKernelStatus("ready"); })
+    .catch(() => { if (!activeTasks && kernelStatus === "loading") setKernelStatus("deferred"); })
+    .finally(() => { warming = false; });
+}
 export function buildBoxMesh(width: number, depth: number, height: number) {
   return buildPrimitiveMesh({ kind: "box", width, depth, height });
 }
@@ -153,7 +169,7 @@ export function buildRevolveMesh(params: PrimitiveParams, preflight = false, opt
   return solidMesh(`revolve:${JSON.stringify(geometry)}`, geometry, preflight,options);
 }
 export function buildSweepMesh(params: PrimitiveParams, preflight = false, options:KernelTaskOptions={}) {
-  const geometry = { kind: "sweep", profile: params.profile, spine: params.spine };
+  const geometry = { kind: "sweep", profile: params.profile, spine: params.spine,...params.alignToPath?{alignToPath:true}:{} };
   return solidMesh(`sweep:${JSON.stringify(geometry)}`, geometry, preflight,options);
 }
 export function buildLoftMesh(params: PrimitiveParams, preflight = false, options:KernelTaskOptions={}) {
@@ -177,13 +193,20 @@ export function exportStepFile(solids: SerializedOperand[]): Promise<Uint8Array>
 }
 /** Evaluated content and finish metadata never drive an exact kernel shape. */
 function contentGeometryParams(params:PrimitiveParams):PrimitiveParams{const {solidFinish:_,componentContent:__,...geometry}=params;return {...geometry,...Array.isArray(geometry.operands)?{operands:(geometry.operands as SerializedOperand[]).map(o=>({...o,params:contentGeometryParams(o.params)}))}:{},...geometry.source&&typeof geometry.source==="object"&&"params" in geometry.source?{source:{...geometry.source,params:contentGeometryParams((geometry.source as SerializedOperand).params)}}:{}};}
-export async function inspectSolid(operand: SerializedOperand) {
+export async function inspectSolid(operand: SerializedOperand,options:KernelTaskOptions={}) {
+  options.signal?.throwIfAborted();
   // Key the complete immutable operand, including nested sources and placement.
   // Only exact matches reuse an OCCT result; every changed shape is still measured.
   const detached=structuredClone(operand);detached.params=contentGeometryParams(detached.params);const key=JSON.stringify(detached);
-  const result=await cached(measurementCache,key,()=>runKernelTask("inspect",{operand:detached},false),"measurement");
+  const result=await cached(measurementCache,key,()=>runKernelTask("inspect",{operand:detached},false,options),"measurement",CACHE_LIMIT,options);
   // Queries/reviews own their returned values and cannot poison later validation.
   return structuredClone(result);
+}
+/** Distance is scoped to its caller's cancellation; settled UI results use the hover cache. */
+export async function measureSolidDistance(source:SerializedOperand,target:SerializedOperand,tolerance=1e-6,options:KernelTaskOptions={}){
+ options.signal?.throwIfAborted();if(!Number.isFinite(tolerance)||tolerance<1e-7||tolerance>.01)throw Error("BRep distance tolerance must be between 1e-7 and 0.01 mm.");const detached=structuredClone({source,target,tolerance});
+ detached.source.params=contentGeometryParams(detached.source.params);detached.target.params=contentGeometryParams(detached.target.params);
+ const result=await runKernelTask("distance",detached,false,options);options.signal?.throwIfAborted();return structuredClone(result);
 }
 export function enumerateSolidTopology(params: PrimitiveParams, options:KernelTaskOptions={}): Promise<BrepTopology> {
   return cached(topologyCache, `topology:${JSON.stringify(params)}`, () => runKernelTask("topology", params, false,options),"topology",CACHE_LIMIT,options);
@@ -246,3 +269,14 @@ export async function sectionSolid(operand:SerializedOperand,normal:[number,numb
 }
 
 
+
+/** Serialized Worker controls; no document or in-flight result is evicted. */
+export function kernelResourceControl(params:PrimitiveParams={action:"metrics"}){
+ if(params.clearResults===true){const limit=cacheBudget.limit;cacheBudget.setLimit(0);cacheBudget.setLimit(limit);}
+ return runKernelTask("resources",params,false);
+}
+
+export async function measureSelectedDistance(source:SerializedOperand,target:SerializedOperand,sourceRef:import("@agent-webcad/cad-kernel").BrepElementRef,targetRef:import("@agent-webcad/cad-kernel").BrepElementRef,options:KernelTaskOptions={},mode:import("@agent-webcad/cad-kernel").SelectedDistanceMode="shortest"){
+ options.signal?.throwIfAborted();if(!["shortest","project-XY","project-XZ","project-YZ","axis-X","axis-Y","axis-Z"].includes(mode))throw Error("Unsupported selected distance metric.");const params=structuredClone({source,target,sourceRef,targetRef,mode});params.source.params=contentGeometryParams(params.source.params);params.target.params=contentGeometryParams(params.target.params);
+ const result=await runKernelTask("selectedDistance",params,false,options);options.signal?.throwIfAborted();return structuredClone(result);
+}

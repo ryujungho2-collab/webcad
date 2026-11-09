@@ -5,6 +5,7 @@ import { getWorldDrawingGeometry } from "./worldGeometry";
 import { resolveDimension } from "./dimensionGeometry";
 import { worldDraftingGeometry } from "./draftingGeometry";
 import { WORK_PLANES } from "./workPlane";
+import {measureEditableMesh} from "./meshGeometry";
 
 export type WorldBounds = {
   min: [number, number, number];
@@ -53,6 +54,7 @@ export function getObjectWorldBounds(document: CadDocument, objectId: string, fe
   if (!object) return null;
   const feature = featureByOutput ? featureByOutput.get(objectId) : Object.values(document.features).find((entry) => entry.output === objectId);
   if (!feature) return null;
+  if(feature.type==="mesh"||feature.type==="geometry-nodes")return measureEditableMesh(object,feature,document).bounds??null;
   if(feature.type === "drafting") {
     const data=worldDraftingGeometry(document,object,feature),points=[...data.lines.flatMap(line=>line.points),...data.texts.flatMap(text=>[text.point,[text.point[0]+text.height*text.text.length*0.6,text.point[1]+text.height,text.point[2]] as [number,number,number]])];
     return points.length?finiteWorldBounds(new THREE.Box3().setFromPoints(points.map(p=>new THREE.Vector3(...p)))):null;

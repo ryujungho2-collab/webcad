@@ -1,0 +1,75 @@
+{
+  "id": "COPILOT-2D3D-01",
+  "date": "2026-10-19",
+  "status": "passed-with-bounded-workflow-scope",
+  "scope": "Native 2D sketch → selected-profile 3D extrusion → face through-hole → vertical-edge fillet",
+  "productRuntimeChanged": false,
+  "planner": "Local rules; no provider or gateway fixture",
+  "checks": {
+    "node": {
+      "relatedPassed": 21,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 18,
+      "failed": 0
+    },
+    "typescript": "passed",
+    "architectureModules": 731,
+    "fullNodeAndBuild": "not repeated: verification and test runner additions only"
+  },
+  "environment": {
+    "browser": "Chrome headless",
+    "renderer": "SwiftShader",
+    "viewport": "1440x1000",
+    "kernel": "OCCT real Worker"
+  },
+  "prompts": [
+    "80x50 사각형 스케치",
+    "선택한 윤곽 20mm 돌출",
+    "윗면 중심에 지름 6mm 관통 구멍",
+    "수직 모서리 반지름 2mm 필렛"
+  ],
+  "stepRoundtrip": {
+    "status": "passed",
+    "validity": "valid",
+    "bounds": {
+      "min": [
+        -4.440892098501e-16,
+        -4.440892098501e-16,
+        0
+      ],
+      "max": [
+        80,
+        50,
+        20
+      ]
+    },
+    "volumeMm3": 79365.8407346412,
+    "expectedVolumeMm3": 79365.84073464102,
+    "volumeToleranceMm3": 0.005,
+    "lengthToleranceMm": 0.001,
+    "graph": {
+      "sketch": "model-c60057e3-sketch",
+      "profile": "model-c60057e3-profile",
+      "extrusion": "model-8be539a1",
+      "hole": "model-a26e2c32",
+      "fillet": "model-8e36a1d9"
+    },
+    "meaning": "Browser exported STEP reread with the same kernel; independent analytical rounded rectangle minus cylinder volume"
+  },
+  "artifacts": {
+    "model.webcad.json": "f34fc5618cccd8c37d4541eb4a47ad61db934b907b1618ef04634198792b0148",
+    "model.step": "5cef91e7bc76561a188e6a99430f3fa68e8a5785d015a4192f7565afde156068",
+    "sketch-2d.png": "1608470adbdf5e6cc0ddad5e1f69b38f9f6c0006a4abef01e2e962b1f79cb7b6",
+    "model-3d.png": "6493b4e7357eca45841611d0e7974414ca53cb04f0b90613f5bf649a73b990a4",
+    "native-report.json": "4ea573b1438d4cf852521b57563f8b9d45085cca0f06435023d5decf8852e044",
+    "step-roundtrip-report.json": "8e17839b19a294acedd22be2d2ffdcdd790fc16186cb5ebc14459760f68a0ce3"
+  },
+  "limits": [
+    "Explicit supported local grammar, not general natural-language design",
+    "Same-kernel STEP roundtrip; analytical expected volume is independent",
+    "Not semantic architectural-plan reconstruction",
+    "Does not guarantee arbitrary source edits preserve all downstream face references"
+  ]
+}

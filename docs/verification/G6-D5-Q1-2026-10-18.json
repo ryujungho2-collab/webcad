@@ -1,0 +1,108 @@
+{
+  "card": "G6-D5-Q1",
+  "date": "2026-10-18",
+  "status": "complete-supported-scope",
+  "implementation": "../implementation/G6-D5-Q1-OUTPUT-PREFLIGHT-2026-10-18.md",
+  "environment": {
+    "platform": "Windows",
+    "browser": "Microsoft Edge / isolated Chromium",
+    "renderer": "SwiftShader",
+    "server": "Vite local HTTP",
+    "pdfRenderDpi": 96,
+    "independentPdfDpi": 72,
+    "newDependencies": 0
+  },
+  "checks": {
+    "allNode": {
+      "passed": 1360,
+      "failed": 0,
+      "suites": 54,
+      "durationMs": 91549.3244,
+      "command": "pnpm --filter @agent-webcad/web test",
+      "log": "../../output/verification/output-preflight/all-node.log"
+    },
+    "focusedNode": {
+      "passed": 5,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/outputPreflight.test.ts",
+      "log": "../../output/verification/output-preflight/focused.log"
+    },
+    "nativeUI": {
+      "passed": 24,
+      "failed": 0,
+      "command": "pnpm --filter @agent-webcad/web test:browser --page=outputPreflight",
+      "report": "../../output/verification/output-preflight/native-report.json",
+      "log": "../../output/verification/output-preflight/native.log"
+    },
+    "nativeRegressions": {
+      "pages": [
+        {
+          "page": "modelSheetSet",
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=modelSheetSet",
+          "log": "../../output/verification/output-preflight/modelSheetSet-regression.log",
+          "passed": 24
+        },
+        {
+          "page": "artboardPdfWorkflow",
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=artboardPdfWorkflow",
+          "log": "../../output/verification/output-preflight/artboardPdfWorkflow-regression.log",
+          "passed": 21
+        },
+        {
+          "page": "conicProjection",
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=conicProjection",
+          "log": "../../output/verification/output-preflight/conicProjection-regression.log",
+          "passed": 22
+        },
+        {
+          "page": "residentialTask",
+          "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=residentialTask",
+          "log": "../../output/verification/output-preflight/residentialTask-regression.log",
+          "passed": 21
+        }
+      ],
+      "passed": 88,
+      "failed": 0
+    },
+    "independentArtifacts": {
+      "command": "python apps/web/scripts/verifyOutputPreflight.py",
+      "report": "../../output/verification/output-preflight/independent-report.json",
+      "log": "../../output/verification/output-preflight/independent.log",
+      "pdfFiles": 5,
+      "pdfPages": 11,
+      "r5VectorPages": {
+        "svg": 10,
+        "dxf": 10
+      },
+      "visualContact": "../../output/verification/output-preflight/independent-contact.png"
+    },
+    "build": {
+      "passed": true,
+      "includesTypeScript": true,
+      "command": "pnpm build",
+      "log": "../../output/verification/output-preflight/build.log",
+      "warnings": [
+        "Existing bundle chunks above 500kB"
+      ]
+    },
+    "architecture": {
+      "passed": true,
+      "command": "pnpm --filter @agent-webcad/web check:architecture",
+      "log": "../../output/verification/output-preflight/architecture.log",
+      "modules": 654
+    }
+  },
+  "scope": {
+    "readOnly": "Reports/navigation do not modify document or Undo",
+    "repairs": "Existing Review/Apply with one Undo, then recheck/reissue/reopen",
+    "scene": "Shared collector, paper crop/ownership, SVG scene and PDF renderer; existing exact DXF writers",
+    "errorWarningPolicy": "Blocking errors; explicit acknowledgement for checked-path warnings; informational format limits separate",
+    "pdfBudget": "Existing 16M total pixel budget retained; whole R5 project is split into saved 4/4/1/1 page sets"
+  },
+  "limitations": [
+    "Text clipping is a conservative glyph envelope, not exact installed-font glyph coverage",
+    "Paper/print device color/physical margins and architectural code compliance are not certified",
+    "Legacy direct output commands remain; the checked path performs the complete warning acknowledgement flow",
+    "General non-sheet Plot retains its existing scale/fit policy"
+  ]
+}

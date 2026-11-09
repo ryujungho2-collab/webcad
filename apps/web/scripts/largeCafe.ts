@@ -1,0 +1,50 @@
+import {mkdir,writeFile} from "node:fs/promises";
+import {resolve} from "node:path";
+import assert from "node:assert/strict";
+import {serializeDocument,deserializeDocument} from "@agent-webcad/cad-document";
+import {largeCafeDesign} from "./largeCafeDesign";
+import {CAFE_SYMBOLS} from "../src/library/cafeSymbols";
+import {cadDocument} from "../src/state/cadDocument";
+import {dispatchCadCommand} from "../src/state/dispatchCadCommand";
+import {cadHistory,undoDocument,redoDocument} from "../src/state/history";
+import {resetTestDocument,documentState} from "../tests/helpers/documentHarness";
+import {encodeSvg} from "../src/export/svgWriter";
+import {collectArtboardExportItems} from "../src/export/exportModel";
+import {encodeFrameDxf} from "../src/export/frameDxf";
+import {encodeDxf} from "../src/interop/dxfWriter";
+import {planArtboardPdf,type ArtboardPdfPlan} from "../src/export/artboardPdf";
+
+const out=resolve("../../output/projects/large-cafe");await mkdir(out,{recursive:true});resetTestDocument();cadDocument.id="common-ground-cafe-2f";
+const design=largeCafeDesign();
+const execute=async(command:Parameters<typeof dispatchCadCommand>[0])=>{const r=await dispatchCadCommand(command);assert.ok(r.ok,`${command.type}: ${r.reason}`);return r;};
+console.log(`Creating ${design.commands.length} native CAD commands / ${CAFE_SYMBOLS.length} reusable blocks`);
+// Allocate all independent source geometry together; publish dimensions as their own batch.
+const geometry=design.commands.filter(c=>c.type!=="create-dimension"),dimensions=design.commands.filter(c=>c.type==="create-dimension");
+await execute({type:"batch",label:"Large cafe / native 2D design and reusable assets",commands:geometry});
+await execute({type:"batch",label:"Large cafe / dimensions",commands:dimensions});
+assert.deepEqual(design.seatCounts,[40,60]);
+for(const [i,f]of design.frames.entries())await execute({type:"create-artboard",id:f.id,name:f.name,workPlane:"XY",origin:[i*1000,-2000],size:f.size,frame:{memberIds:f.ids,sourceOrigin:f.origin,denominator:f.scale}});
+const sorted=[...design.sheets].sort((a,b)=>a.id==="G000"?-1:b.id==="G000"?1:a.id.localeCompare(b.id)),pages:string[]=[];
+for(const [i,s] of sorted.entries()){
+ console.log(`Issuing ${s.id} ${s.name}`);
+ await execute({type:"layout-frame-sheet-set",id:`cafe-${s.id}`,name:s.name,frameIds:s.frames,sectionIds:[],fixedFrameIds:[],denominators:[1],origin:[i*1000,-4000],size:s.size,margin:10,gap:6,maxPages:1,alignment:"none",template:"standard",fields:{drawingName:`${s.id} / ${s.name}`,author:"COMMON GROUND / 2F cafe",revision:"R0 / 2026-10-20"}});
+ const page=Object.values(cadDocument.artboards!).find(b=>b.frameSheet?.setId===`cafe-${s.id}`)!;assert.ok(page);pages.push(page.id);
+ const items=collectArtboardExportItems(page.id);
+ await writeFile(resolve(out,`${s.id}.svg`),encodeSvg([],{items,viewBox:page,background:"#ffffff"}));
+ await writeFile(resolve(out,`${s.id}.dxf`),encodeFrameDxf(page,items));
+}
+const assetBoard=cadDocument.artboards![design.assetFrame];await writeFile(resolve(out,"assets.svg"),encodeSvg([],{items:collectArtboardExportItems(assetBoard.id),viewBox:assetBoard,background:"#ffffff"}));
+for(const f of design.frames)await execute({type:"update-artboard",artboardId:f.id,visible:false});
+const original=documentState();const barId="cafe-bar-front";const result=await execute({type:"move-object",objectId:barId,translation:[0,150,0]});assert.ok(result.changed);assert.ok(undoDocument());assert.deepEqual(documentState(),original);assert.ok(redoDocument());assert.ok(undoDocument());assert.deepEqual(documentState(),original);
+const data=serializeDocument(cadDocument);assert.deepEqual(documentState(deserializeDocument(data)),documentState());await writeFile(resolve(out,"large-cafe.webcad.json"),data);
+const dxf=encodeDxf(cadDocument);assert.equal(dxf.skipped,0,dxf.warnings.join("; "));await writeFile(resolve(out,"large-cafe-model.dxf"),dxf.text);
+const catalog=CAFE_SYMBOLS.map(({shapes:_,...symbol})=>({...symbol,quantity:design.placements.filter(p=>p.symbol===symbol.id).length}));await writeFile(resolve(out,"assets.json"),JSON.stringify({units:"mm",origin:"Original generic CAD symbols; equipment envelopes are design assumptions.",blocks:catalog},null,2));
+const assetDocument=structuredClone(cadDocument),assetIds=new Set([...Object.keys(cadDocument.objects).filter(id=>id.startsWith("asset-")),...design.frames.find(f=>f.id===design.assetFrame)!.ids]);
+assetDocument.id="common-ground-cafe-assets";assetDocument.objects=Object.fromEntries(Object.entries(assetDocument.objects).filter(([id])=>assetIds.has(id)));assetDocument.features=Object.fromEntries(Object.entries(assetDocument.features).filter(([,f])=>assetIds.has(f.output)));assetDocument.rootObjects=assetDocument.rootObjects.filter(id=>assetIds.has(id));
+for(const layer of Object.values(assetDocument.layers))layer.objectIds=layer.objectIds.filter(id=>assetIds.has(id));
+assetDocument.artboards={[design.assetFrame]:{...assetDocument.artboards![design.assetFrame],visible:true,origin:[0,0]}};
+await writeFile(resolve(out,"cafe-assets.webcad.json"),serializeDocument(assetDocument));const assetDxf=encodeDxf(assetDocument);assert.equal(assetDxf.skipped,0);await writeFile(resolve(out,"cafe-assets.dxf"),assetDxf.text);
+await writeFile(resolve(out,"placements.json"),JSON.stringify(design.placements,null,2));
+const scene=pages.map(id=>({board:{...cadDocument.artboards![id],background:"#ffffff"},items:collectArtboardExportItems(id)}));const pdf=planArtboardPdf(scene,96);
+const report={date:"2026-10-20",status:"draft-issued",floors:2,envelopeMm:[15000,15000],combinedEnvelopeM2:450,levelsMm:[0,3900,7800],seats:design.seatCounts,totalSeats:100,blocks:catalog.length,placements:design.placements.length,objects:Object.keys(cadDocument.objects).length,pages:pages.map(id=>({id,name:cadDocument.artboards![id].name,size:cadDocument.artboards![id].size})),stairs:{risers:26,riser:150,going:280,width:1400,landing:1400},dxf:{entities:dxf.entities,skipped:dxf.skipped},saveReloadExact:true,undoRedoExact:true,pdf96:"error" in pdf?pdf.error:{totalPixels:(pdf as ArtboardPdfPlan).totalPixels,estimatedPeakBytes:pdf.estimatedPeakBytes},limits:["Assumed site; not a surveyed or approved construction issue.","Two-dimensional source drawings; plan/elevation/section updates are explicitly authored, not a BIM model.","Equipment envelopes are generic; MEP routes locate coordination points, not engineered circuit or hydraulic sizing."]};
+await writeFile(resolve(out,"report.json"),JSON.stringify(report,null,2));console.log(JSON.stringify(report));cadHistory.clear();

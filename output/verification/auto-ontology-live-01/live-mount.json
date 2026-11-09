@@ -1,0 +1,14 @@
+{
+  "auto-ontology": {
+    "sha256": "baaed1af1334c5e7ce76b3c72c17ba8a1f1494ba06285c97092e9eaf2348ce75",
+    "integrity": "ok",
+    "writeError": "SQLITE_READONLY",
+    "dockerMountReadOnly": true
+  },
+  "ingestion-service": {
+    "sha256": "baaed1af1334c5e7ce76b3c72c17ba8a1f1494ba06285c97092e9eaf2348ce75",
+    "integrity": "ok",
+    "writeError": "SQLITE_READONLY",
+    "dockerMountReadOnly": true
+  }
+}

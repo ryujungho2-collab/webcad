@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-18",
+  "feature": "MEAS saved associative dimensions",
+  "status": "passed",
+  "schema": 46,
+  "limits": {
+    "measurements": 32,
+    "placement": "world-plane X/Y model mm"
+  },
+  "node": {
+    "full": {
+      "passed": 1460,
+      "suites": 54,
+      "log": "output/verification/saved-measurements/node-full.log",
+      "note": "Before final two budget/cache tests and UI memo optimization"
+    },
+    "finalFocused": {
+      "passed": 70,
+      "savedMeasurements": 10,
+      "selectedDistance": 14,
+      "brepDistance": 13,
+      "hoverDistance": 18,
+      "kernelWorkerClient": 15,
+      "log": "output/verification/saved-measurements/node-focused.log"
+    }
+  },
+  "browser": {
+    "savedMeasurements": 14,
+    "selectedDistance": 25,
+    "nativeReport": "output/verification/saved-measurements/native-report.json",
+    "checks": [
+      "native save with history",
+      "tool exit persistence",
+      "edit/Undo update",
+      "broken references hide old graphics",
+      "recall placement without duplicates",
+      "version-46 actual project open",
+      "visibility",
+      "delete/Undo",
+      "SVG export scene",
+      "actual raster PDF",
+      "960px controls"
+    ]
+  },
+  "build": "pnpm build passed",
+  "architecture": {
+    "status": "passed",
+    "modules": 688
+  },
+  "artifacts": [
+    "output/verification/saved-measurements/source.webcad.json",
+    "output/verification/saved-measurements/measurement.svg",
+    "output/verification/saved-measurements/measurement.pdf",
+    "output/verification/saved-measurements/measurement-page.jpg",
+    "output/verification/saved-measurements/saved-1440.png",
+    "output/verification/saved-measurements/saved-960.png"
+  ],
+  "visualReview": "PDF page raster and 960px viewport inspected; PDF MediaBox verifies 70 x 50 mm page",
+  "limitations": [
+    "BRep pinned measurements; no automatic conversion of drawing hover distances",
+    "Numeric plane placement, no drag placement",
+    "No automatic enlargement of model-sheet/frame source scope",
+    "No permanent topology naming; explicit rebind after changed keys",
+    "3D number can differ from the length projected into the annotation plane",
+    "Projection accuracy remains numerical, not a certified interval"
+  ]
+}

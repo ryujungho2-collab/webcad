@@ -1,0 +1,159 @@
+{
+  "date": "2026-11-07",
+  "scope": "Tracked output files statically imported by browser/unit tests. Required inputs even though stored under output; not an exhaustive list of dynamic readFile inputs.",
+  "requiredImports": [
+    {
+      "path": "output/projects/courtyard-commons/conic-hlr/courtyard-commons.webcad.json",
+      "bytes": 14213806,
+      "sha256": "a5b6eeb17295f5316ce73c39a1f44d04513061565f431ac03e5a84c780448b58",
+      "consumers": [
+        "apps/web/tests/courtyardConic.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/projects/courtyard-commons/courtyard-commons.webcad.json",
+      "bytes": 1774140,
+      "sha256": "e3110d279272ce5218c78ad06f6ef78777350f43bb06973ff362a0a6ed01fc4a",
+      "consumers": [
+        "apps/web/tests/g6D6P1.test.ts"
+      ]
+    },
+    {
+      "path": "output/projects/courtyard-commons/ellipse-section/courtyard-commons.webcad.json",
+      "bytes": 11875788,
+      "sha256": "b5337660dadc47043bd767c75ba518e00693995382b3e32b2d04bfb0c27c2cf6",
+      "consumers": [
+        "apps/web/tests/courtyardEllipse.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/projects/courtyard-commons/h1-expression/courtyard-commons.webcad.json",
+      "bytes": 11857606,
+      "sha256": "b54e128476685b545b2372a51ae81fb49fcedfc3d7686022d19bb763adfc75cd",
+      "consumers": [
+        "apps/web/tests/courtyardH1.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/projects/courtyard-commons/issued-r5/courtyard-commons.webcad.json",
+      "bytes": 9549014,
+      "sha256": "bf792ebb60d45fcff2f55f86cb9df79346b2769d6db163a77444605f439877e1",
+      "consumers": [
+        "apps/web/tests/courtyardIssue.browser.tsx",
+        "apps/web/tests/curveHatch.browser.tsx",
+        "apps/web/tests/kernelResources.browser.tsx",
+        "apps/web/tests/outputPreflight.browser.tsx",
+        "apps/web/tests/outputPreflight.test.ts",
+        "apps/web/tests/projectPerformance.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/projects/courtyard-commons/p01-fixed/courtyard-commons.webcad.json",
+      "bytes": 5659048,
+      "sha256": "e7f798b89015bd4c6f5501b5e006f44cf9b5be0e1a2ec1f7b7a3d73b3be762e7",
+      "consumers": [
+        "apps/web/tests/courtyardStudio.browser.tsx",
+        "apps/web/tests/g6D6P1.test.ts"
+      ]
+    },
+    {
+      "path": "output/projects/flow-court/flow-court.webcad.json",
+      "bytes": 4199477,
+      "sha256": "db138404b157521f422a05552ed203c7fd9693c0bf8a92b0aee2210e719665b5",
+      "consumers": [
+        "apps/web/tests/flowCourt.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/projects/large-cafe/3d/large-cafe-3d.webcad.json",
+      "bytes": 4024130,
+      "sha256": "c31f02a8f72b4a802014abf53cd6f32fd7d9aa764fb0814b8fc16fc5a8796cf6",
+      "consumers": [
+        "apps/web/tests/largeCafe3d.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/projects/large-cafe/large-cafe.webcad.json",
+      "bytes": 1971338,
+      "sha256": "341172d39a240e8248406ac2a88dea6641fc4f63a56be59aee9b83d73555fffb",
+      "consumers": [
+        "apps/web/tests/largeCafe.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/projects/lightwell-house/base-mcp-trace.json",
+      "bytes": 131135,
+      "sha256": "1233858c50aa90ad8a31a6e0dd7c4cf74ba4841550336c8cf4b2c6db6f8f51a2",
+      "consumers": [
+        "apps/web/tests/houseFacade.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/projects/lightwell-house/review-design.json",
+      "bytes": 92746,
+      "sha256": "9fa2fa6377072e49e93cfd67baeeb7a1f0f1cf07ca10b3d93d17d0d0f560b1a4",
+      "consumers": [
+        "apps/web/tests/houseLayout.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/projects/lightwell-house/review-mcp-trace.json",
+      "bytes": 244581,
+      "sha256": "ea66eeb4e597471677b9e853a23547942f9b1f4c221165f249833c3ebc320b8e",
+      "consumers": [
+        "apps/web/tests/houseLayout.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/projects/rotating-laptop-stand/laptop-stand.webcad.json",
+      "bytes": 25586,
+      "sha256": "47888897e01380f1c87db0cb32aa46393d70feba1d82befcdb27186255396159",
+      "consumers": [
+        "apps/web/tests/assembly.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/verification/ai-agent-phase-1b2/A.json",
+      "bytes": 390469,
+      "sha256": "db1e7d99bb42efc3de954730c16f7d1b77d2c4c07a92f39c4a6b68752b663395",
+      "consumers": [
+        "apps/web/tests/assemblyCandidateSearch.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/verification/ai-agent-phase-1b2/B.json",
+      "bytes": 357767,
+      "sha256": "8ddf3d6f1293f5ebb6b89b265a178a392fa0a55f75e9bffe40e97fd7e9f9981d",
+      "consumers": [
+        "apps/web/tests/assemblyCandidateSearch.browser.tsx"
+      ]
+    },
+    {
+      "path": "output/verification/assembly-b25/annotated-laptop.webcad.json",
+      "bytes": 29644,
+      "sha256": "d0936d1165146066adb43d96e2ece7a20bd93ddb3eca5d84d3d173eac2fbcd8f",
+      "consumers": [
+        "apps/web/tests/assemblyCandidateSearch.browser.tsx",
+        "apps/web/tests/assemblyPlacement.browser.tsx"
+      ]
+    }
+  ],
+  "requiredFixtures": [
+    {
+      "path": "apps/web/tests/fixtures/assembly/candidate-synthetic.webcad.json",
+      "bytes": 9093,
+      "sha256": "97c68d363d2d383e6d2fe3cf295bf67248ba0e8c4ca66a22c812a6eab1d9a472",
+      "consumers": [
+        "apps/web/tests/assemblyCandidateSearch.browser.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/tests/fixtures/assembly/candidate-synthetic-oracle.json",
+      "bytes": 144197,
+      "sha256": "714c5c8dd546dd03c81d81ce47088db12cb3df71c7db91af51a0ac9009e41b9b",
+      "consumers": [
+        "apps/web/tests/assemblyCandidateRanking.test.ts"
+      ]
+    }
+  ]
+}

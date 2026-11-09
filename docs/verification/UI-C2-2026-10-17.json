@@ -1,0 +1,39 @@
+{
+  "card": "UI-C2",
+  "date": "2026-10-17",
+  "status": "complete-first-supported-scope",
+  "implementation": "../implementation/UI-C2-SELECTION-TOOLS-2026-10-17.md",
+  "scope": [
+    "Three suggested commands and overflow menu for curves, solids, annotations and ordinary active drawing frames",
+    "Shared command discovery registry and capability gates, explicit mixed/locked/hidden/unsupported reasons",
+    "Existing Lengthen, spline/ellipse, sketch, transforms, Properties and frame Review/Apply entry points",
+    "Fixed context row above canvas/Review, keyboard menu dismissal/focus and input stability",
+    "Frame request identity, active frame defaults, busy gating and selection handoff"
+  ],
+  "environment": {"platform": "Windows", "browser": "Microsoft Edge", "renderer": "SwiftShader", "server": "Vite with isolated browser profile", "newExternalDependencies": 0},
+  "checks": {
+    "allNode": {"passed": 1300, "suites": 54, "failed": 0, "durationMs": 49397.4826, "command": "pnpm --filter @agent-webcad/web test", "log": "../../output/verification/selection-toolbar/all-node.log"},
+    "targetNode": {"passed": 8, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec tsx --test tests/selectionContext.test.ts tests/interactionTools.test.ts tests/shortcutRouter.test.ts"},
+    "contextBrowser": {"passed": 23, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=selectionToolbar --artifacts", "report": "../../output/verification/selection-toolbar/native-report.json"},
+    "comparisonBrowser": {"passed": 25, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectComparison --artifacts"},
+    "tabNavigationBrowser": {"passed": 27, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=projectTabNavigation --artifacts"},
+    "frameSheetsBrowser": {"passed": 24, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=frameSheets"},
+    "numericBrowser": {"passed": 21, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=numericPilot"},
+    "angularBrowser": {"passed": 24, "failed": 0, "command": "pnpm --filter @agent-webcad/web exec node scripts/browserChecks.mjs --page=angularWorkflow"},
+    "typecheck": {"status": "passed", "command": "pnpm --filter @agent-webcad/web exec tsc --noEmit -p tsconfig.json"},
+    "architecture": {"status": "passed", "modules": 609, "command": "pnpm --filter @agent-webcad/web check:architecture"},
+    "build": {"status": "passed", "modules": 437, "command": "pnpm --filter @agent-webcad/web build", "warning": "Existing chunks larger than 500 kB"}
+  },
+  "artifacts": [
+    "../../output/verification/selection-toolbar/selection-curve-review.png",
+    "../../output/verification/selection-toolbar/selection-frame-960.png",
+    "../../output/verification/selection-toolbar/selection-zoom-150.png"
+  ],
+  "invariants": "Discovery does not mutate documents. Curve and frame preview remains detached; each Apply uses existing Undo. Frame scale/context navigation leaves unrelated source and linked dimension unchanged and uses shared clipped SVG output.",
+  "boundaries": [
+    "Solid numeric editing and annotation content/reference/style controls remain limited to existing Properties capabilities",
+    "No new image, artboard, stitched-frame or paper-sheet editor",
+    "960px viewport; enlarged condition uses 640x667 CSS px at DPR 1.5 with side panels collapsed, equivalent to 150 percent on 960x1000, not a browser zoom-menu action",
+    "UI-C3 inspector information reorganization remains next"
+  ]
+}

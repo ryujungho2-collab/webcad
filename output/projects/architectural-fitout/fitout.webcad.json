@@ -125,10 +125,10 @@
           ]
         }
       },
-      "content-8006bcb7-e9d7-44be-bf21-ca13fd990497": {
-        "id": "content-8006bcb7-e9d7-44be-bf21-ca13fd990497",
+      "content-63425e9d-6482-42cc-b6d6-62e7042a4ba1": {
+        "id": "content-63425e9d-6482-42cc-b6d6-62e7042a4ba1",
         "name": "Door insert",
-        "geometryId": "geometry-content-8006bcb7-e9d7-44be-bf21-ca13fd990497",
+        "geometryId": "geometry-content-63425e9d-6482-42cc-b6d6-62e7042a4ba1",
         "visible": true,
         "layerId": "layer-architecture-fitout",
         "transform": {
@@ -149,10 +149,10 @@
           ]
         }
       },
-      "slab-07ab37b7-c788-456c-90b4-065c927dd878": {
-        "id": "slab-07ab37b7-c788-456c-90b4-065c927dd878",
+      "slab-e0d4c2bf-85d3-41b3-8388-5015adb1e1ff": {
+        "id": "slab-e0d4c2bf-85d3-41b3-8388-5015adb1e1ff",
         "name": "Floor",
-        "geometryId": "geometry-slab-07ab37b7-c788-456c-90b4-065c927dd878",
+        "geometryId": "geometry-slab-e0d4c2bf-85d3-41b3-8388-5015adb1e1ff",
         "visible": true,
         "layerId": "layer-architecture-fitout",
         "transform": {
@@ -173,10 +173,10 @@
           ]
         }
       },
-      "slab-76f97933-f8ae-4839-8e0c-3e28200d9692": {
-        "id": "slab-76f97933-f8ae-4839-8e0c-3e28200d9692",
+      "slab-c9edac2e-9998-41b3-986c-0b1365ced0ec": {
+        "id": "slab-c9edac2e-9998-41b3-986c-0b1365ced0ec",
         "name": "Ceiling",
-        "geometryId": "geometry-slab-76f97933-f8ae-4839-8e0c-3e28200d9692",
+        "geometryId": "geometry-slab-c9edac2e-9998-41b3-986c-0b1365ced0ec",
         "visible": true,
         "layerId": "layer-architecture-fitout",
         "transform": {
@@ -244,52 +244,52 @@
             "version": 1,
             "controls": [
               {
-                "id": "vertex-d7907205-50d9-48ca-9bb5-5afef7036ebd",
+                "id": "vertex-0d8006c7-f641-418b-b905-6094a40cea20",
                 "role": "vertex",
                 "index": 0
               },
               {
-                "id": "vertex-f9acf7b7-e633-44a5-8520-feed143392a8",
+                "id": "vertex-68a6cf9a-7d84-410c-ad0d-f43ca21b4aa8",
                 "role": "vertex",
                 "index": 1
               },
               {
-                "id": "vertex-bb7b562f-0568-4208-80d4-caef2a910f1f",
+                "id": "vertex-16c8c93b-f773-412a-94ae-855d3911d6b9",
                 "role": "vertex",
                 "index": 2
               },
               {
-                "id": "vertex-6446eb7f-68b0-4098-ae53-b320b84f00f8",
+                "id": "vertex-c1d94cb8-8b62-478d-914a-e4260be61b05",
                 "role": "vertex",
                 "index": 3
               }
             ],
             "segments": [
               {
-                "id": "segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1",
-                "startControlId": "vertex-d7907205-50d9-48ca-9bb5-5afef7036ebd",
-                "endControlId": "vertex-f9acf7b7-e633-44a5-8520-feed143392a8",
+                "id": "segment-38a77a1d-edc1-4e39-aa36-ec80b6e82dd0",
+                "startControlId": "vertex-0d8006c7-f641-418b-b905-6094a40cea20",
+                "endControlId": "vertex-68a6cf9a-7d84-410c-ad0d-f43ca21b4aa8",
                 "index": 0,
                 "kind": "line"
               },
               {
-                "id": "segment-c598b2f8-4088-4911-b775-6912b1d0673d",
-                "startControlId": "vertex-f9acf7b7-e633-44a5-8520-feed143392a8",
-                "endControlId": "vertex-bb7b562f-0568-4208-80d4-caef2a910f1f",
+                "id": "segment-5f29bd37-49e2-4306-bc18-98de8e09fbe2",
+                "startControlId": "vertex-68a6cf9a-7d84-410c-ad0d-f43ca21b4aa8",
+                "endControlId": "vertex-16c8c93b-f773-412a-94ae-855d3911d6b9",
                 "index": 1,
                 "kind": "line"
               },
               {
-                "id": "segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
-                "startControlId": "vertex-bb7b562f-0568-4208-80d4-caef2a910f1f",
-                "endControlId": "vertex-6446eb7f-68b0-4098-ae53-b320b84f00f8",
+                "id": "segment-36231600-1d4c-4190-86f7-b110b13f77fa",
+                "startControlId": "vertex-16c8c93b-f773-412a-94ae-855d3911d6b9",
+                "endControlId": "vertex-c1d94cb8-8b62-478d-914a-e4260be61b05",
                 "index": 2,
                 "kind": "line"
               },
               {
-                "id": "segment-fbe1281d-821a-462b-8037-c40b0a72d6d0",
-                "startControlId": "vertex-6446eb7f-68b0-4098-ae53-b320b84f00f8",
-                "endControlId": "vertex-d7907205-50d9-48ca-9bb5-5afef7036ebd",
+                "id": "segment-736a3bdc-82c3-4046-9115-b788d6df6f3b",
+                "startControlId": "vertex-c1d94cb8-8b62-478d-914a-e4260be61b05",
+                "endControlId": "vertex-0d8006c7-f641-418b-b905-6094a40cea20",
                 "index": 3,
                 "kind": "line"
               }
@@ -316,18 +316,18 @@
             "version": 1,
             "controls": [
               {
-                "id": "center-75bf0e29-79b1-4573-b476-988676c31580",
+                "id": "center-58762eb5-8d15-45d5-b45d-011beaef71bf",
                 "role": "center"
               },
               {
-                "id": "radius-a260de03-045e-4cb7-b2af-016982f52732",
+                "id": "radius-a515aa17-fd1d-4098-91b2-9839225f9d35",
                 "role": "radius"
               }
             ],
             "segments": [],
             "curves": [
               {
-                "id": "curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e",
+                "id": "curve-ce6c9d68-1238-48d9-86dc-6566c5bec31f",
                 "kind": "circle"
               }
             ]
@@ -358,21 +358,21 @@
             "version": 1,
             "controls": [
               {
-                "id": "vertex-1061f541-7838-47c7-b954-fcee9935cb5c",
+                "id": "vertex-8061ae45-911c-427f-a2e8-d01c84afe6ca",
                 "role": "vertex",
                 "index": 0
               },
               {
-                "id": "vertex-cb151966-50f2-4c4d-9d7d-2a124e89bb74",
+                "id": "vertex-4f260818-041e-4b16-ad1e-62f4f377ffb5",
                 "role": "vertex",
                 "index": 1
               }
             ],
             "segments": [
               {
-                "id": "segment-f8601eea-a5f6-433f-ac8e-6afb1af74a8c",
-                "startControlId": "vertex-1061f541-7838-47c7-b954-fcee9935cb5c",
-                "endControlId": "vertex-cb151966-50f2-4c4d-9d7d-2a124e89bb74",
+                "id": "segment-a62ddc19-c1d5-421c-ba56-f905a4544308",
+                "startControlId": "vertex-8061ae45-911c-427f-a2e8-d01c84afe6ca",
+                "endControlId": "vertex-4f260818-041e-4b16-ad1e-62f4f377ffb5",
                 "index": 0,
                 "kind": "line"
               }
@@ -605,9 +605,9 @@
           }
         }
       },
-      "feature-content-8006bcb7-e9d7-44be-bf21-ca13fd990497": {
-        "id": "feature-content-8006bcb7-e9d7-44be-bf21-ca13fd990497",
-        "output": "content-8006bcb7-e9d7-44be-bf21-ca13fd990497",
+      "feature-content-63425e9d-6482-42cc-b6d6-62e7042a4ba1": {
+        "id": "feature-content-63425e9d-6482-42cc-b6d6-62e7042a4ba1",
+        "output": "content-63425e9d-6482-42cc-b6d6-62e7042a4ba1",
         "type": "primitive",
         "dependencyMode": "live",
         "inputs": [
@@ -618,7 +618,7 @@
           "depth": 40,
           "height": 200,
           "componentContent": {
-            "definitionId": "component-f7a64335-3b60-430c-8b87-3d8c2bc44f85",
+            "definitionId": "component-9e212b2f-54ea-426f-ad53-b20719006a59",
             "slot": {
               "kind": "opening",
               "hostId": "wall",
@@ -652,9 +652,9 @@
           }
         }
       },
-      "feature-slab-07ab37b7-c788-456c-90b4-065c927dd878": {
-        "id": "feature-slab-07ab37b7-c788-456c-90b4-065c927dd878",
-        "output": "slab-07ab37b7-c788-456c-90b4-065c927dd878",
+      "feature-slab-e0d4c2bf-85d3-41b3-8388-5015adb1e1ff": {
+        "id": "feature-slab-e0d4c2bf-85d3-41b3-8388-5015adb1e1ff",
+        "output": "slab-e0d4c2bf-85d3-41b3-8388-5015adb1e1ff",
         "type": "extrude",
         "dependencyMode": "live",
         "inputs": [
@@ -665,7 +665,7 @@
           "kind": "extrude",
           "distance": -150,
           "profile": {
-            "id": "loop:outline/segment-c598b2f8-4088-4911-b775-6912b1d0673d|outline/segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1|outline/segment-fbe1281d-821a-462b-8037-c40b0a72d6d0|outline/segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
+            "id": "loop:outline/segment-36231600-1d4c-4190-86f7-b110b13f77fa|outline/segment-38a77a1d-edc1-4e39-aa36-ec80b6e82dd0|outline/segment-5f29bd37-49e2-4306-bc18-98de8e09fbe2|outline/segment-736a3bdc-82c3-4046-9115-b788d6df6f3b",
             "workPlane": "XY",
             "normal": [
               0,
@@ -675,21 +675,7 @@
             "segments": [
               {
                 "kind": "line",
-                "topologyReference": "outline/segment-c598b2f8-4088-4911-b775-6912b1d0673d",
-                "start": [
-                  6000,
-                  0,
-                  0
-                ],
-                "end": [
-                  6000,
-                  4000,
-                  0
-                ]
-              },
-              {
-                "kind": "line",
-                "topologyReference": "outline/segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
+                "topologyReference": "outline/segment-36231600-1d4c-4190-86f7-b110b13f77fa",
                 "start": [
                   6000,
                   4000,
@@ -703,7 +689,7 @@
               },
               {
                 "kind": "line",
-                "topologyReference": "outline/segment-fbe1281d-821a-462b-8037-c40b0a72d6d0",
+                "topologyReference": "outline/segment-736a3bdc-82c3-4046-9115-b788d6df6f3b",
                 "start": [
                   0,
                   4000,
@@ -717,7 +703,7 @@
               },
               {
                 "kind": "line",
-                "topologyReference": "outline/segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1",
+                "topologyReference": "outline/segment-38a77a1d-edc1-4e39-aa36-ec80b6e82dd0",
                 "start": [
                   0,
                   0,
@@ -726,6 +712,20 @@
                 "end": [
                   6000,
                   0,
+                  0
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "outline/segment-5f29bd37-49e2-4306-bc18-98de8e09fbe2",
+                "start": [
+                  6000,
+                  0,
+                  0
+                ],
+                "end": [
+                  6000,
+                  4000,
                   0
                 ]
               }
@@ -735,15 +735,15 @@
               "court"
             ],
             "sourceTopologyIds": [
-              "outline/segment-c598b2f8-4088-4911-b775-6912b1d0673d",
-              "outline/segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
-              "outline/segment-fbe1281d-821a-462b-8037-c40b0a72d6d0",
-              "outline/segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1",
-              "court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e"
+              "outline/segment-36231600-1d4c-4190-86f7-b110b13f77fa",
+              "outline/segment-736a3bdc-82c3-4046-9115-b788d6df6f3b",
+              "outline/segment-38a77a1d-edc1-4e39-aa36-ec80b6e82dd0",
+              "outline/segment-5f29bd37-49e2-4306-bc18-98de8e09fbe2",
+              "court/curve-ce6c9d68-1238-48d9-86dc-6566c5bec31f"
             ],
             "holes": [
               {
-                "id": "loop:court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e",
+                "id": "loop:court/curve-ce6c9d68-1238-48d9-86dc-6566c5bec31f",
                 "workPlane": "XY",
                 "normal": [
                   0,
@@ -754,12 +754,12 @@
                   "court"
                 ],
                 "sourceTopologyIds": [
-                  "court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e"
+                  "court/curve-ce6c9d68-1238-48d9-86dc-6566c5bec31f"
                 ],
                 "segments": [
                   {
                     "kind": "circle",
-                    "topologyReference": "court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e",
+                    "topologyReference": "court/curve-ce6c9d68-1238-48d9-86dc-6566c5bec31f",
                     "center": [
                       3000,
                       2000,
@@ -811,9 +811,9 @@
           }
         }
       },
-      "feature-slab-76f97933-f8ae-4839-8e0c-3e28200d9692": {
-        "id": "feature-slab-76f97933-f8ae-4839-8e0c-3e28200d9692",
-        "output": "slab-76f97933-f8ae-4839-8e0c-3e28200d9692",
+      "feature-slab-c9edac2e-9998-41b3-986c-0b1365ced0ec": {
+        "id": "feature-slab-c9edac2e-9998-41b3-986c-0b1365ced0ec",
+        "output": "slab-c9edac2e-9998-41b3-986c-0b1365ced0ec",
         "type": "extrude",
         "dependencyMode": "live",
         "inputs": [
@@ -824,7 +824,7 @@
           "kind": "extrude",
           "distance": 100,
           "profile": {
-            "id": "loop:outline/segment-c598b2f8-4088-4911-b775-6912b1d0673d|outline/segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1|outline/segment-fbe1281d-821a-462b-8037-c40b0a72d6d0|outline/segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
+            "id": "loop:outline/segment-36231600-1d4c-4190-86f7-b110b13f77fa|outline/segment-38a77a1d-edc1-4e39-aa36-ec80b6e82dd0|outline/segment-5f29bd37-49e2-4306-bc18-98de8e09fbe2|outline/segment-736a3bdc-82c3-4046-9115-b788d6df6f3b",
             "workPlane": "XY",
             "normal": [
               0,
@@ -834,21 +834,7 @@
             "segments": [
               {
                 "kind": "line",
-                "topologyReference": "outline/segment-c598b2f8-4088-4911-b775-6912b1d0673d",
-                "start": [
-                  6000,
-                  0,
-                  2700
-                ],
-                "end": [
-                  6000,
-                  4000,
-                  2700
-                ]
-              },
-              {
-                "kind": "line",
-                "topologyReference": "outline/segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
+                "topologyReference": "outline/segment-36231600-1d4c-4190-86f7-b110b13f77fa",
                 "start": [
                   6000,
                   4000,
@@ -862,7 +848,7 @@
               },
               {
                 "kind": "line",
-                "topologyReference": "outline/segment-fbe1281d-821a-462b-8037-c40b0a72d6d0",
+                "topologyReference": "outline/segment-736a3bdc-82c3-4046-9115-b788d6df6f3b",
                 "start": [
                   0,
                   4000,
@@ -876,7 +862,7 @@
               },
               {
                 "kind": "line",
-                "topologyReference": "outline/segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1",
+                "topologyReference": "outline/segment-38a77a1d-edc1-4e39-aa36-ec80b6e82dd0",
                 "start": [
                   0,
                   0,
@@ -885,6 +871,20 @@
                 "end": [
                   6000,
                   0,
+                  2700
+                ]
+              },
+              {
+                "kind": "line",
+                "topologyReference": "outline/segment-5f29bd37-49e2-4306-bc18-98de8e09fbe2",
+                "start": [
+                  6000,
+                  0,
+                  2700
+                ],
+                "end": [
+                  6000,
+                  4000,
                   2700
                 ]
               }
@@ -894,15 +894,15 @@
               "court"
             ],
             "sourceTopologyIds": [
-              "outline/segment-c598b2f8-4088-4911-b775-6912b1d0673d",
-              "outline/segment-ff1579f4-a6ca-456f-9a9e-c651e9d5a681",
-              "outline/segment-fbe1281d-821a-462b-8037-c40b0a72d6d0",
-              "outline/segment-e483c31c-af26-4ee6-b00d-82e9be7a1ed1",
-              "court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e"
+              "outline/segment-36231600-1d4c-4190-86f7-b110b13f77fa",
+              "outline/segment-736a3bdc-82c3-4046-9115-b788d6df6f3b",
+              "outline/segment-38a77a1d-edc1-4e39-aa36-ec80b6e82dd0",
+              "outline/segment-5f29bd37-49e2-4306-bc18-98de8e09fbe2",
+              "court/curve-ce6c9d68-1238-48d9-86dc-6566c5bec31f"
             ],
             "holes": [
               {
-                "id": "loop:court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e",
+                "id": "loop:court/curve-ce6c9d68-1238-48d9-86dc-6566c5bec31f",
                 "workPlane": "XY",
                 "normal": [
                   0,
@@ -913,12 +913,12 @@
                   "court"
                 ],
                 "sourceTopologyIds": [
-                  "court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e"
+                  "court/curve-ce6c9d68-1238-48d9-86dc-6566c5bec31f"
                 ],
                 "segments": [
                   {
                     "kind": "circle",
-                    "topologyReference": "court/curve-99bcd4da-51d8-45c6-a20e-9276ba8f2d6e",
+                    "topologyReference": "court/curve-ce6c9d68-1238-48d9-86dc-6566c5bec31f",
                     "center": [
                       3000,
                       2000,
@@ -992,9 +992,9 @@
         "visible": true,
         "locked": false,
         "objectIds": [
-          "content-8006bcb7-e9d7-44be-bf21-ca13fd990497",
-          "slab-07ab37b7-c788-456c-90b4-065c927dd878",
-          "slab-76f97933-f8ae-4839-8e0c-3e28200d9692"
+          "content-63425e9d-6482-42cc-b6d6-62e7042a4ba1",
+          "slab-e0d4c2bf-85d3-41b3-8388-5015adb1e1ff",
+          "slab-c9edac2e-9998-41b3-986c-0b1365ced0ec"
         ]
       }
     },
@@ -1004,17 +1004,17 @@
       "court",
       "axis",
       "wall",
-      "content-8006bcb7-e9d7-44be-bf21-ca13fd990497",
-      "slab-07ab37b7-c788-456c-90b4-065c927dd878",
-      "slab-76f97933-f8ae-4839-8e0c-3e28200d9692"
+      "content-63425e9d-6482-42cc-b6d6-62e7042a4ba1",
+      "slab-e0d4c2bf-85d3-41b3-8388-5015adb1e1ff",
+      "slab-c9edac2e-9998-41b3-986c-0b1365ced0ec"
     ],
     "rootLayers": [
       "layer-default",
       "layer-architecture-fitout"
     ],
     "componentLibrary": {
-      "component-f7a64335-3b60-430c-8b87-3d8c2bc44f85": {
-        "id": "component-f7a64335-3b60-430c-8b87-3d8c2bc44f85",
+      "component-9e212b2f-54ea-426f-ad53-b20719006a59": {
+        "id": "component-9e212b2f-54ea-426f-ad53-b20719006a59",
         "name": "Door insert",
         "domain": "model",
         "type": "primitive",

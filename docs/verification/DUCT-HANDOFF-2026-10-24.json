@@ -1,0 +1,105 @@
+{
+  "id": "DUCT-HANDOFF-2026-10-24",
+  "status": "verified",
+  "task": "Eccentric reducer from ordered 2D circles with two drilled flanges",
+  "canonicalTools": 39,
+  "mcpTools": 42,
+  "humanFormTools": [
+    "solid.primitive",
+    "solid.parameter",
+    "solid.extrude",
+    "solid.boolean",
+    "curve.circle",
+    "solid.loft"
+  ],
+  "improvements": [
+    "Human circle and ordered-loft forms call existing canonical tools.",
+    "Up/down reorders the actual native selection, invalidates stale MCP contexts and cancels pending reviews.",
+    "Read-only 3D solids / 2D profiles filters separate a real part from equally named section outputs without selecting or altering it."
+  ],
+  "browserChecks": {
+    "ductHandoff": 45,
+    "enclosureHandoff": 52,
+    "sharedToolHandoff": 38,
+    "mcpBridge": 24,
+    "cadToolsAdvanced": 17
+  },
+  "unitChecks": 57,
+  "productionBuild": "passed; existing chunk-size warning",
+  "architectureModules": 794,
+  "modelRequests": 0,
+  "expectedVolumesMm3": {
+    "outer": 1187522.0230569418,
+    "duct": 194527.41711028,
+    "inlet": 72482.8257036237,
+    "outlet": 40011.32403611961,
+    "final": 307021.5668500233
+  },
+  "expectedBoundsMm": {
+    "min": [
+      -78,
+      -78,
+      -8
+    ],
+    "max": [
+      88,
+      78,
+      188
+    ]
+  },
+  "geometryVerification": [
+    "Natural-language and human ruled lofts agree with the independent oblique-frustum formula.",
+    "Inner subtraction, annular extrusions and eight drilled bolt holes match independent exact volume calculations.",
+    "Final native BRep validity and exact bounds checked through MCP.",
+    "Native Undo/Redo and cache reload preserve section/source IDs and ordered input graph."
+  ],
+  "files": {
+    "duct.webcad.json": {
+      "bytes": 343467,
+      "sha256": "49edb43aed5a4661ed795dbf549328e6e94423fbd4e2d0a65e7818889c9b162f"
+    },
+    "duct.step": {
+      "bytes": 74069,
+      "sha256": "5bca1f384d6859cab4df20b0bc4fde46ca2fd194f614f7a92e14726a32ca4421"
+    },
+    "handoff.json": {
+      "bytes": 14171,
+      "sha256": "9f52556883dc0448ca13c4e4fedfc258c8f187c482ac09468479922e5580e7dd"
+    },
+    "ductInlet.svg": {
+      "bytes": 9427,
+      "sha256": "3a89edc50fe85c45a68905ff8f738dfd10b44e1522fb30bd6f4b6c5ff442fd22"
+    },
+    "ductInlet.dxf": {
+      "bytes": 1754,
+      "sha256": "6da736feb78ad3cd01c4682d1c6f19a2b6a463b1002e4a7d338f3e8f805729d2"
+    },
+    "ductOutlet.svg": {
+      "bytes": 10527,
+      "sha256": "1bd26ce1bc67dec30d5d36718848f7e251266ce6a669823ab35e073ba6c20b17"
+    },
+    "ductOutlet.dxf": {
+      "bytes": 1763,
+      "sha256": "baf344e5612bdf17018592341f8c5e05923d59dc423ece5ad119956ae1de2fac"
+    },
+    "ductLong.svg": {
+      "bytes": 3504,
+      "sha256": "458bd8cbc2cd0775db81d8db96487224cd136fa43aed908077589347d6d84e38"
+    },
+    "ductLong.dxf": {
+      "bytes": 7003,
+      "sha256": "af9b933846c81cacb32537d96fc22f9249191458a8b5eab48c98d8e24545bc63"
+    },
+    "native-editor.png": {
+      "bytes": 125688,
+      "sha256": "b62aaab33ce488be63ca59fa26d902b2c8e64d5a597da71379fd72ac307419ca"
+    }
+  },
+  "limits": [
+    "Radial section thickness 4 mm is not constant normal wall thickness.",
+    "Only ruled connection is exercised by this task.",
+    "Task geometry and call sequence were agent-authored; internal language remains bounded.",
+    "No airflow, pressure-loss, structural, weld, sheet-development or manufacturing-tolerance verification.",
+    "Not all manual CAD tools are exposed by MCP."
+  ]
+}

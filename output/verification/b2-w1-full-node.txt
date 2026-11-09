@@ -1367,7 +1367,7 @@ test at tests\architecturalIssue.test.ts:1:4772
   
   '20.00 mm'
   
-      at TestContext.<anonymous> (C:\Users\thefi\OneDrive\Desktop\agent-webcad\apps\web\tests\architecturalIssue.test.ts:27:1606)
+      at TestContext.<anonymous> (<workspace>\apps\web\tests\architecturalIssue.test.ts:27:1606)
       at async Test.run (node:internal/test_runner/test:1389:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
     generatedMessage: true,
@@ -1397,7 +1397,7 @@ test at tests\architecture.test.ts:1:1630
   + ]
   - []
   
-      at TestContext.<anonymous> (C:\Users\thefi\OneDrive\Desktop\agent-webcad\apps\web\tests\architecture.test.ts:34:10)
+      at TestContext.<anonymous> (<workspace>\apps\web\tests\architecture.test.ts:34:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1382:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:960:18)

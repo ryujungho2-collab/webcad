@@ -1,0 +1,86 @@
+{
+  "id": "COPILOT-ENCLOSURE-01",
+  "date": "2026-10-19",
+  "status": "passed-with-bounded-local-shortcuts",
+  "scope": "100×70×30 rounded enclosure; R4 outer corners; 2mm shell; Ø8 floor hole; Ø10 front port with depth2",
+  "checks": {
+    "fullNode": {
+      "passed": 1535,
+      "failed": 0
+    },
+    "targetedEnclosureFaceCutFaceHole": 11,
+    "browser": {
+      "enclosure": 22,
+      "faceCutRegression": 3,
+      "faceHoleRegression": 3,
+      "previous2d3dRegression": 18,
+      "total": 46
+    },
+    "build": "passed; existing Vite large chunk warning",
+    "typescript": "passed",
+    "architectureModules": 733
+  },
+  "environment": {
+    "browser": "Chrome headless",
+    "renderer": "SwiftShader",
+    "kernel": "OCCT real Worker"
+  },
+  "repair": "Face cut positive depth now uses the negative oriented face normal, replacing the body-vertex-average direction heuristic which failed on cavity floors.",
+  "newShortcuts": [
+    "inner floor +Z below upper rim",
+    "front outermost world -Y planar face"
+  ],
+  "stepRoundtrip": {
+    "status": "passed",
+    "validity": "valid",
+    "volumeMm3": 32018.495498926844,
+    "expectedVolumeMm3": 32018.495498926655,
+    "bounds": {
+      "min": [
+        -8.881784197001e-16,
+        -8.881784197001e-16,
+        0
+      ],
+      "max": [
+        100,
+        70,
+        30
+      ]
+    },
+    "volumeToleranceMm3": 0.02,
+    "lengthToleranceMm": 0.001,
+    "innerFloorOrigin": [
+      49.99999999999999,
+      35,
+      2
+    ],
+    "frontOrigin": [
+      50,
+      -8.881784197001252e-16,
+      15
+    ],
+    "meaning": "Actual browser-exported STEP reread using same OCCT kernel; dimensions and rounded-shell-minus-holes volume independently analytical"
+  },
+  "prompts": [
+    "100x70 사각형 스케치",
+    "선택한 윤곽 30mm 돌출",
+    "수직 모서리 반지름 4mm 필렛",
+    "윗면 제거 두께 2mm 셸",
+    "안쪽 바닥 중심에 지름 8mm 관통 구멍",
+    "앞면 중심에 지름 10mm 깊이 2mm 구멍"
+  ],
+  "artifacts": {
+    "model.webcad.json": "59242780e3032d090b536bf942cb8e4ab461814ee85130bea0cebe5bd924b679",
+    "model.step": "a87cb38ab437401ac8b4fada29edaaffa945ec186e7c303746340989973eef5e",
+    "sketch-2d.png": "2dbbc751fc361f7ae7587136c7dd2f314d764d7dc914e7a0747b3e0ec9025e3d",
+    "enclosure-3d.png": "44185237e08376808ea566596feff497cc113be1ebecb0989078911c09c6f071",
+    "native-report.json": "439a9a96001e1f4f52c41853617463705b830cc67003bbe8e2d7de9cead86d38",
+    "step-roundtrip-report.json": "b6cb00a7de1eff870bbe30f79fcbfeeac073a4319bc47540dda5be8ecaa47d4f"
+  },
+  "limits": [
+    "Local rules grammar, no live language model",
+    "Inner floor/front selectors use explicit world-axis and unique-plane assumptions, not general cavity reasoning",
+    "Center means selected face frame origin",
+    "Same-kernel STEP reread; expected dimensions and volume independently analytical"
+  ]
+}

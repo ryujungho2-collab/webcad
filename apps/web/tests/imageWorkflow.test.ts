@@ -1,3 +1,4 @@
+import { imageFillCrop } from "../src/properties/imagePlacement";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import * as THREE from "three";
@@ -295,4 +296,32 @@ test("canvas crop handle math edits the same normalized crop and clamps to a vis
   assert.deepEqual(corner, { x: .1, y: .15, width: .65, height: .7 }, "corner drag updates both crop axes in the same parameter model");
   const clamped = cropFromImageCropHandle(crop, "left", { x: 30, y: 0 }, 100, 60, 128, 128);
   assert.ok(clamped.width >= 1 / 128 && clamped.height === crop.height, "a crop edge cannot cross the opposite edge or remove the last source pixel");
+});
+
+
+test("image stacking is reviewed, undoable, serialized, and preserves source and unrelated object slots", async () => {
+  resetTestDocument(); const asset = testAsset();
+  for (const id of ["image-a", "image-b", "image-c"]) assert.equal((await dispatchCadCommand(insert(asset, id))).ok, true);
+  const before = [...cadDocument.rootObjects], bytes = JSON.stringify(cadDocument.rasterAssets);
+  const preview = await previewCadCommand({ type: "batch", commands: [
+    { type: "update-image", objectId: "image-a", opacity: .3 },
+    { type: "reorder-image", objectId: "image-a", direction: "front" },
+  ] });
+  assert.equal(preview.result.ok, true); assert.deepEqual(cadDocument.rootObjects, before);
+  cadHistory.clear(); assert.equal((await applyCadPlan(preview.planId)).ok, true);
+  assert.deepEqual(cadDocument.rootObjects.slice(-3), ["image-b", "image-c", "image-a"]);
+  assert.equal(cadHistory.getPastLabels().length, 1);
+  assert.equal(JSON.stringify(cadDocument.rasterAssets), bytes);
+  assert.deepEqual(deserializeDocument(serializeDocument(cadDocument)).rootObjects, cadDocument.rootObjects);
+  undoDocument(); assert.deepEqual(cadDocument.rootObjects, before); redoDocument();
+  assert.equal((await dispatchCadCommand({type:"reorder-image",objectId:"image-a",direction:"front"})).ok,false);
+  const layer = cadDocument.layers[cadDocument.objects["image-a"].layerId]; layer.locked = true;
+  assert.equal((await dispatchCadCommand({type:"reorder-image",objectId:"image-a",direction:"back"})).ok,false);
+});
+
+test("centered image fill keeps source proportions for wide, tall and matching frames", () => {
+  assert.deepEqual(imageFillCrop(200,100,100,100),{x:.25,y:0,width:.5,height:1});
+  assert.deepEqual(imageFillCrop(100,200,100,100),{x:0,y:.25,width:1,height:.5});
+  assert.deepEqual(imageFillCrop(200,100,400,200),{x:0,y:0,width:1,height:1});
+  for(const bad of [0,-1,NaN,Infinity])assert.throws(()=>imageFillCrop(bad,100,100,100));
 });

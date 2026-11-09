@@ -1,0 +1,27 @@
+{
+  "date":"2026-10-19",
+  "status":"passed",
+  "scope":"23 common CAD tools: edge queries, world profiles/paths, revolve/sweep/loft and fillet/chamfer/shell",
+  "environment":{"os":"Windows","browser":"Microsoft Edge headless","viewport":"1440x1000","renderer":"SwiftShader","server":"Vite development","geometry":"real OpenCascade Worker"},
+  "checks":{
+    "fullNodeRegression":{"passed":1529,"failed":0,"suites":54,"durationMs":76399.2626},
+    "newTargetedNode":{"passed":11,"failed":0},
+    "newBrowser":{"passed":17,"failed":0},
+    "browserRegression":{"cadTools":19,"copilotEdit":25,"copilotSolid":18,"copilotGateway":13},
+    "productionBuild":"passed",
+    "typecheck":"passed",
+    "architectureAndDocumentationLinks":{"status":"passed","modules":726},
+    "independentStepReimport":"passed"
+  },
+  "oracles":{
+    "units":"mm and mm³",
+    "browserVolumes":{"revolveTube":"1500*pi","sweptCylinder":"480*pi","loftFrustum":"1750*pi","topOpenShell":7152},
+    "stepTotalVolumeMm3":18870.140597886668,
+    "stepExpectedVolumeMm3":18870.140597889927,
+    "stepBounds":{"min":[-40,-10,0],"max":[70,44,30]},
+    "volumeToleranceMm3":0.005,
+    "nodeFinishing":"40x30x20 box, vertical fillet r=2 or symmetric chamfer d=2, followed by 5x5x20 Boolean cut"
+  },
+  "artifacts":["../../output/verification/cad-tools-advanced/native-report.json","../../output/verification/cad-tools-advanced/viewport.png","../../output/verification/cad-tools-advanced/model.webcad.json","../../output/verification/cad-tools-advanced/model.step","../../output/verification/cad-tools-advanced/step-inspection.json"],
+  "limits":["Gateway responses use fixtures; no live model provider/server/authentication was connected.","Revolve uses a plane-local x/y axis through world origin. Sweep takes an open planar drawing path. Revolve/sweep/loft profiles have no holes.","Finishing queries exact topology of already-applied selected solids; new bodies require another reviewed request.","Symmetric chamfers only. Missing or unresolved topology is never replaced with a nearest reference.","Existing Vite main-chunk warning above 500kB remains."]
+}

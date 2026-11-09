@@ -1,7 +1,9 @@
+import {architecturalScopeIssue} from "./architecturalScope";
 import type { CadCommand } from "@agent-webcad/cad-commands";
 import { validateCommand } from "@agent-webcad/cad-commands";
 import type { ExtrudeProfile } from "@agent-webcad/cad-kernel";
 import { planeToWorld, WORK_PLANES, type Vec3, type WorkPlaneId } from "../precision/workPlane";
+import { planSolidPrompt } from "./copilotSolid";
 
 /**
  * Copilot plan pipeline.
@@ -46,6 +48,10 @@ export type CopilotGhost =
   };
 
 export type CopilotPlan = {
+  recipe?: import("./cadRecipes").RecipeRequest;
+  toolSteps?: string[];
+  /** Authoritative outputs for follow-up selection, derived locally rather than accepted from a gateway. */
+  resultObjectIds?: string[];
   /** Ready-to-dispatch command: single create or labelled batch. */
   command: CadCommand;
   /** One summary line per created object, shown in the panel and preview. */
@@ -64,7 +70,7 @@ export type CopilotPlanResult =
  * (validated commands only) so panel/preview/apply never change.
  */
 export interface CopilotBackend {
-  plan(input: string): CopilotPlanResult;
+  plan(input: string, context?: { document: import("@agent-webcad/cad-document").CadDocument; selection: string[] }): CopilotPlanResult;
 }
 
 const PRIMITIVE_KEYWORDS: { primitive: CopilotPrimitive; keywords: string[]; label: string }[] = [
@@ -356,7 +362,10 @@ function planProfile(
   return { ok: true, plan: { command, summary, ghosts } };
 }
 
-export function planCopilotCommand(input: string): CopilotPlanResult {
+export function planCopilotCommand(input: string, context?: { document: import("@agent-webcad/cad-document").CadDocument; selection: string[] }): CopilotPlanResult {
+  const scopeIssue=architecturalScopeIssue(input);if(scopeIssue)return {ok:false,reason:scopeIssue};
+  const solid = planSolidPrompt(input, context?.document, context?.selection);
+  if (solid) return solid;
   const normalized = input.trim().toLowerCase();
   if (!normalized) return { ok: false, reason: `Empty prompt. ${HINT}` };
   const primitive = detectPrimitive(normalized);
@@ -384,6 +393,7 @@ export const ruleCopilotBackend: CopilotBackend = { plan: planCopilotCommand };
  */
 export function withCopilotLayer(command: CadCommand, layerId: string): CadCommand {
   const bind = (entry: CadCommand): CadCommand => {
+    if (!["create-drawing", "create-primitive", "create-extrude", "create-sketch"].includes(entry.type)) return entry;
     if (entry.type === "move-object") return entry;
     if ("layerId" in entry && entry.layerId !== undefined && entry.layerId !== layerId)
       throw new Error(`The proposal targets layer '${entry.layerId}', outside the reviewed active layer '${layerId}'. Select that layer or correct the proposal, then Plan again.`);

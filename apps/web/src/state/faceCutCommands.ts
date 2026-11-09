@@ -17,7 +17,7 @@ export function sourceMesh(feature:CadFeature){
   return feature.type==="shell"?buildShellMesh(p):feature.type==="boolean"?buildBooleanMesh(p):feature.type==="extrude"?buildExtrudeMesh(p):feature.type==="fillet"?buildFilletMesh(p):feature.type==="chamfer"?buildChamferMesh(p):feature.type==="revolve"?buildRevolveMesh(p):feature.type==="sweep"?buildSweepMesh(p):feature.type==="loft"?buildLoftMesh(p):buildPrimitiveMesh(p);
 }
 
-/** Resolve tool travel in world space. Positive user depth travels toward the source body's centre. */
+/** Resolve tool travel in world space. Positive user depth travels into the selected oriented face. */
 export async function faceCutParams(document:CadDocument,definition:FaceCutDefinition,source:CadFeature):Promise<Record<string,unknown>>{
   const sketch:Sketch|undefined=document.sketches?.[definition.sketchId],profile=sketch&&faceSketchExtrusionProfile(sketch);
   if(!sketch?.faceFrame||!profile)throw Error("Face sketch is unresolved or needs exactly one closed profile.");
@@ -38,10 +38,10 @@ export async function cutParamsFromProfile(document:CadDocument,targetId:string,
   const points:THREE.Vector3[]=[];
   for(let i=0;i<mesh.positions.length;i+=3)points.push(new THREE.Vector3(mesh.positions[i],mesh.positions[i+1],mesh.positions[i+2]).applyMatrix4(matrix));
   if(!points.length)throw Error("Cut target has no geometry.");
-  const centre=points.reduce((sum,point)=>sum.add(point),new THREE.Vector3()).multiplyScalar(1/points.length);
-  const dot=centre.clone().sub(origin).dot(normal);
-  if(Math.abs(dot)<1e-7)throw Error("Cut direction is ambiguous for this face; choose another source face.");
-  const inward=dot>0?1:-1,direction=inward*Math.sign(depth);
+  // Attached BRep face frames use outward triangle winding. Material is on
+  // the negative-normal side, including cavity floors and concave faces;
+  // the body's vertex average can lie in empty space and reverse the cut.
+  const direction=-Math.sign(depth);
   const travel=points.map(point=>point.clone().sub(origin).dot(normal)*direction);
   const extent=Math.max(...travel),span=Math.max(...travel)-Math.min(...travel);
   const distance=direction*(through?Math.max(extent+Math.max(1,span*.01),Math.abs(depth)):Math.abs(depth));

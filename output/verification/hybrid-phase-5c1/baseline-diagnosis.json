@@ -1,0 +1,424 @@
+{
+  "definition": {
+    "version": 1,
+    "tolerance": 0.00001,
+    "regions": [
+      {
+        "id": "region-0",
+        "origin": [
+          5,
+          5,
+          0
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "loops": [
+          [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              10,
+              0
+            ],
+            [
+              10,
+              10,
+              0
+            ],
+            [
+              10,
+              0,
+              0
+            ]
+          ]
+        ],
+        "sourceFaceIds": [
+          "f0"
+        ],
+        "triangleCount": 2,
+        "maxPlaneResidual": 0,
+        "maxNormalAngleDegrees": 0,
+        "area": 100,
+        "adjacent": [
+          "region-1",
+          "region-2",
+          "region-3",
+          "region-4"
+        ]
+      },
+      {
+        "id": "region-1",
+        "origin": [
+          4.999999162512461,
+          1.67497842850816e-12,
+          5.000002512467811
+        ],
+        "normal": [
+          0,
+          -0.9999999999998749,
+          4.999999749999387e-7
+        ],
+        "loops": [
+          [
+            [
+              0.00001,
+              0.000002500000793746445,
+              10.00000100000375
+            ],
+            [
+              0,
+              0.0000025000002937439663,
+              9.99999999999875
+            ],
+            [
+              0,
+              -0.0000024999994562547946,
+              1.2499996656274141e-12
+            ],
+            [
+              10,
+              -0.0000024999994562547946,
+              1.2499996656274141e-12
+            ],
+            [
+              10,
+              0.0000025000002937439663,
+              9.99999999999875
+            ]
+          ]
+        ],
+        "sourceFaceIds": [
+          "f2",
+          "noise0"
+        ],
+        "triangleCount": 3,
+        "maxPlaneResidual": 0.0000074999992062544945,
+        "maxNormalAngleDegrees": 84.2893782188576,
+        "area": 100.0000502493781,
+        "adjacent": [
+          "region-0",
+          "region-2",
+          "region-4",
+          "region-5"
+        ]
+      },
+      {
+        "id": "region-2",
+        "origin": [
+          10,
+          5,
+          5
+        ],
+        "normal": [
+          1,
+          0,
+          0
+        ],
+        "loops": [
+          [
+            [
+              10,
+              0,
+              0
+            ],
+            [
+              10,
+              10,
+              0
+            ],
+            [
+              10,
+              10,
+              10
+            ],
+            [
+              10,
+              0,
+              10
+            ]
+          ]
+        ],
+        "sourceFaceIds": [
+          "f3"
+        ],
+        "triangleCount": 2,
+        "maxPlaneResidual": 0,
+        "maxNormalAngleDegrees": 0,
+        "area": 100,
+        "adjacent": [
+          "region-0",
+          "region-1",
+          "region-3",
+          "region-5"
+        ]
+      },
+      {
+        "id": "region-3",
+        "origin": [
+          5,
+          10,
+          5
+        ],
+        "normal": [
+          0,
+          1,
+          0
+        ],
+        "loops": [
+          [
+            [
+              10,
+              10,
+              0
+            ],
+            [
+              0,
+              10,
+              0
+            ],
+            [
+              0,
+              10,
+              10
+            ],
+            [
+              10,
+              10,
+              10
+            ]
+          ]
+        ],
+        "sourceFaceIds": [
+          "f4"
+        ],
+        "triangleCount": 2,
+        "maxPlaneResidual": 0,
+        "maxNormalAngleDegrees": 0,
+        "area": 100,
+        "adjacent": [
+          "region-0",
+          "region-2",
+          "region-4",
+          "region-5"
+        ]
+      },
+      {
+        "id": "region-4",
+        "origin": [
+          1.67497842850816e-12,
+          4.999999162512461,
+          5.000002512467811
+        ],
+        "normal": [
+          -0.9999999999998749,
+          0,
+          4.999999749999387e-7
+        ],
+        "loops": [
+          [
+            [
+              0.000002500000793746445,
+              0.00001,
+              10.00000100000375
+            ],
+            [
+              0.0000025000002937439663,
+              10,
+              9.99999999999875
+            ],
+            [
+              -0.0000024999994562547946,
+              10,
+              1.2499996656274141e-12
+            ],
+            [
+              -0.0000024999994562547946,
+              0,
+              1.2499996656274141e-12
+            ],
+            [
+              0.0000025000002937439663,
+              0,
+              9.99999999999875
+            ]
+          ]
+        ],
+        "sourceFaceIds": [
+          "f5",
+          "noise3"
+        ],
+        "triangleCount": 3,
+        "maxPlaneResidual": 0.0000074999992062544945,
+        "maxNormalAngleDegrees": 84.2893782188576,
+        "area": 100.0000502493781,
+        "adjacent": [
+          "region-0",
+          "region-1",
+          "region-3",
+          "region-5"
+        ]
+      },
+      {
+        "id": "region-5",
+        "origin": [
+          5.000003333333333,
+          5.000003333333333,
+          10.000000333333332
+        ],
+        "normal": [
+          5.000004996262982e-8,
+          5.000004996262982e-8,
+          0.9999999999999977
+        ],
+        "loops": [
+          [
+            [
+              0.00000999999999166665,
+              0.00000999999999166665,
+              10.000000833333166
+            ],
+            [
+              10.000000000000016,
+              1.666669994549721e-14,
+              10.000000333333666
+            ],
+            [
+              9.999999999999991,
+              9.999999999999991,
+              9.999999833333167
+            ],
+            [
+              1.666669994549721e-14,
+              10.000000000000016,
+              10.000000333333666
+            ]
+          ]
+        ],
+        "sourceFaceIds": [
+          "noise1",
+          "noise2"
+        ],
+        "triangleCount": 2,
+        "maxPlaneResidual": 3.3333366582541316e-7,
+        "maxNormalAngleDegrees": 0.0000037215130446689415,
+        "area": 99.99990000000048,
+        "adjacent": [
+          "region-1",
+          "region-2",
+          "region-3",
+          "region-4"
+        ]
+      }
+    ]
+  },
+  "regionAssignments": [
+    {
+      "id": "region-0",
+      "normal": [
+        0,
+        0,
+        -1
+      ],
+      "faces": [
+        "f0"
+      ]
+    },
+    {
+      "id": "region-1",
+      "normal": [
+        0,
+        -0.9999999999998749,
+        4.999999749999387e-7
+      ],
+      "faces": [
+        "f2",
+        "noise0"
+      ]
+    },
+    {
+      "id": "region-2",
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "faces": [
+        "f3"
+      ]
+    },
+    {
+      "id": "region-3",
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "faces": [
+        "f4"
+      ]
+    },
+    {
+      "id": "region-4",
+      "normal": [
+        -0.9999999999998749,
+        0,
+        4.999999749999387e-7
+      ],
+      "faces": [
+        "f5",
+        "noise3"
+      ]
+    },
+    {
+      "id": "region-5",
+      "normal": [
+        5.000004996262982e-8,
+        5.000004996262982e-8,
+        0.9999999999999977
+      ],
+      "faces": [
+        "noise1",
+        "noise2"
+      ]
+    }
+  ],
+  "contextual": [
+    {
+      "label": "solid",
+      "status": "BRepCheck_NoError"
+    },
+    {
+      "label": "shell",
+      "status": "BRepCheck_NoError"
+    }
+  ],
+  "date": "2026-10-29",
+  "regions": 6,
+  "tolerance": 0.00001,
+  "sewingTolerance": 0.00002,
+  "maxBoundaryGap": 0.000010606600595271228,
+  "faceValidities": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "sewing": {
+    "freeEdges": 0,
+    "multipleEdges": 0,
+    "deletedFaces": 0
+  },
+  "shellClosed": true,
+  "signedVolume": 999.999861111083,
+  "solidValid": false,
+  "invalid": []
+}

@@ -8,6 +8,7 @@ export type DxfImportStats = {
   entities: number;
   created: number;
   skipped: string[];
+  curveConversions?: string[];
   layers: string[];
   unitName: string;
   oriented?: number;
@@ -86,11 +87,13 @@ export function planParsedDxfImport(source: DxfParseResult, layerByName: Map<str
   } catch (error) {
     return { ok: false, reason: error instanceof Error ? error.message : "Invalid import settings.", stats: { entities: 0, created: 0, skipped: [], layers: [], unitName: source.unitName } };
   }
+  const importLayers=[...new Set([...parsed.layers,...Object.values(parsed.blocks).flatMap(block=>block.entities.map(entity=>entity.layer))])];
   const stats: DxfImportStats = {
     entities: parsed.entities.length,
     created: 0,
-    skipped: [...parsed.warnings],
-    layers: [...parsed.layers],
+    skipped: [...(parsed.rootWarnings??parsed.warnings)],
+    curveConversions: [...(parsed.curveConversions??[]).filter(note=>!parsed.blockDiagnostics||!note.startsWith('Block "'))],
+    layers: importLayers,
     unitName: parsed.unitName,
     preparation,
   };
@@ -100,7 +103,7 @@ export function planParsedDxfImport(source: DxfParseResult, layerByName: Map<str
 
   const commands: Exclude<CadCommand, { type: "batch" }>[] = [];
   const layerIds = new Map<string, string>();
-  parsed.layers.forEach((name, index) => {
+  importLayers.forEach((name, index) => {
     const existing = options?.reference ? undefined : layerByName.get(name);
     if (existing) {
       layerIds.set(name, existing);
@@ -117,7 +120,7 @@ export function planParsedDxfImport(source: DxfParseResult, layerByName: Map<str
   const blockIds=new Map<string,string>();
   const place=(entity:DxfEntity,command:Exclude<CadCommand,{type:"batch"}>)=>{if(entity.kind!=="spline"&&entity.kind!=="ellipse"&&entity.kind!=="elliptic-arc"&&entity.normal&&(command.type==="create-drawing"||command.type==="create-drafting")&&command.id){const p=command.type==="create-drafting"?dxfInsertPlacement([0,0,0],0,entity.normal):dxfPlacement({...command.params,kind:command.drawing},entity.normal);if(p.rotation.some(v=>v!==0))commands.push({type:"rotate-object",objectId:command.id,rotation:p.rotation});if(p.translation.some(v=>v!==0))commands.push({type:"move-object",objectId:command.id,translation:p.translation});}};
   const drawingCommand=(entity:DxfEntity,id:string,layerId:string):Exclude<CadCommand,{type:"batch"}>|null=>{
-    if(entity.kind==="text")return {type:"create-drafting",id,layerId,params:{kind:"text",workPlane:"XY",point:entity.point,text:entity.text,height:entity.height,angle:entity.angle,...(entity.align?{align:entity.align}:{})}};
+    if(entity.kind==="text")return {type:"create-drafting",id,layerId,params:{kind:"text",...(entity.dxfStyle?{dxfStyle:entity.dxfStyle}:{}),workPlane:"XY",point:entity.point,text:entity.text,height:entity.height,angle:entity.angle,...(entity.align?{align:entity.align}:{})}};
     if(entity.kind==="insert")return null;
     const plane=entityPlane(entity);if(!plane)return null;
     return {type:"create-drawing",id,layerId,drawing:entity.kind,params:{...entity,workPlane:plane}};
@@ -127,7 +130,7 @@ export function planParsedDxfImport(source: DxfParseResult, layerByName: Map<str
   const visiting=new Set<string>(),rejected=new Set<string>();
   const insert=(entity:Extract<DxfEntity,{kind:"insert"}>,id:string,layerId:string)=>{
     const blockId=blockIds.get(entity.block);if(!blockId)return false;
-    commands.push({type:"insert-block",id,blockId,layerId,position:[0,0,0],scale:entity.scale});
+    commands.push({type:"insert-block",id,blockId,layerId,position:[0,0,0],scale:entity.scale,...(entity.dxfStyle?{dxfStyle:entity.dxfStyle}:{})});
     const p=dxfInsertPlacement(entity.position,entity.angle,entity.normal);
     if(p.rotation.some(v=>v!==0))commands.push({type:"rotate-object",objectId:id,rotation:p.rotation});
     if(p.translation.some(v=>v!==0))commands.push({type:"move-object",objectId:id,translation:p.translation});
@@ -136,6 +139,7 @@ export function planParsedDxfImport(source: DxfParseResult, layerByName: Map<str
   const define=(name:string):boolean=>{
     if(blockIds.has(name))return true;if(rejected.has(name))return false;
     const block=parsed.blocks[name];
+    const diagnostics=parsed.blockDiagnostics?.[name];if(diagnostics){stats.skipped.push(...diagnostics.warnings);stats.curveConversions!.push(...diagnostics.conversions);}
     if(!block||visiting.has(name)){stats.skipped.push(`Missing or cyclic block ${name}; definition excluded.`);rejected.add(name);return false;}
     visiting.add(name);
     for(const entity of block.entities)if(entity.kind==="insert"&&!define(entity.block)){visiting.delete(name);rejected.add(name);return false;}
@@ -159,7 +163,8 @@ export function planParsedDxfImport(source: DxfParseResult, layerByName: Map<str
     commands.push({type:"define-block",id,name,objectIds:members,base:[0,0,0]});
     commands.push(...members.map(objectId=>({type:"set-object-visible" as const,objectId,visible:false})));blockIds.set(name,id);return true;
   };
-  for(const name of Object.keys(parsed.blocks))define(name);
+  if(options?.usedOnly===false)for(const name of Object.keys(parsed.blocks))define(name);
+  else for(const entity of parsed.entities)if(entity.kind==="insert")define(entity.block);
 
   const rootsStart = commands.length;
   let created = 0;
@@ -228,10 +233,12 @@ export function planParsedDxfImport(source: DxfParseResult, layerByName: Map<str
         }, layerId,
       });
     }
-    const createdCommand=commands.at(-1)!;place(entity,createdCommand);
+    const createdCommand=commands.at(-1)!;if(createdCommand.type==="create-drawing"&&entity.dxfStyle)createdCommand.params.dxfStyle=entity.dxfStyle;place(entity,createdCommand);
     created += 1;
     if(entity.normal)stats.oriented=(stats.oriented??0)+1;
   });
+  const hiddenCounts=new Map<string,number>();for(const warning of stats.skipped)if(warning.startsWith("Source-hidden DXF"))hiddenCounts.set(warning,(hiddenCounts.get(warning)??0)+1);
+  const reportedHidden=new Set<string>();stats.skipped=stats.skipped.flatMap(warning=>{const count=hiddenCounts.get(warning);if(!count)return [warning];if(reportedHidden.has(warning))return [];reportedHidden.add(warning);return [`${count} source-hidden entities: ${warning}`];});
   stats.created = created;
   if (!created) {
     return { ok: false, reason: "Every entity was skipped — see warnings.", stats };

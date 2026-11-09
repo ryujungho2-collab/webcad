@@ -233,14 +233,14 @@ B0-A만 분리한 검증 복사본에서 **677 Node / 54 suites / fail·skip 0**
 
 | 최신 검사 (2026-10-09, G5-B1) | 결과와 로그 |
 | --- | --- |
-| 전체 Node | [651 tests / 54 suites, fail·skip 0](../../output/g5-b1-node-final-2026-10-09.log) |
-| 전체 browser | [39 workflows / 834 checks](../../output/g5-b1-browser-final-2026-10-09.log), B1 35개·A3 26개·A2 15개·A1 13개 포함. 실제 React/Worker·CDP pointer·취소·이력·수동 인계 검사. Query local / Plan mock |
+| 전체 Node | 651 tests / 54 suites, fail·skip 0 (local-only, not in repository: `output/g5-b1-node-final-2026-10-09.log`) |
+| 전체 browser | 39 workflows / 834 checks (local-only, not in repository: `output/g5-b1-browser-final-2026-10-09.log`), B1 35개·A3 26개·A2 15개·A1 13개 포함. 실제 React/Worker·CDP pointer·취소·이력·수동 인계 검사. Query local / Plan mock |
 | 타입·architecture | `tsc -b` 통과, 318 modules·문서 링크 통과 |
-| 전체 production build | [workspace build 통과](../../output/g5-b1-build-final-2026-10-09.log). main 1,053.95 kB / viewport 618.81 kB, >500 kB 경고 유지. OpenCascade WASM 50,305.13 kB raw / 13,955.45 kB gzip |
+| 전체 production build | workspace build 통과 (local-only, not in repository: `output/g5-b1-build-final-2026-10-09.log`). main 1,053.95 kB / viewport 618.81 kB, >500 kB 경고 유지. OpenCascade WASM 50,305.13 kB raw / 13,955.45 kB gzip |
 
 원시 실행 로그는 로컬 생성 파일이며 Git에서는 제외한다. A3의 실제 workflow·제한은 [A3 기록](../implementation/G5-A3-COPILOT-APPLY-2026-10-08.md)에, 각도 기능은 [C2/C3 기록](../implementation/B3-C2-C3-ANGULAR-DIMENSION-2026-10-08.md)에 기록한다. 이전 수치는 [A2 검증 요약](../verification/G5-A2-CLOSEOUT-2026-10-08.json), [C3 검증 요약](../verification/B3-C3-CLOSEOUT-2026-10-08.json), [C1 검증 요약](../verification/B3-C1-CLOSEOUT-2026-10-08.json), [G5-A1 검증 요약](../verification/G5-A1-CLOSEOUT-2026-10-06.json)과 [G4/CAD 검증 요약](../verification/G4-CAD-CLOSEOUT-2026-10-06.json)에 유지한다.
 
-이전 G3-5A/I1 최초 전체 browser는 PDF native file fetch의 `Failed to fetch`로 중단됐으며 원인은 미확정이다. 이번 전체 회귀에서는 재현되지 않았다. [이전 실패 로그](../../output/integrated-browser-2026-10-06.log)를 보존한다. 2026-10-06 G4/CAD 최초 Node는 DXF 정밀도가 높아져 정수 문자열을 전제한 패턴 radius 검사 한 개가 실패했다. analytic circle 개수 검사를 유지하고 실제 radius와 세 center XYZ를 독립 수치 검증하도록 보강한 최종 전체는 통과했다.
+이전 G3-5A/I1 최초 전체 browser는 PDF native file fetch의 `Failed to fetch`로 중단됐으며 원인은 미확정이다. 이번 전체 회귀에서는 재현되지 않았다. 이전 실패 로그 (local-only, not in repository: `output/integrated-browser-2026-10-06.log`)를 보존한다. 2026-10-06 G4/CAD 최초 Node는 DXF 정밀도가 높아져 정수 문자열을 전제한 패턴 radius 검사 한 개가 실패했다. analytic circle 개수 검사를 유지하고 실제 radius와 세 center XYZ를 독립 수치 검증하도록 보강한 최종 전체는 통과했다.
 
 ## 제품 방향
 

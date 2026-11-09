@@ -1,0 +1,36 @@
+{
+  "task": "MEAS-H1",
+  "date": "2026-10-18",
+  "scope": "Read-only finite drawing hover distance with real world-space witnesses, projected/axis metrics and layer nearest supported object",
+  "checks": {
+    "fullNode": {"passed": 1421, "suites": 54, "note": "Before four additional geometry/lifecycle regressions and final evaluation-budget guard; covered by final focused run."},
+    "focusedNode": {"passed": 18},
+    "nativeBrowser": {"hoverDistance": 19, "selectionToolbar": 23},
+    "build": "passed",
+    "architecture": {"passed": true, "modules": 677}
+  },
+  "artifacts": [
+    "output/verification/hover-distance/native-report.json",
+    "output/verification/hover-distance/node-regression.log",
+    "output/verification/hover-distance/hover-1440.png",
+    "output/verification/hover-distance/hover-960.png",
+    "output/verification/hover-distance/distance.json",
+    "output/verification/hover-distance/source.webcad.json"
+  ],
+  "invariants": [
+    "No document, selection, History or native geometry submission changes during hover.",
+    "Both witnesses belong to actual source geometry and carry object/element identities and parameters.",
+    "Metric, world mm, document/revision/epoch, error enclosure and accuracy are explicit.",
+    "Zoom changes screen projection only; edits, Undo, cancellation and document replacement invalidate stale results.",
+    "Unsupported layer targets are disclosed; nearest supported object is identified by name and ID."
+  ],
+  "limits": [
+    "Finite point/line/polyline/rectangle, circle/arc/bulge, ellipse and positive rational spline geometry only.",
+    "No BRep/mesh/image/annotation/block/unbounded distances or filled-region containment.",
+    "World coordinates of stored geometry; no paper-scale/source-solid normalization.",
+    "Default tolerance 0.001 mm; unresolved budget results are approximate with a visible enclosure.",
+    "Floating-point geometric bounds with roundoff allowance, not arbitrary precision interval arithmetic.",
+    "512 pieces per object, 16384 initial pairs, 20000 evaluations per pair query, 80000 per layer; 32 eligible layer targets; 64 cached results.",
+    "Viewport-only state; no schema change or PDF reissue."
+  ]
+}

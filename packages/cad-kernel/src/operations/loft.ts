@@ -15,19 +15,24 @@ export async function loftProfiles(profiles: ExtrudeProfile[], ruled = false): P
   }
   const oc = (await CadEngine.create()).oc;
   const temporaries: { delete?: () => void }[] = [];
+  let phase="initialization";
   try {
     const loft = new oc.BRepOffsetAPI_ThruSections(true, ruled, 1e-4);
     temporaries.push(loft);
+    const spline=profiles[0].segments[0];
+    if(spline.kind==="spline"&&profiles.every(p=>p.segments.length===1&&p.segments[0].kind==="spline"&&p.segments[0].degree===spline.degree&&JSON.stringify(p.segments[0].knots)===JSON.stringify(spline.knots)))loft.CheckCompatibility(false);
     for (const profile of profiles) {
+      phase=`section wire ${profile.id}`;
       const wireMaker = buildProfileWire(oc, profile, temporaries);
-      loft.AddWire(wireMaker.Wire());
+      const wire=wireMaker.Wire();temporaries.push(wire);loft.AddWire(wire);
     }
-    loft.Build(new oc.Message_ProgressRange_1());
+    phase="surface construction";
+    const progress=new oc.Message_ProgressRange_1();temporaries.push(progress);loft.Build(progress);
     if (typeof loft.IsDone === "function" && !loft.IsDone()) {
       throw new Error("OpenCascade loft failed.");
     }
     return loft.Shape();
-  } finally {
+  } catch(error){throw Error(`Loft ${phase}: ${error instanceof Error?error.message:String(error)}`);} finally {
     for (const value of temporaries.reverse()) value.delete?.();
   }
 }

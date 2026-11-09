@@ -6,7 +6,7 @@ import { serializeDocument } from "@agent-webcad/cad-document";
 import "../src/styles.css";import "../src/ui/tokens.css";
 import { input, pause, waitFor, physical } from "./helpers/physicalInput";
 import { installBrowserChecks } from "./helpers/browserChecks";
-createRoot(document.getElementById("root")!).render(<ProjectWorkspace/>);
+createRoot(document.getElementById("root")!).render(<ProjectWorkspace startOnHome={false}/>);
 const button=document.getElementById("run") as HTMLButtonElement,output=document.getElementById("output")!;
 const tabs=()=>[...document.querySelectorAll<HTMLElement>('[role="tab"]')];
 const active=()=>document.querySelector<HTMLIFrameElement>('section:not([hidden]) > iframe')!;

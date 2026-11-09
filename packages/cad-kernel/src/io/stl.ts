@@ -25,7 +25,7 @@
  */
 export function importStl(filePath: string) {
   // Implementation copied from Cascade Studio's StandardLibrary.js
-  return null;
+  throw new Error("Legacy STL import is unsupported. No file was imported.");
 }
 
 /**
@@ -33,5 +33,5 @@ export function importStl(filePath: string) {
  */
 export function exportStl(shape: any, filePath: string) {
   // Implementation copied from Cascade Studio's StandardLibrary.js
-  return true;
+  throw new Error("Legacy STL export is unsupported. No file was written. Use the verified application STL export path.");
 }

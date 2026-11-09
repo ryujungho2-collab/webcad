@@ -1,3 +1,4 @@
+import { physical } from "./helpers/physicalInput";
 import { createRoot } from "react-dom/client";
 import { App } from "../src/App";
 import "../src/ui/tokens.css";
@@ -25,7 +26,7 @@ function find(name:string) { const item=Array.from(document.querySelectorAll<HTM
 function field(name:string){return document.querySelector<HTMLInputElement>(`[aria-label="${name}"]`)!;}
 function review(){return document.querySelector<HTMLElement>('[aria-label="Edit image size and crop review"]');}
 async function input(action:Record<string,unknown>){const run=new URLSearchParams(location.search).get("run"),response=await fetch(`/__browser_input?run=${run}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(action)});if(!response.ok)throw new Error(await response.text());return response;}
-async function physical(element:Element,modifiers=0){element.scrollIntoView({block:"center"});await pause();const box=element.getBoundingClientRect(),x=box.left+box.width/2,y=box.top+box.height/2,hit=document.elementFromPoint(x,y);if(!element.contains(hit))throw new Error(`Obscured control: ${element.outerHTML.slice(0,180)} by=${hit?.outerHTML.slice(0,180)} rect=${JSON.stringify({x:box.x,y:box.y,width:box.width,height:box.height})}`);await input({type:"mousePressed",x,y,button:"left",buttons:1,modifiers});await input({type:"mouseReleased",x,y,button:"left",buttons:0,modifiers});await pause();}
+
 async function drag(element:Element,dx:number,dy:number){const box=element.getBoundingClientRect(),x=box.left+box.width/2,y=box.top+box.height/2;if(!element.contains(document.elementFromPoint(x,y)))throw new Error(`Crop handle is obscured: ${element.outerHTML}`);await input({type:"mousePressed",x,y,button:"left",buttons:1});await input({type:"mouseMoved",x:x+dx,y:y+dy,button:"left",buttons:1});await input({type:"mouseReleased",x:x+dx,y:y+dy,button:"left",buttons:0});await pause();}
 async function click(name:string){const element=find(name);if(element.disabled)throw new Error(`Disabled control: ${name}`);await physical(element);await waitFor(()=>!isDocumentCommandPending());}
 async function text(name:string,value:string){await physical(field(name));await input({type:"key",key:"a",modifiers:2});await input(value?{type:"text",text:value}:{type:"key",key:"Backspace"});await pause();}
@@ -145,10 +146,30 @@ button.onclick=async()=>{
     const adjustmentApplyStarted=performance.now();await click("Apply image edit");metrics.adjustmentApplyFeedbackMs=performance.now()-adjustmentApplyStarted;
     check(JSON.stringify(cadDocument.features[`feature-${imageId}`].params.adjustments)===JSON.stringify({brightness:20,contrast:25,saturation:50})&&(cadDocument.features[`feature-${copyId}`].params.adjustments===undefined||JSON.stringify(cadDocument.features[`feature-${copyId}`].params.adjustments)===JSON.stringify({brightness:0,contrast:0,saturation:0}))&&JSON.stringify(cadDocument.rasterAssets?.[assetId])===JSON.stringify(source)&&cadHistory.getPastLabels().length===adjustmentHistoryStart+1,"Color adjustment applies once to the selected placement, keeps its duplicate independent, and preserves original asset bytes");
 
+    await click("Image placement · source, crop & order");
+    check(document.activeElement?.getAttribute("aria-label")==="Replace image source","Image context action opens and focuses source replacement in the inspector");
+    const sliderBaseline=state(); await physical(field("Image opacity slider")); await input({type:"key",key:"Home"}); await ready();
+    check(field("Image opacity").value==="0"&&state()===sliderBaseline,"Keyboard opacity slider synchronizes the precise field without saving");
+    await click("Cancel image edit");
+    const placementBaseline=state();
+    await click("Fill frame"); await ready();
+    check(state()===placementBaseline,"Fill frame stages a centered source crop without changing the document");
+    await click("Cancel image edit"); check(state()===placementBaseline,"Cancel discards the fill crop");
+    await click("Fill frame"); await ready(); await click("Apply image edit");
+    const filled=cadDocument.features[`feature-${imageId}`].params.crop;
+    check(filled.width===1&&Math.abs(filled.height-.5)<1e-8,"Fill frame applies a centered crop with source proportions preserved");
+    await click("Undo"); check(state()===placementBaseline,"Undo restores the crop before frame filling");
+    const stacking=document.querySelector<HTMLSelectElement>('[aria-label="Image stacking order"]')!;
+    await physical(stacking); await input({type:"key",key:"Home"}); await input({type:"key",key:"ArrowDown"}); await input({type:"key",key:"Enter"}); await ready();
+    check(state()===placementBaseline,"Image order remains detached until Apply");
+    await click("Apply image edit");
+    check(cadDocument.rootObjects.indexOf(imageId)>cadDocument.rootObjects.indexOf(copyId),"Bring to front persists the selected image above its duplicate");
+    await click("Undo"); check(state()===placementBaseline,"Undo restores image order and placement together");
+    await click("Redo");
     await click("Artboards");await click("New artboard");await waitFor(()=>!!cadDocument.artboards&&!!document.querySelector('[data-testid="artboards-panel"]'));
     const board=Object.values(cadDocument.artboards!)[0];
     const svgStartedAt=performance.now(),artboardImages=collectArtboardExportImages(board.id),svg=encodeSvg(collectArtboardExportDrawings(board.id),{images:artboardImages,viewBox:{origin:board.origin,size:board.size},background:board.background});metrics.artboardSvgGenerationMs=performance.now()-svgStartedAt;metrics.artboardSvgBytes=new Blob([svg]).size;
-    check(artboardImages.length===2&&svg.includes(source.dataUrl)&&svg.includes("artboard-crop")&&svg.includes("<ellipse")&&svg.includes('opacity="0.4"')&&svg.includes("raster-adjustment-0")&&svg.includes("feColorMatrix"),"An artboard SVG carries crop/mask/opacity and the reviewed placement color adjustment inside its board bounds");
+    check(artboardImages.length===2&&svg.includes(source.dataUrl)&&svg.includes("artboard-crop")&&svg.includes("<ellipse")&&svg.includes('opacity="0.4"')&&svg.includes("raster-adjustment-")&&svg.includes("feColorMatrix"),"An artboard SVG carries crop/mask/opacity and the reviewed placement color adjustment inside its board bounds");
     const currentMenu=document.querySelector<HTMLSummaryElement>(".app-menu summary")!;await physical(currentMenu);await click(`Export “${board.name}” SVG…`);const menuExport=await exported;
     check(!!menuExport&&menuExport.text.includes(source.dataUrl)&&menuExport.text.includes("artboard-crop")&&menuExport.text.includes('opacity="0.4"')&&menuExport.text.includes("feComponentTransfer"),"File menu hands off the actual artboard SVG with source pixels, crop, mask, opacity, color adjustment, and board clipping");
     await click("Save document");
